@@ -1,7 +1,7 @@
 
 # Contact info submission
 
-url: mozilla.org/
+url: firefox.com/
 site_owner: Mozilla Corporation
 address1: 149 New Montgomery Street
 address2: 4th floor
