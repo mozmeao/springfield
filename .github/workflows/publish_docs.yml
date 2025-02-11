@@ -1,4 +1,4 @@
-name: publish
+name: Publish documentation
 
 on:
   workflow_dispatch: # allow manual runs
@@ -27,11 +27,10 @@ jobs:
       - id: pages
         uses: actions/configure-pages@v5
       - run: pip install -r requirements/docs.txt
-      - run: cd docs
-      - run: mkdocs build -d site
+      - run: cd docs && mkdocs build -d site
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: ./docs/site
   deploy:
     environment:
       name: github-pages
