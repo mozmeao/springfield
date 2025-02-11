@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+    paths: # only build on relevant changes
+      - docs/**
+      - requirements/docs.*
+      - .github/workflows/publish_docs.yml
 
 permissions:
   contents: read
