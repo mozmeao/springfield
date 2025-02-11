@@ -1,0 +1,28 @@
+{
+  "name": "www.firefox.com Demos",
+  "description": "Demo deployments for changes to www.firefox.com",
+  "website": "https://www.firefox.com",
+  "repository": "https://github.com/mozmeao/springfield",
+  "success_url": "/healthz-cron/",
+  "stack": "container",
+  "env": {
+    "ALLOWED_HOSTS": "*",
+    "CSP_DEFAULT_SRC": "*.springfield.moz.works",
+    "CSP_EXTRA_FRAME_SRC": "*.mozaws.net",
+    "CSP_REPORT_ENABLE": "True",
+    "CSP_REPORT_URI": "https://o1069899.ingest.sentry.io/api/6260338/security/?sentry_key=97ec0cd426714b728e92f3b3aa62f00b",
+    "DB_DOWNLOAD_IGNORE_GIT": "True",
+    "DEBUG": "False",
+    "DEV": "True",
+    "LOG_LEVEL": "INFO",
+    "PROD_DETAILS_STORAGE": "product_details.storage.PDDatabaseStorage",
+    "RUN_SUPERVISOR": "True",
+    "SECURE_SSL_REDIRECT": "True",
+    "SECRET_KEY": {
+      "description": "A secret key for verifying the integrity of signed cookies, though we don't use them.",
+      "generator": "secret"
+    },
+    "SENTRY_DSN": "https://97ec0cd426714b728e92f3b3aa62f00b@o1069899.ingest.sentry.io/6260338",
+    "WEB_CONCURRENCY": "2"
+  }
+}

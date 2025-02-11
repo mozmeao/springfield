@@ -1,0 +1,27 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends 'base-protocol.html' %}
+
+{% block page_title_prefix %}{% endblock %}
+{% block page_title_suffix %}{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block site_header %}
+<header class="page-header">
+  <div class="mzp-l-content">
+    <div class="header-image">
+      <a class="logo-mozilla" href="https://www.mozilla.org/">
+          <img class="c-navigation-logo-image m24-logo" src="{{ static('img/logos/m24/lockup-black.svg') }}" alt="{{ ftl('error-page-mozilla') }}"  width="192" height="46">
+      </a>
+      <a class="logo-firefox" href="{{ url('firefox') }}"><img src="{{ static('protocol/img/logos/firefox/logo-word-hor.svg') }}" alt="{{ ftl('error-page-firefox') }}" width="140"></a>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block site_footer %}{% endblock %}

@@ -1,0 +1,29 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div id="{{ id }}" class="mzp-c-button-download-container c-button-download-thanks">
+  <a href="{{ transition_url }}"
+     class="download-link c-button-download-thanks-link mzp-c-button mzp-t-product {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
+     data-direct-link="{{ download_link_direct }}"
+     data-testid="{{ id }}"
+     data-cta-text="Download Firefox"
+     {% if download_location %}data-cta-position="{{ download_location }}"{% endif %}>
+    {% if alt_copy %}
+      {{ alt_copy }}
+    {% else %}
+      {{ ftl('download-button-download-firefox') }}
+    {% endif %}
+  </a>
+
+  {# ESR download buttons to display on unsupported systems: issue 13317 #}
+  {% include 'firefox/includes/download-unsupported.html' %}
+
+  <small class="mzp-c-button-download-privacy-link">
+    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+      {{ ftl('download-button-firefox-privacy-notice') }}
+    </a>
+  </small>
+</div>

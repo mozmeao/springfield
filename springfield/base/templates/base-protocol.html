@@ -1,0 +1,170 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<!doctype html>
+{# Note the "windows" class, without javascript platform-specific assets default to windows #}
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"{% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}"{% endif %} {% block html_attrs %}{% endblock %}>
+  <head>
+    <meta charset="utf-8">{# Note: Must be within first 512 bytes of page #}
+
+    <!--[if !IE]><!-->
+    {{ js_bundle('site') }}
+
+    {% block experiments %}{% endblock %}
+    <!--<![endif]-->
+
+    <!--[if IE 9]>
+    {{ js_bundle('site-ie') }}
+    <![endif]-->
+
+<!--
+{% include "includes/careers-teaser.html" %}
+-->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_meta %}{% endblock %}
+
+    {% block shared_meta %}
+    <title>{% filter striptags %}{% block page_title %}{% endblock %}{% endfilter %}</title>
+    <meta name="description" content="{% filter striptags %}{% block page_desc %}{% endblock %}{% endfilter %}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Firefox">
+    <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
+    <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
+    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('protocol/img/logos/firefox/browser/og.png') }}{% endblock %}{% endfilter %}">
+    <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ self.page_title() }}{% endblock %}{% endfilter %}">
+    <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ self.page_desc() }}{% endblock %}{% endfilter %}">
+    <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
+    <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+    <meta name="twitter:site" content="@{% block twitter_id %}firefox{% endblock %}">
+    <meta name="twitter:domain" content="firefox.com">
+    <meta name="twitter:app:name:googleplay" content="{% block android_app_name %}Firefox{% endblock %}">
+    <meta name="twitter:app:id:googleplay" content="{% block android_app_id %}org.mozilla.firefox{% endblock %}">
+    <meta name="twitter:app:name:iphone" content="{% block iphone_app_name %}Firefox{% endblock %}">
+    <meta name="twitter:app:id:iphone" content="{% block iphone_app_id %}989804926{% endblock %}">
+    <meta name="twitter:app:name:ipad" content="{% block ipad_app_name %}Firefox{% endblock %}">
+    <meta name="twitter:app:id:ipad" content="{% block ipad_app_id %}989804926{% endblock %}">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% block page_ios_icon %}{{ static('img/favicons/firefox/browser/apple-touch-icon.png') }}{% endblock %}">
+    <link rel="icon" type="image/png" sizes="196x196" href="{% block page_favicon_large %}{{ static('img/favicons/firefox/browser/favicon-196x196.png') }}{% endblock %}">
+    <link rel="shortcut icon" href="{% block page_favicon %}{{ static('img/favicons/firefox/browser/favicon.ico') }}{% endblock %}">
+    {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
+    {% endblock shared_meta %}
+
+    {{ l10n_css() }}
+
+    <!--[if lt IE 9]>
+      {# Only needed for IE before v9 #}
+      <script src="{{ static('js/ie/libs/html5shiv.js') }}"></script>
+    <![endif]-->
+
+    <!--[if IE]>
+      {# Basic styles, only for IE9 and lower #}
+      {% block old_ie_styles %}
+        {{ css_bundle('common-old-ie') }}
+      {% endblock %}
+    <![endif]-->
+
+    <!--[if !IE]><!-->
+    {# Global styles, hidden from IE9 and lower #}
+    {% block site_css %}
+      {{ css_bundle('protocol-mozilla-2024') }}
+      {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
+        {{ css_bundle('m24-navigation-and-footer') }}
+      {% else %}
+        {{ css_bundle('legacy-navigation-and-footer') }}
+      {% endif %}
+    {% endblock %}
+
+    {# Page-specific styles, hidden from IE9 and lower #}
+    {% block page_css %}{% endblock %}
+    <!--<![endif]-->
+
+    {% block extrahead %}
+      {# Extra header stuff (scripts, styles, metadata, etc) seen by all browsers. Use the 'page_css' block for CSS you want to hide from IE9 and lower. #}
+    {% endblock %}
+  </head>
+
+  <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %} mzp-t-firefox" {% block body_attrs %}{% endblock %}>
+    <div id="strings"
+      data-global-close="{{ ftl('ui-close') }}"
+      data-global-next="{{ ftl('ui-next') }}"
+      data-global-previous="{{ ftl('ui-previous') }}"
+      {% block string_data %}{% endblock %}></div>
+
+    {% block consent_banner %}
+      {% include 'includes/banners/consent-banner.html' %}
+    {% endblock %}
+
+    {% block site_header %}
+      {% include 'includes/protocol/navigation/navigation.html' %}
+    {% endblock %}
+
+    {% block sub_navigation %}{% endblock %}
+
+    <div id="outer-wrapper">
+      {% block content %}{% endblock %}
+
+      {% block site_footer %}
+        {% include 'includes/protocol/footer/footer.html' %}
+      {% endblock %}
+
+      {# Banner is last in HTML as it's low priority for search engines and uses `data-nosnippet` (issue #8739) #}
+      {% block page_banner %}{% endblock %}
+    </div>
+
+    {# Issue 8444 #}
+    {% block sentry_client %}
+      {% if settings.SENTRY_FRONTEND_DSN and switch('sentry-js') %}
+        <!--[if !IE]><!-->
+          {# Sentry only runs on evergreen browsers so we exclude it from IE. #}
+          {{ js_bundle('sentry') }}
+        <!--<![endif]-->
+      {% endif %}
+    {% endblock %}
+
+    {% block site_js %}
+      <!--[if !IE]><!-->
+        {# Standard site JS bundles served to all evergreen browsers plus IE 10 and above. #}
+        {{ js_bundle('lib') }}
+        {{ js_bundle('fxa') }}
+        {{ js_bundle('data') }}
+        {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
+          {{ js_bundle('m24-ui') }}
+        {% else %}
+          {{ js_bundle('ui') }}
+        {% endif %}
+      <!--<![endif]-->
+
+      <!--[if IE 9]>
+        {# IE9 has its own lib JS bundle containing dependencies for anaytics and consent management. #}
+        {{ js_bundle('lib-ie') }}
+      <![endif]-->
+    {% endblock %}
+
+    {# Bug 1279291 #}
+    {% block stub_attribution %}
+      {% if settings.STUB_ATTRIBUTION_RATE %}
+        <!--[if IE 9]><!-->
+          {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
+          {{ js_bundle('stub-attribution') }}
+        <!--<![endif]-->
+      {% endif %}
+    {% endblock %}
+
+    <!--[if !IE]><!-->
+    {% block js %}{% endblock %}
+
+    {% block third_party_js %}{% endblock %}
+    <!--<![endif]-->
+
+    {% block consent_banner_js %}
+    <!--[if IE 9]><!-->
+      {# Consent banner is shown to all evergreen browsers plus IE9 and above #}
+      {{ js_bundle('consent-banner') }}
+    <!--<![endif]-->
+    {% endblock %}
+  </body>
+</html>

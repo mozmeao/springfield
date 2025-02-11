@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "base-error.html" %}
+
+{% block page_title %}{{ ftl('error-page-error-page-internal-server-error') }}{% endblock %}
+
+{% block page_css %}
+  {{ css_bundle('page_not_found') }}
+{% endblock %}
+
+{% block content %}
+  <main class="mzp-l-content message-section">
+    <h1 class="error-title">{{ ftl('error-page-something-went-wrong') }}</h1>
+    <p>
+      {{ ftl('error-page-its-probably-just-a-server-error') }}<br>
+      {{ ftl('error-page-you-can-also-try-refreshing', firefox="https://www.firefox.com", mozilla="https://www.mozilla.org/") }}
+    </p>
+  </main>
+{% endblock %}

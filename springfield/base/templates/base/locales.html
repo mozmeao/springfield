@@ -1,0 +1,40 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "base-protocol.html" %}
+
+{% block page_title %}Choose your language or locale to browse Mozilla.org{% endblock %}
+
+{% block page_desc %}
+  Select your country or region to indicate your preferred language. Learn how Mozilla puts people before profit, making products designed to keep the internet open to all.
+{% endblock %}
+
+{% block canonical_urls %}
+  {# This page should have a self referencing canonical URL but no hreflang entries #}
+  <link rel="canonical" href="{{ settings.CANONICAL_URL + '/locales/' }}">
+{% endblock %}
+
+{% block page_css %}
+  {{ css_bundle('locales') }}
+{% endblock %}
+
+{% block content %}
+<main class="mzp-l-content">
+  <header class="c-simple-header">
+    <h1 class="c-simple-header-title">Choose your language</h1>
+  </header>
+  {% for region, locales in settings.LOCALES_BY_REGION.items() %}
+    <section id="{{ region|slugify }}" class="c-block-list">
+      <h2 class="c-block-list-title">{{ region }}</h2>
+      <ul>
+        {% for loc in locales %}
+          <li lang="{{ loc }}"><a href="/{{ loc }}/" title="Browse Mozilla.org in the {{ languages[loc]['English'] }} language">{{ languages[loc]["native"] }}</a></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+</main>
+{% endblock %}

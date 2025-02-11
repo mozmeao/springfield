@@ -1,0 +1,43 @@
+
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% from "macros.html" import sub_nav with context %}
+
+{{ sub_nav(
+  title={
+    'text':  ftl('sub-navigation-firefox'),
+    'href':  url('firefox'),
+    'icon':  static('protocol/img/logos/firefox/logo.svg')
+  },
+  links=[
+    {
+      'text':  ftl('sub-navigation-desktop'),
+      'href':  url('firefox.download'),
+      'cta_name': 'Desktop'
+    },
+    {
+      'text': ftl('sub-navigation-mobile'),
+      'href': 'https://www.mozilla.org/' + LANG + '/firefox/browsers/mobile/',
+      'cta_name': 'Mobile'
+    },
+    {
+      'text': ftl('sub-navigation-features'),
+      'href': 'https://www.mozilla.org/' + LANG + '/firefox/features/',
+      'cta_name': 'Features'
+    },
+    {
+      'text': ftl('sub-navigation-compare-browsers'),
+      'href': 'https://www.mozilla.org/' + LANG + '/firefox/browsers/compare/',
+      'cta_name': 'Compare Browsers'
+    },
+    {
+      'text': ftl('sub-navigation-more'),
+      'href': 'https://www.mozilla.org/' + LANG + '/firefox/more/',
+      'cta_name': 'More'
+    }
+  ]
+) }}

@@ -1,0 +1,229 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros-protocol.html" import picto with context %}
+
+<section class="t-features">
+  {% if not hide_heading %}
+  <div class="mzp-c-section-heading">
+    <h2 class="mzp-u-title-3xs"><span>{{ ftl('firefox-developer-design-code-test') }}</span></h2>
+    <h3 class="mzp-u-title-sm">{{ ftl('firefox-developer-build-and-perfect') }}</h3>
+  </div>
+  {% endif %}
+
+  <div class="mzp-l-content mzp-l-columns mzp-t-columns-three mzp-t-content-xl">
+    {% call picto(
+      title=ftl('firefox-developer-inspector'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-inspector.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '202',
+          'height': 124,
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-inspect-and-refine') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-about-page-inspector') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-console'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-console.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '182',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-track-css') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/web_console/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-about-web-console') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-debugger'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-debugger.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '202',
+          'height': '110',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-powerful-javascript') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/debugger/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-debugger') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-network'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-network.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '232',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-monitor-network-requests') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/network_monitor/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-newtork-monitor') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-storage-panel'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-storage.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '134',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-add-modify-remove') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/storage_inspector/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-storage') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-responsive-design-mode'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-responsive-mode.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '194',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-test-sites-emulated') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/responsive_design_mode/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-responsive') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-visual-editing'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-visual-editing.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '112',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-fine-tuning-animations') }}</p>
+      <p>
+        <a href="https://hacks.mozilla.org/2015/11/developer-edition-44-creative-tools-and-more" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-visual-editing') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-performance'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-performance.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '202',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-unblock-bottlenecks') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/performance/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-performance') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-memory'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-memory.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '116',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-find-memory-leaks') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/memory/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-memory') }}
+        </a>
+      </p>
+    {% endcall %}
+
+    {% call picto(
+      title=ftl('firefox-developer-style-editor'),
+      body=True,
+      image=resp_img(
+        url='img/firefox/developer/feature-style-editor.svg',
+        optional_attributes={
+          'class': 'mzp-c-picto-image',
+          'width': '116',
+          'height': '124',
+          'loading': 'lazy'
+        }
+      ),
+    ) %}
+      <p>{{ ftl('firefox-developer-edit-and-manage') }}</p>
+      <p>
+        <a href="https://firefox-source-docs.mozilla.org/devtools-user/style_editor/" class="mzp-c-cta-link" rel="external">
+          {{ ftl('firefox-developer-learn-more-about-style') }}
+        </a>
+      </p>
+    {% endcall %}
+
+  </div>
+</section>

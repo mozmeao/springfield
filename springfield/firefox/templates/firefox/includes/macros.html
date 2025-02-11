@@ -1,0 +1,37 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% macro firefox_download_desktop_button_windows(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-win', build='32', position='primary cta') -%}
+  {% set class_name = 'os_win' if build == '32' else 'os_win64' %}
+  {% set os = 'win' if build == '32' else 'win64' %}
+  <div class="firefox-platform-button-windows">
+    <div class="firefox-platform-button">
+      <a class="download-link {{ class_name }} mzp-t-xl mzp-c-button mzp-t-product ga-product-download"
+        id="{{ id }}"
+        href="{{ settings.BOUNCER_URL }}?product=firefox-stub&os={{ os }}&lang={{ LANG }}"
+        data-download-version="{{ os }}"
+        data-cta-text="Download Now"
+        data-cta-type="firefox"
+        data-cta-position="{{ position }}"
+        >
+        <strong class="download-title">
+          {{ cta_copy }}
+        </strong>
+      </a>
+
+      <small class="mzp-c-button-download-privacy-link">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+          {{ ftl('download-button-firefox-privacy-notice') }}
+        </a>
+      </small>
+    </div>
+
+    {# ESR download buttons to display on unsupported systems: issue 13317 #}
+    {% with channel_name = 'Firefox' %}
+      {% include 'firefox/includes/download-unsupported.html' %}
+    {% endwith %}
+  </div>
+{%- endmacro %}

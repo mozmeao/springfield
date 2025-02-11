@@ -1,0 +1,42 @@
+{
+    "extends": "stylelint-config-standard-scss",
+    "rules": {
+        "declaration-empty-line-before": "never",
+        "declaration-no-important": true,
+        "color-function-notation": "legacy",
+        "alpha-value-notation": "number",
+        "property-no-vendor-prefix": null,
+        "value-no-vendor-prefix": null,
+        "at-rule-empty-line-before": null,
+        "no-descending-specificity": null,
+        "value-keyword-case": [
+            "lower",
+            {
+                "camelCaseSvgKeywords": true,
+                "ignoreFunctions": ["local"]
+            }
+        ],
+        "font-family-no-missing-generic-family-keyword": [
+            true,
+            {
+                "ignoreFontFamilies": ["FA-Icons-Contact"]
+            }
+        ],
+        "declaration-block-no-redundant-longhand-properties": [
+            true,
+            {
+                "ignoreShorthands": [
+                    "grid-area",
+                    "grid-column",
+                    "grid-gap",
+                    "grid-row",
+                    "grid-template",
+                    "inset"
+                ]
+            }
+        ],
+        "selector-not-notation": "simple",
+        "media-feature-range-notation": "prefix"
+    },
+    "ignoreFiles": ["media/css/libs/**/*"]
+}

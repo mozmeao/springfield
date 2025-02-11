@@ -1,0 +1,147 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Time Since Last Cron Task Runs</title>
+</head>
+
+<body>
+  <h1>Time Since Last Cron Task Runs</h1>
+  {% if success %}
+    <h2>✅ PASS</h2>
+  {% else %}
+    <h2>❌ FAIL</h2>
+  {% endif %}
+  <table>
+    <thead>
+      <tr>
+        <th>Task Name</th>
+        <th>Max Seconds</th>
+        <th>Seconds Since Last Run</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, maxt, realt, task_pass in results %}
+      <tr>
+        <td>{% if not task_pass %}<mark>{% endif %}{{ name }}{% if not task_pass %}</mark> ‼️{% endif %}</td>
+        <td align="right">{{ maxt }}</td>
+        <td align="right">{{ realt }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1 id="other-data">Other Site Data</h1>
+  <table>
+    <tbody>
+      <tr>
+        <td><b>Hostname</b></td>
+        <td>{{ server_info.name }}</td>
+      </tr>
+      <tr>
+        <td><b>Request Country</b></td>
+        <td>{{ country_code }}</td>
+      </tr>
+      {% if server_info.git_sha %}
+      <tr>
+        <td><b>Springfield Git SHA</b></td>
+        <td><a href="https://github.com/mozmeao/springfield/commit/{{ server_info.git_sha }}">{{ server_info.git_sha[:10] }}</a></td>
+      </tr>
+      {% endif %}
+
+      {% if SQLITE_DB_IN_USE %}
+      {% if server_info.db_git_sha %}
+      <tr>
+        <td><b>DB Git SHA</b></td>
+        <td><a href="https://github.com/mozmeao/springfield/commit/{{ server_info.db_git_sha }}">{{ server_info.db_git_sha[:10] }}</a></td>
+      </tr>
+      {% endif %}
+      {% if server_info.db_checksum %}
+      <tr>
+        <td><b>DB File Checksum</b></td>
+        <td>{{ server_info.db_checksum }}</td>
+      </tr>
+      {% endif %}
+      {% if server_info.db_last_update %}
+      <tr>
+        <td><b>DB Last Updated</b></td>
+        <td title="{{server_info.db_last_updated_timestamp}}">
+          {{ server_info.db_last_update }}
+        </td>
+      </tr>
+      {% endif %}
+      {% if server_info.db_file_name %}
+      <tr>
+        <td><b>DB File</b></td>
+        <td><a href="{{ server_info.db_file_url }}">{{ server_info.db_file_name }}</a></td>
+      </tr>
+      {% endif %}
+      {% endif %}
+      {% if most_recent_data_change_ts %}
+      <tr title="Timestamp of the most recent change to a data source">
+        <td><b>Latest data change</b></td>
+        <td>{{ most_recent_data_change_ts }}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h1 id="git-repos">External Git Repos</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Repo Name</th>
+        <th>Latest Commit</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="{{ fluent_repo.repo_url }}">L10n Fluent Files</a></td>
+        <td><a href="{{ fluent_repo.repo_url }}/commit/{{ fluent_repo.latest_ref }}">{{ fluent_repo.latest_ref[:10] }}</a></td>
+        <td{% if fluent_repo.last_updated_timestamp %} title="{{fluent_repo.last_updated_timestamp|datetime(settings.STRFTIME_FORMAT_INTERNAL_USE)}}"{% endif %}>
+          {{ fluent_repo.last_updated }}
+        </td>
+      </tr>
+      {% for repo in git_repos %}
+      <tr>
+        <td><a href="{{ repo.repo_url }}">{{ repo.repo_name }}</a></td>
+        <td><a href="{{ repo.commit_url }}">{{ repo.latest_ref[:10] }}</a></td>
+        <td{% if repo.last_updated_timestamp %} title="{{repo.last_updated_timestamp|datetime(settings.STRFTIME_FORMAT_INTERNAL_USE)}}"{% endif %}>
+          {{ repo.last_updated }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1 id="waffle-switches">Waffle Switches</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for switch in switches %}
+      <tr>
+        <td>{{ switch.name }}</td>
+        <td>{% if switch.active %}✅{% else %}❌{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="2">No switches found</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</body>
+</html>

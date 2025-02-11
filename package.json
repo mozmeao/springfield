@@ -1,0 +1,76 @@
+{
+  "name": "springfield",
+  "version": "0.0.1",
+  "description": "You can have all the money in the world, but there’s one thing you will never have — a dinosaur.",
+  "private": true,
+  "dependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@mozilla-protocol/core": "^19.2.0",
+    "@mozmeao/consent-banner": "^1.1.0",
+    "@mozmeao/cookie-helper": "^1.1.0",
+    "@mozmeao/dnt-helper": "^1.0.0",
+    "@mozmeao/trafficcop": "^3.0.0",
+    "@sentry/browser": "^8.47.0",
+    "babel-loader": "^9.2.1",
+    "caniuse-lite": "^1.0.30001690",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "sass": "^1.83.0",
+    "sass-loader": "^16.0.4",
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.11",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozmeao/springfield.git"
+  },
+  "author": "Mozilla",
+  "license": "MPL",
+  "bugs": {
+    "url": "https://bugzilla.mozilla.org/"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv-webpack": "^8.1.0",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.14.0",
+    "jasmine-browser-runner": "^2.5.0",
+    "jasmine-core": "^5.5.0",
+    "prettier": "^3.3.3",
+    "sinon": "^19.0.2",
+    "stylelint": "^16.10.0",
+    "stylelint-config-standard-scss": "^13.1.0",
+    "svgo": "^3.3.2",
+    "webpack-dev-server": "^5.2.0"
+  },
+  "scripts": {
+    "start": "concurrently --kill-others \"python manage.py runserver 0.0.0.0:8080\" \"npm run watch\"",
+    "lint-js": "npx eslint .",
+    "lint-css": "npx stylelint \"media/css/**/*.{css,scss}\"",
+    "lint": "npm run lint-js && npm run lint-css && npm run prettier-check",
+    "test-build": "webpack --config webpack.test.config.js --mode=development",
+    "jasmine": "npm run test-build && npx jasmine-browser-runner runSpecs --config=tests/unit/jasmine-browser.json && npx jasmine-browser-runner runSpecs --browser=chrome --config=tests/unit/jasmine-browser.json",
+    "jasmine-serve": "concurrently \"webpack --watch --config webpack.test.config.js --mode=development\" \"npx jasmine-browser-runner serve --config=tests/unit/jasmine-browser.json\"",
+    "test": "npm run lint && npm run jasmine",
+    "static": "webpack --config webpack.static.config.js --mode=production --bail",
+    "prebuild": "npm run static",
+    "build": "webpack --mode=production --bail --progress",
+    "prewatch": "npm run static",
+    "watch": "webpack serve --mode=development --progress",
+    "prettier": "prettier --write .",
+    "prettier-check": "prettier --check .",
+    "stylelint-fix": "npx stylelint \"media/css/**/*.{css,scss}\" --fix",
+    "format": "npm run prettier && npm run stylelint-fix"
+  },
+  "browserslist": [
+    "defaults",
+    "IE 8"
+  ]
+}

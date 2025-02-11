@@ -1,0 +1,55 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: '/'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 20
+    labels:
+      - Backend
+      - dependencies
+  - package-ecosystem: npm
+    directory: '/'
+    ignore:
+      # Owned NPM packages that require manual testing.
+      - dependency-name: '@mozilla-protocol/core'
+      - dependency-name: '@mozmeao/consent-banner'
+      - dependency-name: '@mozmeao/cookie-helper'
+      - dependency-name: '@mozmeao/dnt-helper'
+      - dependency-name: '@mozmeao/trafficcop'
+      # Need to be kept in sync with pre-commit-config.yaml.
+      - dependency-name: 'eslint'
+      - dependency-name: 'eslint-config-prettier'
+      - dependency-name: 'prettier'
+      - dependency-name: 'stylelint'
+      - dependency-name: 'stylelint-config-standard-scss'
+    schedule:
+      interval: monthly
+    groups:
+      frontend:
+        dependency-type: production
+        update-types:
+          - 'minor'
+          - 'patch'
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - 'minor'
+          - 'patch'
+    open-pull-requests-limit: 10
+    labels:
+      - Frontend
+      - dependencies
+  - package-ecosystem: npm
+    directory: '/tests/playwright'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    groups:
+      playwright:
+        update-types:
+          - 'minor'
+          - 'patch'
+    labels:
+      - Frontend
+      - dependencies

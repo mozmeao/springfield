@@ -1,0 +1,52 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+$font-path: '/media/protocol/fonts';
+$image-path: '/media/protocol/img';
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+.section-intro {
+    .intro-image-container {
+        padding-bottom: $spacing-2xl;
+        padding-top: $spacing-2xl;
+    }
+
+    .intro-image {
+        border-radius: $border-radius-md;
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+.section-subscribe {
+    padding: $spacing-lg 0;
+}
+
+.section-main-header {
+    padding-bottom: 0;
+    padding-top: 0;
+
+    .page-title {
+        @include text-title-lg;
+        text-align: center;
+    }
+
+    .tagline {
+        @include text-body-xl;
+        color: $color-marketing-gray-70;
+        margin: $spacing-lg auto $spacing-xl;
+        max-width: 30em;
+        text-align: center;
+    }
+}
+
+.section-newsletter-form {
+    padding-bottom: $spacing-2xl;
+    padding-top: $spacing-2xl;
+}
+
+.mzp-c-newsletter-thanks {
+    text-align: center;
+}

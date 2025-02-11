@@ -1,0 +1,69 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+$image-path: '/media/protocol/img';
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+@import '~@mozilla-protocol/core/protocol/css/components/card';
+@import '~@mozilla-protocol/core/protocol/css/components/emphasis-box';
+@import '~@mozilla-protocol/core/protocol/css/components/logos/logo';
+@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-developer';
+@import '~@mozilla-protocol/core/protocol/css/components/newsletter-form';
+@import '~@mozilla-protocol/core/protocol/css/components/picto';
+@import '~@mozilla-protocol/core/protocol/css/components/section-heading';
+@import '~@mozilla-protocol/core/protocol/css/components/split';
+@import "~@mozilla-protocol/core/protocol/css/templates/multi-column";
+@import '~@mozilla-protocol/core/protocol/css/templates/card-layout';
+
+
+.t-center {
+    text-align: center;
+}
+
+.t-features .mzp-c-section-heading,
+.t-features h3 {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+// highlights images are non-standard aspect ratio
+.t-highlights .mzp-c-card.mzp-has-aspect-16-9 .mzp-c-card-media-wrapper {
+    padding-bottom: 50.3%;
+}
+
+.t-engage .mzp-c-split {
+    padding-top: 0;
+}
+
+@supports (display:grid){
+    .mzp-l-columns::after {
+        display: none;
+    }
+}
+
+// index
+
+.show-linux {
+    display: none;
+
+     br {
+        display: none;
+     }
+
+     @media #{$mq-md} {
+        br {
+            display: inline;
+        }
+     }
+}
+
+.linux .show-linux {
+    display: block;
+}
+
+.intro-feedback-note {
+    @include text-body-xs;
+    margin: $spacing-sm auto 0;
+    max-width: $content-xs;
+}

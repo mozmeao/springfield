@@ -1,0 +1,6 @@
+user-agent: *
+{% if disallow_all -%}
+disallow: /
+{% else -%}
+disallow: /*/etc/
+{% endif -%}

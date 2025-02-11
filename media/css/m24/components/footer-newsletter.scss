@@ -1,0 +1,299 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@use '../vars/lib' as *;
+
+$max-footer-content-width: $content-max;
+
+@mixin divider-line {
+    border-bottom: $border-width solid $m24-color-light-gray;
+}
+
+// hide details for JS users
+// (displayed when email field is focused)
+.js .mzp-c-newsletter-details {
+    @include hidden;
+}
+
+// newsletter form
+.moz24-newsletter-container {
+    @include container;
+
+    &.c-newsletter.mzp-l-content {
+        padding-bottom: 0;
+    }
+
+    .moz24-newsletter-wrapper {
+        @include divider-line;
+        align-items: start;
+        display: flex;
+        flex-direction: column;
+        gap: $grid-gutter;
+        justify-content: space-between;
+        margin-bottom: $spacer-lg;
+        padding-bottom: $spacer-lg;
+        position: relative;
+
+        @media #{$mq-md} {
+            align-items: flex-start;
+            flex-direction: row;
+        }
+    }
+
+    // image and blurb
+
+    .moz24-newsletter-info {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: $grid-margin;
+
+        @media #{$mq-md} {
+            width: grid(5);
+        }
+
+        @media #{$mq-lg} {
+            width: grid(4);
+            flex-wrap: nowrap;
+        }
+
+        p {
+            margin-bottom: 0;
+            line-height: 1.3;
+            font-weight: 600;
+            font-family: $primary-font;
+            text-align: start;
+        }
+    }
+
+    .moz24-newsletter-image {
+        width: 40px;
+        @include bidi(((margin-right, $spacer-md, 0), (margin-left, 0, $spacer-md)));
+        margin-bottom: $spacer-md;
+
+        @media #{$mq-lg} {
+            @include bidi(((margin-right, $spacer-xl, 0), (margin-left, 0, $spacer-xl)));
+        }
+
+    }
+
+    // form
+
+    .moz24-newsletter {
+        width: 100%;
+
+        @media #{$mq-md} {
+            width: grid(6);
+        }
+
+        @media #{$mq-lg} {
+            width: grid(8);
+        }
+
+        h2 {
+            color: $m24-color-white;
+        }
+
+        .mzp-c-newsletter-thanks {
+            h3 {
+                color: $m24-color-black;
+            }
+
+            p {
+                font-family: $primary-font;
+                font-weight: 400;
+            }
+        }
+
+        .error-try-again-later {
+            font-family: $primary-font;
+            font-weight: 400;
+        }
+    }
+
+    .mzp-c-newsletter-header {
+        display: none;
+    }
+
+    .mzp-c-newsletter-content {
+        margin-bottom: 0;
+        max-width: 800px;
+
+        label {
+            margin-bottom: 0;
+            line-height: 1.3;
+            font-weight: 600;
+            font-family: $primary-font;
+            text-align: start;
+
+            @media #{$mq-lg} {
+                display: inline-grid;
+
+                &:first-of-type {
+                    grid-column-start: 1;
+                }
+
+                &:nth-of-type(2) {
+                    grid-column-start: 2;
+                    grid-column-end: 3;
+                    grid-row-start: 1;
+                    grid-row-end: 2;
+                }
+            }
+        }
+
+        input[type="email"],
+        select {
+            border: $border-width solid $m24-color-black;
+            border-radius: 0;
+            background-color: $m24-color-light-gray;
+            color: $m24-color-black;
+
+            &:hover,
+            &:focus,
+            &:focus-visible,
+            &:focus-within {
+                color: $m24-color-white;
+                background-color: $m24-color-black;
+
+                &::placeholder {
+                    color: $m24-color-white;
+                }
+            }
+        }
+
+        input[type="email"] {
+            margin-bottom: $spacer-lg;
+            width: 100%;
+            font-family: $primary-font;
+
+            @media #{$mq-md} {
+                min-width: 100%;
+            }
+
+            &::placeholder {
+                color: $m24-color-dark-gray;
+            }
+        }
+
+        select {
+            font-family: $primary-font;
+            width: 100%;
+            @include bidi(((background-position, right 8px center, 8px center),));
+            background: $m24-color-light-gray url('/media/img/icons/m24-small/down-caret-white.svg') no-repeat;
+            background-size: 16px 16px;
+
+            @media #{$mq-lg} {
+                min-width: 100%;
+            }
+
+            &:hover,
+            &:focus,
+            &:focus-visible,
+            &:focus-within {
+                color: $m24-color-alt-white;
+                @include bidi(((background-position, right 8px center, 8px center),));
+                background: $m24-color-alt-black url('/media/img/icons/m24-small/down-caret.svg') no-repeat;
+                background-size: 16px 16px;
+            }
+        }
+    }
+
+    .mzp-c-newsletter-details-inner {
+        max-width: 100%;
+
+        @media #{$mq-lg} {
+            display: grid;
+            grid-template-columns: [full-width-start] 1fr 1fr [full-width-end];
+            column-gap: $spacer-lg;
+
+            > * {
+                grid-column: full-width;
+            }
+
+            // country input
+            label:first-of-type,
+            p:first-of-type {
+                grid-column-start: 1;
+                grid-column-end: 2;
+            }
+
+            // lang input
+            label:nth-of-type(2),
+            p:nth-of-type(2) {
+                grid-column-start: 2;
+                grid-column-end: 3;
+            }
+        }
+
+        p {
+            margin-bottom: 0;
+            line-height: 1.3;
+            font-weight: 600;
+            font-family: $primary-font;
+            text-align: start;
+
+            @media #{$mq-lg} {
+                display: inline-grid;
+            }
+
+            &:has(> label.mzp-u-inline) {
+                margin-bottom: $spacer-lg;
+
+                input {
+                    margin: 0;
+                }
+            }
+        }
+
+        .mzp-u-inline {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: $spacer-2xs;
+
+            input {
+                height: 20px;
+                width: 20px;
+            }
+        }
+
+        a:visited {
+            color: $m24-color-black;
+        }
+    }
+
+    .mzp-c-form-submit {
+        margin-bottom: 0;
+
+        button {
+            background-color: $m24-color-alt-white;
+            border: $border-width solid $m24-color-black;
+            border-radius: 0;
+            position: relative;
+            max-width: 800px;
+            width: 100%;
+            font-weight: 600;
+
+            &:hover,
+            &:focus-visible {
+                background-color: $m24-color-black;
+                color: $m24-color-white;
+            }
+
+            &:active {
+                background-color: $m24-color-white;
+                color: $m24-color-black;
+            }
+
+            @media #{$mq-md} {
+                width: fit-content;
+                display: flex;
+                justify-content: flex-start;
+            }
+        }
+    }
+
+    .mzp-c-fieldnote {
+        display: none;
+    }
+}

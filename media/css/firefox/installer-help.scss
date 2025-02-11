@@ -1,0 +1,46 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+$font-path: '/media/protocol/fonts';
+$image-path: '/media/protocol/img';
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+.mzp-c-card {
+    .mzp-c-card-desc {
+        margin: $spacing-xl 0;
+        height: $layout-lg;
+    }
+
+    .download-button,
+    .download-link {
+        width: 100%;
+        margin-top: $spacing-sm;
+    }
+}
+
+.installer-channel-card {
+    margin: 0 auto $spacing-2xl;
+    float: none;
+    text-align: center;
+}
+
+.install-help {
+    margin: 0 auto $spacing-2xl;
+    max-width: $content-xs;
+    text-align: center;
+
+    h2 {
+        @include text-title-xs;
+    }
+}
+
+.mzp-c-callout.mzp-t-hero.installer-callout {
+    background-color: #fff;
+
+    .mzp-l-content {
+        padding-bottom: $spacing-2xl;
+        padding-top: 0;
+    }
+}

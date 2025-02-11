@@ -1,0 +1,195 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+// * -------------------------------------------------------------------------- */
+// Should be replaced by https://github.com/mozilla/protocol/issues/471
+
+.c-sub-navigation {
+    background: $color-marketing-gray-10;
+
+    .mzp-l-content {
+        padding-top: 0;
+        padding-bottom: $spacing-md;
+    }
+
+    .c-sub-navigation-content {
+        padding-top: $spacing-md;
+    }
+
+    .c-sub-navigation-icon {
+        @include bidi((
+            (float, left, right),
+            (margin-right, $spacing-sm, margin-left, $spacing-sm),
+        ));
+        height: 24px;
+        vertical-align: middle;
+        width: 24px;
+    }
+
+    .c-sub-navigation-title {
+        display: inline-block;
+        font-family: var(--body-font-family);
+        font-size: var(--text-body-md);
+        font-weight: bold;
+        line-height: 1.5;
+        margin-bottom: 0;
+
+        a:link,
+        a:visited {
+            color: $color-black;
+            text-decoration: none;
+        }
+
+        a:hover,
+        a:focus,
+        a:active {
+            text-decoration: underline;
+        }
+    }
+
+    .c-sub-navigation-mobile-toggle {
+        @include bidi((
+            (float, right, left),
+            (margin-right, $spacing-sm, margin-left, $spacing-sm),
+        ));
+        @include text-body-md;
+        font-family: var(--body-font-family);
+        font-weight: bold;
+        width: 40%;
+
+        span {
+            @include visually-hidden;
+            display: block;
+        }
+
+        & button {
+            @include bidi(((text-align, left, right),));
+            @include text-body-md;
+            background-color: transparent;
+            border: 0;
+            color: inherit;
+            display: block;
+            font-weight: bold;
+            height: 24px;
+            margin-bottom: 0;
+            padding: 0;
+            position: relative;
+            width: 100%;
+        }
+
+        &.is-summary {
+            padding: 0;
+            margin: 0;
+
+            button:focus {
+                outline: 1px dotted $color-black;
+            }
+
+            button::before {
+                background: $url-image-arrow-down-form top left no-repeat;
+                @include background-size(24px, 24px);
+                @include bidi(((right, $spacing-xs, left, auto),));
+                @include transition(transform 100ms ease-in-out);
+                content: '';
+                height: 24px;
+                margin-top: -12px;
+                position: absolute;
+                top: 50%;
+                width: 24px;
+            }
+
+            button[aria-expanded='true']::before {
+                @include transform(rotate(180deg));
+            }
+        }
+    }
+
+    .c-sub-navigation-list {
+        margin: 0;
+
+        // minimize sub navigation on mobile by default to reduce CLS
+        // see issue https://github.com/mozilla/bedrock/issues/9823
+        &.is-closed {
+            display: none;
+
+            // ensure sub-nav is still accessible with JS disabled
+            .no-js & {
+                display: block;
+            }
+
+            @media #{$mq-md} {
+                display: block;
+            }
+        }
+
+        &.mzp-js-details-wrapper {
+            margin-top: $spacing-sm;
+        }
+    }
+
+    .c-sub-navigation-item {
+        padding: $spacing-xs 0;
+
+        a:link,
+        a:visited {
+            @include text-body-sm;
+            color: $color-black;
+            font-family: var(--body-font-family);
+            text-decoration: none;
+
+            &:hover,
+            &:focus,
+            &:active {
+                text-decoration: underline;
+            }
+        }
+
+        .mzp-c-button.mzp-t-product {
+            color: $color-blue-50;
+        }
+
+        a[aria-current='page'] {
+            font-weight: bold;
+        }
+    }
+
+    @media #{$mq-sm} {
+        .c-sub-navigation-mobile-toggle {
+            width: 50%;
+        }
+    }
+
+    @media #{$mq-md} {
+        @include clearfix;
+
+        .c-sub-navigation-title {
+            @include bidi((
+                (float, left, right),
+                (margin-right, $spacing-sm * 2, margin-left, 0),
+            ));
+            display: block;
+            margin-bottom: 0;
+        }
+
+        .c-sub-navigation-mobile-toggle {
+            display: none
+        }
+
+        .c-sub-navigation-list {
+            @include bidi((
+                (float, right, left),
+                (margin-right, -$spacing-sm, margin-left, 0),
+            ));
+
+            &.mzp-js-details-wrapper {
+                margin-top: 0;
+            }
+        }
+
+        .c-sub-navigation-item {
+            display: inline-block;
+            padding: 0 $spacing-sm;
+        }
+    }
+}

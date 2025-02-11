@@ -1,0 +1,32 @@
+# All content handled by the vendor or Mozilla staff should
+# be covered by the [[paths]] in this file, with the relevant locales.
+
+basepath = ".."
+
+locales = [
+    "ar",
+    "de",
+    "fr",
+    "hi-IN",
+    "id",
+    "ja",
+    "ms",
+]
+
+[[paths]]
+    reference = "en/**/*.ftl"
+    l10n = "{locale}/**/*.ftl"
+
+## Examples:
+
+# [[paths]]
+#     reference = "en/firefox/*.ftl"
+#     l10n = "{locale}/firefox/*.ftl"
+# [[paths]]
+#     reference = "en/firefox/*.ftl"
+#     l10n = "{locale}/firefox/*.ftl"
+#     locales = [
+#         "de",
+#         "fr",
+#         "ru",
+#     ]

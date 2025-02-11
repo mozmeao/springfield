@@ -1,0 +1,13 @@
+coverage:
+  status:
+    # See status checks but prevent them from blocking
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+comment:
+  require_changes: true
+github_checks:
+    annotations: false

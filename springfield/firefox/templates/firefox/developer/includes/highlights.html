@@ -1,0 +1,65 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros-protocol.html" import card with context %}
+
+<section class="t-highlights mzp-l-content mzp-l-card-half mzp-t-content-xl">
+  {{ card(
+    attributes='id="inactive"',
+    class='mzp-c-card-medium',
+    tag_label=ftl('firefox-developer-new-tools'),
+    ga_title='Pioneers of The Open Web',
+    title=ftl('firefox-developer-inactive-css'),
+    desc=ftl('firefox-developer-firefox-devtools-now-grays-out'),
+    image=resp_img('img/firefox/developer/hero-inactive-css.png', srcset={'img/firefox/developer/hero-inactive-css-high-res.png': '2x'}, optional_attributes={'alt': ftl('firefox-developer-inactive-css'), "loading": "lazy", "class": "mzp-c-card-image", "height": "280", "width": "560"}),
+    aspect_ratio='mzp-has-aspect-16-9',
+    link_url='https://hacks.mozilla.org/2019/10/firefox-70-a-bountiful-release-for-all/#developertools',
+    link_rel='external',
+    cta=ftl('ui-learn-more')
+  )}}
+
+  {{ card(
+    attributes='id="devtools"',
+    class='mzp-c-card-medium',
+    tag_label=ftl('firefox-developer-new-tools'),
+    ga_title='Pioneers of The Open Web',
+    title=ftl('firefox-developer-firefox-devtools'),
+    desc=ftl('firefox-developer-the-new-firefox-devtools'),
+    image=resp_img('img/firefox/developer/hero-debugger-ani.gif', optional_attributes={'alt': ftl('firefox-developer-firefox-devtools'), "loading": "lazy", "class": "mzp-c-card-image", "height": "280", "width": "560"}),
+    aspect_ratio='mzp-has-aspect-16-9',
+    link_url='https://mozilladevelopers.github.io/playground/debugger/',
+    link_rel='external',
+    cta=ftl('ui-learn-more')
+  )}}
+
+  {{ card(
+    attributes='id="cssgrid"',
+    class='mzp-c-card-medium',
+    tag_label=ftl('firefox-developer-master-innovative-features'),
+    ga_title='Pioneers of The Open Web',
+    title=ftl('firefox-developer-master-css-grid'),
+    desc=ftl('firefox-developer-firefox-is-the-only-browser'),
+    image=resp_img('img/firefox/developer/hero-cssgrid-ani.gif', optional_attributes={'alt': ftl('firefox-developer-master-css-grid'), "loading": "lazy", "class": "mzp-c-card-image", "height": "280", "width": "560"}),
+    aspect_ratio='mzp-has-aspect-16-9',
+    link_url='https://mozilladevelopers.github.io/playground/css-grid/',
+    link_rel='external',
+    cta=ftl('ui-learn-more')
+  )}}
+
+  {{ card(
+    attributes='id="fonts"',
+    class='mzp-c-card-medium',
+    tag_label=ftl('firefox-developer-faster-innovation'),
+    ga_title='Pioneers of The Open Web',
+    title=ftl('firefox-developer-fonts-panel'),
+    desc=ftl('firefox-developer-the-new-fonts-panel'),
+    image=resp_img('img/firefox/developer/hero-fonts.gif', optional_attributes={'alt': ftl('firefox-developer-fonts-panel'), "loading": "lazy", "class": "mzp-c-card-image", "height": "280", "width": "560"}),
+    aspect_ratio='mzp-has-aspect-16-9',
+    link_url='https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/how_to/edit_fonts/',
+    link_rel='external',
+    cta=ftl('ui-learn-more')
+  )}}
+</section>

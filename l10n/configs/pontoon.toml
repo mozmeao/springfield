@@ -1,0 +1,128 @@
+# All files translated by the community by at least some locales should
+# be covered by the [[paths]] in this file.
+
+basepath = ".."
+
+locales = [
+    "ach",
+    "af",
+    "am",
+    "an",
+    "ast",
+    "az",
+    "azz",
+    "be",
+    "bg",
+    "bn",
+    "br",
+    "bs",
+    "ca",
+    "cak",
+    "crh",
+    "cs",
+    "cy",
+    "da",
+    "dsb",
+    "el",
+    "en-CA",
+    "en-GB",
+    "eo",
+    "es-AR",
+    "es-CL",
+    "es-ES",
+    "es-MX",
+    "et",
+    "eu",
+    "fa",
+    "ff",
+    "fi",
+    "fy-NL",
+    "ga-IE",
+    "gd",
+    "gl",
+    "gn",
+    "gu-IN",
+    "he",
+    "hr",
+    "hsb",
+    "hu",
+    "hy-AM",
+    "ia",
+    "is",
+    "it",
+    "ka",
+    "kab",
+    "kk",
+    "km",
+    "kn",
+    "ko",
+    "lij",
+    "lo",
+    "lt",
+    "ltg",
+    "lv",
+    "mk",
+    "ml",
+    "mr",
+    "my",
+    "nb-NO",
+    "ne-NP",
+    "nl",
+    "nn-NO",
+    "oc",
+    "pa-IN",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "rm",
+    "ro",
+    "ru",
+    "sco",
+    "scn",
+    "si",
+    "sk",
+    "skr",
+    "sl",
+    "son",
+    "sq",
+    "sr",
+    "sv-SE",
+    "ta",
+    "te",
+    "tg",
+    "th",
+    "tl",
+    "tr",
+    "trs",
+    "uk",
+    "ur",
+    "uz",
+    "vi",
+    "wo",
+    "xh",
+    "zam",
+    "zh-CN",
+    "zh-TW",
+]
+
+[[paths]]
+    reference = "en/*.ftl"
+    l10n = "{locale}/*.ftl"
+[[paths]]
+    reference = "en/banners/**/*.ftl"
+    l10n = "{locale}/banners/**/*.ftl"
+[[paths]]
+    reference = "en/firefox/*.ftl"
+    l10n = "{locale}/firefox/*.ftl"
+[[paths]]
+    reference = "en/firefox/features/**/*.ftl"
+    l10n = "{locale}/firefox/features/**/*.ftl"
+[[paths]]
+    reference = "en/firefox/new/**/*.ftl"
+    l10n = "{locale}/firefox/new/**/*.ftl"
+[[paths]]
+    reference = "en/firefox/set-as-default/**/*.ftl"
+    l10n = "{locale}/firefox/set-as-default/**/*.ftl"
+[[paths]]
+    reference = "en/privacy/*.ftl"
+    l10n = "{locale}/privacy/*.ftl"

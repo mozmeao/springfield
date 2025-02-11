@@ -1,0 +1,468 @@
+{
+  "css": [
+    {
+      "files": [
+        "css/base/locales.scss"
+      ],
+      "name": "locales"
+    },
+    {
+      "files": [
+        "css/base/page-not-found.scss"
+      ],
+      "name": "page_not_found"
+    },
+    {
+      "files": [
+        "css/firefox/system-requirements.scss"
+      ],
+      "name": "firefox_system_requirements"
+    },
+    {
+      "files": [
+        "css/firefox/installer-help.scss"
+      ],
+      "name": "installer_help"
+    },
+    {
+      "files": [
+        "css/firefox/releases-index.scss"
+      ],
+      "name": "firefox_releases_index"
+    },
+    {
+      "files": [
+        "css/firefox/developer/developer.scss"
+      ],
+      "name": "firefox_developer"
+    },
+    {
+      "files": [
+        "css/firefox/download/basic/download.scss"
+      ],
+      "name": "firefox_download"
+    },
+    {
+      "files": [
+        "css/firefox/download/desktop/download.scss"
+      ],
+      "name": "firefox_desktop_download"
+    },
+    {
+      "files": [
+        "css/firefox/download/desktop/ie9.scss"
+      ],
+      "name": "firefox_desktop_download_ie9"
+    },
+    {
+      "files": [
+        "css/firefox/download/desktop/ie8.scss"
+      ],
+      "name": "firefox_desktop_download_ie8"
+    },
+    {
+      "files": [
+        "css/firefox/download/common/thanks-messaging.scss",
+        "css/firefox/download/desktop/thanks.scss"
+      ],
+      "name": "firefox_desktop_download_thanks"
+    },
+    {
+      "files": [
+        "css/firefox/download/desktop/thanks-ie.scss"
+      ],
+      "name": "firefox_desktop_download_thanks_ie"
+    },
+    {
+      "files": [
+        "css/firefox/download/common/thanks-messaging.scss",
+        "css/firefox/download/basic/thanks.scss"
+      ],
+      "name": "firefox_download_thanks"
+    },
+    {
+      "files": [
+        "css/firefox/download/basic/ie.scss"
+      ],
+      "name": "firefox_download_ie"
+    },
+    {
+      "files": [
+        "css/firefox/testflight.scss"
+      ],
+      "name": "firefox_ios_testflight"
+    },
+    {
+      "files": [
+        "css/firefox/features/picture-in-picture.scss"
+      ],
+      "name": "firefox-features-pip"
+    },
+    {
+      "files": [
+        "css/base/banners/firefox-app-store.scss"
+      ],
+      "name": "firefox-app-store-banner"
+    },
+    {
+      "files": [
+        "css/protocol/common-old-ie.scss"
+      ],
+      "name": "common-old-ie"
+    },
+    {
+      "files": [
+        "css/csrf-failure.scss"
+      ],
+      "name": "csrf-failure"
+    },
+    {
+      "files": [
+        "css/firefox/set-as-default/thanks.scss"
+      ],
+      "name": "firefox-default-thanks"
+    },
+    {
+      "files": [
+        "css/firefox/all.scss"
+      ],
+      "name": "firefox_all"
+    },
+    {
+      "files": [
+        "css/firefox/features/index.scss"
+      ],
+      "name": "firefox-features-index"
+    },
+    {
+      "files": [
+        "css/firefox/features/article.scss"
+      ],
+      "name": "firefox-features-article"
+    },
+    {
+      "files": [
+        "css/firefox/set-as-default/landing.scss"
+      ],
+      "name": "firefox-default-landing"
+    },
+    {
+      "files": [
+        "css/firefox/enterprise/landing.scss"
+      ],
+      "name": "firefox-enterprise"
+    },
+    {
+      "files": [
+        "css/firefox/releasenotes.scss"
+      ],
+      "name": "firefox_releasenotes"
+    },
+    {
+      "files": [
+        "css/newsletter/newsletter-firefox.scss"
+      ],
+      "name": "newsletter-firefox"
+    },
+    {
+      "files": [
+        "css/firefox/channel.scss"
+      ],
+      "name": "firefox_channel"
+    },
+    {
+      "files": [
+        "css/firefox/features/tips.scss"
+      ],
+      "name": "firefox_tips"
+    },
+    {
+      "files": [
+        "css/firefox/mozilla-account-promo.scss",
+        "css/firefox/home.scss"
+      ],
+      "name": "firefox-home"
+    },
+    {
+      "files": [
+        "css/protocol/components/split.scss"
+      ],
+      "name": "protocol-split"
+    },
+    {
+      "files": [
+        "css/protocol/components/cards.scss"
+      ],
+      "name": "protocol-card"
+    },
+    {
+      "files": [
+        "css/protocol/components/callout.scss"
+      ],
+      "name": "protocol-callout"
+    },
+    {
+      "files": [
+        "css/protocol/components/picto.scss"
+      ],
+      "name": "protocol-picto"
+    },
+    {
+      "files": [
+        "css/protocol/components/article.scss"
+      ],
+      "name": "protocol-article"
+    },
+    {
+      "files": [
+        "css/protocol/components/newsletter-form.scss"
+      ],
+      "name": "protocol-newsletter"
+    },
+    {
+      "files": [
+        "css/protocol/components/emphasis-box.scss"
+      ],
+      "name": "protocol-emphasis-box"
+    },
+    {
+      "files": [
+        "css/cms/base.scss"
+      ],
+      "name": "cms-base"
+    },
+    {
+      "files": [
+        "css/privacy/cookie-settings-form.scss"
+      ],
+      "name": "cookie-settings-form"
+    },
+    {
+      "files": [
+        "css/m24/root.scss",
+        "css/protocol/protocol-mozilla-2024.scss"
+      ],
+      "name": "protocol-mozilla-2024"
+    },
+    {
+      "files": [
+        "css/m24/navigation-and-footer.scss"
+      ],
+      "name": "m24-navigation-and-footer"
+    },
+    {
+      "files": [
+        "css/protocol/navigation-and-footer.scss"
+      ],
+      "name": "legacy-navigation-and-footer"
+    }
+  ],
+  "js": [
+    {
+      "files": [
+        "js/base/sentry-init.es6.js"
+      ],
+      "name": "sentry"
+    },
+    {
+      "files": [
+        "js/base/site.js",
+        "js/base/consent/privacy-helpers.js",
+        "js/base/mozilla-cookie-helper.js",
+        "js/base/banners/m24-pencil-banner-check.js"
+      ],
+      "name": "site"
+    },
+    {
+      "files": [
+        "js/base/site-ie.js",
+        "js/base/mozilla-cookie-helper.js"
+      ],
+      "name": "site-ie"
+    },
+    {
+      "files": [
+        "js/firefox/download/desktop/download.js"
+      ],
+      "name": "firefox_desktop_download"
+    },
+    {
+      "files": [
+        "js/firefox/download/common/thanks.js",
+        "js/firefox/download/common/thanks-init.js"
+      ],
+      "name": "firefox_download_thanks"
+    },
+    {
+      "files": [
+        "js/firefox/download/common/thanks.js",
+        "js/firefox/download/common/thanks-direct.es6.js"
+      ],
+      "name": "firefox_download_thanks_direct"
+    },
+    {
+      "files": [
+        "js/base/stub-attribution/stub-attribution.js",
+        "js/base/stub-attribution/stub-attribution-init.es6.js"
+      ],
+      "name": "stub-attribution"
+    },
+    {
+      "files": [
+        "js/base/protocol/modal-global.es6.js"
+      ],
+      "name": "protocol-modal"
+    },
+    {
+      "files": [
+        "js/newsletter/newsletter-init.es6.js"
+      ],
+      "name": "newsletter"
+    },
+    {
+      "files": [
+        "js/newsletter/newsletter-firefox-experiment.es6.js"
+      ],
+      "name": "newsletter-firefox-experiment"
+    },
+    {
+      "files": [
+        "js/firefox/features/features-article.es6.js"
+      ],
+      "name": "firefox_features_article"
+    },
+    {
+      "files": [
+        "js/firefox/set-as-default/thanks.js"
+      ],
+      "name": "firefox-default-thanks"
+    },
+    {
+      "files": [
+        "js/base/banners/firefox-app-store-banner.es6.js"
+      ],
+      "name": "firefox-app-store-banner"
+    },
+    {
+      "files": [
+        "js/firefox/home.js"
+      ],
+      "name": "firefox-home"
+    },
+    {
+      "files": [
+        "js/base/fxa-form-init.es6.js"
+      ],
+      "name": "fxa_form"
+    },
+    {
+      "files": [
+        "js/base/fxa-product-button-init.es6.js"
+      ],
+      "name": "fxa_product_button"
+    },
+    {
+      "files": [
+        "js/firefox/all/all-init.es6.js"
+      ],
+      "name": "firefox_all"
+    },
+    {
+      "files": [
+        "js/libs/classlist.js",
+        "js/libs/array-from.js",
+        "js/base/search-params.js",
+        "js/base/uitour-lib.js",
+        "js/base/mozilla-run.js",
+        "js/base/mozilla-utils.js",
+        "js/base/mozilla-client.js",
+        "js/base/protocol/utils.es6.js"
+      ],
+      "name": "lib"
+    },
+    {
+      "files": [
+        "js/libs/classlist.js",
+        "js/base/search-params.js"
+      ],
+      "name": "lib-ie"
+    },
+    {
+      "files": [
+        "js/base/protocol/init-details.es6.js",
+        "js/base/protocol/init-footer.es6.js",
+        "js/base/protocol/init-lang-switcher.es6.js",
+        "js/base/protocol/protocol-sub-navigation.js",
+        "js/base/base-page-init.js",
+        "js/base/protocol/protocol-menu.js",
+        "js/base/protocol/protocol-navigation.js",
+        "js/base/protocol/init-navigation.js"
+      ],
+      "name": "ui"
+    },
+    {
+      "files": [
+        "js/base/banners/m24-pencil-banner-init.es6.js",
+        "js/base/protocol/init-details.es6.js",
+        "js/base/protocol/init-lang-switcher.es6.js",
+        "js/base/protocol/protocol-sub-navigation.js",
+        "js/base/base-page-init.js",
+        "js/base/protocol/m24-menu.es6.js",
+        "js/base/protocol/m24-navigation.es6.js",
+        "js/base/protocol/init-m24-navigation.es6.js"
+      ],
+      "name": "m24-ui"
+    },
+    {
+      "files": [
+        "js/base/fxa-link-init.es6.js"
+      ],
+      "name": "fxa"
+    },
+    {
+      "files": [
+        "js/base/experiment-amo.es6.js",
+        "js/base/experiment-amo-init.es6.js",
+        "js/base/datalayer-productdownload-init.es6.js",
+        "js/base/datalayer-trackscroll-init.es6.js"
+      ],
+      "name": "data"
+    },
+    {
+      "files": [
+        "js/base/consent/init.es6.js"
+      ],
+      "name": "consent-banner"
+    },
+    {
+      "files": [
+        "js/privacy/cookie-settings-form-init.es6.js"
+      ],
+      "name": "cookie-settings-form"
+    },
+    {
+      "files": [
+        "js/firefox/enterprise/landing.js"
+      ],
+      "name": "firefox-enterprise"
+    },
+    {
+      "files": [
+        "js/base/error-pages.js"
+      ],
+      "name": "page_not_found"
+    },
+    {
+      "files": [
+        "js/base/video-inline-embed.es6.js"
+      ],
+      "name": "video-inline-embed"
+    },
+    {
+      "files": [
+        "js/base/video-modal-embed.es6.js"
+      ],
+      "name": "video-modal-embed"
+    }
+  ]
+}

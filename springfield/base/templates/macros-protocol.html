@@ -1,0 +1,251 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Split: https://protocol.mozilla.org/components/detail/split--default.html
+  HTML import: {% from "macros-protocol.html" import split with context %}
+  CSS Bundle: {% block page_css %} { css_bundle('protocol-split') }} {% endblock %}
+  Macro Parameters:
+    base_el: String for HTML element to use, defaults to 'section'
+    block_class: String providing class(es) to the base element tag.
+    block_id: String providing id to the base element tag (usually if it needs to be used as an in-page link).
+    body_class: String providing class(es) to the body (text content) div inside the section.
+    image: Can pass an <img> element, resp_img or picture Python helpers.
+    media_after: Boolean to determine if image appears before or after text when stacked on mobile size screens.
+    media_class: String providing class(es) to the media div inside the section.
+    media_include: Path to video media (if using a video element).
+    mobile_class: A special class so content can be centered and/or the image can be hidden on mobile viewports.
+    theme_class: String providing theme class(es) to a container div tag inside the section.
+#}
+{% macro split(
+  base_el='section',
+  block_class=None,
+  block_id=None,
+  body_class=None,
+  image=None,
+  media_after=False,
+  media_class=None,
+  media_include=None,
+  mobile_class=None,
+  theme_class=None
+) -%}
+<{{base_el}}{% if block_id %} id="{{ block_id }}"{% endif %} class="mzp-c-split{% if block_class %} {{ block_class }}{% endif %}{% if mobile_class %} {{ mobile_class }}{% endif %}">
+  {% if theme_class %}
+  <div class="mzp-c-split-bg {{ theme_class }}">
+  {% endif %}
+  <div class="mzp-c-split-container">
+    {% if not media_after %}
+      {% if image %}
+        <div class="mzp-c-split-media{% if media_class %} {{ media_class }}{% endif %}">
+          {{ image|safe }}
+        </div>
+      {% elif media_include %}
+        <div class="mzp-c-split-media{% if media_class %} {{ media_class }}{% endif %}">
+          {% include media_include %}
+        </div>
+      {% endif %}
+    {% endif %}
+    <div class="mzp-c-split-body{% if body_class %} {{ body_class }}{% endif %}">
+      {{ caller() }}
+    </div>
+    {% if media_after %}
+      {% if image %}
+        <div class="mzp-c-split-media{% if media_class %} {{ media_class }}{% endif %}">
+          {{ image|safe }}
+        </div>
+      {% elif media_include %}
+        <div class="mzp-c-split-media{% if media_class %} {{ media_class }}{% endif %}">
+          {% include media_include %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% if theme_class %}
+  </div>
+  {% endif %}
+</{{ base_el }}>
+{%- endmacro %}
+
+
+{#
+  Call Out: https://protocol.mozilla.org/components/detail/call-out--default.html
+  HTML import: {% from "macros-protocol.html" import callout with context %}
+  CSS bundle: {% block page_css %} {{ css_bundle('protocol-callout') }} {% endblock %}
+  Macro parameters:
+    title (Required): String indicating heading text (usually a translation id wrapped in ftl function).
+    desc: String indicating paragraph text (usually a translation id wrapped in ftl function).
+    class: String adding class(es) to the section tag.
+    include_cta: Boolean indicating whether or not to include the body of the macro call (usually a mix of text and html).
+    heading_level: Number indicating heading level for title text. Should be based on semantic meaning, not presentational styling.
+    brand: Boolean indicating whether or not to display a Mozilla product logo or wordmark.
+    brand_product: String indicating what Mozilla product is to be displayed.
+    brand_type: String for choosing whether a logo or a wordmark is to be displayed.
+    brand_size: String to indicate size of the logo or wordmark to be added.
+    brand_text: String naming the branding's product. Used for accessibility purposes. Is optional as it depends on if the logo/wordmark used is for decorative purposes or not.
+    content_width: String to declare size of the container using Protocol's content width classes (i.e. mzp-t-content-md / mzp-t-content-lg). When using this macro, only declare the T-shirt sizing strings we have in place (i.e. 'sm', 'md', 'lg', 'xl'). Content width of the Callout container's macro is defaulted to mzp-t-content-lg.
+#}
+{% macro callout(title, desc=None, class=None, include_cta=False, heading_level=2, brand=False, brand_product=None, brand_type=None, brand_size=None, brand_text=None, content_width=None) -%}
+<section class="mzp-c-callout {% if class %}{{ class }}{% endif %}">
+  <div class="mzp-l-content {% if content_width %}mzp-t-content-{{content_width}} {% else %} mzp-t-content-lg {% endif %}">
+    {% if brand %}<div class="mzp-t-callout-brand mzp-c-{{ brand_type }} mzp-t-{{ brand_type }}-{{ brand_size }} mzp-t-product-{{ brand_product }}">{{ brand_text }}</div>{% endif %}
+    <h{{ heading_level }} class="mzp-c-callout-title">{{ title }}</h{{ heading_level }}>
+    {% if desc %}
+    <p class="mzp-c-callout-desc">{{ desc }}</p>
+    {% endif %}
+    {% if include_cta %}
+      {{ caller() }}
+    {% endif %}
+  </div>
+</section>
+{%- endmacro %}
+
+
+{#
+  Call Out (compact): https://protocol.mozilla.org/components/detail/compact-callout--default.html
+  HTML import: {% from "macros-protocol.html" import callout with context %}
+  CSS bundle: {% block page_css %} {{ css_bundle('protocol-callout') }} {% endblock %}
+  Marco Parameters:
+    title (Required): String indicating heading text (usually a translation id wrapped in ftl function).
+    desc: String indicating paragraph text (usually a translation id wrapped in ftl function).
+    class: tring adding class(es) to the section tag.
+    heading_level: Number indicating heading level for title text. Should be based on semantic meaning, not presentational styling.
+#}
+{% macro callout_compact(title, desc=None, class=None, heading_level=2, brand=False, brand_product=None, brand_type=None, brand_size=None, brand_text=None) -%}
+<section class="mzp-c-callout mzp-l-compact {% if class %}{{ class }}{% endif %}">
+
+  <div class="mzp-l-content mzp-t-content-lg">
+    <div class="mzp-c-callout-content {% if brand %}mzp-c-callout-content-has-brand{% endif %}">
+      {% if brand %}<div class="mzp-t-callout-compact-brand mzp-c-{{ brand_type }} mzp-t-{{ brand_type }}-{{ brand_size }} mzp-t-product-{{ brand_product }}">{{ brand_text }}</div>{% endif %}
+      <div class="mzp-c-callout-container">
+        <h{{ heading_level }} class="mzp-c-callout-title">{{ title }}</h{{ heading_level }}>
+        {% if desc %}
+        <p class="mzp-c-callout-desc">{{ desc }}</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="mzp-c-callout-cta">
+      <div class="mzp-c-callout-cta-container">
+        {{ caller() }}
+      </div>
+    </div>
+  </div>
+</section>
+{%- endmacro %}
+
+
+{#
+  Card: https://protocol.mozilla.org/patterns/molecules/card.html
+  HTML import: {% from "macros-protocol.html" import card with context %}
+  CSS Bundle: {% block page_css %} {{ css_bundle('protocol-card') }} {% endblock %}
+  Macro Parameters:
+    aspect_ratio: String indicating size/aspect ratio of the card (make sure to have it even if it’s in a defined Card Layout
+    attributes: A generic parameter to add any extra attributes to the component, such as data or aria attributes. Note that the quotes
+    will pass through unescaped.
+    class: String adding class(es) to the section tag.
+    cta: String adding optional call to action for the card.,
+    desc: String indicating paragraph text (usually a translation id wrapped in ftl function).,
+    ga_title (Required): String providing value for data-link-text attribute on cta.,
+    heading_level: Number indicating heading level for title text. Should be based on semantic meaning, not presentational styling
+    image (Required): Image to be used in the Card element. Can pass an <img> element, resp_img or picture Python helpers
+    link_rel: String for link rel attribute.
+    link_target: String for link target attribute
+    link_title: String for link title attribute.
+    link_url (Required): String or url helper function provides href value for cta link.
+    media_icon: An optional CSS class to display a media icon, indicating when card will play video when clicked.
+    meta: A string to display additional meta data for a card, such as a publish date.
+    tag_label: A string to display a card type label.
+    title (Required): String indicating heading text (usually a translation id wrapped in ftl function).
+    youtube_id: String indicating the Youtube ID found at the end of a Youtube video URL. Used when we are embedding a video to the card
+    rather than an image.
+#}
+{% macro card(
+  aspect_ratio='mzp-has-aspect-3-2',
+  attributes=None,
+  class=None,
+  cta=None,
+  desc=None,
+  ga_title='',
+  heading_level=2,
+  image=None,
+  link_rel=None,
+  link_target=None,
+  link_title=None,
+  link_url='',
+  media_icon=None,
+  meta=None,
+  tag_label=None,
+  title='',
+  youtube_id=None
+) -%}
+<section class="mzp-c-card {% if class %}{{ class }}{% endif %} {% if aspect_ratio %}{{ aspect_ratio }}{% endif %} {% if media_icon %}{{ media_icon }}{% endif %} {% if youtube_id %}mzp-has-video has-video-embed{% endif %}" {% if attributes %}{{attributes|safe}}{% endif %}>
+  <a class="mzp-c-card-block-link" href="{{ link_url }}" data-link-text="{{ ga_title }}" data-link-position="card" {% if tag_label %}data-card-tag="{{ tag_label }}"{% endif %}  {% if link_target %}target="{{ link_target }}"{% endif %} {% if link_rel %}rel="{{ link_rel }}"{% endif %} {% if link_title %}title="{{ link_title }}"{% endif %}>
+    {% if image %}
+      <div class="mzp-c-card-media-wrapper">{{ image|safe }}</div>
+    {% endif %}
+    <div class="mzp-c-card-content">
+    {% if tag_label %}
+      <div class="mzp-c-card-tag">{{ tag_label }}</div>
+    {% endif %}
+      <h{{ heading_level }} class="mzp-c-card-title"><span>{{ title }}</span></h{{ heading_level }}>
+    {% if desc %}
+      <p class="mzp-c-card-desc">{{ desc }}</p>
+    {% endif %}
+    {% if meta %}
+      <p class="mzp-c-card-meta">{{ meta }}</p>
+    {% endif %}
+    {% if cta %}
+      <p class="mzp-c-card-cta"><span class="mzp-c-card-cta-text">{{ cta }}</span></p>
+    {% endif %}
+    </div>
+  </a>
+  {% if youtube_id %}
+  <div class="mzp-c-card-video-wrapper hidden">
+    <figure class="js-video-content">
+      <div class="mzp-c-video">
+        <div class="video-player-frame" data-video-id="{{ youtube_id }}" data-video-title="{{ title }}"></div>
+      </div>
+      <figcaption>
+        <p>{% if desc %}{{ desc }}{% endif %} <a href="{{ link_url }}">{{ ftl('ui-learn-more') }}</a></p>
+      </figcaption>
+    </figure>
+  </div>
+  {% endif %}
+</section>
+{%- endmacro %}
+
+{#
+  Picto: https://protocol.mozilla.org/components/detail/picto--default.html
+  HTML Import: {% from "macros-protocol.html" import picto with context %}
+  CSS bundle: {% block page_css %} {{ css_bundle('protocol-picto') }} {% endblock %}
+  Macro parameters:
+    base_el: The element the content of the picto will be read as in HTML. For example, if the Picto macro is wrapped in a ul tag,
+    the base_el would be an li tag.
+    body: A boolean attribute. If true, it will show the contents of the card, if false, it will hide the contents.
+    class: String adding class(es) to the base el tag.
+    heading_level: Number indicating heading level for title text. Should be based on semantic meaning, not presentational styling.
+    image: Can pass an <img> element, resp_img or picture Python helpers.
+    title: String indicating heading text (usually a translation id wrapped in ftl function)
+#}
+{% macro picto(
+  base_el='div',
+  body=False,
+  class=None,
+  heading_level=3,
+  image=None,
+  title=None
+) -%}
+<{{ base_el }} class="mzp-c-picto{% if class %} {{ class }}{% endif %}">
+  {% if image %}
+    {{ image|safe }}
+  {% endif %}
+  {% if title %}<h{{ heading_level }} class="mzp-c-picto-heading">{{ title }}</h{{ heading_level }}>{% endif %}
+  {% if body %}
+  <div class="mzp-c-picto-body">
+    {{ caller() }}
+  </div>
+  {% endif %}
+</{{ base_el }}>
+{%- endmacro %}
