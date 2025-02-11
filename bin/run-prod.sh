@@ -13,7 +13,7 @@ STARTUP_FILES=(
 # However, if DATABASE_URL is NOT defined, we need to be sure the sqlite DB file
 # is already present at startup
 if [[ -z "$DATABASE_URL" ]]; then
-    STARTUP_FILES+=("data/bedrock.db")
+    STARTUP_FILES+=("data/springfield.db")
 fi
 
 for fname in "${STARTUP_FILES[@]}"; do

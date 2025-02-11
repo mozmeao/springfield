@@ -1,6 +1,6 @@
 __pycache__/
 !.vscode/extensions.json
-!root_files/bedrock_db_info.json
+!root_files/*_db_info.json
 .#*
 .cache
 .coverage
@@ -28,7 +28,7 @@ __pycache__/
 /locale
 /results
 assets
-bedrock_db_info.json
+*_db_info.json
 build
 build.py
 db.sql

@@ -18,7 +18,7 @@ from db_s3_utils import (
     set_db_data,
 )
 
-BUCKET_NAME = os.getenv("AWS_DB_S3_BUCKET", "bedrock-db-dev")
+BUCKET_NAME = os.getenv("AWS_DB_S3_BUCKET", "springfield-db-dev")
 REGION_NAME = os.getenv("AWS_DB_REGION", "us-west-2")
 S3_BASE_URL = f"https://s3-{REGION_NAME}.amazonaws.com/{BUCKET_NAME}"
 

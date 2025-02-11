@@ -9,10 +9,10 @@ from hashlib import sha256
 from os import getenv
 from subprocess import CalledProcessError, check_output
 
-JSON_DATA_FILE_NAME = "bedrock_db_info.json"
+JSON_DATA_FILE_NAME = "springfield_db_info.json"
 DATA_PATH = getenv("DATA_PATH", "data")
 JSON_DATA_FILE = getenv("AWS_DB_JSON_DATA_FILE", f"{DATA_PATH}/{JSON_DATA_FILE_NAME}")
-DB_FILE = f"{DATA_PATH}/bedrock.db"
+DB_FILE = f"{DATA_PATH}/springfield.db"
 CACHE = {}
 BLOCKSIZE = 65536
 

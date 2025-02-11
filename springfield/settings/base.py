@@ -58,7 +58,7 @@ db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
     "DATABASE_URL",
-    default=f"sqlite:////{data_path('bedrock.db')}",
+    default=f"sqlite:////{data_path('springfield.db')}",
 )
 
 DATABASES = {
