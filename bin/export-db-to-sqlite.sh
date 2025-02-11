@@ -159,10 +159,6 @@ python manage.py dumpdata \
     cms.SimpleRichTextPage \
     cms.SpringfieldImage \
     newsletter.Newsletter \
-    security.Product \
-    security.SecurityAdvisory \
-    security.HallOfFamer \
-    security.MitreCVE \
     releasenotes.ProductRelease \
     utils.GitRepoState \
     --indent 2 \
