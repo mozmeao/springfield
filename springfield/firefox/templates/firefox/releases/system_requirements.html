@@ -10,7 +10,6 @@
 
 {% set channel_name = '' if release.channel == 'Release' else release.channel %}
 
-{% block page_title_prefix %}{% endblock %}
 {% block page_title %}{{ release.product }} {{ channel_name }} {{ version }} System Requirements{% endblock %}
 
 {% block body_id %}notes{% endblock %}
