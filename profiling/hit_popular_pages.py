@@ -34,7 +34,7 @@ paths = [
     "/en-US/features/",
     "/en-US/installer-help/?channel=release&installer_lang=en-US",
     "/en-US/releases/",
-    "/en-US/set-as-default/thanks/",
+    "/en-US/default/thanks/",
 ]
 
 
