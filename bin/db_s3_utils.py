@@ -9,10 +9,10 @@ from hashlib import sha256
 from os import getenv
 from subprocess import CalledProcessError, check_output
 
-JSON_DATA_FILE_NAME = "bedrock_db_info.json"
+JSON_DATA_FILE_NAME = "springfield_db_info.json"
 DATA_PATH = getenv("DATA_PATH", "data")
 JSON_DATA_FILE = getenv("AWS_DB_JSON_DATA_FILE", f"{DATA_PATH}/{JSON_DATA_FILE_NAME}")
-DB_FILE = f"{DATA_PATH}/bedrock.db"
+DB_FILE = f"{DATA_PATH}/springfield.db"
 CACHE = {}
 BLOCKSIZE = 65536
 
@@ -43,7 +43,7 @@ def get_git_sha():
         git_sha = getenv("GIT_SHA")
         if not git_sha:
             try:
-                git_sha = check_output("git rev-parse HEAD", shell=True).strip()
+                git_sha = check_output("git rev-parse HEAD", shell=True).decode("ascii").strip()
             except CalledProcessError:
                 git_sha = "testing"
 

@@ -21,7 +21,7 @@ from db_s3_utils import (
 )
 
 CACHE = {}
-BUCKET_NAME = os.getenv("AWS_DB_S3_BUCKET", "bedrock-db-dev")
+BUCKET_NAME = os.getenv("AWS_DB_S3_BUCKET", "springfield-db-dev")
 REGION_NAME = os.getenv("AWS_DB_S3_REGION", "us-west-2")
 
 
@@ -53,15 +53,15 @@ def upload_db_data(db_data):
 
     try:
         # upload the new db
-        s3.upload_file(DB_FILE, BUCKET_NAME, db_data["file_name"], ExtraArgs={"ACL": "public-read"})
-    except Boto3Error:
-        return f"ERROR: Failed to upload the new database: {db_data}"
+        s3.upload_file(DB_FILE, BUCKET_NAME, db_data["file_name"])
+    except Boto3Error as ex:
+        return f"ERROR: Failed to upload the new database: {db_data} -- {ex}"
 
     try:
         # after successful file upload, upload json metadata
-        s3.upload_file(JSON_DATA_FILE, BUCKET_NAME, JSON_DATA_FILE_NAME, ExtraArgs={"ACL": "public-read"})
-    except Boto3Error:
-        return f"ERROR: Failed to upload the new database info file: {db_data}"
+        s3.upload_file(JSON_DATA_FILE, BUCKET_NAME, JSON_DATA_FILE_NAME)
+    except Boto3Error as ex:
+        return f"ERROR: Failed to upload the new database info file: {db_data} -- {ex}"
 
     return 0
 
@@ -83,7 +83,9 @@ def get_db_data():
 
 def main(args):
     force = "--force" in args
-    prev_data = get_prev_db_data()
+    if not force:
+        prev_data = get_prev_db_data()
+
     new_data = get_db_data()
     if not force and prev_data and prev_data["checksum"] == new_data["checksum"]:
         print("No update necessary")
@@ -96,11 +98,6 @@ def main(args):
         return 0
 
     res = upload_db_data(new_data)
-    # TODO decide if we should do this here or as a separate process
-    # keeping some number of these around could be good for research
-    # if res == 0 and prev_data:
-    #    remove old db file
-    #    delete_s3_obj(prev_data['file_name'])
 
     return res
 
