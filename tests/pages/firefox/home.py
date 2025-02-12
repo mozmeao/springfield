@@ -8,7 +8,7 @@ from pages.base import BasePage
 
 
 class FirefoxHomePage(BasePage):
-    _URL_TEMPLATE = "/{locale}/firefox/"
+    _URL_TEMPLATE = "/{locale}/"
 
     _primary_download_button_locator = (By.ID, "qa-desktop-download")
 

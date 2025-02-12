@@ -9,7 +9,7 @@ from pages.regions.download_button import DownloadButton
 
 
 class DeveloperPage(BasePage):
-    _URL_TEMPLATE = "/{locale}/firefox/developer/"
+    _URL_TEMPLATE = "/{locale}/developer/"
 
     _primary_download_locator = (By.ID, "intro-download")
     _secondary_download_locator = (By.ID, "footer-download")

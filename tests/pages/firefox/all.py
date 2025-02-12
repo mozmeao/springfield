@@ -9,7 +9,7 @@ from pages.regions.modal import ModalProtocol
 
 
 class FirefoxAllPage(BasePage):
-    _URL_TEMPLATE = "/{locale}/firefox/download/all/{slug}"
+    _URL_TEMPLATE = "/{locale}/download/all/{slug}"
 
     # help modals
 
