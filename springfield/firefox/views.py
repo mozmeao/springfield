@@ -392,14 +392,14 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 
 class DownloadThanksView(L10nTemplateView):
     ftl_files_map = {
-        "firefox/download/basic/thanks.html": ["firefox/new/download"],
-        "firefox/download/basic/thanks_direct.html": ["firefox/new/download"],
-        "firefox/download/desktop/thanks.html": ["firefox/new/desktop"],
-        "firefox/download/desktop/thanks_direct.html": ["firefox/new/desktop"],
+        "firefox/download/basic/thanks.html": ["firefox/download/download"],
+        "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
+        "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
+        "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
     }
     activation_files = [
-        "firefox/new/download",
-        "firefox/new/desktop",
+        "firefox/download/download",
+        "firefox/download/desktop",
     ]
 
     # place expected ?v= values in this list
@@ -421,7 +421,7 @@ class DownloadThanksView(L10nTemplateView):
         experience = self.request.GET.get("xv", None)
         source = self.request.GET.get("s", None)
 
-        if ftl_file_is_active("firefox/new/desktop") and experience != "basic":
+        if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
                 template = "firefox/download/desktop/thanks_direct.html"
             else:
@@ -437,12 +437,12 @@ class DownloadThanksView(L10nTemplateView):
 
 class DownloadView(L10nTemplateView):
     ftl_files_map = {
-        "firefox/download/basic/base_download.html": ["firefox/new/download"],
-        "firefox/download/desktop/download.html": ["firefox/new/desktop"],
+        "firefox/download/basic/base_download.html": ["firefox/download/download"],
+        "firefox/download/desktop/download.html": ["firefox/download/desktop"],
     }
     activation_files = [
-        "firefox/new/download",
-        "firefox/new/desktop",
+        "firefox/download/download",
+        "firefox/download/desktop",
     ]
 
     # place expected ?v= values in this list
@@ -492,7 +492,7 @@ class DownloadView(L10nTemplateView):
         if variation not in self.variations:
             variation = None
 
-        if ftl_file_is_active("firefox/new/desktop") and experience != "basic":
+        if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             template = "firefox/download/desktop/download.html"
         else:
             template = "firefox/download/basic/base_download.html"
