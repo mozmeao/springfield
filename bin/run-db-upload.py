@@ -53,15 +53,15 @@ def upload_db_data(db_data):
 
     try:
         # upload the new db
-        s3.upload_file(DB_FILE, BUCKET_NAME, db_data["file_name"], ExtraArgs={"ACL": "public-read"})
-    except Boto3Error:
-        return f"ERROR: Failed to upload the new database: {db_data}"
+        s3.upload_file(DB_FILE, BUCKET_NAME, db_data["file_name"])
+    except Boto3Error as ex:
+        return f"ERROR: Failed to upload the new database: {db_data} -- {ex}"
 
     try:
         # after successful file upload, upload json metadata
-        s3.upload_file(JSON_DATA_FILE, BUCKET_NAME, JSON_DATA_FILE_NAME, ExtraArgs={"ACL": "public-read"})
-    except Boto3Error:
-        return f"ERROR: Failed to upload the new database info file: {db_data}"
+        s3.upload_file(JSON_DATA_FILE, BUCKET_NAME, JSON_DATA_FILE_NAME)
+    except Boto3Error as ex:
+        return f"ERROR: Failed to upload the new database info file: {db_data} -- {ex}"
 
     return 0
 
