@@ -43,7 +43,7 @@ def get_git_sha():
         git_sha = getenv("GIT_SHA")
         if not git_sha:
             try:
-                git_sha = check_output("git rev-parse HEAD", shell=True).strip()
+                git_sha = check_output("git rev-parse HEAD", shell=True).decode("ascii").strip()
             except CalledProcessError:
                 git_sha = "testing"
 
