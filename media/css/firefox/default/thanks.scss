@@ -104,17 +104,17 @@ $image-path: '/media/protocol/img';
         padding: 0 $spacing-md;
 
         &.mobile .thanks-extra-links-heading {
-            background-image: url('/media/img/firefox/set-as-default/thanks/mobile.svg');
+            background-image: url('/media/img/firefox/default/thanks/mobile.svg');
         }
 
         &.join .thanks-extra-links-heading {
             @include background-size(30px 30px);
-            background-image: url('/media/img/firefox/set-as-default/thanks/mozilla-logo.svg');
+            background-image: url('/media/img/firefox/default/thanks/mozilla-logo.svg');
         }
 
         &.help .thanks-extra-links-heading {
             @include background-size(29px 29px);
-            background-image: url('/media/img/firefox/set-as-default/thanks/help.svg');
+            background-image: url('/media/img/firefox/default/thanks/help.svg');
         }
     }
 

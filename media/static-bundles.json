@@ -118,7 +118,7 @@
     },
     {
       "files": [
-        "css/firefox/set-as-default/thanks.scss"
+        "css/firefox/default/thanks.scss"
       ],
       "name": "firefox-default-thanks"
     },
@@ -142,7 +142,7 @@
     },
     {
       "files": [
-        "css/firefox/set-as-default/landing.scss"
+        "css/firefox/default/landing.scss"
       ],
       "name": "firefox-default-landing"
     },
@@ -333,7 +333,7 @@
     },
     {
       "files": [
-        "js/firefox/set-as-default/thanks.js"
+        "js/firefox/default/thanks.js"
       ],
       "name": "firefox-default-thanks"
     },
