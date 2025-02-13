@@ -599,3 +599,24 @@ class firefox_features_pdf(L10nTemplateView):
             template_name = "firefox/features/pdf-editor.html"
 
         return [template_name]
+
+
+class firefox_features_adblocker(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/adblocker-2025.html": [
+            "firefox/features/adblocker-2025",
+            "firefox/features/shared",
+        ],
+        "firefox/features/adblocker.html": [
+            "firefox/features/adblocker",
+            "firefox/features/shared",
+        ],
+    }
+
+    def get_template_names(self):
+        if ftl_file_is_active("firefox/features/adblocker-2025"):
+            template_name = "firefox/features/adblocker-2025.html"
+        else:
+            template_name = "firefox/features/adblocker.html"
+
+        return [template_name]

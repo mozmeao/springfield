@@ -41,7 +41,7 @@ urlpatterns = (
     ),
     page("features/eyedropper/", "firefox/features/eyedropper.html", ftl_files=["firefox/features/eyedropper-2023", "firefox/features/shared"]),
     path("features/pdf-editor/", views.firefox_features_pdf.as_view(), name="firefox.features.pdf-editor"),
-    page("features/adblocker/", "firefox/features/adblocker.html", ftl_files=["firefox/features/adblocker", "firefox/features/shared"]),
+    path("features/adblocker/", views.firefox_features_adblocker.as_view(), name="firefox.features.adblocker"),
     page("features/bookmarks/", "firefox/features/bookmarks.html", ftl_files=["firefox/features/bookmarks-2023", "firefox/features/shared"]),
     path("features/fast/", views.firefox_features_fast.as_view(), name="firefox.features.fast"),
     page(
