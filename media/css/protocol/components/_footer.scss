@@ -33,8 +33,8 @@ $image-path: '/media/protocol/img';
                 background-size: contain;
             }
 
-            &.twitter {
-                background-image: url('#{$image-path}/icons/social/x/white.svg');
+            &.bluesky {
+                background-image: url('/media/img/icons/social/bluesky/white.svg');
             }
 
             &.instagram {
