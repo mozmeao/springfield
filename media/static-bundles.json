@@ -106,6 +106,12 @@
     },
     {
       "files": [
+        "css/base/banners/firefox-newsletter.scss"
+      ],
+      "name": "firefox-newsletter-banner"
+    },
+    {
+      "files": [
         "css/protocol/common-old-ie.scss"
       ],
       "name": "common-old-ie"
@@ -342,6 +348,13 @@
         "js/base/banners/firefox-app-store-banner.es6.js"
       ],
       "name": "firefox-app-store-banner"
+    },
+    {
+      "files": [
+        "js/base/banners/firefox-newsletter-banner-init.es6.js",
+        "js/base/banners/firefox-newsletter-banner-check.js"
+      ],
+      "name": "firefox-newsletter-banner"
     },
     {
       "files": [
