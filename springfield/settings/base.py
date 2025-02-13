@@ -647,6 +647,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
 ]
 
 ENABLE_CSP_MIDDLEWARE = config("ENABLE_CSP_MIDDLEWARE", default="true", parser=bool)
