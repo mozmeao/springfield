@@ -564,7 +564,7 @@ def firefox_features_translate(request):
     )
 
 
-class firefox_features_fast(L10nTemplateView):
+class FirefoxFeaturesFast(L10nTemplateView):
     ftl_files_map = {
         "firefox/features/fast.html": [
             "firefox/features/fast-2023",
@@ -585,7 +585,7 @@ class firefox_features_fast(L10nTemplateView):
         return [template_name]
 
 
-class firefox_features_pdf(L10nTemplateView):
+class FirefoxFeaturesPDF(L10nTemplateView):
     ftl_files_map = {
         "firefox/features/pdf-editor.html": ["firefox/features/pdf-editor-2023", "firefox/features/shared"],
         "firefox/features/pdf-editor-fr.html": ["firefox/features/shared"],
@@ -597,5 +597,26 @@ class firefox_features_pdf(L10nTemplateView):
             template_name = "firefox/features/pdf-editor-fr.html"
         else:
             template_name = "firefox/features/pdf-editor.html"
+
+        return [template_name]
+
+
+class FirefoxFeaturesAdBlocker(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/adblocker-2025.html": [
+            "firefox/features/adblocker-2025",
+            "firefox/features/shared",
+        ],
+        "firefox/features/adblocker.html": [
+            "firefox/features/adblocker",
+            "firefox/features/shared",
+        ],
+    }
+
+    def get_template_names(self):
+        if ftl_file_is_active("firefox/features/adblocker-2025"):
+            template_name = "firefox/features/adblocker-2025.html"
+        else:
+            template_name = "firefox/features/adblocker.html"
 
         return [template_name]

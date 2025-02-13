@@ -40,10 +40,10 @@ urlpatterns = (
         ftl_files=["firefox/features/pinned-tabs-2023", "firefox/features/shared"],
     ),
     page("features/eyedropper/", "firefox/features/eyedropper.html", ftl_files=["firefox/features/eyedropper-2023", "firefox/features/shared"]),
-    path("features/pdf-editor/", views.firefox_features_pdf.as_view(), name="firefox.features.pdf-editor"),
-    page("features/adblocker/", "firefox/features/adblocker.html", ftl_files=["firefox/features/adblocker", "firefox/features/shared"]),
+    path("features/pdf-editor/", views.FirefoxFeaturesPDF.as_view(), name="firefox.features.pdf-editor"),
+    path("features/adblocker/", views.FirefoxFeaturesAdBlocker.as_view(), name="firefox.features.adblocker"),
     page("features/bookmarks/", "firefox/features/bookmarks.html", ftl_files=["firefox/features/bookmarks-2023", "firefox/features/shared"]),
-    path("features/fast/", views.firefox_features_fast.as_view(), name="firefox.features.fast"),
+    path("features/fast/", views.FirefoxFeaturesFast.as_view(), name="firefox.features.fast"),
     page(
         "features/block-fingerprinting/",
         "firefox/features/fingerprinting.html",
