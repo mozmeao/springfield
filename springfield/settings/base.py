@@ -447,11 +447,8 @@ SUPPORTED_NONLOCALES = [
     # from redirects.urls
     "media",
     "static",
-    "certs",
-    "images",  # root_files
     "robots.txt",
     ".well-known",
-    "telemetry",  # redirect only
     "healthz",  # Needed for k8s
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash

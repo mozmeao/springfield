@@ -72,11 +72,8 @@ def test_normalize_language(lang_code, expected):
     (
         ("media", False),
         ("static", False),
-        ("certs", False),
-        ("images", False),
         ("robots.txt", False),
         (".well-known", False),
-        ("telemetry", False),
         ("healthz", False),
         ("readiness", False),
         ("healthz-cron", False),
