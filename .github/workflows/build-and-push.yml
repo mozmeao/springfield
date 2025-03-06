@@ -69,6 +69,7 @@ jobs:
   push_image_to_gar:
     name: Push Image to GAR
     needs: build_and_publish_public_images
+    environment: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
