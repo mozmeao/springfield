@@ -35,7 +35,7 @@ def prefer_cms(
         view_func - the function to wrap
         fallback_ftl_files (optional) - a list of the names of the Fluent files used by
             the Django view that's being wrapped. It's a little repetitive, but
-            from those we can work out what locales the page is availble in
+            from those we can work out what locales the page is available in
             across the CMS and Django views
         fallback_lang_codes (optional) - a list of strings of language codes that
             show what locales are available for the Django view being wrapped.
@@ -43,7 +43,7 @@ def prefer_cms(
             way to determine the available locales for a page
             (e.g. the Fluent files cover 20 locales for some strings which appear
             on the page, but the main localized content is only in two languages,
-            because the contnet doesn't come from Fluent - such as Legal Docs,
+            because the content doesn't come from Fluent - such as Legal Docs,
             which comes from a git repo). This works best when all the pages
             for the decorated route are available in all the specified locales --
             if not, some of the footer language-selector options will 404.

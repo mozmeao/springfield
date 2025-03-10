@@ -5,6 +5,7 @@ from django.urls import path, re_path
 
 import springfield.releasenotes.views
 from springfield.base.util import page
+from springfield.cms.decorators import prefer_cms
 from springfield.firefox import views
 from springfield.releasenotes import version_re
 from springfield.utils.views import VariationTemplateView
@@ -31,46 +32,23 @@ urlpatterns = (
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
     page("developer/", "firefox/developer/index.html", ftl_files=["firefox/developer"]),
     page("enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
-    page("features/", "firefox/features/index.html", ftl_files=["firefox/features/index-2023", "firefox/features/shared"]),
-    page("features/customize/", "firefox/features/customize.html", ftl_files=["firefox/features/customize-2023", "firefox/features/shared"]),
-    page("features/add-ons/", "firefox/features/add-ons.html", ftl_files=["firefox/features/add-ons-2023", "firefox/features/shared"]),
-    page(
-        "features/pinned-tabs/",
-        "firefox/features/pinned-tabs.html",
-        ftl_files=["firefox/features/pinned-tabs-2023", "firefox/features/shared"],
-    ),
-    page("features/eyedropper/", "firefox/features/eyedropper.html", ftl_files=["firefox/features/eyedropper-2023", "firefox/features/shared"]),
-    path("features/pdf-editor/", views.FirefoxFeaturesPDF.as_view(), name="firefox.features.pdf-editor"),
-    path("features/adblocker/", views.FirefoxFeaturesAdBlocker.as_view(), name="firefox.features.adblocker"),
-    page("features/bookmarks/", "firefox/features/bookmarks.html", ftl_files=["firefox/features/bookmarks-2023", "firefox/features/shared"]),
-    path("features/fast/", views.FirefoxFeaturesFast.as_view(), name="firefox.features.fast"),
-    page(
-        "features/block-fingerprinting/",
-        "firefox/features/fingerprinting.html",
-        ftl_files=["firefox/features/fingerprinting", "firefox/features/shared"],
-    ),
-    page(
-        "features/password-manager/",
-        "firefox/features/password-manager.html",
-        ftl_files=["firefox/features/password-manager-2023", "firefox/features/shared"],
-    ),
-    page(
-        "features/private/",
-        "firefox/features/private.html",
-        ftl_files=["firefox/features/private-2023", "firefox/features/shared"],
-    ),
-    page(
-        "features/private-browsing/",
-        "firefox/features/private-browsing.html",
-        ftl_files=["firefox/features/private-browsing-2023", "firefox/features/shared"],
-    ),
-    page("sync/", "firefox/features/sync.html", ftl_files=["firefox/features/sync-2023", "firefox/features/shared"]),
-    path("translate/", views.firefox_features_translate, name="firefox.features.translate"),
-    page(
-        "features/picture-in-picture/",
-        "firefox/features/picture-in-picture.html",
-        ftl_files=["firefox/features/picture-in-picture", "firefox/features/shared"],
-    ),
+    path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
+    path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
+    path("features/add-ons/", prefer_cms(views.FirefoxFeaturesAddons.as_view()), name="firefox.features.add-ons"),
+    path("features/pinned-tabs/", prefer_cms(views.FirefoxFeaturesPinnedTabs.as_view()), name="firefox.features.pinned-tabs"),
+    path("features/eyedropper/", prefer_cms(views.FirefoxFeaturesEyeDropper.as_view()), name="firefox.features.eyedropper"),
+    path("features/pdf-editor/", prefer_cms(views.FirefoxFeaturesPDF.as_view()), name="firefox.features.pdf-editor"),
+    path("features/adblocker/", prefer_cms(views.FirefoxFeaturesAdBlocker.as_view()), name="firefox.features.adblocker"),
+    path("features/bookmarks/", prefer_cms(views.FirefoxFeaturesBookmarks.as_view()), name="firefox.features.bookmarks"),
+    path("features/fast/", prefer_cms(views.FirefoxFeaturesFast.as_view()), name="firefox.features.fast"),
+    path("features/block-fingerprinting/", prefer_cms(views.FirefoxFeaturesBlockFingerprinting.as_view()), name="firefox.features.fingerprinting"),
+    path("features/password-manager/", prefer_cms(views.FirefoxFeaturesPasswordManager.as_view()), name="firefox.features.password-manager"),
+    path("features/private/", prefer_cms(views.FirefoxFeaturesPrivate.as_view()), name="firefox.features.private"),
+    path("features/private-browsing/", prefer_cms(views.FirefoxFeaturesPrivateBrowsing.as_view()), name="firefox.features.private-browsing"),
+    path("features/sync/", prefer_cms(views.FirefoxFeaturesSync.as_view()), name="firefox.features.sync"),
+    path("features/translate/", prefer_cms(views.firefox_features_translate), name="firefox.features.translate"),
+    path("features/picture-in-picture/", prefer_cms(views.FirefoxFeaturesPictureInPicture.as_view()), name="firefox.features.picture-in-picture"),
+    # /features/tips/ is a unicorn in terms of design, so is not currently part of the CMS driven /feature article templates.
     path(
         "features/tips/",
         VariationTemplateView.as_view(
@@ -79,19 +57,9 @@ urlpatterns = (
         ),
         name="firefox.features.tips",
     ),
+    path("features/complete-pdf/", prefer_cms(views.FirefoxFeaturesCompletePDF.as_view(active_locales=["fr"])), name="firefox.features.pdf-complete"),
     path(
-        "features/complete-pdf/",
-        VariationTemplateView.as_view(
-            template_name="firefox/features/pdf-complete-fr.html", ftl_files=["firefox/features/shared"], active_locales=["fr"]
-        ),
-        name="firefox.features.pdf-complete",
-    ),
-    path(
-        "features/free-pdf-editor/",
-        VariationTemplateView.as_view(
-            template_name="firefox/features/pdf-free-fr.html", ftl_files=["firefox/features/shared"], active_locales=["fr"]
-        ),
-        name="firefox.features.pdf-free",
+        "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
     path("ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
     path("download/", views.DownloadView.as_view(), name="firefox.download"),
