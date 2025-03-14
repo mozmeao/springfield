@@ -8,6 +8,7 @@ $image-path: '/media/protocol/img';
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
 @import '~@mozilla-protocol/core/protocol/css/components/callout';
 @import '~@mozilla-protocol/core/protocol/css/components/breadcrumb';
+@import '../../protocol/components/video';
 
 .feature-article-container {
     padding-top: $spacing-2xl;
@@ -105,4 +106,32 @@ $image-path: '/media/protocol/img';
 
 .is-firefox .hide-from-firefox {
     display: none;
+}
+
+// features/picture-in-picture
+.has-pip-icon strong {
+    @include bidi((
+        (padding-right, 3.25ex, padding-left, 3.25ex),
+        (background-position, right 0.25ex top, left 0.25ex top),
+    ));
+    @include background-size(2.25ex, 2.25ex);
+    background-image: url('/media/img/firefox/features/pip/pip-icon.svg');
+    background-repeat: no-repeat;
+}
+
+.secondary-cta {
+    text-align: center;
+    margin: $layout-lg 0;
+}
+
+.mzp-t-picto-center {
+    padding-top: $spacing-lg;
+
+    .mzp-c-picto {
+        margin-bottom: $layout-lg;
+    }
+
+    .mzp-c-picto-heading {
+        @include text-title-3xs;
+    }
 }

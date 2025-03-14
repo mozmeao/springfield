@@ -1313,6 +1313,8 @@ WAGTAILIMAGES_EXTENSIONS = [
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
+    "firefox.FeaturesDetailPage",
+    "firefox.FeaturesIndexPage",
 ]
 
 if DEV is True:

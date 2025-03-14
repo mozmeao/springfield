@@ -1,0 +1,16 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from 'firefox/features/cms/includes/macros.html' import call_to_action_image with context %}
+
+{% call split (
+  image=call_to_action_image(snippet.image),
+  block_class='c-feature-footer mzp-l-split-reversed mzp-t-content-lg',
+) %}
+  <h3>{{ snippet.heading }}</h3>
+  <p>{{ snippet.desc }}</p>
+  {{ download_firefox_thanks(alt_copy=ftl('download-button-download-firefox'), dom_id='features-footer-download', button_class='mzp-t-product mzp-t-lg', download_location='footer') }}
+{% endcall %}

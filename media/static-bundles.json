@@ -94,12 +94,6 @@
     },
     {
       "files": [
-        "css/firefox/features/picture-in-picture.scss"
-      ],
-      "name": "firefox-features-pip"
-    },
-    {
-      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
