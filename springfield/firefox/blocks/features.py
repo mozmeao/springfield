@@ -29,7 +29,7 @@ class FeaturesVideoBlock(blocks.StructBlock):
     cdn_video_url = blocks.URLBlock(
         required=False,
         char_max_length=255,
-        help_text="URL for webm format video hosted on https://assets.mozilla.net/.",
+        help_text="URL for webm format video hosted on https://assets.mozilla.net/ - loading from elsewhere will cause security (CSP) issues and the video may be blocked",  # noqa E501
     )
 
     def clean(self, value):
@@ -44,11 +44,11 @@ class FeaturesVideoBlock(blocks.StructBlock):
         cdn_video_url = value.get("cdn_video_url", "").strip()
 
         if not youtube_video_id and not cdn_video_url:
-            error_msg = "At least one of 'Youtube vide id' or 'Video source url' must be filled."
+            error_msg = "At least one of 'Youtube video ID' or 'Video source URL' must be filled."
             errors["video_embed"] = ValidationError(error_msg)
 
         if youtube_video_id and cdn_video_url:
-            error_msg = "Only one of 'Youtube vide id' or 'Video source url' can be filled, not both."
+            error_msg = "Only one of 'Youtube video ID' or 'Video source URL' can be filled, not both."
             errors["video_embed"] = ValidationError(error_msg)
 
         if errors:

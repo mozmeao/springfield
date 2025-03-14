@@ -55,8 +55,8 @@ class FeaturesIndexPage(ArticleIndexPageBase):
         context = super().get_context(request)
         article_data = FeaturesDetailPage.objects.filter(locale=self.locale).live().public().order_by("-first_published_at")
 
-        featured_articles = [article for article in article_data if article.featured_article]
-        list_articles = [article for article in article_data if not article.featured_article]
+        featured_articles = article_data.filter(featured_article=True)
+        list_articles = article_data.filter(featured_article=False)
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
