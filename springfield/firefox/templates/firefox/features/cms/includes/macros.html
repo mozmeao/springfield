@@ -1,0 +1,74 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% from "macros.html" import video_inline_embed with context %}
+
+{% macro article_thumbnail_image(image) -%}
+  {{ srcset_image(
+    image,
+    "width-{200,400,600,800,1000,1200}",
+    class="mzp-c-card-image",
+    sizes="(min-width: 1024px) 33vw, (min-width: 480px) 50vw, 100vw",
+    width="460",
+    alt="",
+    loading="lazy"
+  ) }}
+{%- endmacro %}
+
+{% macro article_list_item(
+ link,
+ title,
+ ga_title,
+ desc
+) -%}
+<li class="c-feature-item">
+ <a href="{{ link }}" data-link-text="{{ ga_title }}">
+   <h3 class="c-feature-item-title">{{ title }}</h3>
+   <p>{{ desc }}</p>
+   <p class="c-feature-item-cta">{{ ftl('ui-learn-more') }}</p>
+ </a>
+</li>
+{%- endmacro %}
+
+{% macro call_to_action_image(image) %}
+  {{ srcset_image(
+    image,
+    "width-{200,400,600,800,1000,1200}",
+    class="mzp-c-split-media-asset",
+    sizes="(min-width: 768px) 50vw, 100vw",
+    width="400",
+    alt="",
+    loading="lazy"
+  ) }}
+{%- endmacro %}
+
+{% macro youtube_video_embed(image, title, youtube_video_id) %}
+  <figure class="c-article-figure">
+    {{ video_inline_embed(
+      id=youtube_video_id,
+      title=title,
+      image=srcset_image(
+        image,
+        "width-{200,400,600,800,1000}",
+        sizes="(min-width: 768px) 50vw, 100vw",
+        width="592",
+        height="431",
+        alt="",
+      )
+    ) }}
+  </figure>
+{%- endmacro %}
+
+{% macro cdn_video_embed(image, title, cdn_video_url) %}
+  {% set image=srcset_image(image, "width-1000") %}
+  <figure class="c-article-figure">
+    <div class="mzp-c-video">
+      <video preload="metadata" controls poster="{{ image.renditions.0.url }}" data-video-title="{{ title }}">
+        <source src="{{ cdn_video_url }}" type="video/webm">
+      </video>
+    </div>
+  </figure>
+{%- endmacro %}

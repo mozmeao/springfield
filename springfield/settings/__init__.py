@@ -23,6 +23,7 @@ ROOT_URLCONF = "springfield.urls"
 _csp_default_src = [
     csp.constants.SELF,
     "*.firefox.com",
+    "assets.mozilla.net",
 ]
 _csp_img_src = [
     "data:",

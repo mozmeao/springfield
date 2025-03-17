@@ -516,6 +516,149 @@ class FirefoxHomeView(L10nTemplateView):
     template_name = "firefox/index.html"
 
 
+class FirefoxFeaturesIndex(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/index.html": [
+            "firefox/features/index-2023",
+            "firefox/features/shared",
+        ],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/index.html"
+        return [template_name]
+
+
+class FirefoxFeaturesCustomize(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/customize.html": ["firefox/features/customize-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/customize.html"
+        return [template_name]
+
+
+class FirefoxFeaturesAddons(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/add-ons.html": ["firefox/features/add-ons-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/add-ons.html"
+        return [template_name]
+
+
+class FirefoxFeaturesPinnedTabs(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/pinned-tabs.html": ["firefox/features/pinned-tabs-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/pinned-tabs.html"
+        return [template_name]
+
+
+class FirefoxFeaturesEyeDropper(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/eyedropper.html": ["firefox/features/eyedropper-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/eyedropper.html"
+        return [template_name]
+
+
+class FirefoxFeaturesBookmarks(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/bookmarks.html": ["firefox/features/bookmarks-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/bookmarks.html"
+        return [template_name]
+
+
+class FirefoxFeaturesBlockFingerprinting(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/fingerprinting.html": ["firefox/features/fingerprinting", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/fingerprinting.html"
+        return [template_name]
+
+
+class FirefoxFeaturesPasswordManager(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/password-manager.html": ["firefox/features/password-manager-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/password-manager.html"
+        return [template_name]
+
+
+class FirefoxFeaturesPrivate(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/private.html": ["firefox/features/private-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/private.html"
+        return [template_name]
+
+
+class FirefoxFeaturesPrivateBrowsing(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/private-browsing.html": ["firefox/features/private-browsing-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/private-browsing.html"
+        return [template_name]
+
+
+class FirefoxFeaturesSync(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/sync.html": ["firefox/features/sync-2023", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/sync.html"
+        return [template_name]
+
+
+class FirefoxFeaturesPictureInPicture(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/picture-in-picture.html": ["firefox/features/picture-in-picture", "firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/picture-in-picture.html"
+        return [template_name]
+
+
+class FirefoxFeaturesCompletePDF(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/pdf-complete-fr.html": ["firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/pdf-complete-fr.html"
+        return [template_name]
+
+
+class FirefoxFeaturesFreePDFEditor(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/features/pdf-free-fr.html": ["firefox/features/shared"],
+    }
+
+    def get_template_names(self):
+        template_name = "firefox/features/pdf-free-fr.html"
+        return [template_name]
+
+
 @require_safe
 def firefox_features_translate(request):
     translate_langs = [

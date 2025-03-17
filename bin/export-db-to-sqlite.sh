@@ -158,6 +158,9 @@ python manage.py dumpdata \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
     cms.SpringfieldImage \
+    firefox.FeaturesCallToActionSnippet \
+    firefox.FeaturesDetailPage \
+    firefox.FeaturesIndexPage \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \
