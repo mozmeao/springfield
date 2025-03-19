@@ -4,7 +4,7 @@
 
 import pytest
 
-from pages.firefox.set_as_default.thanks import DefaultThanksPage
+from pages.firefox.default.thanks import DefaultThanksPage
 
 
 @pytest.mark.nondestructive

@@ -4,7 +4,7 @@
 
 import pytest
 
-from pages.firefox.set_as_default.landing import DefaultLandingPage
+from pages.firefox.default.landing import DefaultLandingPage
 
 
 @pytest.mark.nondestructive
