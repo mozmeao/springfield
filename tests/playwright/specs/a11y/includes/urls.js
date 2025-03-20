@@ -20,7 +20,7 @@ const desktopTestURLs = [
     '/en-US/download/thanks/',
     '/en-US/enterprise/',
     '/en-US/firefox/releasenotes/',
-    '/en-US/websites/cookie-settings/'
+    '/en-US/privacy/websites/cookie-settings/'
 ];
 
 const mobileTestURLs = [
