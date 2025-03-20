@@ -476,15 +476,23 @@ EXTRA_INDEX_URLS = {
 #   },
 ALT_CANONICAL_PATHS = {}
 
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS",
-    parser=ListOf(str, allow_empty=False),
-    default="www.firefox.com,www.ipv6.firefox.com,www.springfield.moz.works",
-)
-ALLOWED_CIDR_NETS = config(
-    "ALLOWED_CIDR_NETS",
-    parser=ListOf(str, allow_empty=False),
-    default="",
+# NOTE:
+# - In the infra config a pod IP is prepended with a trailing comma
+# - In some environments, there might be no additional content after this comma
+# - The `allow_empty=True` ensures the split operation works even when nothing follows the comma
+# - We then use `filter()` to remove any resulting empty strings from the list
+ALLOWED_HOSTS = list(
+    filter(
+        None,
+        config(
+            "ALLOWED_HOSTS",
+            parser=ListOf(
+                str,
+                allow_empty=True,
+            ),
+            default="",
+        ),
+    )
 )
 
 # The canonical, production URL without a trailing slash
@@ -623,7 +631,6 @@ ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDL
 
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
-    "allow_cidr.middleware.AllowCIDRMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "springfield.base.middleware.HostnameMiddleware",
