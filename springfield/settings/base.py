@@ -278,14 +278,14 @@ FLUENT_DEFAULT_FILES = [
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
-FLUENT_REPO = config("FLUENT_REPO", default="mozmeao/www-l10n")
+FLUENT_REPO = config("FLUENT_REPO", default="mozmeao/www-firefox-l10n")
 FLUENT_REPO_URL = f"https://github.com/{FLUENT_REPO}"
 FLUENT_REPO_BRANCH = config("FLUENT_REPO_BRANCH", default="master")
-FLUENT_REPO_PATH = DATA_PATH / "www-l10n"
+FLUENT_REPO_PATH = DATA_PATH / "www-firefox-l10n"
 # will be something like "<github username>:<github token>"
 FLUENT_REPO_AUTH = config("FLUENT_REPO_AUTH", default="")
 FLUENT_LOCAL_PATH = ROOT_PATH / "l10n"
-FLUENT_L10N_TEAM_REPO = config("FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-l10n")
+FLUENT_L10N_TEAM_REPO = config("FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-firefox-l10n")
 FLUENT_L10N_TEAM_REPO_URL = f"https://github.com/{FLUENT_L10N_TEAM_REPO}"
 FLUENT_L10N_TEAM_REPO_BRANCH = config("FLUENT_L10N_TEAM_REPO_BRANCH", default="master")
 FLUENT_L10N_TEAM_REPO_PATH = DATA_PATH / "l10n-team"
