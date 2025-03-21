@@ -336,7 +336,6 @@
       "deprecated": "1.2.13",
       "dirsync": "2.2.5",
       "django": "3.2.12",
-      "django-allow-cidr": "0.4.0",
       "django-cors-headers": "3.11.0",
       "django-crum": "0.7.9",
       "django-csp": "3.7",
