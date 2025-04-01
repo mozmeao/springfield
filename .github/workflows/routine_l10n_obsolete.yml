@@ -51,8 +51,8 @@ jobs:
             Compare the files in /l10n/en-US/ to the /en/ folder in the www-l10n repo and remove
             files from www-l10n that no longer exist in springfield.
 
-            If you have both repos installed and up to date you can run this command:
-            `diff -r www-l10n/en springfield/l10n/en | grep ".ftl"`
+            If you have both mozmeao/repos installed and up to date you can run this command:
+            `diff -r www-firefox-l10n/en springfield/l10n/en | grep ".ftl"`
 
             - [ ] Remove files
             - [ ] Remove references in www-l10n/configs/pontoon.toml
