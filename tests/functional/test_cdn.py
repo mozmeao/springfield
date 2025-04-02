@@ -63,7 +63,7 @@ def get_ssllabs_results(base_url):
     (
         "/",
         "/download/",
-        "/about/",
+        "/privacy/websites/cookie-settings/",
     ),
 )
 @pytest.mark.nondestructive
@@ -78,10 +78,10 @@ def test_locale_redirect(url, base_url):
 @pytest.mark.parametrize(
     "url",
     (
-        # only in the GCS bucket
-        "/media/img/firefox/favicon-notice-196.d4686cdb823e.png",
-        # comes from springfield
-        "/media/protocol/img/logos/mozilla/black.40d1af88c248.svg",
+        # Only in the GCS bucket:
+        "/media/protocol/img/logos/firefox/logo.fedb52c912d6.svg",
+        # Comes from Springfield's codebase:
+        "/media/img/logos/m24/lockup-black.f2ddba3f0724.svg",
     ),
 )
 @pytest.mark.nondestructive
