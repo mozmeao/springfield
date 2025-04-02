@@ -52,7 +52,7 @@ jobs:
             files from www-l10n that no longer exist in springfield.
 
             If you have both repos installed and up to date you can run this command:
-            `diff -r www-l10n/en springfield/l10n/en | grep ".ftl"`
+            `diff -r www-firefox-l10n/en springfield/l10n/en | grep ".ftl"`
 
             - [ ] Remove files
             - [ ] Remove references in www-l10n/configs/pontoon.toml
