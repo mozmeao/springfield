@@ -20,8 +20,8 @@ class AcceptedLocalesTest(TestCase):
 
     """
 
-    locale = data_path("www-l10n")
-    locale_bkp = data_path("www-l10n_bkp")
+    locale = data_path("www-firefox-l10n")
+    locale_bkp = data_path("www-firefox-l10n_bkp")
 
     @classmethod
     def setup_class(cls):
