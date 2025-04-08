@@ -124,5 +124,23 @@ locales = [
     reference = "en/firefox/set-as-default/**/*.ftl"
     l10n = "{locale}/firefox/set-as-default/**/*.ftl"
 [[paths]]
+    reference = "en/newsletter/newsletters.ftl"
+    l10n = "{locale}/newsletter/newsletters.ftl"
+    locales = [
+        "bg",
+        "cs",
+        "de",
+        "es-ES",
+        "fr",
+        "hu",
+        "id",
+        "it",
+        "nl",
+        "pl",
+        "pt-BR",
+        "ru",
+        "zh-TW",
+    ]
+[[paths]]
     reference = "en/privacy/*.ftl"
     l10n = "{locale}/privacy/*.ftl"
