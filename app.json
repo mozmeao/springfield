@@ -22,7 +22,7 @@
       "description": "A secret key for verifying the integrity of signed cookies, though we don't use them.",
       "generator": "secret"
     },
-    "SENTRY_DSN": "https://97ec0cd426714b728e92f3b3aa62f00b@o1069899.ingest.sentry.io/6260338",
+    "SENTRY_DSN": "https://0d60be0c6922ba2217b2830a842b34e1@o1069899.ingest.us.sentry.io/4508842391633920",
     "WEB_CONCURRENCY": "2"
   }
 }
