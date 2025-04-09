@@ -16,8 +16,6 @@ bookmark-manager-bookmarks-are-links-you-save = Bookmarks are links you save in 
 bookmark-manager-organize-your-boomarks-into = Organize your bookmarks into searchable folders
 bookmark-manager-collect-your-bookmarks-in-folders = Collect your bookmarks in folders and tag them with more details. You can also sort your bookmarks to quickly find the ones you need.
 
-# Used as an accessible text alternative for an image
-bookmark-manager-image-of-the-bookmark-manager = Image of the bookmark manager window in { -brand-name-firefox }.
 bookmark-manager-easily-import-bookmarks = Easily import bookmarks
 bookmark-manager-you-can-import-your-bookmarks = You can import your bookmarks from Chrome, Safari or Edge with { -brand-name-firefox }’s import wizard. Just click Bookmarks > Manage Bookmarks and then select “Import and Backup”.
 

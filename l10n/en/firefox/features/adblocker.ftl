@@ -4,7 +4,6 @@
 
 ### URL: https://www-dev.springfield.moz.works/features/adblocker/
 
-features-adblocker-how-to-block-annoying = How to block annoying ads using an ad blocker
 features-adblocker-how-to-stop-seeing-too = How to stop seeing too many ads and keep companies from following you around online. An ad blocker guide from the { -brand-name-firefox } web browser.
 features-adblocker-the-ad-blocker-a-secret = The ad blocker – a secret weapon against annoying ads.
 features-adblocker-so-many-ads-so-little = So many ads, so little patience… It’s time to stop the madness.
@@ -67,11 +66,6 @@ features-adblocker-take-a-bite-out-of-cookies = Take a bite out of cookies
 features-adblocker-cookies-are-sent-by-websites = <a href="{ $url }">Cookies</a> are sent by websites you visit. They live on your computer and monitor what you’ve been doing on a site. When an airline hikes your rates because you’ve looked at plane tickets once that day, that is the handiwork of a cookie.
 
 features-adblocker-in-firefox-you-can-block = In { -brand-name-firefox }, you can block all third-party cookies or just those set by trackers. Be aware that blocking all cookies can break some sites.
-features-adblocker-send-a-do-not-track-signal = Send a Do Not Track signal
-
-# Variables:
-#   $url (url) - link to https://support.mozilla.org/kb/how-do-i-turn-do-not-track-feature
-features-adblocker-if-you-dont-want-your = If you don’t want your online behavior used for ads, you can send websites a polite “thanks but no thanks” letter by checking the <a href="{ $url }">Do Not Track</a> option of { -brand-name-firefox }. Participation is voluntary, but the websites that participate will stop tracking you immediately.
 
 features-adblocker-speed-up-thanks-to-ad = Speed up thanks to ad blockers
 features-adblocker-in-some-cases-an-ad-blocker = In some cases, an ad blocker can help your browser go faster. When an ad is loading, it can slow down a website. At the same time, it takes longer to find what you’re looking for if you’re too busy closing yet another ad.

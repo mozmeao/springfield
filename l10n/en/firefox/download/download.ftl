@@ -12,21 +12,12 @@ firefox-new-mozilla = { -brand-name-mozilla }
 firefox-new-faster-page-loading-less-memory = Faster page loading, less memory usage and packed with features, the new { -brand-name-firefox } is here.
 firefox-new-get-the-latest-firefox = Get the latest { -brand-name-firefox } browser.
 
-# span's below are for visual formatting and line break.
-firefox-new-download-firefox-for-windows = Download { -brand-name-firefox } <br>for { -brand-name-windows }
-firefox-new-download-firefox-for-macos = Download { -brand-name-firefox } <br>for { -brand-name-mac }
-firefox-new-download-firefox-for-linux = Download { -brand-name-firefox } <br>for { -brand-name-linux }
-
 firefox-new-free-web-browser = Free Web Browser
 firefox-new-advanced-install-options = Advanced install options & other platforms
 firefox-new-download-in-another-language = Download in another language
 firefox-new-need-help = Need help?
 
 ## URL: https://www-dev.springfield.moz.works/download/thanks/?xv=basic
-
-# Variables:
-#   $url (url) - link to https://support.mozilla.org/kb/end-support-windows-xp-and-vista
-firefox-new-mozilla-no-longer-provides = { -brand-name-mozilla } <a href="{ $url }">no longer provides security updates</a> on { -brand-name-windows } { -brand-name-xp } or { -brand-name-vista }, but you can still use { -brand-name-firefox }.
 
 # Variables:
 #   $id (string) - HTML ID for the download link.
@@ -38,10 +29,6 @@ firefox-new-firefox-is-more-than-a-browser = { -brand-name-firefox } is more tha
 firefox-new-download-interrupted = Your download was interrupted. But all is not lost.
 firefox-new-download-almost-there = Almost there!
 firefox-new-download-select-linux = Select a download option below
-
-# Variables:
-#   $url (url) - link to https://support.mozilla.org/kb/install-firefox-linux
-firefox-new-please-follow = Please follow <a href="{ $url }">these instructions</a> to install { -brand-name-firefox }.
 
 # Variables:
 #   $url (url) - link to https://www.firefox.com/download/all/
