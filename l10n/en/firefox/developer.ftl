@@ -60,33 +60,13 @@ firefox-developer-master-innovative-features = Innovative Features
 firefox-developer-want-to-be-on-the-cutting-edge = Want to be on the cutting-edge?
 firefox-developer-firefox-nightly-receives = { -brand-name-firefox-nightly } receives daily updates and allows you to access features months before they go mainstream.
 firefox-developer-firefox-is-the-only-browser = { -brand-name-firefox } is the only browser with tools built specifically for building and designing with CSS Grid. These tools allow you to visualize the grid, display associated area names, preview transformations on the grid and much more.
-firefox-developer-convenient-features = Convenient Features
-firefox-developer-shapes-editor = Shapes Editor
-firefox-developer-firefox-devtools-has-a-brand-new-v2 = { -brand-name-firefox-devtools } has a brand new shape path editor that takes the guesswork out of fine-tuning your shape-outside and clip-path shapes by allowing you to very easily fine-tune your adjustments with a visual editor.
-firefox-developer-firefox-devtools-has-a-brand-new = { -brand-name-firefox-devtools } has a brand new shape path editor that takes the guesswork out of fine-tuning your shadow-outside and clip-path shapes by allowing you to very easily fine-tune your adjustments with a visual editor.
 firefox-developer-faster-innovation = Faster Information
 firefox-developer-fonts-panel = Fonts Panel
 firefox-developer-the-new-fonts-panel = The new fonts panel in { -brand-name-firefox-devtools } gives developers quick access to all of the information they need about the fonts being used in an element. It also includes valuable information such as the font source, weight, style and more.
 firefox-developer-firefox-developer-edition-sends = { -brand-name-firefox-developer-edition } automatically sends feedback to { -brand-name-mozilla }.
 firefox-developer-download-the-firefox-browser = Download the { -brand-name-firefox } browser made for developers
-firefox-developer-firefox-has-been-rebuilt = { -brand-name-firefox } has been rebuilt from the ground-up to be faster, sleeker, and more powerful than ever.
-firefox-developer-welcome-to-firefox-developer-edition = Welcome to { -brand-name-firefox-developer-edition }
 
 firefox-developer-made-for-developers = The browser made for developers
 firefox-developer-all-the-latest-v2 = All the latest developer tools in beta in addition to features like the Multi-line Console Editor and WebSocket Inspector.
 firefox-developer-a-separate-profile = A <strong>separate profile and path</strong> so you can easily run it alongside Release or { -brand-name-beta } { -brand-name-firefox }.
 firefox-developer-preferences-tailored = Preferences <strong>tailored for web developers</strong>: Browser and remote debugging are enabled by default, as are the dark theme and developer toolbar button.
-firefox-developer-congrats-you-now-have-latest-v2 = You now have the latest version of { -brand-name-firefox-developer-edition }.
-
-# Variables:
-#   $attrs (string) - link to the most recent Firefox Developer Edition release notes
-firefox-developer-view-the-release = View the <a { $attrs }>release notes</a> (English only) to see what’s new.
-firefox-developer-developer-tools-user = Developer Tools User Docs
-firefox-developer-mdn-web-docs = { -brand-name-mdn-web-docs }
-firefox-developer-resources-for-developers = Resources for Developers, by Developers
-firefox-developer-mdn-references = { -brand-name-mdn } References
-firefox-developer-mdn-is-a = { -brand-name-mdn } is an open-source, collaborative project documenting web platform technologies, including CSS, HTML, JavaScript and web APIs.
-firefox-developer-mdn-curriculum = { -brand-name-mdn } Curriculum
-firefox-developer-a-structured-guide = A structured guide to the essential skills and practices for being a successful front-end developer, along with recommended learning resources.
-firefox-developer-mdn-plus = { -brand-name-mdn-plus }
-firefox-developer-support-mdn-and = Support { -brand-name-mdn } and make it your own with collections, notifications, and playgrounds.

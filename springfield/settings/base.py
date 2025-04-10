@@ -268,7 +268,6 @@ FLUENT_DEFAULT_FILES = [
     "footer",
     "footer-refresh",
     "fxa_form",
-    "navigation",
     "navigation_v2",
     "navigation_refresh",
     "newsletter_form",

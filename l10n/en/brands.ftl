@@ -18,7 +18,6 @@
 -brand-name-linkedin = LinkedIn
 -brand-name-tiktok = TikTok
 -brand-name-spotify = Spotify
--brand-name-mastodon = Mastodon
 
 ## Firefox browsers
 
@@ -45,9 +44,6 @@
 ## Firefox browsers (legacy)
 
 -brand-name-firefox-aurora = Firefox Aurora
--brand-name-aurora = Aurora
--brand-name-firefox-reality = Firefox Reality
--brand-name-reality = Reality
 
 ## Firefox products
 
@@ -58,14 +54,7 @@
 
 ## Firefox products (short names)
 
--brand-name-devtools = DevTools
 -brand-name-relay = Relay
--brand-name-sync = Sync
-
-## Firefox products (legacy)
-
--brand-name-firefox-account = Firefox Account
--brand-name-firefox-accounts = Firefox Accounts
 
 ## Pocket
 
@@ -75,15 +64,9 @@
 
 -brand-name-fakespot = Fakespot
 
-## Anonym
-
--brand-name-anonym = Anonym
-
 ## Mozilla projects
 
--brand-name-bugzilla = Bugzilla
 -brand-name-gecko = Gecko
--brand-name-glean = Glean
 -brand-name-mdn-plus = MDN Plus
 -brand-name-mdn-web-docs = MDN Web Docs
 -brand-name-mozilla-monitor = Mozilla Monitor
@@ -102,11 +85,6 @@
 -brand-name-common-voice = Common Voice
 -brand-name-mdn = MDN
 -brand-name-monitor = Monitor
--brand-name-vpn = VPN
-
-## Open Source projects
-
--brand-name-webassembly = WebAssembly
 
 ## Other browsers
 
@@ -114,8 +92,6 @@
 -brand-name-chrome = Chrome
 -brand-name-edge = Edge
 -brand-name-ie = Internet Explorer
--brand-name-opera = Opera
--brand-name-safari = Safari
 
 ## Platforms
 
@@ -124,9 +100,7 @@
 -brand-name-linux = Linux
 -brand-name-mac = macOS
 -brand-name-mac-short = Mac
--brand-name-vista = Vista
 -brand-name-windows = Windows
--brand-name-xp = XP
 
 ## Apple products
 
