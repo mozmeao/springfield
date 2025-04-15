@@ -68,12 +68,12 @@ repos:
           - --comment-style
           - "|#|"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.2
+    rev: v0.11.5
     hooks:
       - id: ruff
       - id: ruff-format
   - repo: https://github.com/mozilla-l10n/moz-fluent-linter
-    rev: v0.4.6
+    rev: v0.4.7
     hooks:
       - id: fluent_linter
         files: \.ftl$
@@ -109,3 +109,13 @@ repos:
         # args: ["--branches", "main", "other_branch"]
     -   id: check-unapplied-migrations
     -   id: check-absent-migrations
+  - repo: https://github.com/asottile/pyupgrade
+    rev: "v3.19.1"
+    hooks:
+    - id: pyupgrade
+      args: [--py312]
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.24.0"  # replace with latest tag on GitHub
+    hooks:
+    -   id: django-upgrade
+        args: [--target-version, "5.1"]
