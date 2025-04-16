@@ -13,7 +13,8 @@ TIMEOUT = 60
 def capabilities(request, capabilities):
     driver = request.config.getoption("driver")
     if capabilities.get("browserName", driver).lower() == "firefox":
-        capabilities["marionette"] = True
+        fx_opts = capabilities.setdefault("moz:firefoxOptions", {})
+        fx_opts["marionette"] = True  # W3C-compliant location
     return capabilities
 
 
