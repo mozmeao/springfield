@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
+from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 
@@ -23,11 +24,11 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     # TO COME: guard rails on page hierarchy
     # subpage_types = []
     settings_panels = WagtailBasePage.settings_panels + [
-        "show_in_menus",
+        FieldPanel("show_in_menus"),
     ]
     content_panels = [
-        "title",
-        "slug",
+        FieldPanel("title"),
+        FieldPanel("slug"),
     ]
     promote_panels = []
 
@@ -60,7 +61,7 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
 
     # 2. Define editing UI by extending the default field list
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        "content",
+        FieldPanel("content"),
     ]
 
     # 3. Specify HTML Template:
@@ -76,7 +77,7 @@ class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        "sub_title",
+        FieldPanel("sub_title"),
     ]
 
     class Meta:
@@ -104,9 +105,9 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        "image",
-        "desc",
-        "content",
+        FieldPanel("image"),
+        FieldPanel("desc"),
+        FieldPanel("content"),
     ]
 
     class Meta:

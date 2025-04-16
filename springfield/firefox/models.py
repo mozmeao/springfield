@@ -4,6 +4,7 @@
 
 from django.db import models
 
+from wagtail.admin.panels import FieldPanel
 from wagtail.fields import StreamField
 from wagtail.models import TranslatableMixin
 from wagtail.snippets.models import register_snippet
@@ -30,9 +31,9 @@ class FeaturesCallToActionSnippet(TranslatableMixin):
     )
 
     panels = [
-        "heading",
-        "desc",
-        "image",
+        FieldPanel("heading"),
+        FieldPanel("desc"),
+        FieldPanel("image"),
     ]
 
     class Meta(TranslatableMixin.Meta):
@@ -88,9 +89,9 @@ class FeaturesDetailPage(ArticleDetailPageBase):
     )
 
     content_panels = ArticleDetailPageBase.content_panels + [
-        "article_media",
-        "featured_article",
-        "call_to_action_bottom",
+        FieldPanel("article_media"),
+        FieldPanel("featured_article"),
+        FieldPanel("call_to_action_bottom"),
     ]
 
     def get_context(self, request, *args, **kwargs):
