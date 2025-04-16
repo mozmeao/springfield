@@ -50,7 +50,7 @@ def test_features_index_page(minimal_site, rf, serving_method):  # noqa
     request = rf.get(_relative_url)
 
     resp = getattr(test_index_page, serving_method)(request)
-    page_content = str(resp.content)
+    page_content = resp.text
     assert "Test Index Page Title" in page_content
     assert "Test Subtitle" in page_content
     assert "Test Featured Detail Page 1 Description" in page_content
@@ -92,7 +92,7 @@ def test_features_detail_page(minimal_site, rf, serving_method):  # noqa
     request = rf.get(_relative_url)
 
     resp = getattr(test_detail_page, serving_method)(request)
-    page_content = str(resp.content)
+    page_content = resp.text
     assert "Test Detail Page Title" in page_content
     assert "Test Video Title" in page_content
     assert "Test Detail Page Content" in page_content
