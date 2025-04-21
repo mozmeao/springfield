@@ -78,8 +78,7 @@ if (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules:
 
 
 # 3. DJANGO-CSP SETTINGS
-extra_csp_default_src = config("CSP_DEFAULT_SRC", default="", parser=ListOf(str, allow_empty=False))  # noqa: F405
-if extra_csp_default_src:
+if extra_csp_default_src := config("CSP_DEFAULT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_default_src = list(set(_csp_default_src + extra_csp_default_src))
 if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_connect_src = list(set(_csp_connect_src + extra_csp_connect_src))
@@ -87,8 +86,7 @@ if DEV:  # noqa: F405
     if _csp_connect_extra_for_dev:
         _csp_connect_src = list(set(_csp_connect_src + _csp_connect_extra_for_dev))
 _csp_child_src = list(set(_csp_default_src + _csp_child_src))
-csp_extra_frame_src = config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False))  # noqa: F405
-if csp_extra_frame_src:
+if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_child_src = list(set(_csp_child_src + csp_extra_frame_src))
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
 csp_ro_report_uri = config("CSP_RO_REPORT_URI", default="") or None  # noqa: F405
