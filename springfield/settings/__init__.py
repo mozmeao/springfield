@@ -81,6 +81,8 @@ if (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules:
 extra_csp_default_src = config("CSP_DEFAULT_SRC", default="", parser=ListOf(str, allow_empty=False))  # noqa: F405
 if extra_csp_default_src:
     _csp_default_src = list(set(_csp_default_src + extra_csp_default_src))
+if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_connect_src = list(set(_csp_connect_src + extra_csp_connect_src))
 if DEV:  # noqa: F405
     if _csp_connect_extra_for_dev:
         _csp_connect_src = list(set(_csp_connect_src + _csp_connect_extra_for_dev))
