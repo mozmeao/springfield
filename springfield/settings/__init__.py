@@ -87,7 +87,7 @@ if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(
     _csp_connect_src |= set(extra_csp_connect_src)
 _csp_frame_src |= _csp_default_src
 if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
-    _csp_child_src |= set(csp_extra_frame_src)
+    _csp_frame_src |= set(csp_extra_frame_src)
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
 csp_ro_report_uri = config("CSP_RO_REPORT_URI", default="") or None  # noqa: F405
 # On hosts with wagtail admin enabled, we need to allow the admin to frame itself for previews.
