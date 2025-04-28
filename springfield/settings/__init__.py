@@ -75,7 +75,9 @@ if (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules:
     # use default product-details data
     PROD_DETAILS_STORAGE = "product_details.storage.PDFileStorage"
 
-    DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}  # noqa: F405
+    # If we're using sqlite, run tests on an in-memory version, else use the configured default DB engine
+    if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+        DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
 
 
 # 3. DJANGO-CSP SETTINGS
@@ -175,10 +177,7 @@ if csp_ro_report_uri:
         "/cms-admin/": CMS_ADMIN_CSP_RO,
     }
 
-# 4. SETTINGS WHICH APPLY REGARDLESS OF SITE MODE
-if DEV:  # noqa: F405
-    ALLOWED_HOSTS = ["*"]
-else:
+if not DEV:  # noqa: F405
     MIDDLEWARE += ["springfield.base.middleware.FrameOptionsHeader"]  # noqa: F405
 
 
