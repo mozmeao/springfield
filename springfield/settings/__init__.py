@@ -34,35 +34,6 @@ _csp_default_src = {
     # Keep `default-src` minimal. Best to set resources in the specific directives.
     csp.constants.SELF,
 }
-_csp_img_src = {
-    csp.constants.SELF,
-    "data:",
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-}
-_csp_script_src = {
-    csp.constants.SELF,
-    # TODO change settings so we don't need unsafes even in dev
-    csp.constants.UNSAFE_INLINE,
-    csp.constants.UNSAFE_EVAL,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "tagmanager.google.com",
-    "www.youtube.com",
-    "s.ytimg.com",
-}
-_csp_style_src = {
-    csp.constants.SELF,
-    # TODO fix things so that we don't need this
-    csp.constants.UNSAFE_INLINE,
-}
-_csp_frame_src = {
-    csp.constants.SELF,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "accounts.firefox.com",
-    "www.youtube.com",
-}
 _csp_connect_src = {
     # NOTE: Check if these need to be in the `_csp_form_action` list as well since we often
     # progressively enhance forms by using Javascript.
@@ -89,10 +60,39 @@ _csp_form_action = {
 _csp_frame_ancestors = {
     csp.constants.SELF if WAGTAIL_ENABLE_ADMIN else csp.constants.NONE,
 }
+_csp_frame_src = {
+    csp.constants.SELF,
+    "www.googletagmanager.com",
+    "www.google-analytics.com",
+    "accounts.firefox.com",
+    "www.youtube.com",
+}
+_csp_img_src = {
+    csp.constants.SELF,
+    "data:",
+    "www.googletagmanager.com",
+    "www.google-analytics.com",
+}
 _csp_media_src = {
     csp.constants.SELF,
     "assets.mozilla.net",
     "videos.cdn.mozilla.net",
+}
+_csp_script_src = {
+    csp.constants.SELF,
+    # TODO change settings so we don't need unsafes even in dev
+    csp.constants.UNSAFE_INLINE,
+    csp.constants.UNSAFE_EVAL,
+    "www.googletagmanager.com",
+    "www.google-analytics.com",
+    "tagmanager.google.com",
+    "www.youtube.com",
+    "s.ytimg.com",
+}
+_csp_style_src = {
+    csp.constants.SELF,
+    # TODO fix things so that we don't need this
+    csp.constants.UNSAFE_INLINE,
 }
 
 # 2. TEST-SPECIFIC SETTINGS
