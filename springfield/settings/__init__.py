@@ -61,7 +61,6 @@ _csp_connect_src = {
     "www.googletagmanager.com",
     "www.google-analytics.com",
     "region1.google-analytics.com",
-    "sentry.prod.mozaws.net",  # DEPRECATED. TODO: remove this once all sites are talking to sentry.io instead
     "o1069899.sentry.io",
     "o1069899.ingest.sentry.io",
     FXA_ENDPOINT,  # noqa: F405
