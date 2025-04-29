@@ -470,6 +470,12 @@
         "js/base/video-modal-embed.es6.js"
       ],
       "name": "video-modal-embed"
+    },
+    {
+      "files": [
+        "js/base/gtm/gtm-snippet-init.es6.js"
+      ],
+      "name": "gtm-snippet"
     }
   ]
 }

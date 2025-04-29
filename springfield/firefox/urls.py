@@ -99,4 +99,5 @@ urlpatterns = (
     page("default/thanks/", "firefox/default/thanks.html", ftl_files="firefox/set-as-default/thanks"),
     # Default browser campaign
     page("default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
+    page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
 )
