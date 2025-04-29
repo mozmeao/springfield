@@ -110,6 +110,7 @@ CONTENT_SECURITY_POLICY = {
         "frame-ancestors": _csp_frame_ancestors,
         "frame-src": _csp_frame_src,
         "img-src": _csp_img_src,
+        "media-src": {csp.constants.SELF, "assets.mozilla.net", "videos.cdn.mozilla.net"},
         "script-src": _csp_script_src,
         "style-src": _csp_style_src,
         "upgrade-insecure-requests": False if DEBUG else True,  # noqa: F405
@@ -126,7 +127,6 @@ if csp_ro_report_uri:
 
     # CSP directive updates we're testing that we hope to move to the enforced policy.
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["base-uri"] = {csp.constants.NONE}
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["media-src"] = {csp.constants.SELF, "assets.mozilla.net", "videos.cdn.mozilla.net"}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["object-src"] = {csp.constants.NONE}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["style-src"] -= {csp.constants.UNSAFE_INLINE}
 
