@@ -50,6 +50,7 @@ _csp_style_src = {
     csp.constants.UNSAFE_INLINE,
 }
 _csp_frame_src = {
+    csp.constants.SELF,
     "www.googletagmanager.com",
     "www.google-analytics.com",
     "accounts.firefox.com",
@@ -91,7 +92,6 @@ if extra_csp_default_src := config("CSP_DEFAULT_SRC", default="", parser=ListOf(
     _csp_default_src |= set(extra_csp_default_src)
 if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_connect_src |= set(extra_csp_connect_src)
-_csp_frame_src |= _csp_default_src
 if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_frame_src |= set(csp_extra_frame_src)
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
