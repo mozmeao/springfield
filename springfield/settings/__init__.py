@@ -28,11 +28,13 @@ _csp_default_src = {
     "assets.mozilla.net",
 }
 _csp_img_src = {
+    csp.constants.SELF,
     "data:",
     "www.googletagmanager.com",
     "www.google-analytics.com",
 }
 _csp_script_src = {
+    csp.constants.SELF,
     # TODO change settings so we don't need unsafes even in dev
     csp.constants.UNSAFE_INLINE,
     csp.constants.UNSAFE_EVAL,
@@ -43,6 +45,7 @@ _csp_script_src = {
     "s.ytimg.com",
 }
 _csp_style_src = {
+    csp.constants.SELF,
     # TODO fix things so that we don't need this
     csp.constants.UNSAFE_INLINE,
 }
@@ -53,6 +56,7 @@ _csp_frame_src = {
     "www.youtube.com",
 }
 _csp_connect_src = {
+    csp.constants.SELF,
     "www.googletagmanager.com",
     "www.google-analytics.com",
     "region1.google-analytics.com",
@@ -61,7 +65,9 @@ _csp_connect_src = {
     "o1069899.ingest.sentry.io",
     FXA_ENDPOINT,  # noqa: F405
 }
-_csp_font_src = set()
+_csp_font_src = {
+    csp.constants.SELF,
+}
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes
@@ -101,13 +107,13 @@ CONTENT_SECURITY_POLICY = {
     "REPORT_PERCENTAGE": config("CSP_REPORT_PERCENTAGE", default="1.0", parser=float),  # noqa: F405
     "DIRECTIVES": {
         "default-src": _csp_default_src,
-        "connect-src": _csp_default_src | _csp_connect_src,
-        "font-src": _csp_default_src | _csp_font_src,
+        "connect-src": _csp_connect_src,
+        "font-src": _csp_font_src,
         "frame-ancestors": _csp_frame_ancestors,
         "frame-src": _csp_frame_src,
-        "img-src": _csp_default_src | _csp_img_src,
-        "script-src": _csp_default_src | _csp_script_src,
-        "style-src": _csp_default_src | _csp_style_src,
+        "img-src": _csp_img_src,
+        "script-src": _csp_script_src,
+        "style-src": _csp_style_src,
         "upgrade-insecure-requests": False if DEBUG else True,  # noqa: F405
         "report-uri": csp_report_uri,
     },
