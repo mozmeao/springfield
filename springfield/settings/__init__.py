@@ -89,6 +89,11 @@ _csp_form_action = {
 _csp_frame_ancestors = {
     csp.constants.SELF if WAGTAIL_ENABLE_ADMIN else csp.constants.NONE,
 }
+_csp_media_src = {
+    csp.constants.SELF,
+    "assets.mozilla.net",
+    "videos.cdn.mozilla.net",
+}
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes
@@ -129,7 +134,7 @@ CONTENT_SECURITY_POLICY = {
         "frame-ancestors": _csp_frame_ancestors,
         "frame-src": _csp_frame_src,
         "img-src": _csp_img_src,
-        "media-src": {csp.constants.SELF, "assets.mozilla.net", "videos.cdn.mozilla.net"},
+        "media-src": _csp_media_src,
         "object-src": {csp.constants.NONE},
         "script-src": _csp_script_src,
         "style-src": _csp_style_src,
