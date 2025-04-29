@@ -23,9 +23,8 @@ ROOT_URLCONF = "springfield.urls"
 # NOTE: We are providing all settings to django-csp as sets, not lists.
 # - This is for de-duping, and because django-csp will convert them to `sorted` lists for us.
 _csp_default_src = {
+    # Keep `default-src` minimal. Best to set resources in the specific directives.
     csp.constants.SELF,
-    "*.firefox.com",
-    "assets.mozilla.net",
 }
 _csp_img_src = {
     csp.constants.SELF,
@@ -126,7 +125,6 @@ if csp_ro_report_uri:
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["report-uri"] = csp_ro_report_uri
 
     # CSP directive updates we're testing that we hope to move to the enforced policy.
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["default-src"] = {csp.constants.SELF}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["base-uri"] = {csp.constants.NONE}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["media-src"] = {csp.constants.SELF, "assets.mozilla.net", "videos.cdn.mozilla.net"}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["object-src"] = {csp.constants.NONE}
