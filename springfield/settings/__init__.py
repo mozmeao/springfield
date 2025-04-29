@@ -22,6 +22,14 @@ ROOT_URLCONF = "springfield.urls"
 # CSP settings, expanded upon later:
 # NOTE: We are providing all settings to django-csp as sets, not lists.
 # - This is for de-duping, and because django-csp will convert them to `sorted` lists for us.
+
+# NOTE: Any URLs that contain a path, not just the origin, trailing slashes are important.
+# - if no path is provided, all resources are allowed from the origin.
+# - if path is provided with no trailing slash: an exact-match is required.
+#   - e.g. `https://example.com/api` will only match `https://example.com/api`
+# - if path is provided with trailing slash: the path is a prefix-match.
+#   - e.g. `https://example.com/api/` will match anything that starts with `https://example.com/api/`
+
 _csp_default_src = {
     # Keep `default-src` minimal. Best to set resources in the specific directives.
     csp.constants.SELF,
@@ -56,7 +64,10 @@ _csp_frame_src = {
     "www.youtube.com",
 }
 _csp_connect_src = {
+    # NOTE: Check if these need to be in the `_csp_form_action` list as well since we often
+    # progressively enhance forms by using Javascript.
     csp.constants.SELF,
+    BASKET_URL,
     "www.googletagmanager.com",
     "www.google-analytics.com",
     "region1.google-analytics.com",
@@ -66,6 +77,13 @@ _csp_connect_src = {
 }
 _csp_font_src = {
     csp.constants.SELF,
+}
+_csp_form_action = {
+    csp.constants.SELF,
+    # NOTE: Check if these need to be in the `_csp_connect_src` list as well since we often
+    # progressively enhance forms by using Javascript.
+    BASKET_URL,
+    FXA_ENDPOINT,
 }
 
 # 2. TEST-SPECIFIC SETTINGS
@@ -108,6 +126,7 @@ CONTENT_SECURITY_POLICY = {
         "base-uri": {csp.constants.NONE},
         "connect-src": _csp_connect_src,
         "font-src": _csp_font_src,
+        "form-action": _csp_form_action,
         "frame-ancestors": _csp_frame_ancestors,
         "frame-src": _csp_frame_src,
         "img-src": _csp_img_src,
