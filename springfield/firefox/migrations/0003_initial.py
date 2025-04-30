@@ -20,7 +20,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0004_rename_bedrockrendition_springfieldrendition"),
         ("wagtailcore", "0093_uploadedfile"),
-        ("firefox", "0002_delete_firefoxosfeedlink"),
     ]
 
     operations = [
