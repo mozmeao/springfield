@@ -182,8 +182,10 @@ install-local-python-deps:
 	# Dev requirements are a superset of prod requirements, but we install
 	# them in the same separate steps that we use for our Docker-based build,
 	# so that it mirrors Production and Dev image building
+	# Local requirements, meanwhile, are never used in production
 	$(pip) install -r requirements/prod.txt
 	$(pip) install -r requirements/dev.txt
+	$(pip) install -r requirements/local.txt
 
 run-local-task-queue:
 	# We temporarily source the .env for the command's duration only

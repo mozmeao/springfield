@@ -18,3 +18,4 @@ rm -f requirements/*.txt
 uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/prod.in -o requirements/prod.txt
 uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/dev.in -o requirements/dev.txt
 uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/docs.in -o requirements/docs.txt
+uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/local.in -o requirements/local.txt

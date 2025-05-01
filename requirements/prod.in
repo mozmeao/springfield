@@ -39,7 +39,7 @@ markus[datadog]==5.0.0
 https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz#egg=mdx_outline
 mozilla-django-oidc==4.0.1
 Pillow==11.2.1
-psycopg==3.2.6
+psycopg[c]==3.2.6  # use version with psycopg_c support - also needs libpq-dev in the Docker image; may need it for local dev, too
 PyGithub==2.6.1
 pyOpenSSL==25.0.0
 PyYAML==6.0.2

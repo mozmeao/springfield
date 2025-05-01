@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/venv/bin:$PATH"
 
 COPY docker/bin/apt-install /usr/local/bin/
-RUN apt-install gettext build-essential libxml2-dev libxslt1-dev libxslt1.1
+RUN apt-install gettext build-essential libxml2-dev libxslt1-dev libxslt1.1 libpq-dev
 RUN python -m venv /venv
 
 COPY requirements/prod.txt ./requirements/
