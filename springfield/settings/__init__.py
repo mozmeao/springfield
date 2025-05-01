@@ -22,17 +22,64 @@ ROOT_URLCONF = "springfield.urls"
 # CSP settings, expanded upon later:
 # NOTE: We are providing all settings to django-csp as sets, not lists.
 # - This is for de-duping, and because django-csp will convert them to `sorted` lists for us.
+
+# NOTE: Any URLs that contain a path, not just the origin, trailing slashes are important.
+# - if no path is provided, all resources are allowed from the origin.
+# - if path is provided with no trailing slash: an exact-match is required.
+#   - e.g. `https://example.com/api` will only match `https://example.com/api`
+# - if path is provided with trailing slash: the path is a prefix-match.
+#   - e.g. `https://example.com/api/` will match anything that starts with `https://example.com/api/`
+
 _csp_default_src = {
+    # Keep `default-src` minimal. Best to set resources in the specific directives.
     csp.constants.SELF,
-    "*.firefox.com",
-    "assets.mozilla.net",
+}
+_csp_connect_src = {
+    # NOTE: Check if these need to be in the `_csp_form_action` list as well since we often
+    # progressively enhance forms by using Javascript.
+    csp.constants.SELF,
+    BASKET_URL,
+    "www.googletagmanager.com",
+    "www.google-analytics.com",
+    "region1.google-analytics.com",
+    "o1069899.sentry.io",
+    "o1069899.ingest.sentry.io",
+    FXA_ENDPOINT,  # noqa: F405
+}
+_csp_font_src = {
+    csp.constants.SELF,
+}
+_csp_form_action = {
+    csp.constants.SELF,
+    # NOTE: Check if these need to be in the `_csp_connect_src` list as well since we often
+    # progressively enhance forms by using Javascript.
+    BASKET_URL,
+    FXA_ENDPOINT,
+}
+# On hosts with wagtail admin enabled, we need to allow the admin to frame itself for previews.
+_csp_frame_ancestors = {
+    csp.constants.SELF if WAGTAIL_ENABLE_ADMIN else csp.constants.NONE,
+}
+_csp_frame_src = {
+    csp.constants.SELF,
+    "www.googletagmanager.com",
+    "www.google-analytics.com",
+    "accounts.firefox.com",
+    "www.youtube.com",
 }
 _csp_img_src = {
+    csp.constants.SELF,
     "data:",
     "www.googletagmanager.com",
     "www.google-analytics.com",
 }
+_csp_media_src = {
+    csp.constants.SELF,
+    "assets.mozilla.net",
+    "videos.cdn.mozilla.net",
+}
 _csp_script_src = {
+    csp.constants.SELF,
     # TODO change settings so we don't need unsafes even in dev
     csp.constants.UNSAFE_INLINE,
     csp.constants.UNSAFE_EVAL,
@@ -43,25 +90,10 @@ _csp_script_src = {
     "s.ytimg.com",
 }
 _csp_style_src = {
+    csp.constants.SELF,
     # TODO fix things so that we don't need this
     csp.constants.UNSAFE_INLINE,
 }
-_csp_frame_src = {
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "accounts.firefox.com",
-    "www.youtube.com",
-}
-_csp_connect_src = {
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "region1.google-analytics.com",
-    "sentry.prod.mozaws.net",  # DEPRECATED. TODO: remove this once all sites are talking to sentry.io instead
-    "o1069899.sentry.io",
-    "o1069899.ingest.sentry.io",
-    FXA_ENDPOINT,  # noqa: F405
-}
-_csp_font_src = set()
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes
@@ -85,29 +117,27 @@ if extra_csp_default_src := config("CSP_DEFAULT_SRC", default="", parser=ListOf(
     _csp_default_src |= set(extra_csp_default_src)
 if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_connect_src |= set(extra_csp_connect_src)
-_csp_frame_src |= _csp_default_src
 if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_frame_src |= set(csp_extra_frame_src)
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
 csp_ro_report_uri = config("CSP_RO_REPORT_URI", default="") or None  # noqa: F405
-# On hosts with wagtail admin enabled, we need to allow the admin to frame itself for previews.
-if WAGTAIL_ENABLE_ADMIN:  # noqa: F405
-    _csp_frame_ancestors = {csp.constants.SELF}
-else:
-    _csp_frame_ancestors = {csp.constants.NONE}
 
 CONTENT_SECURITY_POLICY = {
     # Default report percentage to 1% just in case the env var isn't set, we don't want to bombard Sentry.
     "REPORT_PERCENTAGE": config("CSP_REPORT_PERCENTAGE", default="1.0", parser=float),  # noqa: F405
     "DIRECTIVES": {
         "default-src": _csp_default_src,
-        "connect-src": _csp_default_src | _csp_connect_src,
-        "font-src": _csp_default_src | _csp_font_src,
+        "base-uri": {csp.constants.NONE},
+        "connect-src": _csp_connect_src,
+        "font-src": _csp_font_src,
+        "form-action": _csp_form_action,
         "frame-ancestors": _csp_frame_ancestors,
         "frame-src": _csp_frame_src,
-        "img-src": _csp_default_src | _csp_img_src,
-        "script-src": _csp_default_src | _csp_script_src,
-        "style-src": _csp_default_src | _csp_style_src,
+        "img-src": _csp_img_src,
+        "media-src": _csp_media_src,
+        "object-src": {csp.constants.NONE},
+        "script-src": _csp_script_src,
+        "style-src": _csp_style_src,
         "upgrade-insecure-requests": False if DEBUG else True,  # noqa: F405
         "report-uri": csp_report_uri,
     },
@@ -121,10 +151,6 @@ if csp_ro_report_uri:
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["report-uri"] = csp_ro_report_uri
 
     # CSP directive updates we're testing that we hope to move to the enforced policy.
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["default-src"] = {csp.constants.SELF}
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["base-uri"] = {csp.constants.NONE}
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["media-src"] = {csp.constants.SELF, "assets.mozilla.net", "videos.cdn.mozilla.net"}
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["object-src"] = {csp.constants.NONE}
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["style-src"] -= {csp.constants.UNSAFE_INLINE}
 
 
