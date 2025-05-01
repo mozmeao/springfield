@@ -67,7 +67,7 @@ EXPOSE 8000
 CMD ["./bin/run.sh"]
 
 COPY docker/bin/apt-install /usr/local/bin/
-RUN apt-install gettext libxslt1.1 git curl sqlite3 libmagickwand-dev
+RUN apt-install curl gettext git libmagickwand-dev libpq-dev libxslt1.1 sqlite3
 
 # copy in Python environment
 COPY --from=python-builder /venv /venv
