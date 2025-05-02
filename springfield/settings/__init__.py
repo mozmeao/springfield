@@ -117,8 +117,19 @@ if extra_csp_default_src := config("CSP_DEFAULT_SRC", default="", parser=ListOf(
     _csp_default_src |= set(extra_csp_default_src)
 if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_connect_src |= set(extra_csp_connect_src)
+if csp_extra_font_src := config("CSP_EXTRA_FONT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_font_src |= set(csp_extra_font_src)
 if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_frame_src |= set(csp_extra_frame_src)
+if csp_extra_script_src := config("CSP_EXTRA_SCRIPT_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_script_src |= set(csp_extra_script_src)
+if csp_extra_style_src := config("CSP_EXTRA_STYLE_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_style_src |= set(csp_extra_style_src)
+if csp_extra_img_src := config("CSP_EXTRA_IMG_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_img_src |= set(csp_extra_img_src)
+if csp_extra_media_src := config("CSP_EXTRA_MEDIA_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
+    _csp_media_src |= set(csp_extra_media_src)
+
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
 csp_ro_report_uri = config("CSP_RO_REPORT_URI", default="") or None  # noqa: F405
 
