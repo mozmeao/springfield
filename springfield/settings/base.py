@@ -163,11 +163,13 @@ LOCALES_BY_REGION = {
     "Americas": ["azz", "cak", "en-CA", "en-US", "es-AR", "es-CL", "es-MX", "gn", "is", "pt-BR", "trs"],
     "Asia Pacific": [
         "bn",
+        "gu-IN",
         "hi-IN",
         "id",
         "ja",
         "kk",
         "km",
+        "kn",
         "ko",
         "lo",
         "ml",
@@ -242,7 +244,7 @@ LOCALES_BY_REGION = {
         "uk",
         "uz",
     ],
-    "Middle East and Africa": ["ach", "af", "ar", "az", "fa", "ff", "gu-IN", "he", "kab", "kn", "skr", "son", "xh"],
+    "Middle East and Africa": ["ach", "af", "ar", "az", "fa", "ff", "he", "kab", "skr", "son", "xh"],
 }
 
 
