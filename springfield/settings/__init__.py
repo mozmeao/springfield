@@ -76,6 +76,7 @@ _csp_img_src = {
     csp.constants.SELF,
     CSP_ORIGIN_HOST_FALLBACK,
     "data:",
+    "www.mozilla.org",  # mainly for release notes images.
     "www.googletagmanager.com",
     "www.google-analytics.com",
 }
