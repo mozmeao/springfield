@@ -240,9 +240,9 @@
     {
       "files": [
         "css/m24/root.scss",
-        "css/protocol/protocol-mozilla.scss"
+        "css/protocol/protocol.scss"
       ],
-      "name": "protocol-mozilla"
+      "name": "protocol"
     },
     {
       "files": [
