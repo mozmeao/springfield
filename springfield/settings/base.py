@@ -268,7 +268,6 @@ FLUENT_DEFAULT_FILES = [
     "brands",
     "download_button",
     "footer",
-    "footer-refresh",
     "fxa_form",
     "navigation_v2",
     "navigation_refresh",

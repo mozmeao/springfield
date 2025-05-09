@@ -2,6 +2,38 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+
+
+footer-download = Download
+footer-download-auto = Download Firefox
+footer-windows = Windows
+footer-mac = Mac
+footer-ios = iOS
+footer-android = Android
+footer-linux = Linux
+footer-custom-download = Custom Download Options
+footer-latest = Latest Builds
+footer-nightly = Nightly
+footer-beta = Beta
+footer-business= Firefox for Business
+footer-enterprise = Enterprise
+
+footer-community = Community
+footer-contribute = Contribute
+footer-developer = Developer
+
+footer-support = Support
+footer-compare = Compare
+
+footer-release-notes = Release Notes
+footer-addons = Add-Ons
+footer-blog = Blog
+footer-follow = Follow
+
+
+
+
+
 footer-mozilla-manifesto = { -brand-name-mozilla } Manifesto
 footer-privacy-hub = Privacy Hub
 footer-privacy = Privacy
