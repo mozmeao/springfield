@@ -159,14 +159,14 @@ class TestDownloadButtons(TestCase):
         get_request.locale = "fr"
         doc = pq(render("{{ download_firefox() }}", {"request": get_request, "fluent_l10n": self.get_l10n(get_request.locale)}))
 
-        # The first 8 links should be for desktop.
+        # The first 9 links should be for desktop.
         links = doc(".download-list a")
 
-        for link in links[:8]:
+        for link in links[:9]:
             assert pq(link).attr("data-direct-link").startswith(settings.BOUNCER_URL)
 
-        # The ninth link is mobile and should not have the attr
-        assert pq(links[8]).attr("data-direct-link") is None
+        # The 10th link is mobile and should not have the attr
+        assert pq(links[9]).attr("data-direct-link") is None
 
     def test_nightly_desktop(self):
         """
@@ -206,7 +206,7 @@ class TestDownloadButtons(TestCase):
         )
 
         list = doc(".download-list li")
-        assert list.length == 8
+        assert list.length == 9
         assert pq(list[0]).attr("class") == "os_win64"
         assert pq(list[1]).attr("class") == "os_win64-msi"
         assert pq(list[2]).attr("class") == "os_win64-aarch64"
@@ -214,7 +214,8 @@ class TestDownloadButtons(TestCase):
         assert pq(list[4]).attr("class") == "os_win-msi"
         assert pq(list[5]).attr("class") == "os_osx"
         assert pq(list[6]).attr("class") == "os_linux64"
-        assert pq(list[7]).attr("class") == "os_linux"
+        assert pq(list[7]).attr("class") == "os_linux64-aarch64"
+        assert pq(list[8]).attr("class") == "os_linux"
 
     def test_beta_desktop(self):
         """The Beta channel should not have Windows 64 build yet"""
@@ -226,7 +227,7 @@ class TestDownloadButtons(TestCase):
         )
 
         list = doc(".download-list li")
-        assert list.length == 8
+        assert list.length == 9
         assert pq(list[0]).attr("class") == "os_win64"
         assert pq(list[1]).attr("class") == "os_win64-msi"
         assert pq(list[2]).attr("class") == "os_win64-aarch64"
@@ -234,7 +235,8 @@ class TestDownloadButtons(TestCase):
         assert pq(list[4]).attr("class") == "os_win-msi"
         assert pq(list[5]).attr("class") == "os_osx"
         assert pq(list[6]).attr("class") == "os_linux64"
-        assert pq(list[7]).attr("class") == "os_linux"
+        assert pq(list[7]).attr("class") == "os_linux64-aarch64"
+        assert pq(list[8]).attr("class") == "os_linux"
 
     def test_firefox_desktop(self):
         """The Release channel should not have Windows 64 build yet"""
@@ -244,7 +246,7 @@ class TestDownloadButtons(TestCase):
         doc = pq(render("{{ download_firefox(platform='desktop') }}", {"request": get_request, "fluent_l10n": self.get_l10n(get_request.locale)}))
 
         list = doc(".download-list li")
-        assert list.length == 8
+        assert list.length == 9
         assert pq(list[0]).attr("class") == "os_win64"
         assert pq(list[1]).attr("class") == "os_win64-msi"
         assert pq(list[2]).attr("class") == "os_win64-aarch64"
@@ -252,7 +254,8 @@ class TestDownloadButtons(TestCase):
         assert pq(list[4]).attr("class") == "os_win-msi"
         assert pq(list[5]).attr("class") == "os_osx"
         assert pq(list[6]).attr("class") == "os_linux64"
-        assert pq(list[7]).attr("class") == "os_linux"
+        assert pq(list[7]).attr("class") == "os_linux64-aarch64"
+        assert pq(list[8]).attr("class") == "os_linux"
 
     def test_latest_nightly_android(self):
         """The download button should have a Google Play link"""
