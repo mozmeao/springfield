@@ -763,3 +763,48 @@ class FirefoxFeaturesAdBlocker(L10nTemplateView):
             template_name = "firefox/features/adblocker.html"
 
         return [template_name]
+
+
+class PlatformViewLinux(L10nTemplateView):
+    # the base_platform template works with either platform.ftl or download.ftl active
+    template_name = "firefox/browsers/desktop/linux.html"
+
+    ftl_files_map = {
+        "firefox/browsers/desktop/linux.html": [
+            "firefox/download/platform",
+            "firefox/download/download",
+        ],
+    }
+
+    # all active locales, this will make the lang switcher work properly
+    activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+class PlatformViewMac(L10nTemplateView):
+    # the base_platform template works with either platform.ftl or download.ftl active
+    template_name = "firefox/browsers/desktop/mac.html"
+
+    ftl_files_map = {
+        "firefox/browsers/desktop/mac.html": [
+            "firefox/download/platform",
+            "firefox/download/download",
+        ],
+    }
+
+    # all active locales, this will make the lang switcher work properly
+    activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+class PlatformViewWindows(L10nTemplateView):
+    # the base_platform template works with either platform.ftl or download.ftl active
+    template_name = "firefox/browsers/desktop/windows.html"
+
+    ftl_files_map = {
+        "firefox/browsers/desktop/windows.html": [
+            "firefox/download/platform",
+            "firefox/download/download",
+        ],
+    }
+
+    # all active locales, this will make the lang switcher work properly
+    activation_files = ["firefox/download/download", "firefox/download/platform"]
