@@ -269,6 +269,12 @@
         "css/firefox/browsers/mobile-index.scss"
       ],
       "name": "firefox-mobile-index"
+    },
+    {
+      "files": [
+        "css/firefox/browsers/desktop/platform.scss"
+      ],
+      "name": "firefox_desktop_platform"
     }
   ],
   "js": [
