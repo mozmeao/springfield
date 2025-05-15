@@ -13,7 +13,6 @@ STARTUP_FILES=(
 # is already present at startup and that we've downloaded the latest one
 if [[ -z "$DATABASE_URL" ]]; then
     STARTUP_FILES+=(
-        "data/springfield.db"
         "data/last-run-download_database"
     )
 fi
