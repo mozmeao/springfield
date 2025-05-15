@@ -172,6 +172,14 @@ def schedule_file_jobs():
                 raise
 
 
+def schedule_l10n_jobs():
+    call_command("l10n_update --clean")
+
+    @scheduled_job("interval", minutes=DB_UPDATE_MINUTES)
+    def update_locales():
+        call_command("l10n_update")
+
+
 def main(args):
     has_jobs = False
     if "db" in args:
@@ -179,6 +187,9 @@ def main(args):
         has_jobs = True
     if "file" in args:
         schedule_file_jobs()
+        has_jobs = True
+    if "l10n" in args:
+        schedule_l10n_jobs()
         has_jobs = True
 
     if has_jobs:
