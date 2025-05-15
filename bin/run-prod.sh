@@ -7,13 +7,14 @@
 # look for the required files and fail quickly if it's not there
 STARTUP_FILES=(
     "data/last-run-update_locales"
-    "data/last-run-download_database"
 )
 # If DATABASE_URL is defined, that means we're using Postgres not sqlite.
 # However, if DATABASE_URL is NOT defined, we need to be sure the sqlite DB file
-# is already present at startup
+# is already present at startup and that we've downloaded the latest one
 if [[ -z "$DATABASE_URL" ]]; then
-    STARTUP_FILES+=("data/springfield.db")
+    STARTUP_FILES+=(
+        "data/last-run-download_database"
+    )
 fi
 
 for fname in "${STARTUP_FILES[@]}"; do
