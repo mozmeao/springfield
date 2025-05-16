@@ -100,4 +100,7 @@ urlpatterns = (
     # Default browser campaign
     page("default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
+    path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
+    path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
+    path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
 )

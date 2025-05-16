@@ -482,3 +482,34 @@ class TestFirefoxSetAsDefaultThanks(TestCase):
         resp = self.client.get("/default/thanks/", follow=True)
         assert resp.status_code == 200, "Ensure this URL continues to work, see issue 13253"
         assert resp.templates[0].name == "firefox/default/thanks.html"
+
+
+@override_settings(DEV=False)
+@patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
+class TestFirefoxPlatform(TestCase):
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_linux_download_template(self, render_mock):
+        req = RequestFactory().get("/browsers/desktop/linux/")
+        req.locale = "en-US"
+        view = views.PlatformViewLinux.as_view()
+        view(req)
+        template = render_mock.call_args[0][1]
+        assert template == ["firefox/browsers/desktop/linux.html"]
+
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_mac_download_template(self, render_mock):
+        req = RequestFactory().get("/browsers/desktop/mac/")
+        req.locale = "en-US"
+        view = views.PlatformViewMac.as_view()
+        view(req)
+        template = render_mock.call_args[0][1]
+        assert template == ["firefox/browsers/desktop/mac.html"]
+
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_windows_download_template(self, render_mock):
+        req = RequestFactory().get("/browsers/desktop/windows/")
+        req.locale = "en-US"
+        view = views.PlatformViewWindows.as_view()
+        view(req)
+        template = render_mock.call_args[0][1]
+        assert template == ["firefox/browsers/desktop/windows.html"]
