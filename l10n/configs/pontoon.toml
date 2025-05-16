@@ -115,6 +115,9 @@ locales = [
     reference = "en/firefox/*.ftl"
     l10n = "{locale}/firefox/*.ftl"
 [[paths]]
+    reference = "en/firefox/browsers/**/*.ftl"
+    l10n = "{locale}/firefox/browsers/**/*.ftl"
+[[paths]]
     reference = "en/firefox/features/**/*.ftl"
     l10n = "{locale}/firefox/features/**/*.ftl"
 [[paths]]

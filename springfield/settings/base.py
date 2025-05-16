@@ -273,6 +273,7 @@ FLUENT_DEFAULT_FILES = [
     "navigation_v2",
     "navigation_refresh",
     "newsletter_form",
+    "send_to_device",
     "sub_navigation",
     "ui",
     "mozilla-account-promo",
