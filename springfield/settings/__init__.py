@@ -31,7 +31,7 @@ ROOT_URLCONF = "springfield.urls"
 #   - e.g. `https://example.com/api/` will match anything that starts with `https://example.com/api/`
 
 
-CSP_ORIGIN_HOST_FALLBACK = config("CSP_ORIGIN_HOST_FALLBACK", default="")
+CSP_ASSETS_HOST = config("CSP_ASSETS_HOST", default="")
 
 _csp_default_src = {
     # Keep `default-src` minimal. Best to set resources in the specific directives.
@@ -41,7 +41,7 @@ _csp_connect_src = {
     # NOTE: Check if these need to be in the `_csp_form_action` list as well since we often
     # progressively enhance forms by using Javascript.
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
     BASKET_URL,
     "www.googletagmanager.com",
     "www.google-analytics.com",
@@ -52,7 +52,7 @@ _csp_connect_src = {
 }
 _csp_font_src = {
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
 }
 _csp_form_action = {
     csp.constants.SELF,
@@ -74,7 +74,7 @@ _csp_frame_src = {
 }
 _csp_img_src = {
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
     "data:",
     "www.mozilla.org",  # mainly for release notes images.
     "www.googletagmanager.com",
@@ -82,13 +82,13 @@ _csp_img_src = {
 }
 _csp_media_src = {
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
     "assets.mozilla.net",
     "videos.cdn.mozilla.net",
 }
 _csp_script_src = {
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
     # TODO change settings so we don't need unsafes even in dev
     csp.constants.UNSAFE_INLINE,
     csp.constants.UNSAFE_EVAL,
@@ -100,7 +100,7 @@ _csp_script_src = {
 }
 _csp_style_src = {
     csp.constants.SELF,
-    CSP_ORIGIN_HOST_FALLBACK,
+    CSP_ASSETS_HOST,
     # TODO fix things so that we don't need this
     csp.constants.UNSAFE_INLINE,
 }
