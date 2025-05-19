@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-### URL: https://www-dev.springfield.moz.works/browsers/compare/
+### URL: https://www-dev.springfield.moz.works/compare/
 
 # Page title
 compare-index-compare-firefox-with-other = Compare { -brand-name-firefox } with other browsers
