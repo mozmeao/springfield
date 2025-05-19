@@ -108,4 +108,34 @@ urlpatterns = (
     path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
     path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
     page("landing/get/", "firefox/landing/get.html", ftl_files="firefox/download/desktop"),
+    page(
+        "compare/",
+        "firefox/browsers/compare/index.html",
+        ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
+    ),
+    page(
+        "compare/brave/",
+        "firefox/browsers/compare/brave.html",
+        ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
+    ),
+    page(
+        "compare/chrome/",
+        "firefox/browsers/compare/chrome.html",
+        ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
+    ),
+    page(
+        "compare/edge/",
+        "firefox/browsers/compare/edge.html",
+        ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
+    ),
+    page(
+        "compare/opera/",
+        "firefox/browsers/compare/opera.html",
+        ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
+    ),
+    page(
+        "compare/safari/",
+        "firefox/browsers/compare/safari.html",
+        ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
+    ),
 )

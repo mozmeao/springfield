@@ -142,6 +142,18 @@
     },
     {
       "files": [
+        "css/firefox/compare/index.scss"
+      ],
+      "name": "firefox-compare-index"
+    },
+    {
+      "files": [
+        "css/firefox/compare/article.scss"
+      ],
+      "name": "firefox-compare-article"
+    },
+    {
+      "files": [
         "css/firefox/default/landing.scss"
       ],
       "name": "firefox-default-landing"
@@ -356,6 +368,12 @@
         "js/firefox/features/features-article.es6.js"
       ],
       "name": "firefox_features_article"
+    },
+    {
+      "files": [
+        "js/firefox/browsers/compare-article.es6.js"
+      ],
+      "name": "firefox_compare_article"
     },
     {
       "files": [
