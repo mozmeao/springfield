@@ -272,6 +272,13 @@
     },
     {
       "files": [
+        "css/protocol/components/send-to-device.scss",
+        "css/firefox/browsers/get-app.scss"
+      ],
+      "name": "firefox-browsers-get-app"
+    },
+    {
+      "files": [
         "css/firefox/browsers/desktop/platform.scss"
       ],
       "name": "firefox_desktop_platform"
@@ -517,6 +524,13 @@
         "js/firefox/browsers/mobile-index.js"
       ],
       "name": "firefox-mobile-index"
+    },
+    {
+      "files": [
+        "js/base/send-to-device.es6.js",
+        "js/firefox/browsers/get-app.es6.js"
+      ],
+      "name": "firefox-browsers-get-app"
     },
     {
       "files": [
