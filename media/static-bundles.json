@@ -275,6 +275,12 @@
         "css/firefox/browsers/desktop/platform.scss"
       ],
       "name": "firefox_desktop_platform"
+    },
+    {
+      "files": [
+        "css/firefox/landing/get/marketing-opt-out.scss"
+      ],
+      "name": "firefox_marketing_opt_out"
     }
   ],
   "js": [
@@ -511,6 +517,12 @@
         "js/firefox/browsers/mobile-index.js"
       ],
       "name": "firefox-mobile-index"
+    },
+    {
+      "files": [
+        "js/firefox/landing/get/marketing-opt-out-init.es6.js"
+      ],
+      "name": "firefox_marketing_opt_out"
     }
   ]
 }
