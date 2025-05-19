@@ -18,7 +18,7 @@
   {{ css_bundle('firefox-default-thanks') }}
 {% endblock %}
 
-{% set utms = '?utm_source=mozilla.org-default-thanks&utm_medium=referral&utm_campaign=default-thanks&entrypoint=mozilla.org-default-thanks' %}
+{% set utms = '?utm_source=www.firefox.com-default-thanks&utm_medium=referral&utm_campaign=default-thanks&entrypoint=www.firefox.com-default-thanks' %}
 
 {% block content %}
 <main>
@@ -73,7 +73,7 @@
           {{ ftl('set-as-default-thanks-get-firefox-for-mobile') }}
         </h2>
         <p>{{ ftl('set-as-default-thanks-travel-the-internet-with') }}</p>
-        <a href="https://www.mozilla.org/{{ LANG }}/firefox/browsers/mobile/>{{ ftl('set-as-default-thanks-download-the-app') }}</a>
+        <a href="{{ url('firefox.browsers.mobile.index') }}>{{ ftl('set-as-default-thanks-download-the-app') }}</a>
       </section>
 
       <section class="thanks-extra-links-item join">

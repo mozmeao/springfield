@@ -255,6 +255,20 @@
         "css/protocol/navigation-and-footer.scss"
       ],
       "name": "legacy-navigation-and-footer"
+    },
+    {
+      "files": [
+        "css/protocol/components/send-to-device.scss",
+        "css/firefox/browsers/mobile.scss"
+      ],
+      "name": "firefox-browsers-mobile"
+    },
+    {
+      "files": [
+        "css/firefox/mozilla-account-promo.scss",
+        "css/firefox/browsers/mobile-index.scss"
+      ],
+      "name": "firefox-mobile-index"
     }
   ],
   "js": [
@@ -476,6 +490,21 @@
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
+    },
+    {
+      "files": [
+        "js/base/send-to-device.es6.js",
+        "js/firefox/browsers/mobile.es6.js"
+      ],
+      "name": "firefox-browsers-mobile"
+    },
+    {
+      "files": [
+        "js/base/mozilla-fxa.js",
+        "js/base/mozilla-fxa-init.js",
+        "js/firefox/browsers/mobile-index.js"
+      ],
+      "name": "firefox-mobile-index"
     }
   ]
 }
