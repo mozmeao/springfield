@@ -162,7 +162,7 @@ jobs:
   upload_static_assets:
     name: Upload static assets
     runs-on: ubuntu-latest
-    environment: build
+    environment: ${{ needs.push_image_to_gar.outputs.deployment_env }}
     needs: [build_and_publish_public_images, push_image_to_gar]
     permissions:
       contents: read
