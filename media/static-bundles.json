@@ -312,6 +312,12 @@
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "css/firefox/faq.scss"
+      ],
+      "name": "firefox-faq"
     }
   ],
   "js": [
