@@ -75,7 +75,7 @@ class Command(FTLRepoCommand):
 
     def push_changes(self):
         try:
-            self.meao_repo.git("push", self.git_push_url, "HEAD:master")
+            self.meao_repo.git("push", self.git_push_url, "HEAD:main")
         except CalledProcessError:
             raise CommandError(f"There was a problem pushing to {self.meao_repo.remote_url}")
 
