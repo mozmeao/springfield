@@ -140,4 +140,6 @@ urlpatterns = (
         "firefox/browsers/compare/safari.html",
         ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
     ),
+    # Bedrock Issue #9490 - Evergreen Content for SEO
+    page("more/faq/", "firefox/faq.html", ftl_files="firefox/faq"),
 )
