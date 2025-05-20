@@ -107,5 +107,6 @@ urlpatterns = (
     path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
     path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
     path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
+    page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
     page("landing/get/", "firefox/landing/get.html", ftl_files="firefox/download/desktop"),
 )
