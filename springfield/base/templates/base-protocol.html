@@ -28,7 +28,7 @@
     {% block extra_meta %}{% endblock %}
 
     {% block shared_meta %}
-    <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Mozilla{% endblock %}{% endfilter %}</title>
+    <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox{% endblock %}{% endfilter %}</title>
     <meta name="description" content="{% filter striptags %}{% block page_desc %}{% endblock %}{% endfilter %}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Firefox">
@@ -70,12 +70,7 @@
     <!--[if !IE]><!-->
     {# Global styles, hidden from IE9 and lower #}
     {% block site_css %}
-      {{ css_bundle('protocol-mozilla') }}
-      {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
-        {{ css_bundle('m24-navigation-and-footer') }}
-      {% else %}
-        {{ css_bundle('legacy-navigation-and-footer') }}
-      {% endif %}
+      {{ css_bundle('protocol') }}
     {% endblock %}
 
     {# Page-specific styles, hidden from IE9 and lower #}
@@ -108,7 +103,7 @@
     {% endblock %}
 
     {% block site_header %}
-      {% include 'includes/protocol/navigation/navigation.html' %}
+      {% include 'includes/navigation/navigation.html' %}
     {% endblock %}
 
     {% block sub_navigation %}{% endblock %}
@@ -117,7 +112,7 @@
       {% block content %}{% endblock %}
 
       {% block site_footer %}
-        {% include 'includes/protocol/footer/footer.html' %}
+        {% include 'includes/footer/footer.html' %}
       {% endblock %}
 
       {# Banner is last in HTML as it's low priority for search engines and uses `data-nosnippet` (issue #8739) #}
@@ -140,11 +135,7 @@
         {{ js_bundle('lib') }}
         {{ js_bundle('fxa') }}
         {{ js_bundle('data') }}
-        {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
-          {{ js_bundle('m24-ui') }}
-        {% else %}
-          {{ js_bundle('ui') }}
-        {% endif %}
+        {{ js_bundle('ui') }}
       <!--<![endif]-->
 
       <!--[if IE 9]>

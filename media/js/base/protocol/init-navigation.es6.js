@@ -8,8 +8,8 @@
  * Initialize main Navigation.
  */
 
-import MzpNavigation from './m24-navigation.es6';
-import MzpMenu from './m24-menu.es6';
+import MzpNavigation from './navigation.es6';
+import MzpMenu from './menu.es6';
 
 // add both components to window as this is needed for MzpNavigation.checkScrollPosition()
 window.MzpMenu = MzpMenu;

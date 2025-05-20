@@ -10,11 +10,11 @@
 {# Issue 13019: Avoid duplicate content for English pages. #}
 {%- block page_title -%}
   {%- if LANG == 'en-US' -%}
-    Get Firefox browser — Mozilla (US)
+    Get Firefox browser — Firefox (US)
   {%- elif LANG == 'en-GB' -%}
-    Download Firefox Browser — Mozilla (UK)
+    Download Firefox Browser — Firefox (UK)
   {%- else -%}
-    {{ ftl('firefox-browsers-page-title') }} - Mozilla
+    {{ ftl('firefox-browsers-page-title') }} - Firefox
   {%- endif -%}
 {%- endblock -%}
 
@@ -43,7 +43,6 @@
 {% set _entrypoint = 'firefox.com-firefox-home' %}
 
 {% block sub_navigation %}
-  {% include 'firefox/includes/sub-nav-firefox.html' %}
 {% endblock %}
 
 {% block content %}

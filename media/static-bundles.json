@@ -258,21 +258,9 @@
     {
       "files": [
         "css/m24/root.scss",
-        "css/protocol/protocol-mozilla.scss"
+        "css/protocol/protocol.scss"
       ],
-      "name": "protocol-mozilla"
-    },
-    {
-      "files": [
-        "css/m24/navigation-and-footer.scss"
-      ],
-      "name": "m24-navigation-and-footer"
-    },
-    {
-      "files": [
-        "css/protocol/navigation-and-footer.scss"
-      ],
-      "name": "legacy-navigation-and-footer"
+      "name": "protocol"
     },
     {
       "files": [
@@ -453,29 +441,16 @@
     },
     {
       "files": [
-        "js/base/protocol/init-details.es6.js",
-        "js/base/protocol/init-footer.es6.js",
-        "js/base/protocol/init-lang-switcher.es6.js",
-        "js/base/protocol/protocol-sub-navigation.js",
-        "js/base/base-page-init.js",
-        "js/base/protocol/protocol-menu.js",
-        "js/base/protocol/protocol-navigation.js",
-        "js/base/protocol/init-navigation.js"
-      ],
-      "name": "ui"
-    },
-    {
-      "files": [
         "js/base/banners/m24-pencil-banner-init.es6.js",
         "js/base/protocol/init-details.es6.js",
         "js/base/protocol/init-lang-switcher.es6.js",
         "js/base/protocol/protocol-sub-navigation.js",
         "js/base/base-page-init.js",
-        "js/base/protocol/m24-menu.es6.js",
-        "js/base/protocol/m24-navigation.es6.js",
-        "js/base/protocol/init-m24-navigation.es6.js"
+        "js/base/protocol/menu.es6.js",
+        "js/base/protocol/navigation.es6.js",
+        "js/base/protocol/init-navigation.es6.js"
       ],
-      "name": "m24-ui"
+      "name": "ui"
     },
     {
       "files": [

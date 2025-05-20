@@ -13,7 +13,7 @@ const url = '/en-US/';
 test.describe(
     `${url} footer (mobile)`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.use({ viewport: { width: 360, height: 780 } });
