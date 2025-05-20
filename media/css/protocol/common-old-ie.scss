@@ -11,7 +11,7 @@ $image-path: '/media/protocol/img';
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
 @import '~@mozilla-protocol/core/protocol/css/base/elements';
 @import '~@mozilla-protocol/core/protocol/css/components/button';
-@import 'components/navigation-ie';
+@import '../m24/components/navigation-ie';
 @import 'components/sub-navigation';
 @import 'components/download-button-ie';
 

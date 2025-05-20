@@ -194,6 +194,8 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 // Basic hover interactions with JavaScript disabled or not supported.
 .m24-c-menu.m24-mzp-is-basic .m24-c-menu-category {
+    padding-top: 12px;
+
     @media #{$mq-md} {
         &.mzp-has-drop-down:hover,
         &.mzp-has-drop-down:focus {
@@ -433,6 +435,11 @@ body:has(.m24-c-navigation-items.mzp-is-open) {
 .m24-navigation { /* stylelint-disable-line no-duplicate-selectors */
     .mzp-c-button-download-container {
         margin-bottom: 0;
+
+        // don't show the unsupported message, just hide download button
+        .fx-unsupported & {
+            display: none;
+        }
     }
 
     // hide privacy link
