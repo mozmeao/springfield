@@ -154,6 +154,12 @@
     },
     {
       "files": [
+        "css/firefox/unsupported-systems.scss"
+      ],
+      "name": "firefox_unsupported_systems"
+    },
+    {
+      "files": [
         "css/firefox/default/landing.scss"
       ],
       "name": "firefox-default-landing"
