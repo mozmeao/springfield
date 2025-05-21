@@ -21,9 +21,11 @@ test.describe(
         });
 
         test('Download button is displayed', async ({ page, browserName }) => {
-            const downloadButtonPrimary = page.getByRole('link', {
-                name: 'Download Firefox'
-            });
+            const downloadButtonPrimary = page
+                .locator('.c-compare-footer')
+                .getByRole('link', {
+                    name: 'Download Firefox'
+                });
 
             if (browserName === 'firefox') {
                 await expect(downloadButtonPrimary).not.toBeVisible();

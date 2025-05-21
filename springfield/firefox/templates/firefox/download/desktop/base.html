@@ -9,9 +9,9 @@
 {# Bug 1438302,  Issue 13019: Avoid duplicate content for English pages. #}
 {%- block page_title_full -%}
   {%- if LANG == 'en-US' -%}
-    Get Firefox for desktop — Mozilla (US)
+    Get Firefox for desktop — Firefox (US)
   {%- elif LANG == 'en-GB' -%}
-    Download Firefox for Desktop — Mozilla (UK)
+    Download Firefox for Desktop — Firefox (UK)
   {%- else -%}
     {{ ftl('firefox-desktop-download-meta-title-v2', fallback='firefox-desktop-download-meta-title') }}
   {%- endif -%}
@@ -33,12 +33,7 @@
 
 {# All stylesheets are loaded in extrahead to serve legacy IE basic styles #}
 {% block extrahead %}
-  {{ css_bundle('protocol-mozilla') }}
-  {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
-    {{ css_bundle('m24-navigation-and-footer') }}
-  {% else %}
-    {{ css_bundle('legacy-navigation-and-footer') }}
-  {% endif %}
+  {{ css_bundle('protocol') }}
 {% endblock %}
 
 {% block body_class %}mzp-t-firefox{% endblock %}

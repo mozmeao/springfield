@@ -4,44 +4,21 @@
 
 @use '../vars/lib' as *;
 
-$margin-top: 54px; // top margin offset for mobile navigation menu
-
-@keyframes nav-slide-in {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
-}
-
-@keyframes nav-slide-in-reverse {
-    from {
-        transform: translateX(-100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
-}
-
-.m24-navigation-refresh {
-    background-color: $color-white;
-    border-bottom: $border-width solid $m24-color-light-mid-gray;
-    display: flex;
-    width: 100%;
-
-    @media #{$mq-md} {
-        display: block;
-    }
-}
+$margin-top: 58px; // top margin offset for mobile navigation menu
 
 // * -------------------------------------------------------------------------- */
+// Header/Nav bar - excluding menus
+
+.m24-navigation {
+    background-color: $color-white;
+    border-bottom: $border-width solid $m24-color-light-mid-gray;
+}
+
 // Sticky navigation styles
+
 @supports (position: sticky) {
     html.mzp-has-sticky-navigation {
-        .m24-navigation-refresh.m24-mzp-is-sticky {
+        .m24-navigation.m24-mzp-is-sticky {
             position: sticky;
             z-index: 1000;
             left: 0;
@@ -65,26 +42,12 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
     }
 }
 
-// Common navigation styles
-.m24-c-navigation-l-content {
-    display: flex;
-    padding: $spacer-xs $spacer-md;
-    position: relative;
-    width: 100%;
-
-    @media #{$mq-md} {
-        display: block;
-        padding: $spacer-sm 0 0;
-        width: auto;
-    }
-}
+// wrappers
 
 .m24-c-navigation-container {
+    @include clearfix;
     margin: 0 auto;
     max-width: $content-max;
-    padding: 0;
-    position: relative;
-    width: 100%;
 
     @media #{$mq-md} {
         align-items: start;
@@ -92,12 +55,41 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
         flex-direction: row;
         justify-content: space-between;
         position: static;
-        padding: 0 $container-padding;
-        box-sizing: border-box;
+
+        &::after {
+            display: none;
+        }
     }
 }
 
-// Mobile navigation menu button.
+.m24-c-navigation-l-content {
+    @include clearfix;
+    padding: $spacer-xs $layout-xs;
+    position: relative;
+
+    @media #{$mq-md} {
+        padding: $spacer-xs $layout-lg 0;
+    }
+
+    @media #{$mq-lg} {
+        padding: $spacer-xs $layout-xl 0;
+    }
+}
+
+// logo & link to homepage
+
+.m24-c-navigation-logo-link {
+    display: block;
+}
+
+.m24-c-navigation-logo-image {
+    height: 40px;
+    width: auto;
+    display: block;
+}
+
+// Open/close button to display menu on mobile
+
 .m24-c-navigation-menu-button {
     display: none;
 }
@@ -137,33 +129,13 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
     float: left;
 }
 
-.m24-c-navigation-logo-link {
-    display: inline-block;
-}
-
-.m24-c-navigation-logo-image {
-    height: 27px;
-    width: auto;
-    padding-top: $spacing-xs;
-
-    @media #{$mq-md} {
-        height: 24px;
-        padding: 0;
-    }
-}
-
-.spacer-gif {
-    display: inline-block;
-    width: 100px;
-}
-
 // Mobile navigation menu with JS enabled.
 .js .m24-c-navigation-items {
     display: none;
 
-    @media (max-width: $screen-md) {
+    @media (max-width: #{$screen-md - 1px}) {
         &.mzp-is-open {
-            display: flex;
+            display: block;
             height: calc(100vh - $margin-top);
             margin-top: $margin-top;
             overflow: hidden auto;
@@ -173,19 +145,6 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
             top: 0;
             width: 100%;
             z-index: 100;
-            @include bidi(((animation, nav-slide-in 0.45s ease, nav-slide-in-reverse 0.45s ease),));
-
-            @media (prefers-reduced-motion: reduce) {
-                @include bidi(((animation, none, none),));
-            }
-
-            .m24-c-menu-category-list:has(.m24-c-menu-category.mzp-is-selected) {
-                margin-bottom: 0;
-
-                .m24-c-menu-category:not(.mzp-is-selected) {
-                    display: none;
-                }
-            }
         }
     }
 
@@ -193,6 +152,8 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
         display: block;
     }
 }
+
+// wrapper for the menu
 
 .m24-c-navigation-menu {
     margin-bottom: 0;
@@ -204,8 +165,37 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
     }
 }
 
+// * -------------------------------------------------------------------------- */
+// Menu
+
+// Basic typography
+
+.m24-c-menu {
+    h2, h3 {
+        font-size: remify(18px);
+        margin: 0;
+    }
+
+    a:link,
+    a:visited {
+        color: $color-black;
+        text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+        font-weight: bold;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+    }
+
+}
+
 // Basic hover interactions with JavaScript disabled or not supported.
 .m24-c-menu.m24-mzp-is-basic .m24-c-menu-category {
+    padding-top: 12px;
+
     @media #{$mq-md} {
         &.mzp-has-drop-down:hover,
         &.mzp-has-drop-down:focus {
@@ -223,81 +213,40 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
 }
 
 // Enhanced hover interactions with JavaScript enabled.
-.m24-c-menu.m24-mzp-is-enhanced .m24-c-menu-category {
-    &.mzp-is-selected {
-        border-bottom: transparent;
-
-        .m24-c-menu-title {
-            @include bidi(((padding-left, $spacing-md, padding-right, $spacing-md),));
-
-            &::before {
-                content: '/';
-                padding: 0 $spacing-xs;
-            }
-        }
-
-        .m24-c-menu-panel {
-            display: block;
-            @include bidi(((animation, nav-slide-in 450ms ease, nav-slide-in-reverse 450ms ease),));
-
-            @media (prefers-reduced-motion: reduce) {
-                @include bidi(((animation, none, none),));
-            }
-        }
-    }
-
-    // Arrow styles for mobile menu items.
-    &::after {
-        background: transparent url('/media/img/icons/m24-small/up-arrow.svg') center center no-repeat;
-        content: '';
-        height: 20px;
-        position: absolute;
-        top: 8px;
-        width: 20px;
-        @include bidi((
-            (transform, rotate(90deg), rotate(-90deg)),
-            (right, 8px, left, auto),
-        ));
-        @include background-size(16px, 16px);
-    }
-
-    &.mzp-is-selected::after {
-        @include bidi((
-            (transform, rotate(-90deg), rotate(90deg)),
-            (left, 8px, right, auto),
-        ));
-    }
+.m24-c-menu.m24-mzp-is-enhanced {
+    padding-top: 12px;
+    padding-bottom: 100px; // space for fixed download button
 
     @media #{$mq-md} {
-        &.mzp-is-selected {
-            .m24-c-menu-button-close {
-                display: block;
-            }
+        padding-bottom: 0;
+    }
 
-            .m24-c-menu-title {
-                color: $m24-color-dark-green;
-                @include bidi(((padding-left, 0, padding-right, 0),));
+    &.mzp-is-selected {
+        display: block;
+    }
 
-                &::before {
-                    content: none;
-                    display: none;
+    .m24-c-menu-category {
+        @media #{$mq-md} {
+            &.mzp-is-selected {
+                .m24-c-menu-panel {
+                    display: block;
+                }
+
+                .m24-c-menu-button-close {
+                    display: block;
                 }
             }
 
             &::after {
-                background: $m24-color-dark-green;
+                display: none;
             }
-
-            .m24-c-menu-panel {
-                @include bidi(((animation, none, none),));
-            }
-        }
-
-        &::after {
-            display: none;
         }
     }
 }
+
+
+// * -------------------------------------------------------------------------- */
+// Categories (the list of the top level items which contain the panels, all categories have a title and may have panels)
 
 .m24-c-menu-category-list {
     padding: 0;
@@ -312,75 +261,48 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    border-bottom: $border-width solid $token-color-light-gray;
-    border-top: none;
     padding: 8px 16px;
     position: relative;
     width: calc(100% - 32px);
     z-index: 1000;
 
     @media #{$mq-md} {
-        border-bottom: transparent;
         padding: 0 $spacer-md $spacer-sm;
         position: static;
         width: auto;
     }
+}
 
-    &.m24-c-menu-category-has-icon {
-        .m24-c-menu-title-icon {
-            @include bidi(((margin, 0 8px 0 0, 0 0 0 8px),));
-        }
+.m24-c-menu-category-link {
+    display: flex;
+    font-size: $text-body-md;
+    justify-content: flex-end;
+    margin: $spacer-lg $spacer-lg 0;
+    padding: 0;
 
-        .m24-c-menu-title {
-            @media #{$mq-md} {
-                &:hover::after {
-                    bottom: 1px;
-                    width: calc(100% - 24px);
-                    @include bidi(((left, 24px, right, auto),));
-                }
-            }
-        }
+    a:link,
+    a:visited {
+        display: flex;
+        font-weight: 600;
+        position: relative;
+        width: fit-content;
     }
 }
 
+// * -------------------------------------------------------------------------- */
+// Menu panels
+
+// Menu title (appears whether there is a panel or not)
+
 .m24-c-menu-title {
-    align-items: center;
-    border: none;
-    color: $color-black;
-    display: flex;
-    font-size: $text-body-md;
-    font-weight: 600;
-    padding: 0;
-    position: relative;
-    text-decoration: none;
-    width: 100%;
-
-    // extra specificity to override link colors on some Firefox pages
-    &:link,
-    &:visited {
-        color: $color-black;
-        text-decoration: none;
-    }
-
-    // band aid fix for https://github.com/mozilla/bedrock/issues/15873
-    &:hover:is(a) {
-        color: $color-black;
-    }
-
-    .m24-c-menu-title-icon {
-        @include bidi(((margin, 0 8px 0 0, 0 0 0 8px),));
-    }
+    display: block;
+    margin-bottom: $spacer-sm;
 
     @media #{$mq-md} {
-        &:hover::after {
-            background: $color-black;
-            bottom: 1px;
-            content: "";
-            display: block;
-            height: 1px;
-            left: 0;
-            position: absolute;
-            width: 100%;
+        margin-bottom: 0;
+
+        h2 {
+            font-weight: inherit;
         }
     }
 }
@@ -396,7 +318,7 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
 
     @media #{$mq-md} {
         border: $border-width solid $m24-color-light-mid-gray;
-        border-top: $border-width solid $m24-color-white;
+        border-radius: 0 0 $border-radius-md $border-radius-md;
         left: 50%;
         margin: 0 auto;
         overflow: auto;
@@ -404,8 +326,8 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
         position: absolute;
         right: auto;
         top: 100%;
-        width: calc(680px + $grid-gutter); // at 1440px this makes the width 6 columns plus 1/2 a gutter
         transform: translateX(-50%);
+        width: 400px;
 
         .mzp-is-scrolling & {
             // copied from the parent .mzp-is-scrolling definition, but edited to move it down so it doesn't appear to hover over top of the parent menu
@@ -423,10 +345,25 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
 }
 
 .m24-mzp-is-enhanced .m24-c-menu-panel {
-    display: none;
+    display: block;
+
+    @media #{$mq-md} {
+        display: none;
+    }
 }
 
-.m24-c-menu-panel .m24-c-menu-panel-container {
+.m24-c-menu-subtitle {
+    color: $m24-color-dark-mid-gray;
+    margin: 0;
+    padding: $spacing-md 0 $spacing-sm;
+}
+
+.m24-mzp-l-content {
+    margin-bottom: 0;
+}
+
+// wraps panel content
+.m24-c-menu-panel-container {
     margin: 0 auto;
     max-width: $content-max;
 
@@ -435,206 +372,21 @@ $margin-top: 54px; // top margin offset for mobile navigation menu
     }
 }
 
-.m24-c-menu-item-title {
-    font-size: $text-body-md;
-    font-weight: 600;
-    margin-bottom: 0;
-}
-
-.m24-c-menu-item {
-    max-width: 100%;
-    padding: 0;
-
-    @media #{$mq-md} {
-        width: auto;
-    }
-
-    .m24-c-menu-item-link {
-        align-items: center;
-        display: flex;
-        padding: 8px 0;
-        text-decoration: none;
-        width: 100%;
-
-        &:link,
-        &:visited {
-            text-decoration: none;
-        }
-
-        .m24-c-menu-item-title {
-            border: none;
-            position: relative;
-        }
-    }
-}
-
-.m24-c-menu-item .m24-c-menu-item-link
-.m24-c-menu-item .m24-c-menu-item-link:link,
-.m24-c-menu-item .m24-c-menu-item-link:visited {
-    text-decoration: none;
-
-    .m24-c-menu-item-title {
-        border: none;
-    }
-
-    svg path {
-        fill: $color-black;
-    }
-}
-
-.m24-c-menu-item .m24-c-menu-item-link:hover,
-.m24-c-menu-item .m24-c-menu-item-link:visited:hover {
-    .m24-c-menu-item-title {
-        color: $m24-color-dark-green;
-        border: none;
-
-        &::after {
-            background: $m24-color-dark-green;
-            bottom: 1px;
-            content: "";
-            display: block;
-            height: 1px;
-            left: 0;
-            position: absolute;
-            width: 100%;
-        }
-    }
-
-    svg path {
-        fill: $m24-color-dark-green;
-    }
-}
-
 .m24-c-menu-panel-content.multi-column {
     @media #{$mq-md} {
         display: flex;
         padding: 0 $grid-margin;
-        column-gap: $spacer-lg;
+        column-gap: $layout-lg;
         margin: 0 auto;
     }
-
-    .m24-mzp-l-content-container {
-        margin-top: $spacer-xl;
-
-        @media #{$mq-md} {
-            margin-top: 0;
-        }
-
-        p {
-            margin-bottom: $spacer-sm;
-            color: #6d6d6d;
-            font-size: $text-body-sm;
-            font-weight: 600;
-        }
-    }
 }
 
-.m24-c-menu-panel .m24-c-menu-panel-content > .m24-mzp-l-content {
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    padding: $spacer-md $grid-margin;
-    max-width: $content-max;
+.m24-c-menu-item-link {
+    display: block;
+    padding: 8px 0;
 
-    @media #{$mq-md} {
-        padding: 0 $grid-margin;
-    }
-
-    & > li {
-        border-bottom: $border-width solid transparent;
-        width: 100%;
-
-        @media #{$mq-md} {
-            border-bottom: $border-width solid $token-color-light-gray;
-        }
-
-        .m24-c-menu-item {
-            border-bottom: transparent;
-        }
-    }
-}
-
-.m24-c-menu-panel .m24-c-menu-category-link {
-    border: none;
-    display: flex;
-    font-size: $text-body-md;
-    justify-content: flex-end;
-    margin: $spacer-lg $spacer-lg 0;
-    padding: 0;
-}
-
-.m24-c-menu-panel .m24-c-menu-category-link a,
-.m24-c-menu-panel .m24-c-menu-category-link a:visited,
-.m24-c-menu-panel .m24-c-menu-category-link a:link {
-    border: none;
-    color: $color-black;
-    display: flex;
-    font-weight: 600;
-    position: relative;
-    text-decoration: none;
-    width: fit-content;
-
-    svg {
-        @include bidi((
-            (left, auto, 0),
-            (margin-left, $spacing-xs, 0),
-            (margin-right, 0, $spacing-xs),
-            (right, 0, auto),
-            (transition-property, right, left),
-            (transform, none, rotate(-180deg)),
-        ));
-        height: 0.8em;
-        position: relative;
-        top: 0.15em;
-        transition-duration: $fast;
-        transition-timing-function: $bezier;
-        width: auto;
-    }
-}
-
-.m24-c-menu-panel .m24-c-menu-category-link a:hover,
-.m24-c-menu-panel .m24-c-menu-category-link a:focus {
-    color: $m24-color-dark-green;
-
-    svg {
-        @include bidi((
-            (right, -$spacing-sm, auto),
-            (left, auto, -$spacing-sm),
-        ));
-    }
-}
-
-.mzp-has-icon .m24-c-menu-item-link {
-    @include bidi(((padding-right, 0, 0), (padding-left, 0, 0)));
-
-    .m24-c-menu-item-icon {
-        height: 16px;
-        width: 16px;
-        @include bidi(((padding-right, 8px, 0), (padding-left, 0, 8px)));
-    }
-}
-
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link,
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link:link,
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link:active,
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link:visited {
-    .m24-c-menu-item-title {
-        border: none;
-        font-weight: 600;
-        position: relative;
-        text-decoration: none;
-    }
-}
-
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link:hover,
-.mzp-has-icon.m24-c-menu-item .m24-c-menu-item-link:visited:hover {
-    .m24-c-menu-item-title {
-        border: none;
-        text-decoration: none;
-
-        &::after {
-            background: $m24-color-dark-green;
-        }
+    li:last-child > & {
+        padding-bottom: 0;
     }
 }
 
@@ -673,5 +425,61 @@ body:has(.m24-c-navigation-items.mzp-is-open) {
         @media #{$mq-md} {
             display: block !important; /* stylelint-disable-line declaration-no-important */
         }
+    }
+}
+
+
+// * -------------------------------------------------------------------------- */
+// Download button
+
+.m24-navigation { /* stylelint-disable-line no-duplicate-selectors */
+    .mzp-c-button-download-container {
+        margin-bottom: 0;
+
+        // don't show the unsupported message, just hide download button
+        .fx-unsupported & {
+            display: none;
+        }
+    }
+
+    // hide privacy link
+    .mzp-c-button-download-privacy-link {
+        display: none;
+    }
+}
+
+// displays on mobile
+.m24-c-menu-download {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: block;
+    background-color: $color-white;
+    border-top: 1px solid $m24-color-light-mid-gray;
+    padding: $spacing-md;
+    z-index: 1000;
+
+    .mzp-c-button-download-container {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .download-link {
+        width: 100%;
+    }
+
+    @media #{$mq-md} {
+        display: none;
+    }
+}
+
+// displays on desktop
+.mzp-c-navigation-download {
+    display: none;
+
+    @media #{$mq-md} {
+        display: inline-block;
     }
 }

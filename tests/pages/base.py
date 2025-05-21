@@ -39,7 +39,7 @@ class BasePage(ScrollElementIntoView, Page):
         return self.Navigation(self)
 
     class Navigation(BaseRegion):
-        _root_locator = (By.CLASS_NAME, "m24-navigation-refresh")
+        _root_locator = (By.CLASS_NAME, "m24-navigation")
         _toggle_locator = (By.CLASS_NAME, "m24-c-navigation-menu-button")
         _menu_locator = (By.CLASS_NAME, "m24-c-navigation-items")
         _firefox_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[aria-controls="m24-c-menu-panel-firefox"]')

@@ -13,7 +13,7 @@ const url = '/en-US/';
 test.describe(
     `${url} navigation (desktop)`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.beforeEach(async ({ page, browserName }) => {
@@ -21,55 +21,41 @@ test.describe(
         });
 
         test('Navigation menu hover', async ({ page }) => {
-            const firefoxLink = page.getByTestId('m24-navigation-link-firefox');
-            const firefoxMenu = page.getByTestId('m24-navigation-menu-firefox');
-            const productsLink = page.getByTestId(
-                'm24-navigation-link-products'
+            const resourceLink = page.getByTestId(
+                'm24-navigation-link-resources'
             );
-            const productsMenu = page.getByTestId(
-                'm24-navigation-menu-products'
-            );
-            const aboutUsLink = page.getByTestId(
-                'm24-navigation-link-about-us'
-            );
-            const aboutUsMenu = page.getByTestId(
-                'm24-navigation-menu-about-us'
+            const resourceMenu = page.getByTestId(
+                'm24-navigation-menu-resources'
             );
 
             // Hover over Firefox link
-            await firefoxLink.hover();
-            await expect(firefoxMenu).toBeVisible();
-
-            // Hover over products link
-            await productsLink.hover();
-            await expect(productsMenu).toBeVisible();
-            await expect(firefoxMenu).not.toBeVisible();
-
-            // Hover over about us link
-            await aboutUsLink.hover();
-            await expect(aboutUsMenu).toBeVisible();
-            await expect(productsMenu).not.toBeVisible();
+            await resourceLink.hover();
+            await expect(resourceMenu).toBeVisible();
         });
 
         test('Navigation link click', async ({ page }) => {
-            const firefoxLink = page.getByTestId('m24-navigation-link-firefox');
-            const firefoxMenu = page.getByTestId('m24-navigation-menu-firefox');
+            const resourceLink = page.getByTestId(
+                'm24-navigation-link-resources'
+            );
+            const resourceMenu = page.getByTestId(
+                'm24-navigation-menu-resources'
+            );
             const firefoxMenuLink = page.getByTestId(
                 'm24-navigation-menu-link-firefox-desktop'
             );
 
             // Hover over Firefox link
-            await firefoxLink.hover();
-            await expect(firefoxMenu).toBeVisible();
+            await resourceLink.hover();
+            await expect(resourceMenu).toBeVisible();
 
             // Click Firefox desktop link
             await firefoxMenuLink.click();
-            await page.waitForURL('**/download/', {
+            await page.waitForURL('**/#TODO', {
                 waitUntil: 'commit'
             });
 
             // Assert Firefox menu is closed after navigation
-            await expect(firefoxMenu).not.toBeVisible();
+            await expect(resourceMenu).not.toBeVisible();
         });
     }
 );
@@ -77,7 +63,7 @@ test.describe(
 test.describe(
     `${url} navigation (mobile)`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.use({ viewport: { width: 360, height: 780 } });
@@ -93,42 +79,16 @@ test.describe(
             const navigationMenuItems = page.getByTestId(
                 'm24-navigation-menu-items'
             );
-            const firefoxLink = page.getByTestId('m24-navigation-link-firefox');
-            const firefoxMenu = page.getByTestId('m24-navigation-menu-firefox');
-            const productsLink = page.getByTestId(
-                'm24-navigation-link-products'
-            );
-            const productsMenu = page.getByTestId(
-                'm24-navigation-menu-products'
-            );
-            const aboutUsLink = page.getByTestId(
-                'm24-navigation-link-about-us'
-            );
-            const aboutUsMenu = page.getByTestId(
-                'm24-navigation-menu-about-us'
+            const resourcesMenu = page.getByTestId(
+                'm24-navigation-menu-resources'
             );
 
             // Open navigation menu
             await navigationMenuButton.click();
             await expect(navigationMenuItems).toBeVisible();
 
-            // Open and close Firefox menu
-            await firefoxLink.click();
-            await expect(firefoxMenu).toBeVisible();
-            await firefoxLink.click();
-            await expect(firefoxMenu).not.toBeVisible();
-
-            // Open and close products menu
-            await productsLink.click();
-            await expect(productsMenu).toBeVisible();
-            await productsLink.click();
-            await expect(productsMenu).not.toBeVisible();
-
-            // Open and close about us menu
-            await aboutUsLink.click();
-            await expect(aboutUsMenu).toBeVisible();
-            await aboutUsLink.click();
-            await expect(aboutUsMenu).not.toBeVisible();
+            // Resources menu should be open by default
+            await expect(resourcesMenu).toBeVisible();
 
             // Close navigation menu
             await navigationMenuButton.click();
@@ -142,8 +102,6 @@ test.describe(
             const navigationMenuItems = page.getByTestId(
                 'm24-navigation-menu-items'
             );
-            const firefoxLink = page.getByTestId('m24-navigation-link-firefox');
-            const firefoxMenu = page.getByTestId('m24-navigation-menu-firefox');
             const firefoxMenuLink = page.getByTestId(
                 'm24-navigation-menu-link-firefox-desktop'
             );
@@ -152,13 +110,9 @@ test.describe(
             await navigationMenuButton.click();
             await expect(navigationMenuItems).toBeVisible();
 
-            // Open and Firefox menu
-            await firefoxLink.click();
-            await expect(firefoxMenu).toBeVisible();
-
-            // Click Firefox desktop link
+            // Click firefox desktop link
             await firefoxMenuLink.click();
-            await page.waitForURL('**/download/', {
+            await page.waitForURL('**/', {
                 waitUntil: 'commit'
             });
 
