@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/core": "^7.27.1",
     "@babel/preset-env": "^7.27.1",
-    "@mozilla-protocol/core": "^20.0.0",
+    "@mozilla-protocol/core": "^21.1.0",
     "@mozmeao/consent-banner": "^1.1.0",
     "@mozmeao/cookie-helper": "^1.1.0",
     "@mozmeao/dnt-helper": "^1.0.0",
