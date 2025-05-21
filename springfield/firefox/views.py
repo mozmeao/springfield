@@ -513,9 +513,9 @@ def ios_testflight(request):
 
 class FirefoxHomeView(L10nTemplateView):
     ftl_files_map = {
-            "firefox/index.html": ["firefox/browsers"],
-            "firefox/index-en-us-ca.html": ["firefox/download/desktop"],
-        }
+        "firefox/index.html": ["firefox/browsers"],
+        "firefox/index-en-us-ca.html": ["firefox/download/desktop"],
+    }
 
     def get_template_names(self):
         locale = l10n_utils.get_locale(self.request)
