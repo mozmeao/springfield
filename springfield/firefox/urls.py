@@ -140,6 +140,14 @@ urlpatterns = (
         "firefox/browsers/compare/safari.html",
         ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
     ),
+    # bedrock Issue 8641
+    page("more/", "firefox/more/index.html", ftl_files=["firefox/more/more", "firefox/more/shared"]),
+    page("more/best-browser/", "firefox/more/best-browser.html", ftl_files=["firefox/more/best-browser", "firefox/more/shared"]),
+    page("more/browser-history/", "firefox/more/browser-history.html", ftl_files=["firefox/more/browser-history", "firefox/more/shared"]),
+    page("more/incognito-browser/", "firefox/more/incognito-browser.html"),
+    page("more/update-your-browser/", "firefox/more/update-browser.html"),
+    page("more/what-is-a-browser/", "firefox/more/what-is-a-browser.html", ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"]),
+    page("more/windows-64-bit/", "firefox/more/windows-64-bit.html", ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"]),
     # Bedrock Issue #9490 - Evergreen Content for SEO
-    page("more/faq/", "firefox/faq.html", ftl_files="firefox/faq"),
+    page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
 )

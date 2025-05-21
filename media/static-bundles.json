@@ -315,9 +315,27 @@
     },
     {
       "files": [
-        "css/firefox/faq.scss"
+        "css/firefox/more/more.scss"
+      ],
+      "name": "more"
+    },
+    {
+      "files": [
+        "css/firefox/more/article.scss"
+      ],
+      "name": "more-article"
+    },
+    {
+      "files": [
+        "css/firefox/more/faq.scss"
       ],
       "name": "firefox-faq"
+    },
+    {
+      "files": [
+        "css/firefox/more/windows-64-bit.scss"
+      ],
+      "name": "windows-64-bit"
     }
   ],
   "js": [

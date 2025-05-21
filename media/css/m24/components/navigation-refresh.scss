@@ -64,15 +64,15 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 .m24-c-navigation-l-content {
     @include clearfix;
-    padding: $spacer-xs $layout-xs;
+    padding: $spacer-xs $h-grid-xs;
     position: relative;
 
     @media #{$mq-md} {
-        padding: $spacer-xs $layout-lg 0;
+        padding: $spacer-xs $h-grid-md 0;
     }
 
-    @media #{$mq-lg} {
-        padding: $spacer-xs $layout-xl 0;
+    @media #{$mq-xl} {
+        padding: $spacer-xs $h-grid-xl 0;
     }
 }
 

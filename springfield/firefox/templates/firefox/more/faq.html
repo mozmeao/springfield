@@ -17,39 +17,14 @@
   {{ css_bundle('firefox-faq') }}
 {% endblock %}
 
-{% block sub_navigation %}
-  {% if ftl_has_messages('sub-navigation-firefox', 'sub-navigation-what-is-a-browser', 'sub-navigation-browsing-history') %}
-    {{ sub_nav(
-      title={
-        'text':  ftl('sub-navigation-firefox'),
-        'href':  '/',
-        'icon':  static('protocol/img/logos/firefox/logo.svg'),
-        'cta_name': 'Firefox'
-      },
-      links=[
-        {
-          'text':  ftl('sub-navigation-what-is-a-browser'),
-          'href':  'https://www.mozilla.org/en-US/firefox/browsers/what-is-a-browser/',
-          'cta_name': 'What Is a Browser?'
-        },
-        {
-          'text': ftl('sub-navigation-browser-history'),
-          'href': 'https://www.mozilla.org/en-US/firefox/browsers/browser-history/',
-          'cta_name': 'Browser History'
-        }
-      ]
-    ) }}
-  {% endif %}
-{% endblock %}
-
 <!-- TODO: image specific to faq -->
 {% block content %}
   {% call split(
       block_class='mzp-l-split-center-on-sm-md',
       image=resp_img(
-        url='img/firefox/browsers/quantum/browser-v2.jpg',
+        url='img/firefox/more/faq.jpg',
         srcset={
-          'img/firefox/browsers/quantum/browser-high-res-v2.jpg': '2x'
+          'img/firefox/more/faq-high-res.jpg': '2x'
         },
         optional_attributes={
           'class': 'mzp-c-split-media-asset',
@@ -96,7 +71,7 @@
       </li>
       <li>
         <h2>{{ ftl('is-firefox-safe-download') }}</h2>
-        <p>{{ ftl('protecting-your-privacy', url='/') }}</p>
+        <p>{{ ftl('protecting-your-privacy', url=url('firefox')) }}</p>
       </li>
       <li>
         <h2>{{ ftl('is-firefox-safe') }}</h2>
@@ -114,19 +89,19 @@
       <li>
         <h2>{{ ftl('does-firefox-use') }}</h2>
         <p>{{ ftl('firefoxs-default-search',
-              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/?utm_source=www.mozilla.org-firefox-faq&amp;utm_medium=referral&amp;utm_campaign=seo') }}</p>
+              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo') }}</p>
       </li>
       {% if ftl_has_messages('firefox-does-not-v2') %}
       <li>
         <h2>{{ ftl('does-firefox-have') }}</h2>
         <p>{{ ftl('firefox-does-not-v2',
-              url='https://www.mozilla.org/en-US/products/vpn/') }}</p>
+              url='https://www.mozilla.org/en-US/products/vpn/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo') }}</p>
         <small>{{ ftl('related-questions-ip') }}</small>
       </li>
       {% endif %}
       <li>
         <h2>{{ ftl('who-owns-firefox') }}</h2>
-        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/?utm_source=www.mozilla.org-firefox-faq&amp;utm_medium=referral&amp;utm_campaign=seo', url2='https://www.mozilla.org/en-US/foundation/moco/') }}</p>
+        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo', url2='https://www.mozilla.org/en-US/foundation/moco/') }}</p>
         <small>{{ ftl('related-questions-who') }}</small>
       </li>
     </ul>
