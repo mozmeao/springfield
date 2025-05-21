@@ -203,6 +203,24 @@
     },
     {
       "files": [
+        "css/firefox/home-en-us-ca.scss"
+      ],
+      "name": "firefox-home-en-us-ca"
+    },
+        {
+      "files": [
+        "css/firefox/home-en-us-ca-ie9.scss"
+      ],
+      "name": "firefox-home-en-us-ca-ie9"
+    },
+    {
+      "files": [
+        "css/firefox/home-new-refresh-ie8.scss"
+      ],
+      "name": "firefox-home-en-us-ca-ie8"
+    },
+    {
+      "files": [
         "css/protocol/components/split.scss"
       ],
       "name": "protocol-split"
@@ -412,6 +430,12 @@
         "js/firefox/home.js"
       ],
       "name": "firefox-home"
+    },
+    {
+      "files": [
+        "js/firefox/home-en-us-ca.js"
+      ],
+      "name": "firefox-home-en-us-ca"
     },
     {
       "files": [
