@@ -6,10 +6,8 @@ import pytest
 
 from pages.firefox.home import FirefoxHomePage
 
-locales = (
-    "en-US",
-    "en-CA"
-)
+locales = ("en-US", "en-CA")
+
 
 @pytest.mark.smoke
 @pytest.mark.nondestructive
