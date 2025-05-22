@@ -745,8 +745,24 @@ WATCHMAN_CHECKS = (
     "watchman.checks.databases",
 )
 
+REST_FRAMEWORK = {
+    # Use hyperlinked styles by default.
+    # Only used if the `serializer_class` attribute is not set on a view.
+    "DEFAULT_MODEL_SERIALIZER_CLASS": "springfield.releasenotes.serializers.HyperlinkedModelSerializerWithPkField",
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication",),
+}
+
+DJANGO_TEMPLATE_CUSTOM_APPS = [
+    "springfield.releasenotes"
+]
 
 def _is_springfield_custom_app(app_name):
+    if app_name in DJANGO_TEMPLATE_CUSTOM_APPS:
+        return False
+
     return app_name.startswith("springfield.")
 
 
@@ -785,17 +801,21 @@ TEMPLATES = [
         },
     },
     {
-        # Wagtail needs the standard Django template backend
+        # Wagtail and Django admin needs the standard Django template backend
         # https://docs.wagtail.org/en/stable/reference/jinja2.html#configuring-django
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
         "DIRS": [
             "springfield/admin/templates",
+            "springfield/releasenotes/templates",
         ],
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
+                "django.template.context_processors.media",
                 "django.template.context_processors.request",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
@@ -1172,6 +1192,9 @@ if WAGTAIL_ENABLE_ADMIN:
         "django.contrib.admin",
         # wagtail_localize_smartling > 0.10 needs django.contrib.humanize
         "django.contrib.humanize",
+        "pagedown.apps.PagedownConfig",
+        "rest_framework",
+        "rest_framework.authtoken",
     ]
 
     for midddleware_spec in [
@@ -1179,6 +1202,7 @@ if WAGTAIL_ENABLE_ADMIN:
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
+        "springfield.releasenotes.middleware.PatchOverrideMiddleware",
     ]:
         MIDDLEWARE.insert(3, midddleware_spec)
 
@@ -1189,6 +1213,7 @@ if WAGTAIL_ENABLE_ADMIN:
             "django-rq",
             "oidc",
             "_internal_draft_preview",
+            "releasenotes-admin",
         ]
     )
 
