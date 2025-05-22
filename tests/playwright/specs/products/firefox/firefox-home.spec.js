@@ -67,7 +67,7 @@ test.describe(
             await expect(iosMenuLink).toBeVisible();
             await expect(iosMenuLink).toHaveAttribute(
                 'href',
-                /^https:\/\/apps.apple.com\/us\/app\/apple-store\//
+                /^https:\/\/apps.apple.com\/gb\/app\/apple-store\//
             );
 
             // close menu
