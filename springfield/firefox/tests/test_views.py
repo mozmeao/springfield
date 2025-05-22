@@ -479,7 +479,7 @@ class TestFirefoxGA(TestCase):
 # Issue 13253: Ensure that Firefox can continue to refer to this URL.
 class TestFirefoxSetAsDefaultThanks(TestCase):
     def test_firefox_set_as_default_thanks(self):
-        resp = self.client.get("/default/thanks/", follow=True)
+        resp = self.client.get("/landing/set-as-default/thanks/", follow=True)
         assert resp.status_code == 200, "Ensure this URL continues to work, see issue 13253"
         assert resp.templates[0].name == "firefox/default/thanks.html"
 
