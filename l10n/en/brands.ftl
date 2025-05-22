@@ -16,7 +16,6 @@
 -brand-name-mozilla-corporation = Mozilla Corporation
 -brand-name-mozilla-foundation = Mozilla Foundation
 -brand-name-linkedin = LinkedIn
--brand-name-tiktok = TikTok
 -brand-name-spotify = Spotify
 
 ## Firefox browsers
