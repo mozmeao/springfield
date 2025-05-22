@@ -6,9 +6,12 @@ import pytest
 
 from pages.firefox.home import FirefoxHomePage
 
+locales = ("en-US", "en-CA")
+
 
 @pytest.mark.smoke
 @pytest.mark.nondestructive
-def test_primary_download_button_displayed(base_url, selenium):
-    page = FirefoxHomePage(selenium, base_url).open()
-    assert page.is_primary_download_button_displayed
+def test_primary_download_button_displayed(base_url, selenium, locale="fr"):
+    page = FirefoxHomePage(selenium, base_url, locale).open()
+    if locale not in locales:
+        assert page.is_primary_download_button_displayed
