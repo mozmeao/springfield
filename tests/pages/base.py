@@ -42,12 +42,9 @@ class BasePage(ScrollElementIntoView, Page):
         _root_locator = (By.CLASS_NAME, "m24-navigation")
         _toggle_locator = (By.CLASS_NAME, "m24-c-navigation-menu-button")
         _menu_locator = (By.CLASS_NAME, "m24-c-navigation-items")
-        _firefox_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[aria-controls="m24-c-menu-panel-firefox"]')
-        _firefox_menu_locator = (By.ID, "m24-c-menu-panel-firefox")
-        _products_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[aria-controls="m24-c-menu-panel-products"]')
-        _products_menu_locator = (By.ID, "m24-c-menu-panel-products")
-        _about_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[aria-controls="m24-c-menu-panel-about"]')
-        _about_menu_locator = (By.ID, "m24-c-menu-panel-about")
+        _features_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[data-testid="m24-navigation-link-features"]')
+        _resources_menu_link_locator = (By.CSS_SELECTOR, '.m24-c-menu-title[aria-controls="m24-c-menu-panel-resources"]')
+        _resources_menu_locator = (By.ID, "m24-c-menu-panel-resources")
 
         @property
         def is_displayed(self):
@@ -59,25 +56,9 @@ class BasePage(ScrollElementIntoView, Page):
             menu.click()
 
         @property
-        def is_firefox_menu_displayed(self):
-            return self.is_element_displayed(*self._firefox_menu_locator)
+        def is_resources_menu_displayed(self):
+            return self.is_element_displayed(*self._resources_menu_locator)
 
-        @property
-        def is_products_menu_displayed(self):
-            return self.is_element_displayed(*self._products_menu_locator)
-
-        @property
-        def is_about_menu_displayed(self):
-            return self.is_element_displayed(*self._about_menu_locator)
-
-        def open_firefox_menu(self):
-            self.open_navigation_menu(self._firefox_menu_link_locator)
-            self.wait.until(lambda s: self.is_firefox_menu_displayed)
-
-        def open_products_menu(self):
-            self.open_navigation_menu(self._products_menu_link_locator)
-            self.wait.until(lambda s: self.is_products_menu_displayed)
-
-        def open_about_menu(self):
-            self.open_navigation_menu(self._about_menu_link_locator)
-            self.wait.until(lambda s: self.is_about_menu_displayed)
+        def open_resources_menu(self):
+            self.open_navigation_menu(self._resources_menu_link_locator)
+            self.wait.until(lambda s: self.is_resources_menu_displayed)
