@@ -646,11 +646,11 @@ button.mzp-c-cta-link {
 
             &,
             .android & {
-                @include at2x('/media/img/firefox/new/desktop/android.png', contain);
+                @include at2x('/media/img/firefox/download/desktop/android.png', contain);
             }
 
             .ios & {
-                @include at2x('/media/img/firefox/new/desktop/ios.png', contain);
+                @include at2x('/media/img/firefox/download/desktop/ios.png', contain);
             }
         }
 
@@ -688,7 +688,7 @@ button.mzp-c-cta-link {
 
 .c-desktop a {
     @include text-title-xs;
-    background-image: url('/media/img/firefox/new/desktop/mobile-arrow.svg');
+    background-image: url('/media/img/firefox/download/desktop/mobile-arrow.svg');
     background-position: bottom center;
     background-repeat: no-repeat;
     color: $color-purple-50;
