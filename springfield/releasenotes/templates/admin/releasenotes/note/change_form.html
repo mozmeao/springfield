@@ -1,0 +1,20 @@
+{% extends "admin/change_form.html" %}
+
+{% block footer %}
+  {{ block.super }}
+  <script>
+    // We don't want to auto complete on the release filter. Disable it.
+    // We are using the event listener because the SelectFilter is generated at the end of the page
+    // load. So, we need to execute this code once this item is fully loaded.
+    window.addEventListener('load', function () {
+      const input = document.getElementById('id_releases_input');
+      if (input) {
+        input.setAttribute('autocomplete', 'off');
+      }
+    });
+  </script>
+{% endblock %}
+
+{% comment %}
+vim: filetype=htmldjango
+{% endcomment %}
