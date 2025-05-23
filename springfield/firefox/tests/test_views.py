@@ -446,8 +446,8 @@ class TestFirefoxDownload(TestCase):
 
 class TestFirefoxDownloadNoIndex(TestCase):
     def test_download_noindex(self):
-        # Scene 1 of /download/ should never contain a noindex tag.
-        response = self.client.get("/en-US/download/")
+        # Scene 1 of / should never contain a noindex tag.
+        response = self.client.get("/en-US/")
         doc = pq(response.content)
         robots = doc('meta[name="robots"]')
         assert robots.length == 0
