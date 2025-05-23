@@ -359,20 +359,32 @@ class TestStubAttributionCode(TestCase):
 @patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
 class TestFirefoxDownload(TestCase):
     def test_post(self, render_mock):
-        req = RequestFactory().post("/download/")
+        req = RequestFactory().post("/")
         req.locale = "en-US"
         view = views.DownloadView.as_view()
         resp = view(req)
         assert resp.status_code == 405
 
-    @patch.object(views, "ftl_file_is_active", lambda *x: True)
     def test_download_template(self, render_mock):
-        req = RequestFactory().get("/download/")
-        req.locale = "en-US"
-        view = views.DownloadView.as_view()
-        view(req)
-        template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/desktop/download.html"]
+        for locale, ftl_file_is_active_value, expected_template in (
+            ("en-US", True, "firefox/download/desktop/download-en-us-ca.html"),
+            ("en-CA", True, "firefox/download/desktop/download-en-us-ca.html"),
+            ("en-GB", True, "firefox/download/desktop/download.html"),
+            ("fr", True, "firefox/download/desktop/download.html"),
+            ("en-CA", False, "firefox/download/basic/base_download.html"),  # Note the False for activation
+        ):
+            with self.subTest(
+                locale=locale,
+                ftl_file_is_active_value=ftl_file_is_active_value,
+                expected_template=expected_template,
+            ):
+                with patch.object(views, "ftl_file_is_active", lambda *x: ftl_file_is_active_value):
+                    req = RequestFactory().get("/")
+                    req.locale = locale
+                    view = views.DownloadView.as_view()
+                    view(req)
+                    template = render_mock.call_args[0][1]
+                    assert template == [expected_template]
 
     @patch.object(views, "ftl_file_is_active", lambda *x: True)
     def test_thanks_template(self, render_mock):
