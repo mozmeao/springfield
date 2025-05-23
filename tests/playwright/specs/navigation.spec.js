@@ -50,7 +50,7 @@ test.describe(
 
             // Click Firefox desktop link
             await firefoxMenuLink.click();
-            await page.waitForURL('**/#TODO', {
+            await page.waitForURL('/en-US/browsers/desktop/', {
                 waitUntil: 'commit'
             });
 
