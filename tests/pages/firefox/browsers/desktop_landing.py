@@ -8,7 +8,7 @@ from pages.base import BasePage
 
 
 class DesktopPage(BasePage):
-    _URL_TEMPLATE = "/{locale}/"
+    _URL_TEMPLATE = "/{locale}/browsers/desktop/"
 
     _primary_download_button_locator = (By.ID, "firefox-desktop-download")
 
