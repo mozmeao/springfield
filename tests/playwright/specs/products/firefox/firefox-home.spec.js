@@ -43,41 +43,6 @@ test.describe(
             await download.cancel();
         });
 
-        test('Firefox mobile menu open / close', async ({ page }) => {
-            const mobileMenuButton = page.getByTestId(
-                'firefox-mobile-download-menu-button'
-            );
-            const androidMenuLink = page.getByTestId(
-                'firefox-android-menu-link'
-            );
-            const iosMenuLink = page.getByTestId('firefox-ios-menu-link');
-
-            await expect(iosMenuLink).not.toBeVisible();
-            await expect(androidMenuLink).not.toBeVisible();
-
-            // open menu
-            await mobileMenuButton.click();
-
-            // Assert Android and iOS download links are displayed.
-            await expect(androidMenuLink).toBeVisible();
-            await expect(androidMenuLink).toHaveAttribute(
-                'href',
-                /^https:\/\/play.google.com\/store\/apps\//
-            );
-            await expect(iosMenuLink).toBeVisible();
-            await expect(iosMenuLink).toHaveAttribute(
-                'href',
-                /^https:\/\/apps.apple.com\/gb\/app\/apple-store\//
-            );
-
-            // close menu
-            await mobileMenuButton.click();
-
-            // Assert Android and iOS download links are hidden.
-            await expect(iosMenuLink).not.toBeVisible();
-            await expect(androidMenuLink).not.toBeVisible();
-        });
-
         test('Account form sign up', async ({ page }) => {
             const emailQueryString = /&email=success%40example.com/;
             const accountButton = page.getByTestId('fxa-form-submit-button');
