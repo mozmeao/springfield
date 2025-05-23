@@ -41,6 +41,7 @@ def mobile_app(request, *args, **kwargs):
 
 
 redirectpatterns = (
+    redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0),
     # issue https://github.com/mozilla/bedrock/issues/14172

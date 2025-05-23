@@ -22,7 +22,7 @@ ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
 
 
 urlpatterns = (
-    path("", views.FirefoxHomeView.as_view(), name="firefox"),
+    path("", views.DownloadView.as_view(), name="firefox"),
     path("download/all/", views.firefox_all, name="firefox.all"),
     path("download/all/<slug:product_slug>/", views.firefox_all, name="firefox.all.platforms"),
     path("download/all/<slug:product_slug>/<str:platform>/", views.firefox_all, name="firefox.all.locales"),
@@ -100,6 +100,7 @@ urlpatterns = (
     # Default browser campaign
     page("default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
+    page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
     page("browsers/mobile/", "firefox/browsers/mobile/index.html", ftl_files=["firefox/browsers/mobile/index"]),
     page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
     page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),

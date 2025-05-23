@@ -439,6 +439,7 @@ class DownloadView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/base_download.html": ["firefox/download/download"],
         "firefox/download/desktop/download.html": ["firefox/download/desktop"],
+        "firefox/download/desktop/download-en-us-ca.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
@@ -487,13 +488,17 @@ class DownloadView(L10nTemplateView):
     def get_template_names(self):
         variation = self.request.GET.get("variation", None)
         experience = self.request.GET.get("xv", None)
+        locale = l10n_utils.get_locale(self.request)
 
         # ensure variant matches pre-defined value
         if variation not in self.variations:
             variation = None
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
-            template = "firefox/download/desktop/download.html"
+            if locale in ["en-US", "en-CA"]:
+                template = "firefox/download/desktop/download-en-us-ca.html"
+            else:
+                template = "firefox/download/desktop/download.html"
         else:
             template = "firefox/download/basic/base_download.html"
 
@@ -514,7 +519,7 @@ def ios_testflight(request):
 class FirefoxHomeView(L10nTemplateView):
     ftl_files_map = {
         "firefox/index.html": ["firefox/browsers"],
-        "firefox/index-en-us-ca.html": ["firefox/download/desktop"],
+        "firefox/download/desktop/download-en-us-ca.html": ["firefox/download/desktop"],
     }
 
     def get_template_names(self):
@@ -522,11 +527,11 @@ class FirefoxHomeView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop"):
             if locale in ["en-US", "en-CA"]:
-                template = "firefox/index-en-us-ca.html"
+                template = "firefox/download/desktop/download-en-us-ca.html"
             else:
-                template = "firefox/index.html"
+                template = "firefox/download/desktop/download.html"
         else:
-            template = "firefox/index.html"
+            template = "firefox/download/basic/index.html"
 
         return [template]
 

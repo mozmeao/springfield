@@ -1,0 +1,204 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+$font-path: '/media/protocol/fonts';
+$image-path: '/media/protocol/img';
+$brand-theme: 'firefox';
+
+@import '../../protocol/components/fxa-form';
+@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
+@import '~@mozilla-protocol/core/protocol/css/components/zap';
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+
+// * -------------------------------------------------------------------------- */
+// put spacing into variables so it's easier to adjust spacing at each break point
+
+// xs
+$v-grid-xs: $layout-xs;
+$h-grid-xs: $layout-xs;
+
+// md
+$v-grid-md: $layout-md;
+$h-grid-md: $layout-lg;
+
+// lg
+$v-grid-lg: $layout-lg;
+$h-grid-lg: $layout-xl;
+
+// * -------------------------------------------------------------------------- */
+// utility class
+
+.hidden {
+    display: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.c-main-header {
+    text-align: center;
+
+    .mzp-c-logo {
+        margin: 0 auto $spacing-lg;
+    }
+}
+
+// * -------------------------------------------------------------------------- */
+// Protocol over-rides
+
+// vertical spacing
+main .mzp-l-content {
+    padding-bottom: $v-grid-xs;
+    padding-top: $v-grid-xs;
+
+    @media #{$mq-md} {
+        padding-bottom: $v-grid-md;
+        padding-top: $v-grid-md;
+    }
+
+    @media #{$mq-lg} {
+        padding-bottom: $v-grid-lg;
+        padding-top: $v-grid-lg;
+    }
+}
+
+// center firefox logo on small viewports
+.mzp-c-split.mzp-l-split-center-on-sm-md .mzp-c-logo {
+    margin: 0 auto $spacing-2xl;
+
+    @media #{$mq-md} {
+        margin: 0 0 $spacing-2xl;
+    }
+}
+
+// * -------------------------------------------------------------------------- */
+// use split component for top banner
+
+.c-landing-banner {
+    h1 {
+        @include text-title-xl;
+    }
+
+    p {
+        @include text-body-lg;
+    }
+
+    &.t-products {
+        padding-top: 0;
+    }
+}
+
+// * -------------------------------------------------------------------------- */
+// landing grid
+
+.c-landing-grid-item {
+    margin-bottom: $v-grid-xs * 2; // vertical spacing
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &.c-landing-grid-wide {
+        max-width: 100%;
+    }
+
+    > p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.c-landing-grid-title {
+    @include font-size(24px);
+    margin-bottom: $spacing-md;
+    margin-top: $spacing-xl;
+
+    a {
+        color: $color-ink-80;
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            text-decoration: underline;
+        }
+    }
+
+    + p {
+        margin-bottom: $spacing-xl;
+    }
+}
+
+.c-landing-grid-img {
+    display: block;
+    margin: 0 auto;
+}
+
+// two column grid for browsers that don't support display:grid
+// works in RTL without bidi styles \o/
+@media #{$mq-md} {
+    .c-landing-grid-item {
+        float: left;
+        margin-bottom: $v-grid-md * 2;
+        margin-left: $h-grid-md;
+        max-width: 100%;
+        width: calc(50% - #{$h-grid-md * 0.5});
+
+        &:nth-child(odd) {
+            clear: left;
+            margin-left: 0;
+        }
+    }
+}
+
+@media #{$mq-lg} {
+    .c-landing-grid-item {
+        margin-bottom: $v-grid-lg * 2;
+        margin-left: $h-grid-lg;
+        width: calc(50% - #{$h-grid-lg * 0.5});
+    }
+}
+
+// column grid for browsers that do support grid
+@supports (display:grid) {
+    // two column
+    @media #{$mq-md} {
+        .c-landing-grid {
+            @include grid-column-gap($h-grid-md);
+            @include grid-row-gap(#{$v-grid-md * 2});
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        // need to remove :after added by .mzp-l-content or we get an extra grid row
+        // added for clearfix purposes but grids don't need a clearfix
+        .c-landing-grid::after {
+            content: none;
+        }
+
+        .c-landing-grid-item {
+            margin-bottom: 0; // vertical spacing now set as row-gap instead of margin-bottom
+            margin-left: 0;
+            width: auto; // over-ride 50% width from float layout
+        }
+
+        .c-landing-grid-img {
+            max-width: 100%;
+        }
+    }
+}
+
+// * -------------------------------------------------------------------------- */
+// download button
+
+.c-landing-grid-item { /* stylelint-disable-line no-duplicate-selectors */
+    // not enough space for privacy link
+    .mzp-c-button-download-privacy-link {
+        display: none;
+    }
+
+    // don't display download button to unsupported browsers, they can click "learn more" to see the ESR link
+    .fx-unsupported & .mzp-c-button-download-container {
+        display: none;
+    }
+}
