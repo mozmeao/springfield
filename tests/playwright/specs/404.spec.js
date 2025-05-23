@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../scripts/open-page');
-const url = '/en-US/download/';
+const url = '/en-US/';
 
 test.describe(
     `${url} page`,
@@ -25,7 +25,7 @@ test.describe(
             const goBackLink = page.getByTestId('link-go-back');
             await expect(goBackLink).toBeVisible();
             await goBackLink.click();
-            await page.waitForURL('**/download/?automation=true', {
+            await page.waitForURL('**/?automation=true', {
                 waitUntil: 'commit'
             });
         });

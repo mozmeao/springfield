@@ -197,9 +197,9 @@
     {
       "files": [
         "css/firefox/mozilla-account-promo.scss",
-        "css/firefox/home.scss"
+        "css/firefox/browsers/desktop-index.scss"
       ],
-      "name": "firefox-home"
+      "name": "firefox-desktop"
     },
     {
       "files": [
@@ -412,12 +412,6 @@
         "js/base/banners/firefox-newsletter-banner-check.js"
       ],
       "name": "firefox-newsletter-banner"
-    },
-    {
-      "files": [
-        "js/firefox/home.js"
-      ],
-      "name": "firefox-home"
     },
     {
       "files": [
