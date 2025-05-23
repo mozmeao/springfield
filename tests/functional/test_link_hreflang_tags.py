@@ -13,8 +13,8 @@ LINK_TEMPLATE = '<link rel="canonical" href="{url}">'
 @pytest.mark.parametrize(
     "url,locales",
     [
-        ("/download/", ("en-US", "de", "id")),
-        ("/", ("en-US", "de", "id")),
+        # ("/download/", ("en-US", "de", "id")),
+        ("/", ("en-US", "de", "id")),  # The root page _is_ the download page now
     ],
 )
 def test_link_hreflang_tags(url, locales, base_url):
