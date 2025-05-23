@@ -19,6 +19,7 @@
 {% block page_title %}{{ self.article_title() }}{% endblock %}
 
 {% block content %}
+{# <!-- hiding breadcrumbs temporarily, but preserving code so we can have them back -->
 <nav class="mzp-c-breadcrumb">
   <ol class="mzp-c-breadcrumb-list">
     <li class="mzp-c-breadcrumb-item">
@@ -33,6 +34,7 @@
     </li>
   </ol>
 </nav>
+#}
 
 <div class="feature-article-container">
   <div class="mzp-l-content mzp-t-content-md">

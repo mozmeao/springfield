@@ -72,10 +72,6 @@
   {% endwith %}
 {% endblock %}
 
-{% block sub_navigation %}
- {% include '/firefox/includes/desktop-platform-sub-nav.html' %}
-{% endblock %}
-
 {% block content %}
 <main class="main-download" {% if v %}data-variant="{{ v }}"{% endif %}>
   {% call split(
