@@ -16,8 +16,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             {{ ftl('footer-download') }}
           </h2>
           <ul class="mzp-c-footer-list c-footer-list-download" data-testid="footer-list-download">
-            <!-- TKTK  links to download need special stuff, use helper here -->
-            <li><a href="{{ url('firefox.download.thanks') }}" data-link-position="footer" data-link-text="Download Firefox">{{ ftl('footer-download-auto') }}</a></li>
+             {# Download link should be locale neutral see bedrock issue 7982 #}
+            <li><a href="/download/thanks/" data-link-type="Desktop" data-download-os="Desktop" data-download-version="standard" data-link-position="footer" data-link-text="Download Firefox">{{ ftl('footer-download-auto') }}</a></li>
             <li><a href="{{ url('firefox.browsers.desktop.windows') }}" data-link-position="footer" data-link-text="Windows">{{ ftl('footer-windows') }}</a></li>
             <li><a href="{{ url('firefox.browsers.desktop.mac') }}" data-link-position="footer" data-link-text="Mac">{{ ftl('footer-mac') }}</a></li>
             <li><a href="{{ url('firefox.browsers.mobile.ios') }}" data-link-position="footer" data-link-text="iOS">{{ ftl('footer-ios') }}</a></li>

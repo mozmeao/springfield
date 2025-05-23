@@ -190,6 +190,16 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         text-decoration-thickness: 1px;
     }
 
+    // link out icon
+    a[href^="http"]::after {
+        content: '';
+        background: url('/media/img/icons/external.svg') no-repeat bottom center / contain;
+        display: inline-block;
+        height: 1em;
+        margin-left: $spacing-sm;
+        vertical-align: baseline;
+        width: 12px
+    }
 }
 
 // Basic hover interactions with JavaScript disabled or not supported.
