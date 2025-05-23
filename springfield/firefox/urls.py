@@ -96,9 +96,9 @@ urlpatterns = (
     path("stub_attribution_code/", views.stub_attribution_code, name="firefox.stub_attribution_code"),
     # Issue 8432
     # Issue 13253: Ensure that Firefox can continue to refer to this URL.
-    page("default/thanks/", "firefox/default/thanks.html", ftl_files="firefox/set-as-default/thanks"),
+    page("landing/set-as-default/thanks/", "firefox/default/thanks.html", ftl_files="firefox/set-as-default/thanks"),
     # Default browser campaign
-    page("default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
+    page("landing/set-as-default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
     page("browsers/mobile/", "firefox/browsers/mobile/index.html", ftl_files=["firefox/browsers/mobile/index"]),

@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/default/';
+const url = '/en-US/landing/set-as-default/';
 
 test.describe(
     `${url} page`,
@@ -24,7 +24,7 @@ test.describe(
             const defaultButton = page.getByTestId('button-set-as-default');
             await expect(defaultButton).toBeVisible();
             await defaultButton.click();
-            await page.waitForURL('**/default/thanks/', {
+            await page.waitForURL('**/landing/set-as-default/thanks/', {
                 waitUntil: 'commit'
             });
 
