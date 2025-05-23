@@ -312,6 +312,30 @@
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "css/firefox/more/more.scss"
+      ],
+      "name": "more"
+    },
+    {
+      "files": [
+        "css/firefox/more/article.scss"
+      ],
+      "name": "more-article"
+    },
+    {
+      "files": [
+        "css/firefox/more/faq.scss"
+      ],
+      "name": "more-faq"
+    },
+    {
+      "files": [
+        "css/firefox/more/windows-64-bit.scss"
+      ],
+      "name": "windows-64-bit"
     }
   ],
   "js": [

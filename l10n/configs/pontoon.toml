@@ -147,3 +147,6 @@ locales = [
 [[paths]]
     reference = "en/privacy/*.ftl"
     l10n = "{locale}/privacy/*.ftl"
+[[paths]]
+    reference = "en/firefox/more/**/*.ftl"
+    l10n = "{locale}/firefox/more/**/*.ftl"
