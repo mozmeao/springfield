@@ -7,10 +7,10 @@ from selenium.webdriver.common.by import By
 from pages.base import BasePage
 
 
-class FirefoxHomePage(BasePage):
+class DesktopPage(BasePage):
     _URL_TEMPLATE = "/{locale}/"
 
-    _primary_download_button_locator = (By.ID, "qa-desktop-download")
+    _primary_download_button_locator = (By.ID, "firefox-desktop-download")
 
     @property
     def is_primary_download_button_displayed(self):

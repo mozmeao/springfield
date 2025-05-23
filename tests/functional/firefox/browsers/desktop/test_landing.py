@@ -9,7 +9,6 @@ from pages.firefox.browsers.desktop_landing import DesktopPage
 
 @pytest.mark.smoke
 @pytest.mark.nondestructive
-def test_navigation(base_url, selenium):
+def test_primary_download_button_displayed(base_url, selenium):
     page = DesktopPage(selenium, base_url).open()
-    page.navigation.open_resources_menu()
-    assert page.navigation.is_resources_menu_displayed
+    assert page.is_primary_download_button_displayed
