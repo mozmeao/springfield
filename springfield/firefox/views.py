@@ -452,7 +452,7 @@ class DownloadView(L10nTemplateView):
     def get(self, *args, **kwargs):
         # Remove legacy query parameters (Bug 1236791)
         if self.request.GET.get("product", None) or self.request.GET.get("os", None):
-            return HttpResponsePermanentRedirect(reverse("firefox.download"))
+            return HttpResponsePermanentRedirect(reverse("firefox"))
 
         scene = self.request.GET.get("scene", None)
         if scene == "2":
