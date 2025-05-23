@@ -8,7 +8,7 @@
 firefox-browsers-page-title-v2 = { -brand-name-firefox } for Desktop
 
 # HTML page description
-firefox-browsers-page-desc-v2 = Download the browser that puts your privacy first  — get { -brand-name-firefox } for Windows, MacOS, or Linux on desktop.
+firefox-browsers-page-desc-v2 = Download the browser that puts your privacy first — get { -brand-name-firefox } for Windows, macOS, or Linux on desktop.
 
 firefox-browsers-main-heading-v2 = { -brand-name-firefox } for desktop
 
