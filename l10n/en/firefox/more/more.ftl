@@ -23,14 +23,13 @@ firefox-respects-your = { -brand-name-firefox } respects your privacy on { -bran
 firefox-doesnt-spy = { -brand-name-firefox } doesn’t spy on searches. We stop known third-party tracking cookies and give you full control.
 firefox-for-linux = { -brand-name-firefox } for { -brand-name-linux }
 new-school-meets = New school meets old school with the fastest browser yet.
-firefox-for-windows = { -brand-name-firefox } for Windows 64-bit
+firefox-for-windows = { -brand-name-firefox } for { -brand-name-windows } 64-bit
 we-worry-about = We worry about your data safety so you don’t have to.
 
 incognito-browser-what = Incognito browser: What it really means
-firefox-calls-it = { -brand-name-firefox } calls it private browsing, Chrome calls it incognito mode. Both let you browse the web without saving your browsing history.
+firefox-calls-it = { -brand-name-firefox } calls it private browsing, { -brand-name-chrome } calls it incognito mode. Both let you browse the web without saving your browsing history.
 
 firefox-more-fingerprinter-blocking = Fingerprinter Blocking
 firefox-more-fingerprinting-is-a = Fingerprinting is a type of online tracking that’s more invasive than ordinary cookie-based tracking — that’s why { -brand-name-firefox-browser } blocks it.
 firefox-more-translate-the-web = Translate the web
 firefox-more-translate-more-than = Translate more than 100 languages to your language directly in your { -brand-name-firefox-browser } - easier than ever.
-

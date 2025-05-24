@@ -30,33 +30,33 @@ browser-history-by-1993-the-web = By 1993, the web exploded. Universities, gover
 
 # Variables:
 #   $netscape (url) - https://en.wikipedia.org/wiki/Netscape_(web_browser)
-browser-history-ncsa-mosaic-ran = NCSA Mosaic ran on Windows computers, was easy to use, and gave anyone with a PC access to early web pages, chat rooms, and image libraries. The next year (1994), Andreessen founded <a href="{ $netscape }">Netscape</a> and released Netscape Navigator to the public. It was wildly successful, and the first browser for the people. It was also the first move in a new kind of war for internet users.
+browser-history-ncsa-mosaic-ran = NCSA Mosaic ran on { -brand-name-windows } computers, was easy to use, and gave anyone with a PC access to early web pages, chat rooms, and image libraries. The next year (1994), Andreessen founded <a href="{ $netscape }">{ -brand-name-netscape }</a> and released { -brand-name-netscape } Navigator to the public. It was wildly successful, and the first browser for the people. It was also the first move in a new kind of war for internet users.
 
 browser-history-the-browser-wars = The Browser Wars
 
 # Variables:
 #   $ie (url) - https://en.wikipedia.org/wiki/Internet_Explorer
-browser-history-by-1995-netscape = By 1995, Netscape Navigator wasn’t the only way to get online. Computer software giant Microsoft licensed the old Mosaic code and built its own window to the web, <a href="{ $ie }">Internet Explorer</a>. The release sparked a war. Netscape and Microsoft worked feverishly to make new versions of their programs, each attempting to outdo the other with faster, better products.
+browser-history-by-1995-netscape = By 1995, { -brand-name-netscape } Navigator wasn’t the only way to get online. Computer software giant { -brand-name-microsoft } licensed the old Mosaic code and built its own window to the web, <a href="{ $ie }">{ -brand-name-ie }</a>. The release sparked a war. { -brand-name-netscape } and { -brand-name-microsoft } worked feverishly to make new versions of their programs, each attempting to outdo the other with faster, better products.
 
 # Variables:
 #   $blink (url) - https://developer.mozilla.org/en-US/docs/Glossary/blink_element
-browser-history-netscape-created = Netscape created and released JavaScript, which gave websites powerful computing capabilities they never had before. (They also made the infamous <a href="{ $blink }">&lt;blink&gt; tag</a>.) Microsoft countered with Cascading Style Sheets (CSS), which became the standard for web page design.
+browser-history-netscape-created = { -brand-name-netscape } created and released JavaScript, which gave websites powerful computing capabilities they never had before. (They also made the infamous <a href="{ $blink }">&lt;blink&gt; tag</a>.) { -brand-name-microsoft } countered with Cascading Style Sheets (CSS), which became the standard for web page design.
 
 # Variables:
 #   $dino (url) - https://medium.com/@ddprrt/tales-from-the-browser-wars-mozilla-stomps-internet-explorer-799035887cb1
-browser-history-things-got-a-little = Things got a little out of hand in 1997 when Microsoft released Internet Explorer 4.0. The team built a giant letter “e” and snuck it on the lawn of Netscape headquarters. The Netscape team promptly knocked the giant “e” over and <a href="{ $dino }">put their own { -brand-name-mozilla } dinosaur mascot on top of it</a>.
+browser-history-things-got-a-little = Things got a little out of hand in 1997 when { -brand-name-microsoft } released { -brand-name-ie } 4.0. The team built a giant letter “e” and snuck it on the lawn of { -brand-name-netscape } headquarters. The { -brand-name-netscape } team promptly knocked the giant “e” over and <a href="{ $dino }">put their own { -brand-name-mozilla } dinosaur mascot on top of it</a>.
 
 # Variables:
 #   $mozilla (url) - https://en.wikipedia.org/wiki/Mozilla
 #   $marketshare (url) - https://en.wikipedia.org/wiki/Internet_Explorer#Market_adoption_and_usage_share
-browser-history-then-microsoft-began = Then Microsoft began shipping Internet Explorer with their Windows operating system. Within 4 years, it had 75% of the market and by 1999 it had 99% of the market. The company faced antitrust litigation over the move, and Netscape decided to open source its codebase and created the not-for-profit <a href="{ $mozilla }">{ -brand-name-mozilla }</a>, which went on to create and release { -brand-name-firefox } in 2002. Realizing that having a browser monopoly wasn’t in the best interests of users and the open web, { -brand-name-firefox } was created to provide choice for web users. By 2010, { -brand-name-mozilla } { -brand-name-firefox } and others had <a href="{ $marketshare }">reduced Internet Explorer’s market share to 50%</a>.
+browser-history-then-microsoft-began = Then { -brand-name-microsoft } began shipping { -brand-name-ie } with their { -brand-name-windows } operating system. Within 4 years, it had 75% of the market and by 1999 it had 99% of the market. The company faced antitrust litigation over the move, and { -brand-name-netscape } decided to open source its codebase and created the not-for-profit <a href="{ $mozilla }">{ -brand-name-mozilla }</a>, which went on to create and release { -brand-name-firefox } in 2002. Realizing that having a browser monopoly wasn’t in the best interests of users and the open web, { -brand-name-firefox } was created to provide choice for web users. By 2010, { -brand-name-mozilla } { -brand-name-firefox } and others had <a href="{ $marketshare }">reduced { -brand-name-ie }’s market share to 50%</a>.
 
-browser-history-other-competitors = Other competitors emerged during the late ‘90s and early 2000s, including Opera, Safari, and Google Chrome. Microsoft Edge replaced Internet Explorer with the release of Windows 10 in 2015.
+browser-history-other-competitors = Other competitors emerged during the late ‘90s and early 2000s, including { -brand-name-opera }, { -brand-name-safari }, and { -brand-name-google } { -brand-name-chrome }. { -brand-name-microsoft } { -brand-name-edge } replaced { -brand-name-ie } with the release of { -brand-name-windows } 10 in 2015.
 browser-history-browsing-the-web = Browsing the Web Today
 
 # Variables:
 #   $applications (url) - https://blog.mozilla.org/firefox/no-judgment-digital-definitions-app-vs-web-app/
-browser-history-today-there-are = Today there are just a handful of ways to access the internet. { -brand-name-firefox }, Google Chrome, Microsoft Edge, Safari and Opera are the main competitors. Mobile devices have emerged during the past decade as the preferred way to access the internet. Today, most internet users only use mobile browsers and <a href="{ $applications }">applications</a> to get online. Mobile versions of the major browsers are available for iOS and Android devices. While these apps are very useful for specific purposes, they only provide limited access to the web.
+browser-history-today-there-are = Today there are just a handful of ways to access the internet. { -brand-name-firefox }, { -brand-name-google } { -brand-name-chrome }, { -brand-name-microsoft } { -brand-name-edge }, { -brand-name-safari } and { -brand-name-opera } are the main competitors. Mobile devices have emerged during the past decade as the preferred way to access the internet. Today, most internet users only use mobile browsers and <a href="{ $applications }">applications</a> to get online. Mobile versions of the major browsers are available for { -brand-name-ios } and { -brand-name-android } devices. While these apps are very useful for specific purposes, they only provide limited access to the web.
 
 # Variables:
 #   $vr (url) - https://mixedreality.mozilla.org/
