@@ -14,7 +14,7 @@ what-is-a-browser-the-web-is-a-vast = The web is a vast and powerful tool. Over 
 
 # Variables:
 #   $tools (url) - link to https://blog.mozilla.org/firefox/internet-search-engine-browser/
-what-is-a-browser-its-important = It’s important that everyone has access to the web, but it’s also vital that we all <a href="{ $tools }">understand the tools</a> we use to access it. We use web browsers like { -brand-name-mozilla } { -brand-name-firefox }, Google Chrome, Microsoft Edge and { -brand-name-apple } Safari every day, but do we understand what they are and how they work?
+what-is-a-browser-its-important = It’s important that everyone has access to the web, but it’s also vital that we all <a href="{ $tools }">understand the tools</a> we use to access it. We use web browsers like { -brand-name-mozilla } { -brand-name-firefox }, { -brand-name-google } { -brand-name-chrome }, { -brand-name-microsoft } { -brand-name-edge } and { -brand-name-apple } { -brand-name-safari } every day, but do we understand what they are and how they work?
 
 what-is-a-browser-in-a-short-period-long = In a short period of time we’ve gone from being amazed by the ability to send an email to someone around the world, to a change in how we think of information. It’s not a question of how much you know anymore, but simply a question of what browser or app can get you to that information fastest.
 what-is-a-browser-in-a-short-period = In a short period of time, we’ve gone from being amazed by the ability to send an email to someone around the world, to a change in how we think about information.
