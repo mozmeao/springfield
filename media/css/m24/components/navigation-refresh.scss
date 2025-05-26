@@ -192,6 +192,24 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 }
 
+.m24-c-menu .mzp-has-drop-down.m24-c-menu-category {
+     h2::after {
+        content: '';
+        background: url('/media/img/icons/caret-sprite.svg') no-repeat bottom left / auto 12px;
+        display: inline-block;
+        height: 1em;
+        margin-left: $spacing-sm;
+        vertical-align: baseline;
+        width: 12px;
+    }
+
+    &.mzp-is-selected {
+        h2::after {
+            background-position: bottom right;
+        }
+    }
+}
+
 // Basic hover interactions with JavaScript disabled or not supported.
 .m24-c-menu.m24-mzp-is-basic .m24-c-menu-category {
     padding-top: 12px;
