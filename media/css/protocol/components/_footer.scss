@@ -32,9 +32,20 @@ $image-path: '/media/protocol/img';
     }
 }
 
-// .is-closed[aria-hidden="true"] {
-//     display: none;
-// }
+// external link icon
+.mzp-c-footer-section a[href^="http"]::after {
+    content: '';
+    background: url('/media/img/icons/external-white.svg') no-repeat bottom center / contain;
+    display: inline-block;
+    height: 1em;
+    margin-left: $spacing-sm;
+    vertical-align: baseline;
+    width: 12px
+}
+
+.is-closed[aria-hidden="true"] {
+    display: none;
+}
 
 @media screen and (min-width: #{$screen-sm}) and (max-width: #{$screen-lg - 1px}) {
     .mzp-c-footer-sections {
