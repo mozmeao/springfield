@@ -101,8 +101,6 @@ _csp_script_src = {
 _csp_style_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
-    # TODO fix things so that we don't need this
-    csp.constants.UNSAFE_INLINE,
 }
 
 # 2. TEST-SPECIFIC SETTINGS
@@ -161,7 +159,6 @@ if csp_ro_report_uri:
     CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["report-uri"] = csp_ro_report_uri
 
     # CSP directive updates we're testing that we hope to move to the enforced policy.
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["style-src"] -= {csp.constants.UNSAFE_INLINE}
 
 
 # `CSP_PATH_OVERRIDES` and `CSP_PATH_OVERRIDES_REPORT_ONLY` are mainly for overriding CSP settings
@@ -195,9 +192,9 @@ def _override_csp(
 # /cms-admin/images/ loads just-uploaded images as blobs.
 CMS_ADMIN_IMAGES_CSP = _override_csp(CONTENT_SECURITY_POLICY, append={"img-src": {"blob:"}})
 CMS_ADMIN_IMAGES_CSP_RO = csp_ro_report_uri and _override_csp(CONTENT_SECURITY_POLICY_REPORT_ONLY, append={"img-src": {"blob:"}})
-# The CMS admin frames itself for page previews.
-CMS_ADMIN_CSP = _override_csp(CONTENT_SECURITY_POLICY, replace={"frame-ancestors": {csp.constants.SELF}})
-CMS_ADMIN_CSP_RO = csp_ro_report_uri and _override_csp(CONTENT_SECURITY_POLICY_REPORT_ONLY, replace={"frame-ancestors": {csp.constants.SELF}})
+# The CMS admin needs unsafe-inline styles for now.
+CMS_ADMIN_CSP = _override_csp(CONTENT_SECURITY_POLICY, append={"style-src": {csp.constants.UNSAFE_INLINE}})
+CMS_ADMIN_CSP_RO = csp_ro_report_uri and _override_csp(CONTENT_SECURITY_POLICY, append={"style-src": {csp.constants.UNSAFE_INLINE}})
 
 CSP_PATH_OVERRIDES = {
     # Order them from most specific to least.
