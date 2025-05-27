@@ -62,6 +62,12 @@
     },
     {
       "files": [
+        "css/firefox/browsers/desktop/chromebook.scss"
+      ],
+      "name": "chromebook"
+    },
+    {
+      "files": [
         "css/firefox/download/common/thanks-messaging.scss",
         "css/firefox/download/desktop/thanks.scss"
       ],
@@ -366,6 +372,12 @@
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"
+    },
+    {
+      "files": [
+        "js/firefox/browsers/desktop/chromebook.js"
+      ],
+      "name": "chromebook"
     },
     {
       "files": [
