@@ -48,6 +48,7 @@ _csp_connect_src = {
     "region1.google-analytics.com",
     "o1069899.sentry.io",
     "o1069899.ingest.sentry.io",
+    "o1069899.ingest.us.sentry.io",
     FXA_ENDPOINT,  # noqa: F405
 }
 _csp_font_src = {
