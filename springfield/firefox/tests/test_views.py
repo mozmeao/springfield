@@ -388,7 +388,7 @@ class TestFirefoxDownload(TestCase):
 
     @patch.object(views, "ftl_file_is_active", lambda *x: True)
     def test_thanks_template(self, render_mock):
-        req = RequestFactory().get("/download/thanks/")
+        req = RequestFactory().get("/thanks/")
         req.locale = "en-US"
         view = views.DownloadThanksView.as_view()
         view(req)
@@ -406,7 +406,7 @@ class TestFirefoxDownload(TestCase):
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_thanks_basic_template(self, render_mock):
-        req = RequestFactory().get("/download/thanks/")
+        req = RequestFactory().get("/thanks/")
         req.locale = "de"
         view = views.DownloadThanksView.as_view()
         view(req)
@@ -419,13 +419,13 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadView.as_view()
         resp = view(req)
         assert resp.status_code == 301
-        assert resp["location"].endswith("/download/thanks/?scene=2&dude=abides")
+        assert resp["location"].endswith("/thanks/?scene=2&dude=abides")
 
     # begin /thanks?s=direct URL - issue 10520
 
     @patch.object(views, "ftl_file_is_active", lambda *x: True)
     def test_thanks_desktop_direct(self, render_mock):
-        req = RequestFactory().get("/download/thanks/?s=direct")
+        req = RequestFactory().get("/thanks/?s=direct")
         req.locale = "en-US"
         view = views.DownloadThanksView.as_view()
         view(req)
@@ -434,7 +434,7 @@ class TestFirefoxDownload(TestCase):
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_thanks_basic_direct(self, render_mock):
-        req = RequestFactory().get("/download/thanks/?s=direct")
+        req = RequestFactory().get("/thanks/?s=direct")
         req.locale = "el"
         view = views.DownloadThanksView.as_view()
         view(req)
@@ -453,8 +453,8 @@ class TestFirefoxDownloadNoIndex(TestCase):
         assert robots.length == 0
 
     def test_thanks_canonical(self):
-        # Scene 2 /download/thanks/ should always contain a noindex tag.
-        response = self.client.get("/en-US/download/thanks/")
+        # Scene 2 /thanks/ should always contain a noindex tag.
+        response = self.client.get("/en-US/thanks/")
         doc = pq(response.content)
         robots = doc('meta[name="robots"]')
         assert robots.length == 1

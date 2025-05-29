@@ -124,7 +124,7 @@ function gpcEnabled() {
 }
 
 /**
- * Determine if the current page is /download/thanks/.
+ * Determine if the current page is /thanks/.
  * @param {String} location - The current page URL.
  * @return {Boolean}.
  */
@@ -132,7 +132,7 @@ function isFirefoxDownloadThanks(location) {
     if (typeof location !== 'string') {
         return false;
     }
-    return location.indexOf('/download/thanks/') > -1;
+    return location.indexOf('/thanks/') > -1;
 }
 
 /**

@@ -203,10 +203,7 @@ if (typeof window.Mozilla === 'undefined') {
                         data
                     );
                 }
-            } else if (
-                link.href &&
-                link.href.indexOf('/download/thanks/') !== -1
-            ) {
+            } else if (link.href && link.href.indexOf('/thanks/') !== -1) {
                 // Append stub data to direct-link data attributes on transitional links for old IE browsers (Issue #9350)
                 directLink = link.getAttribute('data-direct-link');
 
@@ -594,7 +591,7 @@ if (typeof window.Mozilla === 'undefined') {
     StubAttribution.isFirefoxDownloadThanks = function (location) {
         location =
             typeof location !== 'undefined' ? location : window.location.href;
-        return location.indexOf('/download/thanks/') > -1;
+        return location.indexOf('/thanks/') > -1;
     };
 
     /**

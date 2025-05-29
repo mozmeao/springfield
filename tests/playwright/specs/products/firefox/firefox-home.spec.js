@@ -25,7 +25,7 @@ test.describe(
             const downloadButton = page.getByTestId('firefox-desktop-download');
             await expect(downloadButton).toBeVisible();
             await downloadButton.click();
-            await page.waitForURL('**/download/thanks/', {
+            await page.waitForURL('**/thanks/', {
                 waitUntil: 'commit'
             });
 

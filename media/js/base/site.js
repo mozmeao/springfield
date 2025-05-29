@@ -124,7 +124,7 @@
 
             if (platform === 'windows') {
                 // Detect Windows 10 "and up" to display installation
-                // messaging on the /download/thanks/ page.
+                // messaging on the /thanks/ page.
 
                 if (_version >= 10.0) {
                     classString += ' windows-10-plus';

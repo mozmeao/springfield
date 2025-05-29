@@ -34,7 +34,7 @@ GTMSnippet.loadSnippet = () => {
 };
 
 /**
- * Determine if the current page is /download/thanks/.
+ * Determine if the current page is /thanks/.
  * @returns {Boolean}
  */
 GTMSnippet.isFirefoxDownloadThanks = () => {

@@ -257,19 +257,13 @@ describe('hasConsentCookie()', function () {
 describe('isFirefoxDownloadThanks()', function () {
     it('should return true if URL is /thanks/', function () {
         expect(
-            isFirefoxDownloadThanks(
-                'https://www.mozilla.org/en-US/download/thanks/'
-            )
+            isFirefoxDownloadThanks('https://www.mozilla.org/en-US/thanks/')
         ).toBeTrue();
         expect(
-            isFirefoxDownloadThanks(
-                'https://www.allizom.org/en-US/download/thanks/'
-            )
+            isFirefoxDownloadThanks('https://www.allizom.org/en-US/thanks/')
         ).toBeTrue();
         expect(
-            isFirefoxDownloadThanks(
-                'https://localhost:8000/en-US/download/thanks/'
-            )
+            isFirefoxDownloadThanks('https://localhost:8000/en-US/thanks/')
         ).toBeTrue();
     });
 
