@@ -31,6 +31,7 @@ urlpatterns = (
     page("channel/desktop/developer/", "firefox/developer/index.html", ftl_files=["firefox/developer"]),
     page("channel/android/", "firefox/channel/android.html", ftl_files=["firefox/channel"]),
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
+    path("channel/ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
     page("browsers/enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
     path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
     path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
@@ -61,7 +62,6 @@ urlpatterns = (
     path(
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
-    path("ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
     path("download/", views.DownloadView.as_view(), name="firefox.download"),
     path("thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
     path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),

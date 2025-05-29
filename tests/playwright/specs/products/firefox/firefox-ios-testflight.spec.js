@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/ios/testflight/';
+const url = '/en-US/channel/ios/testflight/';
 
 test.describe(
     `${url} page`,
