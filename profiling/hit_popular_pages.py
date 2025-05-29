@@ -32,7 +32,7 @@ paths = [
     "/en-US/thanks/?s=direct",
     "/en-US/browsers/enterprise/",
     "/en-US/features/",
-    "/en-US/installer-help/?channel=release&installer_lang=en-US",
+    "/en-US/download/installer-help/?channel=release&installer_lang=en-US",
     "/en-US/releases/",
     "/en-US/default/thanks/",
 ]
