@@ -35,7 +35,7 @@ test.describe(
 
             // Click primary download button.
             await downloadButton.click();
-            await page.waitForURL('**/download/thanks/', {
+            await page.waitForURL('**/thanks/', {
                 waitUntil: 'commit'
             });
 
@@ -78,7 +78,7 @@ test.describe(
 
             // Click primary download button.
             await downloadButton.click();
-            await page.waitForURL('**/download/thanks/', {
+            await page.waitForURL('**/thanks/', {
                 waitUntil: 'commit'
             });
 

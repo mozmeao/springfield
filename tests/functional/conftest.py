@@ -82,7 +82,7 @@ def pytest_generate_tests(metafunc):
     if markexpr == "download":
         base_url = metafunc.config.getoption("base_url")
         if "download_path" in metafunc.fixturenames:
-            doc = get_web_page(f"{base_url}/en-US/download/thanks/")
+            doc = get_web_page(f"{base_url}/en-US/thanks/")
             urls = [a.attrib["href"] for a in doc("ul.download-list a")]
             # Bug 1266682 remove links to Play Store to avoid rate limiting in automation.
             skip_urls = ["https://play.google.com", "https://apps.apple.com"]

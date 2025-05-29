@@ -63,7 +63,7 @@ urlpatterns = (
     ),
     path("ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
     path("download/", views.DownloadView.as_view(), name="firefox.download"),
-    path("download/thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
+    path("thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
     path("installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes
     re_path(f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?notes/$", springfield.releasenotes.views.latest_notes, name="firefox.notes"),
