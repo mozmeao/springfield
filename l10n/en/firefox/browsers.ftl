@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-### URL: https://www-dev.springfield.moz.works/
+### URL: https://www-dev.springfield.moz.works/browsers/desktop
 
 # HTML page title
 firefox-browsers-page-title-v2 = { -brand-name-firefox } for Desktop
@@ -17,6 +17,10 @@ firefox-browsers-get-the-browsers-strong-v2 = Get the browser that puts your pri
 firefox-browsers-desktop = Desktop
 firefox-browsers-seriously-private-browsing = Seriously private browsing. { -brand-name-firefox } automatically blocks 2000+ online trackers from collecting information about what you do online.
 firefox-browsers-download-for-desktop = Download for Desktop
+firefox-browsers-windows = { -brand-name-firefox } for { -brand-name-windows }
+firefox-browsers-mac = { -brand-name-firefox } for { -brand-name-mac-short }
+firefox-browsers-linux = { -brand-name-firefox } for { -brand-name-linux }
+firefox-browsers-custom = Custom Download Options
 firefox-browsers-enterprise = { -brand-name-enterprise }
 firefox-browsers-get-unmatched-data-protection = Get unmatched data protection with support cycles tailored to suit your company’s needs.
 firefox-browsers-enterprise-packages = { -brand-name-enterprise } packages
