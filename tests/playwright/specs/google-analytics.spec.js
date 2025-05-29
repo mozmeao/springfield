@@ -39,7 +39,7 @@ const getGAElement = async function (page, name) {
 test.describe(
     `${url} Google analytics`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.beforeEach(async ({ page, browserName }) => {

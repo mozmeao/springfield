@@ -13,7 +13,7 @@ const url = '/en-US/';
 test.describe(
     `${url} page`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.beforeEach(async ({ page, browserName }) => {
