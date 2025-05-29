@@ -26,7 +26,7 @@ paths = [
     "/en-US/android/124.0/releasenotes/",
     "/en-US/channel/desktop/",
     "/en-US/channel/desktop/?reason=manual-update",
-    "/en-US/developer/",
+    "/en-US/channel/desktop/developer/",
     "/en-US/download/",
     "/en-US/thanks/",
     "/en-US/thanks/?s=direct",

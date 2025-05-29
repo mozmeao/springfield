@@ -14,7 +14,7 @@ const desktopTestURLs = [
     '/en-US/',
     '/en-US/channel/android/',
     '/en-US/channel/desktop/',
-    '/en-US/developer/',
+    '/en-US/channel/desktop/developer/',
     '/en-US/download/',
     '/en-US/download/all/',
     '/en-US/thanks/',
