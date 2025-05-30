@@ -48,15 +48,15 @@ redirectpatterns = (
     redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False),
     # https://github.com/mozmeao/springfield/issues/222
     redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com"),
-    redirect(r"^desktop/?$", "firefox.browsers.desktop"),
+    redirect(r"^desktop/?$", "firefox.browsers.desktop.index"),
     redirect(r"^android/?$", "firefox.browsers.mobile.android"),
-    redirect(r"^developer/?$", "channel.desktop.developer"),
+    redirect(r"^developer/?$", "firefox.developer.index"),
     redirect(r"^(10|independent)/?$", "firefox.features.index"),
     redirect(r"^hello/?$", "https://support.mozilla.org/en-US/kb/hello-status?redirect_source=firefox-com"),
     redirect(r"^personal/?$", "firefox"),
     redirect(r"^choose/?$", "firefox"),
     redirect(r"^switch/?$", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com"),  # TODO pull this out when we port the page
-    redirect(r"^enterprise/?$", "browsers.enterprise"),
+    redirect(r"^enterprise/?$", "firefox.enterprise.index"),
     redirect(
         r"^containers/?$", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com"
     ),  # TODO remove or amend depending on whether we port the page
