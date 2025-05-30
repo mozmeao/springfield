@@ -7,26 +7,32 @@ import json
 import os
 import re
 import xml.etree.ElementTree as etree
+from datetime import timedelta
 from glob import glob
+from itertools import chain
 from operator import attrgetter
 
 from django.conf import settings
 from django.core.cache import caches
 from django.db import models, transaction
+from django.db.models import Q, UniqueConstraint
+from django.forms.models import model_to_dict
 from django.http import Http404
 from django.utils.dateparse import parse_datetime
 from django.utils.functional import cached_property
+from django.utils.text import slugify
+from django.utils.timezone import now
 
 import bleach
 import markdown
 from django_extensions.db.fields.json import JSONField
+from django_extensions.db.models import TimeStampedModel
 from markdown.extensions import Extension
 from markdown.inlinepatterns import InlineProcessor
 from product_details.version_compare import Version
 
 from springfield.base.urlresolvers import reverse
 from springfield.releasenotes import version_re
-from springfield.releasenotes.utils import memoize
 
 
 class StrikethroughInlineProcessor(InlineProcessor):
@@ -102,55 +108,6 @@ def process_markdown(value):
     return bleach.clean(rendered_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS)
 
 
-def process_notes(notes):
-    notes = [Note(d) for d in notes]
-    return [n for n in notes if n.is_public]
-
-
-def process_is_public(is_public):
-    if settings.DEV:
-        return True
-
-    return is_public
-
-
-def process_note_release(rel_data):
-    return ProductRelease(**rel_data)
-
-
-FIELD_PROCESSORS = {
-    "created": parse_datetime,
-    "modified": parse_datetime,
-    "is_public": process_is_public,
-    "note": process_markdown,
-    "fixed_in_release": process_note_release,
-}
-
-
-class RNModel:
-    def __init__(self, data):
-        for key, value in data.items():
-            if not hasattr(self, key):
-                continue
-            if key in FIELD_PROCESSORS:
-                value = FIELD_PROCESSORS[key](value)
-            setattr(self, key, value)
-
-
-class Note(RNModel):
-    id = None
-    bug = None
-    note = ""
-    tag = None
-    is_public = True
-    fixed_in_release = None
-    sort_num = None
-    created = None
-    modified = None
-    progressive_rollout = False
-    relevant_countries = []
-
-
 class MarkdownField(models.TextField):
     """Field that takes Markdown text as input and saves HTML to the database"""
 
@@ -161,7 +118,7 @@ class MarkdownField(models.TextField):
         return value
 
 
-class ProductReleaseQuerySet(models.QuerySet):
+class ReleaseQuerySet(models.QuerySet):
     def product(self, product_name, channel_name=None, version=None):
         if product_name.lower() == "firefox extended support release":
             product_name = "firefox"
@@ -172,13 +129,12 @@ class ProductReleaseQuerySet(models.QuerySet):
         if version:
             q = q.filter(version=version)
 
-        return q
+        return q.prefetch_related("note_set")
 
-
-class ProductReleaseManager(models.Manager):
+class ReleaseManager(models.Manager):
     def get_queryset(self, include_drafts=False):
-        qs = ProductReleaseQuerySet(self.model, using=self._db)
-        if settings.DEV or include_drafts:
+        qs = ReleaseQuerySet(self.model, using=self._db)
+        if settings.DEV or settings.WAGTAIL_ENABLE_ADMIN or include_drafts:
             return qs
 
         return qs.filter(is_public=True)
@@ -186,61 +142,39 @@ class ProductReleaseManager(models.Manager):
     def product(self, product_name, channel_name=None, version=None, include_drafts=False):
         return self.get_queryset(include_drafts).product(product_name, channel_name, version)
 
-    def refresh(self):
-        version_regex = re.compile(version_re)
-        release_objs = []
-        rn_path = os.path.join(settings.RELEASE_NOTES_PATH, "releases")
-        with transaction.atomic(using=self.db):
-            self.get_queryset(include_drafts=True).delete()
-            releases = glob(os.path.join(rn_path, "*.json"))
-            for release_file in releases:
-                with codecs.open(release_file, "r", encoding="utf-8") as rel_fh:
-                    data = json.load(rel_fh)
-                    # Make sure the version is valid and publicly accessible.
-                    if not version_regex.match(data["version"]):
-                        continue
-                    # doing this to simplify queries for Firefox since it is always
-                    # looked up with product=Firefox and relies on the version number
-                    # and channel to determine ESR.
-                    if data["product"] == "Firefox Extended Support Release":
-                        data["product"] = "Firefox"
-                        data["channel"] = "ESR"
-                    # make all releases public on non-production environments
-                    if settings.DEV:
-                        data["is_public"] = True
-                    release_objs.append(ProductRelease(**data))
+    def all_as_list(self):
+        """Return all releases as a list of dicts"""
+        return [r.to_dict() for r in self.prefetch_related("note_set").all()]
 
-            self.bulk_create(release_objs)
+    def recently_modified_list(self, days_ago=7, mod_date=None):
+        if mod_date is None:
+            mod_date = now() - timedelta(days=days_ago)
 
-        return len(release_objs)
+        query = self.filter(Q(modified__gte=mod_date) | Q(note__modified__gte=mod_date) | Q(fixed_note_set__modified__gte=mod_date)).distinct()
+        return [r.to_dict() for r in query.prefetch_related("note_set")]
 
 
-class ProductRelease(models.Model):
-    CHANNELS = ("Nightly", "Aurora", "Beta", "Release", "ESR")
-    PRODUCTS = ("Firefox", "Firefox for Android", "Firefox Extended Support Release", "Firefox OS", "Thunderbird", "Firefox for iOS")
+class Release(TimeStampedModel):
+    CHANNELS = ("Nightly", "Beta", "Release", "ESR")
+    PRODUCTS = ("Firefox", "Firefox for Android", "Firefox for iOS", "Firefox Extended Support Release", "Thunderbird")
+    PUBLIC_ONLY = not (settings.DEV or settings.WAGTAIL_ENABLE_ADMIN)
 
-    product = models.CharField(max_length=50)
-    channel = models.CharField(max_length=50)
-    version = models.CharField(max_length=25)
-    slug = models.CharField(max_length=255)
-    title = models.CharField(max_length=255)
-    release_date = models.DateField()
-    text = MarkdownField(blank=True)
-    is_public = models.BooleanField(default=False)
+    product = models.CharField(max_length=255, choices=[(p, p) for p in PRODUCTS])
+    channel = models.CharField(max_length=255, choices=[(c, c) for c in CHANNELS])
+    version = models.CharField(max_length=255)
+    release_date = models.DateTimeField()
+    text = models.TextField(blank=True)
+    is_public = models.BooleanField(default=False, help_text="Note: If checked, these Release Notes will be visible on www.firefox.com")
     bug_list = models.TextField(blank=True)
     bug_search_url = models.CharField(max_length=2000, blank=True)
-    system_requirements = MarkdownField(blank=True)
-    created = models.DateTimeField()
-    modified = models.DateTimeField()
-    notes = JSONField(blank=True)
+    system_requirements = models.TextField(blank=True)
+    reviewed_by_release_manager = models.BooleanField(
+        null=True,
+        default=False,
+        help_text="Purely a visual indicator in the admin - does not show on firefox.com",
+    )
 
-    objects = ProductReleaseManager()
-
-    class Meta:
-        ordering = ["-release_date"]
-
-    def __str__(self):
-        return self.title
+    objects = ReleaseManager()
 
     def get_absolute_url(self):
         if self.product == "Firefox for Android":
@@ -252,6 +186,23 @@ class ProductRelease(models.Model):
 
         prefix = "aurora" if self.channel == "Aurora" else "release"
         return reverse(urlname, args=[self.version, prefix])
+
+    @property
+    def slug(self):
+        product = slugify(self.product)
+        channel = self.channel.lower()
+        if product.lower() == "firefox-extended-support-release":
+            product = "firefox"
+            channel = "esr"
+        return "-".join([product, self.version, channel])
+
+    @property
+    def text_html(self):
+        return process_markdown(self.text)
+
+    @property
+    def system_requirements_html(self):
+        return process_markdown(self.system_requirements)
 
     @cached_property
     def major_version(self):
@@ -265,23 +216,19 @@ class ProductRelease(models.Model):
     def version_obj(self):
         return Version(self.version)
 
-    @property
-    def is_latest(self):
-        return self == get_latest_release(self.product, self.channel)
-
-    def get_sysreq_url(self):
-        if self.product == "Firefox for Android":
-            urlname = "firefox.android.system_requirements"
-        elif self.product == "Firefox for iOS":
-            urlname = "firefox.ios.system_requirements"
-        else:
-            urlname = "firefox.system_requirements"
-
-        return reverse(urlname, args=[self.version])
-
     def get_bug_search_url(self):
         if self.bug_search_url:
             return self.bug_search_url
+
+        if self.product == "Thunderbird":
+            return (
+                "https://bugzilla.mozilla.org/buglist.cgi?"
+                "classification=Client%20Software&query_format=advanced&"
+                "bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&"
+                "target_milestone=Thunderbird%20{version}.0&product=Thunderbird"
+                "&resolution=FIXED"
+            ).format(version=self.major_version)
+
         return (
             "https://bugzilla.mozilla.org/buglist.cgi?"
             "j_top=OR&f1=target_milestone&o3=equals&v3=Firefox%20{version}&"
@@ -297,11 +244,15 @@ class ProductRelease(models.Model):
         channel and major version with the highest minor version,
         or None if no such releases exist
         """
-        releases = ProductRelease.objects.product(product, self.channel).filter(version__startswith=f"{self.major_version}.")
+        releases = Release.objects.filter(version__startswith=self.major_version + ".", channel=self.channel, product=product).order_by(
+            "-version"
+        )
+        if not getattr(settings, "DEV", False):
+            releases = releases.filter(is_public=True)
         if releases:
-            return sorted(releases, reverse=True, key=attrgetter("version_obj"))[0]
-
-        return None
+            return sorted(
+                sorted(releases, reverse=True, key=lambda r: len(r.version.split("."))), reverse=True, key=lambda r: r.version.split(".")[1]
+            )[0]
 
     def equivalent_android_release(self):
         if self.product == "Firefox":
@@ -311,21 +262,175 @@ class ProductRelease(models.Model):
         if self.product == "Firefox for Android":
             return self.equivalent_release_for_product("Firefox")
 
+    def notes(self, public_only=None):
+        """
+        Retrieve a list of Note instances that should be shown for this
+        release, grouped as either new features or known issues, and sorted
+        first by sort_num highest to lowest and then by created date,
+        which is applied to both groups,
+        and then for new features we also sort by tag in the order specified
+        by Note.TAGS, with untagged notes coming first, then finally moving
+        any note with the fixed tag that starts with the release version to
+        the top, for what we call "dot fixes".
+        """
+        if public_only is None:
+            public_only = self.PUBLIC_ONLY
+
+        tag_index = {tag: i for i, tag in enumerate(Note.TAGS)}
+        notes = self.note_set.order_by("-sort_num", "created")
+        if public_only:
+            notes = notes.filter(is_public=True)
+        known_issues = [n for n in notes if n.is_known_issue_for(self)]
+        new_features = sorted(
+            sorted((n for n in notes if not n.is_known_issue_for(self)), key=lambda note: tag_index.get(note.tag, 0)),
+            key=lambda n: n.tag == "Fixed" and n.note.startswith(self.version),
+            reverse=True,
+        )
+
+        return new_features, known_issues
+
     def get_notes(self):
-        if not self.notes:
-            return self.notes
-        return process_notes(self.notes)
+        new_features, known_issues = self.notes(public_only=False)
+        return list(chain(new_features, known_issues))
+
+    def to_dict(self):
+        """Return a dict all all data about the release"""
+        data = model_to_dict(self, exclude=["id", "reviewed_by_release_manager"])
+        data["title"] = str(self)
+        data["slug"] = self.slug
+        data["release_date"] = self.release_date.date().isoformat()
+        data["created"] = self.created.isoformat()
+        data["modified"] = self.modified.isoformat()
+        new_features, known_issues = self.notes(public_only=False)
+        for note in known_issues:
+            note.tag = "Known"
+        data["notes"] = [n.to_dict(self) for n in chain(new_features, known_issues)]
+        return data
+
+    def to_simple_dict(self):
+        """Return a dict of only the basic data about the release"""
+        return {
+            "version": self.version,
+            "product": self.product,
+            "channel": self.channel,
+            "is_public": self.is_public,
+            "slug": self.slug,
+            "title": str(self),
+        }
+
+    def __str__(self):
+        return f"{self.product} {self.version} {self.channel}"
+
+    class Meta:
+        ordering = ["-release_date"]
+        unique_together = (("product", "version"),)
+        get_latest_by = "modified"
 
 
-@memoize(LONG_RN_CACHE_TIMEOUT)
+class Note(TimeStampedModel):
+    TAGS = ("New", "Changed", "HTML5", "Feature", "Language", "Developer", "Enterprise", "Fixed", "Community")
+
+    bug = models.IntegerField(null=True, blank=True)
+    note = models.TextField(blank=True)
+    releases = models.ManyToManyField(Release, blank=True)
+    is_known_issue = models.BooleanField(default=False)
+    fixed_in_release = models.ForeignKey(Release, on_delete=models.SET_NULL, null=True, blank=True, related_name="fixed_note_set")
+    tag = models.CharField(max_length=255, blank=True, choices=[(t, t) for t in TAGS])
+    sort_num = models.IntegerField(default=0)
+    is_public = models.BooleanField(default=True)
+    progressive_rollout = models.BooleanField(default=False)
+    relevant_countries = models.ManyToManyField(
+        "Country",
+        blank=True,
+        help_text=(
+            "Select the countries where this Note applies, as part of a "
+            "progressive rollout. This info will only be shown on the Release "
+            "page if 'Progressive rollout', above, is ticked."
+        ),
+    )
+
+    related_field_to_github = "releases"
+
+    @property
+    def note_html(self):
+        return process_markdown(self.note)
+
+    def is_known_issue_for(self, release):
+        return self.is_known_issue and self.fixed_in_release != release
+
+    def to_dict(self, release=None):
+        data = model_to_dict(
+            self,
+            exclude=[
+                "releases",
+                "is_known_issue",
+            ],
+        )
+        data["created"] = self.created.isoformat()
+        data["modified"] = self.modified.isoformat()
+        if self.fixed_in_release:
+            data["fixed_in_release"] = self.fixed_in_release.to_simple_dict()
+        else:
+            del data["fixed_in_release"]
+
+        if release and self.is_known_issue_for(release):
+            data["tag"] = "Known"
+
+        if self.relevant_countries.count():
+            data["relevant_countries"] = [x.to_dict() for x in self.relevant_countries.all()]
+
+        return data
+
+    def __str__(self):
+        return self.note
+
+    class Meta:
+        get_latest_by = "modified"
+
+
+class Country(TimeStampedModel):
+    # Simple model for associating a Country with a Note
+
+    name = models.CharField(
+        blank=False,
+        max_length=128,
+    )
+    code = models.CharField(
+        blank=False,
+        help_text="3166-1-alpha-2 code",
+        max_length=2,
+    )
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+    class Meta:
+        verbose_name_plural = "Countries"
+        ordering = ["name"]
+        constraints = [
+            UniqueConstraint(
+                fields=["name", "code"],
+                name="unique_country_name_for_code",
+            ),
+        ]
+
+    def to_dict(self):
+        data = model_to_dict(self)
+        del data["id"]  # no need to dump out the internal ID for a Country
+        return data
+
+
+### END RNA MODELS
+
+
 def get_release(product, version, channel=None, include_drafts=False):
-    channels = [channel] if channel else ProductRelease.CHANNELS
+    channels = [channel] if channel else Release.CHANNELS
     if product.lower() == "firefox extended support release":
         channels = ["esr"]
     for channel in channels:
         try:
-            return ProductRelease.objects.product(product, channel, version, include_drafts).get()
-        except ProductRelease.DoesNotExist:
+            return Release.objects.product(product, channel, version, include_drafts).get()
+        except Release.DoesNotExist:
             continue
 
     return None
@@ -339,9 +444,8 @@ def get_release_or_404(version, product, include_drafts=False):
     return release
 
 
-@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_releases(product, channel, num_results=10):
-    return ProductRelease.objects.product(product, channel)[:num_results]
+    return Release.objects.product(product, channel)[:num_results]
 
 
 def get_releases_or_404(product, channel, num_results=10):
@@ -352,10 +456,9 @@ def get_releases_or_404(product, channel, num_results=10):
     raise Http404
 
 
-@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_latest_release(product, channel="release"):
     try:
-        release = ProductRelease.objects.product(product, channel)[0]
+        release = Release.objects.product(product, channel)[0]
     except IndexError:
         release = None
 

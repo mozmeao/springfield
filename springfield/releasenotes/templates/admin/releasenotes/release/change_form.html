@@ -1,0 +1,33 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script type="module" src="{% static 'js/release-notes.js' %}"></script>
+{% endblock %}
+
+{% block after_related_objects %}
+{% if original %}
+
+<div class="inline-group">
+  <fieldset class="module" aria-labelledby="items-heading">
+    <h2>Notes</h2>
+    <div id="note-table" data-releaseid="{{ original.id }}"></div>
+    <p>
+      <input name="add-releasenote" id="add-releasenote" type="hidden">
+      <a href="/django-admin/releasenotes/note/?t=id" class="related-lookup" id="lookup_add-releasenote" title="Find a Note"></a>
+      <a href="/django-admin/releasenotes/note/add/?releases={{ original.id }}"
+        class="related-lookup"
+        id="add_add-releasenote"
+        style="width:16px; height:16px; background-image: url({% static 'admin/img/icon-addlink.svg' %});"
+        title="Add a New Note"></a>
+    </p>
+  </fieldset>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% comment %}
+vim: filetype=htmldjango
+{% endcomment %}
