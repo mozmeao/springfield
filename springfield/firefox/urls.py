@@ -28,10 +28,11 @@ urlpatterns = (
     path("download/all/<slug:product_slug>/<str:platform>/", views.firefox_all, name="firefox.all.locales"),
     path("download/all/<slug:product_slug>/<str:platform>/<str:locale>/", views.firefox_all, name="firefox.all.download"),
     page("channel/desktop/", "firefox/channel/desktop.html", ftl_files=["firefox/channel"]),
+    page("channel/desktop/developer/", "firefox/developer/index.html", ftl_files=["firefox/developer"]),
     page("channel/android/", "firefox/channel/android.html", ftl_files=["firefox/channel"]),
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
-    page("developer/", "firefox/developer/index.html", ftl_files=["firefox/developer"]),
-    page("enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
+    path("channel/ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
+    page("browsers/enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
     path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
     path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
     path("features/add-ons/", prefer_cms(views.FirefoxFeaturesAddons.as_view()), name="firefox.features.add-ons"),
@@ -61,10 +62,9 @@ urlpatterns = (
     path(
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
-    path("ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
     path("download/", views.DownloadView.as_view(), name="firefox.download"),
-    path("download/thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
-    path("installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
+    path("thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
+    path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes
     re_path(f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?notes/$", springfield.releasenotes.views.latest_notes, name="firefox.notes"),
     path("firefox/nightly/notes/feed/", springfield.releasenotes.views.nightly_feed, name="firefox.nightly.notes.feed"),

@@ -99,7 +99,7 @@ class TestDownloadButtons(TestCase):
         for link in links[1:5]:
             link = pq(link)
             href = link.attr("href")
-            assert href == "/fr/download/thanks/"
+            assert href == "/fr/thanks/"
 
         doc = pq(
             render("{{ download_firefox(locale_in_transition=false) }}", {"request": get_request, "fluent_l10n": self.get_l10n(get_request.locale)})
@@ -110,7 +110,7 @@ class TestDownloadButtons(TestCase):
         for link in links[1:5]:
             link = pq(link)
             href = link.attr("href")
-            assert href == "/download/thanks/"
+            assert href == "/thanks/"
 
     def test_download_location_attribute(self):
         """
@@ -326,7 +326,7 @@ class TestDownloadThanksButton(TestCase):
 
     def test_download_firefox_thanks_button(self):
         """
-        Download link should point to /download/thanks/
+        Download link should point to /thanks/
         """
         rf = RequestFactory()
         get_request = rf.get("/fake")
@@ -340,7 +340,7 @@ class TestDownloadThanksButton(TestCase):
         link = pq(links)
         href = link.attr("href")
 
-        assert href == "/download/thanks/"
+        assert href == "/thanks/"
         assert button.attr("id") == "download-button-thanks"
         assert link.attr("data-cta-text") == "Download Firefox"
 
@@ -369,7 +369,7 @@ class TestDownloadThanksButton(TestCase):
         link = pq(links)
         href = link.attr("href")
 
-        assert href == "/en-US/download/thanks/"
+        assert href == "/en-US/thanks/"
         assert button.attr("id") == "test-download"
         assert link.attr("data-cta-position") == "primary cta"
         assert "test-css-class" in link.attr("class")

@@ -184,7 +184,7 @@ def download_firefox(
 @library.global_function
 @jinja2.pass_context
 def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button_class=None, locale_in_transition=False, download_location=None):
-    """Output a simple "download firefox" button that only points to /download/thanks/
+    """Output a simple "download firefox" button that only points to /thanks/
 
     :param ctx: context from calling template.
     :param dom_id: Use this string as the id attr on the element.
@@ -199,7 +199,7 @@ def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button
     channel = "release"
     locale = locale or get_locale(ctx["request"])
     dom_id = dom_id or "download-button-thanks"
-    transition_url = "/download/thanks/"
+    transition_url = "/thanks/"
     version = firefox_desktop.latest_version(channel)
 
     if locale_in_transition:

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-### URL: https://www-dev.springfield.moz.works/enterprise/
+### URL: https://www-dev.springfield.moz.works/browsers/enterprise/
 
 firefox-enterprise-get-firefox-for-your-enterprise-with = Get { -brand-name-firefox } for your enterprise with { -brand-name-esr } and Rapid Release
 firefox-enterprise-get-unmatched-data-protection = Get unmatched data protection on the release cadence that suits you with { -brand-name-firefox } for enterprise. Download { -brand-name-esr } and Rapid Release.

@@ -14,11 +14,11 @@ const desktopTestURLs = [
     '/en-US/',
     '/en-US/channel/android/',
     '/en-US/channel/desktop/',
-    '/en-US/developer/',
+    '/en-US/channel/desktop/developer/',
     '/en-US/download/',
     '/en-US/download/all/',
-    '/en-US/download/thanks/',
-    '/en-US/enterprise/',
+    '/en-US/thanks/',
+    '/en-US/browsers/enterprise/',
     '/en-US/firefox/releasenotes/',
     '/en-US/privacy/websites/cookie-settings/'
 ];
