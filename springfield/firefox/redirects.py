@@ -18,24 +18,14 @@ def firefox_channel(*args, **kwargs):
 
 
 def mobile_app(request, *args, **kwargs):
-    campaign = None
-    product = "firefox"
+    product = request.GET.get("product")
+    campaign = request.GET.get("campaign")
 
-    product_options = ["firefox", "focus", "klar"]
+    if product not in {"firefox", "focus", "klar"}:
+        product = "firefox"
 
-    campaign_options = [
-        "firefox-all",
-    ]
-
-    for p in product_options:
-        if p == request.GET.get("product"):
-            product = p
-            break
-
-    for c in campaign_options:
-        if c == request.GET.get("campaign"):
-            campaign = c
-            break
+    if campaign not in {"firefox-all"}:
+        campaign = None
 
     return mobile_app_redirector(request, product, campaign)
 
