@@ -176,6 +176,17 @@ class Release(TimeStampedModel):
 
     objects = ReleaseManager()
 
+    def get_absolute_url(self):
+        if self.product == "Firefox for Android":
+            urlname = "firefox.android.releasenotes"
+        elif self.product == "Firefox for iOS":
+            urlname = "firefox.ios.releasenotes"
+        else:
+            urlname = "firefox.desktop.releasenotes"
+
+        prefix = "aurora" if self.channel == "Aurora" else "release"
+        return reverse(urlname, args=[self.version, prefix])
+
     @property
     def slug(self):
         product = slugify(self.product)
