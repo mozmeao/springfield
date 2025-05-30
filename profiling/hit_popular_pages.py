@@ -21,9 +21,9 @@ import requests
 
 paths = [
     "/en-US/",
-    "/en-US/121.0/system-requirements/",
+    "/en-US/firefox/121.0/system-requirements/",
     "/en-US/download/all/",
-    "/en-US/android/124.0/releasenotes/",
+    "/en-US/firefox/android/124.0/releasenotes/",
     "/en-US/channel/desktop/",
     "/en-US/channel/desktop/?reason=manual-update",
     "/en-US/channel/desktop/developer/",
@@ -34,7 +34,7 @@ paths = [
     "/en-US/features/",
     "/en-US/download/installer-help/?channel=release&installer_lang=en-US",
     "/en-US/releases/",
-    "/en-US/default/thanks/",
+    "/en-US/landing/set-as-default/thanks/",
 ]
 
 
