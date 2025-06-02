@@ -243,7 +243,7 @@ $image-path: '/media/protocol/img';
         color: m24.$token-color-off-white;
         font-weight: 600;
         font-size: remify(16px);
-        padding-left: 36px;
+        padding-left: 36px; // space for globe icon
         max-width: 100%;
         width: 100%;
         margin: 0;
@@ -262,4 +262,13 @@ $image-path: '/media/protocol/img';
             background-size: 16px 16px;
         }
     }
+}
+
+// No JS: remove globe icon
+.no-js .mzp-c-language-switcher::before {
+    content: none;
+}
+
+.no-js .mzp-js-language-switcher-select {
+    padding-left: $spacing-sm;
 }
