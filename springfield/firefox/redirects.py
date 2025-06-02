@@ -54,13 +54,10 @@ redirectpatterns = (
     redirect(r"^pair/?$", "https://accounts.firefox.com/pair/"),
     redirect(r"^(join|rejoindre)/?$", "https://www.mozilla.org/firefox/accounts/?redirect_source=join"),
     redirect(r"^(privacy|privatsphaere)/?$", "https://www.mozilla.org/products/?redirect_source=firefox-com"),
-    redirect(r"^nightly/?$", "channel.desktop.nightly"),
+    redirect(r"^nightly/?$", "/channel/desktop/#nightly"),
     redirect(
-        r"^famil(y|ies)/?$",
+        r"^en-US/famil(y|ies)/?$",
         "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families",
     ),
-    redirect(
-        r"^famil(y|ies)/?\?.*$",
-        "https://www.mozilla.org/firefox/family/",
-    ),
+    redirect(r"^en-US/famil(y|ies)/?\?.*$", "https://www.mozilla.org/firefox/family/"),
 )

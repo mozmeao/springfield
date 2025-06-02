@@ -20,7 +20,7 @@ URLS = flatten(
         url_test("/hello/", "https://support.mozilla.org/en-US/kb/hello-status?redirect_source=firefox-com"),
         url_test("/personal/", "/"),
         url_test("/choose/", "/"),
-        url_test("/switch/", "https://www.mozilla.org/en-GB/firefox/switch/?redirect_source=firefox-com"),
+        url_test("/switch/", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com"),
         url_test("/enterprise/", "/browsers/enterprise/"),
         url_test("/containers/", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com"),
         url_test("/pdx/", "/"),
@@ -29,13 +29,19 @@ URLS = flatten(
         url_test("/rejoindre/", "https://www.mozilla.org/firefox/accounts/?redirect_source=join"),
         url_test("/privacy/", "https://www.mozilla.org/products/?redirect_source=firefox-com"),
         url_test("/privatsphaere/", "https://www.mozilla.org/products/?redirect_source=firefox-com"),
-        url_test("/nightly/", "/channel/desktop/#nightly`"),
-        url_test("/family/", "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families"),
+        url_test("/nightly/", "/channel/desktop/#nightly"),
         url_test(
-            "/families/", "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families"
+            "/family/",
+            "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families",
+            follow_redirects=True,
         ),
-        url_test("/family/some/path", "https://www.mozilla.org/firefox/family/"),
-        url_test("/families/some/path", "https://www.mozilla.org/firefox/family/"),
+        url_test(
+            "/families/",
+            "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families",
+            follow_redirects=True,
+        ),
+        url_test("/family/?query=string", "https://www.mozilla.org/firefox/family/", follow_redirects=True, final_status_code=200),
+        url_test("/families/?query=string", "https://www.mozilla.org/firefox/family/", follow_redirects=True, final_status_code=200),
         # END https://github.com/mozmeao/springfield/issues/222
     )
 )
