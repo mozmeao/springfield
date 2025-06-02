@@ -34,11 +34,14 @@ $image-path: '/media/protocol/img';
 
 // external link icon
 .mzp-c-footer-section a[href^="http"]::after {
+    @include bidi((
+        (margin-left, $spacing-sm, margin-right, 0),
+        (transform, scaleX(1), scaleX(-1)),
+    ));
     content: '';
     background: url('/media/img/icons/external-white.svg') no-repeat bottom center / contain;
     display: inline-block;
     height: 1em;
-    margin-left: $spacing-sm;
     vertical-align: baseline;
     width: 12px
 }
@@ -181,7 +184,7 @@ $image-path: '/media/protocol/img';
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
         background-size: contain;
         height: 40px;
-        width: 220px;
+        width: 120px;
     }
 }
 
