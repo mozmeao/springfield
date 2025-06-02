@@ -25,7 +25,6 @@ def test_301_url(url, base_url):
     assert_valid_url(**url)
 
 
-@pytest.mark.skip("Disabled until we have redirects to test")
 @pytest.mark.headless
 @pytest.mark.nondestructive
 @pytest.mark.django_db
