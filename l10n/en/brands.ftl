@@ -90,6 +90,8 @@
 -brand-name-chrome = Chrome
 -brand-name-edge = Edge
 -brand-name-ie = Internet Explorer
+-brand-name-opera = Opera
+-brand-name-safari = Safari
 
 ## Platforms
 
