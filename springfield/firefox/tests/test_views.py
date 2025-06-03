@@ -397,7 +397,7 @@ class TestFirefoxDownload(TestCase):
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_download_basic_template(self, render_mock):
-        req = RequestFactory().get("/download/")
+        req = RequestFactory().get("/")
         req.locale = "de"
         view = views.DownloadView.as_view()
         view(req)
@@ -414,7 +414,7 @@ class TestFirefoxDownload(TestCase):
         assert template == ["firefox/download/basic/thanks.html"]
 
     def test_thanks_redirect(self, render_mock):
-        req = RequestFactory().get("/download/?scene=2&dude=abides")
+        req = RequestFactory().get("/?scene=2&dude=abides")
         req.locale = "en-US"
         view = views.DownloadView.as_view()
         resp = view(req)
@@ -481,8 +481,9 @@ class TestFirefoxGA(TestCase):
         response = view(req)
         self.assert_ga_attr(response)
 
-    def test_firefox_download_GA(self):
-        req = RequestFactory().get("/en-US/download/")
+    def test_firefox_download_all_GA(self):
+        # the root page at / is a download page; let's also test /download/all/
+        req = RequestFactory().get("/en-US/download/all/")
         view = views.DownloadView.as_view()
         response = view(req)
         self.assert_ga_attr(response)
