@@ -193,17 +193,7 @@ MzpMenu.onFocusOut = function () {
 MzpMenu.onClickWide = (e) => {
     e.preventDefault();
     MzpMenu.close();
-    MzpMenu.open(e.target.parentNode);
-};
-
-/**
- * Menu link `click` event handler for small viewports.
- * Toggles the currently selected menu open open/close state.
- * @param {Object} e - Event object.
- */
-MzpMenu.onClickSmall = (e) => {
-    e.preventDefault();
-    MzpMenu.toggle(e.target.parentNode);
+    MzpMenu.open(e.currentTarget.parentNode);
 };
 
 /**
@@ -224,11 +214,9 @@ MzpMenu.handleState = () => {
         MzpMenu.close();
 
         if (mq.matches) {
-            MzpMenu.unbindEventsSmall();
             MzpMenu.bindEventsWide();
         } else {
             MzpMenu.unbindEventsWide();
-            MzpMenu.bindEventsSmall();
         }
     }
 
@@ -240,8 +228,6 @@ MzpMenu.handleState = () => {
 
     if (MzpMenu.isWideViewport()) {
         MzpMenu.bindEventsWide();
-    } else {
-        MzpMenu.bindEventsSmall();
     }
 };
 
@@ -249,6 +235,7 @@ MzpMenu.handleState = () => {
  * Bind events for wide view ports.
  */
 MzpMenu.bindEventsWide = () => {
+    MzpMenu.setAria();
     const items = document.querySelectorAll(
         '.m24-c-menu-category.mzp-js-expandable'
     );
@@ -274,6 +261,7 @@ MzpMenu.bindEventsWide = () => {
  * Unbind events for wide view ports.
  */
 MzpMenu.unbindEventsWide = () => {
+    MzpMenu.unSetAria();
     const items = document.querySelectorAll(
         '.m24-c-menu-category.mzp-js-expandable'
     );
@@ -296,32 +284,6 @@ MzpMenu.unbindEventsWide = () => {
 };
 
 /**
- * Bind events for small view ports.
- */
-MzpMenu.bindEventsSmall = () => {
-    const items = document.querySelectorAll(
-        '.m24-c-menu-category.mzp-js-expandable .m24-c-menu-title'
-    );
-
-    for (let i = 0; i < items.length; i++) {
-        items[i].addEventListener('click', MzpMenu.onClickSmall, false);
-    }
-};
-
-/**
- * Unbind events for small view ports.
- */
-MzpMenu.unbindEventsSmall = () => {
-    const items = document.querySelectorAll(
-        '.m24-c-menu-category.mzp-js-expandable .m24-c-menu-title'
-    );
-
-    for (let i = 0; i < items.length; i++) {
-        items[i].removeEventListener('click', MzpMenu.onClickSmall, false);
-    }
-};
-
-/**
  * Set initial ARIA menu panel states.
  */
 MzpMenu.setAria = () => {
@@ -331,6 +293,20 @@ MzpMenu.setAria = () => {
 
     for (let i = 0; i < items.length; i++) {
         items[i].setAttribute('aria-expanded', false);
+    }
+};
+
+
+/**
+ * Unset initial ARIA menu panel states.
+ */
+MzpMenu.unSetAria = () => {
+    const items = document.querySelectorAll(
+        '.m24-c-menu-category.mzp-js-expandable .m24-c-menu-title'
+    );
+
+    for (let i = 0; i < items.length; i++) {
+        items[i].setAttribute('aria-expanded', true);
     }
 };
 
@@ -372,7 +348,6 @@ MzpMenu.init = (options) => {
 
     if (MzpMenu.isSupported()) {
         MzpMenu.handleState();
-        MzpMenu.setAria();
         MzpMenu.enhanceJS();
     }
 };
