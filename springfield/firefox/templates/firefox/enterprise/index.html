@@ -42,7 +42,13 @@
     </p>
     <div class="cta-container">
       <div class="mzp-c-button-download-container">
-        <a id="primary-download-button" href="#download" class="mzp-c-button mzp-t-product mzp-t-xl">{{ ftl('download-button-download') }}</a>
+        <a id="primary-download-button" href="#download" class="mzp-c-button mzp-t-product mzp-t-xl">
+          {{ ftl('download-button-download') }}
+          <span class="mzp-c-button-icon-end">
+            <!-- TODO: replace with new protocol-assets version -->
+            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          </span>
+        </a>
         <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/" class="mzp-c-button-download-privacy-link">{{ ftl('download-button-firefox-privacy-notice') }}</a>
       </div>
     </div>
