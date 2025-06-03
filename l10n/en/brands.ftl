@@ -15,6 +15,7 @@
 -brand-name-mozilla = Mozilla
 -brand-name-mozilla-corporation = Mozilla Corporation
 -brand-name-mozilla-foundation = Mozilla Foundation
+-brand-name-netscape = Netscape
 -brand-name-linkedin = LinkedIn
 -brand-name-spotify = Spotify
 
@@ -89,6 +90,8 @@
 -brand-name-chrome = Chrome
 -brand-name-edge = Edge
 -brand-name-ie = Internet Explorer
+-brand-name-opera = Opera
+-brand-name-safari = Safari
 
 ## Platforms
 
