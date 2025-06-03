@@ -171,7 +171,7 @@ describe('stub-attribution.js', function () {
             ).not.toHaveBeenCalled();
         });
 
-        it('should do nothing if page is download/thanks', function () {
+        it('should do nothing if page is /thanks', function () {
             spyOn(
                 Mozilla.StubAttribution,
                 'withinAttributionRate'
