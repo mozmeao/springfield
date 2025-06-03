@@ -34,14 +34,6 @@ $h-grid-lg: $layout-xl;
     display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
-.c-main-header {
-    text-align: center;
-
-    .mzp-c-logo {
-        margin: 0 auto $spacing-lg;
-    }
-}
-
 // * -------------------------------------------------------------------------- */
 // Protocol over-rides
 
@@ -71,19 +63,21 @@ main .mzp-l-content {
 }
 
 // * -------------------------------------------------------------------------- */
-// use split component for top banner
+// hero
 
-.c-landing-banner {
+.c-main-header {
+    text-align: center;
+
+    .mzp-c-logo {
+        margin: 0 auto $spacing-lg;
+    }
+
     h1 {
         @include text-title-xl;
     }
 
-    p {
-        @include text-body-lg;
-    }
-
-    &.t-products {
-        padding-top: 0;
+    h2 {
+        margin-bottom: $v-grid-md;
     }
 }
 

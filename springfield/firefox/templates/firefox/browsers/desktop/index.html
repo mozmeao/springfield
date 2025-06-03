@@ -50,6 +50,7 @@
       <h2 class="mzp-has-zap-11">
         {{ ftl('firefox-browsers-get-the-browsers-strong-v2') }}
       </h2>
+      {{ download_firefox_thanks(locale_in_transition=True, download_location='desktop hero cta', dom_id='firefox-desktop-download') }}
   </header>
 
   <div class="mzp-l-content mzp-t-content-lg c-landing-grid">
@@ -68,9 +69,10 @@
       <h2 class="c-landing-grid-title"><a href="{{ url('firefox.download') }}" data-cta-text="Desktop">{{ ftl('firefox-browsers-desktop') }}</a></h2>
       <p>{{ ftl('firefox-browsers-seriously-private-browsing') }}</p>
 
-      {{ download_firefox_thanks(locale_in_transition=True, download_location='desktop card cta', dom_id='firefox-desktop-download') }}
-
-      <p><a class="mzp-c-cta-link" href="{{ url('firefox.download') }}" data-cta-text="Desktop Learn More">{{ ftl('ui-learn-more') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.windows') }}" data-cta-text="Firefox for Windows">{{ ftl('firefox-browsers-windows') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.mac') }}" data-cta-text="Firefox for Mac">{{ ftl('firefox-browsers-mac') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.linux') }}" data-cta-text="Firefox for Linux">{{ ftl('firefox-browsers-linux') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ firefox_url('desktop', 'all') }}" data-cta-text="Custom Download Options">{{ ftl('firefox-browsers-custom') }}</a></p>
     </div>
     <div class="c-landing-grid-item">
       {{ resp_img(
