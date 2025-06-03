@@ -184,7 +184,6 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     a:hover,
     a:focus {
-        font-weight: bold;
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
@@ -192,11 +191,14 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     // link out icon
     a[href^="http"]::after {
+        @include bidi((
+            (margin-left, $spacing-sm, margin-right, 0),
+            (transform, scaleX(1), scaleX(-1)),
+        ));
         content: '';
         background: url('/media/img/icons/external.svg') no-repeat bottom center / contain;
         display: inline-block;
         height: 1em;
-        margin-left: $spacing-sm;
         vertical-align: baseline;
         width: 12px
     }
@@ -204,11 +206,11 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 .m24-c-menu .mzp-has-drop-down.m24-c-menu-category {
      h2::after {
+        @include bidi(((margin-left, $spacing-sm, margin-right, 0),));
         content: '';
         background: url('/media/img/icons/caret-sprite.svg') no-repeat bottom left / auto 12px;
         display: inline-block;
         height: 12px;
-        margin-left: $spacing-sm;
         vertical-align: baseline;
         width: 12px;
     }

@@ -44,6 +44,7 @@ footer-developer = Developer
 footer-resources = Resources
 footer-compare = Compare
 footer-release-notes = Release Notes
+footer-learn = Learn
 footer-support = Support
 footer-addons = Add-ons
 footer-blog = Blog
