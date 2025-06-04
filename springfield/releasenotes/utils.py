@@ -1,42 +1,49 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+import json
 
-from django.conf import settings
-from django.core.cache import caches
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
-from memoize import Memoizer
-
-from springfield.utils.git import GitRepo
+from .models import Note, Release
 
 
-def get_data_version():
-    """Add the git ref from the repo to the cache keys.
+def get_last_modified_date(*args, **kwargs):
+    """Returns the date of the last modified Note or Release.
 
-    This will ensure that the cache is invalidated when the repo is updated.
+    For use with Django's last_modified decorator.
     """
-    repo = GitRepo(settings.RELEASE_NOTES_PATH, settings.RELEASE_NOTES_REPO, branch_name=settings.RELEASE_NOTES_BRANCH)
-    git_ref = repo.get_db_latest()
-    if git_ref is None:
-        git_ref = "default"
+    try:
+        latest_note = Note.objects.latest()
+        latest_release = Release.objects.latest()
+    except ObjectDoesNotExist:
+        return None
 
-    return git_ref
-
-
-class ReleaseMemoizer(Memoizer):
-    """A memoizer class that uses the git hash as the version"""
-
-    def __init__(self, version_timeout=300):
-        self.version_timeout = version_timeout
-        return super().__init__(cache=caches["release-notes"])
-
-    def _memoize_make_version_hash(self):
-        return get_data_version()
-
-    def _memoize_version(self, f, args=None, reset=False, delete=False, timeout=None):
-        """Use a shorter timeout for the version so that we can refresh based on git hash"""
-        return super()._memoize_version(f, args, reset, delete, self.version_timeout)
+    return max(latest_note.modified, latest_release.modified)
 
 
-memoizer = ReleaseMemoizer()
-memoize = memoizer.memoize
+def migrate_versions():
+    for r in Release.objects.filter(version__endswith=".0.0").only("channel", "version"):
+        if r.channel == "Release":
+            Release.objects.filter(id=r.id).update(version=r.version[:-2])
+        elif r.channel == "Beta":
+            Release.objects.filter(id=r.id).update(version=r.version[:-2] + "beta")
+
+
+def get_duplicate_product_versions():
+    version_ids = {}
+    duplicates = {}
+    for product in Release.PRODUCTS:
+        version_ids[product] = {}
+        for r in Release.objects.filter(product=product):
+            version_ids[product].setdefault(r.version, [])
+            version_ids[product][r.version].append(r.id)
+            if len(version_ids[product][r.version]) > 1:
+                duplicates[(product, r.version)] = version_ids[product][r.version]
+    return duplicates
+
+
+class HttpResponseJSON(HttpResponse):
+    def __init__(self, data, status=None, cors=False):
+        super().__init__(content=json.dumps(data), content_type="application/json", status=status)
+
+        if cors:
+            self["Access-Control-Allow-Origin"] = "*"

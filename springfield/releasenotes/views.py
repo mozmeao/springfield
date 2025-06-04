@@ -1,30 +1,45 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+import datetime
+import json
 import re
 from copy import copy
 from operator import attrgetter
 
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import NoReverseMatch
-from django.views.decorators.http import require_safe
+from django.utils.http import parse_http_date_safe
+from django.utils.timezone import now
+from django.views.decorators.cache import cache_page
+from django.views.decorators.http import last_modified, require_safe
+
+from rest_framework import generics
+from rest_framework.authtoken.models import Token
+from rest_framework.viewsets import ModelViewSet
 
 from lib import l10n_utils
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
+    Release,
+    Note,
     get_latest_release_or_404,
     get_release_or_404,
     get_releases_or_404,
 )
+from springfield.releasenotes.serializers import NoteSerializer, ReleaseSerializer
+from springfield.releasenotes.utils import HttpResponseJSON, get_last_modified_date
 
 SUPPORT_URLS = {
     "Firefox for Android": "https://support.mozilla.org/products/mobile",
     "Firefox for iOS": "https://support.mozilla.org/products/ios",
     "Firefox": "https://support.mozilla.org/products/firefox",
 }
+RNA_JSON_CACHE_TIME = getattr(settings, "RNA_JSON_CACHE_TIME", 600)
 
 
 def release_notes_template(channel, product, version=None):
@@ -219,3 +234,46 @@ def nightly_feed(request):
     notes = sorted(notes.values(), key=attrgetter("modified"), reverse=True)
 
     return l10n_utils.render(request, "firefox/releases/nightly-feed.xml", {"notes": notes}, content_type="application/atom+xml")
+
+
+def auth_token(request):
+    if request.user.is_active and request.user.is_staff:
+        token, created = Token.objects.get_or_create(user=request.user)
+        return HttpResponse(content=json.dumps({"token": token.key}), content_type="application/json")
+    else:
+        return HttpResponseForbidden()
+
+
+class NoteViewSet(ModelViewSet):
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+
+
+class ReleaseViewSet(ModelViewSet):
+    queryset = Release.objects.all()
+    serializer_class = ReleaseSerializer
+
+
+class NestedNoteView(generics.ListAPIView):
+    model = Note
+    serializer_class = NoteSerializer
+
+    def get_queryset(self):
+        release = get_object_or_404(Release, pk=self.kwargs.get("pk"))
+        return release.note_set.all()
+
+
+@cache_page(RNA_JSON_CACHE_TIME)
+@last_modified(get_last_modified_date)
+@require_safe
+def export_json(request):
+    if request.GET.get("all") == "true":
+        return HttpResponseJSON(Release.objects.all_as_list(), cors=True)
+
+    mod_date = parse_http_date_safe(request.headers.get("If-Modified-Since"))
+    if mod_date:
+        mod_date = datetime.datetime.fromtimestamp(mod_date, datetime.UTC)
+    else:
+        mod_date = now() - datetime.timedelta(days=30)
+
+    return HttpResponseJSON(Release.objects.recently_modified_list(mod_date=mod_date), cors=True)

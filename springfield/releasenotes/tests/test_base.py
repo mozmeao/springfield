@@ -30,7 +30,8 @@ class TestReleaseViews(TestCase):
     # get_release_or_404
     @override_settings(DEV=False)
     def setUp(self):
-        ProductRelease.objects.refresh()
+        # To get these tests to work we need to load test data, but this method no longer works
+        # ProductRelease.objects.refresh()
         caches["release-notes"].clear()
         self.activate_locale("en-US")
         self.factory = RequestFactory()

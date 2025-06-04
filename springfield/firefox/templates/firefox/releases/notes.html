@@ -144,7 +144,7 @@
         <div class="mzp-l-main mzp-l-article">
           {% if release.is_public %}
             <div class="c-release-first-title">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
-            <div class="c-release-first-text">{{ release.text|safe }}</div>
+            <div class="c-release-first-text">{{ release.text_html|safe }}</div>
           {% else %}
             <h2 class="c-release-draft-title">We’re still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
             {% block extra_draft_description %}{% endblock %}
@@ -402,7 +402,7 @@
 {% macro note_entry(note) %}
   <li class="release-note" id="note-{{ note.id }}">
     <div class="release-note-content">
-      {{ note.note|safe }}
+      {{ note.note_html|safe }}
       {% if release.channel == 'Nightly' and note.bug -%}
       <span class="bug-id"><a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{ note.bug }}">Bug {{ note.bug }}</a></span>
       {%- endif %}

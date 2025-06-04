@@ -8,6 +8,7 @@ from django.urls import include, path
 from django.utils.module_loading import import_string
 
 import wagtaildraftsharing.urls as wagtaildraftsharing_urls
+from rest_framework.authtoken.views import obtain_auth_token
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
@@ -62,6 +63,8 @@ if settings.WAGTAIL_ENABLE_ADMIN:
         path("django-admin/", admin.site.urls),  # needed to show django-rq UI
         path("django-rq/", include("django_rq.urls")),  # task queue management
         path("_internal_draft_preview/", include(wagtaildraftsharing_urls)),  # ONLY available in CMS mode
+        path("api-token-auth/", obtain_auth_token),
+        path("releasenotes-admin/", include("springfield.releasenotes.urls")),
     )
 
 if settings.ENABLE_DJANGO_SILK:
