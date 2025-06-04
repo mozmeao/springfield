@@ -44,6 +44,8 @@ footer-developer = Developer
 footer-resources = Resources
 footer-compare = Compare
 footer-release-notes = Release Notes
+# Link to learn more, discover info about Firefox. Link points to
+# https://www-dev.springfield.moz.works/more/
 footer-learn = Learn
 footer-support = Support
 footer-addons = Add-ons
