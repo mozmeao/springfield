@@ -15,7 +15,6 @@ const desktopTestURLs = [
     '/en-US/channel/android/',
     '/en-US/channel/desktop/',
     '/en-US/channel/desktop/developer/',
-    '/en-US/download/',
     '/en-US/download/all/',
     '/en-US/thanks/',
     '/en-US/browsers/enterprise/',
@@ -23,10 +22,6 @@ const desktopTestURLs = [
     '/en-US/privacy/websites/cookie-settings/'
 ];
 
-const mobileTestURLs = [
-    '/en-US/',
-    '/en-US/channel/android/',
-    '/en-US/download/'
-];
+const mobileTestURLs = ['/en-US/', '/en-US/channel/android/'];
 
 module.exports = { desktopTestURLs, mobileTestURLs };

@@ -17,7 +17,7 @@ features-adblocker-in-todays-digital-world = In today’s digital world, the web
 features-adblocker-ad-blockers-work = Ad blockers work in two key ways: by preventing content, such as ads, from loading and by blocking sections of websites that host those elements. This can include video ads, personalized ads that follow you across the web, and even third-party trackers.
 
 # Variables:
-#   $firefox (url) - link to https://www.firefox.com/download/
+#   $firefox (url) - link to https://www.firefox.com/
 #   $addons (url) - link to https://blog.mozilla.org/firefox/ad-blocker-roundup-5-adblockers-that-improve-your-internet-experience/
 features-adblocker-using-an-adblocker = Using an ad blocker is straightforward. Many trusted options are available as browser add-ons, making it easy to find a solution that works for your needs. For instance, <a href="{ $firefox }">{ -brand-name-firefox }</a> offers <a href="{ $addons }">a list of approved extensions</a> designed to improve your browsing experience while respecting your privacy.
 features-adblocker-finding-the-right = Finding the Right Ad Blocker for You
@@ -39,5 +39,5 @@ features-adblocker-why-use = Why Use an Ad Blocker?
 features-adblocker-ad-blockers-do-more = Ad blockers do more than manage ads – they can enhance your browsing speed and security by reducing unnecessary content. They empower you to create a tailored, distraction-free web experience, letting you focus on what matters most.
 
 # Variables:
-#   $url (url) - link to https://www.firefox.com/download/
+#   $url (url) - link to https://www.firefox.com/
 features-adblocker-explore-hundreds = Explore hundreds of privacy-focused add-ons available for { -brand-name-firefox } and find the right tools for you. <a href="{ $url }">Download { -brand-name-firefox }</a> today to experience a browser designed with your privacy and performance in mind.

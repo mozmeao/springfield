@@ -62,7 +62,6 @@ urlpatterns = (
     path(
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
-    path("download/", views.DownloadView.as_view(), name="firefox.download"),
     path("thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
     path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes

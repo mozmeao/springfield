@@ -27,7 +27,6 @@ paths = [
     "/en-US/channel/desktop/",
     "/en-US/channel/desktop/?reason=manual-update",
     "/en-US/channel/desktop/developer/",
-    "/en-US/download/",
     "/en-US/thanks/",
     "/en-US/thanks/?s=direct",
     "/en-US/browsers/enterprise/",
