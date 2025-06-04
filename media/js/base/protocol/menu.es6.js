@@ -296,7 +296,6 @@ MzpMenu.setAria = () => {
     }
 };
 
-
 /**
  * Unset initial ARIA menu panel states.
  */
