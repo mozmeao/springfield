@@ -68,7 +68,7 @@ repos:
           - --comment-style
           - "|#|"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.6
+    rev: v0.11.12
     hooks:
       - id: ruff
       - id: ruff-format
@@ -110,12 +110,12 @@ repos:
     -   id: check-unapplied-migrations
     -   id: check-absent-migrations
   - repo: https://github.com/asottile/pyupgrade
-    rev: "v3.19.1"
+    rev: "v3.20.0"
     hooks:
     - id: pyupgrade
       args: [--py313]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.24.0"  # replace with latest tag on GitHub
+    rev: "1.25.0"
     hooks:
     -   id: django-upgrade
         args: [--target-version, "5.2"]
