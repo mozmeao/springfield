@@ -2,7 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import re
+
 from springfield.redirects.util import mobile_app_redirector, platform_redirector, redirect
+
+# matches only ASCII letters (ignoring case), numbers, dashes, periods, and underscores.
+PARAM_VALUES_RE = re.compile(r"[\w.-]+", flags=re.ASCII)
 
 
 def firefox_mobile_faq(request, *args, **kwargs):
@@ -17,6 +22,17 @@ def firefox_channel(*args, **kwargs):
     return platform_redirector("firefox.channel.desktop", "firefox.channel.android", "firefox.channel.ios")
 
 
+def validate_param_value(param: str | None) -> str | None:
+    """
+    Returns the value passed in if it matches the regex `PARAM_VALUES_RE`.
+    Otherwise returns `None`.
+    """
+    if param and PARAM_VALUES_RE.fullmatch(param):
+        return param
+
+    return None
+
+
 def mobile_app(request, *args, **kwargs):
     product = request.GET.get("product")
     campaign = request.GET.get("campaign")
@@ -24,8 +40,7 @@ def mobile_app(request, *args, **kwargs):
     if product not in {"firefox", "focus", "klar"}:
         product = "firefox"
 
-    if campaign not in {"firefox-all"}:
-        campaign = None
+    campaign = validate_param_value(campaign)
 
     return mobile_app_redirector(request, product, campaign)
 
