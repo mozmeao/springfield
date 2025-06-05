@@ -8,12 +8,9 @@ $font-path: '/media/protocol/fonts';
 $image-path: '/media/protocol/img';
 
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
 @import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
 @import '~@mozilla-protocol/core/protocol/css/components/section-heading';
 @import '~@mozilla-protocol/core/protocol/css/components/zap';
-@import '../../../protocol/components/sub-navigation';
 
 // --------------------------------------------------------------------------
 // Protocol over-rides
@@ -37,6 +34,13 @@ $h-grid-lg: 80px;
 main {
     background-color: $color-white; // for IE6
     color: $color-dark-gray-30;
+
+    h1 {
+        color: var(--body-text-color-secondary);
+        font-family: var(--body-font-family);
+        font-size: var(--text-body-sm);
+        font-weight: normal;
+    }
 
     h2,
     h3,
@@ -612,10 +616,6 @@ button.mzp-c-cta-link {
 
     [lang='ar'] & h2 {
         @include font-size(40px);
-    }
-
-    .mzp-c-wordmark {
-        margin-bottom: $v-grid-md;
     }
 
     // issue 13317
