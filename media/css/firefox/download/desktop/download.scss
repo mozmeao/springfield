@@ -36,7 +36,7 @@ main {
     color: $color-dark-gray-30;
 
     h1 {
-        color: var(--body-text-color-secondary);
+        color: $color-dark-gray-30;
         font-family: var(--body-font-family);
         font-size: var(--text-body-sm);
         font-weight: normal;
