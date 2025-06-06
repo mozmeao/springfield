@@ -50,9 +50,9 @@
    <section id="desktop-banner" class="c-block t-intro show-else mzp-has-media-hide-on-sm">
      <div class="c-block-container">
        <div class="c-block-body">
-         <h1 class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox">{{ ftl('firefox-desktop-download-firefox') }}</h1>
-           <h2>Take control of your internet</h2>
-           <p>Go online with fewer distractions, noise and stress. Think of us as bubble wrap for your brain.</p>
+         <h1>{{ ftl('firefox-desktop-download-firefox') }}</h1>
+         <h2>Take control of your internet</h2>
+         <p>Go online with fewer distractions, noise and stress. Think of us as bubble wrap for your brain.</p>
          <div class="c-intro-download">
            {% block primary_cta %}
              {{ download_firefox_thanks(locale_in_transition=True, download_location='primary cta') }}
@@ -212,7 +212,6 @@
      <div class="c-mobile mzp-t-dark">
        <div class="mzp-l-content">
          <div class="c-mobile-text">
-           <h2 class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox">{{ ftl('firefox-desktop-download-firefox-browser') }}</h2>
            <h2 class="mzp-has-zap-7 mzp-u-title-md show-android">{{ ftl('firefox-desktop-download-get-firefox-android') }}</h2>
            <h2 class="mzp-has-zap-7 mzp-u-title-md show-ios">{{ ftl('firefox-desktop-download-get-firefox-ios') }}</h2>
 
