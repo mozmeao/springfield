@@ -61,8 +61,6 @@
 
 {% block content %}
 
-{% set show_mr106_browser_promo = switch('download-firefox-mr106-promo', ['en-US', 'en-CA', 'en-GB', 'fr', 'de']) %}
-
 {% if outdated %}
 
   {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + referrals)) %}
@@ -142,6 +140,8 @@
     </div>
   </section>
 
+{% set show_mr106_browser_promo = LANG in ['en-US', 'en-CA', 'en-GB', 'fr', 'de'] %}
+
 {% if show_mr106_browser_promo %}
   {% if LANG == 'fr' %}
     {% set features_section_title = 'Les <strong>dernières</strong> fonctionnalités de Firefox' %}
@@ -195,38 +195,6 @@
     {% if LANG.startswith('en-') %}
       <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">See Release Notes</a></p>
     {% endif %}
-    </div>
-  </section>
-{% elif LANG.startswith('en-') %}
-  <section class="mzp-l-content t-releases">
-    <div class="mzp-c-emphasis-box js-animate">
-      <h2 class="mzp-c-section-heading mzp-has-zap-8"><strong>Latest</strong> Firefox features</h2>
-
-      <ul class="c-trio">
-        <li>
-          {{ download_picture('picture-in-picture', 64, 64) }}
-          <h3 class="mzp-u-title-xs">Picture-in-Picture</h3>
-          <p>Pop a video out of the browser window so you can stream and multitask.</p>
-        </li>
-        <li>
-          {% if switch('browser-mr2-promo') %}
-            {{ download_picture('color-ways', 64, 64) }}
-            <h3 class="mzp-u-title-xs">Choose your color</h3>
-            <p>Personalize your experience with new colorways.</p>
-          {% else %}
-            {{ download_picture('dark-mode', 64, 64) }}
-            <h3 class="mzp-u-title-xs">Expanded Dark Mode</h3>
-            <p>Take it easy on your eyes every time you go online.</p>
-          {% endif %}
-        </li>
-        <li>
-          {{ download_picture('lock', 64, 64) }}
-          <h3 class="mzp-u-title-xs">An extra layer of protection</h3>
-          <p>DNS over HTTPS (DoH) helps keep internet service providers from selling your data.</p>
-        </li>
-      </ul>
-
-      <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">See Release Notes</a></p>
     </div>
   </section>
 {% endif %}
