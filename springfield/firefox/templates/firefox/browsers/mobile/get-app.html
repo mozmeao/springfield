@@ -28,6 +28,7 @@
 {% set message_set = 'fx-mobile-download-desktop' %}
 {% set android_url = play_store_url('firefox', 'firefox-browsers-mobile-get-app') %}
 {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-get-app') %}
+{% set qr_url = "https://www.mozilla.org/firefox/browsers/mobile/app/?product=firefox&campaign=firefox-browsers-mobile-get-app" %}
 
 {% block content %}
 <main class="mzp-l-content mzp-t-content-md mzp-t-firefox">
@@ -39,8 +40,8 @@
       {{ send_to_device(include_title=False, message_set=message_set) }}
     {% else %}
       <p>{{ ftl('firefox-mobile-scan-the-qr-code-to-get-started') }}</p>
-      <div class="qr-code-wrapper">
-        <img src="{{ static('img/firefox/browsers/mobile/qrcode-firefox-browsers-mobile-get-app.png') }}" id="firefox-qr" alt="" width="350" height="350">
+      <div class="qr-code-wrapper" id="firefox-qr">
+        {{ qrcode(qr_url) }}
       </div>
     {% endif %}
   </section>
