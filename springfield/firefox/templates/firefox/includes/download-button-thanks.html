@@ -16,6 +16,10 @@
     {% else %}
       {{ ftl('download-button-download-firefox') }}
     {% endif %}
+    <span class="mzp-c-button-icon-end">
+      <!-- TODO: replace with new protocol-assets version -->
+      <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+    </span>
   </a>
 
   {# ESR download buttons to display on unsupported systems: issue 13317 #}
