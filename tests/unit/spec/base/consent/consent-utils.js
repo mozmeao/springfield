@@ -312,6 +312,9 @@ describe('isURLPermitted()', function () {
     it('should true for pathnames in the allow list irrespective of page locale', function () {
         expect(isURLPermitted('/en-US/newsletter/')).toBeTrue();
         expect(isURLPermitted('/de/newsletter/')).toBeTrue();
+        expect(isURLPermitted('/de/landing/get/')).toBeTrue();
+        expect(isURLPermitted('/de/landing/set-as-default/')).toBeTrue();
+        expect(isURLPermitted('/de/landing/set-as-default/thanks/')).toBeTrue();
     });
 
     it('should still true for allowed pathnames when locale is omitted', function () {

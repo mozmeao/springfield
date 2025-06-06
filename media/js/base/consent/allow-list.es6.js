@@ -4,6 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-const MozAllowList = ['/newsletter/'];
+const MozAllowList = [
+    '/newsletter/',
+    // Marketing landing pages
+    '/landing/get/',
+    '/landing/set-as-default/',
+    '/landing/set-as-default/thanks/'
+];
 
 export default MozAllowList;
