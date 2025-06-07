@@ -4,7 +4,7 @@
 
 from unittest.mock import patch
 
-from qrcode.image.svg import SvgPathImage
+from qrcode.image.svg import SvgPathFillImage
 
 from springfield.base.templatetags.qrcode import qrcode
 from springfield.base.tests import TestCase
@@ -17,7 +17,7 @@ class TestQRCode(TestCase):
         cache_mock.get.return_value = None
         data = "https://dude.abide"
         qrcode(data, 20)
-        qr_mock.make.assert_called_with(data, image_factory=SvgPathImage, box_size=20)
+        qr_mock.make.assert_called_with(data, image_factory=SvgPathFillImage, box_size=20)
 
     def test_qrcode_cache_warm(self, qr_mock, cache_mock):
         cache_mock.get.return_value = "<svg>stuff</svg>"

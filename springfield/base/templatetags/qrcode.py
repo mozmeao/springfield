@@ -10,7 +10,7 @@ from django.core.cache import caches
 import qrcode as qr
 from django_jinja import library
 from markupsafe import Markup
-from qrcode.image.svg import SvgPathImage
+from qrcode.image.svg import SvgPathFillImage
 
 cache = caches["qrcode"]
 
@@ -20,7 +20,7 @@ def qrcode(data, box_size=20):
     key = sha1(f"{data}-{box_size}".encode()).hexdigest()
     svg = cache.get(key)
     if not svg:
-        img = qr.make(data, image_factory=SvgPathImage, box_size=box_size)
+        img = qr.make(data, image_factory=SvgPathFillImage, box_size=box_size)
         svg = BytesIO()
         img.save(svg)
         svg = svg.getvalue().decode("utf-8")
