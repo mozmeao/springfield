@@ -39,18 +39,23 @@ LOCALES = [
     "zh-TW",
 ]
 
-# List of some locale name variants including unsupported short names and
-# obsolete ab-CD-style names, which could be included in the visitors'
+# List of some locale name variants including ambiguous short names, BCP47
+# tags with a mix of ISO 639, ISO 15924, ISO 3166-1 and UN M.49 codes, and
+# historic ab-CD-encoding values, which could be included in the visitors'
 # Accept-Language HTTP header and should be redirected to the respective
 # canonical locales
 LOCALE_VARIANTS = {
-    # have to make this en-XX so that it won't be a real locale we eventually
-    # support. We now have en-{US,CA,ZA,GB}. See bug 1457959.
-    "en-US": ["en", "en-XX"],
+    # Default en-US is used for any unknown English locale. Every partially
+    # translated en-* locale is treated as fully active, see bug 1457959
+    # We currently have en-{US,CA,GB}.
+    "en-US": ["en", "en-XX", "en-GB-cockney"],  # No BCP47 (sub)tag parsing
+    "ca": ["ca-ES-valencia"],
     "es-ES": ["es", "es-419"],
     "fr": ["fr-FR"],
     "ja": ["ja-JP-mac"],
     "pt-BR": ["pt"],
+    "rm": ["rm-sursilv"],
+    "sr": ["sr-Cyrl"],
     "ta": ["ta-LK"],
     "zh-TW": ["zh-Hant", "zh-Hant-TW"],  # Bug 1263193
 }
