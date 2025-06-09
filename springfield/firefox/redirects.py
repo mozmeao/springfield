@@ -48,31 +48,38 @@ def mobile_app(request, *args, **kwargs):
 redirectpatterns = (
     redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
-    redirect(r"^channel/?$", firefox_channel(), cache_timeout=0),
+    redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # issue https://github.com/mozilla/bedrock/issues/14172
-    redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False),
+    redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
     # https://github.com/mozmeao/springfield/issues/222
-    redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com"),
-    redirect(r"^desktop/?$", "firefox.browsers.desktop.index"),
-    redirect(r"^android/?$", "firefox.browsers.mobile.android"),
-    redirect(r"^developer/?$", "firefox.developer.index"),
-    redirect(r"^(10|independent)/?$", "firefox.features.index"),
-    redirect(r"^hello/?$", "https://support.mozilla.org/en-US/kb/hello-status?redirect_source=firefox-com"),
-    redirect(r"^personal/?$", "firefox"),
-    redirect(r"^choose/?$", "firefox"),
-    redirect(r"^switch/?$", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com"),  # TODO pull this out when we port the page
-    redirect(r"^enterprise/?$", "firefox.enterprise.index"),
+    redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", permanent=False),
+    redirect(r"^desktop/?$", "firefox.browsers.desktop.index", permanent=False),
+    redirect(r"^android/?$", "firefox.browsers.mobile.android", permanent=False),
+    redirect(r"^developer/?$", "firefox.developer.index", permanent=False),
+    redirect(r"^(10|independent)/?$", "firefox.features.index", permanent=False),
+    redirect(r"^hello/?$", "https://support.mozilla.org/en-US/kb/hello-status?redirect_source=firefox-com", permanent=False),
+    redirect(r"^personal/?$", "firefox", permanent=False),
+    redirect(r"^choose/?$", "firefox", permanent=False),
     redirect(
-        r"^containers/?$", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com"
+        r"^switch/?$", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com", permanent=False
+    ),  # TODO pull this out when we port the page
+    redirect(r"^enterprise/?$", "firefox.enterprise.index", permanent=False),
+    redirect(
+        r"^containers/?$", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com", permanent=False
     ),  # TODO remove or amend depending on whether we port the page
-    redirect(r"^pdx/?$", "firefox"),
-    redirect(r"^pair/?$", "https://accounts.firefox.com/pair/"),
-    redirect(r"^(join|rejoindre)/?$", "https://www.mozilla.org/firefox/accounts/?redirect_source=join"),
-    redirect(r"^(privacy|privatsphaere)/?$", "https://www.mozilla.org/products/?redirect_source=firefox-com"),
-    redirect(r"^nightly/?$", "/channel/desktop/#nightly"),
+    redirect(r"^pdx/?$", "firefox", permanent=False),
+    redirect(r"^pair/?$", "https://accounts.firefox.com/pair/", permanent=False),
+    redirect(r"^(join|rejoindre)/?$", "https://www.mozilla.org/firefox/accounts/?redirect_source=join", permanent=False),
+    redirect(r"^(privacy|privatsphaere)/?$", "https://www.mozilla.org/products/?redirect_source=firefox-com", permanent=False),
+    redirect(r"^nightly/?$", "/channel/desktop/#nightly", permanent=False),
     redirect(
         r"^en-US/famil(y|ies)/?$",
         "https://www.mozilla.org/firefox/family/?utm_medium=referral&utm_source=firefox.com&utm_campaign=firefox-for-families",
+        permanent=False,
     ),
-    redirect(r"^en-US/famil(y|ies)/?\?.*$", "https://www.mozilla.org/firefox/family/"),
+    redirect(
+        r"^en-US/famil(y|ies)/?\?.*$",
+        "https://www.mozilla.org/firefox/family/",
+        permanent=False,
+    ),
 )
