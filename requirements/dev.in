@@ -2,7 +2,7 @@
 
 bpython==0.25
 braceexpand==0.1.7
-django-silk==5.3.2
+django-silk==5.4.0
 factory-boy==3.3.3
 freezegun==1.5.2
 markdown-it-py>=2.2.0
@@ -11,19 +11,19 @@ py==1.11.0
 Pygments>=2.15.0  # to bring it up to a secure version
 PyPOM==2.2.4
 pyquery==2.0.1
-pytest==8.3.5
+pytest==8.4.0
 pytest-cov==6.1.1
-pytest-datadir==1.6.1
+pytest-datadir==1.7.2
 pytest-django==4.11.1
 pytest-mock==3.14.1
 pytest-parallel==0.1.1
 pytest-rerunfailures==15.1
 pytest-selenium==4.1.0
 responses==0.25.7
-ruff==0.11.12
+ruff==0.11.13
 selenium==4.33.0
 translate-toolkit==3.15.2
-uv==0.7.8
+uv==0.7.12
 wagtail-factories==4.2.1
 # Related to moz-l10n-lint, used in CI
 cl-ext.lang==0.1.0
