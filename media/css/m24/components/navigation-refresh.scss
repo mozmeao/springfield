@@ -305,9 +305,9 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    padding: 8px 16px;
+    padding: 8px 16px; // TODO: or spacers to add up calc below?
     position: relative;
-    width: calc(100% - 32px);
+    width: calc(100% - 32px); // TODO: 32px or spacer?
     z-index: 1000;
 
     @media #{$mq-md} {
@@ -350,8 +350,8 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
-.m24-c-menu-panel .m24-c-menu-category-link a:hover,
-.m24-c-menu-panel .m24-c-menu-category-link a:focus {
+.m24-c-menu-category-link a:hover,
+.m24-c-menu-category-link a:focus {
     svg {
         @include bidi((
             (right, -$spacing-sm, auto),
@@ -409,6 +409,12 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
+#m24-c-menu-panel-features {
+  @media #{$mq-md} {
+      width: 320px;
+  }
+}
+
 .m24-mzp-is-basic .m24-c-menu-panel {
     display: block;
 
@@ -445,12 +451,15 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
-.m24-c-menu-panel-content.multi-column {
+.m24-c-menu-panel-content {
     @media #{$mq-md} {
-        display: flex;
         padding: 0 $grid-margin;
-        column-gap: $layout-lg;
         margin: 0 auto;
+
+        &.multi-column {
+            display: flex;
+            column-gap: $layout-lg;
+        }
     }
 }
 
