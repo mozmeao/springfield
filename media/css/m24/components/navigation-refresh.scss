@@ -321,7 +321,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     display: flex;
     font-size: $text-body-md;
     justify-content: flex-end;
-    margin: $spacer-lg $spacer-lg 0;
+    margin: $spacer-md 0 0;
     padding: 0;
 
     a:link,
@@ -331,7 +331,35 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         position: relative;
         width: fit-content;
     }
+
+    svg {
+        @include bidi((
+            (left, auto, 0),
+            (margin-left, $spacing-xs, 0),
+            (margin-right, 0, $spacing-xs),
+            (right, 0, auto),
+            (transition-property, right, left),
+            (transform, none, rotate(-180deg)),
+        ));
+        height: 0.8em;
+        position: relative;
+        top: 0.15em;
+        transition-duration: $fast;
+        transition-timing-function: $bezier;
+        width: auto;
+    }
 }
+
+.m24-c-menu-panel .m24-c-menu-category-link a:hover,
+.m24-c-menu-panel .m24-c-menu-category-link a:focus {
+    svg {
+        @include bidi((
+            (right, -$spacing-sm, auto),
+            (left, auto, -$spacing-sm),
+        ));
+    }
+}
+
 
 // * -------------------------------------------------------------------------- */
 // Menu panels
