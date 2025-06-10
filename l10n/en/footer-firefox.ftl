@@ -75,5 +75,6 @@ footer-go = Go
 footer-firefox = { -brand-name-firefox }
 
 ## Mozilla branding
+
 footer-powdered-by = Powered by { -brand-name-mozilla }
 footer-putting-people = Putting people before profits since 1998
