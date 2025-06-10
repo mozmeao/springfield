@@ -6,6 +6,8 @@
 
 {# Send-to-device widget for Firefox for Android #}
 
+{% set qr_url = "https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.mozilla.org%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-browsers-mobile-android" %}
+
 <div class="c-inline-form">
   <h2 class="c-inline-form-title">{{ ftl('mobile-android-get-firefox-for') }}</h2>
 {% if LANG in settings.SEND_TO_DEVICE_LOCALES %}
@@ -13,8 +15,8 @@
   {{ send_to_device(include_title=False, message_set='fx-mobile-download-desktop', dom_id='s2d-hero') }}
 {% else %}
   <p class="c-inline-form-body">{{ ftl('mobile-android-scan-the-qr-code-to-get-started') }}</p>
-  <div class="qr-code-wrapper">
-    <img src="{{ static('img/firefox/browsers/mobile/qrcode-firefox-browsers-mobile-android.png') }}" width="400" height="400" id="firefox-qr" alt="{{ ftl('mobile-android-scan-alt-text') }}">
+  <div class="qr-code-wrapper" id="firefox-qr" aria-label="{{ ftl('mobile-android-scan-alt-text') }}">
+    {{ qrcode(qr_url) }}
   </div>
 {% endif %}
 </div>
