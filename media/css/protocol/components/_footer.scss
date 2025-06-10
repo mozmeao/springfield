@@ -53,6 +53,7 @@ $image-path: '/media/protocol/img';
 @media screen and (min-width: #{$screen-sm}) and (max-width: #{$screen-lg - 1px}) {
     .mzp-c-footer-sections {
         // massive Protocol override
+        border-bottom: transparent;
         column-gap: $spacing-lg;
         display: grid;
         grid-template-areas:
@@ -134,6 +135,12 @@ $image-path: '/media/protocol/img';
     }
 }
 
+@media screen and (min-width: #{$screen-lg}) {
+    .mzp-c-footer-sections {
+        border-color: transparent;
+        padding-bottom: 0;
+    }
+}
 
 /* ----------------------------------------------------------------------------- */
 // Secondary
@@ -177,14 +184,40 @@ $image-path: '/media/protocol/img';
     }
 }
 
+.mzp-c-footer-primary {
+    @media screen and (min-width: #{$screen-lg}) {
+        position: relative;
+    }
+}
+
 .c-footer-logo {
     @extend .mzp-c-footer-primary-logo; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
+    @include footer-line;
+    padding-bottom: $spacing-xl;
+    text-align: center;
+
+    @media screen and (min-width: #{$screen-lg}) {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        text-align: end;
+        width: calc(100% - $layout-lg);
+        @include bidi(((padding-right, $layout-lg, 0), (padding-left, 0, $layout-lg),));
+    }
 
     a {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
         background-size: contain;
-        height: 40px;
-        width: 120px;
+        width: 177px;
+        height: 68px;
+    }
+}
+
+.c-footer-branding {
+    margin-bottom: $spacing-xl;
+
+    h2 {
+        padding-top: 0;
     }
 }
 
