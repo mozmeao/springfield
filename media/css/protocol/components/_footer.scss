@@ -186,14 +186,13 @@ $image-path: '/media/protocol/img';
 
 .mzp-c-footer-primary {
     @media screen and (min-width: #{$screen-lg}) {
+        @include footer-line;
         position: relative;
     }
 }
 
 .c-footer-logo {
     @extend .mzp-c-footer-primary-logo; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
-    @include footer-line;
-    padding-bottom: $spacing-xl;
     text-align: center;
 
     @media screen and (min-width: #{$screen-lg}) {
@@ -201,14 +200,13 @@ $image-path: '/media/protocol/img';
         bottom: 0;
         right: 0;
         text-align: end;
-        width: calc(100% - $layout-lg);
         @include bidi(((padding-right, $layout-lg, 0), (padding-left, 0, $layout-lg),));
     }
 
     a {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
         background-size: contain;
-        width: 177px;
+        width: 200px;
         height: 68px;
     }
 }
