@@ -5,11 +5,11 @@
 #}
 
 {% if switch('show-pencil-banner') and not hide_pencil_banner %}
-  {% if ftl_has_messages('m24-pencil-banner-welcome-to-the') %}
+  {% if ftl_has_messages('m24-pencil-banner-firefox-has-moved') %}
   {# Exclude banners from search result snippets using `data-nosnippet` (issue 8739) #}
   <aside class="m24-pencil-banner" aria-label="{{ ftl('ui-promo-label') }}" data-nosnippet="true">
     <div class="m24-pencil-banner-copy">
-      {{ ftl('m24-pencil-banner-welcome-to-the') }}
+      🚧 {{ ftl('m24-pencil-banner-firefox-has-moved') }}
     </div>
     <button class="m24-pencil-banner-close" type="button">{{ ftl('ui-close') }}</button>
   </aside>

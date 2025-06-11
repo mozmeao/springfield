@@ -2,4 +2,4 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-m24-pencil-banner-welcome-to-the = Welcome to the new home of the best privacy browser on the internet.
+m24-pencil-banner-firefox-has-moved = { -brand-name-firefox } has moved – Same mission. Same values. New home.
