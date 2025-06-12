@@ -1,7 +1,7 @@
-# Workflow to open a PR on mozilla-l10n/www-l10n with
+# Workflow to open a PR on mozilla-l10n/www-firefox-l10n with
 # new strings that exist in Springfield and need localising
 
-name: Open Fluent PR for Firefox.com
+name: Open Fluent PR in www-firefox-l10n
 
 on:
   workflow_run:
@@ -14,7 +14,9 @@ on:
 
 jobs:
   open_l10n_pr:
-    if: github.repository == 'mozmeao/springfield'
+    if: |
+      github.repository == 'mozmeao/springfield' &&
+      (github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run')
     runs-on: ubuntu-latest
     env:
       HEAD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
