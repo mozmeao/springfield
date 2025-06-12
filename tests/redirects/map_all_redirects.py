@@ -10,7 +10,7 @@ UA_IOS = {"User-Agent": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X
 
 URLS = flatten(
     (
-        # START https://github.com/mozmeao/springfield/issues/222
+        # issue 222
         url_test("/os/", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", status_code=301),
         url_test("/desktop/", "/browsers/desktop/", status_code=302),
         url_test("/android/", "/browsers/mobile/android/", status_code=302),
@@ -42,6 +42,24 @@ URLS = flatten(
         ),
         url_test("/family/?query=string", "https://www.mozilla.org/firefox/family/", follow_redirects=True, final_status_code=200),
         url_test("/families/?query=string", "https://www.mozilla.org/firefox/family/", follow_redirects=True, final_status_code=200),
-        # END https://github.com/mozmeao/springfield/issues/222
+        # issue 260
+        # bug 1041712, 1069335, 1069902
+        url_test(
+            "/{firefox,mobile}/{2,19,27}.0{a2,beta,.2}/{release,aurora}notes/{,stuff}",
+            "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US"
+            "/{firefox,mobile}/{2,19,27}.0{a2,beta,.2}/{release,aurora}notes/{,stuff}",
+        ),
+        # bug 947890, 1069902
+        url_test(
+            "/firefox/releases/{0.9.1,1.5.0.1}.html",
+            "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/firefox/releases/{0.9.1,1.5.0.1}.html",
+        ),
+        url_test(
+            "/{firefox,mobile}/{2,9,18,25}.0/releasenotes/",
+            "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/{firefox,mobile}/{2,9,18,25}.0/releasenotes/",
+        ),
+        # bug 988746, 989423, 994186, 1153351
+        url_test("/mobile/{23,28,29}.0/releasenotes/", "/firefox/android/{23,28,29}.0/releasenotes/"),
+        url_test("/mobile/{3,4}2.0beta/{aurora,release}notes/", "/firefox/android/{3,4}2.0beta/{aurora,release}notes/"),
     )
 )

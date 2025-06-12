@@ -4,7 +4,7 @@
 
 import re
 
-from springfield.redirects.util import mobile_app_redirector, platform_redirector, redirect
+from springfield.redirects.util import mobile_app_redirector, no_redirect, platform_redirector, redirect
 
 # matches only ASCII letters (ignoring case), numbers, dashes, periods, and underscores.
 PARAM_VALUES_RE = re.compile(r"[\w.-]+", flags=re.ASCII)
@@ -49,9 +49,9 @@ redirectpatterns = (
     redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
-    # issue https://github.com/mozilla/bedrock/issues/14172
+    # https://github.com/mozilla/bedrock/issues/14172
     redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
-    # https://github.com/mozmeao/springfield/issues/222
+    # issue 222
     redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", permanent=True),
     redirect(r"^desktop/?$", "firefox.browsers.desktop.index", permanent=False),
     redirect(r"^android/?$", "firefox.browsers.mobile.android", permanent=False),
@@ -81,5 +81,28 @@ redirectpatterns = (
         r"^en-US/famil(y|ies)/?\?.*$",
         "https://www.mozilla.org/firefox/family/",
         permanent=False,
+    ),
+    # issue 260
+    # bug 1001238, 1025056
+    no_redirect(r"^firefox/(24\.[5678]\.\d|28\.0)/releasenotes/?$"),
+    # bug 1235082
+    no_redirect(r"^firefox/23\.0(\.1)?/releasenotes/?$"),
+    # bug 947890, 1069902
+    redirect(
+        r"^firefox/releases/(?P<v>[01]\.(?:.*))$",
+        "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/firefox/releases/{v}",
+    ),
+    redirect(
+        r"^(?P<path>(?:firefox|mobile)/(?:\d)\.(?:.*)/releasenotes(?:.*))$",
+        "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/{path}",
+    ),
+    # bug 988746, 989423, 994186, 1153351
+    redirect(r"^mobile/(?P<v>2[38]\.0(?:\.\d)?|29\.0(?:beta|\.\d)?)/releasenotes/?$", "/firefox/android/{v}/releasenotes/"),
+    redirect(r"^mobile/(?P<v>[3-9]\d\.\d(?:a2|beta|\.\d)?)/(?P<p>aurora|release)notes/?$", "/firefox/android/{v}/{p}notes/"),
+    # bug 1041712, 1069335, 1069902
+    redirect(
+        r"^(?P<prod>firefox|mobile)/(?P<vers>([0-9]|1[0-9]|2[0-8])\.(\d+(?:beta|a2|\.\d+)?))"
+        r"/(?P<channel>release|aurora)notes/(?P<page>[\/\w\.-]+)?$",
+        "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/{prod}/{vers}/{channel}notes/{page}",
     ),
 )
