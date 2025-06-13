@@ -682,6 +682,7 @@ class FirefoxFeaturesFreePDFEditor(L10nTemplateView):
 @require_safe
 def firefox_features_translate(request):
     translate_langs = [
+        "ar",
         "bg",
         "ca",
         "zh-CN",
