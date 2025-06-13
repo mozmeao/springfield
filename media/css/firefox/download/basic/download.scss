@@ -7,8 +7,6 @@ $image-path: '/media/protocol/img';
 
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
 @import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
 
 // notification
 
@@ -19,10 +17,6 @@ $image-path: '/media/protocol/img';
 }
 
 .mzp-c-split-body {
-    .mzp-c-wordmark {
-        margin-bottom: $spacing-2xl;
-    }
-
     .c-download-split-title {
         @include text-title-lg;
     }
