@@ -1,64 +1,66 @@
 {#
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
- #}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
 
- {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
 
- <li class="m24-c-menu-category mzp-has-drop-down mzp-js-expandable">
-   <a class="m24-c-menu-title" href="#m24-c-menu-panel-resources" aria-haspopup="true" aria-controls="m24-c-menu-panel-resources" data-testid="m24-navigation-link-resources">
+<li class="m24-c-menu-category mzp-has-drop-down mzp-js-expandable">
+  <a class="m24-c-menu-title" href="#m24-c-menu-panel-resources" aria-haspopup="true" aria-controls="m24-c-menu-panel-resources" data-testid="m24-navigation-link-resources">
     <h2>{{ ftl('navigation-resources') }}</h2>
   </a>
-   <div class="m24-c-menu-panel" id="m24-c-menu-panel-resources" data-testid="m24-navigation-menu-resources">
-     <div class="m24-c-menu-panel-container">
-       <button class="m24-c-menu-button-close" type="button" aria-controls="m24-c-menu-panel-resources">{{ ftl('navigation-close-resources-menu') }}</button>
-       <div class="m24-c-menu-panel-content multi-column">
+  <div class="m24-c-menu-panel" id="m24-c-menu-panel-resources" data-testid="m24-navigation-menu-resources">
+    <div class="m24-c-menu-panel-container">
+      <button class="m24-c-menu-button-close" type="button" aria-controls="m24-c-menu-panel-resources">{{ ftl('navigation-close-resources-menu') }}</button>
+      <div class="m24-c-menu-panel-content multi-column">
         <div class="m24-mzp-l-content-container">
           <h3 class="m24-c-menu-subtitle">{{ ftl('navigation-product') }}</h3>
           <ul class="m24-mzp-l-content">
             <li>
-                <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.desktop.index') }}" data-link-text="Desktop" data-link-position="topnav - desktop" data-testid="m24-navigation-menu-link-firefox-desktop">
-                 {{ ftl('navigation-desktop') }}
-                </a>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.desktop.index') }}" data-link-text="Desktop" data-link-position="topnav - desktop" data-testid="m24-navigation-menu-link-firefox-desktop">
+                {{ ftl('navigation-desktop') }}
+              </a>
             </li>
             <li>
-                <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.mobile.index') }}" data-link-text="Mobile" data-link-position="topnav - mobile">
-                 {{ ftl('navigation-mobile') }}
-                </a>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.mobile.index') }}" data-link-text="Mobile" data-link-position="topnav - mobile">
+                {{ ftl('navigation-mobile') }}
+              </a>
             </li>
             <li>
-                <a class="m24-c-menu-item-link" href="{{ url('firefox.notes') }}" data-link-text="Release Notes" data-link-position="topnav - release notes">{{ ftl('navigation-release-notes') }}</a>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.notes') }}" data-link-text="Release Notes" data-link-position="topnav - release notes">
+                {{ ftl('navigation-release-notes') }}
+              </a>
             </li>
             <li>
-                {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
-                <a class="m24-c-menu-item-link" href="https://support.mozilla.org/{{params}}" data-link-text="Support" data-link-position="topnav - support">{{ ftl('navigation-support') }}</a>
+              {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
+              <a class="m24-c-menu-item-link" href="https://support.mozilla.org/{{params}}" data-link-text="Support" data-link-position="topnav - support">{{ ftl('navigation-support') }}</a>
             </li>
             <li>
-                {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
-                <a class="m24-c-menu-item-link" href="https://addons.mozilla.org/firefox/{{params}}" data-link-text="Add-Ons" data-link-position="topnav - addons">{{ ftl('navigation-add-ons') }}</a>
+              {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
+              <a class="m24-c-menu-item-link" href="https://addons.mozilla.org/firefox/{{params}}" data-link-text="Add-Ons" data-link-position="topnav - addons">{{ ftl('navigation-add-ons') }}</a>
             </li>
-           </ul>
+          </ul>
         </div>
         <div class="m24-mzp-l-content-container">
           <h3 class="m24-c-menu-subtitle">{{ ftl('navigation-learn') }}</h3>
           <ul class="m24-mzp-l-content">
             <li>
-                {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
-                <a class="m24-c-menu-item-link" href="https://blog.mozilla.org/en/category/firefox/{{params}}" data-link-text="Blog" data-link-position="topnav - blog">{{ ftl('navigation-blog') }}</a>
+              {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
+              <a class="m24-c-menu-item-link" href="https://blog.mozilla.org/en/category/firefox/{{params}}" data-link-text="Blog" data-link-position="topnav - blog">{{ ftl('navigation-blog') }}</a>
             </li>
             <li>
-                <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.compare.index') }}" data-link-text="Compare" data-link-position="topnav - compare">
-                 {{ ftl('navigation-compare') }}
-                </a>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.browsers.compare.index') }}" data-link-text="Compare" data-link-position="topnav - compare">
+                {{ ftl('navigation-compare') }}
+              </a>
             </li>
             <li>
-                {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
-                <a class="m24-c-menu-item-link" href="https://www.youtube.com/@firefox/podcasts{{params}}" data-link-text="Podcast" data-link-position="topnav - podcast">{{ ftl('navigation-podcast') }}</a>
+              {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
+              <a class="m24-c-menu-item-link" href="https://www.youtube.com/@firefox/podcasts{{params}}" data-link-text="Podcast" data-link-position="topnav - podcast">{{ ftl('navigation-podcast') }}</a>
             </li>
           </ul>
         </div>
-       </div>
-     </div><!-- close .m24-c-menu-panel-container -->
-   </div><!-- close .m24-c-menu-panel -->
- </li><!-- close .m24-c-menu-category -->
+      </div>
+    </div><!-- close .m24-c-menu-panel-container -->
+  </div><!-- close .m24-c-menu-panel -->
+</li><!-- close .m24-c-menu-category -->
