@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+@use 'sass:math';
+
 $image-path: '/media/protocol/img';
 
 @use '../../m24/vars/color' as m24;
@@ -50,7 +52,11 @@ $image-path: '/media/protocol/img';
     display: none;
 }
 
-@media screen and (min-width: #{$screen-sm}) and (max-width: #{$screen-lg - 1px}) {
+.mzp-c-footer-primary {
+    @include footer-line;
+}
+
+@media screen and (max-width: #{$screen-lg - 1px}) {
     .mzp-c-footer-sections {
         // massive Protocol override
         border-bottom: transparent;
@@ -74,6 +80,10 @@ $image-path: '/media/protocol/img';
             &::after {
                 display: none;
             }
+
+            html[dir='rtl'] &:nth-child(even) {
+            padding: 0;
+        }
         }
 
         .mzp-c-footer-list:last-child {
@@ -136,6 +146,10 @@ $image-path: '/media/protocol/img';
 }
 
 @media screen and (min-width: #{$screen-lg}) {
+    .mzp-c-footer-primary {
+        position: relative;
+    }
+
     .mzp-c-footer-sections {
         border-color: transparent;
         padding-bottom: 0;
@@ -184,13 +198,6 @@ $image-path: '/media/protocol/img';
     }
 }
 
-.mzp-c-footer-primary {
-    @media screen and (min-width: #{$screen-lg}) {
-        @include footer-line;
-        position: relative;
-    }
-}
-
 .c-footer-logo {
     @extend .mzp-c-footer-primary-logo; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
     text-align: center;
@@ -200,14 +207,23 @@ $image-path: '/media/protocol/img';
         position: absolute;
         text-align: end;
         @include bidi(((right, 0, left, auto),));
-        @include bidi(((padding-right, $layout-lg, 0), (padding-left, 0, $layout-lg),));
+
+        $gutter: math.div($layout-md, 4);
+        width: calc(((100% - 2 * var(--h-grid-md)) - $gutter) / 4 );
     }
 
     a {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
         background-size: contain;
+        display: block;
         width: 200px;
         height: 68px;
+        margin: 0 auto;
+
+        @media screen and (min-width: #{$screen-lg}) {
+            text-align: start;
+            margin: 0;
+        }
     }
 }
 
@@ -215,6 +231,7 @@ $image-path: '/media/protocol/img';
     margin-bottom: $spacing-xl;
 
     h2 {
+        @include font-size(24px);
         padding-top: 0;
     }
 }
