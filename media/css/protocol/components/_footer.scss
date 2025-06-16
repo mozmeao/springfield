@@ -82,8 +82,8 @@ $image-path: '/media/protocol/img';
             }
 
             html[dir='rtl'] &:nth-child(even) {
-            padding: 0;
-        }
+                padding: 0;
+            }
         }
 
         .mzp-c-footer-list:last-child {
