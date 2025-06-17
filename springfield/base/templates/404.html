@@ -6,6 +6,8 @@
 
 {% extends "base-error.html" %}
 
+{% set referrals = '?utm_source=www.firefox.com-404&utm_medium=referral' %}
+
 {% block page_title %}{{ ftl('not-found-page-not-found-page-page-not-found') }}{% endblock %}
 
 {% block page_css %}
@@ -27,7 +29,7 @@
     <ul class="content-list">
       <li>
         <img class="list-icon" alt="" src="{{ static('protocol/img/icons/mozilla.svg') }}" width="30" height="30">
-        {{ ftl('not-found-page-learn-about-mozilla-the-non', about="https://www.mozilla.org/about/") }}
+        {{ ftl('not-found-page-learn-about-mozilla-the-non', about="https://www.mozilla.org/about/" + referrals) }}
       </li>
       <li>
         <img class="list-icon" alt="" src="{{ static('protocol/img/icons/desktop.svg') }}" width="30" height="30">

@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_content=download-button' %}
+
 {% macro alt_buttons(builds) %}
   <div class="download download-dumb">
     <p role="heading" class="download-heading">
@@ -115,7 +117,7 @@
     {% endfor %}
   </ul>
   <small class="fx-privacy-link mzp-c-button-download-privacy-link">
-    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ referrals }}">
       {{ ftl('download-button-firefox-privacy-notice', fallback='download-button-firefox-privacy') }}
     </a>
   </small>
