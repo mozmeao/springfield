@@ -77,6 +77,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             <li><a class="podcast" href="https://www.youtube.com/@firefox/podcasts" data-link-position="footer" data-link-text="Podcast" translate="no">Podcast<span></span></a></li>
           </ul>
         </section>
+      </div>
+      <div class="c-footer-logo">
+        <a href="{{ url('firefox') }}" data-link-position="footer" data-link-text="Firefox">{{ ftl('footer-firefox') }}</a>
+      </div>
     </nav>
     <nav class="mzp-c-footer-secondary">
       <div class="mzp-c-footer-legal">
@@ -97,8 +101,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       </div>
 
       <div class="c-footer-more">
-        <div class="c-footer-logo">
-          <a href="{{ url('firefox') }}" data-link-position="footer" data-link-text="Firefox">{{ ftl('footer-firefox') }}</a>
+        <div class="c-footer-branding">
+          <h2 class="mzp-c-footer-heading">{{ ftl('footer-powdered-by') }}</h2>
+          <p>{{ ftl('footer-putting-people') }}</p>
         </div>
         <div class="mzp-c-footer-language">
           {% include 'includes/lang-switcher.html' %}
