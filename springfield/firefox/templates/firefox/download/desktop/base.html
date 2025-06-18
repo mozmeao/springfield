@@ -41,4 +41,10 @@
   {{ css_bundle('protocol') }}
 {% endblock %}
 
+{% block site_header %}
+  {% with hide_nav_cta=True %}
+    {% include 'includes/navigation/navigation.html' %}
+  {% endwith %}
+{% endblock %}
+
 {% block body_class %}mzp-t-firefox{% endblock %}
