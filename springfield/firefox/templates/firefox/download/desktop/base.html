@@ -27,6 +27,11 @@
 {#- This will appear as <meta property="og:description"> which can be used for social share -#}
 {% block page_og_desc %}{{ ftl('firefox-desktop-download-og-desc') }}{% endblock %}
 
+{% block extra_meta %}
+  {# verification for Google Search Console, needs to be on the homepage #}
+  <meta name="google-site-verification" content="NnSXyOfxYMM_YVXFQe-TSLktYW_Tz_BsTEPrxqy8qWY">
+{% endblock %}
+
 {% block old_ie_styles %}{% endblock %}
 {% block site_css %}{% endblock %}
 {% block page_css %}{% endblock %}
