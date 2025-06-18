@@ -10,7 +10,7 @@ const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 
 test.describe(
-    'MacOS download page',
+    'Platform download pages',
     {
         tag: '@firefox'
     },
@@ -20,7 +20,11 @@ test.describe(
                 '#download-button-desktop-release-win'
             );
 
-            await openPage('/en-US/firefox/windows/', page, browserName);
+            await openPage(
+                '/en-US/browsers/desktop/windows/',
+                page,
+                browserName
+            );
 
             // Assert download button is visible
             await expect(downloadButton).toBeVisible();
@@ -43,7 +47,7 @@ test.describe(
                 '#download-button-desktop-release-osx'
             );
 
-            await openPage('/en-US/firefox/mac/', page, browserName);
+            await openPage('/en-US/browsers/desktop/mac/', page, browserName);
 
             // Assert download button is visible
             await expect(downloadButton).toBeVisible();
@@ -69,7 +73,7 @@ test.describe(
                 '#download-button-desktop-release-osx'
             );
 
-            await openPage('/ja/firefox/mac/', page, browserName);
+            await openPage('/ja/browsers/desktop/mac/', page, browserName);
 
             //
             await expect(downloadButton).toHaveAttribute(
@@ -88,16 +92,19 @@ test.describe(
             await download.cancel();
         });
 
-        test('Download Firefox for Linux', async ({ page, browserName }) => {
+        test('Download Firefox for Linux (and APT info)', async ({
+            page,
+            browserName
+        }) => {
             const downloadButton = page.locator(
                 '#download-button-desktop-release-linux'
             );
-            const ATPLink = page.locator('.c-linux-debian a');
+            const repoLink = page.locator('.c-linux-debian a');
 
-            await openPage('/en-US/firefox/linux/', page, browserName);
+            await openPage('/en-US/browsers/desktop/linux/', page, browserName);
 
-            // Assert ATP link is visible
-            await expect(ATPLink).toBeVisible();
+            // Assert APT instruction link is visible
+            await expect(repoLink).toBeVisible();
 
             // Assert download button is visible
             await expect(downloadButton).toBeVisible();
