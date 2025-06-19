@@ -25,7 +25,7 @@ test.describe(
             const goBackLink = page.getByTestId('link-go-back');
             await expect(goBackLink).toBeVisible();
             await goBackLink.click();
-            await page.waitForURL('**/?automation=true', {
+            await page.waitForURL('**/?automation=true*', {
                 waitUntil: 'commit'
             });
         });
