@@ -461,6 +461,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 body:has(.m24-c-navigation-items.mzp-is-open) {
     & > .m24-pencil-banner,
     & > .c-sub-navigation,
+    & > .mzp-c-breadcrumb,
     & > .moz-consent-banner.is-visible,
     & > .c-banner.c-banner-is-visible,
     & > #outer-wrapper {
