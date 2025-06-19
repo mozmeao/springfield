@@ -165,6 +165,18 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
+// spacer to center nav items when CTA isn't there
+
+.spacer-gif {
+    display: none;
+
+    @media #{$mq-md} {
+        display: inline-block;
+        width: 120px; // matches width of Firefox logo
+    }
+}
+
+
 // * -------------------------------------------------------------------------- */
 // Menu
 
