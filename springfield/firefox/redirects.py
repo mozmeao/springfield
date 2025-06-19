@@ -105,4 +105,6 @@ redirectpatterns = (
         r"/(?P<channel>release|aurora)notes/(?P<page>[\/\w\.-]+)?$",
         "http://website-archive.mozilla.org/www.mozilla.org/firefox_releasenotes/en-US/{prod}/{vers}/{channel}notes/{page}",
     ),
+    # Bug 868182
+    redirect(r"^mobile/faq/?$", firefox_mobile_faq, query=False),
 )
