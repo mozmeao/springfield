@@ -6,9 +6,8 @@ env:
   SLACK_CHANNEL_ID: CBX0KH5GA # #www-notify in MoCo Slack
   SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN_FOR_MEAO_NOTIFICATIONS_APP}}
 on:
-  # DISABLED UNTIL www.firefox.com is properly up
-  # schedule:
-  #   - cron: "0 11 * * *" # 11am daily
+  schedule:
+    - cron: "0 11 * * *" # 11am daily
   workflow_dispatch:
     inputs:
       springfield_service_hostname:
