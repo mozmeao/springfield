@@ -367,9 +367,9 @@ class TestFirefoxDownload(TestCase):
 
     def test_download_template(self, render_mock):
         for locale, ftl_file_is_active_value, expected_template in (
-            ("en-US", True, "firefox/download/desktop/download-en-us-ca.html"),
-            ("en-CA", True, "firefox/download/desktop/download-en-us-ca.html"),
-            ("en-GB", True, "firefox/download/desktop/download.html"),
+            ("en-US", True, "firefox/download/home.html"),
+            ("en-CA", True, "firefox/download/home.html"),
+            ("en-GB", True, "firefox/download/home.html"),
             ("fr", True, "firefox/download/desktop/download.html"),
             ("en-CA", False, "firefox/download/basic/base_download.html"),  # Note the False for activation
         ):
