@@ -61,5 +61,8 @@ URLS = flatten(
         # bug 988746, 989423, 994186, 1153351
         url_test("/mobile/{23,28,29}.0/releasenotes/", "/firefox/android/{23,28,29}.0/releasenotes/"),
         url_test("/mobile/{3,4}2.0beta/{aurora,release}notes/", "/firefox/android/{3,4}2.0beta/{aurora,release}notes/"),
+        # bug 868182
+        url_test("/mobile/faq/?os=firefox-os", "https://support.mozilla.org/products/firefox-os"),
+        url_test("/mobile/faq/", "https://support.mozilla.org/products/mobile"),
     )
 )
