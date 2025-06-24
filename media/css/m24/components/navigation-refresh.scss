@@ -347,6 +347,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
         h2 {
             font-weight: inherit;
+            white-space: nowrap; // fix safari bug, issue #309
         }
     }
 }
