@@ -42,7 +42,7 @@ help:
 	@echo "  uninstall-custom-git-hooks     - uninstall custom git hooks"
 	@echo "  clean-local-deps               - remove all local installed Python dependencies"
 	@echo "  preflight                      - refresh installed dependencies and fetch latest DB ahead of local dev"
-	@echo "  preflight -- --retain-DB		- refresh installed dependencies WITHOUT fetching latest DB"
+	@echo "  preflight -- --retain-DB	- refresh installed dependencies WITHOUT fetching latest DB"
 	@echo "  run-local-task-queue           - run rqworker on your local machine. Requires redis to be running"
 
 .env:
@@ -122,7 +122,7 @@ test: .docker-build-pull
 	${DC} run --rm test
 
 test-cdn: .docker-build-pull test_infra/fixtures/tls.json
-	${DC} run test pytest --base-url https://${TEST_DOMAIN} test_infra
+	${DC} run test pytest --base-url https://${TEST_DOMAIN} -m cdn
 
 test-image: .docker-build
 	${DC} run test-image

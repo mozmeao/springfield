@@ -173,12 +173,13 @@ def test_tls(get_ssllabs_results):
     for endp in data[0]["endpoints"]:
         for sim in endp["details"]["sims"]["results"]:
             if sim["errorCode"] != 0:
-                # IE 6 is expected to fail
+                # Expected handshake fails
                 if sim["client"]["name"] == "IE" and sim["client"]["version"] == "6":
                     continue
-
-                # TODO: Working with Fastly on configuring TLS to accept this but for now
-                # it will fail
+                if sim["client"]["name"] == "IE" and sim["client"]["version"] == "8" and sim["client"]["platform"] == "XP":
+                    continue
+                if sim["client"]["name"] == "Android" and sim["client"]["version"] == "2.3.7":
+                    continue
                 if sim["client"]["name"] == "Java" and sim["client"]["version"] == "6u45":
                     continue
 
