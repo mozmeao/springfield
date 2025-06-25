@@ -1,11 +1,61 @@
 {#
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
- #}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
 
- <li class="m24-c-menu-category">
-  <a class="m24-c-menu-title" href="{{ url('firefox.features.index') }}" data-testid="m24-navigation-link-features">
+<li class="m24-c-menu-category mzp-has-drop-down mzp-js-expandable">
+  <a class="m24-c-menu-title" href="{{ url('firefox.features.index') }}" aria-haspopup="true" aria-controls="m24-c-menu-panel-features" data-testid="m24-navigation-link-features">
     <h2>{{ ftl('navigation-features') }}</h2>
   </a>
-</li>
+  <div class="m24-c-menu-panel" id="m24-c-menu-panel-features" data-testid="m24-navigation-menu-features">
+    <div class="m24-c-menu-panel-container">
+      <button class="m24-c-menu-button-close" type="button" aria-controls="m24-c-menu-panel-features">{{ ftl('navigation-close-TKTK-menu') }}</button>
+      <div class="m24-c-menu-panel-content multi-column">
+        <div class="m24-mzp-l-content-container">
+          <h3 class="m24-c-menu-subtitle">Secure</h3>
+          <ul class="m24-mzp-l-content">
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.features.sync') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+                Sync safely
+              </a>
+            </li>
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.features.translate') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+                Translate locally
+              </a>
+            </li>
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.features.fingerprinting') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+                Resist fingerprinting
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="m24-mzp-l-content-container">
+          <h3 class="m24-c-menu-subtitle">Customizable</h3>
+          <ul class="m24-mzp-l-content">
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.features.add-ons') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+                Extend functionality
+              </a>
+            </li>
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.features.customize') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+                Change appearance
+              </a>
+            </li>
+          </ul>
+          <p class="m24-c-menu-category-link">
+            <a href="{{ url('firefox.features.index') }}" data-link-text="TKTK" data-link-position="topnav - ???">
+              Show all
+              <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24" height="24" viewBox="0 0 23.4 24" fill="currentColor">
+                <path d="M23.4 12 9.1 0v10.5H0v3h9.1V24l14.3-12zm-11.3-1.5v-4l6.6 5.5-6.6 5.5v-7z"></path>
+              </svg>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div><!-- close .m24-c-menu-panel-container -->
+  </div><!-- close .m24-c-menu-panel -->
+</li><!-- close .m24-c-menu-category -->
