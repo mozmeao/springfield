@@ -6,6 +6,8 @@
 
 {% extends "base-error.html" %}
 
+{% set referrals = '?utm_source=www.firefox.com-500&utm_medium=referral' %}
+
 {% block page_title %}{{ ftl('error-page-error-page-internal-server-error') }}{% endblock %}
 
 {% block page_css %}
@@ -17,7 +19,7 @@
     <h1 class="error-title">{{ ftl('error-page-something-went-wrong') }}</h1>
     <p>
       {{ ftl('error-page-its-probably-just-a-server-error') }}<br>
-      {{ ftl('error-page-you-can-also-try-refreshing', firefox="https://www.firefox.com", mozilla="https://www.mozilla.org/") }}
+      {{ ftl('error-page-you-can-also-try-refreshing', firefox="https://www.firefox.com", mozilla="https://www.mozilla.org/" + referrals) }}
     </p>
   </main>
 {% endblock %}

@@ -9,6 +9,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% set referrals = '?utm_source=www.firefox.com-faq&utm_medium=referral&utm_campaign=seo' %}
+
 {% block page_title %}{{ ftl('firefox-faq') }}{% endblock %}
 {% block page_desc %}{{ ftl('whether-you-searched-privacy') }}{% endblock %}
 
@@ -45,7 +47,7 @@
         <h2>{{ ftl('what-is-firefox') }}</h2>
         <p>{{ ftl('the-firefox-browser-the-only',
           url='/',
-          url2='https://www.mozilla.org/en-US/products/') }}</p>
+          url2='https://www.mozilla.org/en-US/products/' + referrals) }}</p>
       </li>
       <li>
         <h2>{{ ftl('how-do-i') }}</h2>
@@ -88,19 +90,19 @@
       <li>
         <h2>{{ ftl('does-firefox-use') }}</h2>
         <p>{{ ftl('firefoxs-default-search',
-              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo') }}</p>
+              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/' + referrals) }}</p>
       </li>
       {% if ftl_has_messages('firefox-does-not-v2') %}
       <li>
         <h2>{{ ftl('does-firefox-have') }}</h2>
         <p>{{ ftl('firefox-does-not-v2',
-              url='https://www.mozilla.org/en-US/products/vpn/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo') }}</p>
+              url='https://www.mozilla.org/en-US/products/vpn/' + referrals) }}</p>
         <small>{{ ftl('related-questions-ip') }}</small>
       </li>
       {% endif %}
       <li>
         <h2>{{ ftl('who-owns-firefox') }}</h2>
-        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/?utm_source=www.firefox.com-faq&amp;utm_medium=referral&amp;utm_campaign=seo', url2='https://www.mozilla.org/en-US/foundation/moco/') }}</p>
+        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/' + referrals, url2='https://www.mozilla.org/en-US/foundation/moco/' + referrals) }}</p>
         <small>{{ ftl('related-questions-who') }}</small>
       </li>
     </ul>
