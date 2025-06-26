@@ -76,10 +76,12 @@ M24PencilBanner.close = function () {
 };
 
 M24PencilBanner.bindEvents = function () {
+    const closeButton = _pencilBanner.querySelector('.m24-pencil-banner-close');
+
     // Wire up close button
-    _pencilBanner
-        .querySelector('.m24-pencil-banner-close')
-        .addEventListener('click', M24PencilBanner.close, false);
+    if (closeButton) {
+        closeButton.addEventListener('click', M24PencilBanner.close, false);
+    }
 
     // Record widget display action in GA4
     window.dataLayer.push({
@@ -96,9 +98,7 @@ M24PencilBanner.init = function () {
         typeof window.Mozilla.Cookies !== 'undefined' &&
         window.Mozilla.Cookies.enabled();
 
-    _pencilBanner = document.querySelector(
-        '.m24-pencil-banner:has(.m24-pencil-banner-close)'
-    );
+    _pencilBanner = document.querySelector('.m24-pencil-banner');
 
     // If the banner does not exist on a page then do nothing.
     if (!_pencilBanner) {
