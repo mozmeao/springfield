@@ -96,7 +96,9 @@ M24PencilBanner.init = function () {
         typeof window.Mozilla.Cookies !== 'undefined' &&
         window.Mozilla.Cookies.enabled();
 
-    _pencilBanner = document.querySelector('.m24-pencil-banner');
+    _pencilBanner = document.querySelector(
+        '.m24-pencil-banner:has(.m24-pencil-banner-close)'
+    );
 
     // If the banner does not exist on a page then do nothing.
     if (!_pencilBanner) {
