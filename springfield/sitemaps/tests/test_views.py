@@ -4,21 +4,21 @@
 
 from textwrap import dedent
 
-from bedrock.mozorg.tests import TestCase
-from bedrock.sitemaps.models import NO_LOCALE, SitemapURL
+from springfield.base.tests import TestCase
+from springfield.sitemaps.models import NO_LOCALE, SitemapURL
 
 
 class TestSitemapView(TestCase):
     def setUp(self):
         data = [
-            {"path": "/firefox/all/", "locale": "de"},
+            {"path": "/firefox/notes/", "locale": "de"},
             {"path": "/firefox/", "locale": "de"},
             {
-                "path": "/privacy/",
+                "path": "/more/",
                 "locale": "fr",
             },
             {"path": "/firefox/", "locale": "fr"},
-            {"path": "/keymaster/gatekeeper/there.is.only.xul", "locale": NO_LOCALE},
+            {"path": "/security.txt", "locale": NO_LOCALE},
             {
                 "path": "/locales/",
                 "locale": NO_LOCALE,
@@ -32,13 +32,13 @@ class TestSitemapView(TestCase):
             <?xml version="1.0" encoding="UTF-8"?>
             <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
               <sitemap>
-                <loc>https://www.mozilla.org/all-urls-global.xml</loc>
+                <loc>https://www.firefox.com/all-urls-global.xml</loc>
               </sitemap>
               <sitemap>
-                <loc>https://www.mozilla.org/de/all-urls.xml</loc>
+                <loc>https://www.firefox.com/de/all-urls.xml</loc>
               </sitemap>
               <sitemap>
-                <loc>https://www.mozilla.org/fr/all-urls.xml</loc>
+                <loc>https://www.firefox.com/fr/all-urls.xml</loc>
               </sitemap>
             </sitemapindex>"""
         )
@@ -51,10 +51,10 @@ class TestSitemapView(TestCase):
             <?xml version="1.0" encoding="UTF-8"?>
             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
               <url>
-                <loc>https://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul</loc>
+                <loc>https://www.firefox.com/security.txt</loc>
               </url>
               <url>
-                <loc>https://www.mozilla.org/locales/</loc>
+                <loc>https://www.firefox.com/locales/</loc>
               </url>
             </urlset>"""
         )
@@ -67,10 +67,10 @@ class TestSitemapView(TestCase):
             <?xml version="1.0" encoding="UTF-8"?>
             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
               <url>
-                <loc>https://www.mozilla.org/de/firefox/</loc>
+                <loc>https://www.firefox.com/de/firefox/</loc>
               </url>
               <url>
-                <loc>https://www.mozilla.org/de/firefox/all/</loc>
+                <loc>https://www.firefox.com/de/firefox/notes/</loc>
               </url>
             </urlset>"""
         )
@@ -82,10 +82,10 @@ class TestSitemapView(TestCase):
             <?xml version="1.0" encoding="UTF-8"?>
             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
               <url>
-                <loc>https://www.mozilla.org/fr/firefox/</loc>
+                <loc>https://www.firefox.com/fr/firefox/</loc>
               </url>
               <url>
-                <loc>https://www.mozilla.org/fr/privacy/</loc>
+                <loc>https://www.firefox.com/fr/more/</loc>
               </url>
             </urlset>"""
         )

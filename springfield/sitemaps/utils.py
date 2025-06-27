@@ -13,39 +13,9 @@ from django.urls import resolvers
 
 from wagtail.models import Page
 
-from bedrock.contentful.constants import (
-    CONTENT_CLASSIFICATION_VPN,
-    CONTENT_TYPE_PAGE_RESOURCE_CENTER,
-    VRC_ROOT_PATH,
-)
-from bedrock.contentful.models import ContentfulEntry
-from bedrock.releasenotes.models import ProductRelease
-from bedrock.security.models import SecurityAdvisory
+from springfield.releasenotes.models import ProductRelease
 
 SEC_KNOWN_VULNS = [
-    "/security/known-vulnerabilities/firefox/",
-    "/security/known-vulnerabilities/firefox-esr/",
-    "/security/known-vulnerabilities/firefox-for-ios/",
-    "/security/known-vulnerabilities/firefox-os/",
-    "/security/known-vulnerabilities/mozilla-vpn/",
-    "/security/known-vulnerabilities/thunderbird/",
-    "/security/known-vulnerabilities/thunderbird-esr/",
-    "/security/known-vulnerabilities/seamonkey/",
-    "/security/known-vulnerabilities/firefox-3.6/",
-    "/security/known-vulnerabilities/firefox-3.5/",
-    "/security/known-vulnerabilities/firefox-3.0/",
-    "/security/known-vulnerabilities/firefox-2.0/",
-    "/security/known-vulnerabilities/firefox-1.5/",
-    "/security/known-vulnerabilities/firefox-1.0/",
-    "/security/known-vulnerabilities/thunderbird-3.1/",
-    "/security/known-vulnerabilities/thunderbird-3.0/",
-    "/security/known-vulnerabilities/thunderbird-2.0/",
-    "/security/known-vulnerabilities/thunderbird-1.5/",
-    "/security/known-vulnerabilities/thunderbird-1.0/",
-    "/security/known-vulnerabilities/seamonkey-2.0/",
-    "/security/known-vulnerabilities/seamonkey-1.1/",
-    "/security/known-vulnerabilities/seamonkey-1.0/",
-    "/security/known-vulnerabilities/mozilla-suite/",
 ]
 
 
@@ -103,8 +73,6 @@ def get_static_urls():
             r".*//$",
             r"^media/",
             r"^robots\.txt$",
-            # Redirects in en-US. Added via EXTRA_INDEX_URLS
-            r"firefox-klar/$",
         ]
     ]
 
@@ -149,10 +117,6 @@ def get_static_urls():
 
                 locales = set(render.call_args[0][2]["translations"].keys())
 
-                # Firefox Focus has a different URL in German
-                if path == "/privacy/firefox-focus/":
-                    locales -= {"de"}
-
                 # just remove any locales not in our prod list
                 locales = list(locales.intersection(settings.PROD_LANGUAGES))
 
@@ -163,25 +127,12 @@ def get_static_urls():
 
 
 def _get_vrc_urls():
-    # URLs for individual VRC articles - the listing/landing page is declared
-    # separately in bedrock/products/urls.py so we don't need to include it here
-
     urls = defaultdict(list)
-
-    for entry in ContentfulEntry.objects.filter(
-        localisation_complete=True,
-        content_type=CONTENT_TYPE_PAGE_RESOURCE_CENTER,
-        classification=CONTENT_CLASSIFICATION_VPN,
-    ):
-        _path = f"{VRC_ROOT_PATH}{entry.slug}/"
-        urls[_path].append(entry.locale)  # One slug may support multiple locales
-
     return urls
 
 
 def get_contentful_urls():
     urls = {}
-    urls.update(_get_vrc_urls())
     return urls
 
 
@@ -227,8 +178,6 @@ def get_wagtail_urls():
 def get_all_urls():
     urls = get_static_urls()
     urls.update(get_release_notes_urls())
-    urls.update(get_security_urls())
-    urls.update(get_contentful_urls())
     urls.update(get_wagtail_urls())
     return urls
 

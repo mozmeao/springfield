@@ -4,6 +4,6 @@
 
 from django.urls import re_path
 
-from bedrock.sitemaps.views import SitemapView
+from springfield.sitemaps.views import SitemapView
 
 urlpatterns = (re_path(r"all-urls(?P<is_global>-global)?.xml", SitemapView.as_view()),)
