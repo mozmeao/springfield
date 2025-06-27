@@ -5,7 +5,7 @@
 from django.conf import settings
 from django.db import models, transaction
 
-from bedrock.sitemaps.utils import get_all_urls
+from springfield.sitemaps.utils import get_all_urls
 
 NO_LOCALE = "__"  # special value for no locale
 
