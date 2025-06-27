@@ -15,25 +15,9 @@ from wagtail.models import Page
 
 from springfield.releasenotes.models import ProductRelease
 
-SEC_KNOWN_VULNS = [
-]
-
 
 def get_security_urls():
-    urls = {url: ["en-US"] for url in SEC_KNOWN_VULNS}
-    for advisory in SecurityAdvisory.objects.all():
-        try:
-            adv_url = advisory.get_absolute_url()
-        except resolvers.NoReverseMatch:
-            continue
-
-        # strip "/en-US" off the front
-        if adv_url.startswith("/en-US"):
-            adv_url = adv_url[6:]
-
-        urls[adv_url] = ["en-US"]
-
-    return urls
+    return {}
 
 
 def get_release_notes_urls():

@@ -18,7 +18,7 @@ class TestSitemapView(TestCase):
                 "locale": "fr",
             },
             {"path": "/firefox/", "locale": "fr"},
-            {"path": "/security.txt", "locale": NO_LOCALE},
+            {"path": "/info.txt", "locale": NO_LOCALE},
             {
                 "path": "/locales/",
                 "locale": NO_LOCALE,
@@ -51,7 +51,7 @@ class TestSitemapView(TestCase):
             <?xml version="1.0" encoding="UTF-8"?>
             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
               <url>
-                <loc>https://www.firefox.com/security.txt</loc>
+                <loc>https://www.firefox.com/info.txt</loc>
               </url>
               <url>
                 <loc>https://www.firefox.com/locales/</loc>
