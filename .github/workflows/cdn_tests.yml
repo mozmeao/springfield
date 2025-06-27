@@ -7,7 +7,7 @@ env:
   SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN_FOR_MEAO_NOTIFICATIONS_APP}}
 on:
   schedule:
-    - cron: "0 11 * * *" # 11am daily
+    - cron: "50 11 * * *" # 11:50 AM UTC daily
   workflow_dispatch:
     inputs:
       springfield_service_hostname:
