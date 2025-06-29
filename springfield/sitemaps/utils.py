@@ -16,10 +16,6 @@ from wagtail.models import Page
 from springfield.releasenotes.models import ProductRelease
 
 
-def get_security_urls():
-    return {}
-
-
 def get_release_notes_urls():
     urls = {}
     for release in ProductRelease.objects.exclude(product="Thunderbird"):
@@ -107,16 +103,6 @@ def get_static_urls():
             if path not in urls:
                 urls[path] = locales
 
-    return urls
-
-
-def _get_vrc_urls():
-    urls = defaultdict(list)
-    return urls
-
-
-def get_contentful_urls():
-    urls = {}
     return urls
 
 
