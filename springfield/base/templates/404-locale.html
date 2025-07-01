@@ -8,19 +8,19 @@
 
 {%- block page_title -%}
   {%- if is_root -%}
-    Internet for people, not profit
+    Get Firefox for desktop and mobile.
   {%- else -%}
-    404 - Choose your language or locale to browse Mozilla.org
+    404 — Choose your language or locale to browse
   {%- endif -%}
 {%- endblock -%}
 
 {%- block page_title_suffix -%}
-  {% if is_root %} — Mozilla Global{% else %} — Mozilla{% endif %}
+  {% if is_root %} — Firefox.com Global{% else %} — Firefox.com{% endif %}
 {%- endblock -%}
 
 {%- block page_desc -%}
   {%- if is_root -%}
-    Mozilla is the not-for-profit behind the lightning fast Firefox browser. We put people over profit to give everyone more power online.
+    Firefox is a free web browser backed by Mozilla, a non-profit dedicated to internet health and privacy.
   {%- else -%}
     Select your country or region to indicate your preferred language.
   {%- endif -%}
@@ -44,7 +44,7 @@
   <header class="c-simple-header">
     <h1 class="c-simple-header-title">
       {%- if is_root -%}
-        Choose your language or locale to browse Mozilla.org
+        Choose your language or locale to browse Firefox.com
       {%- else -%}
         Page is not yet translated
       {%- endif -%}
@@ -57,7 +57,7 @@
   <section class="c-block-list">
     <ul>
       {% for locale in available_locales if locale in languages %}
-        <li lang="{{ locale }}"><a href="/{{ locale }}{{ request.path_info }}" title="{{ 'Browse {0} in the {1} language'|f(request.path_info, languages[locale]["native"]) }}">{{ languages[locale]['native'] }}</a></li>
+        <li lang="{{ locale }}"><a href="/{{ locale }}{{ request.path_info }}" title="{{ 'Browse {0} in the {1} language'|f(request.path_info, languages[locale]["English"]) }}">{{ languages[locale]['native'] }}</a></li>
       {% endfor %}
     </ul>
   </section>

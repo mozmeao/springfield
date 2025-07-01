@@ -6,10 +6,10 @@
 
 {% extends "base-protocol.html" %}
 
-{% block page_title %}Choose your language or locale to browse Mozilla.org{% endblock %}
+{% block page_title %}Choose your language or locale to browse Firefox.com{% endblock %}
 
 {% block page_desc %}
-  Select your country or region to indicate your preferred language. Learn how Mozilla puts people before profit, making products designed to keep the internet open to all.
+  Select your country or region to indicate your preferred language. Firefox is a free web browser backed by Mozilla, a non-profit dedicated to internet health and privacy.
 {% endblock %}
 
 {% block canonical_urls %}
@@ -31,7 +31,7 @@
       <h2 class="c-block-list-title">{{ region }}</h2>
       <ul>
         {% for loc in locales %}
-          <li lang="{{ loc }}"><a href="/{{ loc }}/" title="Browse Mozilla.org in the {{ languages[loc]['English'] }} language">{{ languages[loc]["native"] }}</a></li>
+          <li lang="{{ loc }}"><a href="/{{ loc }}/" title="Browse Firefox.com in the {{ languages[loc]['English'] }} language">{{ languages[loc]["native"] }}</a></li>
         {% endfor %}
       </ul>
     </section>
