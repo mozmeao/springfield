@@ -77,6 +77,7 @@ class TestRobots(TestCase):
         self.view.request = self.rf.get("/", HTTP_HOST="www.springfield.moz.works")
         self.assertTrue(self.view.get_context_data()["disallow_all"])
 
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
     def test_robots_no_redirect(self):
         response = self.client.get("/robots.txt", headers={"host": "www.firefox.com"})
         self.assertEqual(response.status_code, 200)
