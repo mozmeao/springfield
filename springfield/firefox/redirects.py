@@ -68,7 +68,7 @@ redirectpatterns = (
         r"^containers/?$", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com", permanent=False
     ),  # TODO remove or amend depending on whether we port the page
     redirect(r"^pdx/?$", "firefox", permanent=False),
-    redirect(r"^pair/?$", "https://accounts.firefox.com/pair/", permanent=False),
+    redirect(r"^pair/?$", "https://accounts.firefox.com/pair/", permanent=False, re_flags="i"),
     redirect(r"^(join|rejoindre)/?$", "https://www.mozilla.org/firefox/accounts/?redirect_source=join", permanent=False),
     redirect(r"^(privacy|privatsphaere)/?$", "https://www.mozilla.org/products/?redirect_source=firefox-com", permanent=False),
     redirect(r"^nightly/?$", "/channel/desktop/#nightly", permanent=False),
