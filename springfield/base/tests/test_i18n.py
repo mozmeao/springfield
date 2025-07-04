@@ -79,6 +79,8 @@ def test_normalize_language(lang_code, expected):
         ("healthz-cron", False),
         ("revision.txt", False),
         ("locales", False),
+        ("/all-urls-global.xml", False),
+        ("/all-urls.xml", False),
         # Some example paths that do need them
         ("/about/", True),
         ("about", True),
