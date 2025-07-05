@@ -439,7 +439,7 @@ class DownloadView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/base_download.html": ["firefox/download/download"],
         "firefox/download/desktop/download.html": ["firefox/download/desktop"],
-        "firefox/download/desktop/download-en-us-ca.html": ["firefox/download/desktop"],
+        "firefox/download/home.html": ["firefox/download/desktop", "firefox/download/home"],
     }
     activation_files = [
         "firefox/download/download",
@@ -488,17 +488,15 @@ class DownloadView(L10nTemplateView):
     def get_template_names(self):
         variation = self.request.GET.get("variation", None)
         experience = self.request.GET.get("xv", None)
-        locale = l10n_utils.get_locale(self.request)
 
         # ensure variant matches pre-defined value
         if variation not in self.variations:
             variation = None
 
-        if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
-            if locale in ["en-US", "en-CA"]:
-                template = "firefox/download/desktop/download-en-us-ca.html"
-            else:
-                template = "firefox/download/desktop/download.html"
+        if ftl_file_is_active("firefox/home") and experience not in ["basic", "legacy"]:
+            template = "firefox/download/home.html"
+        elif experience == "legacy":
+            template = "firefox/download/desktop/download.html"
         else:
             template = "firefox/download/basic/base_download.html"
 
