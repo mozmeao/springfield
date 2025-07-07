@@ -21,7 +21,7 @@ Set Firefox as your default browser.
 
 {% extends "firefox/download/desktop/base.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-home' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-home' %}
 {% set ios_url = app_store_url('firefox', 'firefox-home') %}
 
 {% block string_data %}{% endblock %}
@@ -47,7 +47,7 @@ Set Firefox as your default browser.
 
 {% if outdated %}
 
-  {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + referrals)) %}
+  {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + params)) %}
 
   {% if ftl_has_messages('firefox-desktop-out-of-date') %}
     <aside class="c-page-header-notification">
@@ -74,7 +74,7 @@ Set Firefox as your default browser.
 
           <div class="c-intro-download-alt"><a href="{{ url('firefox.all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
 
-          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ referrals }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
         </div>
       </div>
       <div class="c-block-media l-v-center">
@@ -219,7 +219,7 @@ Set Firefox as your default browser.
   </section>
 
   <section class="c-support">
-    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(referrals) %}
+    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(params) %}
     {{ ftl('firefox-desktop-download-questions', attrs=questions_attrs) }}
   </section>
 

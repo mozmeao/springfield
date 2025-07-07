@@ -6,7 +6,7 @@
 
 {% extends "firefox/features/base-article.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
 
 {% block article_title %}{{ ftl('features-sync-firefox-browser-sync') }}{% endblock %}
 {% block page_desc %}{{ ftl('features-sync-access-your-firefox-bookmarks') }}{% endblock %}
@@ -14,7 +14,7 @@
 {% block article_content %}
 <p>{{ ftl('features-sync-with-firefox-you-can-pick-up-where') }}</p>
 
-{% set fxa = 'href="%s"'|safe|format("https://www.mozilla.org/" + LANG + "/account/" + referrals) %}
+{% set fxa = 'href="%s"'|safe|format("https://www.mozilla.org/" + LANG + "/account/" + params) %}
 <p>{{ ftl('features-sync-sign-up-for-a-free-mozilla-account-v3', fxa=fxa) }}</p>
 
 <figure class="c-article-figure">
@@ -30,7 +30,7 @@
   ) }}
 </figure>
 
-<p>{{ ftl('features-sync-all-your-data-is-encrypted-on-our', privacy='https://www.mozilla.org/' + LANG + '/privacy/' + referrals) }}</p>
+<p>{{ ftl('features-sync-all-your-data-is-encrypted-on-our', privacy='https://www.mozilla.org/' + LANG + '/privacy/' + params) }}</p>
 
 <h2>{{ ftl('features-sync-send-tabs-from-one-device-to-another') }}</h2>
 <p>{{ ftl('features-sync-the-send-tab-feature-in-firefox') }}</p>

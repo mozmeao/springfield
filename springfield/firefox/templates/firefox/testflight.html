@@ -8,7 +8,7 @@
 
 {% from "macros-protocol.html" import callout with context %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=testflight' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=testflight' %}
 
 {% block page_title_full %}Firefox for iOS Beta — TestFlight{% endblock %}
 
@@ -118,7 +118,7 @@ Sign up to test pre-release beta versions of Firefox for iOS via Apple’s TestF
           {% endwith %}
 
           When Mozilla receives data from you or TestFlight, we handle it in
-          accordance with our <a href="https://www.mozilla.org/{{ LANG }}/privacy/{{ referrals }}">Privacy Policy</a>.
+          accordance with our <a href="https://www.mozilla.org/{{ LANG }}/privacy/{{ params }}">Privacy Policy</a>.
         </p>
       </li>
       <li>

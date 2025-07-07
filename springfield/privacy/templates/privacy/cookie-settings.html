@@ -8,7 +8,7 @@
 
 {% extends "base-protocol.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
 
 {% block page_title %}{{ ftl('cookie-settings-page-title') }}{% endblock %}
 {% block page_desc %}{{ ftl('cookie-settings-page-desc') }}{% endblock %}
@@ -168,7 +168,7 @@
       <p>{{ ftl('cookie-settings-privacy-desc') }}</p>
 
       <p>
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ referrals }}">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ params }}">
           {{ ftl('cookie-settings-privacy-policy-link') }}
         </a>
       </p>

@@ -6,7 +6,7 @@
 
 {% extends "firefox/features/base-article.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
 
 {% block article_title_short %}{{ ftl('features-add-ons-firefox-add-ons') }}{% endblock %}
 {% block article_title %}{{ ftl('features-add-ons-firefox-add-ons-and-browser-extensions') }}{% endblock %}
@@ -29,11 +29,11 @@
 
 <p>
   {{ ftl('features-add-ons-there-are-firefox-add-ons-that',
-    fbcontainer='href="%s"'|safe|format('https://www.mozilla.org/' + LANG + '/firefox/facebookcontainer/' + referrals),
-    translate='href="%s" rel="external noopener"'|safe|format('https://addons.mozilla.org/firefox/addon/simple-translate/' + referrals),
-    language='href="%s"'|safe|format('https://addons.mozilla.org/firefox/addon/languagetool/' + referrals),
+    fbcontainer='href="%s"'|safe|format('https://www.mozilla.org/' + LANG + '/firefox/facebookcontainer/' + params),
+    translate='href="%s" rel="external noopener"'|safe|format('https://addons.mozilla.org/firefox/addon/simple-translate/' + params),
+    language='href="%s"'|safe|format('https://addons.mozilla.org/firefox/addon/languagetool/' + params),
     customize='href="%s" rel="external noopener"'|safe|format(url('firefox.features.customize')),
-    amo='href="%s" rel="external noopener"'|safe|format('https://addons.mozilla.org/firefox/' + referrals),
+    amo='href="%s" rel="external noopener"'|safe|format('https://addons.mozilla.org/firefox/' + params),
   ) }}
 </p>
 {% endblock article_content %}

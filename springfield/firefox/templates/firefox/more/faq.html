@@ -9,7 +9,7 @@
 
 {% extends "base-protocol.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=faq&utm_content=seo' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=faq&utm_content=seo' %}
 
 {% block page_title %}{{ ftl('firefox-faq') }}{% endblock %}
 {% block page_desc %}{{ ftl('whether-you-searched-privacy') }}{% endblock %}
@@ -47,7 +47,7 @@
         <h2>{{ ftl('what-is-firefox') }}</h2>
         <p>{{ ftl('the-firefox-browser-the-only',
           url='/',
-          url2='https://www.mozilla.org/en-US/products/' + referrals) }}</p>
+          url2='https://www.mozilla.org/en-US/products/' + params) }}</p>
       </li>
       <li>
         <h2>{{ ftl('how-do-i') }}</h2>
@@ -90,19 +90,19 @@
       <li>
         <h2>{{ ftl('does-firefox-use') }}</h2>
         <p>{{ ftl('firefoxs-default-search',
-              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/' + referrals) }}</p>
+              url='https://support.mozilla.org/kb/change-your-default-search-settings-firefox/' + params) }}</p>
       </li>
       {% if ftl_has_messages('firefox-does-not-v2') %}
       <li>
         <h2>{{ ftl('does-firefox-have') }}</h2>
         <p>{{ ftl('firefox-does-not-v2',
-              url='https://www.mozilla.org/en-US/products/vpn/' + referrals) }}</p>
+              url='https://www.mozilla.org/en-US/products/vpn/' + params) }}</p>
         <small>{{ ftl('related-questions-ip') }}</small>
       </li>
       {% endif %}
       <li>
         <h2>{{ ftl('who-owns-firefox') }}</h2>
-        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/' + referrals, url2='https://www.mozilla.org/en-US/foundation/moco/' + referrals) }}</p>
+        <p>{{ ftl('firefox-is-made', url='https://foundation.mozilla.org/' + params, url2='https://www.mozilla.org/en-US/foundation/moco/' + params) }}</p>
         <small>{{ ftl('related-questions-who') }}</small>
       </li>
     </ul>

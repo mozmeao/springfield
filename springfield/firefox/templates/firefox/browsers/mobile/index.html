@@ -12,7 +12,7 @@
 {% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
 {% set android_url = play_store_url('firefox', 'firefox-browsers-mobile') %}
 {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile') %}
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-mobile' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-mobile' %}
 {% set _entrypoint = 'www.firefox.com-firefox-mobile' %}
 
 {% block page_title %}{{ ftl('browsers-mobile-firefox-mobile-browsers-put') }}{% endblock %}

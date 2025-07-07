@@ -8,7 +8,7 @@
 
 {% extends "base-protocol.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=best-browser&utm_content=seo' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=best-browser&utm_content=seo' %}
 
 {% block page_title %}{{ ftl('best-browser-find-your-best-browser') }}{% endblock %}
 
@@ -76,13 +76,13 @@
         {{ ftl('best-browser-there-are-a-few-ways') }}
       </p>
       <p>
-        {{ ftl('best-browser-the-second-is-not-storing', data='https://www.mozilla.org/privacy/firefox/' + referrals, privacy='https://www.mozilla.org/privacy/firefox/' + referrals) }}
+        {{ ftl('best-browser-the-second-is-not-storing', data='https://www.mozilla.org/privacy/firefox/' + params, privacy='https://www.mozilla.org/privacy/firefox/' + params) }}
       </p>
       <p>
         {{ ftl('best-browser-last-but-not-least') }}
       </p>
       <p>
-        {{ ftl('best-browser-firefox-is-offering-v2', monitor='href="https://monitor.mozilla.org/{}"'.format(referrals)) }}
+        {{ ftl('best-browser-firefox-is-offering-v2', monitor='href="https://monitor.mozilla.org/{}"'.format(params)) }}
       </p>
       <blockquote aria-hidden="true" role="presentation">
       <p>
@@ -104,7 +104,7 @@
       {{ ftl('best-browser-another-way-to-stop') }}
     </p>
     <p>
-      {{ ftl('best-browser-one-easy-way-to-check', privacy='https://www.mozilla.org/privacy/firefox/' + referrals) }}
+      {{ ftl('best-browser-one-easy-way-to-check', privacy='https://www.mozilla.org/privacy/firefox/' + params) }}
     </p>
     <p>
       {{ ftl('best-browser-choosing-the-best-browser') }}
