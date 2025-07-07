@@ -493,9 +493,9 @@ class DownloadView(L10nTemplateView):
         if variation not in self.variations:
             variation = None
 
-        if ftl_file_is_active("firefox/home") and experience not in ["basic", "legacy"]:
+        if ftl_file_is_active("firefox/download/home") and experience not in ["basic", "legacy"]:
             template = "firefox/download/home.html"
-        elif experience == "legacy":
+        elif ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             template = "firefox/download/desktop/download.html"
         else:
             template = "firefox/download/basic/base_download.html"

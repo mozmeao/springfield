@@ -4,7 +4,7 @@
 
 firefox-home-take-control = Take control of your internet
 firefox-home-go-online = Go online with fewer distractions, noise and stress. Think of us as a breath of fresh air.
-firefox-home-latest-features = Latest Firefox features
+firefox-home-latest-features = Latest { -brand-name-firefox } features
 firefox-home-dial-down = Dial down the noise
 firefox-home-block-ads = Block ads and enhance your privacy with customizable settings and tons of downloadable extensions.
 firefox-home-multitasking = Multitasking?
