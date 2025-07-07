@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
  #}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_content=download-button' %}
+{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=download-button' %}
 
 {% macro firefox_download_desktop_button_windows(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-win', build='32', position='primary cta') -%}
   {% set class_name = 'os_win' if build == '32' else 'os_win64' %}

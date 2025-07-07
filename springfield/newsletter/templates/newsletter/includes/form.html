@@ -6,7 +6,7 @@
 
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_content=newsletter-form' %}
+{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=newsletter-form' %}
 
 {% if not success %}
   <form id="newsletter-form" class="mzp-c-newsletter-form" action="{{ action }}" method="post" data-testid="newsletter-form">
