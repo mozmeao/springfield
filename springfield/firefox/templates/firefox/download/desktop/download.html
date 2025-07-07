@@ -21,7 +21,7 @@
 
 {% extends "firefox/download/desktop/base.html" %}
 
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-desktop' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-desktop' %}
 {% set ios_url = app_store_url('firefox', 'firefox-com-download') %}
 
 {% block string_data %}{% endblock %}
@@ -76,7 +76,7 @@
 
 {% if outdated %}
 
-  {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + referrals)) %}
+  {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + params)) %}
 
   {% if ftl_has_messages('firefox-desktop-out-of-date') %}
     <aside class="c-page-header-notification">
@@ -103,7 +103,7 @@
 
           <div class="c-intro-download-alt"><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
 
-          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ referrals }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
         </div>
       </div>
       <div class="c-block-media l-v-center">
@@ -426,7 +426,7 @@
     <ul class="c-trio">
       <li>
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-extensions-for-every') }}</h3>
-        {% set extensions_attrs = 'href="https://addons.mozilla.org/firefox/extensions/%s" rel="external noopener" data-cta-text="extension for everyone"'|safe|format(referrals) %}
+        {% set extensions_attrs = 'href="https://addons.mozilla.org/firefox/extensions/%s" rel="external noopener" data-cta-text="extension for everyone"'|safe|format(params) %}
         <p>{{ ftl('firefox-desktop-download-from-security-to', attrs=extensions_attrs) }}</p>
       </li>
 
@@ -459,7 +459,7 @@
           }
         ) }}
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-challenging-the-status') }}</h3>
-        {% set mozorg_about_href = 'https://www.mozilla.org/' + LANG + '/about/' + referrals %}
+        {% set mozorg_about_href = 'https://www.mozilla.org/' + LANG + '/about/' + params %}
         {% set created_attrs = 'href="%s" data-cta-text="created by Mozilla"'|safe|format(mozorg_about_href) %}
         <p>{{ ftl('firefox-desktop-download-firefox-was-created', attrs=created_attrs) }}</p>
       </div>
@@ -477,7 +477,7 @@
           }
         ) }}
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-your-privacy-comes') }}</h3>
-        {% set privacy_href = 'https://www.mozilla.org/' + LANG + '/privacy/' + referrals %}
+        {% set privacy_href = 'https://www.mozilla.org/' + LANG + '/privacy/' + params %}
         {% set internet_attrs = 'href="%s" data-cta-text="Personal Data Promise"'|safe|format(privacy_href) %}
         <p>{{ ftl('firefox-desktop-download-as-the-internet-v2', fallback='firefox-desktop-download-as-the-internet', attrs=internet_attrs) }}</p>
       </div>
@@ -498,7 +498,7 @@
       <div class="mzp-c-card js-animate">
         {{ download_picture('contain-mr1', '131', 138) }}
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-facebook-container') }}</h3>
-        {% set addon_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container/%s" rel="external noopener" data-cta-text="Download this browser extension"'|safe|format(referrals) %}
+        {% set addon_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container/%s" rel="external noopener" data-cta-text="Download this browser extension"'|safe|format(params) %}
         <p>{{ ftl('firefox-desktop-download-download-this-browser', attrs=addon_attrs) }}</p>
       </div>
 
@@ -513,14 +513,14 @@
       <div class="mzp-c-card js-animate">
         {{ download_picture('screenshots-mr1', '131', 138) }}
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-screenshots') }}</h3>
-        {% set screenshot_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" rel="external noopener" data-cta-text="screenshot"'|safe|format(referrals) %}
+        {% set screenshot_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" rel="external noopener" data-cta-text="screenshot"'|safe|format(params) %}
         <p>{{ ftl('firefox-desktop-download-grab-a-high', attrs=screenshot_attrs) }}</p>
       </div>
 
       <div class="mzp-c-card js-animate">
         {{ download_picture('etp', '134', 138) }}
         <h3 class="mzp-u-title-xs">{{ ftl('firefox-desktop-download-enhanced-tracking-protection') }}</h3>
-        {% set automatically_attrs = 'href="https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-desktop%s" rel="external noopener" data-cta-text="block many trackers"'|safe|format(referrals) %}
+        {% set automatically_attrs = 'href="https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-desktop%s" rel="external noopener" data-cta-text="block many trackers"'|safe|format(params) %}
         <p>{{ ftl('firefox-desktop-download-firefox-automatically', attrs=automatically_attrs) }}</p>
       </div>
 
@@ -537,7 +537,7 @@
   </section>
 
   <section class="c-support">
-    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(referrals) %}
+    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(params) %}
     {{ ftl('firefox-desktop-download-questions', attrs=questions_attrs) }}
   </section>
 

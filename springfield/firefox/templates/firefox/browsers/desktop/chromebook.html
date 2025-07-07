@@ -9,6 +9,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=desktop-browsers-chromebook&utm_content=seo' %}
+
 {% block page_title %}{{ ftl('browsers-chromebook-get-firefox-browser') }}{% endblock %}
 
 {% block page_desc %} {{ ftl('browsers-chromebook-so-youve-got') }} {% endblock %}
@@ -55,7 +57,7 @@
         </a>
       </li>
       <li class="mzp-c-menu-list-item t-sumo">
-        <a href="https://support.mozilla.org/kb/run-firefox-chromeos?utm_source=www.firefox.com-desktop-browsers-chromebook&amp;utm_medium=referral&amp;utm_campaign=seo" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
+        <a href="https://support.mozilla.org/kb/run-firefox-chromeos{{ params }}" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
           {{ ftl('browsers-chromebook-get-firefox-desktop') }}
         </a>
       </li>
@@ -115,7 +117,7 @@
           }
         ) }}
 
-        <p>{{ ftl('browsers-chromebook-install-firefox-as', url='href="https://support.mozilla.org/kb/run-firefox-chromeos?utm_source=www.firefox.com-browsers-desktop-chromebook&amp;utm_medium=referral&amp;utm_campaign=seo" rel="external noopener" data-cta-text="Install Firefox for Chromebook" '|safe) }}</p>
+        <p>{{ ftl('browsers-chromebook-install-firefox-as', url='href="https://support.mozilla.org/kb/run-firefox-chromeos%s" rel="external noopener" data-cta-text="Install Firefox for Chromebook" '|safe|format(params)) }}</p>
       </div>
     </div>
   </section>

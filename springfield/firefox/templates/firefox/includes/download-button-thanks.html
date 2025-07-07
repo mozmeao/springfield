@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=download-button-thanks' %}
+
 <div id="{{ id }}" class="mzp-c-button-download-container c-button-download-thanks">
   <a href="{{ transition_url }}"
      class="download-link c-button-download-thanks-link mzp-c-button mzp-t-product {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
@@ -26,7 +28,7 @@
   {% include 'firefox/includes/download-unsupported.html' %}
 
   <small class="mzp-c-button-download-privacy-link">
-    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
       {{ ftl('download-button-firefox-privacy-notice') }}
     </a>
   </small>

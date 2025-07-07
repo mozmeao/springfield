@@ -18,7 +18,8 @@
   {{ css_bundle('firefox-default-thanks') }}
 {% endblock %}
 
-{% set utms = '?utm_source=www.firefox.com-default-thanks&utm_medium=referral&utm_campaign=default-thanks&entrypoint=www.firefox.com-default-thanks' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=default-thanks&entrypoint=www.firefox.com-default-thanks' %}
+
 
 {% block content %}
 <main>
@@ -48,18 +49,18 @@
       <p>{{ ftl('set-as-default-thanks-youre-almost-done-just-change') }}</p>
 
       <p class="thanks-help-text">
-        <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ utms }}">
+        <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ params }}">
           {{ ftl('set-as-default-thanks-having-trouble-setting-your') }}
         </a>
       </p>
     </div>
     <p class="mzp-c-callout-desc thanks-state-not-default-android hide-from-legacy-ie">
     {{ ftl('set-as-default-thanks-heres-everything-you-need-android',
-           android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ utms) }}
+           android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params) }}
     </p>
     <p class="mzp-c-callout-desc thanks-state-not-default-ios hide-from-legacy-ie">
     {{ ftl('set-as-default-thanks-heres-everything-you-need-ios',
-           ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ utms) }}
+           ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ params) }}
     </p>
     <p class="mzp-c-callout-desc thanks-state-is-default hide-from-legacy-ie">
       {{ ftl('set-as-default-thanks-youre-all-set') }}
@@ -81,7 +82,7 @@
           {{ ftl('set-as-default-create-an-account') }}
         </h2>
         <p>{{ ftl('set-as-default-thanks-sign-up-for-a-free-account-v2') }}</p>
-        <a href="https://www.mozilla.org/{{ LANG }}/account/">{{ ftl('set-as-default-thanks-get-an-account') }}</a>
+        <a href="https://www.mozilla.org/{{ LANG }}/account/{{ params }}">{{ ftl('set-as-default-thanks-get-an-account') }}</a>
       </section>
 
       <section class="thanks-extra-links-item help">
@@ -90,8 +91,8 @@
         </h2>
         <p>
         {{ ftl('set-as-default-thanks-heres-everything-you-need-android-desktop',
-               android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ utms,
-               desktop='https://support.mozilla.org/kb/make-firefox-your-default-browser' ~ utms) }}
+               android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params,
+               desktop='https://support.mozilla.org/kb/make-firefox-your-default-browser' ~ params) }}
         </p>
       </section>
     </div>
