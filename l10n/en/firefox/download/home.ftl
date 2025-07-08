@@ -22,7 +22,7 @@ firefox-home-swear-off = Swear off distractions
 #   $turn_off_the_lights_url - link to https://addons.mozilla.org/firefox/addon/turn-off-the-lights/
 firefox-home-stay-focused = Stay focused with extensions like <a href="{ $tomato_clock_url }">Tomato Clock</a> and <a href="{ $turn_off_the_lights_url }">Turn Off the Lights</a> — they’re Recommended, which is like our gold star for having exceptional security and functionality.
 firefox-home-your-stuff = Your stuff, on all your screens
-firefox-home-get-firefox-mibile = Get { -brand-name-firefox } mobile so your passwords, tabs and history — and the privacy and security you rely on — go with you wherever you go.
+firefox-home-get-firefox-mobile = Get { -brand-name-firefox } mobile so your passwords, tabs and history — and the privacy and security you rely on — go with you wherever you go.
 firefox-home-really-make-it = *Really* make it yours
 firefox-home-work-smarter = Work smarter, play harder
 
