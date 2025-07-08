@@ -368,7 +368,7 @@ class TestFirefoxDownload(TestCase):
     def test_download_template(self, render_mock):
         test_cases = [
             # locale, home_ftl_active, desktop_ftl_active, experience, expected_template
-            ("en-US", True, True, None, "firefox/download/home.html"), # default
+            ("en-US", True, True, None, "firefox/download/home.html"),  # default
             ("en-US", True, True, "basic", "firefox/download/basic/base_download.html"),  # basic experience
             ("en-US", True, True, "legacy", "firefox/download/desktop/download.html"),  # legacy experience
             ("en-US", True, True, "watermelon", "firefox/download/home.html"),  # experience doesn't exist
@@ -377,7 +377,7 @@ class TestFirefoxDownload(TestCase):
             ("en-US", False, True, "basic", "firefox/download/basic/base_download.html"),  # basic always gets basic template
             ("en-US", False, True, "legacy", "firefox/download/desktop/download.html"),  # legacy gets desktop template
             # and again, for non-English
-            ("de", True, True, None, "firefox/download/home.html"), # default
+            ("de", True, True, None, "firefox/download/home.html"),  # default
             ("de", True, True, "basic", "firefox/download/basic/base_download.html"),  # basic experience
             ("de", True, True, "legacy", "firefox/download/desktop/download.html"),  # legacy experience
             ("de", True, True, "watermelon", "firefox/download/home.html"),  # experience doesn't exist
@@ -389,9 +389,13 @@ class TestFirefoxDownload(TestCase):
 
         for case in test_cases:
             locale, home_ftl_active, desktop_ftl_active, experience, expected_template = case
-            with self.subTest(locale=locale, home_ftl_active=home_ftl_active,
-                              desktop_ftl_active=desktop_ftl_active,
-                              experience=experience, expected_template=expected_template):
+            with self.subTest(
+                locale=locale,
+                home_ftl_active=home_ftl_active,
+                desktop_ftl_active=desktop_ftl_active,
+                experience=experience,
+                expected_template=expected_template,
+            ):
                 # Create a mock that returns different values based on the FTL file
                 def ftl_active_mock(ftl_file):
                     if ftl_file == "firefox/download/home":
@@ -504,7 +508,7 @@ class TestFirefoxGA(TestCase):
 
     def test_firefox_home_GA(self):
         req = RequestFactory().get("/en-US/")
-        view = views.FirefoxHomeView.as_view()
+        view = views.DownloadView.as_view()
         response = view(req)
         self.assert_ga_attr(response)
 

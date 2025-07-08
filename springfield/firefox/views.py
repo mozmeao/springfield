@@ -514,26 +514,6 @@ def ios_testflight(request):
     return l10n_utils.render(request, "firefox/testflight.html", ctx)
 
 
-class FirefoxHomeView(L10nTemplateView):
-    ftl_files_map = {
-        "firefox/index.html": ["firefox/browsers"],
-        "firefox/download/desktop/download-en-us-ca.html": ["firefox/download/desktop"],
-    }
-
-    def get_template_names(self):
-        locale = l10n_utils.get_locale(self.request)
-
-        if ftl_file_is_active("firefox/download/desktop"):
-            if locale in ["en-US", "en-CA"]:
-                template = "firefox/download/desktop/download-en-us-ca.html"
-            else:
-                template = "firefox/download/desktop/download.html"
-        else:
-            template = "firefox/download/basic/index.html"
-
-        return [template]
-
-
 class FirefoxFeaturesIndex(L10nTemplateView):
     ftl_files_map = {
         "firefox/features/index.html": [
