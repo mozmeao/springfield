@@ -209,7 +209,7 @@ $image-path: '/media/protocol/img';
         }
     }
 
-    h3 {
+    .c-release-notes h3 {
         @include text-title-xs;
         margin-bottom: $layout-sm;
     }
