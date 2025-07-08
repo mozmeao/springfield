@@ -18,22 +18,22 @@ firefox-home-ad-trackers-make = Ad trackers make web pages load slower. With { -
 firefox-home-swear-off = Swear off distractions
 
 # Variables
-#   $tomato_clock_url - link to https://addons.mozilla.org/firefox/addon/tomato-clock/
-#   $turn_off_the_lights_url - link to https://addons.mozilla.org/firefox/addon/turn-off-the-lights/
-firefox-home-stay-focused = Stay focused with extensions like <a href="{ $tomato_clock_url }">Tomato Clock</a> and <a href="{ $turn_off_the_lights_url }">Turn Off the Lights</a> — they’re Recommended, which is like our gold star for having exceptional security and functionality.
+#   $tomato_clock_attrs - link to https://addons.mozilla.org/firefox/addon/tomato-clock/
+#   $turn_off_the_lights_attrs - link to https://addons.mozilla.org/firefox/addon/turn-off-the-lights/
+firefox-home-stay-focused = Stay focused with extensions like <a { $tomato_clock_attrs }>Tomato Clock</a> and <a { $turn_off_the_lights_attrs }>Turn Off the Lights</a> — they’re Recommended, which is like our gold star for having exceptional security and functionality.
 firefox-home-your-stuff = Your stuff, on all your screens
 firefox-home-get-firefox-mobile = Get { -brand-name-firefox } mobile so your passwords, tabs and history — and the privacy and security you rely on — go with you wherever you go.
 firefox-home-really-make-it = *Really* make it yours
 firefox-home-work-smarter = Work smarter, play harder
 
 # Variables
-#   $extensions_url - link to https://addons.mozilla.org/firefox/extensions/
-firefox-home-explore-the-possibilities = Explore the possibilities for research, shopping and more in <a href="{ $extensions_url }">extensions</a>.
+#   $extensions_attrs - link to https://addons.mozilla.org/firefox/extensions/
+firefox-home-explore-the-possibilities = Explore the possibilities for research, shopping and more in <a { $extensions_attrs }>extensions</a>.
 firefox-home-bye-boring = Bye, boring browser
 
 # Variables
-#   $theme_url - link to https://addons.mozilla.org/firefox/themes/
-firefox-home-the-internet-can = The internet can be a rosy place, with the right add-on <a href="{ $theme_url }">theme</a>.
+#   $theme_attrs - link to https://addons.mozilla.org/firefox/themes/
+firefox-home-the-internet-can = The internet can be a rosy place, with the right add-on <a { $theme_attrs }>theme</a>.
 firefox-home-billionaire-free = Billionaire-free for 20+ years
 firefox-home-firefox-was-created = { -brand-name-firefox } was created in 2004 by { -brand-name-mozilla } as a faster, more private, and customizable alternative to browsers like Internet Explorer. Today, we are still not-for-profit, still not owned by any billionaires and still working to make the internet — and the time you spend on it — better.
 firefox-home-set-firefox-as = Set { -brand-name-firefox } as your default browser.

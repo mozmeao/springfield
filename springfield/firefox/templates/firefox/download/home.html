@@ -140,7 +140,7 @@
       <div class="c-block-container">
         <div class="c-block-body l-v-center l-h-end">
           <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-swear-off') }}</h3>
-          <p>{{ ftl('firefox-home-stay-focused', tomato_clock_url='https://addons.mozilla.org/firefox/addon/tomato-clock/', turn_off_the_lights_url='https://addons.mozilla.org/firefox/addon/turn-off-the-lights/') }}</p>
+          <p>{{ ftl('firefox-home-stay-focused', tomato_clock_attrs='href="https://addons.mozilla.org/firefox/addon/tomato-clock/" target="_blank"', turn_off_the_lights_attrs='href="https://addons.mozilla.org/firefox/addon/turn-off-the-lights/" target="_blank"') }}</p>
         </div>
         <div class="c-block-media l-v-center l-h-start l-media-constrain-on-sm">
         <img alt="{{ ftl('firefox-home-a-human-brain') }}" class="c-block-media-img" src="{{ static('img/firefox/home/think.svg') }}" width="260">
@@ -186,12 +186,12 @@
     <ul class="mzp-l-columns mzp-t-columns-two">
       <li>
         <h3>{{ ftl('firefox-home-work-smarter') }}</h3>
-        <p>{{ ftl('firefox-home-explore-the-possibilities', extensions_url='https://addons.mozilla.org/firefox/extensions/') }}</p>
+        <p>{{ ftl('firefox-home-explore-the-possibilities', extensions_attrs='href="https://addons.mozilla.org/firefox/extensions/" target="_blank"') }}</p>
       </li>
 
       <li>
         <h3>{{ ftl('firefox-home-bye-boring') }}</h3>
-        <p>{{ ftl('firefox-home-the-internet-can', theme_url='https://addons.mozilla.org/firefox/themes/') }}</p>
+        <p>{{ ftl('firefox-home-the-internet-can', theme_attrs='href="https://addons.mozilla.org/firefox/themes/" target="_blank"') }}</p>
       </li>
     </ul>
   </section>

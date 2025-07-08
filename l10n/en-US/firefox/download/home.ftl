@@ -11,4 +11,4 @@ firefox-home-swear-off = Swear off staring into the abyss
 
 # Variables
 #   $theme_url - link to https://addons.mozilla.org/firefox/themes/
-firefox-home-the-internet-can = The internet can be all kittens and rainbows — with the right add-on <a href="{ $theme_url }">theme</a>.
+firefox-home-the-internet-can = The internet can be all kittens and rainbows — with the right add-on <a { $theme_attrs }">theme</a>.
