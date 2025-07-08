@@ -14,7 +14,6 @@ import FxaProductButton from '../../../../media/js/base/fxa-product-button.es6.j
 describe('fxa-product-button.js', function () {
     beforeEach(function () {
         const button = `<a class="js-fxa-product-button" href="https://accounts.firefox.com/signup?form_type=button&service=test&entrypoint=firefox.com-test&utm_source=firefox.com-test&utm_medium=referral&utm_campaign=test&context=fx_desktop_v3" data-action="https://accounts.firefox.com/">Sign Up to Monitor</a>
-             <a class="js-fxa-product-button" href="https://getpocket.com/ff_signup?s=ffwelcome2&amp;form_type=button&amp;entrypoint=firefox.com-test&amp;utm_source=firefox.com-test&amp;utm_campaign=test&amp;utm_medium=referral" data-action="https://accounts.firefox.com/">Activate Pocket</a>
              <a class="js-fxa-product-button" href="https://www.firefox.com/en-US/">Learn more</a>
              <a class="js-fxa-product-button" href="https://accounts.firefox.com/subscriptions/products/prod_FiJ42WCzZNRSbS?plan=plan_FvPMH5lVx1vhV0&device_id=123456789&flow_begin_time=123456789&flow_id=123456789">Get Mozilla VPN</a>`;
 
@@ -73,9 +72,6 @@ describe('fxa-product-button.js', function () {
             expect(buttons[0].href).toEqual(
                 'https://accounts.firefox.com/signup?form_type=button&service=test&entrypoint=firefox.com-test&utm_source=firefox.com-test&utm_medium=referral&utm_campaign=test&context=fx_desktop_v3&device_id=848377ff6e3e4fc982307a316f4ca3d6&flow_begin_time=1573052386673&flow_id=75f9a48a0f66c2f5919a0989605d5fa5dd04625ea5a2ee59b2d5d54637c566d1'
             );
-            expect(buttons[1].href).toEqual(
-                'https://getpocket.com/ff_signup?s=ffwelcome2&form_type=button&entrypoint=firefox.com-test&utm_source=firefox.com-test&utm_campaign=test&utm_medium=referral&device_id=848377ff6e3e4fc982307a316f4ca3d6&flow_begin_time=1573052386673&flow_id=75f9a48a0f66c2f5919a0989605d5fa5dd04625ea5a2ee59b2d5d54637c566d1'
-            );
         });
     });
 
@@ -89,7 +85,7 @@ describe('fxa-product-button.js', function () {
 
         return FxaProductButton.init().then(() => {
             const buttons = document.querySelectorAll('.js-fxa-product-button');
-            expect(buttons[2].href).toEqual('https://www.firefox.com/en-US/');
+            expect(buttons[1].href).toEqual('https://www.firefox.com/en-US/');
         });
     });
 
@@ -103,7 +99,7 @@ describe('fxa-product-button.js', function () {
 
         return FxaProductButton.init().then(() => {
             const buttons = document.querySelectorAll('.js-fxa-product-button');
-            expect(buttons[3].href).toEqual(
+            expect(buttons[2].href).toEqual(
                 'https://accounts.firefox.com/subscriptions/products/prod_FiJ42WCzZNRSbS?plan=plan_FvPMH5lVx1vhV0&device_id=123456789&flow_begin_time=123456789&flow_id=123456789'
             );
         });
@@ -120,7 +116,7 @@ describe('fxa-product-button.js', function () {
         const overwrite = true;
         return FxaProductButton.init(overwrite).then(() => {
             const buttons = document.querySelectorAll('.js-fxa-product-button');
-            expect(buttons[3].href).toEqual(
+            expect(buttons[2].href).toEqual(
                 'https://accounts.firefox.com/subscriptions/products/prod_FiJ42WCzZNRSbS?plan=plan_FvPMH5lVx1vhV0&device_id=848377ff6e3e4fc982307a316f4ca3d6&flow_begin_time=1573052386673&flow_id=75f9a48a0f66c2f5919a0989605d5fa5dd04625ea5a2ee59b2d5d54637c566d1'
             );
         });
