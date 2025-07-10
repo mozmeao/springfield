@@ -327,6 +327,12 @@
     },
     {
       "files": [
+        "css/firefox/more/best-browser.scss"
+      ],
+      "name": "best-browser"
+    },
+    {
+      "files": [
         "css/firefox/more/article.scss"
       ],
       "name": "more-article"
