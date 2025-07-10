@@ -9,7 +9,7 @@
 
 {% extends "base-protocol.html" %}
 
-{# This template can render with EITHER 'firefox/new/download.ftl' OR 'firefox/new/platform.ftl' active
+{# This template can render with EITHER 'firefox/download/download.ftl' OR 'firefox/download/platform.ftl' active
  # download.ftl contains strings for the hero and small-links for the platform pages
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
@@ -59,7 +59,7 @@
   {% endif %}
 {% endblock %}
 
-{% if ftl_file_is_active('firefox/new/platform') %}
+{% if ftl_file_is_active('firefox/download/platform') %}
   {% set small_advanced = ftl('new-platform-advanced-install-options') %}
   {% set small_lang = ftl('new-platform-download-in-another') %}
   {% set small_help = ftl('new-platform-need-help') %}
@@ -103,7 +103,7 @@
   {% endcall %}
 
   {% block features %}
-    {% if ftl_file_is_active('firefox/new/platform') %}
+    {% if ftl_file_is_active('firefox/download/platform') %}
       <section class="features">
         <ul class="mzp-l-content mzp-l-columns mzp-t-columns-three mzp-t-picto-center">
           {% call picto(
