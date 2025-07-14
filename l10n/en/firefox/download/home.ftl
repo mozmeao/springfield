@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+## URL: https://www-dev.springfield.moz.works/
+
 firefox-home-take-control = Take control of your internet
 firefox-home-go-online = Go online with fewer distractions, noise and stress. Think of us as a breath of fresh air.
 firefox-home-latest-features = Latest { -brand-name-firefox } features
@@ -43,7 +45,7 @@ firefox-home-firefox-on-desktop = { -brand-name-firefox } on desktop and mobile.
 
 firefox-home-happy-toggle = Happy toggle.
 firefox-home-multiple-cursors = Multiple cursors.
-firefox-home-lots-of-open =Lots of open tabs.
+firefox-home-lots-of-open = Lots of open tabs.
 firefox-home-shield-and-hand = Shield and hand protecting a browser tab.
 firefox-home-a-human-brain = A human brain connected to the world.
 firefox-home-desktop-laptop-and-phone = Desktop, laptop, and phone.

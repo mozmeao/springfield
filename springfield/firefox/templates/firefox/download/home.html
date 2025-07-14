@@ -27,19 +27,25 @@
 {% block string_data %}{% endblock %}
 
 {% block page_image %}
-  {{ static('img/firefox/download/desktop/meta-img-en.png') }}
+  {% if LANG.startswith('en-') %}
+    {{ static('img/firefox/home/meta-img-en.png') }}
+  {% elif LANG.startswith('es-') %}
+    {{ static('img/firefox/home/meta-img-es.png') }}
+  {% else %}
+    {{ static('img/firefox/home/meta-img-global.png') }}
+  {% endif %}
 {% endblock %}
 
 {% block extrahead %}
   {{ super() }}
-  {{ css_bundle('firefox-home-en-us-ca') }}
+  {{ css_bundle('firefox-home') }}
 
   <!--[if IE 9]>
-    {{ css_bundle('firefox-home-en-us-ca-ie9') }}
+    {{ css_bundle('firefox-home-ie9') }}
   <![endif]-->
 
   <!--[if lt IE 9]>
-    {{ css_bundle('firefox-home-en-us-ca-ie8') }}
+    {{ css_bundle('firefox-home-ie8') }}
   <![endif]-->
 {% endblock %}
 
@@ -93,37 +99,35 @@
     </div>
   </section>
 
+  <section class="mzp-l-content t-releases" id="next">
+    <div class="mzp-c-emphasis-box js-animate">
+      <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-latest-features') }}</h2>
+      <ul class="c-trio">
+        <li>
+          <img alt="{{ ftl('firefox-home-happy-toggle') }}" src="{{ static('img/firefox/home/toggle.svg') }}" width="90" height="54">
+          <h3>{{ ftl('firefox-home-dial-down') }}</h3>
+          <p>{{ ftl('firefox-home-block-ads') }}</p>
+        </li>
+        <li class="t-cursor">
+          <img alt="{{ ftl('firefox-home-multiple-cursors') }}" src="{{ static('img/firefox/home/multi.svg') }}" width="134" height="38">
+          <h3>{{ ftl('firefox-home-multitasking') }}</h3>
+          <p>{{ ftl('firefox-home-go-into-reading') }}</p>
+        </li>
+        <li>
+          <img alt="{{ ftl('firefox-home-lots-of-open') }}" src="{{ static('img/firefox/home/tabs.svg') }}" width="72" height="54">
+          <h3>{{ ftl('firefox-home-keep-tabs-on') }}</h3>
+          <p>{{ ftl('firefox-home-close-duplicates') }}</p>
+        </li>
+      </ul>
 
-<section class="mzp-l-content t-releases" id="next">
-  <div class="mzp-c-emphasis-box js-animate">
-    <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-latest-features') }}</h2>
-    <ul class="c-trio">
-      <li>
-        <img alt="{{ ftl('firefox-home-happy-toggle') }}" src="{{ static('img/firefox/home/toggle.svg') }}" width="90" height="54">
-        <h3>{{ ftl('firefox-home-dial-down') }}</h3>
-        <p>{{ ftl('firefox-home-block-ads') }}</p>
-      </li>
-      <li class="t-cursor">
-        <img alt="{{ ftl('firefox-home-multiple-cursors') }}" src="{{ static('img/firefox/home/multi.svg') }}" width="134" height="38">
-        <h3>{{ ftl('firefox-home-multitasking') }}</h3>
-        <p>{{ ftl('firefox-home-go-into-reading') }}</p>
-      </li>
-      <li>
-        <img alt="{{ ftl('firefox-home-lots-of-open') }}" src="{{ static('img/firefox/home/tabs.svg') }}" width="72" height="54">
-        <h3>{{ ftl('firefox-home-keep-tabs-on') }}</h3>
-        <p>{{ ftl('firefox-home-close-duplicates') }}</p>
-      </li>
-    </ul>
-
-    <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">{{ ftl('firefox-home-see-release') }}</a></p>
-  </div>
-</section>
-
+      <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">{{ ftl('firefox-home-see-release') }}</a></p>
+    </div>
+  </section>
 
   <section class="t-highlights">
     <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-get-the-browser') }}</h2>
 
-    <div class="t-block c-block l-reversed">
+    <div class="t-block c-block l-reversed js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center l-h-start">
           <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-block-ad-trackers') }}</h3>
@@ -136,7 +140,7 @@
       </div>
     </div>
 
-    <div class="t-think c-block">
+    <div class="t-think c-block js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center l-h-end">
           <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-swear-off') }}</h3>
@@ -148,7 +152,7 @@
       </div>
     </div>
 
-    <div class="t-devices c-block l-reversed">
+    <div class="t-devices c-block l-reversed js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center">
           <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-your-stuff') }}</h3>
@@ -174,42 +178,42 @@
   </section>
 
   <div class="t-custom">
-  <section class="mzp-l-content mzp-t-content-md">
-    <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-really-make-it') }}</h2>
+    <section class="mzp-l-content mzp-t-content-md js-animate">
+      <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-really-make-it') }}</h2>
 
-    <div class="c-screen">
-      <div class="c-screenshot">
-        <img alt="{{ ftl('firefox-home-firefox-in-dark') }}" src="{{ static('img/firefox/home/dark.svg') }}" width="1000">
+      <div class="c-screen">
+        <div class="c-screenshot">
+          <img alt="{{ ftl('firefox-home-firefox-in-dark') }}" src="{{ static('img/firefox/home/dark.svg') }}" width="1000">
+        </div>
       </div>
-    </div>
 
-    <ul class="mzp-l-columns mzp-t-columns-two">
-      <li>
-        <h3>{{ ftl('firefox-home-work-smarter') }}</h3>
-        <p>{{ ftl('firefox-home-explore-the-possibilities', extensions_attrs='href="https://addons.mozilla.org/firefox/extensions/" target="_blank"') }}</p>
-      </li>
+      <ul class="mzp-l-columns mzp-t-columns-two">
+        <li>
+          <h3>{{ ftl('firefox-home-work-smarter') }}</h3>
+          <p>{{ ftl('firefox-home-explore-the-possibilities', extensions_attrs='href="https://addons.mozilla.org/firefox/extensions/" target="_blank"') }}</p>
+        </li>
 
-      <li>
-        <h3>{{ ftl('firefox-home-bye-boring') }}</h3>
-        <p>{{ ftl('firefox-home-the-internet-can', theme_attrs='href="https://addons.mozilla.org/firefox/themes/" target="_blank"') }}</p>
-      </li>
-    </ul>
-  </section>
-</div>
+        <li>
+          <h3>{{ ftl('firefox-home-bye-boring') }}</h3>
+          <p>{{ ftl('firefox-home-the-internet-can', theme_attrs='href="https://addons.mozilla.org/firefox/themes/" target="_blank"') }}</p>
+        </li>
+      </ul>
+    </section>
+  </div>
 
   <section class="mzp-l-content t-free">
-  <div class="mzp-c-emphasis-box js-animate">
-    <div class="c-free">
-      <div class="c-free-img">
-        <img alt="{{ ftl('firefox-home-firefox-on-a-desktop') }}" src="{{ static('img/firefox/home/free.svg') }}" width="300">
-      </div>
-      <div class="c-free-body">
-        <h2>{{ ftl('firefox-home-billionaire-free') }}</h2>
-        <p>{{ ftl('firefox-home-firefox-was-created') }}</p>
+    <div class="mzp-c-emphasis-box js-animate">
+      <div class="c-free">
+        <div class="c-free-img">
+          <img alt="{{ ftl('firefox-home-firefox-on-a-desktop') }}" src="{{ static('img/firefox/home/free.svg') }}" width="300">
+        </div>
+        <div class="c-free-body">
+          <h2>{{ ftl('firefox-home-billionaire-free') }}</h2>
+          <p>{{ ftl('firefox-home-firefox-was-created') }}</p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <section class="mzp-c-section-heading">
     {% block discover_cta %}
@@ -252,7 +256,7 @@
 {% endblock %}
 
 {% block js %}
-  {{ js_bundle('firefox-home-en-us-ca') }}
+  {{ js_bundle('firefox-home') }}
 
 {% if download_as_default_enabled %}
   {{ js_bundle('download_as_default') }}
