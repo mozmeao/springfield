@@ -209,21 +209,21 @@
     },
     {
       "files": [
-        "css/firefox/home-en-us-ca.scss"
+        "css/firefox/home.scss"
       ],
-      "name": "firefox-home-en-us-ca"
+      "name": "firefox-home"
     },
         {
       "files": [
-        "css/firefox/home-en-us-ca-ie9.scss"
+        "css/firefox/home-ie9.scss"
       ],
-      "name": "firefox-home-en-us-ca-ie9"
+      "name": "firefox-home-ie9"
     },
     {
       "files": [
-        "css/firefox/home-new-refresh-ie8.scss"
+        "css/firefox/home-ie8.scss"
       ],
-      "name": "firefox-home-en-us-ca-ie8"
+      "name": "firefox-home-ie8"
     },
     {
       "files": [
@@ -375,9 +375,9 @@
     },
     {
       "files": [
-        "js/firefox/home-en-us-ca.js"
+        "js/firefox/home.js"
       ],
-      "name": "firefox-home-en-us-ca"
+      "name": "firefox-home"
     },
     {
       "files": [

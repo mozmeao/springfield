@@ -366,25 +366,56 @@ class TestFirefoxDownload(TestCase):
         assert resp.status_code == 405
 
     def test_download_template(self, render_mock):
-        for locale, ftl_file_is_active_value, expected_template in (
-            ("en-US", True, "firefox/download/desktop/download-en-us-ca.html"),
-            ("en-CA", True, "firefox/download/desktop/download-en-us-ca.html"),
-            ("en-GB", True, "firefox/download/desktop/download.html"),
-            ("fr", True, "firefox/download/desktop/download.html"),
-            ("en-CA", False, "firefox/download/basic/base_download.html"),  # Note the False for activation
-        ):
+        test_cases = [
+            # locale, home_ftl_active, desktop_ftl_active, experience, expected_template
+            ("en-US", True, True, None, "firefox/download/home.html"),  # default
+            ("en-US", True, True, "basic", "firefox/download/basic/base_download.html"),  # basic experience
+            ("en-US", True, True, "legacy", "firefox/download/desktop/download.html"),  # legacy experience
+            ("en-US", True, True, "watermelon", "firefox/download/home.html"),  # experience doesn't exist
+            ("en-US", False, False, None, "firefox/download/basic/base_download.html"),  # No FTL is active
+            ("en-US", False, True, None, "firefox/download/desktop/download.html"),  # desktop FTL active, home FTL inactive
+            ("en-US", False, True, "basic", "firefox/download/basic/base_download.html"),  # basic always gets basic template
+            ("en-US", False, True, "legacy", "firefox/download/desktop/download.html"),  # legacy gets desktop template
+            # and again, for non-English
+            ("de", True, True, None, "firefox/download/home.html"),  # default
+            ("de", True, True, "basic", "firefox/download/basic/base_download.html"),  # basic experience
+            ("de", True, True, "legacy", "firefox/download/desktop/download.html"),  # legacy experience
+            ("de", True, True, "watermelon", "firefox/download/home.html"),  # experience doesn't exist
+            ("de", False, False, None, "firefox/download/basic/base_download.html"),  # No FTL is active
+            ("de", False, True, None, "firefox/download/desktop/download.html"),  # desktop FTL active, home FTL inactive
+            ("de", False, True, "basic", "firefox/download/basic/base_download.html"),  # basic always gets basic template
+            ("de", False, True, "legacy", "firefox/download/desktop/download.html"),  # legacy gets desktop template
+        ]
+
+        for case in test_cases:
+            locale, home_ftl_active, desktop_ftl_active, experience, expected_template = case
             with self.subTest(
                 locale=locale,
-                ftl_file_is_active_value=ftl_file_is_active_value,
+                home_ftl_active=home_ftl_active,
+                desktop_ftl_active=desktop_ftl_active,
+                experience=experience,
                 expected_template=expected_template,
             ):
-                with patch.object(views, "ftl_file_is_active", lambda *x: ftl_file_is_active_value):
-                    req = RequestFactory().get("/")
+                # Create a mock that returns different values based on the FTL file
+                def ftl_active_mock(ftl_file):
+                    if ftl_file == "firefox/download/home":
+                        return home_ftl_active
+                    elif ftl_file == "firefox/download/desktop":
+                        return desktop_ftl_active
+                    return False
+
+                with patch.object(views, "ftl_file_is_active", ftl_active_mock):
+                    req = RequestFactory().get("/", {"xv": experience} if experience else {})
                     req.locale = locale
                     view = views.DownloadView.as_view()
                     view(req)
                     template = render_mock.call_args[0][1]
-                    assert template == [expected_template]
+                    assert template == [expected_template], (
+                        f"Template mismatch for locale={locale}, home_ftl_active={home_ftl_active}, "
+                        f"desktop_ftl_active={desktop_ftl_active}, experience={experience}.\n"
+                        f"Expected: [{expected_template}]\n"
+                        f"Actual: {template}"
+                    )
 
     @patch.object(views, "ftl_file_is_active", lambda *x: True)
     def test_thanks_template(self, render_mock):
@@ -477,7 +508,7 @@ class TestFirefoxGA(TestCase):
 
     def test_firefox_home_GA(self):
         req = RequestFactory().get("/en-US/")
-        view = views.FirefoxHomeView.as_view()
+        view = views.DownloadView.as_view()
         response = view(req)
         self.assert_ga_attr(response)
 
