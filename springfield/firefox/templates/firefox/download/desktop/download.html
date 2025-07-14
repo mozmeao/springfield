@@ -6,7 +6,7 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 
-{% if switch('download_as_default') and not needs_data_consent(country_code) and ftl_has_messages('firefox-desktop-set-as-default') %}
+{% if switch('download_as_default') and ftl_has_messages('firefox-desktop-set-as-default') %}
   {% set download_as_default_enabled = true %}
 {% else %}
   {% set download_as_default_enabled = false %}

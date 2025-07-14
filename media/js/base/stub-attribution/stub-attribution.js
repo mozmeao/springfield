@@ -498,7 +498,7 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Gets utm parameters and referrer information from the web page if they exist.
      * @param {String} ref - Optional referrer to facilitate testing.
-     * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential for RTAMO.
+     * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential.
      * @return {Object} - Stub attribution data object.
      */
     StubAttribution.getAttributionData = function (
@@ -625,7 +625,11 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Determines whether to make a request to the stub authentication service.
      */
-    StubAttribution.init = function (successCallback, timeoutCallback) {
+    StubAttribution.init = function (
+        successCallback,
+        timeoutCallback,
+        omitNonEssentialFields = false
+    ) {
         var data = {};
 
         if (!StubAttribution.meetsRequirements()) {
@@ -655,7 +659,10 @@ if (typeof window.Mozilla === 'undefined') {
             // Wait for GA4 to load and return client IDs
             StubAttribution.waitForGoogleAnalyticsThen(function () {
                 // get attribution data
-                data = StubAttribution.getAttributionData();
+                data = StubAttribution.getAttributionData(
+                    null,
+                    omitNonEssentialFields
+                );
 
                 if (
                     data &&
