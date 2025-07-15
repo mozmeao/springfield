@@ -19,7 +19,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 <footer class="mzp-c-footer" id="colophon" role="contentinfo">
   <div class="mzp-l-content">
-    <nav class="mzp-c-footer-primary" aria-label="{{ ftl('footer-landmark-label') }}">
+    <div class="mzp-c-footer-primary">
       <div class="mzp-c-footer-sections">
         <section class="mzp-c-footer-section c-footer-section-download" aria-label="{{ ftl('footer-download') }}">
           <h2 class="mzp-c-footer-heading c-footer-heading-download" data-testid="footer-heading-download">
@@ -92,8 +92,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       <div class="c-footer-logo">
         <a href="{{ url('firefox') }}" data-link-position="footer" data-link-text="Firefox">{{ ftl('footer-firefox') }}</a>
       </div>
-    </nav>
-    <nav class="mzp-c-footer-secondary">
+    </div>
+    <div class="mzp-c-footer-secondary">
       <div class="mzp-c-footer-legal">
         <ul class="mzp-c-footer-terms">
           {% if LANG == "de" %}
@@ -126,6 +126,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
 
-    </nav>
+    </div>
   </div>
 </footer>
