@@ -6,8 +6,6 @@
 
 firefox-mobile-download-the-firefox-browser = Download the { -brand-name-firefox-browser } on your Mobile for { -brand-name-ios } and { -brand-name-android }
 firefox-mobile-firefox-browser-for-mobile = { -brand-name-firefox-browser } for Mobile blocks over 2000 trackers by default, giving you the privacy you deserve and the speed you need in a private mobile browser.
-firefox-mobile-firefox = { -brand-name-firefox }
-firefox-mobile-firefox-browser = { -brand-name-firefox-browser }
 firefox-mobile-get-the-mobile-browser-built = Get the mobile browser built for you, not advertisers
 firefox-mobile-check-out-firefox-again-its = Check out { -brand-name-firefox } again. It’s fast, private and on your side. For { -brand-name-ios } and { -brand-name-android }.
 firefox-mobile-get-firefox-mobile = Get { -brand-name-firefox } Mobile

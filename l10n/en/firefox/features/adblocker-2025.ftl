@@ -8,6 +8,7 @@
 features-adblocker-ad-blocking = Ad Blocking
 
 # Page Title
+features-adblocker-meta-title-v2 = About Ad Blockers
 features-adblocker-meta-title = About Ad Blockers - { -brand-name-firefox }
 
 # HTML page description
