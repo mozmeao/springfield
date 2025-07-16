@@ -32,6 +32,8 @@ failure_detected=false
 
 # Please ensure all new command calls are suffixed with || failure_detected=true
 
+# make sure l10n files are here for use in other commands
+python manage.py l10n_update || failure_detected=true
 python manage.py update_product_details_files || failure_detected=true
 python manage.py update_release_notes --quiet || failure_detected=true
 python manage.py update_newsletter_data --quiet || failure_detected=true
