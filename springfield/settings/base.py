@@ -496,8 +496,8 @@ NOINDEX_URLS = [
 # Pages we do want indexed but don't show up in automated URL discovery
 # or are only available in a non-default locale
 EXTRA_INDEX_URLS = {
-    # "/privacy/firefox-klar/": ["de"],
-    # "/about/legal/impressum/": ["de"],
+    "/features/free-pdf-editor/": ["fr"],
+    "/features/complete-pdf/": ["fr"],
 }
 
 # Pages that have different URLs for different locales, e.g.
