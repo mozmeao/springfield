@@ -208,15 +208,15 @@ $image-path: '/media/protocol/img';
             visibility: hidden;
         }
     }
-
-    .c-release-notes h3 {
-        @include text-title-xs;
-        margin-bottom: $layout-sm;
-    }
 }
 
 .c-release-notes > .mzp-l-content {
     padding-top: $layout-lg;
+
+    h3 {
+        @include text-title-xs;
+        margin-bottom: $layout-sm;
+    }
 
     &::before {
         content: '';
