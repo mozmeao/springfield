@@ -164,6 +164,7 @@ python manage.py dumpdata \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \
+    sitemaps.SitemapURL \
     --indent 2 \
     --output /tmp/export_remainder.json || all_well=false
 
