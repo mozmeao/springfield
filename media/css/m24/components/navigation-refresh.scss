@@ -190,7 +190,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     a:link,
     a:visited {
-        color: $color-black;
+        color: $token-color-off-black;
         text-decoration: none;
     }
 
@@ -318,15 +318,13 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category-link {
-    display: flex;
-    font-size: $text-body-md;
-    justify-content: flex-end;
-    margin: $spacer-md 0 0;
-    padding: 0;
-
     a:link,
     a:visited {
         display: flex;
+        justify-content: flex-start;
+        margin: $spacer-md 0 0;
+        padding: $spacer-sm;
+        background: var(--m24-light-orange);
         font-weight: 600;
         position: relative;
         width: fit-content;
@@ -348,15 +346,17 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         transition-timing-function: $bezier;
         width: auto;
     }
-}
 
-.m24-c-menu-category-link a:hover,
-.m24-c-menu-category-link a:focus {
-    svg {
-        @include bidi((
-            (right, -$spacing-sm, auto),
-            (left, auto, -$spacing-sm),
-        ));
+    a:hover,
+    a:focus {
+        background: var(--m24-orange);
+
+        svg {
+            @include bidi((
+                (right, -$spacing-sm, auto),
+                (left, auto, -$spacing-sm),
+            ));
+        }
     }
 }
 
@@ -432,7 +432,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-subtitle {
-    color: $m24-color-dark-mid-gray;
+    color: $m24-color-black;
     margin: 0;
     padding: $spacing-md 0 $spacing-sm;
 }
