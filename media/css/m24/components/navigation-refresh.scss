@@ -190,7 +190,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     a:link,
     a:visited {
-        color: $color-black;
+        color: $token-color-off-black;
         text-decoration: none;
     }
 
@@ -305,9 +305,9 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    padding: 8px 16px;
+    padding: 8px 16px; // TODO: or spacers to add up calc below?
     position: relative;
-    width: calc(100% - 32px);
+    width: calc(100% - 32px); // TODO: 32px or spacer?
     z-index: 1000;
 
     @media #{$mq-md} {
@@ -318,20 +318,48 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category-link {
-    display: flex;
-    font-size: $text-body-md;
-    justify-content: flex-end;
-    margin: $spacer-lg $spacer-lg 0;
-    padding: 0;
-
     a:link,
     a:visited {
         display: flex;
+        justify-content: flex-start;
+        margin: $spacer-md 0 0;
+        padding: $spacer-sm;
+        background: var(--m24-light-orange);
         font-weight: 600;
         position: relative;
         width: fit-content;
     }
+
+    svg {
+        @include bidi((
+            (left, auto, 0),
+            (margin-left, $spacing-xs, 0),
+            (margin-right, 0, $spacing-xs),
+            (right, 0, auto),
+            (transition-property, right, left),
+            (transform, none, rotate(-180deg)),
+        ));
+        height: 0.8em;
+        position: relative;
+        top: 0.15em;
+        transition-duration: $fast;
+        transition-timing-function: $bezier;
+        width: auto;
+    }
+
+    a:hover,
+    a:focus {
+        background: var(--m24-orange);
+
+        svg {
+            @include bidi((
+                (right, -$spacing-sm, auto),
+                (left, auto, -$spacing-sm),
+            ));
+        }
+    }
 }
+
 
 // * -------------------------------------------------------------------------- */
 // Menu panels
@@ -381,6 +409,12 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
+#m24-c-menu-panel-features {
+  @media #{$mq-md} {
+      width: 320px;
+  }
+}
+
 .m24-mzp-is-basic .m24-c-menu-panel {
     display: block;
 
@@ -398,7 +432,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-subtitle {
-    color: $m24-color-dark-mid-gray;
+    color: $m24-color-black;
     margin: 0;
     padding: $spacing-md 0 $spacing-sm;
 }
@@ -417,12 +451,15 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
-.m24-c-menu-panel-content.multi-column {
+.m24-c-menu-panel-content {
     @media #{$mq-md} {
-        display: flex;
         padding: 0 $grid-margin;
-        column-gap: $layout-lg;
         margin: 0 auto;
+
+        &.multi-column {
+            display: flex;
+            column-gap: $layout-lg;
+        }
     }
 }
 
