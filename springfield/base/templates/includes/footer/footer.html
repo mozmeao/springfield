@@ -25,18 +25,20 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
           <h2 class="mzp-c-footer-heading c-footer-heading-download" data-testid="footer-heading-download">
             {{ ftl('footer-download') }}
           </h2>
-          <h3 class="c-footer-subheading">
-            {# Download link should be locale neutral see bedrock issue 7982 #}
-            <a href="/thanks/" data-link-type="Desktop" data-download-os="Desktop" data-download-version="standard" data-link-position="footer" data-link-text="Download Firefox">{{ ftl('footer-download-auto') }}</a>
-          </h3>
-          <ul class="mzp-c-footer-list c-footer-list-download" data-testid="footer-list-download">
-            <li><a href="{{ url('firefox.browsers.desktop.windows') }}" data-link-position="footer" data-link-text="Windows">{{ ftl('footer-windows') }}</a></li>
-            <li><a href="{{ url('firefox.browsers.desktop.mac') }}" data-link-position="footer" data-link-text="Mac">{{ ftl('footer-mac') }}</a></li>
-            <li><a href="{{ url('firefox.browsers.mobile.ios') }}" data-link-position="footer" data-link-text="iOS">{{ ftl('footer-ios') }}</a></li>
-            <li><a href="{{ url('firefox.browsers.mobile.android') }}" data-link-position="footer" data-link-text="Android">{{ ftl('footer-android') }}</a></li>
-            <li><a href="{{ url('firefox.browsers.desktop.linux') }}" data-link-position="footer" data-link-text="Linux">{{ ftl('footer-linux') }}</a></li>
-            <li><a href="{{ url('firefox.all') }}" data-link-position="footer" data-link-text="Custom Download">{{ ftl('footer-custom-download') }}</a></li>
-          </ul>
+          <div class="c-footer-list-download">
+            <h3 class="c-footer-subheading">
+              {# Download link should be locale neutral see bedrock issue 7982 #}
+              <a href="/thanks/" data-link-type="Desktop" data-download-os="Desktop" data-download-version="standard" data-link-position="footer" data-link-text="Download Firefox">{{ ftl('footer-download-auto') }}</a>
+            </h3>
+            <ul class="mzp-c-footer-list c-footer-list-platforms" data-testid="footer-list-download">
+              <li><a href="{{ url('firefox.browsers.desktop.windows') }}" data-link-position="footer" data-link-text="Windows">{{ ftl('footer-windows') }}</a></li>
+              <li><a href="{{ url('firefox.browsers.desktop.mac') }}" data-link-position="footer" data-link-text="Mac">{{ ftl('footer-mac') }}</a></li>
+              <li><a href="{{ url('firefox.browsers.mobile.ios') }}" data-link-position="footer" data-link-text="iOS">{{ ftl('footer-ios') }}</a></li>
+              <li><a href="{{ url('firefox.browsers.mobile.android') }}" data-link-position="footer" data-link-text="Android">{{ ftl('footer-android') }}</a></li>
+              <li><a href="{{ url('firefox.browsers.desktop.linux') }}" data-link-position="footer" data-link-text="Linux">{{ ftl('footer-linux') }}</a></li>
+              <li><a href="{{ url('firefox.all') }}" data-link-position="footer" data-link-text="Custom Download">{{ ftl('footer-custom-download') }}</a></li>
+            </ul>
+          </div>
           <div class="c-footer-section-latest">
             <h3 class="c-footer-subheading">{{ ftl('footer-latest') }}</h3>
             <ul class="mzp-c-footer-list">
