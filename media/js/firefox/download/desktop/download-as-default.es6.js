@@ -74,10 +74,13 @@ DownloadAsDefault.addUTMParams = (href) => {
 };
 
 /**
- * Processes attribution changes depending on checkbox state.
+ * Processes attribution changes depending on:
+ * - checkbox state
+ * - consent state
  * @param {Boolean} checked - checkbox target value.
  */
 DownloadAsDefault.processAttributionRequest = (checked) => {
+    const onlyEssential = DownloadAsDefault.onlyEssential();
     let url = window.location.href;
 
     // First remove all existing attribution data.
@@ -102,9 +105,13 @@ DownloadAsDefault.processAttributionRequest = (checked) => {
      * parameters. Only rebind events after attribution
      * request has been successful.
      */
-    window.Mozilla.StubAttribution.init(() => {
-        DownloadAsDefault.bindEvents();
-    });
+    window.Mozilla.StubAttribution.init(
+        () => {
+            DownloadAsDefault.bindEvents();
+        },
+        null,
+        onlyEssential
+    );
 };
 
 /**
@@ -179,6 +186,31 @@ DownloadAsDefault.showCheckbox = () => {
 };
 
 /**
+ * Determines if stubAttribution should omitNonEssentialFields
+ * @returns {Boolean}
+ */
+DownloadAsDefault.onlyEssential = () => {
+    if (hasConsentCookie()) {
+        // Does the visitor have an existing analytics consent cookie?
+        const cookie = getConsentCookie();
+        if (cookie && cookie.analytics) {
+            // visitor has explicitly given consent
+            return false;
+        } else {
+            return true;
+        }
+    } else if (dntEnabled() || gpcEnabled()) {
+        // Has the visitor set a browser-level privacy flag?
+        return true;
+    } else if (consentRequired()) {
+        // Is the visitor in EU/EAA?
+        return true;
+    }
+
+    return false;
+};
+
+/**
  * Determines if set-as-default checkbox should display.
  * @returns {Boolean}
  */
@@ -194,18 +226,6 @@ DownloadAsDefault.meetsRequirements = () => {
         return false;
     } else if (!window.site.fxSupported) {
         // Ensure the visitor is on a supported version
-        return false;
-    } else if (dntEnabled() || gpcEnabled()) {
-        // Has the visitor set a browser-level privacy flag?
-        return false;
-    } else if (hasConsentCookie()) {
-        // Does the visitor have an existing analytics consent cookie?
-        const cookie = getConsentCookie();
-        if (cookie && !cookie.analytics) {
-            return false;
-        }
-    } else if (consentRequired()) {
-        // Is the visitor in EU/EAA?
         return false;
     } else if (
         // Are requirements for stub attribution met?

@@ -6,7 +6,7 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 
-{% if switch('download_as_default') and not needs_data_consent(country_code) %}
+{% if switch('download_as_default') %}
 {% set download_as_default_enabled = true %}
 {% else %}
 {% set download_as_default_enabled = false %}

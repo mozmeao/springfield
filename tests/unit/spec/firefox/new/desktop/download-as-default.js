@@ -58,52 +58,6 @@ describe('download-as-default.es6.js', function () {
             expect(result).toBeFalse();
         });
 
-        it('should return false if GPC is enabled', function () {
-            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
-
-            const result = DownloadAsDefault.meetsRequirements();
-            expect(result).toBeFalse();
-            delete window.Mozilla.gpcEnabled;
-        });
-
-        it('should return false if DNT is enabled', function () {
-            window.Mozilla.dntEnabled = sinon.stub().returns(true);
-
-            const result = DownloadAsDefault.meetsRequirements();
-            expect(result).toBeFalse();
-            delete window.Mozilla.dntEnabled;
-        });
-
-        it('should return false if consent cookie rejects analytics', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(true);
-            spyOn(window.Mozilla.Cookies, 'getItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(
-                    JSON.stringify({
-                        analytics: false,
-                        preference: true
-                    })
-                );
-
-            const result = DownloadAsDefault.meetsRequirements();
-            expect(result).toBeFalse();
-        });
-
-        it('should return false if visitor is in EU/EAA country', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(false);
-
-            document
-                .getElementsByTagName('html')[0]
-                .setAttribute('data-needs-consent', 'True');
-
-            const result = DownloadAsDefault.meetsRequirements();
-            expect(result).toBeFalse();
-        });
-
         it('should return false if attribution requirements are not satisfied', function () {
             spyOn(window.Mozilla.Cookies, 'hasItem')
                 .withArgs('moz-consent-pref')
@@ -120,6 +74,100 @@ describe('download-as-default.es6.js', function () {
         it('should return true if attribution requirements are satisfied', function () {
             const result = DownloadAsDefault.meetsRequirements();
             expect(result).toBeTrue();
+        });
+    });
+    describe('onlyEssential', function () {
+        it('with no consent signal - should return false', function () {
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeFalse();
+        });
+
+        it('with no other consent signal - should return true if GPC is enabled', function () {
+            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeTrue();
+            delete window.Mozilla.gpcEnabled;
+        });
+
+        it('with no other consent signal - should return true if DNT is enabled', function () {
+            window.Mozilla.dntEnabled = sinon.stub().returns(true);
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeTrue();
+            delete window.Mozilla.dntEnabled;
+        });
+
+        it('with no other consent signal - should return true if consent cookie rejects analytics', function () {
+            spyOn(window.Mozilla.Cookies, 'hasItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(true);
+            spyOn(window.Mozilla.Cookies, 'getItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(
+                    JSON.stringify({
+                        analytics: false,
+                        preference: true
+                    })
+                );
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeTrue();
+        });
+
+        it('with no other consent signal - should return true if visitor is in EU/EAA country', function () {
+            spyOn(window.Mozilla.Cookies, 'hasItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(false);
+
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'True');
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeTrue();
+        });
+
+        it('with no other consent signal - should return false if consent cookie accepts analytics', function () {
+            spyOn(window.Mozilla.Cookies, 'hasItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(true);
+            spyOn(window.Mozilla.Cookies, 'getItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(
+                    JSON.stringify({
+                        analytics: true,
+                        preference: true
+                    })
+                );
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeFalse();
+        });
+
+        it('despite other consent signals - should return true if consent cookie accepts analytics', function () {
+            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
+            window.Mozilla.dntEnabled = sinon.stub().returns(true);
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'True');
+
+            spyOn(window.Mozilla.Cookies, 'hasItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(true);
+            spyOn(window.Mozilla.Cookies, 'getItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(
+                    JSON.stringify({
+                        analytics: true,
+                        preference: true
+                    })
+                );
+
+            const result = DownloadAsDefault.onlyEssential();
+            expect(result).toBeFalse();
+            delete window.Mozilla.gpcEnabled;
+            delete window.Mozilla.dntEnabled;
         });
     });
     describe('init()', function () {
