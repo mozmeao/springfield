@@ -23,6 +23,18 @@ $image-path: '/media/protocol/img';
 .c-footer-subheading {
     @extend .mzp-c-footer-heading; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
     color: m24.$token-color-off-white;
+
+    @media screen and (max-width: #{$screen-sm - 1}) {
+        padding: 0;
+    }
+
+    @media #{$mq-lg} {
+        margin-top: $layout-sm / 2 * -1;
+
+        .c-footer-list-download & {
+          margin: 0;
+        }
+    }
 }
 
 // external link icon
