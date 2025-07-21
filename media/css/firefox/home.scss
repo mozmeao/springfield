@@ -457,6 +457,12 @@ button.mzp-c-cta-link {
     }
 
     @media #{$mq-lg} {
+         h3 {
+            /* decrease heading size */
+            @include font-size($title-sm-size);
+            line-height: $title-sm-line-height;
+        }
+
         li {
             float: left;
             width: calc(33.3% - (#{$h-grid-lg} - #{math.div($h-grid-lg, 3)}));
@@ -476,6 +482,14 @@ button.mzp-c-cta-link {
 
         .t-cursor img {
             max-height: 38px;
+        }
+    }
+
+    @media #{$mq-xl} {
+        /* bring heading size back up for english only */
+        html[lang^='en'] & h3 {
+            @include font-size($title-md-size);
+            line-height: $title-md-line-height;
         }
     }
 }
