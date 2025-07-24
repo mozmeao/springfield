@@ -34,6 +34,18 @@ $image-path: '/media/protocol/img';
     }
 }
 
+.c-footer-section-download, .c-footer-section-platforms {
+    .c-footer-subheading {
+        font-weight: bold;
+        color: m24.$m24-color-white;
+    }
+
+    // Override responsive margin for Download Firefox sub heading to prevent it from breaking the layout
+    .c-footer-section-platforms .c-footer-subheading {
+        margin: 0;
+    }
+}
+
 // external link icon
 .mzp-c-footer-section a[href^="http"]::after {
     @include bidi((
@@ -109,12 +121,8 @@ $image-path: '/media/protocol/img';
                 grid-column-start: 1;
             }
 
-            .c-footer-list-download {
+            .c-footer-section-platforms {
                 grid-area: platforms;
-
-                li:last-child {
-                    margin-bottom: 0;
-                }
             }
 
             .c-footer-section-latest {
