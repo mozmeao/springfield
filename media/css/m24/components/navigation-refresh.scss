@@ -410,7 +410,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 #m24-c-menu-panel-features {
   @media #{$mq-md} {
-      width: 320px;
+      width: calc($content-md / 2);
   }
 }
 
@@ -444,9 +444,12 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 .m24-c-menu-panel-container {
     margin: 0 auto;
     max-width: $content-max;
+    padding: $spacer-sm $spacer-lg $spacer-lg;
+    background-color: $m24-color-light-gray;
 
     @media #{$mq-md} {
         padding: $spacer-lg 0;
+        background-color: initial;
     }
 }
 
@@ -464,7 +467,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 .m24-c-menu-item-link {
     display: block;
-    padding: 8px 0;
+    padding: 8px 0;  // TODO: 8px or token?
 
     li:last-child > & {
         padding-bottom: 0;
