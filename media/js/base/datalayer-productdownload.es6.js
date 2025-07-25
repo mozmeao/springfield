@@ -100,7 +100,7 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             downloadURL.split('?')[1]
         );
     } else {
-        params = [];
+        params = {};
     }
 
     let eventObject = {};
@@ -190,7 +190,10 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             'release'
         );
     } else if (msStoreUrl.test(downloadURL) || msStoreUrl2.test(downloadURL)) {
-        const channel = params.mz_cn ? params.mz_cn : 'unrecognized';
+        const channel =
+            params.mz_cn === 'release' || params.mz_cn === 'beta'
+                ? params.mz_cn
+                : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
             'firefox',
             'win',

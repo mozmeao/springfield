@@ -137,7 +137,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify product for Focus in the App Store', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/{country}/app/firefox-focus-privacy-browser/id1055677337'
+            'https://itunes.apple.com/{country}/app/firefox-focus-privacy-browser/id1055677337?mz_pr=focus'
         );
         expect(testEvent['product']).toBe('focus');
     });
@@ -149,7 +149,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify product for Klar in the App Store', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/{country}/app/klar-by-firefox/id1073435754'
+            'https://itunes.apple.com/{country}/app/klar-by-firefox/id1073435754?mz_pr=klar'
         );
         expect(testEvent['product']).toBe('klar');
     });
@@ -337,11 +337,11 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         expect(testEvent['product']).toBe('firefox');
         expect(testEvent['platform']).toBe('win');
         expect(testEvent['method']).toBe('store');
-        expect(testEvent['release_channel']).toBe('release');
+        expect(testEvent['release_channel']).toBe('unrecognized');
     });
     it('should identify Firefox Beta in the MS Store', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://apps.microsoft.com/detail/9nzw26frndln?mode=direct&cid=firefox-all'
+            'https://apps.microsoft.com/detail/9nzw26frndln?mode=direct&cid=firefox-all&mz_cn=beta'
         );
         expect(testEvent['product']).toBe('firefox');
         expect(testEvent['platform']).toBe('win');
@@ -350,7 +350,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify Firefox in the MS Store using ms-windows-store protocol handler', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'ms-windows-store://pdp/?productid=9nzvdkpmr9rd'
+            'ms-windows-store://pdp/?productid=9nzvdkpmr9rd&mz_cn=release'
         );
         expect(testEvent['product']).toBe('firefox');
         expect(testEvent['platform']).toBe('win');
@@ -359,7 +359,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify Firefox Beta in the MS Store using ms-windows-store protocol handler', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'ms-windows-store://pdp/?productid=9nzw26frndln'
+            'ms-windows-store://pdp/?productid=9nzw26frndln&mz_cn=beta'
         );
         expect(testEvent['product']).toBe('firefox');
         expect(testEvent['platform']).toBe('win');
@@ -384,14 +384,14 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         expect(testEvent['method']).toBe('store');
         expect(testEvent['release_channel']).toBe('beta');
     });
-    it('should fall back to product ID detection when mz_cn parameter is not present', function () {
+    it('should use unrecognized channel when mz_cn parameter is not present', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct&cid=firefox-home'
         );
         expect(testEvent['product']).toBe('firefox');
         expect(testEvent['platform']).toBe('win');
         expect(testEvent['method']).toBe('store');
-        expect(testEvent['release_channel']).toBe('release');
+        expect(testEvent['release_channel']).toBe('unrecognized');
     });
     it('should use unrecognized channel when mz_cn parameter has unknown value', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
@@ -412,7 +412,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify Mozilla VPN for iOS', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://apps.apple.com/us/app/apple-store/id1489407738?pt=373246&ct=vpn-landing-page&mt=8'
+            'https://apps.apple.com/us/app/apple-store/id1489407738?pt=373246&ct=vpn-landing-page&mt=8&mz_pr=vpn'
         );
         expect(testEvent['product']).toBe('vpn');
         expect(testEvent['platform']).toBe('ios');
