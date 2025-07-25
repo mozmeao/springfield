@@ -528,6 +528,16 @@ def ms_store_url(ctx, product="firefox", mode="mini", campaign=None, handler=Non
     See https://apps.microsoft.com/badge for details.
     """
 
+    channel_mapping = {
+        "firefox": "release",
+        "firefox_beta": "beta",
+    }
+
+    channel = channel_mapping.get(product, "unrecognized")
+
+    if product not in channel_mapping:
+        product = "firefox"
+
     if handler == "ms-windows-store":
         base_url = getattr(settings, f"MICROSOFT_WINDOWS_STORE_{product.upper()}_DIRECT_LINK")
     else:
@@ -536,6 +546,7 @@ def ms_store_url(ctx, product="firefox", mode="mini", campaign=None, handler=Non
     params = {
         "mode": mode,
         "cid": campaign,
+        "mz_cn": channel,
     }
 
     return urlparams(base_url, **params)

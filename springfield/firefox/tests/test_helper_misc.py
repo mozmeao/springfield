@@ -777,34 +777,38 @@ class TestMSStoreURL(TestCase):
 
     def test_firefox_release_ms_store_url(self):
         """should return a MS Store URL for Firefox release channel"""
-        assert self._render(product="firefox") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini"
+        assert self._render(product="firefox") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&amp;mz_cn=release"
 
     def test_firefox_beta_ms_store_url(self):
         """should return a MS Store URL for Firefox Beta channel"""
-        assert self._render(product="firefox_beta") == "https://apps.microsoft.com/detail/9nzw26frndln?mode=mini"
+        assert self._render(product="firefox_beta") == "https://apps.microsoft.com/detail/9nzw26frndln?mode=mini&amp;mz_cn=beta"
 
     def test_firefox_ms_store_url_launch_mode(self):
         """should return a MS Store URL including different launch mode parameters"""
-        assert self._render(product="firefox", mode="full") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=full"
-        assert self._render(product="firefox", mode="direct") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct"
+        assert self._render(product="firefox", mode="full") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=full&amp;mz_cn=release"
+        assert self._render(product="firefox", mode="direct") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct&amp;mz_cn=release"
 
     def test_firefox_ms_store_url_campaign(self):
         """should return a MS Store URL including campaign parameters"""
         assert (
             self._render(product="firefox", campaign="test-firefox-home")
-            == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&amp;cid=test-firefox-home"
+            == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&amp;cid=test-firefox-home&amp;mz_cn=release"
         )
 
     def test_firefox_ms_store_url_protocol_handler(self):
         """should return a MS Store URL including campaign parameters"""
         assert (
             self._render(product="firefox", campaign="test-firefox-home", handler="ms-windows-store")
-            == "ms-windows-store://pdp/?productid=9nzvdkpmr9rd&amp;mode=mini&amp;cid=test-firefox-home"
+            == "ms-windows-store://pdp/?productid=9nzvdkpmr9rd&amp;mode=mini&amp;cid=test-firefox-home&amp;mz_cn=release"
         )
         assert (
             self._render(product="firefox_beta", campaign="test-firefox-home", handler="ms-windows-store")
-            == "ms-windows-store://pdp/?productid=9nzw26frndln&amp;mode=mini&amp;cid=test-firefox-home"
+            == "ms-windows-store://pdp/?productid=9nzw26frndln&amp;mode=mini&amp;cid=test-firefox-home&amp;mz_cn=beta"
         )
+
+    def test_firefox_unknown_product_ms_store_url(self):
+        """should return a MS Store URL with unrecognized channel for unknown product"""
+        assert self._render(product="unknown_product") == "https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&amp;mz_cn=unrecognized"
 
 
 class TestLangShort(TestCase):

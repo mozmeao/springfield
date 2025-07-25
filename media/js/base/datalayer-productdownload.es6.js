@@ -182,20 +182,20 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             androidRelease
         );
     } else if (appStoreURL.test(downloadURL) || iTunesURL.test(downloadURL)) {
-        const storeProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
+        const iosProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
-            storeProduct,
+            iosProduct,
             'ios',
             'store',
             'release'
         );
     } else if (msStoreUrl.test(downloadURL) || msStoreUrl2.test(downloadURL)) {
-        const storeProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
+        const channel = params.mz_cn ? params.mz_cn : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
-            storeProduct,
+            'firefox',
             'win',
             'store',
-            'release'
+            channel
         );
     }
 

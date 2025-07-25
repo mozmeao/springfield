@@ -366,6 +366,42 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         expect(testEvent['method']).toBe('store');
         expect(testEvent['release_channel']).toBe('beta');
     });
+    it('should identify Firefox release channel using mz_cn parameter', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct&cid=firefox-home&mz_cn=release'
+        );
+        expect(testEvent['product']).toBe('firefox');
+        expect(testEvent['platform']).toBe('win');
+        expect(testEvent['method']).toBe('store');
+        expect(testEvent['release_channel']).toBe('release');
+    });
+    it('should identify Firefox beta channel using mz_cn parameter', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://apps.microsoft.com/detail/9nzw26frndln?mode=direct&cid=firefox-all&mz_cn=beta'
+        );
+        expect(testEvent['product']).toBe('firefox');
+        expect(testEvent['platform']).toBe('win');
+        expect(testEvent['method']).toBe('store');
+        expect(testEvent['release_channel']).toBe('beta');
+    });
+    it('should fall back to product ID detection when mz_cn parameter is not present', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct&cid=firefox-home'
+        );
+        expect(testEvent['product']).toBe('firefox');
+        expect(testEvent['platform']).toBe('win');
+        expect(testEvent['method']).toBe('store');
+        expect(testEvent['release_channel']).toBe('release');
+    });
+    it('should use unrecognized channel when mz_cn parameter has unknown value', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=direct&cid=firefox-home&mz_cn=unknown'
+        );
+        expect(testEvent['product']).toBe('firefox');
+        expect(testEvent['platform']).toBe('win');
+        expect(testEvent['method']).toBe('store');
+        expect(testEvent['release_channel']).toBe('unrecognized');
+    });
     it('should identify Mozilla VPN for Android', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://play.google.com/store/apps/details?id=org.mozilla.firefox.vpn&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dvpn-landing-page&hl=en'
