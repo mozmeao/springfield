@@ -221,16 +221,18 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         h2::after {
             @include bidi(((margin-left, $spacing-sm, margin-right, 0),));
             content: '';
-            background: url('/media/img/icons/caret-sprite.svg') no-repeat bottom left / auto 12px;
+            background: url('/media/protocol/img/icons/arrow-down.svg') no-repeat center center / auto 16px;
             display: inline-block;
             height: 12px;
             vertical-align: baseline;
             width: 12px;
+            transform-origin: center;
+            transition: transform 0.25s ease;
         }
 
         &.mzp-is-selected {
             h2::after {
-                background-position: bottom right;
+                transform: rotate(-180deg);
             }
         }
     }
