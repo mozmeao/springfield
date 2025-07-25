@@ -321,13 +321,12 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     a:link,
     a:visited {
         display: flex;
-        justify-content: flex-start;
-        margin: $spacer-md 0 0;
+        justify-content: space-between;
+        margin: $spacer-md 0 -1em;
         padding: $spacer-sm;
         background: var(--m24-light-orange);
         font-weight: 600;
         position: relative;
-        width: fit-content;
     }
 
     svg {
@@ -353,8 +352,8 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
         svg {
             @include bidi((
-                (right, -$spacing-sm, auto),
-                (left, auto, -$spacing-sm),
+                (right, -$spacing-xs, auto),
+                (left, auto, -$spacing-xs),
             ));
         }
     }
