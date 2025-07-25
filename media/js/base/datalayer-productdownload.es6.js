@@ -182,40 +182,20 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             androidRelease
         );
     } else if (appStoreURL.test(downloadURL) || iTunesURL.test(downloadURL)) {
-        let iosProduct = 'unrecognized';
-        if (downloadURL.indexOf('/id989804926') !== -1) {
-            iosProduct = 'firefox_mobile';
-        } else if (downloadURL.indexOf('/id1055677337') !== -1) {
-            iosProduct = 'focus';
-        } else if (downloadURL.indexOf('/id1073435754') !== -1) {
-            iosProduct = 'klar';
-        } else if (downloadURL.indexOf('/id309601447') !== -1) {
-            iosProduct = 'pocket';
-        } else if (downloadURL.indexOf('/id1489407738') !== -1) {
-            iosProduct = 'vpn';
-        }
-
-        // Apple App Store
+        const storeProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
-            iosProduct,
+            storeProduct,
             'ios',
             'store',
             'release'
         );
     } else if (msStoreUrl.test(downloadURL) || msStoreUrl2.test(downloadURL)) {
-        let channel = 'unrecognized';
-        if (downloadURL.indexOf('9nzvdkpmr9rd') !== -1) {
-            channel = 'release';
-        } else if (downloadURL.indexOf('9nzw26frndln') !== -1) {
-            channel = 'beta';
-        }
-
-        // MS Store
+        const storeProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
-            'firefox',
+            storeProduct,
             'win',
             'store',
-            channel
+            'release'
         );
     }
 

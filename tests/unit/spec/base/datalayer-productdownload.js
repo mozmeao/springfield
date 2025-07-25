@@ -123,9 +123,9 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['product']).toBe('firefox');
     });
-    it('should identify product for Firefox in the App Store', function () {
+    it('should identify product for Firefox in the App Store using mz_pr parameter', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926'
+            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926?mz_pr=firefox_mobile'
         );
         expect(testEvent['product']).toBe('firefox_mobile');
     });
@@ -134,18 +134,6 @@ describe('TrackProductDownload.getEventFromUrl', function () {
             'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dmozilla-org'
         );
         expect(testEvent['product']).toBe('firefox_mobile');
-    });
-    it('should identify product for Pocket in the App Store', function () {
-        const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/{country}/app/pocket-save-read-grow/id309601447'
-        );
-        expect(testEvent['product']).toBe('pocket');
-    });
-    it('should identify product for Pocket in the Play Store', function () {
-        const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://play.google.com/store/apps/details?id=com.ideashower.readitlater.pro'
-        );
-        expect(testEvent['product']).toBe('pocket');
     });
     it('should identify product for Focus in the App Store', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
@@ -216,7 +204,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
     });
     it('should identify platform for Firefox in the App Store', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926'
+            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926?mz_pr=firefox_mobile'
         );
         expect(testEvent['platform']).toBe('ios');
     });
@@ -293,9 +281,9 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['release_channel']).toBe('esr115');
     });
-    it('should identify release_channel for Firefox iOS', function () {
+    it('should identify release_channel for Firefox iOS using mz_pr parameter', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926'
+            'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926?mz_pr=firefox_mobile'
         );
         expect(testEvent['release_channel']).toBe('release');
     });

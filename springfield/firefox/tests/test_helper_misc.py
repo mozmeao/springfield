@@ -637,62 +637,62 @@ class TestAppStoreURL(TestCase):
 
     def test_firefox_app_store_url_no_locale(self):
         """No locale, fallback to default URL"""
-        assert self._render("firefox", "", "") == "https://apps.apple.com/app/apple-store/id989804926"
+        assert self._render("firefox", "", "") == "https://apps.apple.com/app/apple-store/id989804926?mz_pr=firefox_mobile"
 
     def test_firefox_app_store_url_default(self):
         """should fallback to default URL"""
-        assert self._render("firefox", "", "ar") == "https://apps.apple.com/app/apple-store/id989804926"
-        assert self._render("firefox", "", "zu") == "https://apps.apple.com/app/apple-store/id989804926"
+        assert self._render("firefox", "", "ar") == "https://apps.apple.com/app/apple-store/id989804926?mz_pr=firefox_mobile"
+        assert self._render("firefox", "", "zu") == "https://apps.apple.com/app/apple-store/id989804926?mz_pr=firefox_mobile"
 
     def test_firefox_app_store_url_localized(self):
         """should return localized URL"""
-        assert self._render("firefox", "", "en-US") == "https://apps.apple.com/us/app/apple-store/id989804926"
-        assert self._render("firefox", "", "es-ES") == "https://apps.apple.com/es/app/apple-store/id989804926"
-        assert self._render("firefox", "", "de") == "https://apps.apple.com/de/app/apple-store/id989804926"
+        assert self._render("firefox", "", "en-US") == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile"
+        assert self._render("firefox", "", "es-ES") == "https://apps.apple.com/es/app/apple-store/id989804926?mz_pr=firefox_mobile"
+        assert self._render("firefox", "", "de") == "https://apps.apple.com/de/app/apple-store/id989804926?mz_pr=firefox_mobile"
 
     def test_firefox_app_store_url_localized_campaign(self):
         """should return localized URL with additional campaign parameters"""
         assert (
             self._render("firefox", "firefox-home", "en-US")
-            == "https://apps.apple.com/us/app/apple-store/id989804926?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
         assert (
             self._render("firefox", "firefox-home", "es-ES")
-            == "https://apps.apple.com/es/app/apple-store/id989804926?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/es/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
         assert (
             self._render("firefox", "firefox-home", "de")
-            == "https://apps.apple.com/de/app/apple-store/id989804926?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/de/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
 
     def test_focus_app_store_url_localized_campaign(self):
         """should return localized URL with additional campaign parameters"""
         assert (
             self._render("focus", "firefox-home", "en-US")
-            == "https://apps.apple.com/us/app/apple-store/id1055677337?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/us/app/apple-store/id1055677337?mz_pr=focus&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
         assert (
             self._render("focus", "firefox-home", "es-ES")
-            == "https://apps.apple.com/es/app/apple-store/id1055677337?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/es/app/apple-store/id1055677337?mz_pr=focus&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
         assert (
             self._render("focus", "firefox-home", "de")
-            == "https://apps.apple.com/de/app/apple-store/id1073435754?pt=373246&amp;ct=firefox-home&amp;mt=8"
+            == "https://apps.apple.com/de/app/apple-store/id1073435754?mz_pr=focus&amp;pt=373246&amp;ct=firefox-home&amp;mt=8"
         )
 
     def test_vpn_app_store_url_localized_campaign(self):
         """should return localized URL with additional campaign parameters"""
         assert (
             self._render("vpn", "vpn-landing-page", "en-US")
-            == "https://apps.apple.com/us/app/apple-store/id1489407738?pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
+            == "https://apps.apple.com/us/app/apple-store/id1489407738?mz_pr=vpn&amp;pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
         )
         assert (
             self._render("vpn", "vpn-landing-page", "es-ES")
-            == "https://apps.apple.com/es/app/apple-store/id1489407738?pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
+            == "https://apps.apple.com/es/app/apple-store/id1489407738?mz_pr=vpn&amp;pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
         )
         assert (
             self._render("vpn", "vpn-landing-page", "de")
-            == "https://apps.apple.com/de/app/apple-store/id1489407738?pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
+            == "https://apps.apple.com/de/app/apple-store/id1489407738?mz_pr=vpn&amp;pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
         )
 
 
