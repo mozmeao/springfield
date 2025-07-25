@@ -36,8 +36,22 @@ $image-path: '/media/protocol/img';
 
 .c-footer-section-download, .c-footer-section-platforms {
     .c-footer-subheading {
-        font-weight: bold;
-        color: m24.$m24-color-white;
+        font-weight: var(--title-font-weight);
+        color: m24.$token-color-off-white;
+
+        // Ensure links within footer subheadings inherit the parent's styles
+        a:link,
+        a:visited {
+            color: inherit;
+            font-weight: inherit;
+        }
+
+        a:hover,
+        a:focus,
+        a:active {
+            color: inherit;
+            font-weight: inherit;
+        }
     }
 
     // Override responsive margin for Download Firefox sub heading to prevent it from breaking the layout
