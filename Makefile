@@ -101,8 +101,6 @@ clean:
 	find . -name '__pycache__' -exec rm -rf {} +
 #	test related things
 	-rm -f .coverage
-#	docs files
-	-rm -rf docs/_build/
 #	static files
 	-rm -rf static_build/
 #	state files
