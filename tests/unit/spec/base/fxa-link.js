@@ -32,12 +32,12 @@ describe('fxa-link.js', function () {
             });
         });
 
-        it('should add context param for Firefox desktop >= 80', function () {
+        it('should add context param for Firefox desktop >= 136', function () {
             spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(
                 true
             );
             spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-                '80.0'
+                '136.0'
             );
             FxaLink.init();
             const link = document.querySelector('.js-fxa-cta-link');
@@ -46,12 +46,12 @@ describe('fxa-link.js', function () {
             );
         });
 
-        it('should not add context param for Firefox desktop < 80', function () {
+        it('should not add context param for Firefox desktop < 136', function () {
             spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(
                 true
             );
             spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-                '79.0'
+                '135.0'
             );
             FxaLink.init();
             const link = document.querySelector('.js-fxa-cta-link');
@@ -71,13 +71,13 @@ describe('fxa-link.js', function () {
             );
         });
 
-        it('should use the UITour for Firefox Desktop >= 80', function () {
+        it('should use the UITour for Firefox Desktop >= 136', function () {
             spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(
                 true
             );
             spyOn(window.Mozilla.UITour, 'showFirefoxAccounts');
             spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-                '80.0'
+                '136.0'
             );
             return FxaLink.init(() => {
                 const link = document.querySelector('.js-fxa-cta-link');
@@ -97,7 +97,7 @@ describe('fxa-link.js', function () {
             });
         });
 
-        it('does NOT use the UITour for non-FxA domains in Fx >= 80', function () {
+        it('does NOT use the UITour for non-FxA domains in Fx >= 136', function () {
             const link = document.querySelectorAll('.js-fxa-cta-link')[0];
             link.href = 'https://monitor.mozilla.org';
             spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(
@@ -105,14 +105,14 @@ describe('fxa-link.js', function () {
             );
             spyOn(window.Mozilla.UITour, 'showFirefoxAccounts');
             spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-                '80.0'
+                '136.0'
             );
             return FxaLink.init(() => {
                 expect(link.getAttribute('role')).toEqual(null);
             });
         });
 
-        it('handles flow and entrypoint parameters on the link in Fx >= 80', function () {
+        it('handles flow and entrypoint parameters on the link in Fx >= 136', function () {
             const link = document.querySelectorAll('.js-fxa-cta-link')[0];
             link.href =
                 'https://accounts.firefox.com/signin?form_type=button&entrypoint=mozilla.org-firefoxnav&' +
@@ -128,7 +128,7 @@ describe('fxa-link.js', function () {
             window.Mozilla.UITour.ping = sinon.stub().callsArg(0);
             spyOn(window.Mozilla.UITour, 'showFirefoxAccounts');
             spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-                '80.0'
+                '136.0'
             );
             return FxaLink.init(() => {
                 const link = document.querySelector('.js-fxa-cta-link');
