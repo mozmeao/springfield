@@ -440,7 +440,7 @@ button.mzp-c-cta-link {
         text-align: center;
         position: absolute;
         top: 0;
-        left: 0;
+        width: auto;
         max-height: $layout-sm;
     }
 
@@ -450,9 +450,7 @@ button.mzp-c-cta-link {
 
     @media #{$mq-md} {
         img {
-            float: left;
-            margin-left: 0;
-            margin-right: $layout-sm;
+            @include bidi(((margin-left, 0, $layout-sm), (margin-right, $layout-sm, 0)));
         }
     }
 
@@ -464,7 +462,7 @@ button.mzp-c-cta-link {
         }
 
         li {
-            float: left;
+            @include bidi(((float, left, right),));
             width: calc(33.3% - (#{$h-grid-lg} - #{math.div($h-grid-lg, 3)}));
             margin-bottom: 0;
             padding-top: 54px + $spacing-xl;
