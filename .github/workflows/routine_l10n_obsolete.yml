@@ -1,7 +1,7 @@
 name: Bimonthly l10n cleanup reminder
 on:
   schedule:
-    - cron: 0 09 14 */2 *
+    - cron: 0 10 15 2-12/2 *
 
 jobs:
   create_issue:
@@ -36,7 +36,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TITLE: "[bot] Remove obsolete l10n strings and ftl files"
           ASSIGNEES:
-          LABELS: L10N,Frontend
+          LABELS: L10n,Frontend
           BODY: |
             ### Remove obsolete strings
 
@@ -48,13 +48,13 @@ jobs:
 
             ### Remove obsolete ftl files
 
-            Compare the files in /l10n/en-US/ to the /en/ folder in the www-l10n repo and remove
-            files from www-l10n that no longer exist in springfield.
+            Compare the files in /l10n/en-US/ to the /en/ folder in the www-firefox-l10n repo
+            and remove files from www-firefox-l10n that no longer exist in springfield.
 
             If you have both repos installed and up to date you can run this command:
             `diff -r www-firefox-l10n/en springfield/l10n/en | grep ".ftl"`
 
             - [ ] Remove files
-            - [ ] Remove references in www-l10n/configs/pontoon.toml
+            - [ ] Remove references in www-firefox-l10n/configs/pontoon.toml
           PINNED: false
           CLOSE_PREVIOUS: true
