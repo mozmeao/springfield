@@ -61,10 +61,10 @@ describe('fxa-form.js', function () {
         });
     });
 
-    it('should configure the form for Firefox desktop < 80', function () {
+    it('should configure the form for Firefox desktop < 136', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '79.0'
+            '135.0'
         );
 
         // Configure Sync for Firefox desktop before initializing attribution.
@@ -87,10 +87,10 @@ describe('fxa-form.js', function () {
         });
     });
 
-    it('should configure the form for Firefox desktop >= 80', function () {
+    it('should configure the form for Firefox desktop >= 136', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '80.0'
+            '136.0'
         );
 
         // Configure Sync for Firefox desktop before initializing attribution.
@@ -192,7 +192,7 @@ describe('fxa-form.js', function () {
     it('should pass through utm parameters from the URL to the form into the UITour', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '80.0'
+            '136.0'
         );
         spyOn(Mozilla.Client, 'getFirefoxDetails').and.callFake(
             function (callback) {
@@ -271,7 +271,7 @@ describe('fxa-form.js', function () {
     it('should pass through utm parameters from the URL to the form into the UITour', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '80.0'
+            '136.0'
         );
         spyOn(Mozilla.Client, 'getFirefoxDetails').and.callFake(
             function (callback) {
@@ -350,7 +350,7 @@ describe('fxa-form.js', function () {
     it('should allow attribution to be skipped', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '80.0'
+            '136.0'
         );
         spyOn(Mozilla.Client, 'getFirefoxDetails').and.callFake(
             function (callback) {
@@ -408,7 +408,7 @@ describe('fxa-form.js', function () {
     it('should allow attribution to be skipped even if init() is never called', function () {
         spyOn(window.Mozilla.Client, '_isFirefoxDesktop').and.returnValue(true);
         spyOn(window.Mozilla.Client, '_getFirefoxVersion').and.returnValue(
-            '80.0'
+            '136.0'
         );
         spyOn(Mozilla.Client, 'getFirefoxDetails').and.callFake(
             function (callback) {

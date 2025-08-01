@@ -90,8 +90,9 @@ FxaLink.init = function (callback) {
     }
 
     const userVer = parseFloat(client._getFirefoxVersion());
+    // FXC doesn't support UITour below 136
     const useUITourForFxA =
-        userVer >= 80 && typeof Mozilla.UITour !== 'undefined';
+        userVer >= 136 && typeof Mozilla.UITour !== 'undefined';
     const fxaSigninLink = document.querySelectorAll('.js-fxa-cta-link');
 
     if (useUITourForFxA) {

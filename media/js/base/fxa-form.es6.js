@@ -258,7 +258,7 @@ FxaForm.setServiceContext = function () {
     const contextField = form.querySelector('[name="context"]');
     const userVer = parseFloat(Mozilla.Client._getFirefoxVersion());
     const useUITourForFxA =
-        userVer >= 80 && typeof Mozilla.UITour !== 'undefined';
+        userVer >= 136 && typeof Mozilla.UITour !== 'undefined';
 
     if (useUITourForFxA) {
         // context is required for all Firefox desktop clients.
