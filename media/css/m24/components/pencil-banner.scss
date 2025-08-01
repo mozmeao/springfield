@@ -52,3 +52,10 @@ html[data-pencil-banner-closed="true"] {
         display: none;
     }
 }
+
+// No JS
+.no-js {
+    .m24-pencil-banner-close {
+        display: none;
+    }
+}
