@@ -123,6 +123,12 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['product']).toBe('firefox');
     });
+    it('should identify product for Firefox Desktop partner builds', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://download.mozilla.org/?product=partner-firefox-release-smi-smi-001-latest&os=osx&lang=en-GB'
+        );
+        expect(testEvent['product']).toBe('firefox');
+    });
     it('should identify product for Firefox in the App Store using mz_pr parameter', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926?mz_pr=firefox_mobile'
