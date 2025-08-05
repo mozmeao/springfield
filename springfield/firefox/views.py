@@ -697,7 +697,10 @@ def firefox_features_translate(request):
 
     names = get_translations_native_names(sorted(translate_langs))
 
-    context = {"context_test": names}
+    context = {
+        "context_test": names,
+        "translate_langs": translate_langs
+    }
 
     template_name = "firefox/features/translate.html"
 

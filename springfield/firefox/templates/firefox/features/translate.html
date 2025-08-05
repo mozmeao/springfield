@@ -6,6 +6,10 @@
 
 {% extends "firefox/features/base-article.html" %}
 
+{% block js %}
+  {{ js_bundle('firefox_features_translate') }}
+{% endblock %}
+
 {% block page_desc %}{{ ftl('features-translate-firefox-translations-is-a-built-in-v2') }}{% endblock %}
 
 {% block article_title_short %}{{ ftl('features-translate-translate-the-web') }}{% endblock %}
@@ -21,7 +25,7 @@
 <h2>{{ ftl('features-translate-what-languages-are-currently') }}</h2>
 <p>{{ ftl('features-translate-the-languages-below-are-what-v2') }}</p>
 
-<ul class="c-lang-list mzp-u-list-styled">
+<ul class="c-lang-list c-translate-lang-list mzp-u-list-styled" data-translate-langs="{{ translate_langs|join(',') }}">
 {% if LANG.startswith('en-') %}
   <li>Arabic</li>
   <li>Bulgarian</li>
