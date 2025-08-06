@@ -12,7 +12,7 @@
 
 {% block experiments %}{% endblock %}
 
-{% set referrals = '?utm_source=www.mozilla.org&utm_medium=referral&utm_campaign=smi-002' %}
+{% set params = '?utm_source=www.mozilla.org&utm_medium=referral&utm_campaign=smi-002' %}
 
 {% set win_custom_download_id = 'partner-firefox-release-smi-smi-002-stub' %}
 {% set mac_custom_download_id = 'partner-firefox-release-smi-smi-002-latest' %}
@@ -34,10 +34,6 @@
   {{ css_bundle('firefox_landing') }}
 {% endblock %}
 
-{% block sub_navigation %}
-  {% include 'firefox/includes/sub-nav-firefox.html' %}
-{% endblock %}
-
 {% block content %}
 <main class="main-download">
   <section id="desktop-banner" class="c-block t-intro show-else">
@@ -51,7 +47,7 @@
 
           <div class="c-intro-download-alt"><a href="{{ url('firefox.all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
 
-          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ referrals }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
         </div>
       </div>
       <div class="c-block-media l-v-center">
@@ -160,7 +156,7 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/tomato-clock/{{ referrals }}" target="_blank" rel="noopener">Tomato Clock</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/tomato-clock/{{ params }}" target="_blank" rel="noopener">Tomato Clock</a>
         </h3>
         <p>Stay productive with Tomato Clock, a simple Pomodoro timer to help you break up your study sessions and keep you fresh.</p>
       </div>
@@ -178,7 +174,7 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/languagetool/{{ referrals }}" target="_blank" rel="noopener">LanguageTool</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/languagetool/{{ params }}" target="_blank" rel="noopener">LanguageTool</a>
         </h3>
         <p>Write with confidence using this advanced spelling and grammar checker for multiple languages.</p>
       </div>
@@ -196,14 +192,14 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/youtube-recommended-videos/{{ referrals }}" target="_blank" rel="noopener">UnHook</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/youtube-recommended-videos/{{ params }}" target="_blank" rel="noopener">UnHook</a>
         </h3>
         <p>Stay focussed with UnHook – hide Youtube recommendations, comments, and other time sinks while studying.</p>
       </div>
     </div>
 
     <p class="mzp-u-centered">
-      <a class="mzp-c-cta-link" href="https://addons.mozilla.org/en-GB/firefox/extensions/{{ referrals }}" target="_blank" rel="noopener">See all extensions</a>
+      <a class="mzp-c-cta-link" href="https://addons.mozilla.org/en-GB/firefox/extensions/{{ params }}" target="_blank" rel="noopener">See all extensions</a>
     </p>
   </section>
 
@@ -256,7 +252,7 @@
   </section>
 
   <section class="c-support">
-    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(referrals) %}
+    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(params) %}
     {{ ftl('firefox-desktop-download-questions', attrs=questions_attrs) }}
   </section>
 

@@ -12,7 +12,7 @@
 
 {% block experiments %}{% endblock %}
 
-{% set referrals = '?utm_source=www.mozilla.org&utm_medium=referral&utm_campaign=smi-003' %}
+{% set params = '?utm_source=www.mozilla.org&utm_medium=referral&utm_campaign=smi-003' %}
 
 {% set win_custom_download_id = 'partner-firefox-release-smi-smi-003-stub' %}
 {% set mac_custom_download_id = 'partner-firefox-release-smi-smi-003-latest' %}
@@ -34,10 +34,6 @@
   {{ css_bundle('firefox_landing') }}
 {% endblock %}
 
-{% block sub_navigation %}
-  {% include 'firefox/includes/sub-nav-firefox.html' %}
-{% endblock %}
-
 {% block content %}
 <main class="main-download">
   <section id="desktop-banner" class="c-block t-intro show-else">
@@ -51,7 +47,7 @@
 
           <div class="c-intro-download-alt"><a href="{{ url('firefox.all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
 
-          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ referrals }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
         </div>
       </div>
       <div class="c-block-media l-v-center">
@@ -155,7 +151,7 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/augmented-steam/{{ referrals }}" target="_blank" rel="noopener">Augmented Steam</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/augmented-steam/{{ params }}" target="_blank" rel="noopener">Augmented Steam</a>
         </h3>
         <p>Discover game deals, filter searches, and personalise your profile, all while enjoying the user-friendly interface.</p>
       </div>
@@ -173,7 +169,7 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/enhancer-for-youtube/{{ referrals }}" target="_blank" rel="noopener">Enhancer for YouTube</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/enhancer-for-youtube/{{ params }}" target="_blank" rel="noopener">Enhancer for YouTube</a>
         </h3>
         <p>Customise your YouTube with a variety of features, from ad-blocking to playback controls tailored to your preferences.</p>
       </div>
@@ -191,14 +187,14 @@
           },
         ) }}
         <h3 class="mzp-u-title-xs">
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/bitwarden-password-manager/{{ referrals }}" target="_blank" rel="noopener">Bitwarden</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/bitwarden-password-manager/{{ params }}" target="_blank" rel="noopener">Bitwarden</a>
         </h3>
         <p>A free, secure password manager that effortlessly syncs across all your devices, ensuring your login credentials are always safe and within arms’ reach.</p>
       </div>
     </div>
 
     <p class="mzp-u-centered">
-      <a class="mzp-c-cta-link" href="https://addons.mozilla.org/en-GB/firefox/extensions/{{ referrals }}" target="_blank" rel="noopener">See all extensions</a>
+      <a class="mzp-c-cta-link" href="https://addons.mozilla.org/en-GB/firefox/extensions/{{ params }}" target="_blank" rel="noopener">See all extensions</a>
     </p>
   </section>
 
@@ -246,7 +242,7 @@
   </section>
 
   <section class="c-support">
-    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(referrals) %}
+    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(params) %}
     {{ ftl('firefox-desktop-download-questions', attrs=questions_attrs) }}
   </section>
 
