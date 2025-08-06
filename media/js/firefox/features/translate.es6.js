@@ -34,7 +34,7 @@ function initTranslateLanguageNames() {
         languageDisplay: 'standard'
     });
 
-    const languageItems = supportedLanguages
+    const languageNames = supportedLanguages
         .map((langCode) => {
             const locale = new Intl.Locale(langCode);
 
@@ -54,9 +54,9 @@ function initTranslateLanguageNames() {
         .sort((a, b) => a.localeCompare(b));
 
     langList.textContent = '';
-    languageItems.forEach((item) => {
+    languageNames.forEach((languageName) => {
         const li = document.createElement('li');
-        li.textContent = item;
+        li.textContent = languageName;
         langList.appendChild(li);
     });
 }
