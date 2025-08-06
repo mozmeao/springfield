@@ -10,6 +10,15 @@
  * based on the user's current locale and CLDR data
  */
 function initTranslateLanguageNames() {
+    // Return early if the browser doesn't support Intl.DisplayNames or Intl.Locale
+    if (
+        typeof Intl === 'undefined' ||
+        typeof Intl.Locale === 'undefined' ||
+        typeof Intl.DisplayNames == 'undefined'
+    ) {
+        return;
+    }
+
     const langList = document.querySelector('.c-translate-lang-list');
 
     const currentLocale = document.documentElement.lang || 'en';
