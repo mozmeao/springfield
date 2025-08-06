@@ -52,9 +52,6 @@ function initTranslateLanguageNames() {
     });
 }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTranslateLanguageNames);
-} else {
-    initTranslateLanguageNames();
+if (typeof Mozilla.Utils !== 'undefined') {
+    Mozilla.Utils.onDocumentReady(initTranslateLanguageNames);
 }
