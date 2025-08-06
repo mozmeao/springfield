@@ -112,9 +112,9 @@ urlpatterns = (
     page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
     page("landing/get/", "firefox/landing/get.html", ftl_files="firefox/download/desktop"),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
-    page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/new/desktop", active_locales="en-GB"),
-    page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/new/desktop", active_locales="en-GB"),
-    page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/new/desktop", active_locales="en-GB"),
+    page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
+    page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
+    page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",
