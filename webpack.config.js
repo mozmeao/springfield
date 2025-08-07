@@ -105,7 +105,8 @@ module.exports = {
         hot: false,
         static: false,
         devMiddleware: {
-            index: false // specify to enable root proxy'ing
+            index: false, // specify to enable root proxy'ing
+            writeToDisk: true // Write files to disk so Django can serve them
         },
         proxy: [
             {
