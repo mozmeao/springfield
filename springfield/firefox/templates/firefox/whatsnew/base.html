@@ -1,0 +1,65 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<!doctype html>
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}"{% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"{% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}"{% endif %} {% block html_attrs %}{% endblock %}>
+  <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex,follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_meta %}{% endblock %}
+
+    <title>{% block page_title %}What's New with Firefox {{ major_version }}{% endblock %}</title>
+
+    {% block site_css %}
+      {# New WNP CSS will be added here #}
+    {% endblock %}
+
+    {% block page_css %}{% endblock %}
+
+    {% block google_analytics %}
+      {% if settings.GTM_CONTAINER_ID %}
+        {{ js_bundle('gtm-snippet') }}
+      {% endif %}
+    {% endblock %}
+  </head>
+
+  <body {% if self.body_id() %}id="{% block body_id %}firefox-whatsnew-{{ major_version }}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+
+    {% block wnp_header %}
+      <header class="page-header">
+        <div class="header-inner">
+          <h2 class="logo-fx">Firefox</h2>
+        </div>
+      </header>
+    {% endblock %}
+
+    <div id="outer-wrapper">
+      {% block wnp_content %}
+        <main class="content-wrapper">
+          <div class="content-inner">
+            <h1>What's New in Firefox {{ major_version }}</h1>
+          </div>
+        </main>
+      {% endblock %}
+
+      {% block wnp_footer %}
+        <footer class="page-footer">
+          <div class="footer-inner">
+            <p>Powered by Mozilla</p>
+          </div>
+        </footer>
+      {% endblock %}
+    </div>
+
+    {% block site_js %}
+      {{ js_bundle('lib') }}
+      {{ js_bundle('data') }}
+    {% endblock %}
+
+    {% block js %}{% endblock %}
+  </body>
+</html>

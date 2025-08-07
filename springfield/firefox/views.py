@@ -810,3 +810,93 @@ class PlatformViewWindows(L10nTemplateView):
 
     # all active locales, this will make the lang switcher work properly
     activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+class WhatsNewView(L10nTemplateView):
+    """
+    View for the new Firefox What's New Page (WNP).
+    This is a completely new design for Firefox 142+.
+    """
+
+    template_name = "firefox/whatsnew/base.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        version = self.kwargs.get("version") or ""
+
+        # Add version to context for use in templates
+        match = re.match(r"\d{1,3}", version)
+        major_version = int(match.group(0)) if match else ""
+        ctx["version"] = version
+        ctx["major_version"] = major_version
+
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        """
+        Override get method to check if template exists and return 404 if not.
+        """
+        from django.http import Http404
+        from django.template.loader import get_template
+
+        version = self.kwargs.get("version") or ""
+        locale = l10n_utils.get_locale(self.request)
+
+        # Extract major version number (e.g., "142" from "142.0")
+        match = re.match(r"(\d{1,3})", version)
+        if not match:
+            raise Http404("Page not found.")
+        else:
+            major_version = match.group(1)
+
+        # Check if any template exists for this version
+        template_found = False
+
+        # 1. Check version + locale specific template
+        if locale != "en-US":
+            try:
+                get_template(f"firefox/whatsnew/whatsnew-fx{major_version}-{locale}.html")
+                template_found = True
+            except Exception:
+                pass
+
+        # 2. Check version specific template
+        if not template_found:
+            try:
+                get_template(f"firefox/whatsnew/whatsnew-fx{major_version}.html")
+                template_found = True
+            except Exception:
+                pass
+
+        # If no template found, return 404
+        if not template_found:
+            raise Http404("What's New page not found for this Firefox version.")
+
+        return super().get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        """
+        Return a list of template names to try, in order of preference.
+        This allows for version-specific templates and locale-specific content.
+        """
+        version = self.kwargs.get("version") or ""
+        locale = l10n_utils.get_locale(self.request)
+
+        # Extract major version number (e.g., "142" from "142.0")
+        match = re.match(r"(\d{1,3})", version)
+        if not match:
+            raise Http404("Page not found.")
+        else:
+            major_version = match.group(1)
+
+        # Build template name candidates in order of preference
+        templates = []
+
+        # 1. Version + locale specific (e.g., whatsnew-fx142-en-us.html)
+        if locale != "en-US":
+            templates.append(f"firefox/whatsnew/whatsnew-fx{major_version}-{locale}.html")
+
+        # 2. Version specific (e.g., whatsnew-fx142.html)
+        templates.append(f"firefox/whatsnew/whatsnew-fx{major_version}.html")
+
+        return templates

@@ -19,6 +19,7 @@ ios_releasenotes_re = releasenotes_re.replace(r"firefox", "firefox/ios")
 sysreq_re = latest_re % (version_re, "system-requirements")
 android_sysreq_re = sysreq_re.replace(r"firefox", "firefox/android")
 ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
+whatsnew_re = r"^whatsnew/(?P<version>%s)/$" % version_re
 
 
 urlpatterns = (
@@ -92,6 +93,7 @@ urlpatterns = (
         ios_sysreq_re, springfield.releasenotes.views.system_requirements, {"product": "Firefox for iOS"}, name="firefox.ios.system_requirements"
     ),
     path("releases/", springfield.releasenotes.views.releases_index, {"product": "Firefox"}, name="firefox.releases.index"),
+    re_path(whatsnew_re, views.WhatsNewView.as_view(), name="firefox.whatsnew"),
     path("stub_attribution_code/", views.stub_attribution_code, name="firefox.stub_attribution_code"),
     # Issue 8432
     # Issue 13253: Ensure that Firefox can continue to refer to this URL.
