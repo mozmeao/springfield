@@ -348,6 +348,12 @@
         "css/firefox/more/windows-64-bit.scss"
       ],
       "name": "windows-64-bit"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/whatsnew.scss"
+      ],
+      "name": "firefox_whatsnew"
     }
   ],
   "js": [

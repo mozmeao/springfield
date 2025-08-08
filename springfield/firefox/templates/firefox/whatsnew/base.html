@@ -15,8 +15,14 @@
     <title>{% block page_title %}What's New with Firefox {{ major_version }}{% endblock %}</title>
 
     {% block site_css %}
-      {# New WNP CSS will be added here #}
+      {{ css_bundle('firefox_whatsnew') }}
     {% endblock %}
+
+    {# The Firefox Design System fonts files (Metropolis, Inter) come from Protocol, but we only use the font files, not Protocol CSS #}
+    <link rel="preload" href="{{ static('protocol/fonts/Metropolis-Medium.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ static('protocol/fonts/Metropolis-Bold.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ static('protocol/fonts/Inter-Regular.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ static('protocol/fonts/Inter-Bold.woff2') }}" as="font" type="font/woff2" crossorigin>
 
     {% block page_css %}{% endblock %}
 
@@ -30,25 +36,25 @@
   <body {% if self.body_id() %}id="{% block body_id %}firefox-whatsnew-{{ major_version }}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
 
     {% block wnp_header %}
-      <header class="page-header">
-        <div class="header-inner">
-          <h2 class="logo-fx">Firefox</h2>
+      <header class="wnp-header">
+        <div class="wnp-header-inner">
+          <h2 class="wnp-logo-fx">Firefox</h2>
         </div>
       </header>
     {% endblock %}
 
     <div id="outer-wrapper">
       {% block wnp_content %}
-        <main class="content-wrapper">
-          <div class="content-inner">
+        <main class="wnp-content">
+          <div class="wnp-content-inner">
             <h1>What's New in Firefox {{ major_version }}</h1>
           </div>
         </main>
       {% endblock %}
 
       {% block wnp_footer %}
-        <footer class="page-footer">
-          <div class="footer-inner">
+        <footer class="wnp-footer">
+          <div class="wnp-footer-inner">
             <p>Powered by Mozilla</p>
           </div>
         </footer>

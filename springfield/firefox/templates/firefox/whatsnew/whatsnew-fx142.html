@@ -6,19 +6,17 @@
 
 {% extends "firefox/whatsnew/base.html" %}
 
-{% block wnp_header %}
-  <header class="page-header">
-    <div class="header-inner">
-      <h2 class="logo-fx">Firefox</h2>
-    </div>
-  </header>
-{% endblock %}
-
 {% block wnp_content %}
-  <main class="page-main">
-    <div class="content-inner">
-      <h1>What's New in Firefox {{ major_version }}</h1>
-      <p>Content will be added here.</p>
+  <div class="wnp-page">
+    <div class="wnp-content">
+      <main class="wnp-main">
+        <section class="wnp-section">
+          <div class="wnp-container">
+            <h1 class="wnp-title">What's New in Firefox {{ major_version }}</h1>
+            <p class="wnp-body">Content will be added here.</p>
+          </div>
+        </section>
+      </main>
     </div>
-  </main>
+  </div>
 {% endblock %}
