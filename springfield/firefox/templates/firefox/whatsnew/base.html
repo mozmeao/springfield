@@ -38,7 +38,17 @@
     {% block wnp_header %}
       <header class="wnp-header">
         <div class="wnp-header-inner">
-          <h2 class="wnp-logo-fx">Firefox</h2>
+          <a class="wnp-logo-fx" href="#">Firefox</a>
+          <nav class="wnp-nav" aria-label="Primary">
+            <ul class="wnp-nav-menu">
+              <li><a class="wnp-nav-link wnp-nav-link--active" href="#">What’s New</a></li>
+              <li><a class="wnp-nav-link" href="#">Archive</a></li>
+              <li><a class="wnp-nav-link" href="#">Release Notes</a></li>
+            </ul>
+          </nav>
+          <button class="wnp-nav-toggle" type="button" aria-label="Toggle Dark Mode">
+            <span>Toggle Dark Mode</span>
+          </button>
         </div>
       </header>
     {% endblock %}
@@ -55,7 +65,28 @@
       {% block wnp_footer %}
         <footer class="wnp-footer">
           <div class="wnp-footer-inner">
-            <p>Powered by Mozilla</p>
+            <div class="wnp-footer-top">
+              <p class="wnp-footer-copy">
+                Visit <a class="wnp-footer-link" href="https://www.mozilla.org/en-US/">Mozilla Corporation’s</a> not-for-profit parent, the
+                <a class="wnp-footer-link" href="https://foundation.mozilla.org/?utm_source=www.mozilla.org&utm_medium=referral&utm_campaign=footer">Mozilla Foundation</a>.<br>
+                Portions of this content are ©1998–2025 by individual mozilla.org contributors.<br>
+                Content available under a <a class="wnp-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/">Creative Commons license</a>.
+              </p>
+              <div class="wnp-footer-logo" aria-hidden="true"></div>
+            </div>
+
+            <hr class="wnp-footer-divider">
+
+            <div class="wnp-footer-bottom">
+              <div class="wnp-footer-brand">
+                <h3 class="wnp-footer-title">Powered by Mozilla</h3>
+                <p class="wnp-footer-subtitle">Putting people before profits since 1998</p>
+              </div>
+              <div class="wnp-footer-cta">
+                <a class="wnp-button wnp-button-outline" href="#">Donate to Mozilla</a>
+                <p class="wnp-footer-note">Lorem ipsum dolor sit amet consectetur</p>
+              </div>
+            </div>
           </div>
         </footer>
       {% endblock %}
