@@ -14,7 +14,7 @@ function initTranslateLanguageNames() {
     if (
         typeof Intl === 'undefined' ||
         typeof Intl.Locale === 'undefined' ||
-        typeof Intl.DisplayNames == 'undefined'
+        typeof Intl.DisplayNames === 'undefined'
     ) {
         return;
     }
