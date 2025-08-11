@@ -12,12 +12,12 @@ Docs
 ----
 
 Springfield is a [Django][django] project. Check out the [django docs][dj-docs] for
-general technical documentation. In addition, there are project-specific
-[Springfield docs][sp-docs].
+general technical documentation. In addition, there are Springfield-specific instructions
+in the project's [platform docs][meao-docs].
 
 [django]: https://www.djangoproject.com/
 [dj-docs]: https://docs.djangoproject.com/
-[sp-docs]: https://mozmeao.github.io/springfield/
+[meao-docs]: https://mozmeao.github.io/platform-docs/
 
 Contributing
 ------------
