@@ -21,7 +21,7 @@ const slugs = [
 
 slugs.forEach((slug) => {
     test.describe(
-        `${url}/${slug} page`,
+        `${url}${slug} page`,
         {
             tag: '@firefox'
         },
