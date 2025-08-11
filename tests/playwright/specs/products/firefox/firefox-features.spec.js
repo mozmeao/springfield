@@ -19,13 +19,13 @@ const slugs = [
     'translate'
 ];
 
-test.describe(
-    `${url} page`,
-    {
-        tag: '@firefox'
-    },
-    () => {
-        for (const slug of slugs) {
+slugs.forEach((slug) => {
+    test.describe(
+        `${url}/${slug} page`,
+        {
+            tag: '@firefox'
+        },
+        () => {
             test.beforeEach(async ({ page, browserName }) => {
                 await openPage(url + `${slug}/`, page, browserName);
             });
@@ -42,5 +42,5 @@ test.describe(
                 }
             });
         }
-    }
-);
+    );
+});
