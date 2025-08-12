@@ -178,7 +178,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     a:link,
     a:visited {
-        color: $color-black;
+        color: $token-color-off-black;
         text-decoration: none;
     }
 
@@ -209,16 +209,22 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         h2::after {
             @include bidi(((margin-left, $spacing-sm, margin-right, 0),));
             content: '';
-            background: url('/media/img/icons/caret-sprite.svg') no-repeat bottom left / auto 12px;
+            background: url('/media/protocol/img/icons/arrow-down.svg') no-repeat center center / auto 16px;
             display: inline-block;
             height: 12px;
             vertical-align: baseline;
             width: 12px;
+            transform-origin: center;
+            transition: transform 0.1s ease;
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
 
         &.mzp-is-selected {
             h2::after {
-                background-position: bottom right;
+                transform: rotate(-180deg);
             }
         }
     }
@@ -293,9 +299,9 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    padding: 8px 16px;
+    padding: $spacing-sm $spacing-md;
     position: relative;
-    width: calc(100% - 32px);
+    width: calc(100% - $spacing-xl);
     z-index: 1000;
 
     @media #{$mq-md} {
@@ -306,20 +312,47 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category-link {
-    display: flex;
-    font-size: $text-body-md;
-    justify-content: flex-end;
-    margin: $spacer-lg $spacer-lg 0;
-    padding: 0;
-
     a:link,
     a:visited {
         display: flex;
+        justify-content: space-between;
+        margin: $spacer-md 0 -1em;
+        padding: $spacer-sm;
+        background: $m24-color-light-orange;
         font-weight: 600;
         position: relative;
-        width: fit-content;
+    }
+
+    svg {
+        @include bidi((
+            (left, auto, 0),
+            (margin-left, $spacing-xs, 0),
+            (margin-right, 0, $spacing-xs),
+            (right, 0, auto),
+            (transition-property, right, left),
+            (transform, none, rotate(-180deg)),
+        ));
+        height: 0.8em;
+        position: relative;
+        top: 0.15em;
+        transition-duration: $fast;
+        transition-timing-function: $bezier;
+        width: auto;
+    }
+
+    a:hover,
+    a:focus {
+        background: $token-color-orange;
+
+        svg {
+            @include bidi((
+                (right, -$spacing-xs, auto),
+                (left, auto, -$spacing-xs),
+            ));
+        }
     }
 }
+
 
 // * -------------------------------------------------------------------------- */
 // Menu panels
@@ -369,6 +402,12 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
     }
 }
 
+#m24-c-menu-panel-features {
+  @media #{$mq-md} {
+      width: calc($content-md / 2);
+  }
+}
+
 .m24-mzp-is-basic .m24-c-menu-panel {
     display: block;
 
@@ -386,7 +425,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-subtitle {
-    color: $m24-color-dark-mid-gray;
+    color: $m24-color-black;
     margin: 0;
     padding: $spacing-md 0 $spacing-sm;
 }
@@ -399,24 +438,30 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 .m24-c-menu-panel-container {
     margin: 0 auto;
     max-width: $content-max;
+    padding: $spacer-sm $spacer-lg $spacer-lg;
+    background-color: $m24-color-light-gray;
 
     @media #{$mq-md} {
         padding: $spacer-lg 0;
+        background-color: initial;
     }
 }
 
-.m24-c-menu-panel-content.multi-column {
+.m24-c-menu-panel-content {
     @media #{$mq-md} {
-        display: flex;
         padding: 0 $grid-margin;
-        column-gap: $layout-lg;
         margin: 0 auto;
+
+        &.multi-column {
+            display: flex;
+            column-gap: $layout-lg;
+        }
     }
 }
 
 .m24-c-menu-item-link {
     display: block;
-    padding: 8px 0;
+    padding: $spacing-sm 0;
 
     li:last-child > & {
         padding-bottom: 0;
