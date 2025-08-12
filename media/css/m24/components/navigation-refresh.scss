@@ -330,7 +330,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
         justify-content: space-between;
         margin: $spacer-md 0 -1em;
         padding: $spacer-sm;
-        background: var(--m24-light-orange);
+        background: $m24-color-light-orange;
         font-weight: 600;
         position: relative;
     }
