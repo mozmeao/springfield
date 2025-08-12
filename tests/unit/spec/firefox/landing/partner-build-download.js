@@ -25,7 +25,7 @@ describe('partner-build-download.es6.js', function () {
                     </li>
                     <li class="os_win64-msi">
                         <a class="download-link button" id="download-primary-win64-msi" href="https://download.mozilla.org/?product=firefox-msi-latest-ssl&amp;os=win64&amp;lang=en-GB" data-download-version="win64-msi">
-                            >Download Firefox
+                            Download Firefox
                         </a>
                     </li>
                     <li class="os_win64-aarch64">
@@ -80,7 +80,7 @@ describe('partner-build-download.es6.js', function () {
                     </li>
                     <li class="os_win64-msi">
                         <a class="download-link button" id="download-primary-win64-msi" href="https://download.mozilla.org/?product=firefox-msi-latest-ssl&amp;os=win64&amp;lang=en-GB" data-download-version="win64-msi">
-                            >Download Firefox
+                            Download Firefox
                         </a>
                     </li>
                     <li class="os_win64-aarch64">

@@ -8,7 +8,6 @@
 @use '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
 @use '~@mozilla-protocol/core/protocol/css/components/section-heading';
 @use '~@mozilla-protocol/core/protocol/css/templates/multi-column';
-@use '../../protocol/components/sub-navigation';
 
 main {
     background-color: $color-white; // for IE6
