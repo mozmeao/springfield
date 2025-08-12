@@ -354,7 +354,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
     a:hover,
     a:focus {
-        background: var(--m24-orange);
+        background: $token-color-orange;
 
         svg {
             @include bidi((
