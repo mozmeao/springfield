@@ -311,9 +311,9 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    padding: 8px 16px;
+    padding: $spacing-sm $spacing-md;
     position: relative;
-    width: calc(100% - 32px);
+    width: calc(100% - $spacing-xl);
     z-index: 1000;
 
     @media #{$mq-md} {
@@ -473,7 +473,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 .m24-c-menu-item-link {
     display: block;
-    padding: 8px 0;
+    padding: $spacing-sm 0;
 
     li:last-child > & {
         padding-bottom: 0;
