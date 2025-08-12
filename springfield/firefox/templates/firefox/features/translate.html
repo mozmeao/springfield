@@ -6,10 +6,6 @@
 
 {% extends "firefox/features/base-article.html" %}
 
-{% block js %}
-  {{ js_bundle('firefox_features_translate') }}
-{% endblock %}
-
 {% block page_desc %}{{ ftl('features-translate-firefox-translations-is-a-built-in-v2') }}{% endblock %}
 
 {% block article_title_short %}{{ ftl('features-translate-translate-the-web') }}{% endblock %}
@@ -88,4 +84,9 @@
 
 <h2>{{ ftl('features-translate-firefox-speaks-your-language') }}</h2>
 <p>{{ ftl('features-translate-the-firefox-translations-feature-v2', download='href="%s" data-cta-text="Get started in your preferred language"'|safe|format(url('firefox'))) }}</p>
+{% endblock %}
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('firefox_features_translate') }}
 {% endblock %}
