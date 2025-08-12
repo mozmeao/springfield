@@ -16,7 +16,7 @@ navigation-fingerprint-blocking = Fingerprint Blocking
 navigation-ad-tracker-blocking = Ad Tracker Blocking
 navigation-private-browsing = Private Browsing Mode
 navigation-password-manager = Free Password Manager
-navigation-features-all = View all Firefox Features
+navigation-features-all = View all { -brand-name-firefox } Features
 
 ## Resources
 

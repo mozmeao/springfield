@@ -311,9 +311,9 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 }
 
 .m24-c-menu-category {
-    padding: 8px 16px; // TODO: or spacers to add up calc below?
+    padding: 8px 16px;
     position: relative;
-    width: calc(100% - 32px); // TODO: 32px or spacer?
+    width: calc(100% - 32px);
     z-index: 1000;
 
     @media #{$mq-md} {
@@ -473,7 +473,7 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
 
 .m24-c-menu-item-link {
     display: block;
-    padding: 8px 0;  // TODO: 8px or token?
+    padding: 8px 0;
 
     li:last-child > & {
         padding-bottom: 0;
