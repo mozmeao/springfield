@@ -227,7 +227,11 @@ $margin-top: 58px; // top margin offset for mobile navigation menu
             vertical-align: baseline;
             width: 12px;
             transform-origin: center;
-            transition: transform 0.25s ease;
+            transition: transform 0.1s ease;
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
 
         &.mzp-is-selected {
