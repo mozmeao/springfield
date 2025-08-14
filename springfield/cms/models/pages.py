@@ -7,11 +7,12 @@ from django.db import models
 from django.shortcuts import redirect
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
+from wagtail import blocks
 from wagtail.models import Page as WagtailBasePage
 
 from .base import AbstractSpringfieldCMSPage
-
+from springfield.cms.blocks import HeroBlock, FeaturesBlock, HighlightsBlock, SubscribeBannerBlock, TagCardsBlock, QRCodeBannerBlock
 
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
@@ -112,3 +113,23 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
 
     class Meta:
         abstract = True
+
+
+class WhatsNewPage(AbstractSpringfieldCMSPage):
+    """A page that displays the latest Firefox updates and changes."""
+
+    content = StreamField(
+        [
+            ("paragraph", blocks.RichTextBlock()),
+            ("hero", HeroBlock()),
+            ("features", FeaturesBlock()),
+            ("highlights", HighlightsBlock()),
+            ("subscribe_banner", SubscribeBannerBlock()),
+            ("tag_cards", TagCardsBlock()),
+            ("qr_code_banner", QRCodeBannerBlock()),
+        ]
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
+    ]

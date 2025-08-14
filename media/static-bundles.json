@@ -275,6 +275,12 @@
     },
     {
       "files": [
+        "css/cms/new.scss"
+      ],
+      "name": "cms-new"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"
@@ -609,6 +615,12 @@
         "js/firefox/landing/get/marketing-opt-out-init.es6.js"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
     }
   ]
 }

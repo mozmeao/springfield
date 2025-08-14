@@ -1,0 +1,19 @@
+<div class="{{ value.alignment }}">
+  <div class="">
+    {% if value.accent_text %}
+      <p class="wnp-eyebrow">
+        {{ value.accent_text|richtext|remove_p_tag }}
+      </p>
+    {% endif %}
+    {% if value.headline_text %}
+      <{{ value.heading_size }} class="features-heading">
+        {{ value.headline_text|richtext|remove_p_tag }}
+      </{{ value.heading_size }}>
+    {% endif %}
+  </div>
+  {% if value.subheadline_text %}
+    <p class="wnp-body">
+      {{ value.subheadline_text|richtext|remove_p_tag }}
+    </p>
+  {% endif %}
+</div>
