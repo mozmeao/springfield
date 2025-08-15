@@ -1,0 +1,14 @@
+<article class="wnp-card">
+  <div>
+    {% for tag in value.tags %}
+      {% include_block tag %}
+    {% endfor %}
+  </div>
+  <h3 class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</h3>
+  <div class="wnp-body">{{ value.content }}</div>
+  {% if value.button %}
+    {% for button in value.button %}
+      {% include_block button %}
+    {% endfor %}
+  {% endif %}
+</article>

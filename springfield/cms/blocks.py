@@ -1,3 +1,5 @@
+from django.templatetags.static import static
+
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
@@ -19,8 +21,28 @@ HEADING_SIZE_CHOICES = (
     ("h6", "H6"),
 )
 
+# TODO: Implement an icon system
+ICON_CHOICES = [
+    ("android", "Android"),
+    ("apple", "Apple"),
+    ("arrow-right", "Arrow Right"),
+    ("design", "Design"),
+    ("language", "Language"),
+    ("shield", "Shield"),
+]
+ICON_FILES = {
+    "android": "img/icons/cms/android-icon.png",
+    "apple": "img/icons/cms/apple-icon.png",
+    "arrow-right": "img/icons/cms/arrow-right.svg",
+    "design": "img/icons/cms/design-icon.svg",
+    "language": "img/icons/cms/language-icon.svg",
+    "shield": "img/icons/cms/shield.svg",
+}
 
 # Element blocks
+
+def get_icon_url(icon_name: str) -> str:
+    return static(ICON_FILES.get(icon_name, ""))
 
 class HeadingBlock(blocks.StructBlock):
     accent_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -60,6 +82,9 @@ class ButtonValue(blocks.StructValue):
         """TODO"""
         return "" if self.get("center", False) else ""
 
+    def icon_url(self) -> str:
+        return get_icon_url(self.get("icon", ""))
+
 
 class ButtonBlock(blocks.StructBlock):
     link = blocks.CharBlock()
@@ -86,13 +111,7 @@ class ButtonBlock(blocks.StructBlock):
         required=False,
     )
     center = blocks.BooleanBlock(required=False, default=False)
-    # TODO: implement an icons system
-    icon = blocks.ChoiceBlock(
-        required=False,
-        choices=[
-            ("arrow-right", "Arrow Right"),
-        ]
-    )
+    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES)
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -109,22 +128,32 @@ class LinkBlock(blocks.StructBlock):
     )
 
 
-# class TagBlock(blocks.StructBlock):
-#     title = blocks.CharBlock()
-#     icon = blocks.ChoiceBlock(
-#         choices=[
-#             ("tag-icon-1", "Tag Icon 1"),
-#             ("tag-icon-2", "Tag Icon 2"),
-#             ("tag-icon-3", "Tag Icon 3"),
-#         ]
-#     )
-#     color = blocks.ChoiceBlock(
-#         choices=[
-#             ("tag-color-1", "Tag Color 1"),
-#             ("tag-color-2", "Tag Color 2"),
-#             ("tag-color-3", "Tag Color 3"),
-#         ]
-#     )
+class TagValue(blocks.StructValue):
+    def icon_url(self) -> str:
+        return get_icon_url(self.get("icon", ""))
+
+
+class TagBlock(blocks.StructBlock):
+    title = blocks.CharBlock()
+    icon = blocks.ChoiceBlock(
+        choices=ICON_CHOICES
+    )
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("blue", "Blue"),
+            ("orange", "Orange"),
+            ("yellow", "Yellow"),
+        ],
+        required=False,
+    )
+
+    class Meta:
+        template = "cms/blocks/tag.html"
+        label = "Tag"
+        label_format = "Tag - {title}"
+        value_class = TagValue
+
 
 # Section blocks
 
@@ -185,22 +214,22 @@ class SubscribeBannerBlock(blocks.StructBlock):
         label_format = "Subscribe Banner - {heading}"
 
 
-# class TagCard(blocks.StructBlock):
-#     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-#     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-#     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-#     tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
+class TagCard(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
 
-#     class Meta:
-#         template = "cms/blocks/tag-card.html"
-#         label = "Tag Card"
-#         label_format = "Tag Card - {headline}"
+    class Meta:
+        template = "cms/blocks/tag-card.html"
+        label = "Tag Card"
+        label_format = "Tag Card - {headline}"
 
 
-# TODO: find a name for this
+# TODO: find a better name for this
 class TagCardsBlock(blocks.StructBlock):
     heading = HeadingBlock()
-    # cards = blocks.ListBlock(TagCard())
+    cards = blocks.ListBlock(TagCard())
 
     class Meta:
         template = "cms/blocks/tag-cards.html"
