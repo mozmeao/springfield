@@ -33,6 +33,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - ./data/:/app/data
+      - media_volume:/app/custom-media
       - ./springfield/:/app/springfield:delegated
       - ./bin/:/app/bin:delegated
       - ./docker/:/app/docker:delegated
@@ -161,3 +163,6 @@ services:
       ./bin/compile-requirements.sh
     volumes:
       - .:/app
+
+volumes:
+  media_volume:
