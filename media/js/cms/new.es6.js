@@ -129,5 +129,130 @@
             : mql.addListener && mql.addListener(onChange);
     }
 
+    // Inclusive Card Pattern - Making entire cards clickable
+    // Based on https://inclusive-components.design/cards/
+    function initInclusiveCards() {
+        addInclusiveInteraction('.wnp-feature', '.wnp-feature-content-inner');
+        addInclusiveInteraction('.wnp-card', '.wnp-card-content');
+    }
+
+    function addInclusiveInteraction(cardClass, wrapperClass) {
+        const cards = document.querySelectorAll(cardClass);
+        cards.forEach(function (card) {
+            const link = card.querySelector('.wnp-subtitle a');
+            if (!link) return;
+            card.style.cursor = 'pointer';
+            const contentWrapper = card.querySelector(wrapperClass);
+            if (contentWrapper) {
+                let down, up;
+                contentWrapper.onmousedown = () => (down = +new Date());
+                contentWrapper.onmouseup = () => {
+                    up = +new Date();
+                    const clickDuration = up - down;
+                    const button = card.querySelector('.wnp-button');
+                    if (
+                        event.target === link ||
+                        link.contains(event.target) ||
+                        (button &&
+                            (event.target === button ||
+                                button.contains(event.target)))
+                    ) {
+                        return;
+                    }
+                    if (clickDuration > 200) {
+                        return;
+                    }
+                    link.click();
+                };
+            }
+        });
+    }
+
+    function initNewsletterForm() {
+        const emailInput = document.getElementById('wnp-email');
+        const formDetails = document.querySelector('.wnp-form-details');
+        const checkbox = document.getElementById('wnp-privacy');
+        const submit = document.getElementById('newsletter-submit');
+
+        const include_country = document.getElementById('id_country') !== null;
+        const include_language = document.getElementById('id_lang') !== null;
+
+        if (!emailInput || !formDetails || !checkbox || !submit) {
+            return;
+        }
+
+        let isFormExpanded = false;
+
+        emailInput.addEventListener('input', function () {
+            if (this.value.length > 0 && !isFormExpanded) {
+                formDetails.classList.remove('wnp-form-row-hidden');
+                emailInput
+                    .closest('.wnp-subscribe')
+                    .classList.add('wnp-subscribe-expanded');
+                isFormExpanded = true;
+            } else if (this.value.length === 0 && isFormExpanded) {
+                formDetails.classList.add('wnp-form-row-hidden');
+                emailInput
+                    .closest('.wnp-subscribe')
+                    .classList.remove('wnp-subscribe-expanded');
+                isFormExpanded = false;
+            }
+        });
+
+        emailInput.addEventListener('focus', function () {
+            if (this.value.length > 0 && !isFormExpanded) {
+                formDetails.classList.remove('wnp-form-row-hidden');
+                emailInput
+                    .closest('.wnp-subscribe')
+                    .classList.add('wnp-subscribe-expanded');
+                isFormExpanded = true;
+            }
+        });
+
+        function sync() {
+            const emailValid = emailInput.value.length > 0;
+            const countryValid =
+                !include_country ||
+                (document.getElementById('id_country') &&
+                    document.getElementById('id_country').value !== '');
+            const languageValid =
+                !include_language ||
+                (document.getElementById('id_lang') &&
+                    document.getElementById('id_lang').value !== '');
+            const consentValid = checkbox.checked;
+
+            submit.disabled = !(
+                emailValid &&
+                countryValid &&
+                languageValid &&
+                consentValid
+            );
+        }
+
+        emailInput.addEventListener('input', sync);
+        checkbox.addEventListener('change', sync);
+
+        if (include_country && document.getElementById('id_country')) {
+            document
+                .getElementById('id_country')
+                .addEventListener('change', sync);
+        }
+        if (include_language && document.getElementById('id_lang')) {
+            document.getElementById('id_lang').addEventListener('change', sync);
+        }
+
+        sync();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            initInclusiveCards();
+            initNewsletterForm();
+        });
+    } else {
+        initInclusiveCards();
+        initNewsletterForm();
+    }
+
     applyStoredTheme();
 })();
