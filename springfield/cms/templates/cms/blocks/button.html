@@ -1,5 +1,5 @@
 <div class="{{ value.center_class() }}">
-  <a class="btn {{ value.size_class() }} {{ value.theme_class() }}" href="{{ value.link }}" {% if value.external %}target="_blank"{% endif %}>
+  <a class="wnp-button {{ value.theme_class() }}" href="{{ value.link }}" {% if value.external %}target="_blank"{% endif %}>
     {{ value.label }}
     {% if value.icon %}
       <img class="wnp-button-icon" src="{{ value.icon_url() }}" width="16" height="16" alt="" aria-hidden="true" />

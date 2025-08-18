@@ -1,8 +1,8 @@
-from bs4 import BeautifulSoup
-from django import template
 from django.utils.safestring import mark_safe
-from wagtail.rich_text import RichText
+
+from bs4 import BeautifulSoup
 from django_jinja import library
+from wagtail.rich_text import RichText
 
 
 @library.filter
