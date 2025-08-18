@@ -117,6 +117,10 @@ RUN chown -R webdev /home/webdev/
 
 USER webdev
 
+# media
+RUN mkdir -p /app/custom-media
+RUN chown -R webdev:webdev /app/custom-media
+
 # build args
 ARG GIT_SHA=latest
 ENV GIT_SHA=${GIT_SHA}
