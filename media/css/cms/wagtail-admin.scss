@@ -1,0 +1,16 @@
+.compact-form,
+.compact-form .w-panel__content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.compact-form .w-panel__content > div,
+.compact-form > div {
+    width: fit-content;
+}
+
+.compact-form > div:has(.w-field--draftail_rich_text_area, input[type="text"]),
+.compact-form .w-panel__content > div:has(.w-field--draftail_rich_text_area, input[type="text"]) {
+    width: 100%;
+}

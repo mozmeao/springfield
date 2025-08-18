@@ -281,6 +281,12 @@
     },
     {
       "files": [
+        "css/cms/wagtail-admin.scss"
+      ],
+      "name": "wagtail-admin"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"

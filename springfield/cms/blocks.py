@@ -22,6 +22,9 @@ HEADING_SIZE_CHOICES = (
 )
 
 # TODO: Implement an icon system
+# Ideally, the backend should only care about the icon's name and use it as a class name
+# The frontend implementation can use a SSV sprite, files, or any other method to display the icons
+# <span class="icon icon-{icon_name}"></span>
 ICON_CHOICES = [
     ("android", "Android"),
     ("apple", "Apple"),
@@ -44,19 +47,31 @@ ICON_FILES = {
 def get_icon_url(icon_name: str) -> str:
     return static(ICON_FILES.get(icon_name, ""))
 
+
+class HeadingValue(blocks.StructValue):
+    def alignment_class(self) -> str:
+        classes = {
+            "left": "text-left",
+            "center": "text-center",
+        }
+        return classes.get(self.get("alignment", "left"))
+
+
 class HeadingBlock(blocks.StructBlock):
-    accent_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    subheadline_text = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES, required=False
-    )
-    alignment = blocks.ChoiceBlock(
-        choices=(("text-center", "Center"), ("text-left", "Left")),
-        default="text-left",
-    )
     heading_size = blocks.ChoiceBlock(
         choices=HEADING_SIZE_CHOICES,
         default="h2",
+        inline_form=True,
+    )
+    alignment = blocks.ChoiceBlock(
+        choices=(("center", "Center"), ("left", "Left")),
+        default="left",
+        inline_form=True,
+    )
+    eyebrow_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    subheadline_text = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES, required=False
     )
 
     class Meta:
@@ -64,19 +79,17 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{headline_text}"
         template = "cms/blocks/heading.html"
+        form_classname = "compact-form struct-block"
+        value_class = HeadingValue
 
 
 class ButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
-            "outline": "wnp-button wnp-button-outline",
-            "secondary": "wnp-button wnp-button-secondary",
+            "outline": "wnp-button-outline",
+            "secondary": "wnp-button-secondary",
         }
         return classes.get(self.get("theme"), "")
-
-    def size_class(self) -> str:
-        """TODO"""
-        return ""
 
     def center_class(self) -> str:
         """TODO"""
@@ -87,11 +100,6 @@ class ButtonValue(blocks.StructValue):
 
 
 class ButtonBlock(blocks.StructBlock):
-    link = blocks.CharBlock()
-    label = blocks.CharBlock(label="Button Text")
-    external = blocks.BooleanBlock(
-        required=False, default=False, label="External link"
-    )
     theme = blocks.ChoiceBlock(
         (
             ("outline", "Outline"),
@@ -99,22 +107,19 @@ class ButtonBlock(blocks.StructBlock):
         ),
         default="outline",
         required=False,
+        inline_form=True,
     )
-    size = blocks.ChoiceBlock(
-        (
-            ("xs", "X-Small"),
-            ("sm", "Small"),
-            ("md", "Medium"),
-            ("lg", "Large"),
-        ),
-        default="md",
-        required=False,
+    external = blocks.BooleanBlock(
+        required=False, default=False, label="External link", inline_form=True
     )
-    center = blocks.BooleanBlock(required=False, default=False)
-    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES)
+    center = blocks.BooleanBlock(required=False, default=False, inline_form=True)
+    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    link = blocks.CharBlock()
+    label = blocks.CharBlock(label="Button Text")
 
     class Meta:
         template = "cms/blocks/button.html"
+        form_classname = "compact-form struct-block"
         label = "Button"
         label_format = "Button - {label}"
         value_class = ButtonValue
@@ -153,19 +158,21 @@ class TagBlock(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         value_class = TagValue
+        form_classname = "compact-form struct-block"
 
 
 # Section blocks
 
 class HeroBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
     image = ImageChooserBlock()
+    heading = HeadingBlock(classname="compact-form")
+    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
         template = "cms/blocks/hero.html"
         label = "Hero"
         label_format = "Hero - {heading}"
+        form_classname = "compact-form struct-block"
 
 
 class FeatureRowBlock(blocks.StructBlock):
@@ -175,16 +182,22 @@ class FeatureRowBlock(blocks.StructBlock):
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
+    class Meta:
+        label = "Feature Row"
+        label_format = "{headline}"
+        form_classname = "compact-form struct-block"
+
 
 class FeaturesBlock(blocks.StructBlock):
     heading = HeadingBlock()
-    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1)
+    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, label="Call to Action")
     rows = blocks.ListBlock(FeatureRowBlock())
 
     class Meta:
         template = "cms/blocks/features.html"
         label = "Features"
         label_format = "Features - {heading}"
+        form_classname = "compact-form struct-block"
 
 
 class HighlightCardBlock(blocks.StructBlock):
@@ -194,6 +207,10 @@ class HighlightCardBlock(blocks.StructBlock):
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
+    class Meta:
+        label = "Highlight Card"
+        label_format = "{headline}"
+        form_classname = "compact-form struct-block"
 
 class HighlightsBlock(blocks.StructBlock):
     heading = HeadingBlock()
@@ -203,6 +220,7 @@ class HighlightsBlock(blocks.StructBlock):
         template = "cms/blocks/highlights.html"
         label = "Highlights"
         label_format = "Highlights - {heading}"
+        form_classname = "compact-form struct-block"
 
 
 class SubscribeBannerBlock(blocks.StructBlock):
@@ -212,6 +230,7 @@ class SubscribeBannerBlock(blocks.StructBlock):
         template = "cms/blocks/subscribe-banner.html"
         label = "Subscribe Banner"
         label_format = "Subscribe Banner - {heading}"
+        form_classname = "compact-form struct-block"
 
 
 class TagCard(blocks.StructBlock):
@@ -224,6 +243,7 @@ class TagCard(blocks.StructBlock):
         template = "cms/blocks/tag-card.html"
         label = "Tag Card"
         label_format = "Tag Card - {headline}"
+        form_classname = "compact-form struct-block"
 
 
 # TODO: find a better name for this
@@ -235,6 +255,7 @@ class TagCardsBlock(blocks.StructBlock):
         template = "cms/blocks/tag-cards.html"
         label = "Tag Cards"
         label_format = "Tag Cards - {heading}"
+        form_classname = "compact-form struct-block"
 
 
 class QRCodeBannerBlock(blocks.StructBlock):
