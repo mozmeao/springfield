@@ -23,7 +23,7 @@ HEADING_SIZE_CHOICES = (
 
 # TODO: Implement an icon system
 # Ideally, the backend should only care about the icon's name and use it as a class name
-# The frontend implementation can use a SSV sprite, files, or any other method to display the icons
+# The frontend implementation can use a CSV sprite, files, or any other method to display the icons
 # <span class="icon icon-{icon_name}"></span>
 ICON_CHOICES = [
     ("android", "Android"),
@@ -48,6 +48,12 @@ def get_icon_url(icon_name: str) -> str:
     return static(ICON_FILES.get(icon_name, ""))
 
 
+def get_next_heading_size(size: str) -> str:
+    sizes = [choice[0] for choice in HEADING_SIZE_CHOICES]
+    index = sizes.index(size)
+    return sizes[index + 1] if index + 1 < len(sizes) else "h3"
+
+
 class HeadingValue(blocks.StructValue):
     def alignment_class(self) -> str:
         classes = {
@@ -55,6 +61,19 @@ class HeadingValue(blocks.StructValue):
             "center": "text-center",
         }
         return classes.get(self.get("alignment", "left"))
+
+    def sizing_class(self) -> str:
+        # TODO: Headline and subheadline should have proportionate sizes
+        # depending on the heading size
+        size_classes = {
+            "h1": "",
+            "h2": "",
+            "h3": "",
+            "h4": "",
+            "h5": "",
+            "h6": "",
+        }
+        return size_classes.get(self.get("heading_size", "h2"))
 
 
 class HeadingBlock(blocks.StructBlock):
@@ -212,6 +231,13 @@ class HighlightCardBlock(blocks.StructBlock):
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
 
+class HighlightsValue(blocks.StructValue):
+    def card_heading_size(self):
+        heading = self.get("heading")
+        size = heading.get("heading_size", "h2")
+        return get_next_heading_size(size)
+
+
 class HighlightsBlock(blocks.StructBlock):
     heading = HeadingBlock()
     cards = blocks.ListBlock(HighlightCardBlock())
@@ -221,9 +247,12 @@ class HighlightsBlock(blocks.StructBlock):
         label = "Highlights"
         label_format = "Highlights - {heading}"
         form_classname = "compact-form struct-block"
+        value_class = HighlightsValue
 
 
 class SubscribeBannerBlock(blocks.StructBlock):
+    # TODO: does it make sense to have the option to left align the heading
+    # Maybe a simpler heading block without the alignment options
     heading = HeadingBlock()
 
     class Meta:

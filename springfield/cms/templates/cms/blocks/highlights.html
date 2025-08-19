@@ -10,7 +10,7 @@
             {% set img_dark=image(card.image_dark, 'width-400') %}
           {% endif %}
           <img class="wnp-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
-          <h3 class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</h3>
+          <{{ value.card_heading_size() }} class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</{{ value.card_heading_size() }}>
           <div class="wnp-body">{{ card.content }}</div>
           {% if card.button %}
             <div class="wnp-card-btn-wrap">
