@@ -99,9 +99,6 @@ jobs:
     env:
       PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.springfield_service_hostname }}
       CI: true
-      CI_JOB_ID: ${{ github.run_id }}
-      DRIVER: ""
-      LABEL: playwright-tests
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -114,7 +111,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: test-results-${{ github.sha }}
+        name: test-results-${{ github.event.inputs.git_sha }}-${{ github.run_id }}
         path: tests/playwright/test-results/
         if-no-files-found: ignore  # this avoids a false "Warning" if there were no issues
         retention-days: 30
