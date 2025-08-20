@@ -111,6 +111,13 @@ jobs:
       run: cd tests/playwright && npm ci && npm run install-deps
     - name: Run Playwright tests
       run: cd tests/playwright && npm run integration-tests
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: test-results-${{ github.sha }}
+        path: tests/playwright/test-results/
+        if-no-files-found: ignore  # this avoids a false "Warning" if there were no issues
+        retention-days: 30
 
   notify-of-test-run-completion:
     if: always()
