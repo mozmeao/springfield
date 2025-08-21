@@ -333,6 +333,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/index.scss"
+      ],
+      "name": "firefox_landing"
+    },
+    {
+      "files": [
         "css/firefox/more/more.scss"
       ],
       "name": "more"
@@ -627,6 +633,18 @@
         "js/cms/new.es6.js"
       ],
       "name": "firefox-cms-new"
+    },
+    {
+      "files": [
+        "js/firefox/landing/init.es6.js"
+      ],
+      "name": "firefox_landing"
+    },
+    {
+      "files": [
+        "js/firefox/landing/partner-build-download-init.es6.js"
+      ],
+      "name": "firefox_partner_build_download"
     }
   ]
 }
