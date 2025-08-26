@@ -11,7 +11,6 @@ const { createReport, scanPageElement } = require('../includes/helpers');
 const { navigationLocator } = require('../includes/locators');
 const { test, expect } = require('@playwright/test');
 const testURL = '/en-US/';
-const disabledRules = ['blink'];
 
 test.describe(
     'Navigation (desktop)',
@@ -36,11 +35,7 @@ test.describe(
             await resourcesLink.hover();
             await expect(resourcesMenu).toBeVisible();
 
-            const results = await scanPageElement(
-                page,
-                navigationLocator,
-                disabledRules
-            );
+            const results = await scanPageElement(page, navigationLocator);
             createReport('component', 'navigation-desktop', results);
             expect(results.violations.length).toEqual(0);
         });
@@ -78,11 +73,7 @@ test.describe(
             // Resource menu should be open by default
             await expect(resourcesMenu).toBeVisible();
 
-            const results = await scanPageElement(
-                page,
-                navigationLocator,
-                disabledRules
-            );
+            const results = await scanPageElement(page, navigationLocator);
             createReport('component', 'navigation-mobile', results);
             expect(results.violations.length).toEqual(0);
         });
