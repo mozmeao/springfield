@@ -218,6 +218,7 @@ class StrikethroughExtensionTestCase(TestCase):
     "input_md, expected",
     (
         ("basic test", "<p>basic test</p>"),
+        ("This is [a link](https://example.com)", '<p>This is <a href="https://example.com">a link</a></p>'),
         (
             (
                 "<video width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
