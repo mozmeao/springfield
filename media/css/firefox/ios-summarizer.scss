@@ -6,17 +6,17 @@
 }
 
 .ios-summarizer-use-steps ol {
-  @include bidi(((margin-left, $layout-sm, margin-right, 0),));
-  list-style-type: decimal;
-  list-style-position: inside;
-  line-height: 1.5;
+    @include bidi(((margin-left, $layout-sm, margin-right, 0), ));
+    list-style-type: decimal;
+    list-style-position: inside;
+    line-height: 1.5;
 }
 
 .ios-summarizer-hero-background {
-  position: absolute;
-  inset: 0;
-  background: url('/media/img/firefox/browsers/mobile/ios/shake-to-summarize-gradient-bg.svg') no-repeat center bottom;
-  background-size: cover;
-  z-index: 0;
-  pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: url('/media/img/firefox/browsers/mobile/ios/shake-to-summarize-gradient-bg.svg') no-repeat center bottom;
+    background-size: cover;
+    z-index: 0;
+    pointer-events: none;
 }
