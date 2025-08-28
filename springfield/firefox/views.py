@@ -849,10 +849,7 @@ def show_57_dev_whatsnew(version):
 
 class WhatsnewView(L10nTemplateView):
     ftl_files_map = {
-        "firefox/whatsnew/nightly/evergreen.html": [
-            "firefox/whatsnew/nightly/evergreen",
-            "firefox/whatsnew/base",
-        ],
+        "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
         "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
         "firefox/whatsnew/evergreen.html": [
             "firefox/whatsnew/send-to-device",
