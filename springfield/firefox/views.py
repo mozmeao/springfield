@@ -851,10 +851,7 @@ class WhatsnewView(L10nTemplateView):
     ftl_files_map = {
         "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
         "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
-        "firefox/whatsnew/evergreen.html": [
-            "firefox/whatsnew/send-to-device",
-            "firefox/whatsnew/base",
-        ],
+        "firefox/whatsnew/evergreen.html": ["firefox/whatsnew/evergreen"],
     }
 
     # place expected ?v= values in this list

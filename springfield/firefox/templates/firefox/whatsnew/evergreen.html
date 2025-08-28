@@ -14,7 +14,7 @@
 {# "noindex" pages should not have the canonical or hreflang tags: bug 1442331 #}
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
-{% block page_title %}{{ ftl('whatsnew-s2d-download-firefox-for-android') }}{% endblock %}
+{% block page_title %}{{ ftl('whatsnew-page-title') }}{% endblock %}
 {% block page_desc %}{{ ftl('whatsnew-page-description') }}{% endblock %}
 
 {% block body_id %}firefox-whatsnew{% endblock %}
@@ -43,9 +43,9 @@
 
     <section class="wnp-content-main">
       <div class="mzp-l-content mzp-t-content-md">
-        <h1 class="wnp-main-title">{{ ftl('whatsnew-s2d-download-firefox-for-your') }}</h1>
+        <h1 class="wnp-main-title">{{ ftl('whatsnew-download-firefox-for-your') }}</h1>
         <div class="qr-wrapper">
-          <img class="qr-code" src="{{ static('img/firefox/whatsnew/qrcode-firefox-whatsnew.png') }}" width="180" height="180" alt="{{ ftl('whatsnew-s2d-qr-code-alt') }}">
+          <img class="qr-code" src="{{ static('img/firefox/whatsnew/qrcode-firefox-whatsnew.png') }}" width="180" height="180" alt="{{ ftl('whatsnew-qr-code-alt') }}">
         </div>
 
         <ul class="mobile-download-buttons">
