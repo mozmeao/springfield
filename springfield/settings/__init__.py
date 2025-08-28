@@ -84,6 +84,7 @@ _csp_img_src = {
 _csp_media_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
+    "www.mozilla.org",  # mainly for release notes videos.
     "assets.mozilla.net",
     "videos.cdn.mozilla.net",
 }
