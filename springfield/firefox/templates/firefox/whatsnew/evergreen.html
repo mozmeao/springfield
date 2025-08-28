@@ -1,5 +1,107 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
 {% extends "base-protocol.html" %}
 
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set android_url = play_store_url('firefox', 'firefox-whatsnew') %}
+{% set ios_url = app_store_url('firefox', 'firefox-whatsnew') %}
+
+{# "noindex" pages should not have the canonical or hreflang tags: bug 1442331 #}
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block page_title %}{{ ftl('whatsnew-s2d-download-firefox-for-android') }}{% endblock %}
+{% block page_desc %}{{ ftl('whatsnew-page-description') }}{% endblock %}
+
+{% block body_id %}firefox-whatsnew{% endblock %}
+{% block body_class %}{% endblock %}
+
+{% block site_header %}{% endblock %}
+
+{% block page_css %}
+  {{ css_bundle('whatsnew') }}
+{% endblock %}
+
 {% block content %}
-<h2>Stub for evergreen default</h2>
-{% endblock%}
+  <main class="content-wrapper mzp-t-firefox">
+    <header class="c-page-header">
+      <div class="mzp-l-content c-page-header-inner">
+        <h2 class="c-page-header-logo-fx">{{ ftl('whatsnew-firefox') }}</h2>
+        {% if ftl_has_messages('whatsnew-update-notification') %}
+          <div class="c-page-header-notification">
+            <div class="mzp-c-notification-bar mzp-t-success">
+              <p>{{ ftl('whatsnew-update-notification') }}</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <section class="wnp-content-main">
+      <div class="mzp-l-content mzp-t-content-md">
+        <h1 class="wnp-main-title">{{ ftl('whatsnew-s2d-download-firefox-for-your') }}</h1>
+        <div class="qr-wrapper">
+          <img class="qr-code" src="{{ static('img/firefox/whatsnew/qrcode-firefox-whatsnew.png') }}" width="180" height="180" alt="{{ ftl('whatsnew-s2d-qr-code-alt') }}">
+        </div>
+
+        <ul class="mobile-download-buttons">
+          <li class="android">
+            {{ google_play_button(href=android_url, id='play-store-link') }}
+          </li>
+          <li class="ios">
+            {{ apple_app_store_button(href=ios_url, id='app-store-link') }}
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="wnp-footer">
+      <p class="wnp-sign-off">{{ ftl('whatsnew-signoff') }}</p>
+      {% if LANG in ["en-US", "en-CA", "en-GB", "fr", "de", "es-ES", "it", "pl"] or ftl_has_messages('whatsnew-donate-to-mofo') %}
+        {% if LANG == 'fr' %}
+          {% set donate_cta = "Faire un don à la Fondation Mozilla" %}
+        {% elif LANG == 'de' %}
+          {% set donate_cta = "Spende an die Mozilla Foundation" %}
+        {% elif LANG == 'es-ES' %}
+          {% set donate_cta = "Donar a la Fundación Mozilla" %}
+        {% elif LANG == 'it' %}
+          {% set donate_cta = "Dona alla Mozilla Foundation" %}
+        {% elif LANG == 'pl' %}
+          {% set donate_cta = "Wesprzyj Fundację Mozilli darowizną" %}
+        {% else %}
+          {% set donate_cta = ftl('whatsnew-donate-to-mofo') %}
+        {% endif %}
+
+        <div class="wnp-donate-wrapper mzp-u-centered">
+          <a class="mzp-c-button mzp-t-secondary mzp-t-md wnp-footer-donate" href="{% if cta_location %}{{ donate_url(location=cta_location) }}{% else %}{{ donate_url(location='whats-new-product') }}{% endif %}" data-link-text="Donate">
+            <span class="mzp-c-button-icon-start">
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path fill="#ff0000" d="M1.2,2.2c-1.5,1.5-1.5,4.2,0,5.7L8,15c2.3-2.4,4.5-4.7,6.9-7c1.5-1.5,1.5-4.2,0-5.7c-1.5-1.5-4-1.5-5.6,0L8,3.5 L6.7,2.3C5.1,0.6,2.7,0.6,1.2,2.2"/>
+              </svg>
+            </span>
+            {{ donate_cta }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="mzp-l-content c-utilities">
+      {% set releasenotes_url = url('firefox.releases.index') if not version else '/firefox/%s/releasenotes/'|format(version) %}
+      {% set releasenotes_link = 'href="%s" target="_blank"'|safe|format(releasenotes_url) %}
+      <p>{{ ftl('whatsnew-release-notes', url=releasenotes_link) }}</p>
+    </aside>
+  </main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('whatsnew') }}
+{% endblock %}
+
+{# Exclude stub attribution for in-product pages: issus 9620 #}
+{% block stub_attribution %}{% endblock %}
+
+

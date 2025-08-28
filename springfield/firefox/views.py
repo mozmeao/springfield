@@ -854,7 +854,17 @@ class WhatsnewView(L10nTemplateView):
             "firefox/whatsnew/base",
         ],
         "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
+        "firefox/whatsnew/evergreen.html": [
+            "firefox/whatsnew/send-to-device",
+            "firefox/whatsnew/base",
+        ],
     }
+
+    # place expected ?v= values in this list
+    variations = ["1", "2", "3", "4"]
+
+    # Nimbus experiment variation expected values
+    nimbus_variations = ["v1", "v2", "v3", "v4"]
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -879,6 +889,20 @@ class WhatsnewView(L10nTemplateView):
         ctx["entrypoint"] = entrypoint
         ctx["campaign"] = campaign
         ctx["utm_params"] = f"utm_source={entrypoint}&utm_medium=referral&utm_campaign={campaign}&entrypoint={entrypoint}"
+
+        variant = self.request.GET.get("v", None)
+        nimbus_variant = self.request.GET.get("variant", None)
+
+        # ensure variant matches pre-defined value
+        if variant not in self.variations:
+            variant = None
+
+        # ensure nimbus_variant matches pre-defined value
+        if nimbus_variant not in self.nimbus_variations:
+            nimbus_variant = None
+
+        ctx["variant"] = variant
+        ctx["nimbus_variant"] = nimbus_variant
 
         return ctx
 
