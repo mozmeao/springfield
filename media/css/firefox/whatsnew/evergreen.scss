@@ -1,0 +1,154 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+$font-path: '/media/protocol/fonts';
+$image-path: '/media/protocol/img';
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+@import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
+@import 'includes/header';
+
+// * -------------------------------------------------------------------------- */
+// Main content
+.wnp-content-main {
+    color: $color-black;
+    padding: 0;
+    text-align: center;
+
+    & > .mzp-l-content {
+        padding-top: $layout-sm;
+        padding-bottom: $layout-sm;
+    }
+
+    @media #{$mq-tall} {
+        padding-top: $layout-md;
+        margin-bottom: $layout-lg;
+
+        & > .mzp-l-content {
+            padding-top: $layout-lg;
+            padding-bottom: $layout-lg;
+        }
+    }
+}
+
+.wnp-main-title {
+    @include text-title-md;
+    color: $title-text-color;
+
+    @supports (--css: variables) {
+        color: var(--title-text-color);
+    }
+}
+
+.wnp-main-tagline {
+    @include text-body-lg;
+}
+
+.qr-wrapper {
+    position: relative;
+    margin: $spacing-lg auto;
+    width: 210px;
+    height: 315px;
+    background: transparent url('/media/img/firefox/whatsnew/qr-wrapper-foxphone.svg') center top no-repeat;
+    background-size: 210px 315px;
+
+    .qr-code {
+        position: absolute;
+        left: 50%;
+        top: 118px;
+        margin-left: -90px;
+    }
+}
+
+.mobile-download-buttons li {
+    padding-top: $spacing-sm;
+    display: inline-block;
+}
+
+// Release notes
+.c-utilities {
+    @include text-body-sm;
+    max-width: $content-md;
+    padding-bottom: $layout-xl;
+    text-align: center;
+}
+
+// "Powered by Mozilla" signoff
+.wnp-sign-off {
+    @include text-body-sm;
+    color: $color-black;
+    margin-top: $layout-lg;
+    text-align: center;
+
+    strong {
+        display: block;
+
+        @media #{$mq-md} {
+            display: inline;
+        }
+    }
+}
+
+.wnp-sign-off-note {
+    @include text-body-sm;
+    color: $color-black;
+    margin-inline: auto;
+    max-width: $screen-md;
+    text-align: center;
+}
+
+// * -------------------------------------------------------------------------- */
+// For dark mode
+@media (prefers-color-scheme: dark) {
+    html,
+    body,
+    .content-wrapper {
+        background: $color-dark-gray-60;
+        color: $color-white;
+    }
+
+    .wnp-content-main {
+        h1, h2, h3, h4 {
+            color: $color-white;
+        }
+    }
+
+    .c-page-header-logo-fx {
+        background: url('/media/img/logos/firefox/logo-word-hor-white.svg') no-repeat;
+        @include background-size(120px, 40px);
+    }
+
+    .c-utilities {
+        @include white-links;
+    }
+
+    .wnp-sign-off,
+    .wnp-sign-off-note {
+        color: $color-white;
+    }
+
+    /* stylelint-disable declaration-no-important */
+
+    .wnp-donate-wrapper {
+        .mzp-c-button {
+            color: $color-white !important;
+            border-color: $color-white !important;
+
+            .mzp-c-button-icon-start > svg > path {
+                fill: $color-white !important;
+            }
+
+            &:hover,
+            &:focus,
+            &:active {
+                color: $color-black !important;
+
+                .mzp-c-button-icon-start > svg > path {
+                    fill: $color-black !important;
+                }
+            }
+
+        }
+    }
+}
