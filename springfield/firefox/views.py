@@ -836,6 +836,7 @@ def detect_channel(version):
 
     return "unknown"
 
+
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1399276
 # https://github.com/mozilla/bedrock/pull/5132
 def show_57_dev_whatsnew(version):
@@ -846,6 +847,7 @@ def show_57_dev_whatsnew(version):
         return False
 
     return version >= Version("57.0")
+
 
 class WhatsnewView(L10nTemplateView):
     ftl_files_map = {
@@ -922,5 +924,3 @@ class WhatsnewView(L10nTemplateView):
 
         # return a list to conform with original intention
         return [template]
-
-
