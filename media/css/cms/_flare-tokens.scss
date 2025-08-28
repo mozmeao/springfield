@@ -1,0 +1,134 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+// This file contains Design Tokens exported from Figma and converted to SCSS variables
+// In theory, if the Figma tokens are updated, we can update this file to apply
+// the changes to the Flare Pattern Library
+
+/* stylelint-disable scss/dollar-variable-pattern */
+$figma-Neutrals-Black: #000;
+$figma-Neutrals-White: #fff;
+$figma-Neutrals-Charcoal: #333336;
+$figma-Neutrals-Ash: #f8f6f4;
+$figma-Neutrals-Gray-1: #f8f8f8;
+$figma-Neutrals-Grey-2: #f2f2f2;
+$figma-Neutrals-Grey-3: #dedede;
+$figma-Neutrals-Grey-4: #bdbdbd;
+$figma-Neutrals-Grey-5: #9d9d9d;
+$figma-Neutrals-Grey-6: #7c7c7c;
+$figma-Neutrals-Grey-7: #5b5b5b;
+$figma-Neutrals-Grey-8: #494949;
+$figma-Orange-Orange: #ff8a50;
+$figma-Orange-Medium-Orange: #ffb279;
+$figma-Orange-Light-Orange: #ffcfa5;
+$figma-Yellow-Yellow: #ffea80;
+$figma-Yellow-Medium-Yellow: #ffd567;
+$figma-Yellow-Dark-Yellow: #ffbd4f;
+$figma-Blue-Light-Blue: #ccedfe;
+$figma-Blue-Blue: #00a6f9;
+$figma-Blue-Medium-Blue: #0079d2;
+$figma-Blue-Dark-Blue: #003c6e;
+$figma-Blue-Button: #0360df;
+$figma-Purple-Purple: #754fe0;
+$figma-Purple-Medium-Purple: #d98dfa;
+$figma-Purple-Light-Purple: #dcd2ff;
+$figma-Success: #1aaa55;
+$figma-Functional-Error: #db3b21;
+
+// Typography (families from tokens)
+$figma-font-family-primary: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+$figma-font-family-secondary: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+// Scale (spacing source tokens)
+$figma-Scale-8: 8px;
+$figma-Scale-16: 16px;
+$figma-Scale-24: 24px;
+$figma-Scale-32: 32px;
+/* stylelint-enable scss/dollar-variable-pattern */
+
+// Mapping Figma tokens to Flare variables
+// Colors (referencing Figma tokens)
+$flare-color-primary: $figma-Orange-Orange;
+$flare-color-primary-dark: $figma-Orange-Medium-Orange;
+$flare-color-secondary: $figma-Blue-Medium-Blue;
+$flare-color-secondary-dark: $figma-Blue-Dark-Blue;
+$flare-color-secondary-light: $figma-Blue-Medium-Blue;
+$flare-color-success: $figma-Success;
+$flare-color-warning: $figma-Yellow-Dark-Yellow;
+$flare-color-error: #b02e19; // Error color chosen for accessible contrast
+
+// Neutrals (referencing Figma tokens)
+$flare-color-white: $figma-Neutrals-White;
+$flare-color-gray-10: $figma-Neutrals-Gray-1;
+$flare-color-gray-20: $figma-Neutrals-Grey-2;
+$flare-color-gray-30: $figma-Neutrals-Grey-3;
+$flare-color-gray-40: $figma-Neutrals-Grey-4;
+$flare-color-gray-50: $figma-Neutrals-Grey-5;
+$flare-color-gray-60: $figma-Neutrals-Grey-6;
+$flare-color-gray-70: $figma-Neutrals-Grey-7;
+$flare-color-gray-80: $figma-Neutrals-Grey-8;
+$flare-color-gray-90: $figma-Neutrals-Charcoal;
+$flare-color-black: $figma-Neutrals-Black;
+$flare-color-charcoal: $figma-Neutrals-Charcoal;
+
+// Additional colors (referencing Figma tokens)
+$flare-color-ash: $figma-Neutrals-Ash;
+$flare-color-orange-light: $figma-Orange-Light-Orange;
+$flare-color-yellow: $figma-Yellow-Yellow;
+$flare-color-yellow-medium: $figma-Yellow-Medium-Yellow;
+$flare-color-yellow-dark: $figma-Yellow-Dark-Yellow;
+$flare-color-blue-light: $figma-Blue-Light-Blue;
+$flare-color-blue: $figma-Blue-Blue;
+$flare-color-purple: $figma-Purple-Purple;
+$flare-color-purple-medium: $figma-Purple-Medium-Purple;
+$flare-color-purple-light: $figma-Purple-Light-Purple;
+$flare-color-info: $figma-Blue-Button;
+
+// Gradients (built from Figma tokens)
+$flare-gradient-earth-glow: linear-gradient(90deg, $figma-Blue-Blue 0%, $figma-Purple-Purple 100%);
+$flare-gradient-fox-fire: linear-gradient(90deg, $figma-Yellow-Yellow 0%, $figma-Orange-Orange 100%);
+
+// Typography (referencing Figma tokens)
+$flare-font-family-primary: $figma-font-family-primary;
+$flare-font-family-secondary: $figma-font-family-secondary;
+
+// Font sizes
+$flare-font-size-xs: 0.75rem;    // 12px
+$flare-font-size-sm: 0.875rem;   // 14px
+$flare-font-size-base: 1rem;     // 16px
+$flare-font-size-md: $flare-font-size-base;
+$flare-font-size-lg: 1.125rem;   // 18px
+$flare-font-size-xl: 1.25rem;    // 20px
+$flare-font-size-2xl: 1.5rem;    // 24px
+$flare-font-size-3xl: 1.875rem;  // 30px
+$flare-font-size-4xl: 2rem;      // 32px
+$flare-font-size-5xl: 2.25rem;   // 36px
+$flare-font-size-6xl: 3rem;      // 48px
+
+// Map Figma scale tokens to spacing variables
+$flare-spacing-xs: calc($figma-Scale-8) / 2; // 4px
+$flare-spacing-sm: $figma-Scale-8;           // 8px
+$flare-spacing-md: $figma-Scale-16;          // 16px
+$flare-spacing-lg: $figma-Scale-24;          // 24px
+$flare-spacing-xl: $figma-Scale-32;          // 32px
+$flare-spacing-2xl: calc($figma-Scale-32) * 1.5; // 48px
+$flare-spacing-3xl: calc($figma-Scale-32) * 2;   // 64px
+$flare-spacing-4xl: calc($figma-Scale-32) * 2.5; // 80px (section rhythm)
+
+// Border radius
+$flare-border-radius-sm: 4px;
+$flare-border-radius-md: 8px;
+$flare-border-radius-lg: 12px;
+$flare-border-radius-xl: 16px;
+
+// Shadows
+$flare-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$flare-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$flare-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$flare-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+// Transitions
+$flare-transition-fast: 0.15s ease;
+$flare-transition-base: 0.2s ease;
+$flare-transition-slow: 0.3s ease;

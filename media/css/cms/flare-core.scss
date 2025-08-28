@@ -1,0 +1,160 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+// This file contains the core CSS for the Flare Pattern Library
+// These are the core styles that work in all browsers, including legacy browsers
+// CSS for modern browsers is in flare-advanced.scss
+
+@use 'flare-tokens' as *;
+
+// -----------------------------------------------------------------------------
+// Font Face declarations
+// -----------------------------------------------------------------------------
+@font-face {
+    font-family: Metropolis;
+    src: url('/media/protocol/fonts/Metropolis-Medium.woff2') format('woff2'),
+    url('/media/protocol/fonts/Metropolis-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Metropolis;
+    src: url('/media/fonts/metropolis/Metropolis-SemiBold.woff2') format('woff2'),
+    url('/media/fonts/metropolis/Metropolis-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
+    src: url('/media/protocol/fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
+    src: url('/media/protocol/fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+// -----------------------------------------------------------------------------
+// Basic reset and base
+// -----------------------------------------------------------------------------
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: $flare-font-family-secondary;
+    font-size: $flare-font-size-base;
+    line-height: 1.6;
+    color: $flare-color-gray-90;
+    background-color: $flare-color-ash;
+}
+
+img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    max-width: 100%;
+}
+
+img, svg, video {
+    height: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 $flare-spacing-md;
+    font-family: $flare-font-family-primary;
+    color: $flare-color-gray-90;
+    line-height: 1.2;
+}
+
+p, ul, ol, dl, blockquote {
+    margin: 0 0 $flare-spacing-md;
+}
+
+ul, ol {
+    padding-left: $flare-spacing-lg;
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: $flare-color-gray-90;
+}
+
+hr {
+    height: 0;
+    border: 0;
+    border-top: 1px solid $flare-color-gray-30;
+    margin: $flare-spacing-lg 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: $flare-spacing-sm;
+    border: 1px solid $flare-color-gray-30;
+    text-align: left;
+}
+
+button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+:focus {
+    outline: 2px solid $flare-color-secondary;
+    outline-offset: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// Utils
+// -----------------------------------------------------------------------------
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    white-space: nowrap;
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+.hidden { display: none; }
+.text-center { text-align: center; }
+
+// -----------------------------------------------------------------------------
+// Core layout primitives (no advanced browser features)
+// -----------------------------------------------------------------------------
+.container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 0 $flare-spacing-lg;
+}
+
+// -----------------------------------------------------------------------------
+// Component core styles (no advanced browser features)
+// -----------------------------------------------------------------------------
