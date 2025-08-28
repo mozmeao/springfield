@@ -235,6 +235,18 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
         ),
+        (
+            (
+                "<video src='example.mp4' type='video/mp4' width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+            (
+                '<video src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+        ),
     ),
 )
 def test_process_markdown(input_md, expected):

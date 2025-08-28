@@ -115,6 +115,8 @@ ALLOWED_ATTRS = {
         "playsinline",
         "poster",
         "preload",
+        "src",
+        "type",
     ],
 }
 
