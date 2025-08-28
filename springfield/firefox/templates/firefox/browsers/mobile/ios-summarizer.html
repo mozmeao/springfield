@@ -10,7 +10,6 @@
 {% extends "base-protocol.html" %}
 
 {% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
-{% set show_send_to_device = LANG in settings.SEND_TO_DEVICE_LOCALES %}
 {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios') %}
 
 {% block page_css %}
