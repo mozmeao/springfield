@@ -15,6 +15,7 @@ from django.views.decorators.http import require_safe
 
 import querystringsafe_base64
 from product_details import product_details
+from product_details.version_compare import Version
 
 from lib import l10n_utils
 from lib.l10n_utils import L10nTemplateView, get_translations_native_names
@@ -830,8 +831,21 @@ def detect_channel(version):
         if num_version >= 35:
             if version.endswith("a1"):
                 return "nightly"
+            if version.endswith("a2"):
+                return "developer"
 
     return "unknown"
+
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1399276
+# https://github.com/mozilla/bedrock/pull/5132
+def show_57_dev_whatsnew(version):
+    version = version[:-2]
+    try:
+        version = Version(version)
+    except ValueError:
+        return False
+
+    return version >= Version("57.0")
 
 class WhatsnewView(L10nTemplateView):
     ftl_files_map = {
@@ -839,12 +853,13 @@ class WhatsnewView(L10nTemplateView):
             "firefox/whatsnew/nightly/evergreen",
             "firefox/whatsnew/base",
         ],
+        "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
     }
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         version = self.kwargs.get("version") or ""
-        pre_release_channels = ["nightly"]
+        pre_release_channels = ["nightly", "developer"]
         channel = detect_channel(version)
 
         # add version to context for use in templates
@@ -879,6 +894,11 @@ class WhatsnewView(L10nTemplateView):
 
         if channel == "nightly":
             template = "firefox/whatsnew/nightly/evergreen.html"
+        elif channel == "developer":
+            if show_57_dev_whatsnew(version):
+                template = "firefox/whatsnew/developer/evergreen.html"
+            else:
+                template = "firefox/whatsnew/evergreen.html"
         else:
             template = "firefox/whatsnew/evergreen.html"
 

@@ -360,6 +360,12 @@
         "css/firefox/whatsnew/nightly/evergreen.scss"
       ],
       "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/developer/evergreen.scss"
+      ],
+      "name": "whatsnew_developer"
     }
   ],
   "js": [
