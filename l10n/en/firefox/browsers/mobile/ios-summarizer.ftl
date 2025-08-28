@@ -4,6 +4,9 @@
 
 ### URL: https://www-dev.springfield.moz.works/browsers/mobile/ios/summarizer/
 
+# Note for localizers: "Shake things up" is an English idiom meaning to cause change, disrupt the usual way,
+# or bring excitement. Please translate with an equivalent expression in your language
+# that conveys energy, freshness, or innovation, rather than a literal "shake" action.
 mobile-ios-summarizer-hero-title = Ready to Shake Things Up?
 mobile-ios-summarizer-hero-subtitle = Instant Summaries in { -brand-name-firefox } { -brand-name-ios }
 # Note for localizers: This is used under a QR code image that redirects to downloading the app in the app store.
