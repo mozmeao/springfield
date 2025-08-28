@@ -821,3 +821,68 @@ class PlatformViewWindows(L10nTemplateView):
 
     # all active locales, this will make the lang switcher work properly
     activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+def detect_channel(version):
+    match = re.match(r"\d{1,3}", version)
+    if match:
+        num_version = int(match.group(0))
+        if num_version >= 35:
+            if version.endswith("a1"):
+                return "nightly"
+
+    return "unknown"
+
+class WhatsnewView(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/whatsnew/nightly/evergreen.html": [
+            "firefox/whatsnew/nightly/evergreen",
+            "firefox/whatsnew/base",
+        ],
+    }
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        version = self.kwargs.get("version") or ""
+        pre_release_channels = ["nightly"]
+        channel = detect_channel(version)
+
+        # add version to context for use in templates
+        match = re.match(r"\d{1,3}", version)
+        num_version = int(match.group(0)) if match else ""
+        ctx["version"] = version
+        ctx["num_version"] = num_version
+
+        # add analytics parameters to context for use in templates
+        if channel not in pre_release_channels:
+            channel = ""
+
+        analytics_version = str(num_version) + channel
+        entrypoint = "firefox.com-whatsnew" + analytics_version
+        campaign = "whatsnew" + analytics_version
+        ctx["analytics_version"] = analytics_version
+        ctx["entrypoint"] = entrypoint
+        ctx["campaign"] = campaign
+        ctx["utm_params"] = f"utm_source={entrypoint}&utm_medium=referral&utm_campaign={campaign}&entrypoint={entrypoint}"
+
+        return ctx
+
+    def get_template_names(self):
+        version = self.kwargs.get("version") or ""
+
+        oldversion = self.request.GET.get("oldversion", "")
+        # old versions of Firefox sent a prefixed version
+        if oldversion.startswith("rv:"):
+            oldversion = oldversion[3:]
+
+        channel = detect_channel(version)
+
+        if channel == "nightly":
+            template = "firefox/whatsnew/nightly/evergreen.html"
+        else:
+            template = "firefox/whatsnew/evergreen.html"
+
+        # return a list to conform with original intention
+        return [template]
+
+
