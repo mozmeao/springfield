@@ -15,6 +15,9 @@ mobile-ios-summarizer-qr-caption = Scan to download the app
 mobile-ios-summarizer-cta-get-app = Get the app
 
 
+# Note for localizers: 
+# "Bloated with fluff" in this context means pages overloaded with filler content, ads, or other useless content. 
+# Use a natural equivalent, not literal wording.
 mobile-ios-summarizer-pitch1-title = Tired of endless web pages bloated with fluff?
 mobile-ios-summarizer-pitch1-body =
     Struggling to skim recipes buried in stories or news articles that waste your time?
