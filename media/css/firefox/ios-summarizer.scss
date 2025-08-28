@@ -1,0 +1,20 @@
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+.ios-summarizer-hero {
+    min-height: 100vh;
+    position: relative;
+
+    ol { 
+        @include bidi(((margin-left, $layout-sm, margin-right, 0),)); 
+        list-style-type: decimal;
+    }
+}
+
+.ios-summarizer-hero-background {
+  position: absolute;
+  inset: 0;
+  background: url('/media/img/firefox/browsers/mobile/ios/shake-to-summarizer-gradient-bg.svg') no-repeat center bottom;
+  background-size: cover;
+  z-index: 0;
+  pointer-events: none;
+}
