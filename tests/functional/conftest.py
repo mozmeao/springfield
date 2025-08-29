@@ -94,7 +94,7 @@ def pytest_generate_tests(metafunc):
             urls = []
             doc = get_web_page(f"{base_url}/en-US/download/all/")
             product_urls = [a.attrib["href"] for a in doc("ul.c-product-list a")]
-            # If product url links outside of /firefox/download/all/ ignore it. (e.g. testflight)
+            # If product url links outside of /download/all/ ignore it. (e.g. testflight)
             product_urls = [url for url in product_urls if url.startswith("/en-US/download/all/")]
             for url in product_urls:
                 doc = get_web_page(f"{base_url}{url}")
