@@ -8,6 +8,7 @@ $image-path: '/media/protocol/img';
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
 @import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
 @import '../includes/header';
+@import '../includes/theme';
 
 .content-main {
     padding: 0;
