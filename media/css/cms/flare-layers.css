@@ -1,0 +1,26 @@
+/* =====================================================================
+Layers - CSS entry point that loads all layers and defines layer order
+
+The @imports come first, so that they are valid CSS in all browsers,
+even without postcss-import inlining. In browsers that don't support
+CSS layers, all of these get ignored as invalid
+===================================================================== */
+@import url('flare-base.css') layer(base);
+@import url('flare-theme.css') layer(theme);
+@import url('flare-defaults.css') layer(defaults);
+@import url('flare-components.css') layer(components);
+@import url('flare-utilities.css') layer(utilities);
+@import url('flare-overrides.css') layer(overrides);
+
+/* Layer order */
+@layer base, theme, defaults, components, utilities, overrides;
+
+/* Fallback for browsers that don't support CSS layers
+IE11 and below don't support @supports, so the base CSS is also
+included via a <link> tag in a conditional comment */
+@supports not (all: revert-layer) {
+    /* This nested @import is not valid CSS, but it will be inlined by
+    PostCSS for legacy browser support. If legacy support is not needed,
+    PostCSS can be removed */
+    @import url('flare-base.css');
+}

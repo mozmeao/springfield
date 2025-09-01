@@ -1,0 +1,144 @@
+/* =====================================================================
+Base styles - resets, colors and fonts for a basic accessible
+experience with minimal branding and virtually no layout
+
+In modern browsers that support CSS layers, this is loaded as a layer
+And serves as a starting point that is extended by other layers
+
+In browsers that don't support CSS layers this is the only CSS that
+is loaded.
+
+In Safari 15.4 and below, this this must be inlined at build time,
+and nested inside a @supports not (all: revert-layer) block.
+
+IE11 and below don't support @supports, so this is included via a
+<link> tags wrapped in conditional comments.
+===================================================================== */
+
+@font-face {
+    font-family: Metropolis;
+    src: url('/media/protocol/fonts/Metropolis-Medium.woff2') format('woff2'),
+    url('/media/protocol/fonts/Metropolis-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Metropolis;
+    src: url('/media/fonts/metropolis/Metropolis-SemiBold.woff2') format('woff2'),
+    url('/media/fonts/metropolis/Metropolis-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
+    src: url('/media/protocol/fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
+    src: url('/media/protocol/fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    width: 700px;
+    margin: 0 auto;
+    /* Figma body font */
+    font-family: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    color: #333336; /* Figma Neutrals-Charcoal */
+    background: #f8f6f4; /* Figma Neutrals-Ash */
+    padding: 1rem;
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    /* Figma headline font */
+    font-family: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    margin: 0 0 1rem 0;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+    margin: 0 0 1rem 0;
+}
+
+a {
+    color: #0079d2; /* Figma Blue-Medium-Blue */
+    text-decoration: underline;
+}
+
+a:hover, a:active, a:focus {
+    color: #003c6e; /* Figma Blue-Dark-Blue */
+}
+
+a:visited {
+    color: #0360df; /* Figma Blue-Button */
+}
+
+img, svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 0 1rem 0;
+}
+
+a svg {
+    display: inline;
+    margin: 0;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #dedede; /* Figma Neutrals-Grey-3 */
+    margin: 1rem 0;
+}
+
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+ul, ol {
+    margin: 0 0 1rem 1.5rem;
+}
+
+li {
+    margin: 0 0 0.25rem 0;
+}

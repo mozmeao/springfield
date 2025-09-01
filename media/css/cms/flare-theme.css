@@ -1,0 +1,147 @@
+/* =====================================================================
+Theme - This file maps Figma design tokens to CSS variables and defines
+other variables that are used throughout the other layers
+
+NOTE: This file does not contain element specific styles, it is only for
+defining variables
+
+GENERATION PROCESS:
+This file was generated using the Figma MCP tool to export all variables
+from the Figma design file. The MCP tool provides comprehensive access to
+all design tokens that aren't easily visible in Figma's standard UI or
+other Figma plugins (unfortunately)
+
+To update this file in the future, use the MCP tool with a prompt that
+asks the agent use mcp_Figma_get_variable_defs to get all variables
+from the selected Figma file and update this file. The process is
+non-determinative so you need to check and adjust the results as needed.
+===================================================================== */
+
+:root {
+    /* Color tokens from Figma */
+    --Neutrals-White: #ffffff;
+    --Neutrals-Off-White: #fafafa;
+    --Neutrals-Ash: #f8f6f4;
+    --Neutrals-Gray-1: #f8f8f8;
+    --Neutrals-Grey-2: #f2f2f2;
+    --Neutrals-Grey-3: #dedede;
+    --Neutrals-Grey-4: #9d9d9d;
+    --Neutrals-Grey-5: #9d9d9d;
+    --Neutrals-Grey-6: #7c7c7c;
+    --Neutrals-Grey-7: #5b5b5b;
+    --Neutrals-Grey-8: #5B5B5B;
+    --Neutrals-Charcoal: #333336;
+    --Neutrals-Off-Black: #161616;
+    --Neutrals-Black: #000000;
+    --Orange-Orange: #ff8a50;
+    --Orange-Medium-Orange: #ffb279;
+    --Orange-Light-Orange: #ffcfa5;
+    --Yellow-Yellow: #ffea80;
+    --Yellow-Medium-Yellow: #ffd567;
+    --Yellow-Dark-Yellow: #FFBD4F;
+    --Green-Zilla-Green: #00d230;
+    --Blue-Light-Blue: #ccedfe;
+    --Blue-Medium-Blue: #0079d3;
+    --Blue-Button: #0360df;
+    --Purple-Purple: #754fe0;
+    --Purple-Medium-Purple: #d98dfa;
+    --Purple-Light-Purple: #dcd2ff;
+    --Pink-Power-Pink: #ff97e2;
+    --Functional-Error: var(--Orange-Orange);
+    --Functional-Warning: var(--Yellow-Dark-Yellow);
+    --Dark-Yellow-Alert: var(--Yellow-Dark-Yellow);
+    --Functional-Success: var(--Green-Zilla-Green);
+    --Functional-Info-buttons: var(--Blue-Button);
+
+    /* Gradients from Figma */
+    --Gradient-Earth-Glow: linear-gradient(90deg, var(--Blue-Blue) 0%, var(--Purple-Purple) 100%);
+    --Gradient-Fox-Fire: linear-gradient(90deg, var(var(--Yellow-Yellow)) 0%, var(--Orange-Orange) 100%);
+
+    /* Scale variables from Figma */
+    --Scale-4: 4;
+    --Scale-8: 8;
+    --Scale-12: 12;
+    --Scale-16: 16;
+    --Scale-18: 18;
+    --Scale-24: 24;
+    --Scale-32: 32;
+    --Scale-48: 48;
+    --Scale-64: 64;
+    --Scale-80: 80;
+    --Scale-128: 128;
+    --Scale-200: 200;
+
+    /* Primitives from Figma */
+    /* These could be more useful if they weren't just mapping to respective px values, but that's how they were defined in the Figma file */
+    --0: 0;
+    --4: 4px;
+    --8: 8px;
+    --12: 12px;
+    --16: 16px;
+    --18: 18px;
+    --24: 24px;
+    --32: 32px;
+    --40: 40px;
+    --48: 48px;
+    --64: 64px;
+    --80: 80px;
+    --128: 128px;
+    --160: 160px;
+    --200: 200px;
+
+    /* Grid and spacing variables from Figma */
+    --Grids-Spacing-Interior-Spacing-x1: 8;
+    --Grids-Spacing-Interior-Spacing-x1_5: 12;
+    --Grids-Spacing-Interior-Spacing-x2: 16;
+    --Grids-Spacing-Interior-Spacing-x3: 24;
+    --Grids-Spacing-Grid-Gutters-Grid-Gutter-2XL: 80;
+    --Grids-Spacing-Grid-Margins-Grid-Margin-2XL: 80;
+
+    /* Width and viewport variables from Figma */
+    --Widths-Content-Container-Content-2XL: 1280;
+    --Widths-Viewport-Wrapper-Screen-2XL: 1440;
+    --Widths-Viewport-Wrapper-Screen-2XL-MIN: 1025;
+
+    /* Typography from Figma */
+    --Font-Family-Metropolis: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --Font-Family-Inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --Font-Family-Mozilla-Text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+    --Font-Weight-Regular: 400;
+    --Font-Weight-Medium: 500;
+    --Font-Weight-SemiBold: 600;
+
+    --Font-Family-Headline: var(--Font-Family-Metropolis);
+    --Font-Weight-Headline: var(--Font-Weight-SemiBold);
+    --Font-Family-Subheader: var(--Font-Family-Metropolis);
+    --Font-Weight-Subheader: var(--Font-Weight-Medium);
+    --Font-Family-Body: var(--Font-Family-Inter);
+    --Font-Weight-Body: var(--Font-Weight-Regular);
+    --Font-Family-Link: var(--Font-Family-Inter);
+    --Font-Weight-Link: var(--Font-Weight-SemiBold);
+    --Font-Family-Label: var(--Font-Family-Inter);
+    --Font-Weight-Label: var(--Font-Weight-Medium);
+    --Font-Family-Button: var(--Font-Family-Mozilla-Text);
+    --Font-Weight-Button: var(--Font-Weight-SemiBold);
+
+    /* Font size variables NOT from Figma */
+    --Font-Size-Base: 16px;
+    --Font-Size-1: 2rem
+    --Font-Size-2: 1.875rem;
+    --Font-Size-3: 1.5rem;
+    --Font-Size-4: 1.25rem;
+    --Font-Size-5: 1.125rem;
+    --Font-Size-6: 1rem;
+
+    /* Other variables from Figma */
+    --Border-Radius-MD: 8;
+    --Text: true;
+
+    /* Transition variables NOT from Figma */
+    --Transition-Fast: 0.15s ease;
+    --Transition-Base: 0.2s ease;
+    --Transition-Slow: 0.3s ease;
+
+    /* Dark mode support */
+    color-scheme: light dark;
+}
