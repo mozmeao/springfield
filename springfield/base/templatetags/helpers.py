@@ -22,6 +22,7 @@ from springfield.utils import expand_locale_groups
 from ..urlresolvers import reverse
 
 CSS_TEMPLATE = '<link href="%s" rel="stylesheet" type="text/css">'
+CSS_TEMPLATE_IE = '<link href="%s" rel="stylesheet" type="text/css" media="all and (-ms-high-contrast: none)">'
 JS_TEMPLATE = '<script src="%s"></script>'
 log = logging.getLogger(__name__)
 
@@ -136,14 +137,27 @@ def js_bundle(name):
 
 
 @library.global_function
-def css_bundle(name):
+def css_bundle(name, target_old_ie=False):
     """Include a CSS bundle in the template.
 
     Bundles are defined in the "media/static-bundles.json" file.
+
+    Args:
+        name: The bundle name as defined in static-bundles.json
+        target_old_ie: If True, adds media="all and (-ms-high-contrast: none)" for IE10/11
+                  and wraps in conditional comments for IE9 and lower
     """
     path = f"css/{name}.css"
     path = staticfiles_storage.url(path)
-    return Markup(CSS_TEMPLATE % path)
+
+    if target_old_ie:
+        # For IE10/11 with media query
+        ie_link = CSS_TEMPLATE_IE % path
+        # For IE9 and lower with conditional comment
+        ie9_link = f'<!--[if IE]>\n    {CSS_TEMPLATE % path}\n<![endif]-->'
+        return Markup(f'{ie9_link}\n    {ie_link}')
+    else:
+        return Markup(CSS_TEMPLATE % path)
 
 
 @library.global_function

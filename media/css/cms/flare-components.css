@@ -48,7 +48,6 @@ This layer provides styles for specific components
         background: light-dark(var(--Neutrals-White), var(--Neutrals-Charcoal));
         border-radius: var(--Border-Radius-MD, 8px);
         padding: var(--32, 32px);
-        box-shadow: var(--Shadow-Sm);
     }
 
     /* Footer component */
