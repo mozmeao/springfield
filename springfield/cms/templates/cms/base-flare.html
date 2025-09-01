@@ -16,8 +16,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <title>{% block page_title %}{{ page.title }}{% endblock %}</title>
 
     {% block site_css %}
-    {{ css_bundle('flare_core') }}
-    {{ css_bundle('flare_advanced') }}
+    <!--[if IE]>
+    <link rel="stylesheet" href="/media/css/cms/flare-base.css">
+    <![endif]-->
+    <!-- IE10 and 11 -->
+    <link rel="stylesheet" href="/media/css/cms/flare-base.css"  media="all and (-ms-high-contrast: none)">
+    <link rel="stylesheet" href="/media/css/cms/flare-layers.css" >
     {% endblock %}
 
     {% block page_css %}{% endblock %}

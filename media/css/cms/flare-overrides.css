@@ -1,0 +1,13 @@
+/* =====================================================================
+Overrides - Exceptions to the rules
+
+Rules in this layer will override everything else. Use sparingly for
+specific exceptions that can't be handled by the other layers
+===================================================================== */
+
+@supports (all: revert-layer) {
+    .some-weird-edge-case {
+        margin: 0;
+        outline: 1px dotted red;
+    }
+}
