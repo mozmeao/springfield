@@ -596,6 +596,12 @@
     },
     {
       "files": [
+        "js/firefox/browsers/ios-summarizer.js"
+      ],
+      "name": "ios_summarizer"
+    },
+    {
+      "files": [
         "js/base/send-to-device.es6.js",
         "js/firefox/browsers/mobile.es6.js"
       ],

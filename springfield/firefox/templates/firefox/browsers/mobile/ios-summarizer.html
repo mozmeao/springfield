@@ -47,18 +47,25 @@
   <section class="mzp-c-callout mzp-t-hero mzp-t-firefox mzp-t-product-firefox ios-summarizer-hero">
     <div class="ios-summarizer-hero-background"></div>
     <div class="mzp-l-content">
-      <div class="mzp-c-callout-content" style="text-align:center">
+      <div class="mzp-c-callout-content">
         <h1 class="mzp-c-callout-title">{{ ftl('mobile-ios-summarizer-hero-title') }}</h1>
         <p class="mzp-c-callout-desc">{{ ftl('mobile-ios-summarizer-hero-subtitle') }}</p>
         <p class="mzp-c-callout-cta">{{ apple_app_store_button(href=ios_url) }}</p>
       </div>
 
-      <figure class="mzp-c-callout-image">
-        {{ resp_img(
-          'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-placeholder.png',
-          srcset={ 'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-placeholder.png': '2x' },
-          optional_attributes={'alt': 'iPhone mockup placeholder', 'loading': 'eager', 'decoding': 'async'}
-        ) }}
+      <figure class="mzp-c-callout-image ios-phone-shell">
+        {{ resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-800.png',
+        srcset={
+          'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-500.png': '500w',
+          'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-800.png': '800w',
+          'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-1100.png': '1100w'
+        },
+        optional_attributes={'alt': 'iPhone 15 Pro shell', 'loading': 'eager', 'decoding': 'async'}
+        )}}
+        <!-- TODO: Still waiting for poster image for users with reduced motion -->
+        <video class="phone-masked" muted loop playsinline poster="...">
+          <source src="/media/img/firefox/browsers/mobile/ios/shake-to-summarize-hero-animation.mp4" type="video/mp4">
+        </video>
       </figure>
     </div>
   </section>
@@ -150,4 +157,8 @@
   {% endcall %}
 
 </main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('ios_summarizer') }}
 {% endblock %}
