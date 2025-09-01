@@ -275,15 +275,15 @@
     },
     {
       "files": [
-        "css/cms/flare-core.scss"
+        "css/cms/flare-layers.css"
       ],
-      "name": "flare_core"
+      "name": "flare"
     },
     {
       "files": [
-        "css/cms/flare-advanced.scss"
+        "css/cms/flare-base.css"
       ],
-      "name": "flare_advanced"
+      "name": "flare_base"
     },
     {
       "files": [
