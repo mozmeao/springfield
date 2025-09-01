@@ -15,7 +15,6 @@ from django.views.decorators.http import require_safe
 
 import querystringsafe_base64
 from product_details import product_details
-from product_details.version_compare import Version
 
 from lib import l10n_utils
 from lib.l10n_utils import L10nTemplateView, get_translations_native_names
@@ -837,18 +836,6 @@ def detect_channel(version):
     return "unknown"
 
 
-# https://bugzilla.mozilla.org/show_bug.cgi?id=1399276
-# https://github.com/mozilla/bedrock/pull/5132
-def show_57_dev_whatsnew(version):
-    version = version[:-2]
-    try:
-        version = Version(version)
-    except ValueError:
-        return False
-
-    return version >= Version("57.0")
-
-
 class WhatsnewView(L10nTemplateView):
     ftl_files_map = {
         "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
@@ -915,10 +902,7 @@ class WhatsnewView(L10nTemplateView):
         if channel == "nightly":
             template = "firefox/whatsnew/nightly/evergreen.html"
         elif channel == "developer":
-            if show_57_dev_whatsnew(version):
-                template = "firefox/whatsnew/developer/evergreen.html"
-            else:
-                template = "firefox/whatsnew/evergreen.html"
+            template = "firefox/whatsnew/developer/evergreen.html"
         else:
             template = "firefox/whatsnew/evergreen.html"
 

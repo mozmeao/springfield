@@ -642,16 +642,8 @@ class TestWhatsNew(TestCase):
     # begin dev edition whatsnew tests
 
     @override_settings(DEV=True)
-    def test_fx_dev_browser_35_0_a2_whatsnew(self, render_mock):
-        """Should show default whatsnew template"""
-        req = self.rf.get("/en-US/whatsnew/")
-        self.view(req, version="35.0a2")
-        template = render_mock.call_args[0][1]
-        self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
-
-    @override_settings(DEV=True)
     def test_fx_dev_browser_57_0_a2_whatsnew(self, render_mock):
-        """Should show dev browser 57 whatsnew template"""
+        """Should show default dev whatsnew template"""
         req = self.rf.get("/en-US/whatsnew/")
         self.view(req, version="57.0a2")
         template = render_mock.call_args[0][1]
@@ -668,3 +660,5 @@ class TestWhatsNew(TestCase):
         self.view(req, version="135.0")
         template = render_mock.call_args[0][1]
         self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
+
+    # end release whatsnew tests
