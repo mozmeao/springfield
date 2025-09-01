@@ -651,12 +651,6 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
-    },
-    {
-      "files": [
-        "js/firefox/whatsnew/send-to-device.es6.js"
-      ],
-      "name": "whatsnew"
     }
   ]
 }
