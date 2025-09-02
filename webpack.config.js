@@ -14,6 +14,9 @@ const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
 const webpack = require('webpack');
+const flareImportAnywhereLoader = require.resolve(
+    './media/flare-import-anywhere-loader.js'
+);
 
 function resolveBundles(fileList) {
     return fileList.map((f) => {
@@ -74,6 +77,24 @@ module.exports = {
                         ]
                     }
                 }
+            },
+            {
+                test: /\.css$/,
+                include: path.resolve(__dirname, 'media'),
+                exclude: /node_modules/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            url: false,
+                            import: false
+                        }
+                    },
+                    {
+                        loader: flareImportAnywhereLoader
+                    }
+                ]
             },
             {
                 test: /\.scss$/,

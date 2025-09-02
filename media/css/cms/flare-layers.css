@@ -2,8 +2,11 @@
 Layers - CSS entry point that loads all layers and defines layer order
 
 The @imports come first, so that they are valid CSS in all browsers,
-even without postcss-import inlining. In browsers that don't support
+even without import inlining. In browsers that don't support
 CSS layers, all of these get ignored as invalid
+
+NOTE: While this is valid CSS, for performance reasons, these are
+inlined by a custom webpack loader.
 ===================================================================== */
 @import url('flare-base.css') layer(base);
 @import url('flare-theme.css') layer(theme);
@@ -19,8 +22,7 @@ CSS layers, all of these get ignored as invalid
 IE11 and below don't support @supports, so the base CSS is also
 included via a <link> tag in a conditional comment */
 @supports not (all: revert-layer) {
-    /* This nested @import is not valid CSS, but it will be inlined by
-    PostCSS for legacy browser support. If legacy support is not needed,
-    PostCSS can be removed */
+    /* Nested @imports are not valid CSS, but this is inlined by
+    a custom webpack loader. */
     @import url('flare-base.css');
 }
