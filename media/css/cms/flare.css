@@ -1,5 +1,5 @@
 /* =====================================================================
-Layers - CSS entry point that loads all layers and defines layer order
+Flare CSS entry point that loads all layers and defines layer order
 
 The @imports come first, so that they are valid CSS in all browsers,
 even without import inlining. In browsers that don't support
