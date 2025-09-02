@@ -31,7 +31,7 @@ mobile-ios-summarizer-pitch1-title = Tired of endless web pages bloated with flu
 mobile-ios-summarizer-pitch1-body =
     Struggling to skim recipes buried in stories or news articles that waste your time?
     In our chaotic digital world, who wants to feel overwhelmed and inefficient?
-    You're not alone, but { -brand-name-firefox } is your guide to smarter browsing.
+    You’re not alone, but { -brand-name-firefox } is your guide to smarter browsing.
 
 
 # Note for localizers: "shake to summarize" is the name of a feature.
