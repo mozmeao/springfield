@@ -16,8 +16,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <title>{% block page_title %}{{ page.title }}{% endblock %}</title>
 
     {% block site_css %}
+    {% if settings.FLARECSS_LEGACY_MODE %}
+    {{ css_bundle('flare_base') }}
+    {% else %}
     {{ css_bundle('flare_base', target_old_ie=True) }}
     {{ css_bundle('flare') }}
+    {% endif %}
     {% endblock %}
 
     {% block page_css %}{% endblock %}
