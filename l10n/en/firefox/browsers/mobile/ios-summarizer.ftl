@@ -22,7 +22,7 @@ mobile-ios-summarizer-hero-subtitle = Instant summaries in { -brand-name-firefox
 mobile-ios-summarizer-qr-caption = Scan to download the app
 # Note for localizers: This is used in a link that redirects to downloading the app in the app store when clicked.
 mobile-ios-summarizer-cta-get-app = Get the app
-
+mobile-ios-summarizer-hero-qr-caption = Scan to download the app!
 
 # Note for localizers:
 # "Bloated with fluff" in this context means pages overloaded with filler content, ads, or other useless content.

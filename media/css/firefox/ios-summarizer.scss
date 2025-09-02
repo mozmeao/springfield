@@ -107,6 +107,21 @@
   100% { transform: translateX(0); }
 }
 
+.ios-summarizer-use-steps .qr-card {
+  display: grid;
+  place-items: center;
+  padding: 10%;
+  border-radius: 24px;
+  background: radial-gradient(50% 50% at 50% 50%, #C80C40 0%, #CC3A38 100%);
+  box-shadow: 0 14px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+  svg {
+    width: 80%;
+    height: auto;
+    border: 10px solid black;
+    border-radius: 24px;
+  }
+}
+
 
 .ios-summarizer-use-steps ol {
     @include bidi(((margin-left, $layout-sm, margin-right, 0), ));
