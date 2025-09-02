@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userPrefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   if (userPrefersReducedMotion.matches) return;
 
-  const shell = document.querySelector(".ios-phone-shell");
+  const shell = document.querySelector(".ios-phone");
   const video = shell?.querySelector("video");
   if (!shell || !video) return;
 

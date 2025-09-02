@@ -18,13 +18,64 @@
     pointer-events: none;
 }
 
-.ios-phone-shell {
+.ios-hero-figure-container {
+  position: relative;
+  pointer-events: none;
+
+  --qr-code-size: 200px;
+
+  // NOTE about the logic behind this:
+  // --qr-gap defines how far the QR code sits to the right of the phone figure:
+  //  - At 1200px viewport width → 100px
+  //  - At 1920px viewport width → 300px
+  //  - In between → scales linearly between 100–300px
+  //  - Below 1200px → clamps to 100px
+  //  - Above 1920px → clamps to 300px
+  --qr-gap: clamp(
+    100px,
+    calc(100px + ((100vw - 1200px) / 720) * 200),
+    300px
+  );
+}
+
+.qr-code {
+  margin-block-start: 24px;
+  @media (min-width: 1200px) {
+    position: absolute;
+    margin: 0;
+    right: calc( -1 * ( var(--qr-code-size) + var(--qr-gap)));
+    top: 15%;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.2));
+    text-align: center;
+  }
+
+  svg {
+    width: var(--qr-code-size);
+    height: var(--qr-code-size);
+    border: 10px solid black;
+    border-radius: 24px;
+    margin-top: 24px;
+  }
+}
+
+
+.ios-phone {
   will-change: transform;
   position: relative;
   display: inline-block;
   z-index: 1;
   pointer-events: none;
+
+  &.shake {
+    animation: phone-shake 1s ease-in-out both;
+    animation-delay: 1.5s;
+  }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-phone.shake { animation: none; }
+}
+
 
 .phone-masked {
     position: absolute;
@@ -42,11 +93,6 @@
     will-change: transform;
 }
 
-.ios-phone-shell.shake {
-    animation: phone-shake 1s ease-in-out both;
-    animation-delay: 1.5s;
-}
-
 @keyframes phone-shake {
   0%   { transform: translateX(0); }
   10%  { transform: translateX(-40px); }
@@ -61,9 +107,6 @@
   100% { transform: translateX(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ios-phone-shell.shake { animation: none; }
-}
 
 .ios-summarizer-use-steps ol {
     @include bidi(((margin-left, $layout-sm, margin-right, 0), ));

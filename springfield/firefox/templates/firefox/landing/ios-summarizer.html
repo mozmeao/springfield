@@ -53,7 +53,8 @@
         <p class="mzp-c-callout-cta">{{ apple_app_store_button(href=ios_url) }}</p>
       </div>
 
-      <figure class="mzp-c-callout-image ios-phone-shell">
+      <figure class="mzp-c-callout-image ios-hero-figure-container">
+        <div class="ios-phone">
         {{ resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-800.png',
         srcset={
           'img/firefox/browsers/mobile/ios/shake-to-summarize-hero-phone-shell-500.png': '500w',
@@ -66,6 +67,11 @@
         <video class="phone-masked" muted loop playsinline poster="...">
           <source src="/media/img/firefox/browsers/mobile/ios/shake-to-summarize-hero-animation.mp4" type="video/mp4">
         </video>
+      </div>
+
+      <figure class="qr-code">
+        {{ qrcode(ios_url) }}
+        <figcaption>{{ ftl('mobile-ios-summarizer-hero-qr-caption', default='Scan to download the app!') }}</figcaption>
       </figure>
     </div>
   </section>
