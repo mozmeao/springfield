@@ -1,5 +1,5 @@
 # Workflow to open a PR on mozilla-l10n/www-firefox-l10n with
-# new strings that exist in Springfield and need localising
+# new strings that exist in Springfield and need localizing
 
 name: Open Fluent PR in www-firefox-l10n
 
