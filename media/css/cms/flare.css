@@ -49,6 +49,6 @@ included via a <link> tag in a conditional comment */
     /* Nested @imports are not valid CSS, but these are inlined by
     a custom webpack loader. */
     @import url('flare-base.css');
+    /* Utility classes are useful in the legacy stylesheet as well */
     @import url('flare-utilities.css');
-    @import url('flare-overrides.css');
 }

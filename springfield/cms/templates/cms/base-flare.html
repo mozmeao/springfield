@@ -18,8 +18,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
     {{ css_bundle('flare_base') }}
+    {{ css_bundle('flare_utilities') }}
     {% else %}
     {{ css_bundle('flare_base', target_old_ie=True) }}
+    {{ css_bundle('flare_utilities', target_old_ie=True) }}
     {{ css_bundle('flare') }}
     {% endif %}
     {% endblock %}

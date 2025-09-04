@@ -294,7 +294,161 @@
     <!-- Legacy Styles Test -->
     <section class="wnp-legacy-test">
       <div class="wnp-container">
-        hey hey
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
+
+        <p>
+          Lorem ipsum dolor sit amet, <a href="https://example.com">consectetur adipiscing elit</a>. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </p>
+        <p>
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          In-line icons:
+          <svg role="presentation" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <circle cx="8" cy="8" r="7" />
+          </svg>
+          <img role="presentation" src="/media/img/firefox/flare/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">
+        </p>
+
+        <p>
+          <a href="#icon-link">Anchor with icons
+            <svg role="presentation" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <rect x="3" y="3" width="10" height="10" rx="2" />
+            </svg>
+            <img role="presentation" src="/media/img/firefox/flare/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">
+          </a>
+        </p>
+
+        <span>
+          <svg role="presentation" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M8 1l2.39 4.84L16 6.26l-4 3.9L13 16l-5-2.6L3 16l1-5.84-4-3.9 5.61-.42L8 1z" />
+          </svg>
+          <img role="presentation" src="/media/img/firefox/flare/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">
+        </span>
+
+        <hr>
+
+        <ul>
+          <li>First unordered item</li>
+          <li>Second unordered item</li>
+          <li>Third unordered item
+            <ul>
+              <li>First nested item</li>
+              <li>Second nested item</li>
+            </ul>
+          </li>
+        </ul>
+
+        <ol>
+          <li>First ordered item</li>
+          <li>Second ordered item</li>
+          <li>Third ordered item
+            <ol>
+              <li>First nested item</li>
+              <li>Second nested item</li>
+            </ol>
+          </li>
+        </ol>
+
+        <button type="button">Regular button</button>
+        <button type="button" disabled>Disabled button</button>
+        <a role="button" href="#role-button">Img Icon Button
+          <img role="presentation" src="/media/img/firefox/flare/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">
+        </a>
+        <a role="button" href="#role-button">Svg Icon Button
+          <svg role="presentation" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M4 8h8M8 4l4 4-4 4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+
+        <input type="text" value="Disabled input example" disabled>
+
+        <label class="visually-hidden" for="wnp-test-select">Example select</label>
+        <select id="wnp-test-select" name="wnp-test-select">
+          <option>Option One</option>
+          <option>Option Two</option>
+        </select>
+
+        <picture>
+          <source srcset="/media/img/firefox/flare/link-previews.png" type="image/png">
+          <img src="/media/img/firefox/flare/link-previews.png" alt="Example image from picture">
+        </picture>
+
+        <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="18" fill="currentColor" />
+        </svg>
+
+        <label class="visually-hidden" for="wnp-test-textarea">Example textarea</label>
+        <textarea id="wnp-test-textarea" name="wnp-test-textarea" rows="3" cols="30" placeholder="Textarea example"></textarea>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Header 1</th>
+              <th>Header 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cell A1</td>
+              <td>Cell A2</td>
+            </tr>
+            <tr>
+              <td>Cell B1</td>
+              <td>Cell B2</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <video controls width="320" height="180">
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <canvas id="wnp-test-canvas" width="150" height="80" role="img" aria-label="Canvas example"></canvas>
+
+        <blockquote>
+          <p>“Firefox puts people before profits.”</p>
+        </blockquote>
+
+        <p>
+          Inline <strong>strong</strong> and <em>emphasis</em>, <small>small text</small>, H<sub>2</sub>O and E = mc<sup>2</sup>, and an
+          <abbr title="World Wide Web">WWW</abbr> reference.
+        </p>
+
+        <p>
+          Inline code: <code>npm run build</code>
+        </p>
+        <pre><code>function hello() {
+                                                          return 'world';
+                                                        }
+                                                        </code></pre>
+
+        <dl>
+          <dt>Term</dt>
+          <dd>Definition goes here.</dd>
+        </dl>
+
+        <figure>
+          <img src="/media/img/firefox/flare/link-previews.png" alt="Figure example">
+          <figcaption>Figure caption text</figcaption>
+        </figure>
+
+        <address>
+          331 E Evelyn Ave, Mountain View, CA
+        </address>
+
+        <p>
+          Published on <time datetime="2025-01-01">January 1, 2025</time>
+        </p>
+
+        <p>
+          <label><input type="checkbox" name="test-check"> Checkbox</label>
+          <label><input type="radio" name="test-radio"> Radio</label>
+        </p>
       </div>
     </section>
 
