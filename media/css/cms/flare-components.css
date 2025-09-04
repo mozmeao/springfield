@@ -767,8 +767,8 @@ the future and this file will be removed.
     width: 16px;
     height: 16px;
     background-color: currentColor;
-    -webkit-mask: url('/media/img/firefox/whatsnew/whatsnew142/arrow-right.svg') no-repeat center/16px 16px;
-    mask: url('/media/img/firefox/whatsnew/whatsnew142/arrow-right.svg') no-repeat center/16px 16px;
+    -webkit-mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
+    mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
 }
 
 .wnp-link-wrap {

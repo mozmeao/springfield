@@ -128,7 +128,7 @@ non-determinative so you need to check and adjust the results as needed.
 
     /* Font size variables NOT from Figma */
     --Font-Size-Base: 16px;
-    --Font-Size-1: 2rem
+    --Font-Size-1: 2rem;
     --Font-Size-2: 1.875rem;
     --Font-Size-3: 1.5rem;
     --Font-Size-4: 1.25rem;
