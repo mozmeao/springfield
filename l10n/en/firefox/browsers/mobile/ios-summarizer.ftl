@@ -2,12 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-### URL: https://www-dev.springfield.moz.works/browsers/mobile/ios/summarizer/
+### URL: https://www-dev.springfield.moz.works/landing/ios-summarizer/
 
 # Note for localizers: "shake things up" is an English idiom meaning to cause change, disrupt the usual way,
 # or bring excitement. Please translate with an equivalent expression in your language
 # that conveys energy, freshness, or innovation, rather than a literal "shake" action.
-mobile-ios-summarizer-page-title = Ready to shake things Up?
+mobile-ios-summarizer-page-title = Ready to shake things up?
 mobile-ios-summarizer-page-description =
     Get instant, tailored summaries in { -brand-name-firefox } { -brand-name-ios }.
     Shake your phone to cut through the clutter with recipe ingredients, sports highlights,
@@ -16,10 +16,9 @@ mobile-ios-summarizer-page-description =
 # Note for localizers: "shake things up" is an English idiom meaning to cause change, disrupt the usual way,
 # or bring excitement. Please translate with an equivalent expression in your language
 # that conveys energy, freshness, or innovation, rather than a literal "shake" action.
-mobile-ios-summarizer-hero-title = Ready to shake things Up?
+mobile-ios-summarizer-hero-title = Ready to shake things up?
 mobile-ios-summarizer-hero-subtitle = Instant summaries in { -brand-name-firefox } { -brand-name-ios }
 # Note for localizers: This is used under a QR code image that redirects to downloading the app in the app store.
-mobile-ios-summarizer-qr-caption = Scan to download the app
 # Note for localizers: This is used in a link that redirects to downloading the app in the app store when clicked.
 mobile-ios-summarizer-cta-get-app = Get the app
 mobile-ios-summarizer-hero-qr-caption = Scan to download the app!
