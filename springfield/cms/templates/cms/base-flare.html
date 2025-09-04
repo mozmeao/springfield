@@ -13,7 +13,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block extra_meta %}{% endblock %}
 
-    <title>{% block page_title %}{{ page.title }}{% endblock %}</title>
+    <title>{% block page_title %}{{ page.title if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
 
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
@@ -38,7 +38,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block wnp_header %}
     <header class="wnp-header">
       <div class="wnp-header-inner">
-        <h2 class="wnp-logo-fx">{{ page.title }}</h2>
+        <h2 class="wnp-logo-fx">{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h2>
       </div>
     </header>
     {% endblock %}
@@ -47,7 +47,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% block content %}
       <main class="wnp-content">
         <div class="wnp-content-inner">
-          <h1>{{ page.title }}</h1>
+          <h1>{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h1>
         </div>
       </main>
       {% endblock %}
