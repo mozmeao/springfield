@@ -4,14 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% if not hide_nav_cta %}
-    {% if not custom_nav_cta %}
-      {% if not hide_nav_download_button %}
-        {{ download_firefox_thanks(alt_copy=ftl('navigation-download'), dom_id='nav-download-firefox', button_class='mzp-t-product mzp-t-xl', download_location='nav') }}
-      {% endif %}
-    {% else %}
-      {{ custom_nav_cta }}
-    {% endif %}
-  {% else %}
+{% if not custom_nav_cta %}
+  <div class="{% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}">
+    {{ download_firefox_thanks(alt_copy=ftl('navigation-download'), dom_id='nav-download-firefox', button_class='mzp-t-product mzp-t-xl', download_location='nav') }}
+  </div>
+{% else %}
+  {{ custom_nav_cta }}
 {% endif %}
-

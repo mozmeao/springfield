@@ -563,3 +563,14 @@ body:has(.m24-c-navigation-items.mzp-is-open) {
         min-width: 156px; // prevent nav content shift when CTA is not displayed
     }
 }
+
+// hide nav CTA or nav download button on desktop
+.mzp-c-navigation-download :has(.hide-cta-on-desktop),
+.mzp-c-navigation-download :has(.hide-nav-download-on-desktop) {
+    display: inline-block;
+    min-width: 156px; // prevent nav content shift when CTA is not displayed
+
+    @media #{$mq-md} {
+        display: none;
+    }
+}
