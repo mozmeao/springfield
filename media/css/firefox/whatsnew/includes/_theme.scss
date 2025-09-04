@@ -4,6 +4,7 @@ $font-path: '/media/protocol/fonts';
 @import '~@mozilla-protocol/core/protocol/css/includes/fonts/inter';
 @import '~@mozilla-protocol/core/protocol/css/includes/fonts/metropolis';
 
+// Copied as needed from: https://github.com/mozilla/protocol/blob/main/assets/sass/protocol/includes/themes/_firefox.scss
 .mzp-t-firefox {
     --body-font-family: #{$font-stack-base};
     --button-font-family: #{$font-stack-firefox};
@@ -18,4 +19,12 @@ $font-path: '/media/protocol/fonts';
     --body-text-color-secondary: #{$color-marketing-gray-70};
     --body-text-color-inverse: #{$color-white};
     --body-text-color: #{$color-marketing-gray-80};
+    --title-lg-size: 3rem;
+    --title-lg-line-height: 1.166;
+    --title-md-size: 2.5rem;
+    --title-md-line-height: 1.1;
+    --title-sm-size: 2rem;
+    --title-sm-line-height: 1.125;
+    --title-xs-size: 1.5rem;
+    --title-xs-line-height: 1.166;
 }
