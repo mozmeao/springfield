@@ -7,11 +7,35 @@ CSS layers, all of these get ignored as invalid
 
 NOTE: While this is valid CSS, for performance reasons, these are
 inlined by a custom webpack loader.
+
+NOTE: This stylesheet targets evergreen browsers and Safari 15.6+.
+
+See https://mozmeao.github.io/platform-docs/browser-support/
+
+Safari 15.6 doesn't support several modern CSS features, notably:
+- Nested CSS rules
+- Color functions like light-dark()
+
+For color functions, we can use the following fallback pattern:
+
+background: white;
+background: light-dark(white, black);
+
+Nested CSS lacks basic support until Safari 16.5+ and lacks full support
+until 17.2, so we can't rely on it.
+
+For a full list of unsupported CSS features in Safari 15.6, see:
+
+https://caniuse.com/?compare=safari+15.6&compareCats=CSS
+
 ===================================================================== */
 @import url('flare-base.css') layer(base);
 @import url('flare-theme.css') layer(theme);
 @import url('flare-defaults.css') layer(defaults);
+/* TODO: Port components to modules and remove flare-components.css */
 @import url('flare-components.css') layer(components);
+@import url('flare-button.css') layer(components);
+@import url('flare-pill.css') layer(components);
 @import url('flare-utilities.css') layer(utilities);
 @import url('flare-overrides.css') layer(overrides);
 
@@ -22,7 +46,9 @@ inlined by a custom webpack loader.
 IE11 and below don't support @supports, so the base CSS is also
 included via a <link> tag in a conditional comment */
 @supports not (all: revert-layer) {
-    /* Nested @imports are not valid CSS, but this is inlined by
+    /* Nested @imports are not valid CSS, but these are inlined by
     a custom webpack loader. */
     @import url('flare-base.css');
+    @import url('flare-utilities.css');
+    @import url('flare-overrides.css');
 }

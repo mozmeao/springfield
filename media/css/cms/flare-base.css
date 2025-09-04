@@ -13,6 +13,18 @@ and nested inside a @supports not (all: revert-layer) block.
 
 IE11 and below don't support @supports, so this is included via a
 <link> tags wrapped in conditional comments.
+
+NOTE: This stylesheet should work in the following browsers:
+
+    Firefox ESR 115+
+    Chrome 109+
+    Safari 12.1+
+    IE8+
+
+Syntax that is not supported in these browsers can be used but it
+should have necessary fallbacks and not cause any invalid CSS errors.
+
+See https://mozmeao.github.io/platform-docs/browser-support/
 ===================================================================== */
 
 @font-face {
@@ -49,9 +61,8 @@ IE11 and below don't support @supports, so this is included via a
     font-display: swap;
 }
 
-*,
-*::before,
-*::after {
+/* Single colon selector for IE 8 compatibility */
+*, *:before, *:after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -67,11 +78,13 @@ html {
 
 body {
     width: 700px;
+    max-width: 100%;
     margin: 0 auto;
     /* Figma body font */
     font-family: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     color: #333336; /* Figma Neutrals-Charcoal */
     background: #f8f6f4; /* Figma Neutrals-Ash */
+    padding: 16px; /* IE 8 fallback */
     padding: 1rem;
     min-height: 100vh;
     text-rendering: optimizeLegibility;
@@ -85,17 +98,27 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 0 1rem 0;
     font-weight: bold;
     line-height: 1.2;
+    text-wrap: balance;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
-h5 { font-size: 1.125rem; }
-h6 { font-size: 1rem; }
+/* Pixel values for IE 8 fallback */
+h1 { font-size: 40px; font-size: 2.5rem; }
+h2 { font-size: 32px; font-size: 2rem; }
+h3 { font-size: 24px; font-size: 1.5rem; }
+h4 { font-size: 20px; font-size: 1.25rem; }
+h5 { font-size: 18px; font-size: 1.125rem; }
+h6 { font-size: 16px; font-size: 1rem; }
 
 p {
+    margin: 0 0 16px 0; /* IE 8 fallback */
     margin: 0 0 1rem 0;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    /* Prevents long words from overflowing or breaking layout. */
+    overflow-wrap: break-word;
+    /* Adds hyphens to long words at language-appropriate places. */
+    hyphens: auto;
 }
 
 a {
@@ -111,34 +134,111 @@ a:visited {
     color: #0360df; /* Figma Blue-Button */
 }
 
-img, svg {
+img, picture, video, canvas, svg {
     max-width: 100%;
     height: auto;
     display: block;
+    margin: 0 0 16px 0; /* IE 8 fallback */
     margin: 0 0 1rem 0;
 }
 
-a svg {
+/* Very likely to be icons within links or buttons */
+a > svg,
+a > img,
+[role="button"] > svg,
+[role="button"] > img,
+p > svg[role="presentation"],
+p > img[role="presentation"],
+span > svg[role="presentation"],
+span > img[role="presentation"] {
     display: inline;
-    margin: 0;
+    margin: 0 4px;
+    max-height: 1.5em;
+    border: 0;
 }
 
-hr {
+hr, section {
     border: none;
-    border-top: 1px solid #dedede; /* Figma Neutrals-Grey-3 */
+    border-bottom: 1px solid #dedede; /* Figma Neutrals-Grey-3 */
+    margin: 16px 0; /* IE 8 fallback */
     margin: 1rem 0;
 }
 
 button, input, select, textarea {
-    font-family: inherit;
-    font-size: inherit;
+    font: inherit;
     line-height: inherit;
+    margin-bottom: 16px;
+    margin-bottom: 1rem;
 }
 
+button, [role="button"] {
+    display: inline-block;
+    padding: 16px 32px;
+    margin: 0 0 16px 0;
+    margin: 0 0 1rem 0;
+    cursor: pointer;
+    background: #0360df; /* Figma Blue-Button */
+    color: #ffffff; /* Figma Neutrals-White */
+    text-decoration: none;
+    border: none;
+    border-radius: 8px;
+}
+[role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+    background: #0360df; /* Figma Blue-Button */
+    color: #ffffff; /* Figma Neutrals-White */
+}
+button:hover, [role="button"]:hover {
+    background: #003c6e; /* Figma Blue-Dark-Blue */
+    color: #ffffff; /* Figma Neutrals-White */
+}
+
+textarea { resize: vertical; }
+
+:disabled { cursor: not-allowed; }
+
 ul, ol {
+    margin: 0 0 16px 24px; /* IE 8 fallback */
     margin: 0 0 1rem 1.5rem;
 }
 
 li {
+    margin: 0 0 4px 0; /* IE 8 fallback */
     margin: 0 0 0.25rem 0;
+}
+
+table {
+    max-width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+th, td {
+    padding: 8px 12px; /* IE 8 fallback */
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #333336; /* Figma Neutrals-Charcoal */
+    vertical-align: top;
+}
+
+/* Disables animations for people who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Enables CSS transitions for size keywords like 'auto' */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+
+/* Very minimal component styles useful for basic layouts */
+.pill {
+    border-radius: 8px;
+    background: #dedede; /* Figma Neutrals-Grey-3 */
+    padding: 4px 8px;
+    margin: 0 8px 4px 0;
 }
