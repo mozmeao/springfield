@@ -457,6 +457,10 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
 ]
 
+# Ensure local debug-only test routes are not locale-prefixed
+if DEBUG:
+    SUPPORTED_NONLOCALES.append("flare-test")
+
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
