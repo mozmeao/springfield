@@ -1,25 +1,28 @@
 {% extends "cms/base-flare.html" %}
 
 {% block content %}
-<main class="main">
+<main class="wnp-main">
   <!-- Hero Section -->
-  <section class="section section-intro">
-    <div class="container">
-      <div class="intro-layout">
-        <div class="intro-content">
-          <p class="eyebrow">What’s New | Firefox 142</p>
-          <h1 class="title">Keep your email address to yourself.</h1>
-          <p class="subtitle-5">Firefox Relay generates secure email masks when you sign up for new online accounts, so you can stay anonymous and get less spam in your inbox.</p>
-          <div class="btn-wrap">
-            <a class="button button-secondary" href="https://relay.firefox.com/?utm_source=www.mozilla.org&amp;utm_medium=referral&amp;utm_campaign=wnp142" data-cta-text="Try Relay" role="button">
+  <section class="wnp-section wnp-section-intro">
+    <div class="wnp-container">
+      <div class="wnp-intro-layout">
+        <div class="wnp-intro-content">
+          <p class="wnp-eyebrow">What’s New | Firefox 142</p>
+          <h1 class="wnp-title">Keep your email address to yourself.</h1>
+          <p class="wnp-subtitle-5">Firefox Relay generates secure email masks when you sign up for new online accounts, so you can stay anonymous and get less spam in your inbox.</p>
+          <div class="wnp-btn-wrap">
+            <a class="wnp-button wnp-button-secondary" href="https://relay.firefox.com/?utm_source=www.mozilla.org&amp;utm_medium=referral&amp;utm_campaign=wnp142" data-cta-text="Try Relay">
               Try Relay
-              <img class="button-icon" src="/media/img/icons/cms/arrow-right.svg" width="16" height="16" alt="" aria-hidden="true">
+              <img class="wnp-button-icon" src="/media/img/firefox/flare/arrow-right.svg" width="16" height="16" alt="" aria-hidden="true">
             </a>
           </div>
         </div>
-        <div class="intro-media" aria-hidden="true">
-          <div class="media-frame media-frame--settings">
-            <img alt="Relay Illustration" height="320" src="/custom-media/images/relay-hero-600.width-800.png" width="600">
+        <div class="wnp-intro-media" aria-hidden="true">
+          <div class="wnp-media-frame wnp-media-frame--settings">
+            <picture>
+              <source srcset="/media/img/firefox/flare/relay-hero-600.png 600w, /media/img/firefox/flare/relay-hero-1200.png 1200w, /media/img/firefox/flare/relay-hero-1800.png 1800w" sizes="(max-width: 1024px) 100%, 520px" type="image/png">
+              <img src="/media/img/firefox/flare/relay-hero-600.png" alt="Illustration of privacy and security oriented features">
+            </picture>
           </div>
         </div>
       </div>
@@ -28,48 +31,52 @@
 
 
   <!-- Section 2: Headlines / Sub Features -->
-  <section class="section" aria-labelledby="features-heading">
-    <div class="container">
-      <h2 id="features-heading" class="subtitle text-center">Know before you click. Stay in control as you browse.</h2>
-      <p class="body is-centered">Firefox helps you preview links and keep tabs tidy so nothing slows you down.</p>
+  <section class="wnp-section" aria-labelledby="features-heading">
+    <div class="wnp-container">
+      <h2 id="features-heading" class="wnp-subtitle text-center">Know before you click. Stay in control as you browse.</h2>
+      <p class="wnp-body wnp-is-centered">Firefox helps you preview links and keep tabs tidy so nothing slows you down.</p>
 
-      <div class="feature">
-        <div class="feature-media" aria-hidden="true">
-          <div class="media-frame media-frame--settings">
-            <img alt="Link Previews Illustration" height="426" src="/custom-media/images/link-previews.width-800.png" width="800">
+      <div class="wnp-feature">
+        <div class="wnp-feature-media" aria-hidden="true">
+          <div class="wnp-media-frame wnp-media-frame--settings">
+            <img src="/media/img/firefox/flare/link-previews.png" alt="Link previews illustration" srcset="
+                                    /media/img/firefox/flare/link-previews@2x.png 2x
+                                  ">
           </div>
         </div>
-        <div class="feature-content">
-          <p class="feature-eyebrow">Link Previews</p>
-          <h3 class="subtitle">See what's behind the link before you click.</h3>
-          <p class="body">Link Previews show a snapshot of a page before you open it, helping you decide what’s worth your time. Just long press any link to preview and reduce distractions.</p>
-          <div class="btn-wrap">
-            <a class="button button-outline" href="https://connect.mozilla.org/t5/discussions/try-link-previews-in-firefox-142-see-what-s-behind-a-link-before/m-p/103496#M40177" aria-label="Learn more about Link Previews" data-cta-text="Learn more - link previews" role="button">Learn More
-              <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
+        <div class="wnp-feature-content">
+          <p class="wnp-feature-eyebrow">Link Previews</p>
+          <h3 class="wnp-subtitle">See what's behind the link before you click.</h3>
+          <p class="wnp-body">Link Previews show a snapshot of a page before you open it, helping you decide what’s worth your time. Just long press any link to preview and reduce distractions.</p>
+          <div class="wnp-btn-wrap">
+            <a class="wnp-button wnp-button-outline" href="https://connect.mozilla.org/t5/discussions/try-link-previews-in-firefox-142-see-what-s-behind-a-link-before/m-p/103496#M40177" aria-label="Learn more about Link Previews" data-cta-text="Learn more - link previews">Learn More
+              <span class="wnp-button-icon wnp-button-icon-arrow" aria-hidden="true"></span>
             </a>
           </div>
         </div>
       </div>
 
-      <div class="feature feature--reverse">
-        <div class="feature-media" aria-hidden="true">
-          <div class="media-frame media-frame--settings">
-            <img alt="Tab Groups Illustration" height="427" src="/custom-media/images/tab-groups.width-800.png" width="800">
+      <div class="wnp-feature wnp-feature--reverse">
+        <div class="wnp-feature-media" aria-hidden="true">
+          <div class="wnp-media-frame wnp-media-frame--settings">
+            <img src="/media/img/firefox/flare/tab-groups.png" alt="Tab groups illustration" srcset="
+                                    /media/img/firefox/flare/tab-groups@2x.png 2x
+                                  ">
           </div>
         </div>
-        <div class="feature-content">
-          <p class="feature-eyebrow">AI-Enhanced Tab Groups</p>
-          <h3 class="subtitle">Your tabs, automatically grouped by topic.</h3>
-          <p class="body">A local AI model identifies similar tabs, automatically organizes them into groups, and even suggests group names, helping you stay organized. Everything happens on your device to respect your privacy.</p>
-          <div class="btn-wrap"><a class="button button-outline" href="https://support.mozilla.org/en-US/kb/how-use-ai-enhanced-tab-groups" aria-label="Learn more about Smart Tab Groups" data-cta-text="Learn more - ai-enhanced tab groups" role="button">Learn More
-              <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
+        <div class="wnp-feature-content">
+          <p class="wnp-feature-eyebrow">AI-Enhanced Tab Groups</p>
+          <h3 class="wnp-subtitle">Your tabs, automatically grouped by topic.</h3>
+          <p class="wnp-body">A local AI model identifies similar tabs, automatically organizes them into groups, and even suggests group names, helping you stay organized. Everything happens on your device to respect your privacy.</p>
+          <div class="wnp-btn-wrap"><a class="wnp-button wnp-button-outline" href="https://support.mozilla.org/en-US/kb/how-use-ai-enhanced-tab-groups" aria-label="Learn more about Smart Tab Groups" data-cta-text="Learn more - ai-enhanced tab groups">Learn More
+              <span class="wnp-button-icon wnp-button-icon-arrow" aria-hidden="true"></span>
             </a>
           </div>
         </div>
       </div>
 
-      <p class="link-wrap">
-        <a class="link" href="https://www.mozilla.org/firefox/142.0/releasenotes/" data-cta-text="See full release notes">See Full Release Notes</a>
+      <p class="wnp-link-wrap">
+        <a class="wnp-link" href="/firefox/142.0/releasenotes/" data-cta-text="See full release notes">See Full Release Notes</a>
       </p>
     </div>
   </section>
@@ -77,31 +84,31 @@
 
 
   <!-- Section 3: Desktop Feature Panels -->
-  <section class="section section-highlights" aria-labelledby="highlights-heading">
-    <div class="container">
-      <h2 id="highlights-heading" class="subtitle text-center">Tailor Firefox to fit your flow.</h2>
-      <p class="body has-subhead-spacing is-centered">Stay organized, find what you need, and browse your way.</p>
-      <div class="grid">
-        <article class="card" style="cursor: pointer;">
-          <div class="card-content">
-            <img class="card-sticker" src="/media/img/icons/cms/arrow-right.svg" data-dark-src="/media/img/icons/cms/arrow-right.svg" alt="" aria-hidden="true" data-light-src="/media/img/icons/cms/arrow-right.svg">
-            <h3 class="subtitle">
+  <section class="wnp-section wnp-section-highlights" aria-labelledby="highlights-heading">
+    <div class="wnp-container">
+      <h2 id="highlights-heading" class="wnp-subtitle text-center">Tailor Firefox to fit your flow.</h2>
+      <p class="wnp-body wnp-has-subhead-spacing wnp-is-centered">Stay organized, find what you need, and browse your way.</p>
+      <div class="wnp-grid">
+        <article class="wnp-card" style="cursor: pointer;">
+          <div class="wnp-card-content">
+            <img class="wnp-card-sticker" src="/media/img/firefox/flare/vertical-tabs-sticker.svg" data-dark-src="/media/img/firefox/flare/vertical-tabs-sticker-dark.svg" alt="" aria-hidden="true" data-light-src="/media/img/firefox/flare/vertical-tabs-sticker.svg">
+            <h3 class="wnp-subtitle">
               <a href="https://support.mozilla.org/en-US/kb/use-sidebar-access-tools-and-vertical-tabs" data-cta-text="Learn more - vertical tabs" aria-describedby="desc-vertical-tabs">Less clutter and more focus with vertical tabs</a>
             </h3>
-            <p class="body">Firefox’s new sidebar lets you move tabs to the side, pin key sites and keep your AI assistant handy.</p>
-            <a class="button button-outline" href="https://support.mozilla.org/en-US/kb/use-sidebar-access-tools-and-vertical-tabs" aria-label="Learn more about Vertical Tabs" data-cta-text="Learn more - vertical tabs" id="desc-vertical-tabs" role="button">
-              Learn more <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
+            <p class="wnp-body">Firefox’s new sidebar lets you move tabs to the side, pin key sites and keep your AI assistant handy.</p>
+            <a class="wnp-button wnp-button-outline" href="https://support.mozilla.org/en-US/kb/use-sidebar-access-tools-and-vertical-tabs" aria-label="Learn more about Vertical Tabs" data-cta-text="Learn more - vertical tabs" id="desc-vertical-tabs">
+              Learn more <span class="wnp-button-icon wnp-button-icon-arrow" aria-hidden="true"></span>
             </a>
           </div>
         </article>
-        <article class="card" style="cursor: pointer;">
-          <div class="card-content">
-            <img class="card-sticker" src="/media/img/icons/cms/arrow-right.svg" data-dark-src="/media/img/icons/cms/arrow-right.svg" alt="" aria-hidden="true" data-light-src="/media/img/icons/cms/arrow-right.svg">
-            <h3 class="subtitle">
+        <article class="wnp-card" style="cursor: pointer;">
+          <div class="wnp-card-content">
+            <img class="wnp-card-sticker" src="/media/img/firefox/flare/tab-wallpapers-sticker.svg" data-dark-src="/media/img/firefox/flare/tab-wallpapers-sticker-dark.svg" alt="" aria-hidden="true" data-light-src="/media/img/firefox/flare/tab-wallpapers-sticker.svg">
+            <h3 class="wnp-subtitle">
               <a href="https://support.mozilla.org/en-US/kb/customize-items-on-firefox-new-tab-page#w_change-whats-on-your-new-tab-page" data-cta-text="Learn more - new tab customization" aria-describedby="desc-new-tab">Make your New Tab feel like home</a>
             </h3>
-            <p class="body">Create a space that’s uniquely yours. Set the mood with Firefox wallpapers, custom colors, or your own photo. Open a new tab and click the
-              <svg class="inline-icon" width="16" height="16" viewBox="0 0 18 19" fill="currentColor" aria-label="pencil" role="presentation">
+            <p class="wnp-body">Create a space that’s uniquely yours. Set the mood with Firefox wallpapers, custom colors, or your own photo. Open a new tab and click the
+              <svg class="wnp-inline-icon" width="16" height="16" viewBox="0 0 18 19" fill="currentColor" aria-label="pencil" role="img">
                 <g clip-path="url(#a)">
                   <path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"></path>
                 </g>
@@ -112,20 +119,20 @@
                 </defs>
               </svg> icon to start customizing.
             </p>
-            <a class="button button-outline" href="https://support.mozilla.org/en-US/kb/customize-items-on-firefox-new-tab-page#w_change-whats-on-your-new-tab-page" aria-label="Learn more about customizing your New Tab Page" data-cta-text="Learn more - new tab customization" id="desc-new-tab" role="button">
-              Learn more <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
+            <a class="wnp-button wnp-button-outline" href="https://support.mozilla.org/en-US/kb/customize-items-on-firefox-new-tab-page#w_change-whats-on-your-new-tab-page" aria-label="Learn more about customizing your New Tab Page" data-cta-text="Learn more - new tab customization" id="desc-new-tab">
+              Learn more <span class="wnp-button-icon wnp-button-icon-arrow" aria-hidden="true"></span>
             </a>
           </div>
         </article>
-        <article class="card" style="cursor: pointer;">
-          <div class="card-content">
-            <img class="card-sticker" src="/media/img/icons/cms/arrow-right.svg" data-dark-src="/media/img/icons/cms/arrow-right.svg" alt="" aria-hidden="true" data-light-src="/media/img/icons/cms/arrow-right.svg">
-            <h3 class="subtitle">
+        <article class="wnp-card" style="cursor: pointer;">
+          <div class="wnp-card-content">
+            <img class="wnp-card-sticker" src="/media/img/firefox/flare/tab-groups-sticker.svg" data-dark-src="/media/img/firefox/flare/tab-groups-sticker-dark.svg" alt="" aria-hidden="true" data-light-src="/media/img/firefox/flare/tab-groups-sticker.svg">
+            <h3 class="wnp-subtitle">
               <a href="https://support.mozilla.org/en-US/kb/tab-groups" data-cta-text="Learn more - tab groups" aria-describedby="desc-tab-groups-card">Take control of your browsing with tab groups</a>
             </h3>
-            <p class="body">No more tab overload. Stay organized and in control of your time and attention. Drag one tab onto another to create your first group.</p>
-            <a class="button button-outline" href="https://support.mozilla.org/en-US/kb/tab-groups" aria-label="Learn more about Tab Groups" data-cta-text="Learn more - tab groups" id="desc-tab-groups-card" role="button">
-              Learn more <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
+            <p class="wnp-body">No more tab overload. Stay organized and in control of your time and attention. Drag one tab onto another to create your first group.</p>
+            <a class="wnp-button wnp-button-outline" href="https://support.mozilla.org/en-US/kb/tab-groups" aria-label="Learn more about Tab Groups" data-cta-text="Learn more - tab groups" id="desc-tab-groups-card">
+              Learn more <span class="wnp-button-icon wnp-button-icon-arrow" aria-hidden="true"></span>
             </a>
           </div>
         </article>
@@ -134,10 +141,10 @@
   </section>
 
   <!-- Subscribe Banner -->
-  <section class="section section-subscribe" aria-labelledby="subscribe-heading">
-    <div class="container">
-      <h2 id="subscribe-heading" class="subtitle text-center">Keep up with all things Firefox</h2>
-      <p class="body is-centered">Get monthly how-tos, advice and news to make your Firefox experience work best for you.</p>
+  <section class="wnp-section wnp-section-subscribe" aria-labelledby="subscribe-heading">
+    <div class="wnp-container">
+      <h2 id="subscribe-heading" class="wnp-subtitle text-center">Keep up with all things Firefox</h2>
+      <p class="wnp-body wnp-is-centered">Get monthly how-tos, advice and news to make your Firefox experience work best for you.</p>
 
 
 
@@ -145,7 +152,7 @@
 
 
 
-      <form id="newsletter-form" class="subscribe mzp-c-newsletter-form" action="https://basket.mozilla.org/news/subscribe/" method="post" novalidate="">
+      <form id="newsletter-form" class="wnp-subscribe mzp-c-newsletter-form" action="https://basket.mozilla.org/news/subscribe/" method="post" novalidate="">
 
         <div hidden="">
           <div id="id_newsletters">
@@ -159,71 +166,1161 @@
 
         <input type="hidden" name="source_url" value="https://www.mozilla.org/en-US/firefox/142.0/whatsnew/">
 
-        <label class="visually-hidden" for="email">Your email address</label>
+        <label class="visually-hidden" for="wnp-email">Your email address</label>
 
 
 
-        <input id="email" class="input mzp-js-email-field" type="email" name="email" placeholder="yourname@example.com" autocomplete="email">
+        <input id="wnp-email" class="wnp-input mzp-js-email-field" type="email" name="email" placeholder="yourname@example.com" autocomplete="email">
 
 
 
-        <div class="form-details form-row-hidden">
+        <div class="wnp-form-details wnp-form-row-hidden">
 
-          <div class="form-field">
+          <div class="wnp-form-field">
             <label for="id_country" class="visually-hidden">Select country or region</label>
-            <select class="custom-select" name="country" id="id_country">
-              <option value="us">United States</option>
-              <option value="ca">Canada</option>
-              <option value="gb">United Kingdom</option>
+            <select class="wnp-custom-select" name="country" id="id_country">
+              <option value="" disabled="" selected="">Select Country or Region</option>
+            
+            
+              <option value="af">Afghanistan</option>
+            
+            
+            
+              <option value="qz">Akrotiri</option>
+            
+            
+            
+              <option value="al">Albania</option>
+            
+            
+            
+              <option value="dz">Algeria</option>
+            
+            
+            
+              <option value="as">American Samoa</option>
+            
+            
+            
+              <option value="ad">Andorra</option>
+            
+            
+            
+              <option value="ao">Angola</option>
+            
+            
+            
+              <option value="ai">Anguilla</option>
+            
+            
+            
+              <option value="aq">Antarctica</option>
+            
+            
+            
+              <option value="ag">Antigua and Barbuda</option>
+            
+            
+            
+              <option value="ar">Argentina</option>
+            
+            
+            
+              <option value="am">Armenia</option>
+            
+            
+            
+              <option value="aw">Aruba</option>
+            
+            
+            
+              <option value="xa">Ashmore and Cartier Islands</option>
+            
+            
+            
               <option value="au">Australia</option>
-              <option value="nz">New Zealand</option>
-              <option value="ie">Ireland</option>
-              <option value="de">Germany</option>
+            
+            
+            
+              <option value="at">Austria</option>
+            
+            
+            
+              <option value="az">Azerbaijan</option>
+            
+            
+            
+              <option value="bs">Bahamas, The</option>
+            
+            
+            
+              <option value="bh">Bahrain</option>
+            
+            
+            
+              <option value="xb">Baker Island</option>
+            
+            
+            
+              <option value="bd">Bangladesh</option>
+            
+            
+            
+              <option value="bb">Barbados</option>
+            
+            
+            
+              <option value="qs">Bassas da India</option>
+            
+            
+            
+              <option value="by">Belarus</option>
+            
+            
+            
+              <option value="be">Belgium</option>
+            
+            
+            
+              <option value="bz">Belize</option>
+            
+            
+            
+              <option value="bj">Benin</option>
+            
+            
+            
+              <option value="bm">Bermuda</option>
+            
+            
+            
+              <option value="bt">Bhutan</option>
+            
+            
+            
+              <option value="bo">Bolivia</option>
+            
+            
+            
+              <option value="ba">Bosnia and Herzegovina</option>
+            
+            
+            
+              <option value="bw">Botswana</option>
+            
+            
+            
+              <option value="bv">Bouvet Island</option>
+            
+            
+            
+              <option value="br">Brazil</option>
+            
+            
+            
+              <option value="io">British Indian Ocean Territory</option>
+            
+            
+            
+              <option value="bn">Brunei</option>
+            
+            
+            
+              <option value="bg">Bulgaria</option>
+            
+            
+            
+              <option value="bf">Burkina Faso</option>
+            
+            
+            
+              <option value="mm">Burma</option>
+            
+            
+            
+              <option value="bi">Burundi</option>
+            
+            
+            
+              <option value="kh">Cambodia</option>
+            
+            
+            
+              <option value="cm">Cameroon</option>
+
+              <option value="ca">Canada</option>
+<option value="cv">Cape Verde</option>
+
+
+
+<option value="bq">Caribbean Netherlands</option>
+
+
+
+<option value="ky">Cayman Islands</option>
+
+
+
+<option value="cf">Central African Republic</option>
+
+
+
+<option value="td">Chad</option>
+
+
+
+<option value="cl">Chile</option>
+
+
+
+<option value="cn">China</option>
+
+
+
+<option value="cx">Christmas Island</option>
+
+
+
+<option value="cp">Clipperton Island</option>
+
+
+
+<option value="cc">Cocos (Keeling) Islands</option>
+
+
+
+<option value="co">Colombia</option>
+
+
+
+<option value="km">Comoros</option>
+
+
+
+<option value="cg">Congo (Brazzaville)</option>
+
+
+
+<option value="cd">Congo (Kinshasa)</option>
+
+
+
+<option value="ck">Cook Islands</option>
+
+
+
+<option value="xc">Coral Sea Islands</option>
+
+
+
+<option value="cr">Costa Rica</option>
+
+
+
+<option value="hr">Croatia</option>
+
+
+
+<option value="cu">Cuba</option>
+
+
+
+<option value="cw">Curaçao</option>
+
+
+
+<option value="cy">Cyprus</option>
+
+
+
+<option value="cz">Czechia</option>
+
+
+
+<option value="ci">Côte d’Ivoire</option>
+
+
+
+<option value="dk">Denmark</option>
+
+
+
+<option value="xd">Dhekelia</option>
+
+
+
+<option value="dg">Diego Garcia</option>
+
+
+
+<option value="dj">Djibouti</option>
+
+
+
+<option value="dm">Dominica</option>
+
+
+
+<option value="do">Dominican Republic</option>
+
+
+
+<option value="ec">Ecuador</option>
+
+
+
+<option value="eg">Egypt</option>
+
+
+
+<option value="sv">El Salvador</option>
+
+
+
+<option value="gq">Equatorial Guinea</option>
+
+
+
+<option value="er">Eritrea</option>
+
+
+
+<option value="ee">Estonia</option>
+
+
+
+<option value="sz">Eswatini</option>
+
+
+
+<option value="et">Ethiopia</option>
+
+
+
+<option value="xe">Europa Island</option>
+
+
+
+<option value="fk">Falkland Islands (Islas Malvinas)</option>
+
+
+
+<option value="fo">Faroe Islands</option>
+
+
+
+<option value="fj">Fiji</option>
+
+
+
+<option value="fi">Finland</option>
+
+
+
+<option value="fr">France</option>
+
+
+
+<option value="gf">French Guiana</option>
+
+
+
+<option value="pf">French Polynesia</option>
+
+
+
+<option value="tf">French Southern and Antarctic Lands</option>
+
+
+
+<option value="ga">Gabon</option>
+
+
+
+<option value="gm">Gambia, The</option>
+
+
+
+<option value="xg">Gaza Strip</option>
+
+
+
+<option value="ge">Georgia</option>
+
+
+
+<option value="de">Germany</option>
+
+
+
+<option value="gh">Ghana</option>
+
+
+
+<option value="gi">Gibraltar</option>
+
+
+
+<option value="qx">Glorioso Islands</option>
+
+
+
+<option value="gr">Greece</option>
+
+
+
+<option value="gl">Greenland</option>
+
+
+
+<option value="gd">Grenada</option>
+
+
+
+<option value="gp">Guadeloupe</option>
+
+
+
+<option value="gu">Guam</option>
+
+
+
+<option value="gt">Guatemala</option>
+
+
+
+<option value="gg">Guernsey</option>
+
+
+
+<option value="gn">Guinea</option>
+
+
+
+<option value="gw">Guinea-Bissau</option>
+
+
+
+<option value="gy">Guyana</option>
+
+
+
+<option value="ht">Haiti</option>
+
+
+
+<option value="hm">Heard Island and McDonald Islands</option>
+
+
+
+<option value="hn">Honduras</option>
+
+
+
+<option value="hk">Hong Kong</option>
+
+
+
+<option value="xh">Howland Island</option>
+
+
+
+<option value="hu">Hungary</option>
+
+
+
+<option value="is">Iceland</option>
+
+
+
+<option value="in">India</option>
+
+
+
+<option value="id">Indonesia</option>
+
+
+
+<option value="ir">Iran</option>
+
+
+
+<option value="iq">Iraq</option>
+
+
+
+<option value="ie">Ireland</option>
+
+
+
+<option value="im">Isle of Man</option>
+
+
+
+<option value="il">Israel</option>
+
+
+
+<option value="it">Italy</option>
+
+
+
+<option value="jm">Jamaica</option>
+
+
+
+<option value="xj">Jan Mayen</option>
+
+
+
+<option value="jp">Japan</option>
+
+
+
+<option value="xq">Jarvis Island</option>
+
+
+
+<option value="je">Jersey</option>
+
+
+
+<option value="xu">Johnston Atoll</option>
+
+
+
+<option value="jo">Jordan</option>
+
+
+
+<option value="qu">Juan de Nova Island</option>
+
+
+
+<option value="kz">Kazakhstan</option>
+
+
+
+<option value="ke">Kenya</option>
+
+
+
+<option value="xm">Kingman Reef</option>
+
+
+
+<option value="ki">Kiribati</option>
+
+
+
+<option value="kp">Korea, North</option>
+
+
+
+<option value="kr">Korea, South</option>
+
+
+
+<option value="xk">Kosovo</option>
+
+
+
+<option value="kw">Kuwait</option>
+
+
+
+<option value="kg">Kyrgyzstan</option>
+
+
+
+<option value="la">Laos</option>
+
+
+
+<option value="lv">Latvia</option>
+
+
+
+<option value="lb">Lebanon</option>
+
+
+
+<option value="ls">Lesotho</option>
+
+
+
+<option value="lr">Liberia</option>
+
+
+
+<option value="ly">Libya</option>
+
+
+
+<option value="li">Liechtenstein</option>
+
+
+
+<option value="lt">Lithuania</option>
+
+
+
+<option value="lu">Luxembourg</option>
+
+
+
+<option value="mo">Macau</option>
+
+
+
+<option value="mg">Madagascar</option>
+
+
+
+<option value="mw">Malawi</option>
+
+
+
+<option value="my">Malaysia</option>
+
+
+
+<option value="mv">Maldives</option>
+
+
+
+<option value="ml">Mali</option>
+
+
+
+<option value="mt">Malta</option>
+
+
+
+<option value="mh">Marshall Islands</option>
+
+
+
+<option value="mq">Martinique</option>
+
+
+
+<option value="mr">Mauritania</option>
+
+
+
+<option value="mu">Mauritius</option>
+
+
+
+<option value="yt">Mayotte</option>
+
+
+
+<option value="mx">Mexico</option>
+
+
+
+<option value="fm">Micronesia, Federated States of</option>
+
+
+
+<option value="qm">Midway Islands</option>
+
+
+
+<option value="md">Moldova</option>
+
+
+
+<option value="mc">Monaco</option>
+
+
+
+<option value="mn">Mongolia</option>
+
+
+
+<option value="me">Montenegro</option>
+
+
+
+<option value="ms">Montserrat</option>
+
+
+
+<option value="ma">Morocco</option>
+
+
+
+<option value="mz">Mozambique</option>
+
+
+
+<option value="na">Namibia</option>
+
+
+
+<option value="nr">Nauru</option>
+
+
+
+<option value="xv">Navassa Island</option>
+
+
+
+<option value="np">Nepal</option>
+
+
+
+<option value="nl">Netherlands</option>
+
+
+
+<option value="nc">New Caledonia</option>
+
+
+
+<option value="nz">New Zealand</option>
+
+
+
+<option value="ni">Nicaragua</option>
+
+
+
+<option value="ne">Niger</option>
+
+
+
+<option value="ng">Nigeria</option>
+
+
+
+<option value="nu">Niue</option>
+
+
+
+<option value="nf">Norfolk Island</option>
+
+
+
+<option value="mk">North Macedonia</option>
+
+
+
+<option value="mp">Northern Mariana Islands</option>
+
+
+
+<option value="no">Norway</option>
+
+
+
+<option value="om">Oman</option>
+
+
+
+<option value="pk">Pakistan</option>
+
+
+
+<option value="pw">Palau</option>
+
+
+
+<option value="xl">Palmyra Atoll</option>
+
+
+
+<option value="pa">Panama</option>
+
+
+
+<option value="pg">Papua New Guinea</option>
+
+
+
+<option value="xp">Paracel Islands</option>
+
+
+
+<option value="py">Paraguay</option>
+
+
+
+<option value="pe">Peru</option>
+
+
+
+<option value="ph">Philippines</option>
+
+
+
+<option value="pn">Pitcairn Islands</option>
+
+
+
+<option value="pl">Poland</option>
+
+
+
+<option value="pt">Portugal</option>
+
+
+
+<option value="pr">Puerto Rico</option>
+
+
+
+<option value="qa">Qatar</option>
+
+
+
+<option value="ro">Romania</option>
+
+
+
+<option value="ru">Russia</option>
+
+
+
+<option value="rw">Rwanda</option>
+
+
+
+<option value="re">Réunion</option>
+
+
+
+<option value="bl">Saint Barthélemy</option>
+
+
+
+<option value="sh">Saint Helena, Ascension, and Tristan da Cunha</option>
+
+
+
+<option value="kn">Saint Kitts and Nevis</option>
+
+
+
+<option value="lc">Saint Lucia</option>
+
+
+
+<option value="mf">Saint Martin</option>
+
+
+
+<option value="pm">Saint Pierre and Miquelon</option>
+
+
+
+<option value="vc">Saint Vincent and the Grenadines</option>
+
+
+
+<option value="ws">Samoa</option>
+
+
+
+<option value="sm">San Marino</option>
+
+
+
+<option value="sa">Saudi Arabia</option>
+
+
+
+<option value="sn">Senegal</option>
+
+
+
+<option value="rs">Serbia</option>
+
+
+
+<option value="sc">Seychelles</option>
+
+
+
+<option value="sl">Sierra Leone</option>
+
+
+
+<option value="sg">Singapore</option>
+
+
+
+<option value="sx">Sint Maarten</option>
+
+
+
+<option value="sk">Slovakia</option>
+
+
+
+<option value="si">Slovenia</option>
+
+
+
+<option value="sb">Solomon Islands</option>
+
+
+
+<option value="so">Somalia</option>
+
+
+
+<option value="za">South Africa</option>
+
+
+
+<option value="gs">South Georgia and South Sandwich Islands</option>
+
+
+
+<option value="ss">South Sudan</option>
+
+
+
+<option value="es">Spain</option>
+
+
+
+<option value="xs">Spratly Islands</option>
+
+
+
+<option value="lk">Sri Lanka</option>
+
+
+
+<option value="sd">Sudan</option>
+
+
+
+<option value="sr">Suriname</option>
+
+
+
+<option value="xr">Svalbard</option>
+
+
+
+<option value="se">Sweden</option>
+
+
+
+<option value="ch">Switzerland</option>
+
+
+
+<option value="sy">Syria</option>
+
+
+
+<option value="st">São Tomé and Príncipe</option>
+
+
+
+<option value="tw">Taiwan</option>
+
+
+
+<option value="tj">Tajikistan</option>
+
+
+
+<option value="tz">Tanzania</option>
+
+
+
+<option value="th">Thailand</option>
+
+
+
+<option value="tl">Timor-Leste</option>
+
+
+
+<option value="tg">Togo</option>
+
+
+
+<option value="tk">Tokelau</option>
+
+
+
+<option value="to">Tonga</option>
+
+
+
+<option value="tt">Trinidad and Tobago</option>
+
+
+
+<option value="xt">Tromelin Island</option>
+
+
+
+<option value="tn">Tunisia</option>
+
+
+
+<option value="tr">Turkey</option>
+
+
+
+<option value="tm">Turkmenistan</option>
+
+
+
+<option value="tc">Turks and Caicos Islands</option>
+
+
+
+<option value="tv">Tuvalu</option>
+
+
+
+<option value="ug">Uganda</option>
+
+
+
+<option value="ua">Ukraine</option>
+
+
+
+<option value="ae">United Arab Emirates</option>
+
+              <option value="gb">United Kingdom</option>
+<option value="us">United States</option>
+
+
+
+<option value="uy">Uruguay</option>
+
+
+
+<option value="uz">Uzbekistan</option>
+
+
+
+<option value="vu">Vanuatu</option>
+
+
+
+<option value="va">Vatican City</option>
+
+
+
+<option value="ve">Venezuela</option>
+
+
+
+<option value="vn">Vietnam</option>
+
+
+
+<option value="vg">Virgin Islands, British</option>
+
+
+
+<option value="vi">Virgin Islands, U.S.</option>
+
+
+
+<option value="qw">Wake Island</option>
+
+
+
+<option value="wf">Wallis and Futuna</option>
+
+
+
+<option value="xw">West Bank</option>
+
+
+
+<option value="eh">Western Sahara</option>
+
+
+
+<option value="ye">Yemen</option>
+
+
+
+<option value="zm">Zambia</option>
+
+
+
+<option value="zw">Zimbabwe</option>
+
             </select>
-            <svg class="select-arrow hidden" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <svg class="wnp-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M4 6L8 10L12 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           </div>
 
 
 
-          <div class="form-field">
+          <div class="wnp-form-field">
             <label for="id_lang" class="visually-hidden">Select language</label>
-            <select class="custom-select" name="lang" id="id_lang">
+            <select class="wnp-custom-select" name="lang" id="id_lang">
+
               <option value="id">Bahasa Indonesia</option>
+
+
               <option value="de">Deutsch</option>
+
+
               <option value="en" selected="">English</option>
+
+
               <option value="es">Español</option>
+
+
               <option value="fr">Français</option>
+
+
               <option value="pl">Polski</option>
+
+
               <option value="pt">Português</option>
+
+
               <option value="ru">Русский</option>
+
+
               <option value="zh-TW">正體中文</option>
 
+
             </select>
-            <svg class="select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <svg class="wnp-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M4 6L8 10L12 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           </div>
 
 
-          <div class="subscribe-consent">
-            <label for="privacy" class="body checkbox-label">
-              <input type="checkbox" id="privacy" name="privacy" required="" aria-required="true">
-              <span class="checkbox-text">Firefox <a href="https://www.mozilla.org/en-US/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="/privacy/websites/">Privacy Policy</a>. We will only send you Firefox-related information. You can unsubscribe at any time.</span>
+          <div class="wnp-subscribe-consent">
+            <label for="wnp-privacy" class="wnp-body wnp-checkbox-label">
+              <input type="checkbox" id="wnp-privacy" name="privacy" required="" aria-required="true">
+              <span class="wnp-checkbox-text">Firefox <a href="https://www.mozilla.org/en-US/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="/privacy/websites/">Privacy Policy</a>. We will only send you Firefox-related information. You can unsubscribe at any time.</span>
             </label>
           </div>
         </div>
-        <button id="newsletter-submit" class="button button-outline" type="submit" disabled="">Sign Up</button>
+        <button id="newsletter-submit" class="wnp-button wnp-button-outline" type="submit" disabled="">Sign Up</button>
         <div id="newsletter-details" style="display:block;"></div>
-        <div class="body form-feedback form-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
-          <ul class="form-error-list mzp-u-list-styled">
+        <div class="wnp-body wnp-form-feedback wnp-form-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+          <ul class="wnp-form-error-list mzp-u-list-styled">
             <li class="error-email-invalid hidden">Please enter a valid email address</li>
             <li class="error-try-again-later hidden">We are sorry, but there was a problem with our system. Please try again later!</li>
           </ul>
         </div>
       </form>
-      <div id="newsletter-thanks" class="newsletter-success hidden" data-testid="newsletter-thanks-message">
+      <div id="newsletter-thanks" class="wnp-newsletter-success hidden" data-testid="newsletter-thanks-message">
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <circle cx="40" cy="40" r="40" fill="white"></circle>
           <path d="M28 40L36 48L52 32" stroke="black" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter"></path>
@@ -235,59 +1332,59 @@
   </section>
 
   <!-- Section 4: Mobile Features -->
-  <section class="section section-mobile" aria-labelledby="mobile-heading">
-    <div class="container">
-      <h2 id="mobile-heading" class="subtitle text-center">What’s New on Firefox Mobile?</h2>
-      <p class="body is-centered">New tools for focus, privacy, and smoother mobile browsing.</p>
-      <div class="grid">
-        <article class="card">
+  <section class="wnp-section wnp-section-mobile" aria-labelledby="wnp-mobile-heading">
+    <div class="wnp-container">
+      <h2 id="wnp-mobile-heading" class="wnp-subtitle text-center">What’s New on Firefox Mobile?</h2>
+      <p class="wnp-body wnp-is-centered">New tools for focus, privacy, and smoother mobile browsing.</p>
+      <div class="wnp-grid">
+        <article class="wnp-card">
           <div>
-            <span class="tag tag-purple"><img src="/media/img/icons/cms/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">Privacy</span><span class="tag tag-android"><img src="/custom-media/images/relay-hero-600.width-800.png" width="12" height="12" alt="" aria-hidden="true">Android</span>
+            <span class="wnp-tag wnp-tag-purple"><img src="/media/img/firefox/flare/shield.svg" width="12" height="12" alt="" aria-hidden="true">Privacy</span><span class="wnp-tag wnp-tag-android"><img src="/media/img/firefox/flare/android-icon.png" width="12" height="12" alt="" aria-hidden="true">Android</span>
           </div>
-          <h3 class="subtitle">Private tabs that stay private</h3>
-          <p class="body">Your private tabs lock automatically when you step away — and only unlock with your face, fingerprint, or PIN.</p>
+          <h3 class="wnp-subtitle">Private tabs that stay private</h3>
+          <p class="wnp-body">Your private tabs lock automatically when you step away — and only unlock with your face, fingerprint, or PIN.</p>
         </article>
-        <article class="card">
+        <article class="wnp-card">
           <div>
-            <span class="tag tag-blue"><img src="/media/img/icons/cms/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">Language</span><span class="tag tag-android"><img src="/custom-media/images/relay-hero-600.width-800.png" width="12" height="12" alt="" aria-hidden="true">Android</span>
+            <span class="wnp-tag wnp-tag-blue"><img src="/media/img/firefox/flare/language-icon.svg" width="12" height="12" alt="" aria-hidden="true">Language</span><span class="wnp-tag wnp-tag-android"><img src="/media/img/firefox/flare/android-icon.png" width="12" height="12" alt="" aria-hidden="true">Android</span>
           </div>
-          <h3 class="subtitle">Getting even more multilingual</h3>
-          <p class="body">Now translate web pages into Japanese, Chinese, Korean and more, so you can browse in your preferred language.</p>
+          <h3 class="wnp-subtitle">Getting even more multilingual</h3>
+          <p class="wnp-body">Now translate web pages into Japanese, Chinese, Korean and more, so you can browse in your preferred language.</p>
         </article>
-        <article class="card">
+        <article class="wnp-card">
           <div>
-            <span class="tag tag-orange"><img src="/media/img/icons/cms/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">Security</span><span class="tag tag-ios"><img src="/custom-media/images/link-previews.width-800.png" width="12" height="12" alt="" aria-hidden="true">iOS</span>
+            <span class="wnp-tag wnp-tag-orange"><img src="/media/img/firefox/flare/shield.svg" width="12" height="12" alt="" aria-hidden="true">Security</span><span class="wnp-tag wnp-tag-ios"><img src="/media/img/firefox/flare/apple-icon.png" width="12" height="12" alt="" aria-hidden="true">iOS</span>
           </div>
-          <h3 class="subtitle">Smarter passwords, fewer hassles</h3>
-          <p class="body">Firefox suggests strong passwords when you’re creating a new account on any site, and keeps them secure, ready on any device when you sync.</p>
+          <h3 class="wnp-subtitle">Smarter passwords, fewer hassles</h3>
+          <p class="wnp-body">Firefox suggests strong passwords when you’re creating a new account on any site, and keeps them secure, ready on any device when you sync.</p>
         </article>
-        <article class="card">
+        <article class="wnp-card">
           <div>
-            <span class="tag tag-yellow"><img src="/media/img/icons/cms/arrow-right.svg" width="12" height="12" alt="" aria-hidden="true">Design</span><span class="tag tag-ios"><img src="/custom-media/images/link-previews.width-800.png" width="12" height="12" alt="" aria-hidden="true">iOS</span>
+            <span class="wnp-tag wnp-tag-yellow"><img src="/media/img/firefox/flare/design-icon.svg" width="12" height="12" alt="" aria-hidden="true">Design</span><span class="wnp-tag wnp-tag-ios"><img src="/media/img/firefox/flare/apple-icon.png" width="12" height="12" alt="" aria-hidden="true">iOS</span>
           </div>
-          <h3 class="subtitle">A cleaner look with sharper focus</h3>
-          <p class="body">A streamlined UI and upgraded dark mode on Firefox for iOS bring clarity and calm to everything you browse.</p>
+          <h3 class="wnp-subtitle">A cleaner look with sharper focus</h3>
+          <p class="wnp-body">A streamlined UI and upgraded dark mode on Firefox for iOS bring clarity and calm to everything you browse.</p>
         </article>
       </div>
     </div>
   </section>
 
   <!-- QR Code Banner -->
-  <section class="section section-mobile" aria-labelledby="qr-qr-heading">
-    <div class="container">
-      <div class="qr">
-        <div class="qr-layout">
-          <div class="qr-media" aria-hidden="true">
-            <div class="qr-qr" data-href="https://www.mozilla.org/firefox/browsers/mobile/app/?product=firefox&amp;campaign=whatsnew-142" aria-label="QR code to download Firefox Mobile" role="img"><!--?xml version='1.0' encoding='UTF-8'?-->
+  <section class="wnp-section wnp-section-mobile" aria-labelledby="wnp-qr-qr-heading">
+    <div class="wnp-container">
+      <div class="wnp-qr">
+        <div class="wnp-qr-layout">
+          <div class="wnp-qr-media" aria-hidden="true">
+            <div class="wnp-qr-qr" data-href="https://www.mozilla.org/firefox/browsers/mobile/app/?product=firefox&amp;campaign=whatsnew-142" aria-label="QR code to download Firefox Mobile" role="img"><!--?xml version='1.0' encoding='UTF-8'?-->
               <svg width="58.8mm" height="58.8mm" version="1.1" viewBox="0 0 58.8 58.8" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.8,4.8H6V6H4.8zM6,4.8H7.2V6H6zM7.2,4.8H8.4V6H7.2zM8.4,4.8H9.6V6H8.4zM9.6,4.8H10.8V6H9.6zM10.8,4.8H12V6H10.8zM12,4.8H13.2V6H12zM15.6,4.8H16.8V6H15.6zM16.8,4.8H18V6H16.8zM20.4,4.8H21.6V6H20.4zM24,4.8H25.2V6H24zM25.2,4.8H26.4V6H25.2zM28.8,4.8H30V6H28.8zM30,4.8H31.2V6H30zM40.8,4.8H42V6H40.8zM45.6,4.8H46.8V6H45.6zM46.8,4.8H48V6H46.8zM48,4.8H49.2V6H48zM49.2,4.8H50.4V6H49.2zM50.4,4.8H51.6V6H50.4zM51.6,4.8H52.8V6H51.6zM52.8,4.8H54V6H52.8zM4.8,6H6V7.2H4.8zM12,6H13.2V7.2H12zM14.4,6H15.6V7.2H14.4zM16.8,6H18V7.2H16.8zM20.4,6H21.6V7.2H20.4zM21.6,6H22.8V7.2H21.6zM26.4,6H27.6V7.2H26.4zM30,6H31.2V7.2H30zM34.8,6H36V7.2H34.8zM36,6H37.2V7.2H36zM38.4,6H39.6V7.2H38.4zM39.6,6H40.8V7.2H39.6zM40.8,6H42V7.2H40.8zM45.6,6H46.8V7.2H45.6zM52.8,6H54V7.2H52.8zM4.8,7.2H6V8.4H4.8zM7.2,7.2H8.4V8.4H7.2zM8.4,7.2H9.6V8.4H8.4zM9.6,7.2H10.8V8.4H9.6zM12,7.2H13.2V8.4H12zM14.4,7.2H15.6V8.4H14.4zM15.6,7.2H16.8V8.4H15.6zM16.8,7.2H18V8.4H16.8zM19.2,7.2H20.4V8.4H19.2zM21.6,7.2H22.8V8.4H21.6zM26.4,7.2H27.6V8.4H26.4zM27.6,7.2H28.8V8.4H27.6zM28.8,7.2H30V8.4H28.8zM30,7.2H31.2V8.4H30zM36,7.2H37.2V8.4H36zM38.4,7.2H39.6V8.4H38.4zM42,7.2H43.2V8.4H42zM43.2,7.2H44.4V8.4H43.2zM45.6,7.2H46.8V8.4H45.6zM48,7.2H49.2V8.4H48zM49.2,7.2H50.4V8.4H49.2zM50.4,7.2H51.6V8.4H50.4zM52.8,7.2H54V8.4H52.8zM4.8,8.4H6V9.6H4.8zM7.2,8.4H8.4V9.6H7.2zM8.4,8.4H9.6V9.6H8.4zM9.6,8.4H10.8V9.6H9.6zM12,8.4H13.2V9.6H12zM14.4,8.4H15.6V9.6H14.4zM16.8,8.4H18V9.6H16.8zM22.8,8.4H24V9.6H22.8zM25.2,8.4H26.4V9.6H25.2zM27.6,8.4H28.8V9.6H27.6zM30,8.4H31.2V9.6H30zM32.4,8.4H33.6V9.6H32.4zM33.6,8.4H34.8V9.6H33.6zM34.8,8.4H36V9.6H34.8zM37.2,8.4H38.4V9.6H37.2zM38.4,8.4H39.6V9.6H38.4zM39.6,8.4H40.8V9.6H39.6zM40.8,8.4H42V9.6H40.8zM45.6,8.4H46.8V9.6H45.6zM48,8.4H49.2V9.6H48zM49.2,8.4H50.4V9.6H49.2zM50.4,8.4H51.6V9.6H50.4zM52.8,8.4H54V9.6H52.8zM4.8,9.6H6V10.8H4.8zM7.2,9.6H8.4V10.8H7.2zM8.4,9.6H9.6V10.8H8.4zM9.6,9.6H10.8V10.8H9.6zM12,9.6H13.2V10.8H12zM16.8,9.6H18V10.8H16.8zM18,9.6H19.2V10.8H18zM20.4,9.6H21.6V10.8H20.4zM24,9.6H25.2V10.8H24zM25.2,9.6H26.4V10.8H25.2zM27.6,9.6H28.8V10.8H27.6zM28.8,9.6H30V10.8H28.8zM30,9.6H31.2V10.8H30zM31.2,9.6H32.4V10.8H31.2zM32.4,9.6H33.6V10.8H32.4zM34.8,9.6H36V10.8H34.8zM36,9.6H37.2V10.8H36zM40.8,9.6H42V10.8H40.8zM42,9.6H43.2V10.8H42zM43.2,9.6H44.4V10.8H43.2zM45.6,9.6H46.8V10.8H45.6zM48,9.6H49.2V10.8H48zM49.2,9.6H50.4V10.8H49.2zM50.4,9.6H51.6V10.8H50.4zM52.8,9.6H54V10.8H52.8zM4.8,10.8H6V12H4.8zM12,10.8H13.2V12H12zM19.2,10.8H20.4V12H19.2zM20.4,10.8H21.6V12H20.4zM21.6,10.8H22.8V12H21.6zM22.8,10.8H24V12H22.8zM25.2,10.8H26.4V12H25.2zM34.8,10.8H36V12H34.8zM36,10.8H37.2V12H36zM38.4,10.8H39.6V12H38.4zM39.6,10.8H40.8V12H39.6zM43.2,10.8H44.4V12H43.2zM45.6,10.8H46.8V12H45.6zM52.8,10.8H54V12H52.8zM4.8,12H6V13.2H4.8zM6,12H7.2V13.2H6zM7.2,12H8.4V13.2H7.2zM8.4,12H9.6V13.2H8.4zM9.6,12H10.8V13.2H9.6zM10.8,12H12V13.2H10.8zM12,12H13.2V13.2H12zM14.4,12H15.6V13.2H14.4zM16.8,12H18V13.2H16.8zM19.2,12H20.4V13.2H19.2zM21.6,12H22.8V13.2H21.6zM24,12H25.2V13.2H24zM26.4,12H27.6V13.2H26.4zM28.8,12H30V13.2H28.8zM31.2,12H32.4V13.2H31.2zM33.6,12H34.8V13.2H33.6zM36,12H37.2V13.2H36zM38.4,12H39.6V13.2H38.4zM40.8,12H42V13.2H40.8zM43.2,12H44.4V13.2H43.2zM45.6,12H46.8V13.2H45.6zM46.8,12H48V13.2H46.8zM48,12H49.2V13.2H48zM49.2,12H50.4V13.2H49.2zM50.4,12H51.6V13.2H50.4zM51.6,12H52.8V13.2H51.6zM52.8,12H54V13.2H52.8zM14.4,13.2H15.6V14.4H14.4zM15.6,13.2H16.8V14.4H15.6zM18,13.2H19.2V14.4H18zM19.2,13.2H20.4V14.4H19.2zM21.6,13.2H22.8V14.4H21.6zM22.8,13.2H24V14.4H22.8zM24,13.2H25.2V14.4H24zM31.2,13.2H32.4V14.4H31.2zM33.6,13.2H34.8V14.4H33.6zM36,13.2H37.2V14.4H36zM37.2,13.2H38.4V14.4H37.2zM42,13.2H43.2V14.4H42zM43.2,13.2H44.4V14.4H43.2zM4.8,14.4H6V15.6H4.8zM12,14.4H13.2V15.6H12zM14.4,14.4H15.6V15.6H14.4zM15.6,14.4H16.8V15.6H15.6zM16.8,14.4H18V15.6H16.8zM19.2,14.4H20.4V15.6H19.2zM24,14.4H25.2V15.6H24zM25.2,14.4H26.4V15.6H25.2zM32.4,14.4H33.6V15.6H32.4zM33.6,14.4H34.8V15.6H33.6zM34.8,14.4H36V15.6H34.8zM36,14.4H37.2V15.6H36zM37.2,14.4H38.4V15.6H37.2zM39.6,14.4H40.8V15.6H39.6zM42,14.4H43.2V15.6H42zM43.2,14.4H44.4V15.6H43.2zM44.4,14.4H45.6V15.6H44.4zM45.6,14.4H46.8V15.6H45.6zM49.2,14.4H50.4V15.6H49.2zM50.4,14.4H51.6V15.6H50.4zM51.6,14.4H52.8V15.6H51.6zM4.8,15.6H6V16.8H4.8zM6,15.6H7.2V16.8H6zM7.2,15.6H8.4V16.8H7.2zM8.4,15.6H9.6V16.8H8.4zM9.6,15.6H10.8V16.8H9.6zM10.8,15.6H12V16.8H10.8zM18,15.6H19.2V16.8H18zM21.6,15.6H22.8V16.8H21.6zM24,15.6H25.2V16.8H24zM26.4,15.6H27.6V16.8H26.4zM27.6,15.6H28.8V16.8H27.6zM28.8,15.6H30V16.8H28.8zM30,15.6H31.2V16.8H30zM31.2,15.6H32.4V16.8H31.2zM32.4,15.6H33.6V16.8H32.4zM34.8,15.6H36V16.8H34.8zM37.2,15.6H38.4V16.8H37.2zM42,15.6H43.2V16.8H42zM46.8,15.6H48V16.8H46.8zM48,15.6H49.2V16.8H48zM51.6,15.6H52.8V16.8H51.6zM4.8,16.8H6V18H4.8zM6,16.8H7.2V18H6zM7.2,16.8H8.4V18H7.2zM10.8,16.8H12V18H10.8zM12,16.8H13.2V18H12zM13.2,16.8H14.4V18H13.2zM14.4,16.8H15.6V18H14.4zM15.6,16.8H16.8V18H15.6zM18,16.8H19.2V18H18zM22.8,16.8H24V18H22.8zM26.4,16.8H27.6V18H26.4zM28.8,16.8H30V18H28.8zM30,16.8H31.2V18H30zM31.2,16.8H32.4V18H31.2zM33.6,16.8H34.8V18H33.6zM34.8,16.8H36V18H34.8zM36,16.8H37.2V18H36zM37.2,16.8H38.4V18H37.2zM38.4,16.8H39.6V18H38.4zM39.6,16.8H40.8V18H39.6zM43.2,16.8H44.4V18H43.2zM46.8,16.8H48V18H46.8zM48,16.8H49.2V18H48zM4.8,18H6V19.2H4.8zM8.4,18H9.6V19.2H8.4zM10.8,18H12V19.2H10.8zM13.2,18H14.4V19.2H13.2zM16.8,18H18V19.2H16.8zM19.2,18H20.4V19.2H19.2zM20.4,18H21.6V19.2H20.4zM21.6,18H22.8V19.2H21.6zM22.8,18H24V19.2H22.8zM24,18H25.2V19.2H24zM26.4,18H27.6V19.2H26.4zM27.6,18H28.8V19.2H27.6zM28.8,18H30V19.2H28.8zM36,18H37.2V19.2H36zM38.4,18H39.6V19.2H38.4zM42,18H43.2V19.2H42zM43.2,18H44.4V19.2H43.2zM44.4,18H45.6V19.2H44.4zM46.8,18H48V19.2H46.8zM48,18H49.2V19.2H48zM49.2,18H50.4V19.2H49.2zM51.6,18H52.8V19.2H51.6zM6,19.2H7.2V20.4H6zM7.2,19.2H8.4V20.4H7.2zM10.8,19.2H12V20.4H10.8zM12,19.2H13.2V20.4H12zM13.2,19.2H14.4V20.4H13.2zM14.4,19.2H15.6V20.4H14.4zM15.6,19.2H16.8V20.4H15.6zM16.8,19.2H18V20.4H16.8zM19.2,19.2H20.4V20.4H19.2zM24,19.2H25.2V20.4H24zM26.4,19.2H27.6V20.4H26.4zM27.6,19.2H28.8V20.4H27.6zM28.8,19.2H30V20.4H28.8zM38.4,19.2H39.6V20.4H38.4zM45.6,19.2H46.8V20.4H45.6zM46.8,19.2H48V20.4H46.8zM51.6,19.2H52.8V20.4H51.6zM52.8,19.2H54V20.4H52.8zM4.8,20.4H6V21.6H4.8zM7.2,20.4H8.4V21.6H7.2zM13.2,20.4H14.4V21.6H13.2zM14.4,20.4H15.6V21.6H14.4zM15.6,20.4H16.8V21.6H15.6zM18,20.4H19.2V21.6H18zM21.6,20.4H22.8V21.6H21.6zM24,20.4H25.2V21.6H24zM25.2,20.4H26.4V21.6H25.2zM26.4,20.4H27.6V21.6H26.4zM27.6,20.4H28.8V21.6H27.6zM32.4,20.4H33.6V21.6H32.4zM34.8,20.4H36V21.6H34.8zM37.2,20.4H38.4V21.6H37.2zM38.4,20.4H39.6V21.6H38.4zM39.6,20.4H40.8V21.6H39.6zM42,20.4H43.2V21.6H42zM43.2,20.4H44.4V21.6H43.2zM44.4,20.4H45.6V21.6H44.4zM45.6,20.4H46.8V21.6H45.6zM48,20.4H49.2V21.6H48zM49.2,20.4H50.4V21.6H49.2zM51.6,20.4H52.8V21.6H51.6zM52.8,20.4H54V21.6H52.8zM8.4,21.6H9.6V22.8H8.4zM12,21.6H13.2V22.8H12zM14.4,21.6H15.6V22.8H14.4zM16.8,21.6H18V22.8H16.8zM18,21.6H19.2V22.8H18zM21.6,21.6H22.8V22.8H21.6zM22.8,21.6H24V22.8H22.8zM30,21.6H31.2V22.8H30zM37.2,21.6H38.4V22.8H37.2zM40.8,21.6H42V22.8H40.8zM43.2,21.6H44.4V22.8H43.2zM44.4,21.6H45.6V22.8H44.4zM48,21.6H49.2V22.8H48zM49.2,21.6H50.4V22.8H49.2zM6,22.8H7.2V24H6zM9.6,22.8H10.8V24H9.6zM10.8,22.8H12V24H10.8zM14.4,22.8H15.6V24H14.4zM15.6,22.8H16.8V24H15.6zM18,22.8H19.2V24H18zM20.4,22.8H21.6V24H20.4zM24,22.8H25.2V24H24zM27.6,22.8H28.8V24H27.6zM31.2,22.8H32.4V24H31.2zM36,22.8H37.2V24H36zM37.2,22.8H38.4V24H37.2zM38.4,22.8H39.6V24H38.4zM42,22.8H43.2V24H42zM43.2,22.8H44.4V24H43.2zM44.4,22.8H45.6V24H44.4zM49.2,22.8H50.4V24H49.2zM50.4,22.8H51.6V24H50.4zM52.8,22.8H54V24H52.8zM8.4,24H9.6V25.2H8.4zM12,24H13.2V25.2H12zM14.4,24H15.6V25.2H14.4zM15.6,24H16.8V25.2H15.6zM20.4,24H21.6V25.2H20.4zM21.6,24H22.8V25.2H21.6zM22.8,24H24V25.2H22.8zM25.2,24H26.4V25.2H25.2zM27.6,24H28.8V25.2H27.6zM31.2,24H32.4V25.2H31.2zM33.6,24H34.8V25.2H33.6zM34.8,24H36V25.2H34.8zM39.6,24H40.8V25.2H39.6zM42,24H43.2V25.2H42zM44.4,24H45.6V25.2H44.4zM46.8,24H48V25.2H46.8zM50.4,24H51.6V25.2H50.4zM51.6,24H52.8V25.2H51.6zM4.8,25.2H6V26.4H4.8zM6,25.2H7.2V26.4H6zM7.2,25.2H8.4V26.4H7.2zM8.4,25.2H9.6V26.4H8.4zM13.2,25.2H14.4V26.4H13.2zM15.6,25.2H16.8V26.4H15.6zM16.8,25.2H18V26.4H16.8zM21.6,25.2H22.8V26.4H21.6zM22.8,25.2H24V26.4H22.8zM24,25.2H25.2V26.4H24zM25.2,25.2H26.4V26.4H25.2zM27.6,25.2H28.8V26.4H27.6zM28.8,25.2H30V26.4H28.8zM32.4,25.2H33.6V26.4H32.4zM37.2,25.2H38.4V26.4H37.2zM38.4,25.2H39.6V26.4H38.4zM42,25.2H43.2V26.4H42zM43.2,25.2H44.4V26.4H43.2zM44.4,25.2H45.6V26.4H44.4zM45.6,25.2H46.8V26.4H45.6zM46.8,25.2H48V26.4H46.8zM48,25.2H49.2V26.4H48zM52.8,25.2H54V26.4H52.8zM4.8,26.4H6V27.6H4.8zM6,26.4H7.2V27.6H6zM8.4,26.4H9.6V27.6H8.4zM9.6,26.4H10.8V27.6H9.6zM10.8,26.4H12V27.6H10.8zM12,26.4H13.2V27.6H12zM14.4,26.4H15.6V27.6H14.4zM16.8,26.4H18V27.6H16.8zM20.4,26.4H21.6V27.6H20.4zM22.8,26.4H24V27.6H22.8zM24,26.4H25.2V27.6H24zM25.2,26.4H26.4V27.6H25.2zM27.6,26.4H28.8V27.6H27.6zM31.2,26.4H32.4V27.6H31.2zM32.4,26.4H33.6V27.6H32.4zM36,26.4H37.2V27.6H36zM37.2,26.4H38.4V27.6H37.2zM38.4,26.4H39.6V27.6H38.4zM39.6,26.4H40.8V27.6H39.6zM40.8,26.4H42V27.6H40.8zM42,26.4H43.2V27.6H42zM46.8,26.4H48V27.6H46.8zM48,26.4H49.2V27.6H48zM49.2,26.4H50.4V27.6H49.2zM52.8,26.4H54V27.6H52.8zM7.2,27.6H8.4V28.8H7.2zM9.6,27.6H10.8V28.8H9.6zM13.2,27.6H14.4V28.8H13.2zM18,27.6H19.2V28.8H18zM20.4,27.6H21.6V28.8H20.4zM22.8,27.6H24V28.8H22.8zM24,27.6H25.2V28.8H24zM27.6,27.6H28.8V28.8H27.6zM28.8,27.6H30V28.8H28.8zM31.2,27.6H32.4V28.8H31.2zM33.6,27.6H34.8V28.8H33.6zM37.2,27.6H38.4V28.8H37.2zM38.4,27.6H39.6V28.8H38.4zM40.8,27.6H42V28.8H40.8zM43.2,27.6H44.4V28.8H43.2zM44.4,27.6H45.6V28.8H44.4zM45.6,27.6H46.8V28.8H45.6zM48,27.6H49.2V28.8H48zM49.2,27.6H50.4V28.8H49.2zM52.8,27.6H54V28.8H52.8zM7.2,28.8H8.4V30H7.2zM9.6,28.8H10.8V30H9.6zM10.8,28.8H12V30H10.8zM12,28.8H13.2V30H12zM14.4,28.8H15.6V30H14.4zM15.6,28.8H16.8V30H15.6zM18,28.8H19.2V30H18zM21.6,28.8H22.8V30H21.6zM24,28.8H25.2V30H24zM25.2,28.8H26.4V30H25.2zM28.8,28.8H30V30H28.8zM31.2,28.8H32.4V30H31.2zM33.6,28.8H34.8V30H33.6zM36,28.8H37.2V30H36zM37.2,28.8H38.4V30H37.2zM38.4,28.8H39.6V30H38.4zM39.6,28.8H40.8V30H39.6zM42,28.8H43.2V30H42zM50.4,28.8H51.6V30H50.4zM51.6,28.8H52.8V30H51.6zM4.8,30H6V31.2H4.8zM6,30H7.2V31.2H6zM8.4,30H9.6V31.2H8.4zM13.2,30H14.4V31.2H13.2zM14.4,30H15.6V31.2H14.4zM15.6,30H16.8V31.2H15.6zM16.8,30H18V31.2H16.8zM19.2,30H20.4V31.2H19.2zM27.6,30H28.8V31.2H27.6zM30,30H31.2V31.2H30zM31.2,30H32.4V31.2H31.2zM32.4,30H33.6V31.2H32.4zM34.8,30H36V31.2H34.8zM37.2,30H38.4V31.2H37.2zM40.8,30H42V31.2H40.8zM42,30H43.2V31.2H42zM46.8,30H48V31.2H46.8zM48,30H49.2V31.2H48zM49.2,30H50.4V31.2H49.2zM50.4,30H51.6V31.2H50.4zM4.8,31.2H6V32.4H4.8zM8.4,31.2H9.6V32.4H8.4zM9.6,31.2H10.8V32.4H9.6zM10.8,31.2H12V32.4H10.8zM12,31.2H13.2V32.4H12zM14.4,31.2H15.6V32.4H14.4zM19.2,31.2H20.4V32.4H19.2zM24,31.2H25.2V32.4H24zM25.2,31.2H26.4V32.4H25.2zM28.8,31.2H30V32.4H28.8zM31.2,31.2H32.4V32.4H31.2zM33.6,31.2H34.8V32.4H33.6zM34.8,31.2H36V32.4H34.8zM37.2,31.2H38.4V32.4H37.2zM39.6,31.2H40.8V32.4H39.6zM44.4,31.2H45.6V32.4H44.4zM7.2,32.4H8.4V33.6H7.2zM8.4,32.4H9.6V33.6H8.4zM9.6,32.4H10.8V33.6H9.6zM10.8,32.4H12V33.6H10.8zM14.4,32.4H15.6V33.6H14.4zM16.8,32.4H18V33.6H16.8zM19.2,32.4H20.4V33.6H19.2zM21.6,32.4H22.8V33.6H21.6zM22.8,32.4H24V33.6H22.8zM24,32.4H25.2V33.6H24zM26.4,32.4H27.6V33.6H26.4zM32.4,32.4H33.6V33.6H32.4zM33.6,32.4H34.8V33.6H33.6zM37.2,32.4H38.4V33.6H37.2zM42,32.4H43.2V33.6H42zM44.4,32.4H45.6V33.6H44.4zM45.6,32.4H46.8V33.6H45.6zM46.8,32.4H48V33.6H46.8zM49.2,32.4H50.4V33.6H49.2zM52.8,32.4H54V33.6H52.8zM4.8,33.6H6V34.8H4.8zM7.2,33.6H8.4V34.8H7.2zM8.4,33.6H9.6V34.8H8.4zM10.8,33.6H12V34.8H10.8zM12,33.6H13.2V34.8H12zM20.4,33.6H21.6V34.8H20.4zM27.6,33.6H28.8V34.8H27.6zM28.8,33.6H30V34.8H28.8zM32.4,33.6H33.6V34.8H32.4zM33.6,33.6H34.8V34.8H33.6zM37.2,33.6H38.4V34.8H37.2zM38.4,33.6H39.6V34.8H38.4zM42,33.6H43.2V34.8H42zM43.2,33.6H44.4V34.8H43.2zM45.6,33.6H46.8V34.8H45.6zM51.6,33.6H52.8V34.8H51.6zM7.2,34.8H8.4V36H7.2zM8.4,34.8H9.6V36H8.4zM9.6,34.8H10.8V36H9.6zM15.6,34.8H16.8V36H15.6zM18,34.8H19.2V36H18zM21.6,34.8H22.8V36H21.6zM22.8,34.8H24V36H22.8zM24,34.8H25.2V36H24zM25.2,34.8H26.4V36H25.2zM26.4,34.8H27.6V36H26.4zM27.6,34.8H28.8V36H27.6zM28.8,34.8H30V36H28.8zM32.4,34.8H33.6V36H32.4zM34.8,34.8H36V36H34.8zM37.2,34.8H38.4V36H37.2zM38.4,34.8H39.6V36H38.4zM42,34.8H43.2V36H42zM44.4,34.8H45.6V36H44.4zM45.6,34.8H46.8V36H45.6zM46.8,34.8H48V36H46.8zM48,34.8H49.2V36H48zM49.2,34.8H50.4V36H49.2zM52.8,34.8H54V36H52.8zM6,36H7.2V37.2H6zM7.2,36H8.4V37.2H7.2zM9.6,36H10.8V37.2H9.6zM12,36H13.2V37.2H12zM13.2,36H14.4V37.2H13.2zM15.6,36H16.8V37.2H15.6zM16.8,36H18V37.2H16.8zM19.2,36H20.4V37.2H19.2zM20.4,36H21.6V37.2H20.4zM21.6,36H22.8V37.2H21.6zM24,36H25.2V37.2H24zM25.2,36H26.4V37.2H25.2zM30,36H31.2V37.2H30zM31.2,36H32.4V37.2H31.2zM33.6,36H34.8V37.2H33.6zM36,36H37.2V37.2H36zM37.2,36H38.4V37.2H37.2zM39.6,36H40.8V37.2H39.6zM40.8,36H42V37.2H40.8zM43.2,36H44.4V37.2H43.2zM48,36H49.2V37.2H48zM13.2,37.2H14.4V38.4H13.2zM15.6,37.2H16.8V38.4H15.6zM16.8,37.2H18V38.4H16.8zM18,37.2H19.2V38.4H18zM19.2,37.2H20.4V38.4H19.2zM22.8,37.2H24V38.4H22.8zM27.6,37.2H28.8V38.4H27.6zM28.8,37.2H30V38.4H28.8zM37.2,37.2H38.4V38.4H37.2zM42,37.2H43.2V38.4H42zM44.4,37.2H45.6V38.4H44.4zM46.8,37.2H48V38.4H46.8zM48,37.2H49.2V38.4H48zM49.2,37.2H50.4V38.4H49.2zM50.4,37.2H51.6V38.4H50.4zM52.8,37.2H54V38.4H52.8zM7.2,38.4H8.4V39.6H7.2zM8.4,38.4H9.6V39.6H8.4zM9.6,38.4H10.8V39.6H9.6zM10.8,38.4H12V39.6H10.8zM12,38.4H13.2V39.6H12zM13.2,38.4H14.4V39.6H13.2zM14.4,38.4H15.6V39.6H14.4zM21.6,38.4H22.8V39.6H21.6zM24,38.4H25.2V39.6H24zM25.2,38.4H26.4V39.6H25.2zM26.4,38.4H27.6V39.6H26.4zM32.4,38.4H33.6V39.6H32.4zM33.6,38.4H34.8V39.6H33.6zM34.8,38.4H36V39.6H34.8zM36,38.4H37.2V39.6H36zM39.6,38.4H40.8V39.6H39.6zM42,38.4H43.2V39.6H42zM43.2,38.4H44.4V39.6H43.2zM44.4,38.4H45.6V39.6H44.4zM46.8,38.4H48V39.6H46.8zM49.2,38.4H50.4V39.6H49.2zM50.4,38.4H51.6V39.6H50.4zM51.6,38.4H52.8V39.6H51.6zM52.8,38.4H54V39.6H52.8zM4.8,39.6H6V40.8H4.8zM9.6,39.6H10.8V40.8H9.6zM10.8,39.6H12V40.8H10.8zM14.4,39.6H15.6V40.8H14.4zM15.6,39.6H16.8V40.8H15.6zM21.6,39.6H22.8V40.8H21.6zM24,39.6H25.2V40.8H24zM27.6,39.6H28.8V40.8H27.6zM28.8,39.6H30V40.8H28.8zM32.4,39.6H33.6V40.8H32.4zM37.2,39.6H38.4V40.8H37.2zM38.4,39.6H39.6V40.8H38.4zM40.8,39.6H42V40.8H40.8zM42,39.6H43.2V40.8H42zM43.2,39.6H44.4V40.8H43.2zM45.6,39.6H46.8V40.8H45.6zM46.8,39.6H48V40.8H46.8zM48,39.6H49.2V40.8H48zM49.2,39.6H50.4V40.8H49.2zM51.6,39.6H52.8V40.8H51.6zM52.8,39.6H54V40.8H52.8zM4.8,40.8H6V42H4.8zM6,40.8H7.2V42H6zM7.2,40.8H8.4V42H7.2zM8.4,40.8H9.6V42H8.4zM9.6,40.8H10.8V42H9.6zM10.8,40.8H12V42H10.8zM12,40.8H13.2V42H12zM14.4,40.8H15.6V42H14.4zM19.2,40.8H20.4V42H19.2zM20.4,40.8H21.6V42H20.4zM21.6,40.8H22.8V42H21.6zM22.8,40.8H24V42H22.8zM24,40.8H25.2V42H24zM27.6,40.8H28.8V42H27.6zM30,40.8H31.2V42H30zM31.2,40.8H32.4V42H31.2zM32.4,40.8H33.6V42H32.4zM33.6,40.8H34.8V42H33.6zM37.2,40.8H38.4V42H37.2zM40.8,40.8H42V42H40.8zM42,40.8H43.2V42H42zM44.4,40.8H45.6V42H44.4zM49.2,40.8H50.4V42H49.2zM52.8,40.8H54V42H52.8zM4.8,42H6V43.2H4.8zM7.2,42H8.4V43.2H7.2zM8.4,42H9.6V43.2H8.4zM15.6,42H16.8V43.2H15.6zM16.8,42H18V43.2H16.8zM18,42H19.2V43.2H18zM20.4,42H21.6V43.2H20.4zM21.6,42H22.8V43.2H21.6zM27.6,42H28.8V43.2H27.6zM28.8,42H30V43.2H28.8zM31.2,42H32.4V43.2H31.2zM32.4,42H33.6V43.2H32.4zM40.8,42H42V43.2H40.8zM43.2,42H44.4V43.2H43.2zM45.6,42H46.8V43.2H45.6zM46.8,42H48V43.2H46.8zM49.2,42H50.4V43.2H49.2zM51.6,42H52.8V43.2H51.6zM52.8,42H54V43.2H52.8zM4.8,43.2H6V44.4H4.8zM8.4,43.2H9.6V44.4H8.4zM9.6,43.2H10.8V44.4H9.6zM10.8,43.2H12V44.4H10.8zM12,43.2H13.2V44.4H12zM16.8,43.2H18V44.4H16.8zM18,43.2H19.2V44.4H18zM20.4,43.2H21.6V44.4H20.4zM24,43.2H25.2V44.4H24zM25.2,43.2H26.4V44.4H25.2zM27.6,43.2H28.8V44.4H27.6zM31.2,43.2H32.4V44.4H31.2zM33.6,43.2H34.8V44.4H33.6zM34.8,43.2H36V44.4H34.8zM36,43.2H37.2V44.4H36zM37.2,43.2H38.4V44.4H37.2zM39.6,43.2H40.8V44.4H39.6zM42,43.2H43.2V44.4H42zM43.2,43.2H44.4V44.4H43.2zM44.4,43.2H45.6V44.4H44.4zM45.6,43.2H46.8V44.4H45.6zM46.8,43.2H48V44.4H46.8zM48,43.2H49.2V44.4H48zM50.4,43.2H51.6V44.4H50.4zM52.8,43.2H54V44.4H52.8zM14.4,44.4H15.6V45.6H14.4zM18,44.4H19.2V45.6H18zM21.6,44.4H22.8V45.6H21.6zM24,44.4H25.2V45.6H24zM25.2,44.4H26.4V45.6H25.2zM26.4,44.4H27.6V45.6H26.4zM27.6,44.4H28.8V45.6H27.6zM30,44.4H31.2V45.6H30zM31.2,44.4H32.4V45.6H31.2zM32.4,44.4H33.6V45.6H32.4zM34.8,44.4H36V45.6H34.8zM36,44.4H37.2V45.6H36zM37.2,44.4H38.4V45.6H37.2zM39.6,44.4H40.8V45.6H39.6zM40.8,44.4H42V45.6H40.8zM42,44.4H43.2V45.6H42zM43.2,44.4H44.4V45.6H43.2zM48,44.4H49.2V45.6H48zM49.2,44.4H50.4V45.6H49.2zM51.6,44.4H52.8V45.6H51.6zM4.8,45.6H6V46.8H4.8zM6,45.6H7.2V46.8H6zM7.2,45.6H8.4V46.8H7.2zM8.4,45.6H9.6V46.8H8.4zM9.6,45.6H10.8V46.8H9.6zM10.8,45.6H12V46.8H10.8zM12,45.6H13.2V46.8H12zM16.8,45.6H18V46.8H16.8zM21.6,45.6H22.8V46.8H21.6zM24,45.6H25.2V46.8H24zM28.8,45.6H30V46.8H28.8zM30,45.6H31.2V46.8H30zM34.8,45.6H36V46.8H34.8zM36,45.6H37.2V46.8H36zM37.2,45.6H38.4V46.8H37.2zM38.4,45.6H39.6V46.8H38.4zM42,45.6H43.2V46.8H42zM43.2,45.6H44.4V46.8H43.2zM45.6,45.6H46.8V46.8H45.6zM48,45.6H49.2V46.8H48zM49.2,45.6H50.4V46.8H49.2zM50.4,45.6H51.6V46.8H50.4zM4.8,46.8H6V48H4.8zM12,46.8H13.2V48H12zM15.6,46.8H16.8V48H15.6zM18,46.8H19.2V48H18zM22.8,46.8H24V48H22.8zM24,46.8H25.2V48H24zM31.2,46.8H32.4V48H31.2zM32.4,46.8H33.6V48H32.4zM33.6,46.8H34.8V48H33.6zM36,46.8H37.2V48H36zM38.4,46.8H39.6V48H38.4zM43.2,46.8H44.4V48H43.2zM48,46.8H49.2V48H48zM49.2,46.8H50.4V48H49.2zM51.6,46.8H52.8V48H51.6zM4.8,48H6V49.2H4.8zM7.2,48H8.4V49.2H7.2zM8.4,48H9.6V49.2H8.4zM9.6,48H10.8V49.2H9.6zM12,48H13.2V49.2H12zM15.6,48H16.8V49.2H15.6zM16.8,48H18V49.2H16.8zM19.2,48H20.4V49.2H19.2zM20.4,48H21.6V49.2H20.4zM25.2,48H26.4V49.2H25.2zM26.4,48H27.6V49.2H26.4zM28.8,48H30V49.2H28.8zM32.4,48H33.6V49.2H32.4zM33.6,48H34.8V49.2H33.6zM37.2,48H38.4V49.2H37.2zM42,48H43.2V49.2H42zM43.2,48H44.4V49.2H43.2zM44.4,48H45.6V49.2H44.4zM45.6,48H46.8V49.2H45.6zM46.8,48H48V49.2H46.8zM48,48H49.2V49.2H48zM49.2,48H50.4V49.2H49.2zM51.6,48H52.8V49.2H51.6zM4.8,49.2H6V50.4H4.8zM7.2,49.2H8.4V50.4H7.2zM8.4,49.2H9.6V50.4H8.4zM9.6,49.2H10.8V50.4H9.6zM12,49.2H13.2V50.4H12zM16.8,49.2H18V50.4H16.8zM18,49.2H19.2V50.4H18zM20.4,49.2H21.6V50.4H20.4zM24,49.2H25.2V50.4H24zM26.4,49.2H27.6V50.4H26.4zM27.6,49.2H28.8V50.4H27.6zM28.8,49.2H30V50.4H28.8zM30,49.2H31.2V50.4H30zM32.4,49.2H33.6V50.4H32.4zM34.8,49.2H36V50.4H34.8zM36,49.2H37.2V50.4H36zM37.2,49.2H38.4V50.4H37.2zM38.4,49.2H39.6V50.4H38.4zM40.8,49.2H42V50.4H40.8zM46.8,49.2H48V50.4H46.8zM52.8,49.2H54V50.4H52.8zM4.8,50.4H6V51.6H4.8zM7.2,50.4H8.4V51.6H7.2zM8.4,50.4H9.6V51.6H8.4zM9.6,50.4H10.8V51.6H9.6zM12,50.4H13.2V51.6H12zM18,50.4H19.2V51.6H18zM20.4,50.4H21.6V51.6H20.4zM22.8,50.4H24V51.6H22.8zM24,50.4H25.2V51.6H24zM25.2,50.4H26.4V51.6H25.2zM28.8,50.4H30V51.6H28.8zM31.2,50.4H32.4V51.6H31.2zM37.2,50.4H38.4V51.6H37.2zM38.4,50.4H39.6V51.6H38.4zM39.6,50.4H40.8V51.6H39.6zM42,50.4H43.2V51.6H42zM44.4,50.4H45.6V51.6H44.4zM45.6,50.4H46.8V51.6H45.6zM46.8,50.4H48V51.6H46.8zM48,50.4H49.2V51.6H48zM49.2,50.4H50.4V51.6H49.2zM50.4,50.4H51.6V51.6H50.4zM4.8,51.6H6V52.8H4.8zM12,51.6H13.2V52.8H12zM15.6,51.6H16.8V52.8H15.6zM19.2,51.6H20.4V52.8H19.2zM20.4,51.6H21.6V52.8H20.4zM21.6,51.6H22.8V52.8H21.6zM27.6,51.6H28.8V52.8H27.6zM32.4,51.6H33.6V52.8H32.4zM42,51.6H43.2V52.8H42zM45.6,51.6H46.8V52.8H45.6zM48,51.6H49.2V52.8H48zM49.2,51.6H50.4V52.8H49.2zM50.4,51.6H51.6V52.8H50.4zM52.8,51.6H54V52.8H52.8zM4.8,52.8H6V54H4.8zM6,52.8H7.2V54H6zM7.2,52.8H8.4V54H7.2zM8.4,52.8H9.6V54H8.4zM9.6,52.8H10.8V54H9.6zM10.8,52.8H12V54H10.8zM12,52.8H13.2V54H12zM14.4,52.8H15.6V54H14.4zM16.8,52.8H18V54H16.8zM18,52.8H19.2V54H18zM19.2,52.8H20.4V54H19.2zM24,52.8H25.2V54H24zM26.4,52.8H27.6V54H26.4zM27.6,52.8H28.8V54H27.6zM28.8,52.8H30V54H28.8zM31.2,52.8H32.4V54H31.2zM32.4,52.8H33.6V54H32.4zM33.6,52.8H34.8V54H33.6zM34.8,52.8H36V54H34.8zM36,52.8H37.2V54H36zM37.2,52.8H38.4V54H37.2zM39.6,52.8H40.8V54H39.6zM40.8,52.8H42V54H40.8zM42,52.8H43.2V54H42zM44.4,52.8H45.6V54H44.4zM45.6,52.8H46.8V54H45.6zM46.8,52.8H48V54H46.8zM48,52.8H49.2V54H48zM50.4,52.8H51.6V54H50.4z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"></path>
               </svg>
             </div>
           </div>
-          <div class="qr-content">
-            <div class="qr-content-inner">
-              <h2 id="qr-qr-heading" class="subtitle">Take Firefox with you</h2>
-              <p class="body">Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go.</p>
+          <div class="wnp-qr-content">
+            <div class="wnp-qr-content-inner">
+              <h2 id="wnp-qr-qr-heading" class="wnp-subtitle">Take Firefox with you</h2>
+              <p class="wnp-body">Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go.</p>
             </div>
           </div>
         </div>
@@ -296,7 +1393,4 @@
   </section>
 
 </main>
-
 {% endblock %}
-
-
