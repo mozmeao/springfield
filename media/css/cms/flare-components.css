@@ -1235,7 +1235,7 @@ the future and this file will be removed.
 }
 
 .wnp-qr-media {
-    background: url('/media/img/firefox/whatsnew/whatsnew142/qr-background-simple.png') no-repeat center;
+    background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
     background-size: contain;
     border-radius: var(--fds-border-radius-xl);
     display: flex;
@@ -1489,4 +1489,8 @@ the future and this file will be removed.
     .wnp-card .wnp-button {
         width: fit-content
     }
+}
+
+.wnp-legacy-test {
+    display: none;
 }
