@@ -5,11 +5,9 @@ This layer provides utility classes that can be used to quickly override
 element styles without having to create a new class or add new CSS
 ===================================================================== */
 
-@supports (all: revert-layer) {
-    .font-regular { font-weight: var(--Font-Weight-Regular); }
-    .font-medium { font-weight: var(--Font-Weight-Medium); }
-    .font-semibold { font-weight: var(--Font-Weight-SemiBold); }
-    .text-left { text-align: left; }
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-}
+.font-regular { font-weight: var(--Font-Weight-Regular); }
+.font-medium { font-weight: var(--Font-Weight-Medium); }
+.font-semibold { font-weight: var(--Font-Weight-SemiBold); }
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
