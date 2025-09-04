@@ -3,6 +3,9 @@ Utilities - Helper classes
 
 This layer provides utility classes that can be used to quickly override
 element styles without having to create a new class or add new CSS
+
+This is imported into both the legacy and modern stylesheets so the
+style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 ===================================================================== */
 
 .font-regular { font-weight: var(--Font-Weight-Regular); }
