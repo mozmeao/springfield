@@ -64,10 +64,40 @@ hr {
     margin: var(--Grids-Spacing-Interior-Spacing-x1)rem 0;
 }
 
+/* Remove section border, since it was just used to provide a clean
+visual break between sections in legacy browsers */
+section {
+    border: none;
+}
+
 ul, ol {
     margin: 0 0 var(--Grids-Spacing-Interior-Spacing-x1)rem var(--Grids-Spacing-Interior-Spacing-x1)rem;
 }
 
 li {
     margin: 0 0 var(--Grids-Spacing-Interior-Spacing-x1)rem 0;
+}
+
+/* Override base button styles with theme variables and relax constraints */
+button, [role="button"] {
+    background: var(--Blue-Button);
+    color: var(--Neutrals-White);
+    border-radius: calc(var(--Border-Radius-MD) * 1px);
+    width: auto;
+    height: auto;
+}
+
+[role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+    background: var(--Blue-Button);
+    color: var(--Neutrals-White);
+}
+
+button:hover, [role="button"]:hover {
+    background: var(--Blue-Dark-Blue);
+    color: var(--Neutrals-White);
+}
+
+/* Use theme color for table borders */
+th, td {
+    border-color: var(--Neutrals-Charcoal);
 }

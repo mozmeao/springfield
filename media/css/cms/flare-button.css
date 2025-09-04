@@ -1,0 +1,59 @@
+.button {
+    display: inline-block;
+    padding: var(--16) var(--32);
+    font-family: var(--Font-Family-Body);
+    font-size: var(--Font-Size-Base);
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: var(--8);
+    cursor: pointer;
+    transition: all var(--Transition-Base);
+    background: var(--Blue-Button);
+    color: var(--Neutrals-White);
+}
+.button:hover {
+    background: var(--Blue-Medium-Blue);
+}
+.button:active {
+    transform: translateY(0);
+}
+
+.button.button-secondary {
+    background: var(--Functional-Info-buttons);
+    color: var(--Neutrals-White);
+}
+.button.button-secondary:hover {
+    background: light-dark(var(--Purple-Purple), var(--Purple-Light-Purple));
+}
+
+.button.button-outline {
+    background: transparent;
+    color: light-dark(var(--Neutrals-Grey-8), var(--Neutrals-White));
+    position: relative;
+    border: 1px solid light-dark(var(--Neutrals-Grey-8), var(--Neutrals-White));
+}
+.button.button-outline:hover {
+    background: light-dark(var(--Neutrals-Grey-8), var(--Neutrals-White));
+    color: light-dark(var(--Neutrals-White), var(--Neutrals-Grey-8));
+}
+
+.button .button-icon {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+.button .button-icon-arrow {
+    display: inline-block;
+    width: var(--Scale-16)px;
+    height: var(--Scale-16)px;
+    background-color: currentColor;
+    -webkit-mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
+    mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
+}
+
+.button[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+}

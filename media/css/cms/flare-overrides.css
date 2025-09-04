@@ -5,7 +5,66 @@ Rules in this layer will override everything else. Use sparingly for
 specific exceptions that can't be handled by the other layers
 ===================================================================== */
 
-.some-weird-edge-case {
-    margin: 0;
-    outline: 1px dotted red;
+
+.wnp-card .button {
+    margin-top: auto;
+}
+
+.wnp-footer .button-outline img {
+    margin-right: var(--fds-spacing-md);
+}
+
+.wnp-footer-cta .button {
+    width: 100%;
+}
+
+.wnp-section-subscribe .button-outline {
+    color: var(--fds-color-charcoal);
+    border-color: var(--fds-color-charcoal);
+}
+
+.wnp-section-subscribe .button-outline:hover {
+    background: var(--fds-color-black);
+    color: var(--fds-color-white);
+}
+
+.wnp-section-subscribe .wnp-input,
+.wnp-section-subscribe .button-outline {
+    padding: 12px 18px;
+}
+
+.wnp-subscribe.wnp-subscribe-expanded .wnp-input,
+.wnp-subscribe.wnp-subscribe-expanded .button {
+    width: 100%;
+}
+
+.wnp-subscribe.wnp-subscribe-expanded .button {
+    order: 3;
+}
+
+.wnp-feature .button,
+.wnp-card .button {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+@media (max-width: 767px) {
+    .wnp-section-subscribe .wnp-subscribe .button {
+        width: 100%;
+    }
+    .wnp-feature-content .button {
+        width: 100%;
+    }
+}
+@media (min-width: 768px) {
+
+    .wnp-footer-cta .button {
+        width: unset;
+    }
+}
+@media (min-width: 1024px) {
+    .wnp-feature .button,
+    .wnp-card .button {
+        width: fit-content
+    }
 }
