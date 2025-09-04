@@ -155,4 +155,6 @@ urlpatterns = (
     page("more/windows-64-bit/", "firefox/more/windows-64-bit.html", ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"]),
     # Bedrock Issue #9490 - Evergreen Content for SEO
     page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
+    # What's New Page (WNP)
+    re_path(f"whatsnew/(?P<version>{version_re})", views.WhatsnewView.as_view(), name="firefox.whatsnew"),
 )

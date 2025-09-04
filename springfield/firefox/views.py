@@ -821,3 +821,90 @@ class PlatformViewWindows(L10nTemplateView):
 
     # all active locales, this will make the lang switcher work properly
     activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+def detect_channel(version):
+    match = re.match(r"\d{1,3}", version)
+    if match:
+        num_version = int(match.group(0))
+        if num_version >= 35:
+            if version.endswith("a1"):
+                return "nightly"
+            if version.endswith("a2"):
+                return "developer"
+
+    return "unknown"
+
+
+class WhatsnewView(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
+        "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
+        "firefox/whatsnew/evergreen.html": ["firefox/whatsnew/evergreen"],
+    }
+
+    # place expected ?v= values in this list
+    variations = ["1", "2", "3", "4"]
+
+    # Nimbus experiment variation expected values
+    nimbus_variations = ["v1", "v2", "v3", "v4"]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        version = self.kwargs.get("version") or ""
+        pre_release_channels = ["nightly", "developer"]
+        channel = detect_channel(version)
+
+        # add version to context for use in templates
+        match = re.match(r"\d{1,3}", version)
+        num_version = int(match.group(0)) if match else ""
+        ctx["version"] = version
+        ctx["num_version"] = num_version
+
+        # add analytics parameters to context for use in templates
+        if channel not in pre_release_channels:
+            channel = ""
+
+        analytics_version = str(num_version) + channel
+        entrypoint = "firefox.com-whatsnew" + analytics_version
+        campaign = "whatsnew" + analytics_version
+        ctx["analytics_version"] = analytics_version
+        ctx["entrypoint"] = entrypoint
+        ctx["campaign"] = campaign
+        ctx["utm_params"] = f"utm_source={entrypoint}&utm_medium=referral&utm_campaign={campaign}&entrypoint={entrypoint}"
+
+        variant = self.request.GET.get("v", None)
+        nimbus_variant = self.request.GET.get("variant", None)
+
+        # ensure variant matches pre-defined value
+        if variant not in self.variations:
+            variant = None
+
+        # ensure nimbus_variant matches pre-defined value
+        if nimbus_variant not in self.nimbus_variations:
+            nimbus_variant = None
+
+        ctx["variant"] = variant
+        ctx["nimbus_variant"] = nimbus_variant
+
+        return ctx
+
+    def get_template_names(self):
+        version = self.kwargs.get("version") or ""
+
+        oldversion = self.request.GET.get("oldversion", "")
+        # old versions of Firefox sent a prefixed version
+        if oldversion.startswith("rv:"):
+            oldversion = oldversion[3:]
+
+        channel = detect_channel(version)
+
+        if channel == "nightly":
+            template = "firefox/whatsnew/nightly/evergreen.html"
+        elif channel == "developer":
+            template = "firefox/whatsnew/developer/evergreen.html"
+        else:
+            template = "firefox/whatsnew/evergreen.html"
+
+        # return a list to conform with original intention
+        return [template]

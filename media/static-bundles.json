@@ -354,6 +354,24 @@
         "css/firefox/more/windows-64-bit.scss"
       ],
       "name": "windows-64-bit"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/nightly/evergreen.scss"
+      ],
+      "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/developer/evergreen.scss"
+      ],
+      "name": "whatsnew_developer"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/evergreen.scss"
+      ],
+      "name": "whatsnew"
     }
   ],
   "js": [
@@ -627,6 +645,12 @@
         "js/firefox/landing/partner-build-download-init.es6.js"
       ],
       "name": "firefox_partner_build_download"
+    },
+    {
+      "files": [
+        "js/firefox/whatsnew/nightly/uitour.js"
+      ],
+      "name": "whatsnew_nightly"
     }
   ]
 }
