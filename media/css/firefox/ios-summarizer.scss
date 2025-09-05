@@ -84,6 +84,7 @@
     object-fit: contain;
     z-index: 1;
     transform-origin: 50% 50%;
+    pointer-events: auto;
 
     // NOTE: scale(0.96) and border-radius 10% are computed and rounded from aspect-ration of the phone frame to content in figma
     // In theory, we could use a mask into the inside of the phone shell here to clip the video content but it would introduce a bit more complexity.
