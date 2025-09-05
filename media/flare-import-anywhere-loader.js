@@ -22,7 +22,9 @@ module.exports = function (source, map) {
         /@import\s+(?:url\()?['"]?([^'"\)\s]+\.css)['"]?\)?(?:\s+layer\(\s*([^\)]+?)\s*\))?\s*;?/g;
 
     result = result.replace(importAnyRegex, (_, file, layerName) => {
-        const content = readCss(file);
+        const absPath = path.resolve(__dirname, 'css/cms', file);
+        this.addDependency(absPath);
+        const content = fs.readFileSync(absPath, 'utf8');
         if (layerName) {
             return `@layer ${layerName} {${content}}`;
         }
