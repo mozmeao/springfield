@@ -282,8 +282,7 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/flare-utilities.css",
-        "css/cms/flare-overrides.css"
+        "css/cms/flare-utilities.css"
       ],
       "name": "flare_base"
     },
