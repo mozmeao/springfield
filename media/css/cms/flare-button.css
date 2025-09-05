@@ -46,8 +46,8 @@
 }
 .button .button-icon-arrow {
     display: inline-block;
-    width: var(--Scale-16)px;
-    height: var(--Scale-16)px;
+    width: var(--16);
+    height: var(--16);
     background-color: currentColor;
     -webkit-mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
     mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
