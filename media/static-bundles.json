@@ -289,6 +289,12 @@
     },
     {
       "files": [
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_utilities"
+    },
+    {
+      "files": [
         "css/cms/wagtail-admin.scss"
       ],
       "name": "wagtail-admin"
