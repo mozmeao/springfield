@@ -53,6 +53,9 @@ PROD = config("PROD", parser=bool, default="false")
 
 DEBUG = config("DEBUG", parser=bool, default="false")
 
+# Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
+FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
+
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
@@ -453,6 +456,10 @@ SUPPORTED_NONLOCALES = [
     "locales",
     "csrf_403",
 ]
+
+# Ensure local debug-only test routes are not locale-prefixed
+if DEBUG:
+    SUPPORTED_NONLOCALES.append("flare-test")
 
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
