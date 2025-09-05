@@ -134,6 +134,11 @@ a:visited {
     color: #0360df; /* Figma Blue-Button */
 }
 
+code, pre {
+    background: #333336; /* Figma Neutrals-Charcoal */
+    color: #f8f6f4; /* Figma Neutrals-Ash */
+}
+
 img, picture, video, canvas, svg {
     max-width: 100%;
     height: auto;
