@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
@@ -83,6 +84,11 @@ if settings.STORAGES["default"]["BACKEND"] == "django.core.files.storage.FileSys
         ),
     )
     # Note that statics are handled via Whitenoise's middleware
+
+if apps.is_installed("pattern_library"):
+    urlpatterns += [
+        path("pattern-library/", include("pattern_library.urls")),
+    ]
 
 # Wagtail is the catch-all route, and it will raise a 404 if needed.
 # Note that we're also using localised URLs here
