@@ -109,7 +109,7 @@ $image-path: '/media/protocol/img';
 
         &.join .thanks-extra-links-heading {
             @include background-size(30px 30px);
-            background-image: url('/media/img/firefox/default/thanks/mozilla-logo.svg');
+            background-image: url('/media/protocol/img/logos/mozilla/logo.svg');
         }
 
         &.help .thanks-extra-links-heading {
