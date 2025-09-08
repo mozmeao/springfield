@@ -7,5 +7,3 @@ from django.views.generic import TemplateView
 
 class FlareTestView(TemplateView):
     template_name = "cms/flare-test.html"
-
-
