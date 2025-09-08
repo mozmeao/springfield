@@ -557,3 +557,108 @@ class TestFirefoxPlatform(TestCase):
         view(req)
         template = render_mock.call_args[0][1]
         assert template == ["firefox/browsers/desktop/windows.html"]
+
+
+@patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
+class TestWhatsNew(TestCase):
+    def setUp(self):
+        self.view = views.WhatsnewView.as_view()
+        self.rf = RequestFactory(HTTP_USER_AGENT="Firefox")
+
+    # begin context variable tests
+
+    @override_settings(DEV=True)
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_context_variables_whatsnew(self, render_mock):
+        """Should pass the correct context variables"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="70.0")
+        template = render_mock.call_args[0][1]
+        ctx = render_mock.call_args[0][2]
+        assert template == ["firefox/whatsnew/evergreen.html"]
+        assert ctx["version"] == "70.0"
+        assert ctx["analytics_version"] == "70"
+        assert ctx["entrypoint"] == "firefox.com-whatsnew70"
+        assert ctx["campaign"] == "whatsnew70"
+        assert ctx["utm_params"] == (
+            "utm_source=firefox.com-whatsnew70&utm_medium=referral&utm_campaign=whatsnew70&entrypoint=firefox.com-whatsnew70"
+        )
+
+    @override_settings(DEV=True)
+    def test_context_variables_whatsnew_developer(self, render_mock):
+        """Should pass the correct context variables for developer channel"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="72.0a2")
+        template = render_mock.call_args[0][1]
+        ctx = render_mock.call_args[0][2]
+        self.assertEqual(template, ["firefox/whatsnew/developer/evergreen.html"])
+        assert ctx["version"] == "72.0a2"
+        assert ctx["analytics_version"] == "72developer"
+        assert ctx["entrypoint"] == "firefox.com-whatsnew72developer"
+        assert ctx["campaign"] == "whatsnew72developer"
+        assert ctx["utm_params"] == (
+            "utm_source=firefox.com-whatsnew72developer&utm_medium=referral"
+            "&utm_campaign=whatsnew72developer&entrypoint=firefox.com-whatsnew72developer"
+        )
+
+    @override_settings(DEV=True)
+    def test_context_variables_whatsnew_nightly(self, render_mock):
+        """Should pass the correct context variables for nightly channel"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="100.0a1")
+        template = render_mock.call_args[0][1]
+        ctx = render_mock.call_args[0][2]
+        self.assertEqual(template, ["firefox/whatsnew/nightly/evergreen.html"])
+        assert ctx["version"] == "100.0a1"
+        assert ctx["analytics_version"] == "100nightly"
+        assert ctx["entrypoint"] == "firefox.com-whatsnew100nightly"
+        assert ctx["campaign"] == "whatsnew100nightly"
+        assert ctx["utm_params"] == (
+            "utm_source=firefox.com-whatsnew100nightly&utm_medium=referral&utm_campaign=whatsnew100nightly&entrypoint=firefox.com-whatsnew100nightly"
+        )
+
+    # end context variable tests
+
+    # begin nightly whatsnew tests
+
+    @override_settings(DEV=True)
+    def test_fx_nightly_68_0_a1_whatsnew(self, render_mock):
+        """Should show nightly whatsnew template"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="68.0a1")
+        template = render_mock.call_args[0][1]
+        self.assertEqual(template, ["firefox/whatsnew/nightly/evergreen.html"])
+
+    @override_settings(DEV=True)
+    def test_fx_nightly_100_0_a1_whatsnew(self, render_mock):
+        """Should show nightly whatsnew template"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="100.0a1")
+        template = render_mock.call_args[0][1]
+        self.assertEqual(template, ["firefox/whatsnew/nightly/evergreen.html"])
+
+    # end nightly whatsnew tests
+
+    # begin dev edition whatsnew tests
+
+    @override_settings(DEV=True)
+    def test_fx_dev_browser_57_0_a2_whatsnew(self, render_mock):
+        """Should show default dev whatsnew template"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="57.0a2")
+        template = render_mock.call_args[0][1]
+        self.assertEqual(template, ["firefox/whatsnew/developer/evergreen.html"])
+
+    # end dev edition whatsnew tests
+
+    # begin release whatsnew tests
+
+    @override_settings(DEV=True)
+    def test_fx_release_browser_135_whatsnew(self, render_mock):
+        """Should use base evergreen template for release versions"""
+        req = self.rf.get("/whatsnew/")
+        self.view(req, version="135.0")
+        template = render_mock.call_args[0][1]
+        self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
+
+    # end release whatsnew tests

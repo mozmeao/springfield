@@ -80,22 +80,45 @@ ALLOWED_TAGS = {
     "ol",
     "p",
     "small",
+    "source",
     "strike",
     "strong",
     "ul",
+    "video",
 }
-ALLOWED_ATTRS = [
-    "alt",
-    "class",
-    "height",
-    "href",
-    "id",
-    "src",
-    "srcset",
-    "rel",
-    "title",
-    "width",
-]
+ALLOWED_ATTRS = {
+    "*": [
+        "class",
+        "height",
+        "id",
+        "rel",
+        "title",
+        "width",
+    ],
+    "a": [
+        "href",
+    ],
+    "img": [
+        "alt",
+        "src",
+        "srcset",
+    ],
+    "source": [
+        "src",
+        "type",
+    ],
+    "video": [
+        "autoplay",
+        "controls",
+        "loop",
+        "muted",
+        "playsinline",
+        "poster",
+        "preload",
+        "src",
+        "type",
+    ],
+}
 
 
 def process_markdown(value):
