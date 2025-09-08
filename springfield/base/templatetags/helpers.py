@@ -154,8 +154,8 @@ def css_bundle(name, target_old_ie=False):
         # For IE10/11 with media query
         ie_link = CSS_TEMPLATE_IE % path
         # For IE9 and lower with conditional comment
-        ie9_link = f'<!--[if IE]>\n    {CSS_TEMPLATE % path}\n<![endif]-->'
-        return Markup(f'{ie9_link}\n    {ie_link}')
+        ie9_link = f"<!--[if IE]>\n    {CSS_TEMPLATE % path}\n<![endif]-->"
+        return Markup(f"{ie9_link}\n    {ie_link}")
     else:
         return Markup(CSS_TEMPLATE % path)
 
