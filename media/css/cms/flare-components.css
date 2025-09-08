@@ -1,55 +1,63 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 /* This file contains the components from the Firefox WNP project for
 demo purposes, but new modular component stylesheets will be added in
 the future and this file will be removed.
 */
+
+/* stylelint-disable */
 :root {
-    --fds-color-purple-light: var(--Purple-Light-Purple);
-    --fds-color-purple: var(--Purple-Purple);
-    --fds-color-blue-light: var(--Blue-Light-Blue);
-    --fds-color-blue: var(--Blue-Blue);
-    --fds-color-orange-light: var(--Orange-Light-Orange);
-    --fds-color-yellow: var(--Yellow-Yellow);
-    --fds-color-primary: var(--Blue-Button);
-    --fds-color-primary-dark: var(--Blue-Medium-Blue);
-    --fds-color-secondary-dark: var(--Purple-Purple);
-    --fds-color-secondary-light: var(--Purple-Light-Purple);
-    --fds-color-info: var(--Functional-Info-buttons);
-    --fds-color-error: var(--Functional-Error);
-    --fds-color-charcoal: var(--Neutrals-Charcoal);
-    --fds-color-ash: var(--Neutrals-Ash);
-    --fds-color-white: var(--Neutrals-White);
-    --fds-color-black: var(--Neutrals-Black);
-    --fds-color-gray-90: var(--Neutrals-Grey-8);
-    --fds-color-gray-80: var(--Neutrals-Grey-7);
-    --fds-color-gray-70: var(--Neutrals-Grey-6);
-    --fds-color-gray-60: var(--Neutrals-Grey-5);
-    --fds-color-gray-50: var(--Neutrals-Grey-5);
-    --fds-color-gray-40: var(--Neutrals-Grey-4);
-    --fds-color-gray-30: var(--Neutrals-Grey-3);
-    --fds-color-gray-20: var(--Neutrals-Grey-2);
-    --fds-spacing-xs: var(--4);
-    --fds-spacing-sm: var(--8);
-    --fds-spacing-md: var(--16);
-    --fds-spacing-lg: var(--24);
-    --fds-spacing-xl: var(--32);
-    --fds-spacing-2xl: var(--40);
-    --fds-spacing-3xl: var(--48);
-    --fds-spacing-4xl: var(--64);
-    --fds-border-radius-sm: var(--4);
-    --fds-border-radius-md: var(--8);
-    --fds-border-radius-lg: var(--12);
-    --fds-border-radius-xl: var(--16);
-    --fds-font-family-primary: var(--Font-Family-Headline);
-    --fds-font-family-secondary: var(--Font-Family-Body);
-    --fds-font-size-base: var(--Font-Size-Base);
-    --fds-font-size-xs: var(--Font-Size-6);
-    --fds-font-size-sm: var(--Font-Size-6);
-    --fds-font-size-md: var(--Font-Size-6);
-    --fds-font-size-2xl: var(--Font-Size-4);
-    --fds-font-size-3xl: var(--Font-Size-3);
-    --fds-font-size-5xl: var(--Font-Size-2);
-    --fds-font-size-6xl: var(--Font-Size-1);
-    --fds-transition-base: var(--Transition-Base);
+    --fds-color-purple-light: var(--purple-light-purple);
+    --fds-color-purple: var(--purple-purple);
+    --fds-color-blue-light: var(--blue-light-blue);
+    --fds-color-blue: var(--blue-blue);
+    --fds-color-orange-light: var(--orange-light-orange);
+    --fds-color-yellow: var(--yellow-yellow);
+    --fds-color-primary: var(--blue-button);
+    --fds-color-primary-dark: var(--blue-medium-blue);
+    --fds-color-secondary-dark: var(--purple-purple);
+    --fds-color-secondary-light: var(--purple-light-purple);
+    --fds-color-info: var(--functional-info-buttons);
+    --fds-color-error: var(--functional-error);
+    --fds-color-charcoal: var(--neutrals-charcoal);
+    --fds-color-ash: var(--neutrals-ash);
+    --fds-color-white: var(--neutrals-white);
+    --fds-color-black: var(--neutrals-black);
+    --fds-color-gray-90: var(--neutrals-grey-8);
+    --fds-color-gray-80: var(--neutrals-grey-7);
+    --fds-color-gray-70: var(--neutrals-grey-6);
+    --fds-color-gray-60: var(--neutrals-grey-5);
+    --fds-color-gray-50: var(--neutrals-grey-5);
+    --fds-color-gray-40: var(--neutrals-grey-4);
+    --fds-color-gray-30: var(--neutrals-grey-3);
+    --fds-color-gray-20: var(--neutrals-grey-2);
+    --fds-spacing-xs: 4px;
+    --fds-spacing-sm: 8px;
+    --fds-spacing-md: 16px;
+    --fds-spacing-lg: 24px;
+    --fds-spacing-xl: 32px;
+    --fds-spacing-2xl: 40px;
+    --fds-spacing-3xl: 48px;
+    --fds-spacing-4xl: 64px;
+    --fds-border-radius-sm: 4px;
+    --fds-border-radius-md: 8px;
+    --fds-border-radius-lg: 12px;
+    --fds-border-radius-xl: 16px;
+    --fds-font-family-primary: var(--font-family-headline);
+    --fds-font-family-secondary: var(--font-family-body);
+    --fds-font-size-base: var(--font-size-base);
+    --fds-font-size-xs: var(--font-size-6);
+    --fds-font-size-sm: var(--font-size-6);
+    --fds-font-size-md: var(--font-size-6);
+    --fds-font-size-2xl: var(--font-size-4);
+    --fds-font-size-3xl: var(--font-size-3);
+    --fds-font-size-5xl: var(--font-size-2);
+    --fds-font-size-6xl: var(--font-size-1);
+    --fds-transition-base: var(--transition-base);
     --fds-shadow-sm: none;
     --fds-shadow-md: none;
     --fds-shadow-lg: none;

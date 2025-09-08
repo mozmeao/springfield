@@ -1,3 +1,9 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 /* =====================================================================
 Flare CSS entry point that loads all layers and defines layer order
 
@@ -29,15 +35,19 @@ For a full list of unsupported CSS features in Safari 15.6, see:
 https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 
 ===================================================================== */
-@import url('flare-base.css') layer(base);
-@import url('flare-theme.css') layer(theme);
-@import url('flare-defaults.css') layer(defaults);
+
+/* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
+
+@import 'flare-base.css' layer(base);
+@import 'flare-theme.css' layer(theme);
+@import 'flare-defaults.css' layer(defaults);
+
 /* TODO: Port components to modules and remove flare-components.css */
-@import url('flare-components.css') layer(components);
-@import url('flare-button.css') layer(components);
-@import url('flare-pill.css') layer(components);
-@import url('flare-utilities.css') layer(utilities);
-@import url('flare-overrides.css') layer(overrides);
+@import 'flare-components.css' layer(components);
+@import 'flare-button.css' layer(components);
+@import 'flare-pill.css' layer(components);
+@import 'flare-utilities.css' layer(utilities);
+@import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */
 @layer base, theme, defaults, components, utilities, overrides;
@@ -48,7 +58,8 @@ included via a <link> tag in a conditional comment */
 @supports not (all: revert-layer) {
     /* Nested @imports are not valid CSS, but these are inlined by
     a custom webpack loader. */
-    @import url('flare-base.css');
+    @import 'flare-base.css';
+
     /* Utility classes are useful in the legacy stylesheet as well */
-    @import url('flare-utilities.css');
+    @import 'flare-utilities.css';
 }

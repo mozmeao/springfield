@@ -1,3 +1,9 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 /* =====================================================================
 Overrides - Exceptions to the rules
 
@@ -23,14 +29,20 @@ specific exceptions that can't be handled by the other layers
     border-color: var(--fds-color-charcoal);
 }
 
+.wnp-section-subscribe .wnp-input,
+.wnp-section-subscribe .button-outline {
+    padding: 12px 18px;
+}
+
 .wnp-section-subscribe .button-outline:hover {
     background: var(--fds-color-black);
     color: var(--fds-color-white);
 }
 
-.wnp-section-subscribe .wnp-input,
-.wnp-section-subscribe .button-outline {
-    padding: 12px 18px;
+.wnp-feature .button,
+.wnp-card .button {
+    margin-top: auto;
+    align-self: flex-start;
 }
 
 .wnp-subscribe.wnp-subscribe-expanded .wnp-input,
@@ -42,26 +54,22 @@ specific exceptions that can't be handled by the other layers
     order: 3;
 }
 
-.wnp-feature .button,
-.wnp-card .button {
-    margin-top: auto;
-    align-self: flex-start;
-}
-
 @media (max-width: 767px) {
-    .wnp-section-subscribe .wnp-subscribe .button {
-        width: 100%;
-    }
     .wnp-feature-content .button {
         width: 100%;
     }
-}
-@media (min-width: 768px) {
 
+    .wnp-section-subscribe .wnp-subscribe .button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
     .wnp-footer-cta .button {
         width: unset;
     }
 }
+
 @media (min-width: 1024px) {
     .wnp-feature .button,
     .wnp-card .button {
