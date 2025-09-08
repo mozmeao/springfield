@@ -38,5 +38,5 @@
         "selector-not-notation": "simple",
         "media-feature-range-notation": "prefix"
     },
-    "ignoreFiles": ["media/css/libs/**/*"]
+    "ignoreFiles": ["media/css/libs/**/*", "media/css/cms/wagtail-admin.scss"]
 }

@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from django.templatetags.static import static
 
 from wagtail import blocks
@@ -44,6 +48,7 @@ ICON_FILES = {
 
 # Element blocks
 
+
 def get_icon_url(icon_name: str) -> str:
     return static(ICON_FILES.get(icon_name, ""))
 
@@ -89,9 +94,7 @@ class HeadingBlock(blocks.StructBlock):
     )
     eyebrow_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    subheadline_text = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES, required=False
-    )
+    subheadline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
         icon = "title"
@@ -128,9 +131,7 @@ class ButtonBlock(blocks.StructBlock):
         required=False,
         inline_form=True,
     )
-    external = blocks.BooleanBlock(
-        required=False, default=False, label="External link", inline_form=True
-    )
+    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
     center = blocks.BooleanBlock(required=False, default=False, inline_form=True)
     icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
     link = blocks.CharBlock()
@@ -147,9 +148,7 @@ class ButtonBlock(blocks.StructBlock):
 class LinkBlock(blocks.StructBlock):
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Link Text")
-    external = blocks.BooleanBlock(
-        required=False, default=False, label="External link"
-    )
+    external = blocks.BooleanBlock(required=False, default=False, label="External link")
 
 
 class TagValue(blocks.StructValue):
@@ -159,9 +158,7 @@ class TagValue(blocks.StructValue):
 
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
-    icon = blocks.ChoiceBlock(
-        choices=ICON_CHOICES
-    )
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
     color = blocks.ChoiceBlock(
         choices=[
             ("purple", "Purple"),
@@ -181,6 +178,7 @@ class TagBlock(blocks.StructBlock):
 
 
 # Section blocks
+
 
 class HeroBlock(blocks.StructBlock):
     image = ImageChooserBlock()
@@ -230,6 +228,7 @@ class HighlightCardBlock(blocks.StructBlock):
         label = "Highlight Card"
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
+
 
 class HighlightsValue(blocks.StructValue):
     def card_heading_size(self):
