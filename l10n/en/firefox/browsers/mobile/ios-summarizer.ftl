@@ -9,7 +9,7 @@
 # that conveys energy, freshness, or innovation, rather than a literal "shake" action.
 mobile-ios-summarizer-page-title = Ready to shake things up?
 mobile-ios-summarizer-page-description =
-    Get instant, tailored summaries in { -brand-name-firefox } { -brand-name-ios }.
+    Get instant, tailored summaries in { -brand-name-firefox } for iOS.
     Shake your phone to cut through the clutter with recipe ingredients, sports highlights,
     or article overviews in seconds.
 
@@ -17,7 +17,7 @@ mobile-ios-summarizer-page-description =
 # or bring excitement. Please translate with an equivalent expression in your language
 # that conveys energy, freshness, or innovation, rather than a literal "shake" action.
 mobile-ios-summarizer-hero-title = Ready to shake things up?
-mobile-ios-summarizer-hero-subtitle = Instant summaries in { -brand-name-firefox } { -brand-name-ios }
+mobile-ios-summarizer-hero-subtitle = Instant summaries in { -brand-name-firefox } for iOS
 # Note for localizers: This is used under a QR code image that redirects to downloading the app in the app store.
 # Note for localizers: This is used in a link that redirects to downloading the app in the app store when clicked.
 mobile-ios-summarizer-cta-get-app = Get the app
