@@ -1,37 +1,43 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 .pill {
     display: inline-flex;
     align-items: center;
-    gap: var(--4);
-    background: var(--Neutrals-Ash);
-    color: var(--Neutrals-Charcoal);
-    font-family: var(--Font-Family-Body);
-    font-size: var(--Font-Size-6);
+    gap: 4px;
+    background: var(--neutrals-ash);
+    color: var(--neutrals-charcoal);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-6);
     font-weight: 600;
     padding: 8px 12px;
     line-height: 1.2;
-    border-radius: var(--16);
-    margin-bottom: var(--16);
-    margin-right: var(--4);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    margin-right: 4px;
 }
 
 .pill img {
     width: 12px;
     height: 12px;
-    margin-right: var(--4);
+    margin-right: 4px;
 }
 
 .pill.pill-blue {
-    background: var(--Blue-Light-Blue);
+    background: var(--blue-light-blue);
 }
 
 .pill.pill-purple {
-    background: var(--Purple-Light-Purple);
+    background: var(--purple-light-purple);
 }
 
 .pill.pill-orange {
-    background: var(--Orange-Light-Orange);
+    background: var(--orange-light-orange);
 }
 
 .pill.pill-yellow {
-    background: var(--Yellow-Yellow);
+    background: var(--yellow-yellow);
 }

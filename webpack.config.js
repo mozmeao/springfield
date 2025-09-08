@@ -15,7 +15,7 @@ const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
 const webpack = require('webpack');
 const flareImportAnywhereLoader = require.resolve(
-    './media/flare-import-anywhere-loader.js'
+    './webpack/flare-import-anywhere-loader.js'
 );
 
 function resolveBundles(fileList) {

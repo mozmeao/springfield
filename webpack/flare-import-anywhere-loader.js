@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 function readCss(file) {
-    const p = path.resolve(__dirname, 'css/cms', file);
+    const p = path.resolve(__dirname, '..', 'media', 'css', 'cms', file);
     return fs.readFileSync(p, 'utf8');
 }
 
@@ -22,7 +22,14 @@ module.exports = function (source, map) {
         /@import\s+(?:url\()?['"]?([^'"\)\s]+\.css)['"]?\)?(?:\s+layer\(\s*([^\)]+?)\s*\))?\s*;?/g;
 
     result = result.replace(importAnyRegex, (_, file, layerName) => {
-        const absPath = path.resolve(__dirname, 'css/cms', file);
+        const absPath = path.resolve(
+            __dirname,
+            '..',
+            'media',
+            'css',
+            'cms',
+            file
+        );
         this.addDependency(absPath);
         const content = fs.readFileSync(absPath, 'utf8');
         if (layerName) {
