@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{# Avoid referencing `page` which isn't provided by the pattern library #}
+{% block page_title %}Pattern preview{% endblock %}
+{% block wnp_header %}{% endblock %}
+
+{% block content %}
+{{ pattern_library_rendered_pattern }}
+{% endblock %}
+{% block wnp_footer %}{% endblock %}

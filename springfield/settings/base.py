@@ -787,10 +787,13 @@ def _is_springfield_custom_app(app_name):
 TEMPLATES = [
     {
         "BACKEND": "django_jinja.jinja2.Jinja2",
-        "APP_DIRS": False,
-        "DIRS": [f"springfield/{name.split('.')[1]}/templates" for name in INSTALLED_APPS if _is_springfield_custom_app(name)],
+        "APP_DIRS": True,
+        "DIRS": [],
         "OPTIONS": {
             "match_extension": None,
+            # Ensure Django Template (DTL) handles pattern_library templates,
+            # not Jinja. This prevents Jinja from seeing DTL tags like {% url %}.
+            "match_regex": r"^(?!pattern_library/).*$",
             "finalize": lambda x: x if x is not None else "",
             "context_processors": [
                 "django.contrib.auth.context_processors.auth",
@@ -845,16 +848,16 @@ PATTERN_LIBRARY = {
     # be searched to populate the groups.
     "SECTIONS": (
         # ("components", ["patterns/components"]),
-        ("blocks", ["cms/patterns"]),
+        ("blocks", ["cms/blocks"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
     # Set which template components should be rendered inside of,
     # so they may use page-level component dependencies like CSS.
-    "PATTERN_BASE_TEMPLATE_NAME": "cms/patterns/base.html",
+    "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-protocol.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
 }
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
