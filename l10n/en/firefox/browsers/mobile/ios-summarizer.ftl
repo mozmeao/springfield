@@ -33,7 +33,7 @@ mobile-ios-summarizer-pitch2-body =
 
 mobile-ios-summarizer-pitch3-title = Try it now
 mobile-ios-summarizer-pitch3-body = Get instant summaries in 3 quick steps:
-mobile-ios-summarizer-pitch3-note = *This feature is rolling out gradually and may not be available to everyone yet.
+mobile-ios-summarizer-pitch3-note = This feature is rolling out gradually and may not be available to everyone yet.
 
 # Note for localizers: mobile-ios-summarizer-steps-{n} are rendered in a numbered list.
 mobile-ios-summarizer-steps-1 = Scan the QR code
