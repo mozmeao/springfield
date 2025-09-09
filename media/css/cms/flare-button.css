@@ -17,16 +17,17 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all var(--transition-base);
-    background: var(--blue-button);
-    color: var(--neutrals-white);
+    background: light-dark(var(--functional-info-buttons), var(--functional-info-buttons));
+    color: light-dark(var(--neutrals-ash), var(--neutrals-ash));
 }
 
 .button:hover {
-    background: var(--blue-medium-blue);
+    background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
 }
 
 .button:active {
     transform: translateY(0);
+    background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
 }
 
 .button.button-secondary {
@@ -50,9 +51,21 @@
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
+.button.button-outline:active {
+    background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
+    color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
+}
+
 .button .button-icon {
-    margin-left: 10px;
     vertical-align: middle;
+}
+
+.button .button-icon-left {
+    margin-right: 10px;
+}
+
+.button .button-icon-right {
+    margin-left: 10px;
 }
 
 .button .button-icon-arrow {

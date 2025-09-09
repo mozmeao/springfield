@@ -1,8 +1,12 @@
 context:
   value:
-    label: Test Button
-    link: 'testurl'
+    center_class: ''
+    theme_class: ''
+    label: "Primary Button"
+    link: "testurl"
     external: false
+    right_icon_name: 'arrow-right'
+    left_icon_name: 'arrow-left'
     # These attributes will be turned into callables.
     turn_into_callable__center_class: 'center'
     turn_into_callable__theme_class: 'wnp-button wnp-button-outline'

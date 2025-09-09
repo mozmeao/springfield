@@ -1,14 +1,25 @@
 {#
- This Source Code Form is subject to the terms of the Mozilla Public
- License, v. 2.0. If a copy of the MPL was not distributed with this
- file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="{{ value.center_class() }}">
-  <a class="wnp-button {{ value.theme_class() }}" href="{{ value.link }}" {% if value.external %}target="_blank"{% endif %}>
+<div class="{{ value.center_class }}">
+  <a role="button" class="button {{ value.theme_class }}" href="{{ value.link }}" {% if value.external %}target="_blank" {% endif %} {% if value.disabled %}disabled{% endif %}>
+    {% if value.left_icon_name %}
+    {% set icon_name = value.left_icon_name %}
+    {% set extra_class = "button-icon button-icon-left" %}
+    {% set width = 16 %}
+    {% set hidden = true %}
+    {% include "cms/blocks/icon.html" %}
+    {% endif %}
     {{ value.label }}
-    {% if value.icon %}
-      <img class="wnp-button-icon" src="{{ value.icon_url() }}" width="16" height="16" alt="" aria-hidden="true" />
+    {% if value.right_icon_name %}
+    {% set icon_name = value.right_icon_name %}
+    {% set extra_class = "button-icon button-icon-right" %}
+    {% set width = 16 %}
+    {% set hidden = true %}
+    {% include "cms/blocks/icon.html" %}
     {% endif %}
   </a>
 </div>
