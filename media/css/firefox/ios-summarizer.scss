@@ -5,17 +5,34 @@
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
 
 .ios-summarizer-hero {
+    background-image:
+    // /* Orange circle */
+    radial-gradient(circle at center 80%,
+      rgba(255, 112, 58, 1) 0%,
+      rgba(255, 112, 58, 1) 20%,
+      rgba(255, 112, 58, 0) 40%
+    ),
+    // /* Crimson ellipse */
+    radial-gradient(ellipse at center 120%,
+      rgba(197, 0, 66, 1) 0%,
+      rgba(197, 0, 66, 1) 35%,
+      rgba(197, 0, 66, 0) 65%
+    ),
+     /* Purple ellipse  */
+    radial-gradient(ellipse at center 120%,
+      rgba(167, 64, 209, 1) 0%,
+      rgba(167, 64, 209, 1) 40%,
+      rgba(167, 64, 209, 0) 70%
+    );
+    background-repeat: no-repeat;
+    background-size: 2880px 100%;
+    background-position: center 245px;
     min-height: 100vh;
     position: relative;
-}
 
-.ios-summarizer-hero-background {
-    position: absolute;
-    inset: 0;
-    background: url('/media/img/firefox/browsers/mobile/ios/shake-to-summarize-gradient-bg.svg') no-repeat center bottom;
-    background-size: cover;
-    z-index: 0;
-    pointer-events: none;
+    @media (min-width: 1200px) {
+        background-size: 4880px 100%;
+    }
 }
 
 .ios-hero-figure-container {
