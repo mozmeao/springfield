@@ -1,0 +1,9 @@
+context:
+  value:
+    center_class: ''
+    theme_class: ''
+    label: "Primary Button"
+    link: "testurl"
+    external: false
+    right_icon_name: 'arrow-right'
+    left_icon_name: 'arrow-left'

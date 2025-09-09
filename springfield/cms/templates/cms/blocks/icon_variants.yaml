@@ -1,0 +1,122 @@
+context:
+  icons:
+    - name: AI
+      icon_name: ai
+    - name: Alert
+      icon_name: alert
+    - name: Arrow Down
+      icon_name: arrow-down
+    - name: Arrow Left
+      icon_name: arrow-left
+    - name: Arrow Right
+      icon_name: arrow-right
+    - name: Arrow Up
+      icon_name: arrow-up
+    - name: Bell
+      icon_name: bell
+    - name: Blog
+      icon_name: blog
+    - name: Bookmark
+      icon_name: bookmark
+    - name: Calendar
+      icon_name: calendar
+    - name: Caret Down
+      icon_name: caret-down
+    - name: Caret Up
+      icon_name: caret-up
+    - name: Chat
+      icon_name: chat
+    - name: Check
+      icon_name: check
+    - name: Close
+      icon_name: close
+    - name: Cloud
+      icon_name: cloud
+    - name: Copy
+      icon_name: copy
+    - name: Data Insights
+      icon_name: data-insights
+    - name: Data Pie
+      icon_name: data-pie
+    - name: Design
+      icon_name: design
+    - name: Download
+      icon_name: download
+    - name: Earth
+      icon_name: earth
+    - name: Edit Write
+      icon_name: edit-write
+    - name: Email
+      icon_name: email
+    - name: Event
+      icon_name: event
+    - name: External Link
+      icon_name: external-link
+    - name: Eye Closed
+      icon_name: eye-closed
+    - name: Eye Open
+      icon_name: eye-open
+    - name: Folder
+      icon_name: folder
+    - name: Folder Plus
+      icon_name: folder-plus
+    - name: Gear
+      icon_name: gear
+    - name: Globe
+      icon_name: globe
+    - name: Hashtag
+      icon_name: hashtag
+    - name: Headphone
+      icon_name: headphone
+    - name: Heart
+      icon_name: heart
+    - name: Home
+      icon_name: home
+    - name: Language
+      icon_name: language
+    - name: Lock
+      icon_name: lock
+    - name: Megaphone
+      icon_name: megaphone
+    - name: Menu
+      icon_name: menu
+    - name: Minus
+      icon_name: minus
+    - name: Mobile Phone
+      icon_name: mobile-phone
+    - name: Paperclip
+      icon_name: paperclip
+    - name: Pause
+      icon_name: pause
+    - name: Play
+      icon_name: play
+    - name: Plus
+      icon_name: plus
+    - name: Quote
+      icon_name: quote
+    - name: Read
+      icon_name: read
+    - name: Report
+      icon_name: report
+    - name: Search
+      icon_name: search
+    - name: Shield
+      icon_name: shield
+    - name: Sound Off
+      icon_name: sound-off
+    - name: Sound On
+      icon_name: sound-on
+    - name: Star
+      icon_name: star
+    - name: Thumbs Up
+      icon_name: thumbs-up
+    - name: Toggle Off
+      icon_name: toggle-off
+    - name: Toggle On
+      icon_name: toggle-on
+    - name: Trash
+      icon_name: trash
+    - name: Update
+      icon_name: update
+    - name: User
+      icon_name: user

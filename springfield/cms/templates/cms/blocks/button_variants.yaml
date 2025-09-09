@@ -1,0 +1,44 @@
+context:
+  buttons:
+    - note: Primary (default) with right icon
+      center_class: ''
+      theme_class: ''
+      label: "Primary Button"
+      link: "testurl"
+      external: false
+      right_icon_name: 'arrow-right'
+    - note: Primary (default) with left icon
+      center_class: ''
+      theme_class: ''
+      label: "Primary Button"
+      link: "testurl"
+      external: false
+      left_icon_name: 'arrow-left'
+    - note: Primary disabled
+      center_class: ''
+      theme_class: ''
+      label: "Disabled Primary"
+      link: "testurl"
+      external: false
+      disabled: true
+    - note: Outline with right icon
+      center_class: ''
+      theme_class: 'button-outline'
+      label: "Outline Button"
+      link: "/contact"
+      external: false
+      right_icon_name: 'arrow-right'
+    - note: Outline with left icon
+      center_class: ''
+      theme_class: 'button-outline'
+      label: "Outline Button"
+      link: "/contact"
+      external: false
+      left_icon_name: 'heart'
+    - note: Outline disabled
+      center_class: ''
+      theme_class: 'button-outline'
+      label: "Disabled Outline"
+      link: "testurl"
+      external: false
+      disabled: true

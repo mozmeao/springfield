@@ -1,0 +1,50 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <div style="margin-bottom: 24px;">
+    <h2>Icon size and color</h2>
+    <div style="color: var(--blue-medium-blue); display: grid; grid-template-columns: repeat(4, minmax(72px, 1fr)); gap: 16px; align-items: start;">
+      <div style="text-align: center;">
+        {% set icon_name = 'globe' %}
+        {% set width = 16 %}
+        {% include "cms/blocks/icon.html" %}
+        <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">16 px</div>
+      </div>
+      <div style="text-align: center;">
+        {% set icon_name = 'globe' %}
+        {% set width = 20 %}
+        {% include "cms/blocks/icon.html" %}
+        <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">20 px</div>
+      </div>
+      <div style="text-align: center;">
+        {% set icon_name = 'globe' %}
+        {% set width = 24 %}
+        {% include "cms/blocks/icon.html" %}
+        <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">24 px</div>
+      </div>
+      <div style="text-align: center;">
+        {% set icon_name = 'globe' %}
+        {% set width = 32 %}
+        {% include "cms/blocks/icon.html" %}
+        <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">32 px</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Icons</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 16px; align-items: start;">
+    {% for icon in icons %}
+    <div style="text-align: center;">
+      {% set icon_name = icon.icon_name %}
+      {% set width = 24 %}
+      {% include "cms/blocks/icon.html" %}
+      <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">{{ icon.name }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
