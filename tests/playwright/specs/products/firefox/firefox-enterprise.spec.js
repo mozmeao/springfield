@@ -14,6 +14,10 @@ const downloadBaseUrl = 'https://download.mozilla.org/';
 
 languages.forEach((lang) => {
     const url = pageUrl.replace('LANG', lang);
+    // Download language code for Windows is the same as the locale code.
+    const winDownloadLang = lang;
+    // For Japanese, the macOS download language code is `ja-JP-mac`.
+    const macDownloadLang = lang === 'ja' ? 'ja-JP-mac' : lang;
 
     test.describe(
         `${url} page`,
@@ -21,11 +25,6 @@ languages.forEach((lang) => {
             tag: '@firefox'
         },
         () => {
-            // Download language code for Windows is the same as the locale code.
-            const winDownloadLang = lang;
-            // For Japanese, the macOS download language code is `ja-JP-mac`.
-            const macDownloadLang = lang === 'ja' ? 'ja-JP-mac' : lang;
-
             test.beforeEach(async ({ page, browserName }) => {
                 await openPage(url, page, browserName);
             });
