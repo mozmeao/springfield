@@ -2,7 +2,7 @@
 
 bpython==0.25
 braceexpand==0.1.7
-django-silk==5.4.0
+django-silk==5.4.3
 factory-boy==3.3.3
 freezegun==1.5.5
 markdown-it-py>=2.2.0
@@ -10,20 +10,20 @@ pipdeptree==2.28.0
 py==1.11.0
 PyPOM==2.2.4
 pyquery==2.0.1
-pytest==8.4.1
-pytest-cov==6.2.1
-pytest-datadir==1.8.0
+pytest==7.4.4  # Included because we use it directly, but also a subdep of pytest-selenium's subdeps
+pytest-cov==5.0.0
+pytest-datadir==1.7.2
 pytest-django==4.11.1
 pytest-mock==3.14.1
 pytest-parallel==0.1.1
 pytest-rerunfailures==15.1
-pytest-selenium==4.1.0
-responses==0.25.8
-ruff==0.12.8
-selenium==4.34.2
+pytest-selenium==4.0.1
+responses==0.25.7
+ruff==0.12.12
+selenium==4.9.1  # Pinned to 4.9.1 until https://github.com/pytest-dev/pytest-selenium/issues/315 is resolved
 translate-toolkit==3.15.2
-uv==0.8.8
-wagtail-factories==4.2.1
+uv==0.8.16
+wagtail-factories==4.3.0
 # Related to moz-l10n-lint, used in CI
 cl-ext.lang==0.1.0
 compare-locales==9.0.4
