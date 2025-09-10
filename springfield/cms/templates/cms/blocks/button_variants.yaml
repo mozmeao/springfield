@@ -21,24 +21,37 @@ context:
       link: "testurl"
       external: false
       disabled: true
-    - note: Outline with right icon
+    - note: Secondary with right icon
       center_class: ''
-      theme_class: 'button-outline'
-      label: "Outline Button"
+      theme_class: 'button-secondary'
+      label: "Secondary Button"
       link: "/contact"
       external: false
       right_icon_name: 'arrow-right'
-    - note: Outline with left icon
+    - note: Secondary with left icon
       center_class: ''
-      theme_class: 'button-outline'
-      label: "Outline Button"
+      theme_class: 'button-secondary'
+      label: "Secondary Button"
       link: "/contact"
       external: false
       left_icon_name: 'heart'
-    - note: Outline disabled
+    - note: Secondary disabled
       center_class: ''
-      theme_class: 'button-outline'
-      label: "Disabled Outline"
+      theme_class: 'button-secondary'
+      label: "Disabled Secondary"
+      link: "testurl"
+      external: false
+      disabled: true
+    - note: Ghost button
+      center_class: ''
+      theme_class: 'button-ghost'
+      label: "Ghost Button"
+      link: "testurl"
+      external: false
+    - note: Disabled Ghost
+      center_class: ''
+      theme_class: 'button-ghost'
+      label: "Disabled Ghost"
       link: "testurl"
       external: false
       disabled: true
