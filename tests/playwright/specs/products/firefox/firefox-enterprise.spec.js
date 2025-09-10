@@ -13,8 +13,10 @@ const pageUrl = '/LANG/browsers/enterprise/';
 const downloadBaseUrl = 'https://download.mozilla.org/';
 
 languages.forEach((lang) => {
+    const url = pageUrl.replace('LANG', lang);
+
     test.describe(
-        `${pageUrl} page in ${lang}`,
+        `${url} page`,
         {
             tag: '@firefox'
         },
@@ -25,7 +27,7 @@ languages.forEach((lang) => {
             const macDownloadLang = lang === 'ja' ? 'ja-JP-mac' : lang;
 
             test.beforeEach(async ({ page, browserName }) => {
-                await openPage(pageUrl.replace('LANG', lang), page, browserName);
+                await openPage(url, page, browserName);
             });
 
             test('Firefox ESR Windows 64bit menu open / close', async ({
