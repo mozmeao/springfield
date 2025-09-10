@@ -13,45 +13,53 @@
     line-height: 1.5;
     text-align: center;
     text-decoration: none;
-    border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all var(--transition-base);
-    background: light-dark(var(--functional-info-buttons), var(--functional-info-buttons));
-    color: light-dark(var(--neutrals-ash), var(--neutrals-ash));
+    background: transparent;
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
 }
 
-.button:hover {
-    background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
+.button:hover, .button:focus {
+    background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: light-dark(var(--neutrals-white), var(--neutrals-black));
 }
 
 .button:active {
-    transform: translateY(0);
-    background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
+    background: light-dark(var(--neutrals-black), var(--neutrals-white));
+    color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
 .button.button-secondary {
-    background: var(--functional-info-buttons);
-    color: var(--neutrals-white);
+    background: light-dark(var(--functional-info-buttons), var(--functional-info-buttons));
+    color: light-dark(var(--neutrals-ash), var(--neutrals-ash));
+    border-width: 0;
 }
 
-.button.button-secondary:hover {
-    background: light-dark(var(--purple-purple), var(--purple-light-purple));
+.button.button-secondary:hover, .button.button-secondary:focus {
+    background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
+    color: light-dark(var(--neutrals-white), var(--neutrals-white));
 }
 
-.button.button-outline {
+.button.button-secondary:active {
+    background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
+    color: light-dark(var(--neutrals-white), var(--neutrals-ash));
+}
+
+.button.button-ghost {
+    border-color: transparent;
     background: transparent;
     color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
-    position: relative;
-    border: 1px solid light-dark(var(--neutrals-grey-8), var(--neutrals-white));
 }
 
-.button.button-outline:hover {
+.button.button-ghost:hover {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
-.button.button-outline:active {
+.button.button-ghost:active {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
