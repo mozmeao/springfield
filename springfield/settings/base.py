@@ -1506,3 +1506,1187 @@ PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", 
 PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
 DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
 QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)
+
+# VPN ==========================================================================================
+
+# URL for Mozilla VPN sign-in links
+# ***This URL *MUST* end in a traling slash!***
+VPN_ENDPOINT = config(
+    "VPN_ENDPOINT",
+    default=("https://stage.guardian.nonprod.cloudops.mozgcp.net/" if DEV else "https://vpn.mozilla.org/"),
+)
+
+# URL for Mozilla VPN subscription links
+# ***This URL *MUST* end in a traling slash!***
+VPN_SUBSCRIPTION_URL = config(
+    "VPN_SUBSCRIPTION_URL",
+    default=("https://accounts.stage.mozaws.net/" if DEV else "https://accounts.firefox.com/"),
+)
+
+# New URL for VPN subscription links
+# ***This URL *MUST* end in a trailing slash!***
+VPN_SUBSCRIPTION_URL_NEXT = config(
+    "VPN_SUBSCRIPTION_URL_NEXT",
+    default=("https://payments-next.allizom.org/" if DEV else "https://payments.firefox.com/"),
+)
+
+# For testing/QA we support a test 'daily' API endpoint on the staging API only
+VPN_SUBSCRIPTION_USE_DAILY_MODE__QA_ONLY = config("VPN_SUBSCRIPTION_USE_DAILY_MODE__QA_ONLY", default="False", parser=bool)
+
+# Product ID for VPN subscriptions
+VPN_PRODUCT_ID = config("VPN_PRODUCT_ID", default="prod_FiJ42WCzZNRSbS" if DEV else "prod_FvnsFHIfezy3ZI")
+VPN_PRODUCT_ID_NEXT = "mozillavpnstage" if DEV else "vpn"
+
+# VPN variable subscription plan IDs by currency/language.
+VPN_PLAN_ID_MATRIX = {
+    "chf": {  # Swiss franc
+        "de": {  # German
+            "12-month": {
+                "price": "5.99",
+                "total": "71.88",
+                "currency": "CHF",
+                "saving": 45,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "60.00",
+                    "price": "71.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "10.99",
+                "total": None,
+                "currency": "CHF",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "0",
+                    "price": "10.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "fr": {  # French
+            "12-month": {
+                "price": "5.99",
+                "total": "71.88",
+                "currency": "CHF",
+                "saving": 45,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "60.00",
+                    "price": "71.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "10.99",
+                "currency": "CHF",
+                "total": None,
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "0",
+                    "price": "10.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "it": {  # Italian
+            "12-month": {
+                "price": "5.99",
+                "total": "71.88",
+                "currency": "CHF",
+                "saving": 45,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "60.00",
+                    "price": "71.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "10.99",
+                "total": None,
+                "currency": "CHF",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CHF",
+                    "discount": "0",
+                    "price": "10.99",
+                    "period": "monthly",
+                },
+            },
+        },
+    },
+    "czk": {  # Czech koruna
+        "cs": {  # Czech
+            "12-month": {
+                "price": "119",
+                "total": "1428",
+                "currency": "CZK",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CZK",
+                    "discount": "1416",
+                    "price": "1428",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "237",
+                "total": None,
+                "currency": "CZK",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "CZK",
+                    "discount": "0",
+                    "price": "237",
+                    "period": "monthly",
+                },
+            },
+        },
+    },
+    "dkk": {  # Danish krone
+        "da": {  # Dansk
+            "12-month": {
+                "price": "37",
+                "total": "444",
+                "currency": "DKK",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "DKK",
+                    "discount": "456",
+                    "price": "444",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "75",
+                "total": None,
+                "currency": "DKK",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "DKK",
+                    "discount": "0",
+                    "price": "75",
+                    "period": "monthly",
+                },
+            },
+        },
+    },
+    "euro": {  # Euro
+        "bg": {  # Bulgarian
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "de": {  # German
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "el": {  # Greek
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "en": {  # English
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "es": {  # Spanish
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "fr": {  # French
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "hu": {  # Hungarian
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "it": {  # Italian
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "nl": {  # Dutch
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "pt": {  # Portuguese
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "ro": {  # Romanian
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "sk": {  # Slovak
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+        "sl": {  # Slovenian
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "EUR",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "EUR",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "EUR",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        },
+    },
+    "pln": {  # Polish złoty
+        "en": {  # English
+            "12-month": {
+                "price": "22",
+                "total": "264",
+                "currency": "PLN",
+                "saving": 48,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "PLN",
+                    "discount": "276",
+                    "price": "264",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "45",
+                "total": None,
+                "currency": "PLN",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "PLN",
+                    "discount": "0",
+                    "price": "45",
+                    "period": "monthly",
+                },
+            },
+        },
+    },
+    "usd": {  # US dollar
+        "en": {  # English
+            "12-month": {
+                "price": "4.99",
+                "total": "59.88",
+                "currency": "USD",
+                "saving": 50,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "USD",
+                    "discount": "60.00",
+                    "price": "59.88",
+                    "period": "yearly",
+                },
+            },
+            "monthly": {
+                "price": "9.99",
+                "total": None,
+                "currency": "USD",
+                "saving": None,
+                "analytics": {
+                    "brand": "vpn",
+                    "plan": "vpn",
+                    "currency": "USD",
+                    "discount": "0",
+                    "price": "9.99",
+                    "period": "monthly",
+                },
+            },
+        }
+    },
+}
+
+# Map of country codes to allocated VPN currency/language plan IDs.
+# Each country can support both a default language and (optionally)
+# a set of one or more alternative languages.
+VPN_VARIABLE_PRICING = {
+    "AT": {  # Austria
+        "default": VPN_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    "BE": {  # Belgium
+        "default": VPN_PLAN_ID_MATRIX["euro"]["nl"],
+        "de": VPN_PLAN_ID_MATRIX["euro"]["de"],
+        "fr": VPN_PLAN_ID_MATRIX["euro"]["fr"],
+    },
+    "BG": {  # Bulgaria
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "CH": {  # Switzerland
+        "default": VPN_PLAN_ID_MATRIX["chf"]["de"],
+        "fr": VPN_PLAN_ID_MATRIX["chf"]["fr"],
+        "it": VPN_PLAN_ID_MATRIX["chf"]["it"],
+    },
+    "CY": {  # Cyprus
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+        "el": VPN_PLAN_ID_MATRIX["euro"]["el"],
+    },
+    "CZ": {  # Czech Republic
+        "default": VPN_PLAN_ID_MATRIX["czk"]["cs"],
+    },
+    "DE": {  # Germany
+        "default": VPN_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    "DK": {  # Denmark
+        "default": VPN_PLAN_ID_MATRIX["dkk"]["da"],
+    },
+    "EE": {  # Estonia
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "ES": {  # Spain
+        "default": VPN_PLAN_ID_MATRIX["euro"]["es"],
+    },
+    "FI": {  # Finland
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "FR": {  # France
+        "default": VPN_PLAN_ID_MATRIX["euro"]["fr"],
+    },
+    "HR": {  # Croatia
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "HU": {  # Hungary
+        "default": VPN_PLAN_ID_MATRIX["euro"]["hu"],
+    },
+    "IE": {  # Ireland
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "IT": {  # Italy
+        "default": VPN_PLAN_ID_MATRIX["euro"]["it"],
+    },
+    "LT": {  # Lithuania
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "LU": {  # Luxembourg
+        "default": VPN_PLAN_ID_MATRIX["euro"]["fr"],
+        "de": VPN_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    "LV": {  # Latvia
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "MT": {  # Malta
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "NL": {  # The Netherlands
+        "default": VPN_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    "PL": {  # Poland
+        "default": VPN_PLAN_ID_MATRIX["pln"]["en"],
+    },
+    "PT": {  # Portugal
+        "default": VPN_PLAN_ID_MATRIX["euro"]["pt"],
+    },
+    "RO": {  # Romania
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "SE": {  # Sweden
+        "default": VPN_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    "SI": {  # Slovenia
+        "default": VPN_PLAN_ID_MATRIX["euro"]["sl"],
+    },
+    "SK": {  # Slovakia
+        "default": VPN_PLAN_ID_MATRIX["euro"]["sk"],
+    },
+    "US": {  # USA
+        "default": VPN_PLAN_ID_MATRIX["usd"]["en"],
+    },
+}
+
+# Simplified pricing matrix for countries that can
+# only purchase a subscription through the app store.
+VPN_MOBILE_SUB_PRICING = {
+    "AU": {  # Australia
+        "12-month": {
+            "price": "7.5",
+            "total": "89.99",
+            "currency": "AUD",
+        },
+        "monthly": {
+            "price": "14.99",
+            "currency": "AUD",
+        },
+    },
+    "BD": {  # Bangladesh
+        "12-month": {
+            "price": "583.33",
+            "total": "7000",
+            "currency": "BDT",
+        },
+        "monthly": {
+            "price": "1200",
+            "currency": "BDT",
+        },
+    },
+    "BR": {  # Brazil
+        "12-month": {
+            "price": "27.50",
+            "total": "330",
+            "currency": "BRL",
+        },
+        "monthly": {
+            "price": "56",
+            "currency": "BRL",
+        },
+    },
+    "CL": {  # Chile
+        "12-month": {
+            "price": "4582.50",
+            "total": "54990",
+            "currency": "CLP",
+        },
+        "monthly": {
+            "price": "9300",
+            "currency": "CLP",
+        },
+    },
+    "CO": {  # Colombia
+        "12-month": {
+            "price": "20825",
+            "total": "249900",
+            "currency": "COP",
+        },
+        "monthly": {
+            "price": "41900",
+            "currency": "COP",
+        },
+    },
+    "EG": {  # Egypt
+        "12-month": {
+            "price": "241.67",
+            "total": "2899.99",
+            "currency": "EGP",
+        },
+        "monthly": {
+            "price": "479.99",
+            "currency": "EGP",
+        },
+    },
+    "GR": {  # Greece
+        "12-month": {
+            "price": "4.99",
+            "total": "59.88",
+            "currency": "EUR",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "EUR",
+        },
+    },
+    "ID": {  # Indonesia
+        "12-month": {
+            "price": "75000",
+            "total": "900000",
+            "currency": "IDR",
+        },
+        "monthly": {
+            "price": "155000",
+            "currency": "IDR",
+        },
+    },
+    "IN": {  # India
+        "12-month": {
+            "price": "416.58",
+            "total": "4999",
+            "currency": "INR",
+        },
+        "monthly": {
+            "price": "839",
+            "currency": "INR",
+        },
+    },
+    "KE": {  # Kenya
+        "12-month": {
+            "price": "5.00",
+            "total": "59.99",
+            "currency": "USD",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "USD",
+        },
+    },
+    "KR": {  # South Korea
+        "12-month": {
+            "price": "6658.33",
+            "total": "79900",
+            "currency": "KRW",
+        },
+        "monthly": {
+            "price": "13500",
+            "currency": "KRW",
+        },
+    },
+    "MA": {  # Morocco
+        "12-month": {
+            "price": "50",
+            "total": "600",
+            "currency": "MAD",
+        },
+        "monthly": {
+            "price": "99",
+            "currency": "MAD",
+        },
+    },
+    "MX": {  # Mexico
+        "12-month": {
+            "price": "95.75",
+            "total": "1149",
+            "currency": "MXN",
+        },
+        "monthly": {
+            "price": "189",
+            "currency": "MXN",
+        },
+    },
+    "NG": {  # Nigeria
+        "12-month": {
+            "price": "8325",
+            "total": "99900",
+            "currency": "NGN",
+        },
+        "monthly": {
+            "price": "15900",
+            "currency": "NGN",
+        },
+    },
+    "NO": {  # Norway
+        "12-month": {
+            "price": "54.17",
+            "total": "650",
+            "currency": "NOK",
+        },
+        "monthly": {
+            "price": "110",
+            "currency": "NOK",
+        },
+    },
+    "SA": {  # Saudi Arabia
+        "12-month": {
+            "price": "18.75",
+            "total": "224.99",
+            "currency": "SAR",
+        },
+        "monthly": {
+            "price": "36.99",
+            "currency": "SAR",
+        },
+    },
+    "SN": {  # Senegal
+        "12-month": {
+            "price": "4.99",
+            "total": "59.88",
+            "currency": "USD",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "USD",
+        },
+    },
+    "TH": {  # Thailand
+        "12-month": {
+            "price": "165.83",
+            "total": "1990",
+            "currency": "THB",
+        },
+        "monthly": {
+            "price": "330",
+            "currency": "THB",
+        },
+    },
+    "TR": {  # Turkey
+        "12-month": {
+            "price": "166.67",
+            "total": "1999.99",
+            "currency": "TRY",
+        },
+        "monthly": {
+            "price": "339.99",
+            "currency": "TRY",
+        },
+    },
+    "TW": {  # Taiwan
+        "12-month": {
+            "price": "158.33",
+            "total": "1900",
+            "currency": "TWD",
+        },
+        "monthly": {
+            "price": "320",
+            "currency": "TWD",
+        },
+    },
+    "UA": {  # Ukraine
+        "12-month": {
+            "price": "5.00",
+            "total": "59.99",
+            "currency": "USD",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "USD",
+        },
+    },
+    "UG": {  # Uganda
+        "12-month": {
+            "price": "4.99",
+            "total": "59.88",
+            "currency": "USD",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "USD",
+        },
+    },
+    "US": {  # United States (only used as a fallback should a country match not be found).
+        "12-month": {
+            "price": "4.99",
+            "total": "59.88",
+            "currency": "USD",
+        },
+        "monthly": {
+            "price": "9.99",
+            "currency": "USD",
+        },
+    },
+    "VN": {  # Vietnam
+        "12-month": {
+            "price": "124917",
+            "total": "1499000",
+            "currency": "VND",
+        },
+        "monthly": {
+            "price": "249000",
+            "currency": "VND",
+        },
+    },
+    "ZA": {  # South Africa
+        "12-month": {
+            "price": "83.33",
+            "total": "999.99",
+            "currency": "ZAR",
+        },
+        "monthly": {
+            "price": "169.99",
+            "currency": "ZAR",
+        },
+    },
+}
+
+# Mozilla VPN Geo restrictions
+# https://github.com/mozilla-services/guardian-website/blob/master/server/constants.ts
+
+# Countries where VPN is available for subscription via desktop (FxA) or mobile app stores.
+VPN_COUNTRY_CODES = [
+    "CA",  # Canada
+    "MY",  # Malaysia
+    "NZ",  # New Zealand
+    "SG",  # Singapore
+    # United Kingdom + "Territories"
+    "GB",  # United Kingdom of Great Britain and Northern Ireland
+    "GG",  # Guernsey (a British Crown dependency)
+    "IM",  # Isle of Man (a British Crown dependency)
+    "IO",  # British Indian Ocean Territory
+    "JE",  # Jersey (a British Crown dependency)
+    "VG",  # Virgin Islands (British)
+    # USA + "Territories"
+    "AS",  # American Samoa
+    "MP",  # Northern Mariana Islands
+    "PR",  # Puerto Rico
+    "US",  # United States of America
+    "VI",  # Virgin Islands (U.S.)
+    # EU Countries
+    "DE",  # Germany
+    "FR",  # France
+    "AT",  # Austria
+    "BE",  # Belgium
+    "CH",  # Switzerland
+    "ES",  # Spain
+    "IT",  # Italy
+    "IE",  # Ireland
+    "NL",  # Netherlands
+    "SE",  # Sweden
+    "FI",  # Finland
+    "BG",  # Bulgaria
+    "CY",  # Cyprus
+    "CZ",  # Czech Republic
+    "DK",  # Denmark
+    "EE",  # Estonia
+    "HR",  # Croatia
+    "HU",  # Hungary
+    "LT",  # Lithuania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MT",  # Malta
+    "PL",  # Poland
+    "PT",  # Portugal
+    "RO",  # Romania
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+]
+
+# Countries where VPN is available but subscriptions are only available through mobile app stores.
+VPN_MOBILE_SUB_COUNTRY_CODES = [
+    "AU",  # Australia
+    "BD",  # Bangladesh
+    "BR",  # Brazil
+    "CL",  # Chile
+    "CO",  # Colombia
+    "EG",  # Egypt
+    "GR",  # Greece
+    "ID",  # Indonesia
+    "IN",  # India
+    "KE",  # Kenya
+    "KR",  # South Korea
+    "MA",  # Morocco
+    "MX",  # Mexico
+    "NG",  # Nigeria
+    "NO",  # Norway
+    "SA",  # Saudi Arabia
+    "SN",  # Senegal
+    "TH",  # Thailand
+    "TR",  # Turkey
+    "TW",  # Taiwan
+    "UA",  # Ukraine
+    "UG",  # Uganda
+    "VN",  # Viet Nam
+    "ZA",  # South Africa
+]
+
+# Countries where VPN is available for subscription only via Google Play Store.
+VPN_MOBILE_SUB_ANDROID_ONLY_COUNTRY_CODES = [
+    "BD",  # Bangladesh
+    "BR",  # Brazil
+    "MA",  # Morocco
+    "SN",  # Senegal
+]
+
+VPN_AVAILABLE_COUNTRIES = 57
+VPN_CONNECT_SERVERS = 500
+VPN_CONNECT_COUNTRIES = 30
+VPN_CONNECT_DEVICES = 5
+
+# VPN client ID for referral parameter tracking (issue 10811)
+VPN_CLIENT_ID = "e6eb0d1e856335fc"
+
+# Countries where we can't legally sell or advertise Mozilla VPN (e.g via /whatsnew)
+# See: https://github.com/mozilla/bedrock/issues/11572
+VPN_EXCLUDED_COUNTRY_CODES = [
+    "AE",  # United Arab Emirates
+    "BY",  # Belarus
+    "CN",  # China
+    "CU",  # Cuba
+    "IQ",  # Iraq
+    "IR",  # Iran
+    "KP",  # North Korea
+    "OM",  # Oman
+    "RU",  # Russia
+    "SD",  # Sudan
+    "SY",  # Syria
+    "TM",  # Turkmenistan
+]
+
+# Countries where we block Mozilla VPN downloads
+# See: https://github.com/mozilla/bedrock/issues/11659
+VPN_BLOCK_DOWNLOAD_COUNTRY_CODES = [
+    "CN",  # China
+    "CU",  # Cuba
+    "IR",  # Iran
+    "KP",  # North Korea
+    "SD",  # Sudan
+    "SY",  # Syria
+]
+
+# List of locales that are supported in the Mozilla VPN client application.
+VPN_SUPPORTED_LOCALES = [
+    "co",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "dsb",
+    "el",
+    "en",
+    "es",
+    "fi",
+    "fr",
+    "fy",
+    "hsb",
+    "hu",
+    "ia",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "ko",
+    "lo",
+    "nl",
+    "pa",
+    "pl",
+    "pt",
+    "ru",
+    "sk",
+    "sl",
+    "sq",
+    "sv",
+    "tr",
+    "uk",
+    "vi",
+    "zh",
+]
