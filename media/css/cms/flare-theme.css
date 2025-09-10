@@ -113,6 +113,8 @@ non-determinative so you need to check and adjust the results as needed.
     --font-weight-button: var(--font-weight-semibold);
 
     /* Font size variables NOT from Figma */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
     --font-size-base: 16px;
     --font-size-1: 2rem;
     --font-size-2: 1.875rem;

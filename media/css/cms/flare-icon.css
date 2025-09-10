@@ -6,18 +6,13 @@
 
 .icon {
     display: inline-block;
-    width: var(--icon-size, 1em);
-    height: var(--icon-size, 1em);
+    width: 1em;
+    height: 1em;
     background-color: currentColor;
     vertical-align: middle;
-    -webkit-mask: var(--icon-src) no-repeat center / var(--icon-size, 1em) var(--icon-size, 1em);
-    mask: var(--icon-src) no-repeat center / var(--icon-size, 1em) var(--icon-size, 1em);
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
 }
-
-.icon-16 { --icon-size: 16px; }
-.icon-20 { --icon-size: 20px; }
-.icon-24 { --icon-size: 24px; }
-.icon-32 { --icon-size: 32px; }
 
 .icon-ai { --icon-src: url('/media/img/firefox/flare/icons/ai.svg'); }
 .icon-alert { --icon-src: url('/media/img/firefox/flare/icons/alert.svg'); }

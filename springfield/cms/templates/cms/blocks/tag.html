@@ -4,4 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<span class="wnp-tag wnp-tag-{{ value.color}}"><img src="{{ value.icon_url() }}" width="12" height="12" alt="" aria-hidden="true" />{{ value.title }}</span>
+<span class="tag tag-{{ value.color}} tag-{{ value.corners}}">
+  {% if value.before_icon %}
+  {% set icon_name = value.before_icon %}
+  {% set hidden = true %}
+  {% include "cms/blocks/icon.html" %}
+  {% endif %}
+  {{ value.text }}
+  {% if value.after_icon %}
+  {% set icon_name = value.after_icon %}
+  {% set hidden = true %}
+  {% include "cms/blocks/icon.html" %}
+  {% endif %}
+</span>

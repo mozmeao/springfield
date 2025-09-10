@@ -1,0 +1,67 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    background: var(--neutrals-ash);
+    color: var(--neutrals-charcoal);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 8px 12px;
+    line-height: 1.2;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    margin-right: 4px;
+}
+
+.tag.tag-round {
+    border-radius: 16px;
+}
+
+
+.tag .icon-left {
+    margin-right: 4px;
+}
+
+.tag .icon-right {
+    margin-left: 4px;
+}
+
+.tag.tag-blue {
+    background: light-dark(var(--blue-light-blue), var(--blue-medium-blue));
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
+}
+
+.tag.tag-purple {
+    background: light-dark(var(--purple-light-purple), var(--purple-purple));
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
+}
+
+.tag.tag-orange {
+    background: light-dark(var(--orange-light-orange), var(--orange-medium-orange));
+    color: var(--neutrals-charcoal);
+}
+
+.tag.tag-black {
+    background: light-dark(var(--neutrals-charcoal), var(--neutrals-black));
+    color: var(--neutrals-ash);
+}
+
+.tag.tag-white {
+    background: light-dark(var(--neutrals-white), var(--neutrals-ash));
+    color: var(--neutrals-charcoal);
+}
+
+.tag.tag-outline {
+    background: transparent;
+    border-width: 1px;
+    border-style: solid;
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+}

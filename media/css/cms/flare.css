@@ -46,7 +46,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-components.css' layer(components);
 @import 'flare-button.css' layer(components);
 @import 'flare-icon.css' layer(components);
-@import 'flare-pill.css' layer(components);
+@import 'flare-tag.css' layer(components);
 @import 'flare-utilities.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 

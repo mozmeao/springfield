@@ -56,19 +56,19 @@
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
-.button .button-icon {
+.button .icon {
     vertical-align: middle;
 }
 
-.button .button-icon-left {
+.button .icon-left {
     margin-right: 10px;
 }
 
-.button .button-icon-right {
+.button .icon-right {
     margin-left: 10px;
 }
 
-.button .button-icon-arrow {
+.button .icon-arrow {
     display: inline-block;
     width: 16px;
     height: 16px;
