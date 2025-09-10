@@ -60,22 +60,30 @@ languages.forEach((lang) => {
                 await expect(win64MenuLink).toBeVisible();
                 await expect(win64MenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win64MsiMenuLink).toBeVisible();
                 await expect(win64MsiMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-msi-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-msi-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win64EsrMenuLink).toBeVisible();
                 await expect(win64EsrMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-esr-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win64EsrMsiMenuLink).toBeVisible();
                 await expect(win64EsrMsiMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-esr-msi-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-msi-latest-ssl&os=win64&lang=${winDownloadLang}`
+                    )
                 );
 
                 // close menu
@@ -109,12 +117,16 @@ languages.forEach((lang) => {
                 await expect(macMenuLink).toBeVisible();
                 await expect(macMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    )
                 );
                 await expect(macEsrMenuLink).toBeVisible();
                 await expect(macEsrMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-esr-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    )
                 );
 
                 // close menu
@@ -156,22 +168,30 @@ languages.forEach((lang) => {
                 await expect(win32MenuLink).toBeVisible();
                 await expect(win32MenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-latest-ssl&os=win&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=win&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win32MsiMenuLink).toBeVisible();
                 await expect(win32MsiMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win32EsrMenuLink).toBeVisible();
                 await expect(win32EsrMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-esr-latest-ssl&os=win&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=win&lang=${winDownloadLang}`
+                    )
                 );
                 await expect(win32EsrMsiMenuLink).toBeVisible();
                 await expect(win32EsrMsiMenuLink).toHaveAttribute(
                     'href',
-                    `${downloadBaseUrl}?product=firefox-esr-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                    )
                 );
 
                 // close menu
