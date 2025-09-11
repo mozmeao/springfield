@@ -148,3 +148,9 @@
     list-style-position: inside;
     line-height: 1.5;
 }
+
+.ios-summarizer-use-steps .ios-summarizer-note {
+  color: $color-dark-gray-30;
+  font-size: var(--body-xs-size);
+  font-style: italic;
+}

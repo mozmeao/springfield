@@ -81,11 +81,11 @@
   </section>
 
   {% call split(
-    image=resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-endless-webpages-800.png',
+    image=resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-pitch1-800.png',
       srcset={
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-endless-webpages-500.png': '500w',
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-endless-webpages-800.png': '800w',
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-endless-webpages-1100.png': '1100w'
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch1-500.png': '500w',
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch1-800.png': '800w',
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch1-1100.png': '1100w'
       },
       optional_attributes={ 'class': 'mzp-c-split-media-asset' }
     ),
@@ -100,11 +100,11 @@
   {% endcall %}
 
   {% call split(
-    image=resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-screenshot-800.png',
+    image=resp_img('img/firefox/browsers/mobile/ios/shake-to-summarize-pitch2-800.png',
       srcset={
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-screenshot-500.png': '500w',
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-screenshot-800.png': '800w',
-        'img/firefox/browsers/mobile/ios/shake-to-summarize-screenshot-1100.png': '1100w'
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch2-500.png': '500w',
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch2-800.png': '800w',
+        'img/firefox/browsers/mobile/ios/shake-to-summarize-pitch2-1100.png': '1100w'
       },
       optional_attributes={ 'class': 'mzp-c-split-media-asset' }
     ),
@@ -135,6 +135,7 @@
       <li>{{ ftl('mobile-ios-summarizer-steps-2') }}</li>
       <li>{{ ftl('mobile-ios-summarizer-steps-3') }}</li>
     </ol>
+    <p class="ios-summarizer-note">{{ ftl('mobile-ios-summarizer-pitch3-note') }}</p>
     <p class="mzp-c-callout-cta">{{ apple_app_store_button(href=ios_url) }}</p>
   {% endcall %}
 
