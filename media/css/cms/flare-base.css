@@ -63,6 +63,15 @@ See https://mozmeao.github.io/platform-docs/browser-support/
 
 @font-face {
     font-family: Inter;
+    src: url('/media/fonts/Inter/Inter-SemiBold.woff2') format('woff2'),
+    url('/media/fonts/Inter/Inter-SemiBold.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
     src: url('/media/fonts/Inter/Inter-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;

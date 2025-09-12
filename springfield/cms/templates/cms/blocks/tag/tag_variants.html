@@ -13,11 +13,11 @@
       <p style="margin: 0; font-weight: 600;">{{ col|capitalize }}</p>
       {% for t in tags if t.color == col and t.corners == 'round' %}
         {% set value = t %}
-        <div>{% include "cms/blocks/tag.html" %}</div>
+        <div>{% include "cms/blocks/tag/tag.html" %}</div>
       {% endfor %}
       {% for t in tags if t.color == col and t.corners == 'soft' %}
         {% set value = t %}
-        <div>{% include "cms/blocks/tag.html" %}</div>
+        <div>{% include "cms/blocks/tag/tag.html" %}</div>
       {% endfor %}
     </div>
     {% endfor %}
