@@ -15,7 +15,7 @@ not-found-page-learn-about-mozilla-the-non = <a href="{ $about }">Learn</a> abou
 
 # Variables:
 #   $download (url) - link to https://www.firefox.com/
-not-found-page-download-the-firefox-browser = <a href={ $download }>Download</a> the { -brand-name-firefox } browser for your mobile device or desktop
+not-found-page-download-firefox-browser = <a href={ $download }>Download</a> the { -brand-name-firefox } browser for your mobile device or desktop
 
 # Variables:
 #   $donate (url) - link to https://foundation.mozilla.org/?form=donate-404
