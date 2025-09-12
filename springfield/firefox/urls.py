@@ -32,6 +32,11 @@ urlpatterns = (
     page("channel/android/", "firefox/channel/android.html", ftl_files=["firefox/channel"]),
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
     path("channel/ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
+    page(
+        "landing/ios-summarizer/",
+        "firefox/landing/ios-summarizer.html",
+        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
+    ),
     page("browsers/enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
     path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
     path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
@@ -115,13 +120,6 @@ urlpatterns = (
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
-    # Issue #444 - US-only iOS landing page
-    page(
-        "landing/ios-summarizer/",
-        "firefox/landing/ios-summarizer.html",
-        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
-        active_locales="en-US",
-    ),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",
