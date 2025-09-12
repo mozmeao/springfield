@@ -1,3 +1,4 @@
+name: "Button variants"
 context:
   buttons:
     - note: Primary (default) with right icon

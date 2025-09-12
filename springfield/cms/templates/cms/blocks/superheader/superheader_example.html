@@ -5,12 +5,6 @@
 #}
 
 <div class="pl-frame pl-frame--white">
-  <h2>Button variants</h2>
-  {% for b in buttons %}
-  <div class="pl-row">
-    <p>{{ b.note }}</p>
-      {% set value = b %}
-      {% include "cms/blocks/button.html" %}
-  </div>
-  {% endfor %}
+  {% include "cms/blocks/superheader/superheader.html" %}
+  <h1>Header</h1>
 </div>
