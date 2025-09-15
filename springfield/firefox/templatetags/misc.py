@@ -462,7 +462,7 @@ def ifeq(a, b, text):
 
 @library.global_function
 @jinja2.pass_context
-def app_store_url(ctx, product, campaign=None):
+def app_store_url(ctx, product, campaign=None, ppid=None):
     """Returns a localised app store URL for a given product"""
     locale = getattr(ctx["request"], "locale", "en-US")
     countries = settings.APPLE_APPSTORE_COUNTRY_MAP
@@ -492,9 +492,15 @@ def app_store_url(ctx, product, campaign=None):
         base_url = base_url + params.format(tp=tracking_product)
 
     if locale in countries:
-        return base_url.format(country=countries[locale])
+        base_url = base_url.format(country=countries[locale])
     else:
-        return base_url.replace("/{country}/", "/")
+        base_url = base_url.replace("/{country}/", "/")
+
+    # ppid stands for Product Page ID and is a parameter added to target a custom product page on the apple app store.
+    if ppid:
+        base_url = base_url + f"&ppid={ppid}"
+
+    return base_url
 
 
 @library.global_function

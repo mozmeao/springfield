@@ -12,7 +12,8 @@
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
 {% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
-{% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios-summarizer') %}
+{# ppid 908b3bb9-aa78-4a60-8f7f-2407cd3227bc is used to redirect to the specific campaign page for shake to summarize on the app store #}
+{% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios-summarizer', '908b3bb9-aa78-4a60-8f7f-2407cd3227bc') %}
 
 {% block page_css %}
   {{ css_bundle('protocol-split') }}
