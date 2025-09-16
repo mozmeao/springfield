@@ -166,11 +166,7 @@
 {% endblock %}
 
 {% block js %}
-{% if variation == '2' %}
-  {{ js_bundle('firefox-browsers-ios-sms') }}
-{% else %}
-  {{ js_bundle('firefox-browsers-mobile') }}
-{% endif %}
+{{ js_bundle('firefox-browsers-mobile') }}
 
   {% if show_firefox_app_store_banner %}
     {{ js_bundle('firefox-app-store-banner') }}
