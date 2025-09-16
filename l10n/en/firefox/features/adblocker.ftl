@@ -34,7 +34,7 @@ features-adblocker-ghostery-is-another-great = <a { $attrs }>Ghostery</a> is ano
 
 # Variables:
 #   $attrs1 (string) - link to https://www.firefox.com/ with other attributes
-#   $attsr2 (string) - link to https://www.mozilla.org/firefox/mobile/android/ with other attributes
+#   $attsr2 (string) - link to https://www.firefox.com/browsers/mobile/android/ with other attributes
 features-adblocker-these-extensions-work-beautifully = These extensions work beautifully on both <a { $attrs1 }>{ -brand-name-firefox } for desktop</a> and <a { $attrs2 }>Android</a>.
 
 features-adblocker-create-a-tracker-free = Create a tracker-free zone with Content Blocking

@@ -100,6 +100,12 @@
     },
     {
       "files": [
+        "css/firefox/ios-summarizer.scss"
+      ],
+      "name": "firefox-ios-summarizer"
+    },
+    {
+      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
@@ -605,6 +611,12 @@
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
+    },
+    {
+      "files": [
+        "js/firefox/browsers/ios-summarizer.js"
+      ],
+      "name": "ios_summarizer"
     },
     {
       "files": [

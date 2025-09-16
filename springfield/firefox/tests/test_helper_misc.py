@@ -627,13 +627,11 @@ def test_csrf():
 class TestAppStoreURL(TestCase):
     rf = RequestFactory()
 
-    def _render(self, product, campaign, locale):
+    def _render(self, product, campaign, locale, ppid=None):
         req = self.rf.get("/")
         req.locale = locale
-        return render(
-            f"{{{{ app_store_url('{product}', '{campaign}') }}}}",
-            {"request": req},
-        )
+        template = "{{ app_store_url(product, campaign, ppid) }}"
+        return render(template, {"request": req, "product": product, "campaign": campaign, "ppid": ppid})
 
     def test_firefox_app_store_url_no_locale(self):
         """No locale, fallback to default URL"""
@@ -693,6 +691,20 @@ class TestAppStoreURL(TestCase):
         assert (
             self._render("vpn", "vpn-landing-page", "de")
             == "https://apps.apple.com/de/app/apple-store/id1489407738?mz_pr=vpn&amp;pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
+        )
+
+    def test_firefox_app_store_url_localized_with_ppid_no_campaign(self):
+        """should append ppid when provided (no campaign)"""
+        assert (
+            self._render("firefox", "", "en-US", ppid="abcd1234")
+            == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;ppid=abcd1234"
+        )
+
+    def test_firefox_app_store_url_localized_with_campaign_and_ppid(self):
+        """should append ppid after campaign params"""
+        assert (
+            self._render("firefox", "firefox-home", "en-US", ppid="abcd1234")
+            == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;pt=373246&amp;ct=firefox-home&amp;mt=8&amp;ppid=abcd1234"
         )
 
 

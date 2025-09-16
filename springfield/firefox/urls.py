@@ -115,6 +115,13 @@ urlpatterns = (
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
+    # Issue #444 - US-only iOS landing page
+    page(
+        "landing/ios-summarizer/",
+        "firefox/landing/ios-summarizer.html",
+        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
+        active_locales="en-US",
+    ),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",

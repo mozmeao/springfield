@@ -19,16 +19,14 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-      - name: Set up Python 3
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
       - name: Install Python dependencies
         run: |
           pip install -r .github/l10n/requirements.txt
-      - name: Lint mozilla.org files
+      - name: Lint firefox.com files
         run: |
           moz-fluent-lint l10n/en --config .github/l10n/linter_config.yml
       - name: Check TOML files
