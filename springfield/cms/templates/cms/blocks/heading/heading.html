@@ -1,0 +1,25 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<{{ value.heading_size|default('h2') }} class="{{ value.alignment_class|default('') }} {{ value.sizing_class|default('') }}">
+  {% if value.headline is defined %}
+    {% if value.headline is string %}
+      {{ value.headline|richtext }}
+    {% else %}
+      {{ value.headline }}
+    {% endif %}
+  {% else %}
+    {% if value.eyebrow_text %}
+      <span class="eyebrow">{% if value.eyebrow_text is string %}{{ value.eyebrow_text|richtext }}{% else %}{{ value.eyebrow_text }}{% endif %}</span>
+    {% endif %}
+    {% if value.headline_text %}
+      <span class="headline">{% if value.headline_text is string %}{{ value.headline_text|richtext }}{% else %}{{ value.headline_text }}{% endif %}</span>
+    {% endif %}
+    {% if value.subheadline_text %}
+      <span class="subheadline">{% if value.subheadline_text is string %}{{ value.subheadline_text|richtext }}{% else %}{{ value.subheadline_text }}{% endif %}</span>
+    {% endif %}
+  {% endif %}
+</{{ value.heading_size|default('h2') }}>

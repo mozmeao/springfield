@@ -1,0 +1,26 @@
+name: "Intro"
+context:
+  value:
+    pre_heading: 'Pre Heading'
+    headline: 'Intro Headline'
+    text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+    actions:
+      orientation: horizontal
+      center_class: 'is-center'
+      buttons:
+        - theme_class: ''
+          label: "Learn More"
+          link: "testurl"
+          external: true
+          left_icon_name: 'read'
+        - theme_class: 'button-secondary'
+          label: "Sign Up"
+          link: "testurl"
+          external: false
+          right_icon_name: 'arrow-right'
+    fine_print: false
+    media_position: 'after'
+    media:
+      image:
+        url: '/media/img/firefox/flare/placeholder.png'
+        alt: 'PlaceholderImage'

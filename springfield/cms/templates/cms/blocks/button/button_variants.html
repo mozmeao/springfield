@@ -6,11 +6,14 @@
 
 <div class="pl-frame pl-frame--white">
   <h2>Button variants</h2>
-  {% for b in buttons %}
   <div class="pl-row">
-    <p>{{ b.note }}</p>
-      {% set value = b %}
-      {% include "cms/blocks/button/button.html" %}
+    <h3>Horizontal</h3>
+    {% set value = horizontal %}
+    {% include "cms/blocks/button/buttons.html" %}
   </div>
-  {% endfor %}
+  <div class="pl-row">
+    <h3>Stacked</h3>
+    {% set value = stacked %}
+    {% include "cms/blocks/button/buttons.html" %}
+  </div>
 </div>

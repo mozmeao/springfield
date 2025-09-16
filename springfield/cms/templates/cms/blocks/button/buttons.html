@@ -1,0 +1,15 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set actions = value.get('actions') %}
+{% set group = value.get('buttons') or (actions and actions.get('buttons')) %}
+{% set orient = value.get('orientation') or (actions and actions.get('orientation')) %}
+<div class="buttons {% if orient == 'stacked' %}is-stacked{% else %}is-horizontal{% endif %} {% if value.get('center_class') %}is-center{% endif %}">
+  {% for btn in group or [] %}
+    {% set value = btn %}
+    {% include "cms/blocks/button/button.html" %}
+  {% endfor %}
+</div>

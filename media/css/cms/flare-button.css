@@ -88,3 +88,34 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--grids-spacing-interior-spacing-x1-5, 12) * 1px);
+}
+
+.buttons.is-horizontal {
+    flex-direction: row;
+}
+
+.buttons.is-horizontal.is-center {
+    justify-content: center;
+}
+
+.buttons.is-stacked {
+    flex-direction: column;
+    gap: calc(var(--grids-spacing-interior-spacing-x1, 8) * 1px);
+}
+
+.buttons.is-stacked .button {
+    width: 100%;
+}
+
+.buttons > * {
+    display: inline-flex;
+}
+
+.buttons.is-stacked > * {
+    width: 100%;
+}

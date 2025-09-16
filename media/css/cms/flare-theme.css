@@ -126,6 +126,9 @@ non-determinative so you need to check and adjust the results as needed.
     /* Line height variables NOT from Figma */
     --line-height-base: 1.2;
 
+    /* Media query variables NOT from Figma */
+    --layout-direction: column;
+
     /* Other variables from Figma */
     --border-radius-md: 8;
     --text: true;
@@ -137,4 +140,13 @@ non-determinative so you need to check and adjust the results as needed.
 
     /* Dark mode support */
     color-scheme: light dark;
+}
+
+/* CSS custom properties are not resolved in media queries; so we
+centralize breakpoints once and flip CSS variables inside.
+components consume the variables (no per-component media queries) */
+@media (min-width: 768px) {
+    :root {
+        --layout-direction: row;
+    }
 }
