@@ -6,13 +6,15 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
+from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail import blocks
 from wagtail.models import Page as WagtailBasePage
 
+from springfield.cms.blocks import FeaturesBlock, HeroBlock, HighlightsBlock, QRCodeBannerBlock, SubscribeBannerBlock, TagCardsBlock
+
 from .base import AbstractSpringfieldCMSPage
-from springfield.cms.blocks import HeroBlock, FeaturesBlock, HighlightsBlock, SubscribeBannerBlock, TagCardsBlock, QRCodeBannerBlock
+
 
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
