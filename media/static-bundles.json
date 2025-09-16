@@ -275,9 +275,22 @@
     },
     {
       "files": [
-        "css/cms/new.scss"
+        "css/cms/flare.css"
       ],
-      "name": "cms-new"
+      "name": "flare"
+    },
+    {
+      "files": [
+        "css/cms/flare-base.css",
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_base"
+    },
+    {
+      "files": [
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_utilities"
     },
     {
       "files": [
