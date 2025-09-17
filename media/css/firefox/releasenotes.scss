@@ -17,6 +17,14 @@ $image-path: '/media/protocol/img';
 @import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-developer';
 
 
+// supports js/base/video-prefers-reduced-motion.es6.js
+/* stylelint-disable block-no-empty  */
+@keyframes js-check-autoplay {}
+
+video[autoplay] {
+    animation: js-check-autoplay 0s;
+}
+
 // * -------------------------------------------------------------------------- */
 // Call out / page header
 
