@@ -24,7 +24,7 @@
         </strong>
         <span class="mzp-c-button-icon-end">
           <!-- TODO: replace with new protocol-assets version -->
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
         </span>
       </a>
 
@@ -43,12 +43,11 @@
 {%- endmacro %}
 
 {% macro firefox_download_desktop_button_mac(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-osx', position='primary cta') -%}
-{% set DOWNLOAD_LANG = "ja-JP-mac" if LANG == "ja" else LANG %}
-
+  {% set download_lang = "ja-JP-mac" if LANG == "ja" else LANG %}
   <div class="firefox-platform-button-mac">
     <div class="firefox-platform-button">
       <a class="download-link os_osx mzp-t-xl mzp-c-button mzp-t-product ga-product-download"
-        id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=osx&lang={{ DOWNLOAD_LANG }}"
+        id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=osx&lang={{ download_lang }}"
         data-download-version="osx"
         data-cta-text="Download Now"
         data-cta-type="firefox"
@@ -60,7 +59,7 @@
         </strong>
         <span class="mzp-c-button-icon-end">
           <!-- TODO: replace with new protocol-assets version -->
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
         </span>
       </a>
 
@@ -88,7 +87,7 @@
         </strong>
         <span class="mzp-c-button-icon-end">
           <!-- TODO: replace with new protocol-assets version -->
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
         </span>
       </a>
 
@@ -98,7 +97,7 @@
         </strong>
         <span class="mzp-c-button-icon-end">
           <!-- TODO: replace with new protocol-assets version -->
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
         </span>
       </a>
 
