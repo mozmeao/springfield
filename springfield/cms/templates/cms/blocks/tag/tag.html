@@ -8,12 +8,12 @@
   {% if value.before_icon %}
   {% set icon_name = value.before_icon %}
   {% set hidden = true %}
-  {% include "cms/blocks/icon.html" %}
+  {% include "cms/blocks/icon/icon.html" %}
   {% endif %}
   {{ value.text }}
   {% if value.after_icon %}
   {% set icon_name = value.after_icon %}
   {% set hidden = true %}
-  {% include "cms/blocks/icon.html" %}
+  {% include "cms/blocks/icon/icon.html" %}
   {% endif %}
 </span>
