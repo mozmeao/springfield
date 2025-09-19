@@ -11,7 +11,9 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django.conf.locale import LANG_INFO  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
+from django.conf.locale import (
+    LANG_INFO,
+)  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
 from django.utils.functional import lazy
 
 import dj_database_url
@@ -150,17 +152,38 @@ LANGUAGES_BIDI = ["ar", "ar-dz", "fa", "he", "skr", "ur"]
 # This ultimately controls how LANGUAGES are constructed.
 PROD_DETAILS_CACHE_NAME = "product-details"
 PROD_DETAILS_CACHE_TIMEOUT = 60 * 15  # 15 min
-PROD_DETAILS_STORAGE = config("PROD_DETAILS_STORAGE", default="product_details.storage.PDDatabaseStorage")
+PROD_DETAILS_STORAGE = config(
+    "PROD_DETAILS_STORAGE", default="product_details.storage.PDDatabaseStorage"
+)
 # path into which to clone the p-d json repo
-PROD_DETAILS_JSON_REPO_PATH = config("PROD_DETAILS_JSON_REPO_PATH", default=data_path("product_details_json"))
-PROD_DETAILS_JSON_REPO_URI = config("PROD_DETAILS_JSON_REPO_URI", default="https://github.com/mozilla-releng/product-details.git")
-PROD_DETAILS_JSON_REPO_BRANCH = config("PROD_DETAILS_JSON_REPO_BRANCH", default="production")
+PROD_DETAILS_JSON_REPO_PATH = config(
+    "PROD_DETAILS_JSON_REPO_PATH", default=data_path("product_details_json")
+)
+PROD_DETAILS_JSON_REPO_URI = config(
+    "PROD_DETAILS_JSON_REPO_URI",
+    default="https://github.com/mozilla-releng/product-details.git",
+)
+PROD_DETAILS_JSON_REPO_BRANCH = config(
+    "PROD_DETAILS_JSON_REPO_BRANCH", default="production"
+)
 # path to updated p-d data for testing before loading into DB
 PROD_DETAILS_TEST_DIR = str(Path(PROD_DETAILS_JSON_REPO_PATH).joinpath("public", "1.0"))
 
 # Regions defined on the `/locales/` page.
 LOCALES_BY_REGION = {
-    "Americas": ["azz", "cak", "en-CA", "en-US", "es-AR", "es-CL", "es-MX", "gn", "is", "pt-BR", "trs"],
+    "Americas": [
+        "azz",
+        "cak",
+        "en-CA",
+        "en-US",
+        "es-AR",
+        "es-CL",
+        "es-MX",
+        "gn",
+        "is",
+        "pt-BR",
+        "trs",
+    ],
     "Asia Pacific": [
         "bn",
         "gu-IN",
@@ -245,7 +268,19 @@ LOCALES_BY_REGION = {
         "uk",
         "uz",
     ],
-    "Middle East and Africa": ["ach", "af", "ar", "az", "fa", "ff", "he", "kab", "skr", "son", "xh"],
+    "Middle East and Africa": [
+        "ach",
+        "af",
+        "ar",
+        "az",
+        "fa",
+        "ff",
+        "he",
+        "kab",
+        "skr",
+        "son",
+        "xh",
+    ],
 }
 
 
@@ -257,7 +292,9 @@ def _put_default_lang_first(langs, default_lang=LANGUAGE_CODE):
 
 
 # Our accepted production locales are the values from the above, plus an exception.
-PROD_LANGUAGES = _put_default_lang_first(sorted(sum(LOCALES_BY_REGION.values(), [])) + ["ja-JP-mac"])
+PROD_LANGUAGES = _put_default_lang_first(
+    sorted(sum(LOCALES_BY_REGION.values(), [])) + ["ja-JP-mac"]
+)
 
 GITHUB_REPO = "https://github.com/mozmeao/springfield"
 
@@ -278,7 +315,9 @@ FLUENT_DEFAULT_FILES = [
     "mozilla-account-promo",
 ]
 
-FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
+FLUENT_DEFAULT_PERCENT_REQUIRED = config(
+    "FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int
+)
 FLUENT_REPO = config("FLUENT_REPO", default="mozmeao/www-firefox-l10n")
 FLUENT_REPO_URL = f"https://github.com/{FLUENT_REPO}"
 FLUENT_REPO_BRANCH = config("FLUENT_REPO_BRANCH", default="main")
@@ -286,12 +325,16 @@ FLUENT_REPO_PATH = DATA_PATH / "www-firefox-l10n"
 # will be something like "<github username>:<github token>"
 FLUENT_REPO_AUTH = config("FLUENT_REPO_AUTH", default="")
 FLUENT_LOCAL_PATH = ROOT_PATH / "l10n"
-FLUENT_L10N_TEAM_REPO = config("FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-firefox-l10n")
+FLUENT_L10N_TEAM_REPO = config(
+    "FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-firefox-l10n"
+)
 FLUENT_L10N_TEAM_REPO_URL = f"https://github.com/{FLUENT_L10N_TEAM_REPO}"
 FLUENT_L10N_TEAM_REPO_BRANCH = config("FLUENT_L10N_TEAM_REPO_BRANCH", default="main")
 FLUENT_L10N_TEAM_REPO_PATH = DATA_PATH / "l10n-team"
 # 10 seconds during dev and 10 min in prod
-FLUENT_CACHE_TIMEOUT = config("FLUENT_CACHE_TIMEOUT", default="10" if DEBUG else "600", parser=int)
+FLUENT_CACHE_TIMEOUT = config(
+    "FLUENT_CACHE_TIMEOUT", default="10" if DEBUG else "600", parser=int
+)
 # Order matters. first string found wins.
 FLUENT_PATHS = [
     # local FTL files
@@ -326,7 +369,11 @@ IGNORE_LANG_DIRS = [
 
 def get_dev_languages():
     try:
-        return [lang.name for lang in FLUENT_REPO_PATH.iterdir() if lang.is_dir() and lang.name not in IGNORE_LANG_DIRS]
+        return [
+            lang.name
+            for lang in FLUENT_REPO_PATH.iterdir()
+            if lang.is_dir() and lang.name not in IGNORE_LANG_DIRS
+        ]
     except OSError:
         # no locale dir
         return list(PROD_LANGUAGES)
@@ -407,7 +454,11 @@ def lazy_langs():
 
     langs = DEV_LANGUAGES if settings.DEV else settings.PROD_LANGUAGES
 
-    return [(lang, product_details.languages[lang]["native"]) for lang in langs if lang in product_details.languages]
+    return [
+        (lang, product_details.languages[lang]["native"])
+        for lang in langs
+        if lang in product_details.languages
+    ]
 
 
 def language_url_map_with_fallbacks():
@@ -425,14 +476,18 @@ def language_url_map_with_fallbacks():
     # map en to en-GB (not en-US), etc. in alphabetical order.
     # To override this behavior, explicitly define a preferred locale
     # map with the CANONICAL_LOCALES setting.
-    langs.update((k.split("-")[0], v) for k, v in lum.items() if k.split("-")[0] not in langs)
+    langs.update(
+        (k.split("-")[0], v) for k, v in lum.items() if k.split("-")[0] not in langs
+    )
 
     return langs
 
 
 LANG_GROUPS = lazy(lazy_lang_group, dict)()
 LANGUAGE_URL_MAP = lazy(lazy_lang_url_map, dict)()
-LANGUAGE_URL_MAP_WITH_FALLBACKS = lazy(language_url_map_with_fallbacks, dict)()  # used in normalize_language
+LANGUAGE_URL_MAP_WITH_FALLBACKS = lazy(
+    language_url_map_with_fallbacks, dict
+)()  # used in normalize_language
 LANGUAGES = lazy(lazy_langs, list)()
 
 # country code for GEO-IP lookup to return in dev mode
@@ -537,14 +592,18 @@ STORAGES = {
     # it will not allow uploads for the Web deployment. You will have to
     # specify a different, dedicated storage backend for the file-upload process.
     "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage"
-        if GS_BUCKET_NAME and GS_PROJECT_ID
-        else "django.core.files.storage.FileSystemStorage",
+        "BACKEND": (
+            "storages.backends.gcloud.GoogleCloudStorage"
+            if GS_BUCKET_NAME and GS_PROJECT_ID
+            else "django.core.files.storage.FileSystemStorage"
+        ),
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-        if DEBUG
-        else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        ),
     },
 }
 
@@ -592,7 +651,9 @@ def _get_media_cdn_hostname_for_storage_backend(media_url):
 
 
 if GS_BUCKET_NAME and GS_PROJECT_ID:
-    GS_CUSTOM_ENDPOINT = _get_media_cdn_hostname_for_storage_backend(MEDIA_URL)  # hostname that proxies the storage bucket
+    GS_CUSTOM_ENDPOINT = _get_media_cdn_hostname_for_storage_backend(
+        MEDIA_URL
+    )  # hostname that proxies the storage bucket
     GS_FILE_OVERWRITE = False
     GS_LOCATION = "media/cms"  # path within the bucket to upload to
 
@@ -645,12 +706,18 @@ HOSTNAME = platform.node()
 # Prefer APP_NAME from env, but fall back to hostname parsing. TODO: remove get_app_name() usage once fully redundant
 APP_NAME = config("APP_NAME", default=get_app_name(HOSTNAME))
 CLUSTER_NAME = config("CLUSTER_NAME", default="")
-ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bool(APP_NAME)), parser=bool)
-ENABLE_VARY_NOCACHE_MIDDLEWARE = config("ENABLE_VARY_NOCACHE_MIDDLEWARE", default="false", parser=bool)
+ENABLE_HOSTNAME_MIDDLEWARE = config(
+    "ENABLE_HOSTNAME_MIDDLEWARE", default=str(bool(APP_NAME)), parser=bool
+)
+ENABLE_VARY_NOCACHE_MIDDLEWARE = config(
+    "ENABLE_VARY_NOCACHE_MIDDLEWARE", default="false", parser=bool
+)
 # set this to enable basic auth for the entire site
 # e.g. BASIC_AUTH_CREDS="thedude:thewalrus"
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
-ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool)
+ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config(
+    "ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool
+)
 
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
@@ -751,11 +818,17 @@ VARY_NOCACHE_EXEMPT_URL_PREFIXES = (
 # legacy setting. backward compat.
 DISABLE_SSL = config("DISABLE_SSL", default="true", parser=bool)
 # SecurityMiddleware settings
-SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin")
+SECURE_REFERRER_POLICY = config(
+    "SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin"
+)
 SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default="0", parser=int)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="true", parser=bool)
-SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
+SECURE_CONTENT_TYPE_NOSNIFF = config(
+    "SECURE_CONTENT_TYPE_NOSNIFF", default="true", parser=bool
+)
+SECURE_SSL_REDIRECT = config(
+    "SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool
+)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
     r"^healthz(-cron)?/$",
@@ -781,7 +854,11 @@ TEMPLATES = [
     {
         "BACKEND": "django_jinja.jinja2.Jinja2",
         "APP_DIRS": False,
-        "DIRS": [f"springfield/{name.split('.')[1]}/templates" for name in INSTALLED_APPS if _is_springfield_custom_app(name)],
+        "DIRS": [
+            f"springfield/{name.split('.')[1]}/templates"
+            for name in INSTALLED_APPS
+            if _is_springfield_custom_app(name)
+        ],
         "OPTIONS": {
             "match_extension": None,
             "finalize": lambda x: x if x is not None else "",
@@ -853,7 +930,7 @@ PATTERN_LIBRARY = {
     # after the main bundle to override default styles.
     "CUSTOM_CSS": "css/pattern_library/theme.css",
     # SITE_TITLE allows users to customize the pattern library title displayed in the header
-    "SITE_TITLE": "Flare",
+    "SITE_TITLE": "Mozilla Flare",
 }
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
@@ -897,7 +974,12 @@ MOZILLA_INSTAGRAM_ACCOUNTS = {
 
 # Mozilla accounts product links
 # ***This URL *MUST* end in a traling slash!***
-FXA_ENDPOINT = config("FXA_ENDPOINT", default="https://accounts.stage.mozaws.net/" if DEV else "https://accounts.firefox.com/")
+FXA_ENDPOINT = config(
+    "FXA_ENDPOINT",
+    default=(
+        "https://accounts.stage.mozaws.net/" if DEV else "https://accounts.firefox.com/"
+    ),
+)
 
 # Google Play and Apple App Store settings
 from .appstores import (  # noqa: E402, F401
@@ -921,7 +1003,21 @@ from .appstores import (  # noqa: E402, F401
 )
 
 # Locales that should display the 'Send to Device' widget
-SEND_TO_DEVICE_LOCALES = ["de", "en-GB", "en-US", "es-AR", "es-CL", "es-ES", "es-MX", "fr", "id", "pl", "pt-BR", "ru", "zh-TW"]
+SEND_TO_DEVICE_LOCALES = [
+    "de",
+    "en-GB",
+    "en-US",
+    "es-AR",
+    "es-CL",
+    "es-ES",
+    "es-MX",
+    "fr",
+    "id",
+    "pl",
+    "pt-BR",
+    "ru",
+    "zh-TW",
+]
 
 SEND_TO_DEVICE_MESSAGE_SETS = {
     "default": {
@@ -947,7 +1043,9 @@ SEND_TO_DEVICE_MESSAGE_SETS = {
 }
 
 RELEASE_NOTES_PATH = config("RELEASE_NOTES_PATH", default=data_path("release_notes"))
-RELEASE_NOTES_REPO = config("RELEASE_NOTES_REPO", default="https://github.com/mozilla/release-notes.git")
+RELEASE_NOTES_REPO = config(
+    "RELEASE_NOTES_REPO", default="https://github.com/mozilla/release-notes.git"
+)
 RELEASE_NOTES_BRANCH = config("RELEASE_NOTES_BRANCH", default="master")
 
 LOGGING = {
@@ -994,7 +1092,9 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
-STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
+STUB_ATTRIBUTION_RATE = config(
+    "STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float
+)
 STUB_ATTRIBUTION_MAX_LEN = config("STUB_ATTRIBUTION_MAX_LEN", default="600", parser=int)
 
 
@@ -1014,7 +1114,9 @@ def get_default_gateway_linux():
         return "localhost"
 
 
-FIREFOX_MOBILE_SYSREQ_URL = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device"
+FIREFOX_MOBILE_SYSREQ_URL = (
+    "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device"
+)
 
 MOZILLA_LOCATION_SERVICES_KEY = "a9b98c12-d9d5-4015-a2db-63536c26dc14"
 
@@ -1066,7 +1168,10 @@ SENTRY_FRONTEND_DSN = config("SENTRY_FRONTEND_DSN", default=SENTRY_DSN)
 # Statsd metrics via markus
 if DEBUG or config("DISABLE_LOCAL_MARKUS", default="false", parser=bool):
     MARKUS_BACKENDS = [
-        {"class": "markus.backends.logging.LoggingMetrics", "options": {"logger_name": "metrics"}},
+        {
+            "class": "markus.backends.logging.LoggingMetrics",
+            "options": {"logger_name": "metrics"},
+        },
     ]
 else:
     STATSD_HOST = config("STATSD_HOST", default=get_default_gateway_linux())
@@ -1131,7 +1236,12 @@ DATA_CONSENT_COUNTRIES = [
 # RELAY =========================================================================================
 
 RELAY_PRODUCT_URL = config(
-    "RELAY_PRODUCT_URL", default="https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/" if DEV else "https://relay.firefox.com/"
+    "RELAY_PRODUCT_URL",
+    default=(
+        "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/"
+        if DEV
+        else "https://relay.firefox.com/"
+    ),
 )
 
 
@@ -1267,7 +1377,11 @@ def lazy_wagtail_langs():
         ("zh-CN", "Chinese (China-Simplified)"),
     ]
     enabled_language_codes = [x[0] for x in LANGUAGES]
-    retval = [wagtail_lang for wagtail_lang in enabled_wagtail_langs if wagtail_lang[0] in enabled_language_codes]
+    retval = [
+        wagtail_lang
+        for wagtail_lang in enabled_wagtail_langs
+        if wagtail_lang[0] in enabled_language_codes
+    ]
     return retval
 
 
@@ -1275,13 +1389,17 @@ WAGTAIL_I18N_ENABLED = True
 WAGTAIL_CONTENT_LANGUAGES = lazy(lazy_wagtail_langs, list)()
 
 # Don't automatically make a page for a non-default locale availble in the default locale
-WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = False  # note that WAGTAILLOCALIZE is correct without the _
+WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = (
+    False  # note that WAGTAILLOCALIZE is correct without the _
+)
 
 # Settings for https://github.com/mozilla/wagtail-localize-smartling
 WAGTAIL_LOCALIZE_SMARTLING = {
     # Required settings (get these from "Account settings" > "API" in the Smartling dashboard)
     "PROJECT_ID": config("WAGTAIL_LOCALIZE_SMARTLING_PROJECT_ID", default="setme"),
-    "USER_IDENTIFIER": config("WAGTAIL_LOCALIZE_SMARTLING_USER_IDENTIFIER", default="setme"),
+    "USER_IDENTIFIER": config(
+        "WAGTAIL_LOCALIZE_SMARTLING_USER_IDENTIFIER", default="setme"
+    ),
     "USER_SECRET": config("WAGTAIL_LOCALIZE_SMARTLING_USER_SECRET", default="setme"),
     # Optional settings and their default values
     "REQUIRED": config(
@@ -1394,8 +1512,12 @@ if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
 
 # Django-silk for performance profiling
 if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bool):
-    print("Django-Silk profiling enabled - go to http://localhost:8000/silk/ to view metrics")
+    print(
+        "Django-Silk profiling enabled - go to http://localhost:8000/silk/ to view metrics"
+    )
     INSTALLED_APPS.append("silk")
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
     SUPPORTED_NONLOCALES.append("silk")
-    SILKY_PYTHON_PROFILER = config("SILKY_PYTHON_PROFILER", default="False", parser=bool)
+    SILKY_PYTHON_PROFILER = config(
+        "SILKY_PYTHON_PROFILER", default="False", parser=bool
+    )
