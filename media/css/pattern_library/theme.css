@@ -1,0 +1,109 @@
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: 600;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: 600;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-SemiBoldItalic.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: normal;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-BoldItalic.woff2") format("woff2");
+}
+
+:root {
+    --color-primary: #333336;
+    --text-color: var(--color-primary);
+    --color-ash: #F8F6F4;
+    --text-color-secondary: #6e6e73;
+    --family-primary: "Mozilla Text", sans-serif;
+    --color-active: #0079D3;
+}
+
+body {
+    color: var(--text-color);
+}
+/* TODO: refactor some of these opinions into the pattern library repo */
+.tabbed-content__heading > a {
+    background-color: var(--text-color);
+}
+
+.tabbed-content__heading.tabbed-content__heading--active > a {
+    background-color: var(--text-color);
+    color: white;
+}
+
+.tabbed-content__heading:not(:last-child) {
+    border-right: rgba()
+}
+
+.header__title {
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.list__item-link {
+    color: var(--text-color);
+    text-decoration: none;
+    margin: 0 -20px 0 -45px;
+    padding: 5px 16px 5px 45px;
+}
+
+.list__item-link:hover {
+    background-color: transparent;
+    color: var(--color-active);
+}
+
+.sidebar {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    z-index: 10;
+    background-color: var(--color-ash);
+    border-right: 0.5px solid oklch(70.5% 0.015 286.067);
+}
+
+.sidebar__search {
+    border: 1px solid oklch(44.2% 0.017 285.786);
+    border-width: 0 0 1.5px 0;
+    padding: 10px 20px;
+    margin: 0 -20px 20px -20px;
+    width: calc(40px + 100%);
+}
+
+.sidebar__search:focus-visible {
+    outline-color: var(--color-active);
+}
+
+.heading a {
+    color: var(--text-color);
+    text-decoration: none;
+}
