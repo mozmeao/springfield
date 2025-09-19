@@ -300,6 +300,12 @@
     },
     {
       "files": [
+        "css/cms/pattern-library.css"
+      ],
+      "name": "pattern_library"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"

@@ -10,6 +10,10 @@
 {% block page_title %}Pattern preview{% endblock %}
 {% block wnp_header %}{% endblock %}
 
+{% block page_css %}
+{{ css_bundle('pattern_library') }}
+{% endblock %}
+
 {% block content %}
 {{ pattern_library_rendered_pattern }}
 {% endblock %}

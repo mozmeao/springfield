@@ -1,0 +1,20 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/*
+ * Pattern Library specific styles
+ * These styles only apply to the Pattern Library and should not affect production components
+ */
+
+.pl-row {
+    margin-bottom: 80px;
+}
+
+.pl-frame hr {
+    margin: 80px 0;
+    border: none;
+    border-top: 1px solid gray;
+}
