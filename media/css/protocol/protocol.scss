@@ -42,6 +42,10 @@
 // Temporary styling until the newsletter component is updated in Protocol
 // https://github.com/mozilla/protocol/issues/578
 
+.omg {
+    background-color: #00f;
+}
+
 .mzp-c-newsletter-subtitle {
     @include text-title-xs;
 }
