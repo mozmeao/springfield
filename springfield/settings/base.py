@@ -851,9 +851,9 @@ PATTERN_LIBRARY = {
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
-    "CUSTOM_CSS": "pattern-library-custom.css",
+    "CUSTOM_CSS": "css/pattern_library/theme.css",
     # SITE_TITLE allows users to customize the pattern library title displayed in the header
-    "SITE_TITLE": "Mozilla Pattern Library",
+    "SITE_TITLE": "Flare",
 }
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
