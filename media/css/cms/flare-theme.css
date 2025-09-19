@@ -113,21 +113,40 @@ non-determinative so you need to check and adjust the results as needed.
     --font-weight-button: var(--font-weight-semibold);
 
     /* Font size variables NOT from Figma */
-    --font-size-xs: 0.75rem; /* 12px */
-    --font-size-sm: 0.875rem; /* 14px */
     --font-size-base: 16px;
-    --font-size-1: 2rem; /* 32px */
-    --font-size-2: 1.875rem; /* 30px */
-    --font-size-3: 1.5rem; /* 24px */
-    --font-size-4: 1.25rem; /* 20px */
-    --font-size-5: 1.125rem; /* 18px */
-    --font-size-6: 1rem; /* 16px */
+
+    /* Heading font size variables */
+    --font-size-h1: 5rem; /* 80px */
+    --font-size-h2: 4rem; /* 64px */
+    --font-size-h3: 3rem; /* 48px */
+    --font-size-h4: 2rem; /* 32px */
+    --font-size-h5: 1.5rem; /* 24px */
+    --font-size-h6: 1.125rem; /* 18px */
+
+    /* Subheading font size variables */
+    --font-size-subheading-1: 1.5rem; /* 24px */
+    --font-size-subheading-2: 1.375rem; /* 22px */
+    --font-size-subheading-3: 1.25rem; /* 20px */
+    --font-size-subheading-4: 1.125rem; /* 18px */
+    --font-size-subheading-5: 1rem; /* 16px */
+
+    /* Body font size variables */
+    --font-size-body-large: 1.5rem; /* 24px */
+    --font-size-body-medium: 1.125rem; /* 18px */
+    --font-size-body-small: 1rem; /* 16px */
+    --font-size-body-xsmall: 0.875rem; /* 14px */
+
+    /* Other font size variables */
+    --font-size-tag: 0.75rem; /* 12px */
+    --font-size-superheading: 0.875rem; /* 14px */
 
     /* Line height variables NOT from Figma */
     --line-height-base: 1.2;
 
     /* Media query variables NOT from Figma */
     --layout-direction: column;
+    --default-justify-content: center;
+    --default-text-align: center;
 
     /* Other variables from Figma */
     --border-radius-md: 8;
@@ -145,8 +164,12 @@ non-determinative so you need to check and adjust the results as needed.
 /* CSS custom properties are not resolved in media queries; so we
 centralize breakpoints once and flip CSS variables inside.
 components consume the variables (no per-component media queries) */
+
+/* Media query for 768px and larger */
 @media (min-width: 768px) {
     :root {
         --layout-direction: row;
+        --default-justify-content: flex-start;
+        --default-text-align: left;
     }
 }

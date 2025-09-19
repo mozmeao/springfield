@@ -1,9 +1,13 @@
 name: "Intro"
 context:
   value:
-    pre_heading: 'Pre Heading'
-    headline: 'Intro Headline'
-    text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+    heading:
+      superheading_text: 'Pre Heading'
+      text: 'Intro Headline'
+      level: 'h3'
+    subheading:
+      text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-5'
     actions:
       orientation: horizontal
       center_class: 'is-center'

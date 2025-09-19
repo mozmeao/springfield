@@ -12,10 +12,10 @@
     background: var(--neutrals-ash);
     color: var(--neutrals-charcoal);
     font-family: var(--font-family-body);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
+    font-size: var(--font-size-tag);
+    font-weight: var(--font-weight-semibold);
     padding: 8px 12px;
-    line-height: 1.2;
+    line-height: var(--line-height-base);
     border-radius: 8px;
     margin-bottom: 16px;
     margin-right: 4px;

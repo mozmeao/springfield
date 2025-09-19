@@ -6,19 +6,14 @@
 
 <div class="intro{% if value.media %} intro-has-media{% endif %}{% if value.media and value.media_position %} intro-media-{{ value.media_position }}{% endif %}">
   <div class="intro-content">
-    {% if value.pre_heading %}
-      {% with value={'text': value.pre_heading} %}
-        {% include "cms/blocks/superheader/superheader.html" %}
-      {% endwith %}
-    {% endif %}
-    {% if value.headline %}
-      {% with value={'headline': value.headline} %}
+    {% if value.heading %}
+      {% with value=value.heading %}
         {% include "cms/blocks/heading/heading.html" %}
       {% endwith %}
     {% endif %}
-    {% if value.text %}
-      {% with value={'text': value.text} %}
-        {% include "cms/blocks/text/text.html" %}
+    {% if value.subheading %}
+      {% with value=value.subheading %}
+        {% include "cms/blocks/subheading/subheading.html" %}
       {% endwith %}
     {% endif %}
     {% if value.actions %}
