@@ -36,6 +36,10 @@
   {% endif %}
 {% endif %}
 
+{% block extrahead %}
+  {{ js_bundle('video-prefers-reduced-motion') }}
+{% endblock %}
+
 {% block page_title %}{{ release.product }} {{ channel_name }} {{ release.version }}, See All New Features, Updates and Fixes{% endblock %}
 {% block page_title_suffix %}{% endblock %}
 
