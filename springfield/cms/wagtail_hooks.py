@@ -9,6 +9,16 @@ from wagtail.admin.menu import MenuItem
 
 
 @hooks.register("register_admin_menu_item")
+def register_pages_list_link():
+    return MenuItem(
+        "Translations List",
+        reverse("cms:translations_list"),
+        icon_name="wagtail-localize-language",
+        order=101,
+    )
+
+
+@hooks.register("register_admin_menu_item")
 def register_task_queue_link():
     return MenuItem(
         "Task Queue",
