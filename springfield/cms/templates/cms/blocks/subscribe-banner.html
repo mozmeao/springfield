@@ -1,0 +1,12 @@
+<section class="wnp-section wnp-section-subscribe">
+  <div class="wnp-container">
+    {% include_block value.heading %}
+    {{ email_newsletter_form(
+    template="cms/newsletter_form.html",
+    include_country=false,
+    include_language=false,
+    footer=false,
+    include_title=false
+    ) }}
+  </div>
+</section>

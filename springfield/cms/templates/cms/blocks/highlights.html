@@ -1,0 +1,26 @@
+<section class="wnp-section wnp-section-highlights">
+  <div class="wnp-container">
+    {% include_block value.heading %}
+
+    <div class="wnp-grid">
+      {% for card in value.cards %}
+        <article class="wnp-card">
+          {% set img=image(card.image, 'width-400') %}
+          {% if card.image_dark %}
+            {% set img_dark=image(card.image_dark, 'width-400') %}
+          {% endif %}
+          <img class="wnp-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
+          <h3 class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</h3>
+          <div class="wnp-body">{{ card.content }}</div>
+          {% if card.button %}
+            <div class="wnp-card-btn-wrap">
+              {% for button in card.button %}
+                {% include_block button %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

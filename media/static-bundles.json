@@ -281,6 +281,12 @@
     },
     {
       "files": [
+        "css/cms/new.scss"
+      ],
+      "name": "cms-new"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"
@@ -663,6 +669,12 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
     }
   ]
 }
