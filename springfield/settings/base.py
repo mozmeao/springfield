@@ -787,13 +787,10 @@ def _is_springfield_custom_app(app_name):
 TEMPLATES = [
     {
         "BACKEND": "django_jinja.jinja2.Jinja2",
-        "APP_DIRS": True,
-        "DIRS": [],
+        "APP_DIRS": False,
+        "DIRS": [f"springfield/{name.split('.')[1]}/templates" for name in INSTALLED_APPS if _is_springfield_custom_app(name)],
         "OPTIONS": {
             "match_extension": None,
-            # Ensure Django Template (DTL) handles pattern_library templates,
-            # not Jinja. This prevents Jinja from seeing DTL tags like {% url %}.
-            "match_regex": r"^(?!pattern_library/).*$",
             "finalize": lambda x: x if x is not None else "",
             "context_processors": [
                 "django.contrib.auth.context_processors.auth",
