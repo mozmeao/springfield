@@ -21,7 +21,7 @@ def custom_environment(**options):
         except ModuleNotFoundError:
             ModuleNotFoundError("install jinja2 to override jinja tags")
 
-        from pattern_library.loader_tags import template_new_context, visit_extends
+        from pattern_library.loader_tags import template_new_context
 
         jinja_visit_Extends = JinjaCodeGenerator.visit_Extends
         JinjaTemplate.new_context = template_new_context
