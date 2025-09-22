@@ -104,6 +104,9 @@ _csp_style_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
 }
+# # TODO change settings so we don't need unsafes even in dev
+if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
+    _csp_style_src.add(csp.constants.UNSAFE_INLINE)
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes

@@ -53,6 +53,9 @@ PROD = config("PROD", parser=bool, default="false")
 
 DEBUG = config("DEBUG", parser=bool, default="false")
 
+# Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
+FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
+
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
@@ -452,7 +455,12 @@ SUPPORTED_NONLOCALES = [
     "revision.txt",  # from root_files
     "locales",
     "csrf_403",
+    "pattern-library",
 ]
+
+# Ensure local debug-only test routes are not locale-prefixed
+if DEBUG:
+    SUPPORTED_NONLOCALES.append("flare-test")
 
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
@@ -808,6 +816,7 @@ TEMPLATES = [
                 "wagtail.jinja2tags.core",
                 "wagtail.images.jinja2tags.images",
             ],
+            "environment": "springfield.jinja2.custom_environment",
         },
     },
     {
@@ -826,9 +835,27 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
+            "builtins": ["pattern_library.loader_tags"],
         },
     },
 ]
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        # ("components", ["patterns/components"]),
+        ("blocks", ["cms/blocks"]),
+    ),
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
+}
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
 BASKET_API_KEY = config("BASKET_API_KEY", default="")
@@ -1361,6 +1388,10 @@ if config("ENABLE_WAGTAIL_STYLEGUIDE", parser=bool, default="False"):
     # Useful when customising the Wagtail admin
     # when enabled, will be visible on cms-admin/styleguide
     INSTALLED_APPS.append("wagtail.contrib.styleguide")
+
+if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
+    INSTALLED_APPS.append("pattern_library")
+    X_FRAME_OPTIONS = "SAMEORIGIN"  # for django-pattern-library
 
 # Django-silk for performance profiling
 if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bool):

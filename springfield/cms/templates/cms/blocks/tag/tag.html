@@ -1,0 +1,19 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<span class="tag tag-{{ value.color}} tag-{{ value.corners}}">
+  {% if value.before_icon %}
+  {% set icon_name = value.before_icon %}
+  {% set hidden = true %}
+  {% include "cms/blocks/icon/icon.html" %}
+  {% endif %}
+  {{ value.text }}
+  {% if value.after_icon %}
+  {% set icon_name = value.after_icon %}
+  {% set hidden = true %}
+  {% include "cms/blocks/icon/icon.html" %}
+  {% endif %}
+</span>

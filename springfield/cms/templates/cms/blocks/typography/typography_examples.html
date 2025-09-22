@@ -1,0 +1,28 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  {% for heading in headings %}
+    <div class="pl-row">
+      {% set value = heading %}
+      {% include "cms/blocks/heading/heading.html" %}
+    </div>
+  {% endfor %}
+  <hr>
+  {% for subheading in subheadings %}
+    <div class="pl-row">
+      {% set value = subheading %}
+      {% include "cms/blocks/subheading/subheading.html" %}
+    </div>
+  {% endfor %}
+  <hr>
+  {% for body_text in body_texts %}
+    <div class="pl-row">
+      {% set value = body_text %}
+      {% include "cms/blocks/body_text/body_text.html" %}
+    </div>
+  {% endfor %}
+</div>

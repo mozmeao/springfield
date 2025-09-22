@@ -1,0 +1,30 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Intro variants</h4>
+  <div class="pl-row">
+    <h5>Intro without media</h5>
+    <hr>
+    {% set value = intro_without_media %}
+    {% include "cms/blocks/intro/intro.html" %}
+    <hr>
+  </div>
+  <div class="pl-row">
+    <h5>Intro with media after</h5>
+    <hr>
+    {% set value = intro_with_media %}
+    {% include "cms/blocks/intro/intro.html" %}
+    <hr>
+  </div>
+  <div class="pl-row">
+    <h5>Intro with media before</h5>
+    <hr>
+    {% set value = intro_with_media_before %}
+    {% include "cms/blocks/intro/intro.html" %}
+    <hr>
+  </div>
+</div>

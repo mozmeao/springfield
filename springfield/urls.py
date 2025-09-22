@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
@@ -15,6 +16,7 @@ from watchman import views as watchman_views
 
 from springfield.base import views as base_views
 from springfield.base.i18n import springfield_i18n_patterns
+from springfield.cms.views import FlareTestView
 
 # The default django 404 and 500 handler doesn't run the ContextProcessors,
 # which breaks the base template page. So we replace them with views that do!
@@ -52,6 +54,7 @@ if settings.DEBUG:
         path("500/", import_string(handler500)),
     )
     urlpatterns += (path("csrf_403/", base_views.csrf_failure, {}),)
+    urlpatterns += (path("flare-test/", FlareTestView.as_view(), name="flare_test"),)
 
 if settings.WAGTAIL_ENABLE_ADMIN:
     # If adding new a new path here, you must also add an entry to
@@ -81,6 +84,11 @@ if settings.STORAGES["default"]["BACKEND"] == "django.core.files.storage.FileSys
         ),
     )
     # Note that statics are handled via Whitenoise's middleware
+
+if apps.is_installed("pattern_library"):
+    urlpatterns += [
+        path("pattern-library/", include("pattern_library.urls")),
+    ]
 
 # Wagtail is the catch-all route, and it will raise a 404 if needed.
 # Note that we're also using localised URLs here

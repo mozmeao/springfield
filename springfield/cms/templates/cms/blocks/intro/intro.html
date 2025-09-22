@@ -1,0 +1,37 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="intro{% if value.media %} intro-has-media{% endif %}{% if value.media and value.media_position %} intro-media-{{ value.media_position }}{% endif %}">
+  <div class="intro-content">
+    {% if value.heading %}
+      {% with value=value.heading %}
+        {% include "cms/blocks/heading/heading.html" %}
+      {% endwith %}
+    {% endif %}
+    {% if value.subheading %}
+      {% with value=value.subheading %}
+        {% include "cms/blocks/subheading/subheading.html" %}
+      {% endwith %}
+    {% endif %}
+    {% if value.actions %}
+      <div class="intro-actions">
+        {% with value=value.actions %}
+          {% include "cms/blocks/button/buttons.html" %}
+        {% endwith %}
+      </div>
+    {% endif %}
+    {% if value.fine_print %}
+      <div class="fine-print">{{ value.fine_print }}</div>
+    {% endif %}
+  </div>
+  {% if value.media %}
+    <div class="intro-media">
+      {% with value=value.media %}
+        {% include "cms/blocks/media/media.html" %}
+      {% endwith %}
+    </div>
+  {% endif %}
+</div>

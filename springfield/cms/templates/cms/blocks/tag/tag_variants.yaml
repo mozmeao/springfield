@@ -1,0 +1,80 @@
+name: "Tag variants"
+context:
+  tags:
+    - note: White / Round
+      text: 'Tag'
+      color: 'white'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: White / Soft
+      text: 'Tag'
+      color: 'white'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+
+    - note: Black / Round
+      text: 'Tag'
+      color: 'black'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: Black / Soft
+      text: 'Tag'
+      color: 'black'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+
+    - note: Orange / Round
+      text: 'Tag'
+      color: 'orange'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: Orange / Soft
+      text: 'Tag'
+      color: 'orange'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+
+    - note: Purple / Round
+      text: 'Tag'
+      color: 'purple'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: Purple / Soft
+      text: 'Tag'
+      color: 'purple'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+
+    - note: Blue / Round
+      text: 'Tag'
+      color: 'blue'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: Blue / Soft
+      text: 'Tag'
+      color: 'blue'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+
+    - note: Outline / Round
+      text: 'Tag'
+      color: 'outline'
+      corners: 'round'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'
+    - note: Outline / Soft
+      text: 'Tag'
+      color: 'outline'
+      corners: 'soft'
+      before_icon: 'arrow-left'
+      after_icon: 'arrow-right'

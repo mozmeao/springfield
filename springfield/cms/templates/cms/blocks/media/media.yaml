@@ -1,0 +1,6 @@
+name: "Media"
+context:
+  value:
+    image:
+      url: '/media/img/firefox/flare/placeholder.png'
+      alt: 'Placeholder image'

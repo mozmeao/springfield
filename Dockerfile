@@ -42,6 +42,7 @@ RUN npm ci --verbose
 
 # copy supporting files and media
 COPY eslint.config.js .stylelintrc .prettierrc.json .prettierignore webpack.config.js webpack.static.config.js ./
+COPY ./webpack ./webpack
 COPY ./media ./media
 COPY ./tests/unit ./tests/unit
 
