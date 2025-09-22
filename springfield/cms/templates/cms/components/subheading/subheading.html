@@ -4,6 +4,6 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="subheading{% if alignment %} text-{{ alignment }}{% endif %}{% if size %} {{ size }}{% endif %}">
+<div class="subheading{% if alignment %} {{ alignment_class }}{% endif %}{% if size %} {{ size }}{% endif %}">
   <p>{{ text }}</p>
 </div>

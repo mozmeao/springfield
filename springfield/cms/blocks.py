@@ -105,16 +105,14 @@ class HeadingValue(blocks.StructValue):
         }
         return classes.get(self.get("alignment", "left"))
 
-    def sizing_class(self) -> str:
-        # TODO: Headline and subheadline should have proportionate sizes
-        # depending on the heading size
+    def subheading_size(self) -> str:
         size_classes = {
-            "h1": "",
-            "h2": "",
-            "h3": "",
-            "h4": "",
-            "h5": "",
-            "h6": "",
+            "h1": "subheading-1",
+            "h2": "subheading-2",
+            "h3": "subheading-3",
+            "h4": "subheading-4",
+            "h5": "subheading-5",
+            "h6": "subheading-6",
         }
         return size_classes.get(self.get("heading_size", "h2"))
 

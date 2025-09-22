@@ -9,11 +9,10 @@
 {% if value.superheading_text %}
   {% set superheading_text = value.superheading_text|richtext|remove_p_tag %}
 {% endif %}
+{% if value.subheading_text %}
+  {% set subheading_text = value.subheading_text|richtext|remove_p_tag %}
+{% endif %}
 {% set alignment_class = value.alignment_class() %}
+{% set subheading_size = value.subheading_size() %}
 
 {% include "cms/components/heading/heading.html" %}
-
-{% if value.subheading_text %}
-{% set subheading_text = value.subheading_text|richtext|remove_p_tag %}
-{% include "cms/components/subheading/subheading.html" %}
-{% endif %}

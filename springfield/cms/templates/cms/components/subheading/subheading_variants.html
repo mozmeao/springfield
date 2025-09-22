@@ -9,7 +9,7 @@
 {% for item in variations %}
   {% set text = item.text %}
   {% set size = item.size %}
-  {% set alignment = 'left' %}
+  {% set alignment_class =  'text-left' %}
   {% include "cms/components/subheading/subheading.html" %}
 {% endfor %}
 
@@ -17,7 +17,7 @@
 {% for item in variations %}
   {% set text = item.text %}
   {% set size = item.size %}
-  {% set alignment = 'center' %}
+  {% set alignment_class = 'text-center' %}
   {% include "cms/components/subheading/subheading.html" %}
 {% endfor %}
 
@@ -25,6 +25,6 @@
 {% for item in variations %}
   {% set text = item.text %}
   {% set size = item.size %}
-  {% set alignment = 'right' %}
+  {% set alignment_class = 'text-right' %}
   {% include "cms/components/subheading/subheading.html" %}
 {% endfor %}
