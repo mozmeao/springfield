@@ -123,7 +123,11 @@ urlpatterns = (
         active_locales="en-US",
     ),
     # Issue 487 - Win10 End of Service
-    page("landing/win10-eos/", "firefox/landing/win10-eos.html", active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],),
+    page(
+        "landing/win10-eos/",
+        "firefox/landing/win10-eos.html",
+        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
+    ),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",

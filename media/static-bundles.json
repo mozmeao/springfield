@@ -321,6 +321,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/win10-eos.scss"
+      ],
+      "name": "firefox_win10_eos"
+    },
+    {
+      "files": [
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
