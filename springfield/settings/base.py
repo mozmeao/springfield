@@ -845,7 +845,7 @@ PATTERN_LIBRARY = {
     # be searched to populate the groups.
     "SECTIONS": (
         # ("components", ["patterns/components"]),
-        ("blocks", ["cms/blocks"]),
+        ("blocks", ["cms/components"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",

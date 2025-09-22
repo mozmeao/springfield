@@ -4,22 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="{{ value.alignment_class() }} {{ value.sizing_class() }}">
-  <div class="">
-    {% if value.eyebrow_text %}
-      <p class="wnp-eyebrow">
-        {{ value.eyebrow_text|richtext|remove_p_tag }}
-      </p>
-    {% endif %}
-    {% if value.headline_text %}
-      <{{ value.heading_size }} class="features-heading">
-        {{ value.headline_text|richtext|remove_p_tag }}
-      </{{ value.heading_size }}>
-    {% endif %}
-  </div>
-  {% if value.subheadline_text %}
-    <p class="wnp-text">
-      {{ value.subheadline_text|richtext|remove_p_tag }}
-    </p>
-  {% endif %}
-</div>
+{% set level = value.heading_size %}
+{% set text = value.headline_text|richtext|remove_p_tag %}
+{% if value.superheading_text %}
+  {% set superheading_text = value.superheading_text|richtext|remove_p_tag %}
+{% endif %}
+{% set alignment_class = value.alignment_class() %}
+
+{% include "cms/components/heading/heading.html" %}
+
+{% if value.subheading_text %}
+{% set subheading_text = value.subheading_text|richtext|remove_p_tag %}
+{% include "cms/components/subheading/subheading.html" %}
+{% endif %}

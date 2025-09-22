@@ -8,11 +8,11 @@
   <div class="wnp-container">
     <div class="wnp-intro-layout">
       <div class="wnp-intro-content">
-        {% if value.heading.eyebrow_text %}
-          <p class="wnp-eyebrow">{{ value.heading.eyebrow_text|richtext|remove_p_tag }}</p>
+        {% if value.heading.superheading_text %}
+          <p class="wnp-eyebrow">{{ value.heading.superheading_text|richtext|remove_p_tag }}</p>
         {% endif %}
         <{{ value.heading.heading_size }} class="wnp-title">{{ value.heading.headline_text|richtext|remove_p_tag }}</{{ value.heading.heading_size }}>
-        <p class="wnp-subtitle-5">{{ value.heading.subheadline_text|richtext|remove_p_tag }}</p>
+        <p class="wnp-subtitle-5">{{ value.heading.subheading_text|richtext|remove_p_tag }}</p>
         {% if value.button %}
           <div class="wnp-btn-wrap">
             {% for button in value.button %}

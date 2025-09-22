@@ -1,0 +1,22 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_element %}
+<{{ level|default('h2') }} class="heading {{ alignment_class|default('') }}">
+  {{ text }}
+</{{ level|default('h2') }}>
+{% endset %}
+
+{% if superheading_text %}
+<hgroup class="heading-group">
+  <span class="superheading">
+    {{ superheading_text }}
+  </span>
+  {{ heading_element }}
+  </hgroup>
+{% else %}
+{{ heading_element }}
+{% endif %}

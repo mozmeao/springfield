@@ -1,14 +1,10 @@
-{#
- This Source Code Form is subject to the terms of the Mozilla Public
- License, v. 2.0. If a copy of the MPL was not distributed with this
- file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#}
+{% set center_class = value.center_class() %}
+{% set theme_class = value.theme_class() %}
+{% set link = value.link %}
+{% set external = value.external %}
+{% set disabled = value.disabled %}
+{% set icon_name = value.icon %}
+{% set icon_position = value.icon_position %}
+{% set label = value.label %}
 
-<div class="{{ value.center_class() }}">
-  <a class="wnp-button {{ value.theme_class() }}" href="{{ value.link }}" {% if value.external %}target="_blank"{% endif %}>
-    {{ value.label }}
-    {% if value.icon %}
-      <img class="wnp-button-icon" src="{{ value.icon_url() }}" width="16" height="16" alt="" aria-hidden="true" />
-    {% endif %}
-  </a>
-</div>
+{% include 'cms/components/button/button.html' %}

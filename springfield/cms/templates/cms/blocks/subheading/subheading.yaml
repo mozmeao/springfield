@@ -1,6 +1,0 @@
-name: "Subheading"
-context:
-  value:
-    text: 'Subheading example. Lorem ipsum dolor sit amet, consectetur.'
-    size: 'subheading-1'
-    alignment: 'center'

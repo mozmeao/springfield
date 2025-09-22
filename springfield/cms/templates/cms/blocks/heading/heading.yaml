@@ -1,6 +1,0 @@
-name: "Heading"
-context:
-  value:
-    text: 'Headlines for Firefox are always left-aligned in Metropolis - Bold'
-    superheading_text: 'Superheading'
-    level: 'h3'

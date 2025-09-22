@@ -1,0 +1,7 @@
+name: "Tag"
+context:
+  text: 'Tag'
+  before_icon: 'arrow-left'
+  after_icon: 'arrow-right'
+  color: 'purple'
+  corners: 'round'

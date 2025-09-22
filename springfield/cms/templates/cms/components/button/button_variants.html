@@ -8,12 +8,14 @@
   <h4>Button variants</h4>
   <div class="pl-row">
     <h5>Horizontal</h5>
-    {% set value = horizontal %}
-    {% include "cms/blocks/button/buttons.html" %}
+    {% set orientation = horizontal.orientation %}
+    {% set buttons = horizontal.buttons %}
+    {% include "cms/components/button/buttons.html" %}
   </div>
   <div class="pl-row">
     <h5>Stacked</h5>
-    {% set value = stacked %}
-    {% include "cms/blocks/button/buttons.html" %}
+    {% set orientation = stacked.orientation %}
+    {% set buttons = stacked.buttons %}
+    {% include "cms/components/button/buttons.html" %}
   </div>
 </div>

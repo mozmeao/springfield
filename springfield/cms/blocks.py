@@ -25,32 +25,70 @@ HEADING_SIZE_CHOICES = (
     ("h6", "H6"),
 )
 
-# TODO: Implement an icon system
-# Ideally, the backend should only care about the icon's name and use it as a class name
-# The frontend implementation can use a CSV sprite, files, or any other method to display the icons
-# <span class="icon icon-{icon_name}"></span>
 ICON_CHOICES = [
-    ("android", "Android"),
-    ("apple", "Apple"),
+    ("ai", "AI"),
+    ("alert", "Alert"),
+    ("arrow-down", "Arrow Down"),
+    ("arrow-left", "Arrow Left"),
     ("arrow-right", "Arrow Right"),
+    ("arrow-up", "Arrow Up"),
+    ("bell", "Bell"),
+    ("blog", "Blog"),
+    ("bookmark", "Bookmark"),
+    ("calendar", "Calendar"),
+    ("caret-down", "Caret Down"),
+    ("caret-up", "Caret Up"),
+    ("chat", "Chat"),
+    ("check", "Check"),
+    ("close", "Close"),
+    ("cloud", "Cloud"),
+    ("copy", "Copy"),
+    ("data-insights", "Data Insights"),
+    ("data-pie", "Data Pie"),
     ("design", "Design"),
+    ("download", "Download"),
+    ("earth", "Earth"),
+    ("edit-write", "Edit Write"),
+    ("email", "Email"),
+    ("event", "Event"),
+    ("external-link", "External Link"),
+    ("eye-closed", "Eye Closed"),
+    ("eye-open", "Eye Open"),
+    ("folder", "Folder"),
+    ("folder-plus", "Folder Plus"),
+    ("gear", "Gear"),
+    ("globe", "Globe"),
+    ("hashtag", "Hashtag"),
+    ("headphone", "Headphone"),
+    ("heart", "Heart"),
+    ("home", "Home"),
     ("language", "Language"),
+    ("lock", "Lock"),
+    ("megaphone", "Megaphone"),
+    ("menu", "Menu"),
+    ("minus", "Minus"),
+    ("mobile-phone", "Mobile Phone"),
+    ("paperclip", "Paperclip"),
+    ("pause", "Pause"),
+    ("play", "Play"),
+    ("plus", "Plus"),
+    ("quote", "Quote"),
+    ("read", "Read"),
+    ("report", "Report"),
+    ("search", "Search"),
     ("shield", "Shield"),
+    ("sound-off", "Sound Off"),
+    ("sound-on", "Sound On"),
+    ("star", "Star"),
+    ("thumbs-up", "Thumbs Up"),
+    ("toggle-off", "Toggle Off"),
+    ("toggle-on", "Toggle On"),
+    ("trash", "Trash"),
+    ("update", "Update"),
+    ("user", "User"),
 ]
-ICON_FILES = {
-    "android": "img/icons/cms/android-icon.png",
-    "apple": "img/icons/cms/apple-icon.png",
-    "arrow-right": "img/icons/cms/arrow-right.svg",
-    "design": "img/icons/cms/design-icon.svg",
-    "language": "img/icons/cms/language-icon.svg",
-    "shield": "img/icons/cms/shield.svg",
-}
 
 # Element blocks
-
-
-def get_icon_url(icon_name: str) -> str:
-    return static(ICON_FILES.get(icon_name, ""))
 
 
 def get_next_heading_size(size: str) -> str:
@@ -92,9 +130,9 @@ class HeadingBlock(blocks.StructBlock):
         default="left",
         inline_form=True,
     )
-    eyebrow_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    subheadline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
         icon = "title"
@@ -108,8 +146,8 @@ class HeadingBlock(blocks.StructBlock):
 class ButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
-            "outline": "wnp-button-outline",
-            "secondary": "wnp-button-secondary",
+            "ghost": "button-ghost",
+            "secondary": "button-secondary",
         }
         return classes.get(self.get("theme"), "")
 
@@ -117,17 +155,13 @@ class ButtonValue(blocks.StructValue):
         """TODO"""
         return "" if self.get("center", False) else ""
 
-    def icon_url(self) -> str:
-        return get_icon_url(self.get("icon", ""))
-
 
 class ButtonBlock(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
-            ("outline", "Outline"),
             ("secondary", "Secondary"),
+            ("ghost", "Ghost"),
         ),
-        default="outline",
         required=False,
         inline_form=True,
     )
@@ -151,14 +185,20 @@ class LinkBlock(blocks.StructBlock):
     external = blocks.BooleanBlock(required=False, default=False, label="External link")
 
 
-class TagValue(blocks.StructValue):
-    def icon_url(self) -> str:
-        return get_icon_url(self.get("icon", ""))
-
-
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
+    icon_position = blocks.ChoiceBlock(
+        choices=(("before", "Before"), ("after", "After")),
+        required=False,
+        label="Icon Position",
+        inline_form=True,
+    )
+    corners = blocks.ChoiceBlock(
+        choices=(("round", "Round"), ("soft", "Soft")),
+        default="round",
+        inline_form=True,
+    )
     color = blocks.ChoiceBlock(
         choices=[
             ("purple", "Purple"),
@@ -173,7 +213,6 @@ class TagBlock(blocks.StructBlock):
         template = "cms/blocks/tag.html"
         label = "Tag"
         label_format = "Tag - {title}"
-        value_class = TagValue
         form_classname = "compact-form struct-block"
 
 

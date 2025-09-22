@@ -7,22 +7,26 @@
 <div class="pl-frame pl-frame--white">
   {% for heading in headings %}
     <div class="pl-row">
-      {% set value = heading %}
-      {% include "cms/blocks/heading/heading.html" %}
+      {% set text = heading.text %}
+      {% set level = heading.level %}
+      {% set superheading_text = heading.superheading_text %}
+      {% include "cms/components/heading/heading.html" %}
     </div>
   {% endfor %}
   <hr>
   {% for subheading in subheadings %}
     <div class="pl-row">
-      {% set value = subheading %}
-      {% include "cms/blocks/subheading/subheading.html" %}
+      {% set text = subheading.text %}
+      {% set size = subheading.size %}
+      {% include "cms/components/subheading/subheading.html" %}
     </div>
   {% endfor %}
   <hr>
   {% for body_text in body_texts %}
     <div class="pl-row">
-      {% set value = body_text %}
-      {% include "cms/blocks/body_text/body_text.html" %}
+      {% set text = body_text.text %}
+      {% set size = body_text.size %}
+      {% include "cms/components/body_text/body_text.html" %}
     </div>
   {% endfor %}
 </div>

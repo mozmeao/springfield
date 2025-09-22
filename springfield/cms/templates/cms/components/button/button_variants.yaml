@@ -9,14 +9,16 @@ context:
         label: "Primary Button"
         link: "/"
         external: false
-        right_icon_name: 'arrow-right'
+        icon_name: 'arrow-right'
+        icon_position: 'right'
       - note: Primary (default) with left icon
         center_class: ''
         theme_class: ''
         label: "Primary Button"
         link: "/"
         external: false
-        left_icon_name: 'arrow-left'
+        icon_name: 'arrow-left'
+        icon_position: 'left'
       - note: Primary disabled
         center_class: ''
         theme_class: ''
@@ -30,14 +32,16 @@ context:
         label: "Secondary Button"
         link: "/contact"
         external: false
-        right_icon_name: 'arrow-right'
+        icon_name: 'arrow-right'
+        icon_position: 'right'
       - note: Secondary with left icon
         center_class: ''
         theme_class: 'button-secondary'
         label: "Secondary Button"
         link: "/contact"
         external: false
-        left_icon_name: 'arrow-left'
+        icon_name: 'arrow-left'
+        icon_position: 'left'
       - note: Secondary disabled
         center_class: ''
         theme_class: 'button-secondary'
