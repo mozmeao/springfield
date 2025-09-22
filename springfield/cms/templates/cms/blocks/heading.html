@@ -1,0 +1,25 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="{{ value.alignment_class() }} {{ value.sizing_class() }}">
+  <div class="">
+    {% if value.eyebrow_text %}
+      <p class="wnp-eyebrow">
+        {{ value.eyebrow_text|richtext|remove_p_tag }}
+      </p>
+    {% endif %}
+    {% if value.headline_text %}
+      <{{ value.heading_size }} class="features-heading">
+        {{ value.headline_text|richtext|remove_p_tag }}
+      </{{ value.heading_size }}>
+    {% endif %}
+  </div>
+  {% if value.subheadline_text %}
+    <p class="wnp-text">
+      {{ value.subheadline_text|richtext|remove_p_tag }}
+    </p>
+  {% endif %}
+</div>

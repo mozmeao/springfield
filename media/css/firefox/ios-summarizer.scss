@@ -1,0 +1,156 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+.ios-summarizer-hero {
+    background-image:
+    // /* Orange circle */
+    radial-gradient(circle at center 80%,
+      rgba(255, 112, 58, 1) 0%,
+      rgba(255, 112, 58, 1) 20%,
+      rgba(255, 112, 58, 0) 40%
+    ),
+    // /* Crimson ellipse */
+    radial-gradient(ellipse at center 120%,
+      rgba(197, 0, 66, 1) 0%,
+      rgba(197, 0, 66, 1) 35%,
+      rgba(197, 0, 66, 0) 65%
+    ),
+     /* Purple ellipse  */
+    radial-gradient(ellipse at center 120%,
+      rgba(167, 64, 209, 1) 0%,
+      rgba(167, 64, 209, 1) 40%,
+      rgba(167, 64, 209, 0) 70%
+    );
+    background-repeat: no-repeat;
+    background-size: 2880px 100%;
+    background-position: center 245px;
+    min-height: 100vh;
+    position: relative;
+
+    @media (min-width: 1200px) {
+        background-size: 4880px 100%;
+    }
+}
+
+.ios-hero-figure-container {
+  position: relative;
+  pointer-events: none;
+
+  --qr-code-size: 200px;
+
+  // NOTE about the logic behind this:
+  // --qr-gap defines how far the QR code sits to the right of the phone figure:
+  //  - At 1200px viewport width → 100px
+  //  - At 1920px viewport width → 300px
+  //  - In between → scales linearly between 100–300px
+  //  - Below 1200px → clamps to 100px
+  //  - Above 1920px → clamps to 300px
+  --qr-gap: clamp(
+    100px,
+    calc(100px + ((100vw - 1200px) / 720) * 200),
+    300px
+  );
+}
+
+.qr-code {
+  margin-block-start: 24px;
+  @media (min-width: 1200px) {
+    position: absolute;
+    margin: 0;
+    right: calc( -1 * ( var(--qr-code-size) + var(--qr-gap)));
+    top: 15%;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.2));
+    text-align: center;
+  }
+
+  svg {
+    width: var(--qr-code-size);
+    height: var(--qr-code-size);
+    border: 10px solid black;
+    border-radius: 24px;
+    margin-top: 24px;
+  }
+}
+
+
+.ios-phone {
+  will-change: transform;
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  pointer-events: none;
+
+  &.shake {
+    animation: phone-shake 1s ease-in-out both;
+    animation-delay: 1.5s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-phone.shake { animation: none; }
+}
+
+.phone-masked {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+    transform-origin: 50% 50%;
+    pointer-events: auto;
+
+    // NOTE: scale(0.96) and border-radius 10% are computed and rounded from aspect-ration of the phone frame to content in figma
+    // In theory, we could use a mask into the inside of the phone shell here to clip the video content but it would introduce a bit more complexity.
+    // This works great for now since we don't intend to change the phone shell anytime soon.
+    transform: scale(0.96);
+    border-radius: 10%;
+    will-change: transform;
+}
+
+@keyframes phone-shake {
+  0%   { transform: translateX(0); }
+  10%  { transform: translateX(-40px); }
+  20%  { transform: translateX(40px); }
+  30%  { transform: translateX(-35px); }
+  40%  { transform: translateX(35px); }
+  50%  { transform: translateX(-20px); }
+  60%  { transform: translateX(20px); }
+  70%  { transform: translateX(-10px); }
+  80%  { transform: translateX(10px); }
+  90%  { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+
+.ios-summarizer-use-steps .qr-card {
+  display: grid;
+  place-items: center;
+  padding: 10%;
+  border-radius: 24px;
+  background: radial-gradient(50% 50% at 50% 50%, #C80C40 0%, #CC3A38 100%);
+  box-shadow: 0 14px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+
+  svg {
+    width: 80%;
+    height: auto;
+    border: 10px solid black;
+    border-radius: 24px;
+  }
+}
+
+
+.ios-summarizer-use-steps ol {
+    @include bidi(((margin-left, $layout-sm, margin-right, 0), ));
+    list-style-type: decimal;
+    list-style-position: inside;
+    line-height: 1.5;
+}
+
+.ios-summarizer-use-steps .ios-summarizer-note {
+  color: $color-dark-gray-30;
+  font-size: var(--body-xs-size);
+  font-style: italic;
+}

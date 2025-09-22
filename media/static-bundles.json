@@ -100,6 +100,12 @@
     },
     {
       "files": [
+        "css/firefox/ios-summarizer.scss"
+      ],
+      "name": "firefox-ios-summarizer"
+    },
+    {
+      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
@@ -291,6 +297,12 @@
         "css/cms/flare-utilities.css"
       ],
       "name": "flare_utilities"
+    },
+    {
+      "files": [
+        "css/cms/new.scss"
+      ],
+      "name": "cms-new"
     },
     {
       "files": [
@@ -639,6 +651,12 @@
     },
     {
       "files": [
+        "js/firefox/browsers/ios-summarizer.js"
+      ],
+      "name": "ios_summarizer"
+    },
+    {
+      "files": [
         "js/base/send-to-device.es6.js",
         "js/firefox/browsers/mobile.es6.js"
       ],
@@ -688,6 +706,12 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
     }
   ]
 }
