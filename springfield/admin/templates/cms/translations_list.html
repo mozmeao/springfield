@@ -30,6 +30,18 @@
             .pl-4em {
                 padding-left: 4em;
             }
+            .button.btn-success {
+                background-color: var(--w-color-positive-100);
+                color:var(--w-color-white)
+            }
+            .button.btn-warning {
+                background-color: var(--w-color-warning-100);
+                color:var(--w-color-white)
+            }
+            .button.btn-danger {
+                background-color: var(--w-color-critical-200);
+                color:var(--w-color-white)
+            }
         </style>
 
         <header class="w-sticky w-top-0 w-z-header pl-4em">
@@ -70,8 +82,8 @@
                                     {% if page_data.translations %}
                                         <div>
                                             {% for translation in page_data.translations %}
-                                                <a href="{{ translation.edit_url }}" class="button button-small button-secondary" title="Edit {{ translation.locale }} version">
-                                                    {{ translation.locale }}
+                                                <a href="{{ translation.edit_url }}" class="button button-small button-secondary {% if translation.percent_translated == 100 %}btn-success{% elif translation.percent_translated > 80 %}btn-warning{% else %}btn-danger{% endif %}" title="Edit {{ translation.locale }} version">
+                                                    {{ translation.locale.upper }} {% if translation.percent_translated != 100 %}{{ translation.percent_translated }}%{% endif %}
                                                 </a>
                                             {% endfor %}
                                         </div>

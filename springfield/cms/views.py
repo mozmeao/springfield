@@ -9,6 +9,8 @@ from django.views.generic import ListView
 
 from wagtail.models import Page
 
+from springfield.cms.utils import calculate_translation_data
+
 
 @method_decorator(staff_member_required, name="dispatch")
 class TranslationsListView(ListView):
@@ -39,24 +41,10 @@ class TranslationsListView(ListView):
         """Add translation data to the context."""
         context = super().get_context_data(**kwargs)
 
-        # Add translation data for each page
+        # Add translation data for each page using utility function
         pages_with_translations = []
         for page in context["pages"]:
-            translations = []
-            try:
-                # Get all translations for this page
-                for translation in page.get_translations():
-                    translations.append(
-                        {
-                            "locale": translation.locale.language_code,
-                            "edit_url": f"/cms-admin/pages/{translation.id}/edit/",
-                            "view_url": translation.get_url() if hasattr(translation, "get_url") else "#",
-                        }
-                    )
-            except (ValueError, AttributeError):
-                # Handle cases where translations might not be available
-                pass
-
+            translations = calculate_translation_data(page)
             pages_with_translations.append(
                 {
                     "page": page,
