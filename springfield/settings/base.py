@@ -912,7 +912,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "builtins": ["pattern_library.loader_tags"],
         },
     },
 ]
