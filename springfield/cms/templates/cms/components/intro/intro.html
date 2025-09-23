@@ -4,23 +4,18 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="intro{% if media %} intro-has-media{% endif %}{% if media and media_position %} intro-media-{{ media_position }}{% endif %}">
+{% set has_media = image or video %}
+<div class="intro{% if has_media %} intro-has-media{% endif %}{% if has_media and media_position %} intro-media-{{ media_position }}{% endif %}">
   <div class="intro-content">
-    {% if heading %}
-      {% set superheading_text = heading.superheading_text %}
-      {% set text = heading.text %}
-      {% set level = heading.level %}
-      {% set alignment_class = heading.alignment_class %}
-      {% include "cms/components/heading/heading.html" %}
-    {% endif %}
-    {% if subheading %}
-      {% set text = subheading.text %}
-      {% set size = subheading.size %}
-      {% set alignment = subheading.alignment %}
-      {% include "cms/components/subheading/subheading.html" %}
-    {% endif %}
+    {% set heading_text = heading.heading_text %}
+    {% set superheading_text = heading.superheading_text %}
+    {% set subheading_text = heading.subheading_text %}
+    {% set level = heading.level %}
+    {% set alignment_class = heading.alignment_class %}
+    {% include "cms/components/heading/heading.html" %}
     {% if actions %}
       <div class="intro-actions">
+        {% set buttons = actions.buttons %}
         {% include "cms/components/button/buttons.html" %}
       </div>
     {% endif %}
@@ -28,11 +23,17 @@
       <div class="fine-print">{{ fine_print }}</div>
     {% endif %}
   </div>
-  {% if media %}
+  {% if has_media %}
     <div class="intro-media">
-      {% with value=media %}
-        {% include "cms/components/media/media.html" %}
-      {% endwith %}
+      {% if image %}
+        {% set url = image.url %}
+        {% set alt = image.alt %}
+        {% include "cms/components/image/image.html" %}
+      {% elif video %}
+        {% set url = video.url %}
+        {% set alt = video.alt %}
+        {% include "cms/components/video/video.html" %}
+      {% endif %}
     </div>
   {% endif %}
 </div>

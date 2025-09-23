@@ -2,11 +2,10 @@ name: "Intro"
 context:
   heading:
     superheading_text: 'Pre Heading'
-    text: 'Intro Headline'
+    heading_text: 'Intro Headline'
     level: 'h3'
-  subheading:
-    text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
-    size: 'subheading-5'
+    subheading_text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+    subheading_size: 'subheading-5'
     alignment: 'left'
   actions:
     orientation: horizontal
@@ -24,7 +23,6 @@ context:
         right_icon_name: 'arrow-right'
   fine_print: false
   media_position: 'after'
-  media:
-    image:
-      url: '/media/img/firefox/flare/placeholder.png'
-      alt: 'PlaceholderImage'
+  image:
+    url: '/media/img/firefox/flare/placeholder.png'
+    alt: 'PlaceholderImage'

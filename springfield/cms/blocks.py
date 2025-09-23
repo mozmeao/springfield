@@ -217,15 +217,15 @@ class TagBlock(blocks.StructBlock):
 # Section blocks
 
 
-class HeroBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
+class IntroBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=False)
     heading = HeadingBlock(classname="compact-form")
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
-        template = "cms/blocks/hero.html"
-        label = "Hero"
-        label_format = "Hero - {heading}"
+        template = "cms/blocks/intro.html"
+        label = "Intro"
+        label_format = "Intro - {heading}"
         form_classname = "compact-form struct-block"
 
 
