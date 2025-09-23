@@ -1,3 +1,4 @@
+name: 'Icon'
 context:
   icon_name: 'globe'
   width: 24
