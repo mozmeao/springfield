@@ -5,7 +5,7 @@
 #}
 
 {% set heading_element %}
-<{{ level|default('h2') }} class="heading">
+<{{ level|default('h2') }} class="heading {{ alignment_class }}">
   {{ heading_text }}
 </{{ level|default('h2') }}>
 {% endset %}
