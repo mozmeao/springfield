@@ -1,9 +1,0 @@
-context:
-  value:
-    label: Test Button
-    link: 'testurl'
-    external: false
-    # These attributes will be turned into callables.
-    turn_into_callable__center_class: 'center'
-    turn_into_callable__theme_class: 'wnp-button wnp-button-outline'
-    turn_into_callable__icon_url: ''
