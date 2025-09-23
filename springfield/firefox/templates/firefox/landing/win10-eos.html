@@ -8,6 +8,9 @@
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
+{# Don't forget to set '<title>%s</title>' content when formatting, e.g. per locale from 'icon_title'. #}
+{% set pencil_icon = '<svg role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19"><title>%s</title><g clip-path="url(#a)"><path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"/></g><defs><clipPath id="a"><path d="M0 .462h18v18H0z"/></clipPath></defs></svg>' %}
+
 {% if LANG == 'de' %}
   {% set main_title = 'Einige neue Firefox-Funktionen, die Browsen einfach besser machen.' %}
   <!-- Box 1 -->
@@ -18,12 +21,13 @@
   <!-- Box 2 -->
   {% set box_two_title = 'Übernimm die Kontrolle über deinen Browser mit Tab-Gruppen' %}
   {% set box_two_body = 'Schluss mit dem Tab-Chaos! Behalte deine Zeit und Aufmerksamkeit im Blick. Zieh einfach einen Tab auf einen anderen, um eine Gruppe zu erstellen.' %}
-  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-138-de-high-res-v3.webm' %}
+  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/138/wnp-138-de-high-res-v3.webm' %}
   {% set box_two_poster_src= 'img/firefox/landing/win10-eos/tab-groups/poster-de-high-res.png' %}
   <!-- Box 3 -->
   {% set box_three_title = 'Ein neuer Tab, ganz nach deinem Geschmack.' %}
-  {% set box_three_body = 'Gestalte deinen eigenen Bereich. Passe die Atmosphäre mit Firefox-Hintergründen, eigenen Farben oder einem Foto an. Öffne einen neuen Tab und klicke auf das Bleistift Icon [Symbolbild], um mit den Anpassungen zu starten.' %}
+  {% set box_three_body = 'Gestalte deinen eigenen Bereich. Passe die Atmosphäre mit Firefox-Hintergründen, eigenen Farben oder einem Foto an. Öffne einen neuen Tab und klicke auf das Bleistift Icon ' + pencil_icon + ', um mit den Anpassungen zu starten.' %}
   {% set box_three_video_src= 'https://assets.mozilla.net/video/whatsnew/141/wnp-141-de.webm' %}
+  {% set icon_title = 'Anpassen' %}
   <!-- CTA section -->
   {% set cta_title = 'Gefällt dir der neue Firefox? Nimm ihn mit.' %}
   {% set cta_body = 'Synchronisiere deine Lesezeichen, Passwörter und Einstellungen, damit sich Firefox überall wie zuhause anfühlt' %}
@@ -38,12 +42,13 @@
   <!-- Box 2 -->
   {% set box_two_title = 'Contrôlez votre navigation grâce aux groupes d’onglets' %}
   {% set box_two_body = 'Fini d’accumuler les onglets. Place à l’organisation. Contrôlez votre temps et votre attention. Glissez un onglet sur l’autre et créez votre premier groupe.' %}
-  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-138-fr-high-res-v3.webm' %}
+  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/138/wnp-138-fr-high-res-v3.webm' %}
   {% set box_two_poster_src= 'img/firefox/landing/win10-eos/tab-groups/poster-fr-high-res.png' %}
   <!-- Box 3 -->
   {% set box_three_title = 'Votre nouvel onglet, à votre façon' %}
-  {% set box_three_body = 'Créez un espace qui vous ressemble. Donnez le ton avec des fonds d’écran Firefox, des coloris personnalisés ou vos propres photos. Ouvrez un nouvel onglet et cliquez sur l’icône en forme de crayon pour lancer la personnalisation.' %}
+  {% set box_three_body = 'Créez un espace qui vous ressemble. Donnez le ton avec des fonds d’écran Firefox, des coloris personnalisés ou vos propres photos. Ouvrez un nouvel onglet et cliquez sur l’icône ' + pencil_icon + ' pour lancer la personnalisation.' %}
   {% set box_three_video_src= 'https://assets.mozilla.net/video/whatsnew/141/wnp-141-fr.webm' %}
+  {% set icon_title = 'Personnaliser' %}
   <!-- CTA section -->
   {% set cta_title = 'Vous aimez le nouveau Firefox ? Emportez-le avec vous.' %}
   {% set cta_body = 'Synchronisez vos marque-pages, mots de passe et paramètres pour que Firefox soit familier quand vous vous connectez.' %}
@@ -58,13 +63,13 @@
   <!-- Box 2 -->
   {% set box_two_title = 'Take control of your browsing with tab groups' %}
   {% set box_two_body = 'No more tab overload. Stay organized and in control of your time and attention. Drag one tab onto another to create your first group.' %}
-  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-138-en-high-res-v3.webm' %}
+  {% set box_two_video_src= 'https://assets.mozilla.net/video/whatsnew/138/wnp-138-en-high-res-v3.webm' %}
   {% set box_two_poster_src= 'img/firefox/landing/win10-eos/tab-groups/poster-en-high-res.png' %}
   <!-- Box 3 -->
   {% set box_three_title = 'Make your New Tab feel like home' %}
-  <!-- TODO: allow pencil icon with alt text -->
-  {% set box_three_body = 'Create a space that’s uniquely yours. Set the mood with Firefox wallpapers, custo or your own photo. Open a new tab and click the pencil icon to start customizing.' %}
+  {% set box_three_body = 'Create a space that’s uniquely yours. Set the mood with Firefox wallpapers, custom colors, or your own photo. Open a new tab and click the ' + pencil_icon +  ' icon to start customizing.' %}
   {% set box_three_video_src= 'https://assets.mozilla.net/video/whatsnew/141/wnp-141-en.webm' %}
+  {% set icon_title = 'Customize' %}
   <!-- CTA section -->
   {% set cta_title = 'Like the new Firefox? Take it with you.' %}
   {% set cta_body = 'Sync your bookmarks, passwords, and settings so Firefox feels familiar wherever you sign in.' %}
@@ -82,15 +87,15 @@
 {% block site_header %}{% endblock %}
 
 {% block content %}
-<main>
+<main class="mzp-t-firefox">
   <div class="c-logo-wrapper mzp-l-content mzp-t-content-max">
-    <img class="m24-c-navigation-logo-image" src="{{ static('img/logos/firefox/logo-word-hor.svg') }}" alt="" width="120" height="40">
+    <div class="c-logo-image"></div>
   </div>
   <div class="mzp-l-content mzp-t-content-max">
-    <h1>{{ main_title }}</h1>
-    <div class="mzp-l-columns mzp-t-columns-three">
+    <h1 class="c-main-title">{{ main_title }}</h1>
+    <div class="c-box-wrapper mzp-l-columns mzp-t-columns-three">
       <section class="c-box">
-        <div class="mzp-c-video mzp-has-aspect-4-3">
+        <div class="c-box-video mzp-c-video">
           <video
             preload="none"
             loop
@@ -105,7 +110,7 @@
         <p class="c-box-body">{{ box_one_body }}</p>
       </section>
       <section class="c-box">
-        <div class="mzp-c-video">
+        <div class="c-box-video mzp-c-video">
           <video
             preload="none"
             loop
@@ -120,7 +125,7 @@
         <p class="c-box-body">{{ box_two_body }}</p>
       </section>
       <section class="c-box">
-        <div class="mzp-c-video">
+        <div class="c-box-video mzp-c-video">
           <video
             preload="none"
             loop
@@ -132,7 +137,7 @@
           </video>
         </div>
         <h2 class="c-box-title">{{ box_three_title }}</h2>
-        <p class="c-box-body">{{ box_three_body }}</p>
+        <p class="c-box-body">{{ box_three_body | safe | format(icon_title) }}</p>
       </section>
     </div>
     <section class="c-cta mzp-c-split mzp-l-split-reversed mzp-l-split-body-wide">
@@ -141,7 +146,12 @@
           <h2 class="c-cta-title">{{ cta_title }}</h2>
           <p class="c-cta-body">{{ cta_body }}</p>
           <!-- TODO: check attribution & confirm UTM params -->
-          {{ fxa_button(entrypoint='firefox.com-win10-eos-page', button_text=cta_action) }}
+          {{ fxa_button(
+            entrypoint='www.firefox.com-win10-eos-page',
+            button_text=cta_action,
+            optional_parameters={'utm_campaign': 'win10-eos'},
+            optional_attributes={'data-cta-text': 'Get started', 'data-cta-type': 'fxa-sync', 'data-cta-position': 'primary'}
+          ) }}
         </div>
         <div class="mzp-c-split-media">
           {{ resp_img('img/firefox/landing/win10-eos/settings.png',

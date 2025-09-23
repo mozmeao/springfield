@@ -4,8 +4,94 @@
 
 @use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 @use "~@mozilla-protocol/core/protocol/css/templates/multi-column";
+@use "../whatsnew/includes/theme";
 
-// Protocol override
+// Protocol overrides
 .c-logo-wrapper.mzp-l-content {
     padding-bottom: 0;
+}
+
+.c-box-wrapper.mzp-l-columns {
+    display: grid; // keep gap on small screens when boxes stack
+    gap: $layout-sm;
+}
+
+.c-cta .mzp-c-split-container {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+// end Protocol overrides
+
+.c-logo-image {
+    @include image-replaced;
+    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
+    @include background-size(120px, 40px);
+    width: 120px;
+    height: 40px;
+}
+
+.c-main-title {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: $content-xl;
+    text-align: center;
+}
+
+.c-box {
+    background-color: $color-marketing-gray-10;
+    border-radius: $border-radius-md;
+    color: $color-black;
+    display: grid;
+    padding: $layout-sm;
+    align-content: start;
+}
+
+.c-box-video {
+    margin-bottom: $spacing-sm;
+}
+
+.c-box-title {
+    color: $color-black;
+    margin-bottom: $spacing-sm;
+}
+
+.c-box-body {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.c-cta {
+    border: 1px solid $color-dark-gray-60;
+    border-radius: $border-radius-md;
+    padding: $layout-xs $layout-sm;
+}
+
+.c-main-title,
+.c-box-wrapper {
+    margin-bottom: $layout-md;
+}
+
+.c-box-title,
+.c-cta-title {
+    @include text-title-2xs;
+}
+
+// Dark mode
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: $color-dark-gray-60;
+        color: $color-white;
+    }
+
+    h1, h2, h3, h4 {
+        color: $color-white;
+    }
+
+    .c-logo-image {
+        background: url('/media/img/logos/firefox/logo-word-hor-white.svg') no-repeat;
+        @include background-size(120px, 40px);
+    }
 }
