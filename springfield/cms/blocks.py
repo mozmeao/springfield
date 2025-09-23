@@ -217,9 +217,13 @@ class TagBlock(blocks.StructBlock):
 # Section blocks
 
 
+class IntroHeadingBlock(HeadingBlock):
+    alignment = None
+
+
 class IntroBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=False)
-    heading = HeadingBlock(classname="compact-form")
+    heading = IntroHeadingBlock(classname="compact-form")
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
