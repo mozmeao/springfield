@@ -188,7 +188,7 @@ class TagBlock(blocks.StructBlock):
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
     icon_position = blocks.ChoiceBlock(
         choices=(("before", "Before"), ("after", "After")),
-        required=False,
+        default="before",
         label="Icon Position",
         inline_form=True,
     )
@@ -202,7 +202,9 @@ class TagBlock(blocks.StructBlock):
             ("purple", "Purple"),
             ("blue", "Blue"),
             ("orange", "Orange"),
-            ("yellow", "Yellow"),
+            ("white", "White"),
+            ("black", "Black"),
+            ("outline", "Outline"),
         ],
         required=False,
     )
