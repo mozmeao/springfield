@@ -5,6 +5,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Min
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, TemplateView
 
 from wagtail.models import Page
@@ -17,6 +18,7 @@ class FlareTestView(TemplateView):
 
 
 @method_decorator(staff_member_required, name="dispatch")
+@method_decorator(never_cache, name="dispatch")
 class TranslationsListView(ListView):
     """A view that shows a list of pages with their translations."""
 
