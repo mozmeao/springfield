@@ -6,22 +6,22 @@
 
 {% set heading_element %}
 <{{ level|default('h2') }} class="heading">
-  {{ text }}
+  {{ heading_text }}
 </{{ level|default('h2') }}>
 {% endset %}
 
 {% if superheading_text %}
-<hgroup class="heading-group {{ alignment_class }}">
-  <span class="superheading">
-    {{ superheading_text }}
-  </span>
-  {{ heading_element }}
-  {% if subheading_text %}
-    {% set text = subheading_text %}
-    {% set size = subheading_size %}
-    {% include "cms/components/subheading/subheading.html" %}
-  {% endif %}
-</hgroup>
+  <hgroup class="heading-group {{ alignment_class }}">
+    <span class="superheading">
+      {{ superheading_text }}
+    </span>
+    {{ heading_element }}
+    {% if subheading_text %}
+      {% set text = subheading_text %}
+      {% set size = subheading_size %}
+      {% include "cms/components/subheading/subheading.html" %}
+    {% endif %}
+  </hgroup>
 {% else %}
-{{ heading_element }}
+  {{ heading_element }}
 {% endif %}

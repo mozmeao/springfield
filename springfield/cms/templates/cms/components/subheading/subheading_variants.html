@@ -7,7 +7,7 @@
 <h2>Subheading Variants</h2>
 <h3>Left Aligned</h3>
 {% for item in variations %}
-  {% set text = item.text %}
+  {% set subheading_text = item.subheading_text %}
   {% set size = item.size %}
   {% set alignment_class =  'text-left' %}
   {% include "cms/components/subheading/subheading.html" %}
@@ -15,7 +15,7 @@
 
 <h3>Center Aligned</h3>
 {% for item in variations %}
-  {% set text = item.text %}
+  {% set subheading_text = item.subheading_text %}
   {% set size = item.size %}
   {% set alignment_class = 'text-center' %}
   {% include "cms/components/subheading/subheading.html" %}
@@ -23,7 +23,7 @@
 
 <h3>Right Aligned</h3>
 {% for item in variations %}
-  {% set text = item.text %}
+  {% set subheading_text = item.subheading_text %}
   {% set size = item.size %}
   {% set alignment_class = 'text-right' %}
   {% include "cms/components/subheading/subheading.html" %}

@@ -1,3 +1,4 @@
+name: "Heading variants"
 context:
   variants:
     - text: 'Lorem ipsum dolor sit amet'

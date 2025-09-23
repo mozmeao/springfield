@@ -5,7 +5,9 @@
 #}
 
 {% set level = value.heading_size %}
-{% set text = value.headline_text|richtext|remove_p_tag %}
+{% if value.heading_text %}
+  {% set heading_text = value.heading_text|richtext|remove_p_tag %}
+{% endif %}
 {% if value.superheading_text %}
   {% set superheading_text = value.superheading_text|richtext|remove_p_tag %}
 {% endif %}

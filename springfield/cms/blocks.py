@@ -16,7 +16,7 @@ HEADING_TEXT_FEATURES = [
     "strikethrough",
 ]
 
-HEADING_SIZE_CHOICES = (
+HEADING_LEVEL_CHOICES = (
     ("h1", "H1"),
     ("h2", "H2"),
     ("h3", "H3"),
@@ -91,10 +91,10 @@ ICON_CHOICES = [
 # Element blocks
 
 
-def get_next_heading_size(size: str) -> str:
-    sizes = [choice[0] for choice in HEADING_SIZE_CHOICES]
-    index = sizes.index(size)
-    return sizes[index + 1] if index + 1 < len(sizes) else "h3"
+def get_next_heading_level(level: str) -> str:
+    levels = [choice[0] for choice in HEADING_LEVEL_CHOICES]
+    index = levels.index(level)
+    return levels[index + 1] if index + 1 < len(levels) else "h3"
 
 
 class HeadingValue(blocks.StructValue):
@@ -118,8 +118,8 @@ class HeadingValue(blocks.StructValue):
 
 
 class HeadingBlock(blocks.StructBlock):
-    heading_size = blocks.ChoiceBlock(
-        choices=HEADING_SIZE_CHOICES,
+    level = blocks.ChoiceBlock(
+        choices=HEADING_LEVEL_CHOICES,
         default="h2",
         inline_form=True,
     )
@@ -129,7 +129,7 @@ class HeadingBlock(blocks.StructBlock):
         inline_form=True,
     )
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
@@ -270,8 +270,8 @@ class HighlightCardBlock(blocks.StructBlock):
 class HighlightsValue(blocks.StructValue):
     def card_heading_size(self):
         heading = self.get("heading")
-        size = heading.get("heading_size", "h2")
-        return get_next_heading_size(size)
+        level = heading.get("level", "h2")
+        return get_next_heading_level(level)
 
 
 class HighlightsBlock(blocks.StructBlock):
