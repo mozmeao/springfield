@@ -429,19 +429,16 @@ class TestCalculateTranslationData:
 
     @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
     @patch("springfield.cms.utils.Translation.objects.get")
-    @patch("springfield.cms.utils.Translation.objects.filter")
-    def test_calculate_translation_data_fallback_to_nested_search(
-        self, mock_translation_filter, mock_translation_get, mock_translation_source_get, tiny_localized_site
-    ):
+    def test_calculate_translation_data_fallback_to_nested_search(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
         """Test the fallback logic when translation is from another translation."""
-        # First call (direct translation) should fail
-        mock_translation_source_get.side_effect = [TranslationSource.DoesNotExist(), Mock(), TranslationSource.DoesNotExist(), Mock()]
-        mock_translation_get.side_effect = Translation.DoesNotExist()
-
-        # Second call (translation of a translation) should succeed
         mock_translation_record = Mock()
         mock_translation_record.get_progress.return_value = (8, 6)  # 75% translated
-        mock_translation_filter.return_value.first.return_value = mock_translation_record
+
+        mock_translation_source_get.side_effect = [TranslationSource.DoesNotExist(), Mock(), TranslationSource.DoesNotExist(), Mock()]
+        mock_translation_get.side_effect = [
+            Translation.DoesNotExist(),  # First call (direct translation) should fail
+            mock_translation_record,  # Second call (translation of a translation) should succeed
+        ]
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
@@ -464,13 +461,17 @@ class TestCalculateTranslationData:
             # Should return empty list when ValueError occurs
             assert result == []
 
-    def test_calculate_translation_data_handles_attribute_error(self, tiny_localized_site):
+    @patch("springfield.cms.utils.logger")
+    def test_calculate_translation_data_handles_attribute_error(self, mock_logger, tiny_localized_site):
         """Test calculate_translation_data handles AttributeError gracefully."""
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
         # Mock specific property to raise AttributeError
-        with patch.object(Page, "specific", side_effect=AttributeError("Test error")):
+        with patch.object(Page, "get_translations", side_effect=AttributeError("Test error")):
             result = calculate_translation_data(en_us_homepage)
 
-            # Should return empty list when AttributeError occurs
+            # If an AttributeError occurs, then the results should be empty.
             assert result == []
+            # The logger was called with an exception.
+            assert mock_logger.exception.call_count == 1
+            assert [str(thing.args[0]) for thing in mock_logger.exception.call_args_list] == ["Test error"]
