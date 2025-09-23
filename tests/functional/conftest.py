@@ -104,7 +104,7 @@ def pytest_generate_tests(metafunc):
                     lang_urls = [a.attrib["href"] for a in doc("ul.c-lang-list a")]
                     for url in lang_urls:
                         doc = get_web_page(f"{base_url}{url}")
-                        download_urls = [a.attrib["href"] for a in doc("a.download-link")]
+                        download_urls = [a.attrib["href"] for a in doc(".c-step-contents a.download-link")]
                         for url in download_urls:
                             urls.append(url)
             assert urls

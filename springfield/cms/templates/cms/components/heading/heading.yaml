@@ -1,0 +1,7 @@
+name: "Heading"
+context:
+  level: 'h3'
+  text: 'Headlines for Firefox are always left-aligned in Metropolis - Bold'
+  superheading_text: 'Superheading'
+  subheading_text: 'Subheading'
+  subheading_size: 'subheading-3'

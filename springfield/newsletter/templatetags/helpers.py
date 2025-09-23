@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 @jinja2.pass_context
 def email_newsletter_form(
     ctx,
+    template="newsletter/includes/form.html",
     newsletters="mozilla-and-you",
     title=None,
     subtitle=None,
@@ -83,5 +84,5 @@ def email_newsletter_form(
         )
     )
 
-    html = render_to_string("newsletter/includes/form.html", context, request=request)
+    html = render_to_string(template, context, request=request)
     return Markup(html)

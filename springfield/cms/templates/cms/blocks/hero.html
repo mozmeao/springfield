@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="wnp-section wnp-section-intro">
+  <div class="wnp-container">
+    <div class="wnp-intro-layout">
+      <div class="wnp-intro-content">
+        {% if value.heading.superheading_text %}
+          <p class="wnp-eyebrow">{{ value.heading.superheading_text|richtext|remove_p_tag }}</p>
+        {% endif %}
+        <{{ value.heading.heading_size }} class="wnp-title">{{ value.heading.headline_text|richtext|remove_p_tag }}</{{ value.heading.heading_size }}>
+        <p class="wnp-subtitle-5">{{ value.heading.subheading_text|richtext|remove_p_tag }}</p>
+        {% if value.button %}
+          <div class="wnp-btn-wrap">
+            {% for button in value.button %}
+              {% include_block button %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="wnp-intro-media" aria-hidden="true">
+        <div class="wnp-media-frame wnp-media-frame--settings">
+          {{ image(value.image, "width-800") }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

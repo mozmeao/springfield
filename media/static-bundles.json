@@ -281,6 +281,43 @@
     },
     {
       "files": [
+        "css/cms/flare.css"
+      ],
+      "name": "flare"
+    },
+    {
+      "files": [
+        "css/cms/flare-base.css",
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_base"
+    },
+    {
+      "files": [
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_utilities"
+    },
+    {
+      "files": [
+        "css/cms/new.scss"
+      ],
+      "name": "cms-new"
+    },
+    {
+      "files": [
+        "css/cms/wagtail-admin.scss"
+      ],
+      "name": "wagtail-admin"
+    },
+    {
+      "files": [
+        "css/cms/pattern-library.css"
+      ],
+      "name": "pattern_library"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"
@@ -648,6 +685,12 @@
     },
     {
       "files": [
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
+    },
+    {
+      "files": [
         "js/firefox/landing/init.es6.js"
       ],
       "name": "firefox_landing"
@@ -663,6 +706,12 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
     }
   ]
 }

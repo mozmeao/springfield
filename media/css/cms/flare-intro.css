@@ -1,0 +1,75 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.intro {
+    text-align: center;
+    font-family: var(--font-family-inter);
+    background-color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+    padding: calc(var(--scale-80) * 1px);
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.intro > * {
+    margin: 0 auto;
+}
+
+.intro-content {
+    max-width: 848px;
+}
+
+.intro-has-media {
+    display: flex;
+    flex-direction: var(--layout-direction);
+    gap: 24px;
+    text-align: var(--default-text-align);
+}
+
+.intro-has-media > * {
+    margin: 0;
+}
+
+.intro-content .buttons {
+    justify-content: center;
+}
+
+.intro-has-media .intro-content .buttons {
+    justify-content: var(--default-justify-content);
+}
+
+.intro-media-after .intro-content {
+    order: 0;
+}
+
+.intro-media-after .intro-media {
+    order: 1;
+}
+
+.intro-media-before .intro-media {
+    order: 0;
+}
+
+.intro-media-before .intro-content {
+    order: 1;
+}
+
+.intro-content .text {
+    padding: 24px 0 64px;
+}
+
+.intro-has-media > .intro-content,
+.intro-has-media > .intro-media {
+    flex: 1 1 0;
+}
+
+.intro .heading-group {
+    margin-bottom: calc(var(--scale-24) * 1px);
+}
+
+.intro .subheading {
+    margin-top: 0;
+    margin-bottom: calc(var(--scale-64) * 1px);
+}

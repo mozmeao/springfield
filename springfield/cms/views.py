@@ -5,11 +5,15 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Min
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 
 from wagtail.models import Page
 
 from springfield.cms.utils import calculate_translation_data
+
+
+class FlareTestView(TemplateView):
+    template_name = "cms/flare-test.html"
 
 
 @method_decorator(staff_member_required, name="dispatch")

@@ -1,0 +1,12 @@
+context:
+  variations:
+    - text: 'Size 1 A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-1'
+    - text: 'Size 2 A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-2'
+    - text: 'Size 3 A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-3'
+    - text: 'Size 4 A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-4'
+    - text: 'Size 5 A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
+      size: 'subheading-5'

@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="wnp-section wnp-section-mobile" aria-labelledby="wnp-qr-qr-heading">
+  <div class="wnp-container">
+    <div class="wnp-qr">
+      <div class="wnp-qr-layout">
+        <div class="wnp-qr-media" aria-hidden="true">
+          <div class="wnp-qr-qr" role="img">{{ qrcode(value.qr_content, 12) }}</div>
+        </div>
+        <div class="wnp-qr-content">
+          <div class="wnp-qr-content-inner">
+            <h2 id="wnp-qr-qr-heading" class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</h2>
+            <div class="wnp-body">{{ value.content }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

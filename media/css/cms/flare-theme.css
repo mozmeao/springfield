@@ -1,0 +1,175 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Theme - This file maps Figma design tokens to CSS variables and defines
+other variables that are used throughout the other layers
+
+NOTE: This file does not contain element specific styles, it is only for
+defining variables
+
+GENERATION PROCESS:
+This file was generated using the Figma MCP tool to export all variables
+from the Figma design file. The MCP tool provides comprehensive access to
+all design tokens that aren't easily visible in Figma's standard UI or
+other Figma plugins (unfortunately)
+
+To update this file in the future, use the MCP tool with a prompt that
+asks the agent use mcp_Figma_get_variable_defs to get all variables
+from the selected Figma file and update this file. The process is
+non-determinative so you need to check and adjust the results as needed.
+===================================================================== */
+
+:root {
+    /* Color tokens from Figma */
+    --neutrals-white: #fff;
+    --neutrals-off-white: #fafafa;
+    --neutrals-ash: #f8f6f4;
+    --neutrals-gray-1: #f8f8f8;
+    --neutrals-grey-2: #f2f2f2;
+    --neutrals-grey-3: #dedede;
+    --neutrals-grey-4: #9d9d9d;
+    --neutrals-grey-5: #9d9d9d;
+    --neutrals-grey-6: #7c7c7c;
+    --neutrals-grey-7: #5b5b5b;
+    --neutrals-grey-8: #5B5B5B;
+    --neutrals-charcoal: #333336;
+    --neutrals-off-black: #161616;
+    --neutrals-black: #000;
+    --orange-orange: #ff8a50;
+    --orange-medium-orange: #ffb279;
+    --orange-light-orange: #ffcfa5;
+    --yellow-yellow: #ffea80;
+    --yellow-medium-yellow: #ffd567;
+    --yellow-dark-yellow: #FFBD4F;
+    --green-zilla-green: #00d230;
+    --blue-light-blue: #ccedfe;
+    --blue-blue: #00A6F9;
+    --blue-medium-blue: #0079d3;
+    --blue-dark-blue: #003c6e;
+    --blue-button: #0360df;
+    --purple-purple: #754fe0;
+    --purple-medium-purple: #d98dfa;
+    --purple-light-purple: #dcd2ff;
+    --pink-power-pink: #ff97e2;
+    --functional-error: var(--orange-orange);
+    --functional-warning: var(--yellow-dark-yellow);
+    --dark-yellow-alert: var(--yellow-dark-yellow);
+    --functional-success: var(--green-zilla-green);
+    --functional-info-buttons: var(--blue-button);
+
+    /* Gradients from Figma */
+    --gradient-earth-glow: linear-gradient(90deg, var(--blue-blue) 0%, var(--purple-purple) 100%);
+    --gradient-fox-fire: linear-gradient(90deg, var(var(--yellow-yellow)) 0%, var(--orange-orange) 100%);
+
+    /* Scale variables from Figma */
+    --scale-4: 4;
+    --scale-8: 8;
+    --scale-12: 12;
+    --scale-16: 16;
+    --scale-18: 18;
+    --scale-24: 24;
+    --scale-32: 32;
+    --scale-48: 48;
+    --scale-64: 64;
+    --scale-80: 80;
+    --scale-128: 128;
+    --scale-200: 200;
+
+    /* Grid and spacing variables from Figma */
+    --grids-spacing-interior-spacing-x1: 8;
+    --grids-spacing-interior-spacing-x1-5: 12;
+    --grids-spacing-interior-spacing-x2: 16;
+    --grids-spacing-interior-spacing-x3: 24;
+    --grids-spacing-grid-gutters-grid-gutter-2xl: 80;
+    --grids-spacing-grid-margins-grid-margin-2xl: 80;
+
+    /* Width and viewport variables from Figma */
+    --widths-content-container-content-2xl: 1280;
+    --widths-viewport-wrapper-screen-2xl: 1440;
+    --widths-viewport-wrapper-screen-2xl-min: 1025;
+
+    /* Typography from Figma */
+    --font-family-metropolis: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-family-inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-family-headline: var(--font-family-metropolis);
+    --font-weight-headline: var(--font-weight-semibold);
+    --font-family-subheader: var(--font-family-metropolis);
+    --font-weight-subheader: var(--font-weight-medium);
+    --font-family-body: var(--font-family-inter);
+    --font-weight-body: var(--font-weight-regular);
+    --font-family-link: var(--font-family-inter);
+    --font-weight-link: var(--font-weight-semibold);
+    --font-family-label: var(--font-family-inter);
+    --font-weight-label: var(--font-weight-medium);
+    --font-family-button: var(--font-family-mozilla-text);
+    --font-weight-button: var(--font-weight-semibold);
+
+    /* Font size variables NOT from Figma */
+    --font-size-base: 16px;
+
+    /* Heading font size variables */
+    --font-size-h1: 5rem; /* 80px */
+    --font-size-h2: 4rem; /* 64px */
+    --font-size-h3: 3rem; /* 48px */
+    --font-size-h4: 2rem; /* 32px */
+    --font-size-h5: 1.5rem; /* 24px */
+    --font-size-h6: 1.125rem; /* 18px */
+
+    /* Subheading font size variables */
+    --font-size-subheading-1: 1.5rem; /* 24px */
+    --font-size-subheading-2: 1.375rem; /* 22px */
+    --font-size-subheading-3: 1.25rem; /* 20px */
+    --font-size-subheading-4: 1.125rem; /* 18px */
+    --font-size-subheading-5: 1rem; /* 16px */
+
+    /* Body font size variables */
+    --font-size-body-large: 1.5rem; /* 24px */
+    --font-size-body-medium: 1.125rem; /* 18px */
+    --font-size-body-small: 1rem; /* 16px */
+    --font-size-body-xsmall: 0.875rem; /* 14px */
+
+    /* Other font size variables */
+    --font-size-tag: 0.75rem; /* 12px */
+    --font-size-superheading: 0.875rem; /* 14px */
+
+    /* Line height variables NOT from Figma */
+    --line-height-base: 1.2;
+
+    /* Media query variables NOT from Figma */
+    --layout-direction: column;
+    --default-justify-content: center;
+    --default-text-align: center;
+
+    /* Other variables from Figma */
+    --border-radius-md: 8;
+    --text: true;
+
+    /* Transition variables NOT from Figma */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+
+    /* Dark mode support */
+    color-scheme: light dark;
+}
+
+/* CSS custom properties are not resolved in media queries; so we
+centralize breakpoints once and flip CSS variables inside.
+components consume the variables (no per-component media queries) */
+
+/* Media query for 768px and larger */
+@media (min-width: 768px) {
+    :root {
+        --layout-direction: row;
+        --default-justify-content: flex-start;
+        --default-text-align: left;
+    }
+}

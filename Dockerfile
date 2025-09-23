@@ -42,6 +42,7 @@ RUN npm ci --verbose
 
 # copy supporting files and media
 COPY eslint.config.js .stylelintrc .prettierrc.json .prettierignore webpack.config.js webpack.static.config.js ./
+COPY ./webpack ./webpack
 COPY ./media ./media
 COPY ./tests/unit ./tests/unit
 
@@ -116,6 +117,10 @@ RUN touch /home/webdev/.pythonhist
 RUN chown -R webdev /home/webdev/
 
 USER webdev
+
+# media
+RUN mkdir -p /app/custom-media
+RUN chown -R webdev:webdev /app/custom-media
 
 # build args
 ARG GIT_SHA=latest

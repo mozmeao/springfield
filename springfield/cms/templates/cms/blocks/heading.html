@@ -1,0 +1,18 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set level = value.heading_size %}
+{% set text = value.headline_text|richtext|remove_p_tag %}
+{% if value.superheading_text %}
+  {% set superheading_text = value.superheading_text|richtext|remove_p_tag %}
+{% endif %}
+{% if value.subheading_text %}
+  {% set subheading_text = value.subheading_text|richtext|remove_p_tag %}
+{% endif %}
+{% set alignment_class = value.alignment_class() %}
+{% set subheading_size = value.subheading_size() %}
+
+{% include "cms/components/heading/heading.html" %}

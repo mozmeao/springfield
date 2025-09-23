@@ -57,4 +57,4 @@ wagtail-localize==1.12.2
 Wand==0.6.13  # For animated GIF support
 Wagtail==7.1.1
 whitenoise==6.10.0
-https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.0-jinja/django_pattern_library-1.5.0.tar.gz#egg=django-pattern-library
+https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.0-jinja/django_pattern_library-1.5.0.tar.gz

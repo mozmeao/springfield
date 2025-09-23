@@ -1,0 +1,73 @@
+name: "Button variants"
+context:
+  horizontal:
+    orientation: horizontal
+    buttons:
+      - note: Primary (default) with right icon
+        center_class: ''
+        theme_class: ''
+        label: "Primary Button"
+        link: "/"
+        external: false
+        icon_name: 'arrow-right'
+        icon_position: 'right'
+      - note: Primary (default) with left icon
+        center_class: ''
+        theme_class: ''
+        label: "Primary Button"
+        link: "/"
+        external: false
+        icon_name: 'arrow-left'
+        icon_position: 'left'
+      - note: Primary disabled
+        center_class: ''
+        theme_class: ''
+        label: "Disabled Primary"
+        link: "/"
+        external: false
+        disabled: true
+      - note: Secondary with right icon
+        center_class: ''
+        theme_class: 'button-secondary'
+        label: "Secondary Button"
+        link: "/contact"
+        external: false
+        icon_name: 'arrow-right'
+        icon_position: 'right'
+      - note: Secondary with left icon
+        center_class: ''
+        theme_class: 'button-secondary'
+        label: "Secondary Button"
+        link: "/contact"
+        external: false
+        icon_name: 'arrow-left'
+        icon_position: 'left'
+      - note: Secondary disabled
+        center_class: ''
+        theme_class: 'button-secondary'
+        label: "Disabled Secondary"
+        link: "/contact"
+        external: false
+        disabled: true
+      - note: Ghost button
+        center_class: ''
+        theme_class: 'button-ghost'
+        label: "Ghost Button"
+        link: "/"
+        external: false
+      - note: Disabled Ghost
+        center_class: ''
+        theme_class: 'button-ghost'
+        label: "Disabled Ghost"
+        link: "/"
+        external: false
+        disabled: true
+  stacked:
+    orientation: stacked
+    buttons:
+      - label: "Primary Button"
+        link: "/"
+        theme_class: ''
+      - label: "Secondary Button"
+        link: "/contact"
+        theme_class: 'button-secondary'

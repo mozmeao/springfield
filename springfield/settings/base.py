@@ -11,7 +11,9 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django.conf.locale import LANG_INFO  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
+from django.conf.locale import (
+    LANG_INFO,
+)  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
 from django.utils.functional import lazy
 
 import dj_database_url
@@ -52,6 +54,9 @@ DEV = config("DEV", parser=bool, default="false")
 PROD = config("PROD", parser=bool, default="false")
 
 DEBUG = config("DEBUG", parser=bool, default="false")
+
+# Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
+FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
@@ -153,14 +158,29 @@ PROD_DETAILS_CACHE_TIMEOUT = 60 * 15  # 15 min
 PROD_DETAILS_STORAGE = config("PROD_DETAILS_STORAGE", default="product_details.storage.PDDatabaseStorage")
 # path into which to clone the p-d json repo
 PROD_DETAILS_JSON_REPO_PATH = config("PROD_DETAILS_JSON_REPO_PATH", default=data_path("product_details_json"))
-PROD_DETAILS_JSON_REPO_URI = config("PROD_DETAILS_JSON_REPO_URI", default="https://github.com/mozilla-releng/product-details.git")
+PROD_DETAILS_JSON_REPO_URI = config(
+    "PROD_DETAILS_JSON_REPO_URI",
+    default="https://github.com/mozilla-releng/product-details.git",
+)
 PROD_DETAILS_JSON_REPO_BRANCH = config("PROD_DETAILS_JSON_REPO_BRANCH", default="production")
 # path to updated p-d data for testing before loading into DB
 PROD_DETAILS_TEST_DIR = str(Path(PROD_DETAILS_JSON_REPO_PATH).joinpath("public", "1.0"))
 
 # Regions defined on the `/locales/` page.
 LOCALES_BY_REGION = {
-    "Americas": ["azz", "cak", "en-CA", "en-US", "es-AR", "es-CL", "es-MX", "gn", "is", "pt-BR", "trs"],
+    "Americas": [
+        "azz",
+        "cak",
+        "en-CA",
+        "en-US",
+        "es-AR",
+        "es-CL",
+        "es-MX",
+        "gn",
+        "is",
+        "pt-BR",
+        "trs",
+    ],
     "Asia Pacific": [
         "bn",
         "gu-IN",
@@ -245,7 +265,19 @@ LOCALES_BY_REGION = {
         "uk",
         "uz",
     ],
-    "Middle East and Africa": ["ach", "af", "ar", "az", "fa", "ff", "he", "kab", "skr", "son", "xh"],
+    "Middle East and Africa": [
+        "ach",
+        "af",
+        "ar",
+        "az",
+        "fa",
+        "ff",
+        "he",
+        "kab",
+        "skr",
+        "son",
+        "xh",
+    ],
 }
 
 
@@ -455,6 +487,10 @@ SUPPORTED_NONLOCALES = [
     "pattern-library",
 ]
 
+# Ensure local debug-only test routes are not locale-prefixed
+if DEBUG:
+    SUPPORTED_NONLOCALES.append("flare-test")
+
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
@@ -537,14 +573,14 @@ STORAGES = {
     # it will not allow uploads for the Web deployment. You will have to
     # specify a different, dedicated storage backend for the file-upload process.
     "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage"
-        if GS_BUCKET_NAME and GS_PROJECT_ID
-        else "django.core.files.storage.FileSystemStorage",
+        "BACKEND": (
+            "storages.backends.gcloud.GoogleCloudStorage" if GS_BUCKET_NAME and GS_PROJECT_ID else "django.core.files.storage.FileSystemStorage"
+        ),
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-        if DEBUG
-        else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage" if DEBUG else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        ),
     },
 }
 
@@ -838,22 +874,22 @@ PATTERN_LIBRARY = {
     # be searched to populate the groups.
     "SECTIONS": (
         # ("components", ["patterns/components"]),
-        ("blocks", ["cms/patterns"]),
+        ("blocks", ["cms/components"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
     # Set which template components should be rendered inside of,
     # so they may use page-level component dependencies like CSS.
-    "PATTERN_BASE_TEMPLATE_NAME": "cms/patterns/base.html",
+    "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-protocol.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
     "CUSTOM_CSS": "css/pattern_library/theme.css",
     # SITE_TITLE allows users to customize the pattern library title displayed in the header
-    "SITE_TITLE": "Flare",
+    "SITE_TITLE": "Mozilla Flare",
 }
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
@@ -897,7 +933,10 @@ MOZILLA_INSTAGRAM_ACCOUNTS = {
 
 # Mozilla accounts product links
 # ***This URL *MUST* end in a traling slash!***
-FXA_ENDPOINT = config("FXA_ENDPOINT", default="https://accounts.stage.mozaws.net/" if DEV else "https://accounts.firefox.com/")
+FXA_ENDPOINT = config(
+    "FXA_ENDPOINT",
+    default=("https://accounts.stage.mozaws.net/" if DEV else "https://accounts.firefox.com/"),
+)
 
 # Google Play and Apple App Store settings
 from .appstores import (  # noqa: E402, F401
@@ -921,7 +960,21 @@ from .appstores import (  # noqa: E402, F401
 )
 
 # Locales that should display the 'Send to Device' widget
-SEND_TO_DEVICE_LOCALES = ["de", "en-GB", "en-US", "es-AR", "es-CL", "es-ES", "es-MX", "fr", "id", "pl", "pt-BR", "ru", "zh-TW"]
+SEND_TO_DEVICE_LOCALES = [
+    "de",
+    "en-GB",
+    "en-US",
+    "es-AR",
+    "es-CL",
+    "es-ES",
+    "es-MX",
+    "fr",
+    "id",
+    "pl",
+    "pt-BR",
+    "ru",
+    "zh-TW",
+]
 
 SEND_TO_DEVICE_MESSAGE_SETS = {
     "default": {
@@ -1066,7 +1119,10 @@ SENTRY_FRONTEND_DSN = config("SENTRY_FRONTEND_DSN", default=SENTRY_DSN)
 # Statsd metrics via markus
 if DEBUG or config("DISABLE_LOCAL_MARKUS", default="false", parser=bool):
     MARKUS_BACKENDS = [
-        {"class": "markus.backends.logging.LoggingMetrics", "options": {"logger_name": "metrics"}},
+        {
+            "class": "markus.backends.logging.LoggingMetrics",
+            "options": {"logger_name": "metrics"},
+        },
     ]
 else:
     STATSD_HOST = config("STATSD_HOST", default=get_default_gateway_linux())
@@ -1131,7 +1187,8 @@ DATA_CONSENT_COUNTRIES = [
 # RELAY =========================================================================================
 
 RELAY_PRODUCT_URL = config(
-    "RELAY_PRODUCT_URL", default="https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/" if DEV else "https://relay.firefox.com/"
+    "RELAY_PRODUCT_URL",
+    default=("https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/" if DEV else "https://relay.firefox.com/"),
 )
 
 
