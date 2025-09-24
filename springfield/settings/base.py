@@ -771,6 +771,7 @@ INSTALLED_APPS = [
     "django_jinja",
     "waffle",
     "watchman",
+    "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
     "wagtail.documents",
@@ -892,6 +893,7 @@ TEMPLATES = [
                 "django_jinja_markdown.extensions.MarkdownExtension",
                 "wagtail.jinja2tags.core",
                 "wagtail.images.jinja2tags.images",
+                "includecontents.jinja2.IncludeContentsExtension",
             ],
             "environment": "springfield.jinja2.custom_environment",
         },
@@ -921,8 +923,7 @@ PATTERN_LIBRARY = {
     # be searched to populate the groups.
     "SECTIONS": (
         # ("components", ["patterns/components"]),
-        ("components", ["cms/components"]),
-        ("variants", ["cms/variants"]),
+        ("components", ["patterns"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",

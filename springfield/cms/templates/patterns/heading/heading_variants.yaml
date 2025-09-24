@@ -1,0 +1,9 @@
+name: "Heading variants"
+context:
+  variants:
+    - heading_text: 'Lorem ipsum dolor sit amet'
+      alignment_class: 'text-left'
+      title: 'Left aligned'
+    - heading_text: 'Lorem ipsum dolor sit amet'
+      alignment_class: 'text-center'
+      title: 'Center aligned'

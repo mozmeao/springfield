@@ -1,0 +1,21 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="{{ center_class }}">
+  <a role="button" class="button {{ theme_class }}" href="{{ link }}" {% if external %}target="_blank" {% endif %} {% if disabled %}disabled{% endif %}>
+    {% if icon_name and icon_position == "left" %}
+      {% set extra_class = "icon-left" %}
+      {% set hidden = true %}
+      {% include "components/icon.html" %}
+    {% endif %}
+    {{ label }}
+    {% if icon_name and icon_position == "right" %}
+      {% set extra_class = "icon-right" %}
+      {% set hidden = true %}
+      {% include "components/icon.html" %}
+    {% endif %}
+  </a>
+</div>

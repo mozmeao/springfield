@@ -222,9 +222,15 @@ class IntroHeadingBlock(HeadingBlock):
 
 
 class IntroBlock(blocks.StructBlock):
-    image = ImageChooserBlock(required=False)
+    image = ImageChooserBlock(required=False, inline_form=True)
+    media_position = blocks.ChoiceBlock(
+        choices=(("after", "After"), ("before", "Before")),
+        default="after",
+        label="Media Position",
+        inline_form=True,
+    )
     heading = IntroHeadingBlock(classname="compact-form")
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
         template = "cms/blocks/intro.html"

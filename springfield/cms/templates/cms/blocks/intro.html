@@ -4,14 +4,23 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set heading = value.heading%}
-{% set img = image(value.image, "original") %}
-{% set img_attr = {"alt": img.alt, "url": img.url} %}
-{% set actions = {
-  "orientation": "horizontal",
-  "buttons": value.buttons
-} %}
-
-{% with image = img %}
-{% include "cms/components/intro/intro.html" %}
-{% endwith %}
+<include:intro media_position="{{ value.media_position }}">
+  <content:heading>
+    {% include_block value.heading %}
+  </content:heading>
+  <content:actions>
+    {% for button in value.buttons %}
+      {% include_block button %}
+    {% endfor %}
+  </content:actions>
+  {% if value.fine_print %}
+    <content:fine_print>
+      {{ value.fine_print|richtext|remove_p_tag }}
+    </content:fine_print>
+  {% endif %}
+  {% if value.image %}
+    <content:media>
+      {{ image(value.image, "original") }}
+    </content:media>
+  {% endif %}
+</include:intro>

@@ -1,0 +1,11 @@
+name: Body Text Variants
+context:
+  alignments:
+    - left
+    - center
+    - right
+  sizes:
+    - large
+    - medium
+    - small
+    - xsmall

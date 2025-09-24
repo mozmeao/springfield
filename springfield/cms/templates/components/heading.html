@@ -1,0 +1,25 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if superheading_text or subheading_text %}
+  <hgroup class="heading-group {{ alignment_class }}">
+    <span class="superheading">
+      {{ superheading_text }}
+    </span>
+    <{{ level|default('h2') }} class="heading">
+      {{ heading_text }}
+    </{{ level|default('h2') }}>
+    {% if subheading_text %}
+      {% set text = subheading_text %}
+      {% set size = subheading_size %}
+      {% include "components/subheading.html" %}
+    {% endif %}
+  </hgroup>
+{% else %}
+  <{{ level|default('h2') }} class="heading {{ alignment_class }}">
+    {{ heading_text }}
+  </{{ level|default('h2') }}>
+{% endif %}

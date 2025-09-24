@@ -10,9 +10,9 @@ apscheduler==3.11.0 \
     --hash=sha256:4c622d250b0955a65d5d0eb91c33e6d43fd879834bf541e0a18661ae60460133 \
     --hash=sha256:fc134ca32e50f5eadcc4938e3a4545ab19131435e851abb40b34d63d5141c6da
     # via -r requirements/prod.txt
-asgiref==3.9.1 \
-    --hash=sha256:a5ab6582236218e5ef1648f242fd9f10626cfd4de8dc377db215d5d5098e3142 \
-    --hash=sha256:f3bba7092a48005b5f5bacd747d36ee4a5a61f4a269a6df590b43144355ebd2c
+asgiref==3.9.2 \
+    --hash=sha256:0b61526596219d70396548fc003635056856dba5d0d086f86476f10b33c75960 \
+    --hash=sha256:a0249afacb66688ef258ffe503528360443e2b9a8d8c4581b6ebefa58c841ef1
     # via
     #   -r requirements/prod.txt
     #   django
@@ -57,9 +57,9 @@ boto3==1.40.27 \
     --hash=sha256:397d8cde7924f03b25eb553d5ed69293697dbfa1ca29b07369b3fa2df8318eca \
     --hash=sha256:bf1e0f5aa79dbeedff14926dc2eb1b57bc119fa9015a190a24b6cd5bf9a60e9a
     # via -r requirements/prod.txt
-botocore==1.40.35 \
-    --hash=sha256:67e062752ff579c8cc25f30f9c3a84c72d692516a41a9ee1cf17735767ca78be \
-    --hash=sha256:c545de2cbbce161f54ca589fbb677bae14cdbfac7d5f1a27f6a620cb057c26f4
+botocore==1.40.37 \
+    --hash=sha256:9d2cfc41963a3a8be8ece395292e29afad2e25aa602d02bc0c0c3a598405a318 \
+    --hash=sha256:9d4cee2ae0fe273003c6d1a8c9f7b98c4e40a6f74ba2f37eacba27d97fb7734f
     # via
     #   -r requirements/prod.txt
     #   boto3
@@ -523,6 +523,7 @@ django==5.2.6 \
     #   django-csp
     #   django-extensions
     #   django-filter
+    #   django-includecontents
     #   django-jinja
     #   django-memoize
     #   django-modelcluster
@@ -567,6 +568,9 @@ django-filter==25.1 \
     # via
     #   -r requirements/prod.txt
     #   wagtail
+django-includecontents @ https://github.com/SmileyChris/django-includecontents/archive/refs/heads/jinja.zip \
+    --hash=sha256:d936eaa4206e73ffb2bae27f630e499f99245ecbb8c39db1a5b90810ea54c07f
+    # via -r requirements/prod.txt
 django-jinja==2.11.0 \
     --hash=sha256:47c06d3271e6b2f27d3596278af517bfe2e19c1eb36ae1c0b1cc302d7f0259af \
     --hash=sha256:cc4c72246a6e346aa0574e0c56c3e534c1a20ef47b8476f05d7287781f69a0a9
@@ -1333,6 +1337,7 @@ packaging==25.0 \
     # via
     #   -r requirements/prod.txt
     #   django-csp
+    #   django-includecontents
     #   pipdeptree
     #   pytest
     #   pytest-rerunfailures

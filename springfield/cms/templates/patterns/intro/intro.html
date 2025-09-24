@@ -1,0 +1,28 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#  TODO: attrs not passed down #}
+
+<include:intro media_position=media_position >
+  <content:heading>
+    <include:heading
+      superheading_text="{{ heading.superheading_text }}"
+      heading_text="{{ heading.heading_text }}"
+      subheading_text="{{ heading.subheading_text }}"
+      alignment="{{ heading.alignment }}"
+      subheading_size="{{ heading.subheading_size }}"
+    />
+  </content:heading>
+  <content:actions>
+    <include:buttons buttons="{{ actions.buttons }}" />
+  </content:actions>
+  <content:fine_print>
+    <p>{{ fine_print }}</p>
+  </content:fine_print>
+  <content:media>
+    <include:image url="{{ image.url }}" alt="{{ image.alt }}" />
+  </content:media>
+</include:intro>
