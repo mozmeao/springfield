@@ -1,0 +1,17 @@
+<h2>Heading Size Overrides</h2>
+{% for i in range(4) %}
+  {% set heading_size = "heading-size-" ~ (i + 1) %}
+  {% set subheading_size = "subheading-" ~ (i + 1) %}
+  {% set heading_text = "This is an h2" ~ " with ." ~ heading_size ~ " class" %}
+  {% set subheading_text = "This is a ." ~ subheading_size ~ " class" %}
+  <include:heading
+    level="h2"
+    heading_size="{{ heading_size }}"
+    heading_text="{{ heading_text }}"
+    superheading_text="Superheading"
+    subheading_text="{{ subheading_text }}"
+    subheading_size="{{ subheading_size }}"
+    alignment_class="text-left"
+  />
+  <hr/>
+{% endfor %}

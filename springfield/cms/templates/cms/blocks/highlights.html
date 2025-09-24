@@ -6,7 +6,11 @@
 
 <section class="wnp-section wnp-section-highlights">
   <div class="wnp-container">
-    {% include_block value.heading %}
+    {% with alignment_class="text-center" %}
+      {% include_block value.heading %}
+    {% endwith %}
+
+    {% set card_heading_size = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
     <div class="wnp-grid">
       {% for card in value.cards %}
@@ -16,7 +20,7 @@
             {% set img_dark=image(card.image_dark, 'width-400') %}
           {% endif %}
           <img class="wnp-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
-          <{{ value.card_heading_size() }} class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</{{ value.card_heading_size() }}>
+          <{{ card_heading_size }} class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</{{ card_heading_size }}>
           <div class="wnp-body">{{ card.content }}</div>
           {% if card.button %}
             <div class="wnp-card-btn-wrap">

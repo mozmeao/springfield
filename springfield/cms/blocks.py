@@ -88,43 +88,7 @@ ICON_CHOICES = [
 
 # Element blocks
 
-
-def get_next_heading_level(level: str) -> str:
-    levels = [choice[0] for choice in HEADING_LEVEL_CHOICES]
-    index = levels.index(level)
-    return levels[index + 1] if index + 1 < len(levels) else "h3"
-
-
-class HeadingValue(blocks.StructValue):
-    def alignment_class(self) -> str:
-        classes = {
-            "left": "text-left",
-            "center": "text-center",
-        }
-        return classes.get(self.get("alignment", "left"))
-
-    def subheading_size(self) -> str:
-        size_classes = {
-            "h1": "subheading-1",
-            "h2": "subheading-2",
-            "h3": "subheading-3",
-            "h4": "subheading-4",
-            "h5": "subheading-5",
-            "h6": "subheading-6",
-        }
-        return size_classes.get(self.get("heading_size", "h2"))
-
 class HeadingBlock(blocks.StructBlock):
-    level = blocks.ChoiceBlock(
-        choices=HEADING_LEVEL_CHOICES,
-        default="h2",
-        inline_form=True,
-    )
-    alignment = blocks.ChoiceBlock(
-        choices=(("center", "Center"), ("left", "Left")),
-        default="left",
-        inline_form=True,
-    )
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -134,21 +98,6 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
-        form_classname = "compact-form struct-block"
-        value_class = HeadingValue
-
-
-class SimpleHeadingBlock(blocks.StructBlock):
-    """Heading block to be included in other blocks that will determine alignment and sizing."""
-    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-
-    class Meta:
-        icon = "title"
-        label = "Heading"
-        label_format = "{heading_text}"
-        template = "cms/blocks/simple-heading.html"
         form_classname = "compact-form struct-block"
 
 
@@ -244,7 +193,7 @@ class IntroBlock(blocks.StructBlock):
         label="Media Position",
         inline_form=True,
     )
-    heading = SimpleHeadingBlock(classname="compact-form")
+    heading = HeadingBlock()
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
@@ -292,13 +241,6 @@ class HighlightCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class HighlightsValue(blocks.StructValue):
-    def card_heading_size(self):
-        heading = self.get("heading")
-        level = heading.get("level", "h2")
-        return get_next_heading_level(level)
-
-
 class HighlightsBlock(blocks.StructBlock):
     heading = HeadingBlock()
     cards = blocks.ListBlock(HighlightCardBlock())
@@ -308,12 +250,9 @@ class HighlightsBlock(blocks.StructBlock):
         label = "Highlights"
         label_format = "Highlights - {heading}"
         form_classname = "compact-form struct-block"
-        value_class = HighlightsValue
 
 
 class SubscribeBannerBlock(blocks.StructBlock):
-    # TODO: does it make sense to have the option to left align the heading
-    # Maybe a simpler heading block without the alignment options
     heading = HeadingBlock()
 
     class Meta:

@@ -7,7 +7,8 @@
 {% set heading_text = value.heading_text|richtext|remove_p_tag if value.heading_text else '' %}
 {% set superheading_text = value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' %}
 {% set subheading_text = value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' %}
-{% set level = 'h' ~ block_index if block_index else 'h2' %}
+{% set level = 'h' ~ block_level if block_level else 'h2' %}
+{% set alignment_class = alignment_class or "" %}
 
 <include:heading
   level="{{ level }}"
@@ -15,5 +16,5 @@
   superheading_text="{{ superheading_text }}"
   subheading_text="{{ subheading_text }}"
   subheading_size=""
-  alignment_class=""
+  alignment_class="{{ alignment_class }}"
 />

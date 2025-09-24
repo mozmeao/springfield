@@ -13,7 +13,8 @@
         </div>
         <div class="wnp-qr-content">
           <div class="wnp-qr-content-inner">
-            <h2 id="wnp-qr-qr-heading" class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</h2>
+            {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+            <{{ heading_level }} id="wnp-qr-qr-heading" class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
             <div class="wnp-body">{{ value.content }}</div>
           </div>
         </div>

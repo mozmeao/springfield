@@ -11,7 +11,7 @@
 <div class="wnp-page">
   <main class="wnp-main">
     {% for block in page.content %}
-      {% set block_index = loop.index %}
+      {% set block_level =  1 if loop.index == 1 else 2 %}
       {% include_block block %}
     {% endfor %}
   </main>

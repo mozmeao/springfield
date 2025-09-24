@@ -9,17 +9,15 @@
     <span class="superheading">
       {{ superheading_text }}
     </span>
-    <{{ level|default('h2') }} class="heading">
+    <{{ level|default('h2') }} class="heading  {{ heading_size }}">
       {{ heading_text }}
     </{{ level|default('h2') }}>
-    {% if subheading_text %}
-      {% set text = subheading_text %}
-      {% set size = subheading_size %}
-      {% include "components/subheading.html" %}
-    {% endif %}
   </hgroup>
+  {% if subheading_text %}
+    <p class="subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
+  {% endif %}
 {% else %}
-  <{{ level|default('h2') }} class="heading {{ alignment_class }}">
+  <{{ level|default('h2') }} class="heading {{ alignment_class }} {{ heading_size }}">
     {{ heading_text }}
   </{{ level|default('h2') }}>
 {% endif %}

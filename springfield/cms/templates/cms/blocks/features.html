@@ -7,8 +7,11 @@
 
 <section class="wnp-section">
   <div class="wnp-container">
-    {% include_block value.heading %}
+    {% with alignment_class="text-center" %}
+      {% include_block value.heading %}
+    {% endwith %}
 
+    {% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
     {% for feature in value.rows %}
       <div class="wnp-feature {% if loop.index % 2 == 0 %}wnp-feature--reverse{% endif %}">
         <div class="wnp-feature-media" aria-hidden="true">
@@ -18,7 +21,7 @@
         </div>
         <div class="wnp-feature-content">
           <p class="wnp-feature-eyebrow">{{ feature.eyebrow|richtext|remove_p_tag }}</p>
-          <h3 class="wnp-subtitle">{{ feature.headline|richtext|remove_p_tag }}</h3>
+          <{{ row_heading_level }} class="wnp-subtitle">{{ feature.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
           <div class="wnp-body">
             {{ feature.content }}
           </div>
