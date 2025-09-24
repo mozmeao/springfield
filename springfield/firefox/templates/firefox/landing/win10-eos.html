@@ -9,7 +9,7 @@
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
 {# Don't forget to set '<title>%s</title>' content when formatting, e.g. per locale from 'icon_title'. #}
-{% set pencil_icon = '<svg role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19"><title>%s</title><g clip-path="url(#a)"><path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"/></g><defs><clipPath id="a"><path d="M0 .462h18v18H0z"/></clipPath></defs></svg>' %}
+{% set pencil_icon = '<svg class="c-box-body-icon" role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19"><title>%s</title><g clip-path="url(#a)"><path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"/></g><defs><clipPath id="a"><path d="M0 .462h18v18H0z"/></clipPath></defs></svg>' %}
 
 {% if LANG == 'de' %}
   {% set main_title = 'Einige neue Firefox-Funktionen, die Browsen einfach besser machen.' %}
@@ -17,7 +17,7 @@
   {% set box_one_title = 'Mehr Übersicht, weniger Tab-Chaos' %}
   {% set box_one_body = 'Mit der neuen Firefox-Seitenleiste behältst du den Überblick: Tabs zur Seite schieben, Lieblingsseiten anpinnen und deinen KI-Assistenten immer parat haben.' %}
   {% set box_one_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-137-de-high-res-v2.webm' %}
-  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-de-high-res.avif' %}
+  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg' %}
   <!-- Box 2 -->
   {% set box_two_title = 'Übernimm die Kontrolle über deinen Browser mit Tab-Gruppen' %}
   {% set box_two_body = 'Schluss mit dem Tab-Chaos! Behalte deine Zeit und Aufmerksamkeit im Blick. Zieh einfach einen Tab auf einen anderen, um eine Gruppe zu erstellen.' %}
@@ -38,7 +38,7 @@
   {% set box_one_title = 'Moins de chaos, plus de concentration grâce aux onglets verticaux' %}
   {% set box_one_body = 'Le nouveau panneau latéral vous permet de déplacer vos onglets sur le côté, d’épingler vos sites favoris et d’avoir votre assistant IA à portée de clic.' %}
   {% set box_one_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-137-fr-high-res-v2.webm' %}
-  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-fr-high-res.avif' %}
+  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-fr.jpg' %}
   <!-- Box 2 -->
   {% set box_two_title = 'Contrôlez votre navigation grâce aux groupes d’onglets' %}
   {% set box_two_body = 'Fini d’accumuler les onglets. Place à l’organisation. Contrôlez votre temps et votre attention. Glissez un onglet sur l’autre et créez votre premier groupe.' %}
@@ -50,7 +50,7 @@
   {% set box_three_video_src= 'https://assets.mozilla.net/video/whatsnew/141/wnp-141-fr.webm' %}
   {% set icon_title = 'Personnaliser' %}
   <!-- CTA section -->
-  {% set cta_title = 'Vous aimez le nouveau Firefox ? Emportez-le avec vous.' %}
+  {% set cta_title = 'Vous aimez le nouveau Firefox&nbsp;? Emportez-le avec vous.' %}
   {% set cta_body = 'Synchronisez vos marque-pages, mots de passe et paramètres pour que Firefox soit familier quand vous vous connectez.' %}
   {% set cta_action = 'Commencer' %}
 {% else %}
@@ -59,7 +59,7 @@
   {% set box_one_title = 'Less clutter and more focus with vertical tabs' %}
   {% set box_one_body = 'Firefox’s new sidebar lets you move tabs to the side, pin key sites, and keep your AI assistant handy.' %}
   {% set box_one_video_src= 'https://assets.mozilla.net/video/whatsnew/wnp-137-en-high-res-v2.webm' %}
-  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-en-high-res.avif' %}
+  {% set box_one_poster_src= 'img/firefox/landing/win10-eos/vertical-tabs/poster-en.jpg' %}
   <!-- Box 2 -->
   {% set box_two_title = 'Take control of your browsing with tab groups' %}
   {% set box_two_body = 'No more tab overload. Stay organized and in control of your time and attention. Drag one tab onto another to create your first group.' %}
@@ -100,8 +100,8 @@
             preload="none"
             loop
             controls
-            width="472"
-            height="354"
+            width="1040"
+            height="585"
             poster="{{ static(box_one_poster_src) }}">
               <source src="{{ box_one_video_src }}" type="video/webm">
           </video>
@@ -143,7 +143,7 @@
     <section class="c-cta mzp-c-split mzp-l-split-reversed mzp-l-split-body-wide">
       <div class="mzp-c-split-container">
         <div class="mzp-c-split-body ">
-          <h2 class="c-cta-title">{{ cta_title }}</h2>
+          <h2 class="c-cta-title">{{ cta_title | safe }}</h2>
           <p class="c-cta-body">{{ cta_body }}</p>
           <!-- TODO: check attribution & confirm UTM params -->
           {{ fxa_button(
@@ -154,18 +154,31 @@
           ) }}
         </div>
         <div class="mzp-c-split-media">
-          {{ resp_img('img/firefox/landing/win10-eos/settings.png',
-              srcset={
-                'img/firefox/landing/win10-eos/settings-high-res.png': '2x'
-              },
+            {{ picture(
+              url="img/firefox/landing/win10-eos/sync-dark-bg.png",
+              sources=[
+                  {
+                    "media": "(prefers-color-scheme: light)",
+                    "srcset": {
+                      "img/firefox/landing/win10-eos/sync-dark-bg.png": "435w",
+                      "img/firefox/landing/win10-eos/sync-dark-bg-high-res.png": "870w",
+                    }
+                  },
+                  {
+                    "media": "(prefers-color-scheme: dark)",
+                    "srcset": {
+                      "img/firefox/landing/win10-eos/sync-light-bg.png": "435w",
+                      "img/firefox/landing/win10-eos/sync-light-bg-high-res.png": "870w",
+                    }
+                  },
+              ],
               optional_attributes={
                 "alt": "",
-                "width": "584",
-                "height": "387",
-                "class": "mzp-c-split-media-asset"
+                "width": "435",
+                "height": "251",
+                "class": "c-cta-image mzp-c-split-media-asset"
               }
-            )
-            }}
+          )}}
         </div>
       </div>
     </section>

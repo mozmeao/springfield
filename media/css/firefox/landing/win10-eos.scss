@@ -4,9 +4,17 @@
 
 @use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 @use "~@mozilla-protocol/core/protocol/css/templates/multi-column";
-@use "../whatsnew/includes/theme";
+@use '../../protocol/components/video';
+@use "../whatsnew/includes/theme"; // keep Firefox theming
 
 // Protocol overrides
+
+@media #{$mq-xl} {
+    .mzp-l-content {
+      padding: var(--v-grid-md) var(--h-grid-md); // stick to md instead of xl
+    }
+}
+
 .c-logo-wrapper.mzp-l-content {
     padding-bottom: 0;
 }
@@ -32,6 +40,7 @@
 }
 
 .c-main-title {
+    @include text-title-md;
     margin-left: auto;
     margin-right: auto;
     max-width: $content-xl;
@@ -39,21 +48,21 @@
 }
 
 .c-box {
+    align-content: start;
     background-color: $color-marketing-gray-10;
     border-radius: $border-radius-md;
     color: $color-black;
     display: grid;
+    gap: $spacing-md;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: $content-sm;
     padding: $layout-sm;
-    align-content: start;
-}
-
-.c-box-video {
-    margin-bottom: $spacing-sm;
 }
 
 .c-box-title {
     color: $color-black;
-    margin-bottom: $spacing-sm;
+    margin-bottom: 0; // controlled by grid gap
 }
 
 .c-box-body {
@@ -62,10 +71,25 @@
     margin-bottom: 0;
 }
 
+.c-box-body-icon {
+    vertical-align: middle;
+}
+
 .c-cta {
     border: 1px solid $color-dark-gray-60;
     border-radius: $border-radius-md;
     padding: $layout-xs $layout-sm;
+
+    @media (width < #{$screen-md}) {
+        text-align: center;
+        margin-right: auto;
+        margin-left: auto;
+        max-width: $content-sm;
+    }
+}
+
+.c-cta-image {
+    border-radius: $border-radius-lg;
 }
 
 .c-main-title,
@@ -93,5 +117,9 @@
     .c-logo-image {
         background: url('/media/img/logos/firefox/logo-word-hor-white.svg') no-repeat;
         @include background-size(120px, 40px);
+    }
+
+    .c-cta {
+        border: 1px solid $color-light-gray-20;
     }
 }
