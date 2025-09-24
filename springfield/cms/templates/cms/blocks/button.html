@@ -8,8 +8,8 @@
 {% set center_class = value.center_class() %}
 
 <include:button
-  center_class=center_class
-  theme_class=theme_class
+  center_class="{{ center_class }}"
+  theme_class="{{ theme_class }}"
   link="{{ value.link }}"
   external="{{ value.external }}"
   disabled="{{ value.disabled }}"

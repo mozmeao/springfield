@@ -362,7 +362,7 @@ django-filter==25.1 \
     --hash=sha256:4fa48677cf5857b9b1347fed23e355ea792464e0fe07244d1fdfb8a806215b80
     # via wagtail
 django-includecontents @ https://github.com/SmileyChris/django-includecontents/archive/refs/heads/jinja.zip \
-    --hash=sha256:d936eaa4206e73ffb2bae27f630e499f99245ecbb8c39db1a5b90810ea54c07f
+    --hash=sha256:205882ef7dd1d86662f8a708cb5040c528d0433ec034105b452885ae5455cb43
     # via -r requirements/prod.in
 django-jinja==2.11.0 \
     --hash=sha256:47c06d3271e6b2f27d3596278af517bfe2e19c1eb36ae1c0b1cc302d7f0259af \

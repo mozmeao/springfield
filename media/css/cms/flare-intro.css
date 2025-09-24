@@ -69,7 +69,12 @@
     margin-bottom: calc(var(--scale-24) * 1px);
 }
 
+.intro .heading {
+    font-size: var(--font-size-h3);
+}
+
 .intro .subheading {
     margin-top: 0;
     margin-bottom: calc(var(--scale-64) * 1px);
+    font-size: var(--font-size-subheading-3);
 }

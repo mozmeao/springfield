@@ -14,11 +14,13 @@ context:
         external: true
         icon_name: arrow-right
         icon_position: right
+        theme_class: ''
       - label: Sign Up
         link: testurl
         external: false
         icon_name: arrow-left
         icon_position: left
+        theme_class: 'button-secondary'
     orientation: horizontal
     center_class: is-center
   fine_print: Fine print

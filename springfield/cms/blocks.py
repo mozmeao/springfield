@@ -114,7 +114,6 @@ class HeadingValue(blocks.StructValue):
         }
         return size_classes.get(self.get("heading_size", "h2"))
 
-
 class HeadingBlock(blocks.StructBlock):
     level = blocks.ChoiceBlock(
         choices=HEADING_LEVEL_CHOICES,
@@ -127,16 +126,30 @@ class HeadingBlock(blocks.StructBlock):
         inline_form=True,
     )
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
         icon = "title"
         label = "Heading"
-        label_format = "{headline_text}"
+        label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
         form_classname = "compact-form struct-block"
         value_class = HeadingValue
+
+
+class SimpleHeadingBlock(blocks.StructBlock):
+    """Heading block to be included in other blocks that will determine alignment and sizing."""
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        icon = "title"
+        label = "Heading"
+        label_format = "{heading_text}"
+        template = "cms/blocks/simple-heading.html"
+        form_classname = "compact-form struct-block"
 
 
 class ButtonValue(blocks.StructValue):
@@ -164,6 +177,12 @@ class ButtonBlock(blocks.StructBlock):
     external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
     center = blocks.BooleanBlock(required=False, default=False, inline_form=True)
     icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="right",
+        label="Icon Position",
+        inline_form=True,
+    )
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
 
@@ -217,10 +236,6 @@ class TagBlock(blocks.StructBlock):
 # Section blocks
 
 
-class IntroHeadingBlock(HeadingBlock):
-    alignment = None
-
-
 class IntroBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=False, inline_form=True)
     media_position = blocks.ChoiceBlock(
@@ -229,7 +244,7 @@ class IntroBlock(blocks.StructBlock):
         label="Media Position",
         inline_form=True,
     )
-    heading = IntroHeadingBlock(classname="compact-form")
+    heading = SimpleHeadingBlock(classname="compact-form")
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
