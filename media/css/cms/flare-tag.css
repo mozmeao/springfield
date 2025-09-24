@@ -49,6 +49,11 @@
     color: var(--neutrals-charcoal);
 }
 
+.tag.tag-yellow {
+    background: var(--yellow-yellow);
+    color: var(--neutrals-charcoal);
+}
+
 .tag.tag-black {
     background: light-dark(var(--neutrals-charcoal), var(--neutrals-black));
     color: var(--neutrals-ash);

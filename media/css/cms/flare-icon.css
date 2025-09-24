@@ -16,6 +16,8 @@
 
 .icon-ai { --icon-src: url('/media/img/firefox/flare/icons/ai.svg'); }
 .icon-alert { --icon-src: url('/media/img/firefox/flare/icons/alert.svg'); }
+.icon-android { --icon-src: url('/media/img/firefox/flare/icons/android.svg'); }
+.icon-apple { --icon-src: url('/media/img/firefox/flare/icons/apple.svg'); }
 .icon-arrow-down { --icon-src: url('/media/img/firefox/flare/icons/arrow-down.svg'); }
 .icon-arrow-left { --icon-src: url('/media/img/firefox/flare/icons/arrow-left.svg'); }
 .icon-arrow-right { --icon-src: url('/media/img/firefox/flare/icons/arrow-right.svg'); }
