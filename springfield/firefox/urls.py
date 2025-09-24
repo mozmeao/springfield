@@ -124,7 +124,7 @@ urlpatterns = (
     ),
     # Issue 487 - Win10 End of Service
     page(
-        "landing/win10-eos/",
+        "landing/win-new-features/",
         "firefox/landing/win10-eos.html",
         active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
