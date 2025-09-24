@@ -186,6 +186,16 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class HeaderNotificationBlock(blocks.StructBlock):
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/header-notification.html"
+        label = "Header Notification"
+        label_format = "Header Notification - {message}"
+        form_classname = "compact-form struct-block"
+
+
 # Section blocks
 
 

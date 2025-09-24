@@ -50,9 +50,9 @@ the future and this file will be removed.
     --fds-font-family-primary: var(--font-family-headline);
     --fds-font-family-secondary: var(--font-family-body);
     --fds-font-size-base: var(--font-size-base);
-    --fds-font-size-xs: var(--font-size-h6);
-    --fds-font-size-sm: var(--font-size-h6);
-    --fds-font-size-md: var(--font-size-h6);
+    --fds-font-size-xs: var(--font-size-body-xsmall);
+    --fds-font-size-sm: var(--font-size-body-small);
+    --fds-font-size-md: var(--font-size-body-medium);
     --fds-font-size-2xl: var(--font-size-h4);
     --fds-font-size-3xl: var(--font-size-h3);
     --fds-font-size-5xl: var(--font-size-h2);
@@ -72,47 +72,6 @@ the future and this file will be removed.
     width: auto;
     max-width: none;
     padding: 0;
-}
-
-.wnp-page-header-notification .wnp-notification-bar {
-    margin: 0;
-    border-radius: var(--fds-border-radius-md);
-    border: none;
-    background: light-dark(var(--fds-color-purple-light), var(--fds-color-purple-light));
-    color: var(--fds-color-charcoal);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    text-align: center;
-}
-
-.wnp-page-header-notification .wnp-notification-bar p {
-    margin: 0;
-    font-family: var(--fds-font-family-secondary);
-    font-size: var(--fds-font-size-sm);
-    line-height: 1.4;
-    padding: var(--fds-spacing-md) var(--fds-spacing-lg);
-}
-
-@media (max-width: 1024px) {
-
-    .wnp-page-header-notification {
-        position: absolute;
-        top: 70px;
-        left: 50%;
-        transform: translateX(-50%);
-        max-width: calc(100vw - var(--fds-spacing-lg))
-    }
-
-    .wnp-page-header-notification .wnp-notification-bar {
-        white-space: normal;
-    }
-
-    .wnp-page-header-notification .wnp-notification-bar p {
-        padding: var(--fds-spacing-sm) var(--fds-spacing-md);
-    }
 }
 
 .wnp-page {
