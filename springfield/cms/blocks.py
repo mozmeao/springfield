@@ -88,6 +88,7 @@ ICON_CHOICES = [
 
 # Element blocks
 
+
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
