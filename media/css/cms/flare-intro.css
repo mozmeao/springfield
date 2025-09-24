@@ -72,5 +72,5 @@
 .intro .subheading {
     margin-top: 0;
     margin-bottom: calc(var(--scale-64) * 1px);
-    font-size: var(--font-size-subheading-3);
+    font-size: var(--font-size-base);
 }

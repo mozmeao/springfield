@@ -8,7 +8,7 @@
     font-family: var(--font-family-metropolis);
     font-weight: var(--font-weight-semibold);
     line-height: var(--line-height-base);
-    color: light-dark(var(--neutrals-black), var(--neutrals-white));
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     margin: calc(var(--scale-24) * 1px) 0;
 }
 
@@ -45,7 +45,7 @@
     font-size: var(--font-size-subheading-1);
     font-weight: var(--font-weight-medium);
     line-height: var(--line-height-base);
-    color: light-dark(var(--neutrals-black), var(--neutrals-white));
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     margin: calc(var(--scale-16) * 1px) 0;
 }
 
