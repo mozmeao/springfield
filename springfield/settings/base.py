@@ -11,9 +11,7 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django.conf.locale import (
-    LANG_INFO,
-)  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
+from django.conf.locale import LANG_INFO  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
 from django.utils.functional import lazy
 
 import dj_database_url
