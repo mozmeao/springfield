@@ -4,27 +4,29 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="wnp-section wnp-section-highlights">
+<section class="wnp-section card-deck">
   <div class="wnp-container">
-    {% with alignment_class="text-center" %}
-      {% include_block value.heading %}
-    {% endwith %}
+    <div class="card-deck-header">
+      {% with alignment_class="text-center" %}
+        {% include_block value.heading %}
+      {% endwith %}
+    </div>
 
-    {% set card_heading_size = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+    {% set card_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
     <div class="wnp-grid">
       {% for card in value.cards %}
-        <article class="wnp-card">
+        <article class="wnp-card {% if card.expand_link %}expand-link{% endif %}">
           {% set img=image(card.image, 'width-400') %}
           {% if card.image_dark %}
             {% set img_dark=image(card.image_dark, 'width-400') %}
           {% endif %}
           <img class="wnp-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
-          <{{ card_heading_size }} class="wnp-subtitle">{{ card.headline|richtext|remove_p_tag }}</{{ card_heading_size }}>
-          <div class="wnp-body">{{ card.content }}</div>
-          {% if card.button %}
-            <div class="wnp-card-btn-wrap">
-              {% for button in card.button %}
+          <{{ card_heading_level }} class="heading heading-size-3">{{ card.headline|richtext|remove_p_tag }}</{{ card_heading_level }}>
+          <div class="body body-medium">{{ card.content }}</div>
+          {% if card.buttons %}
+            <div class="buttons">
+              {% for button in card.buttons %}
                 {% include_block button %}
               {% endfor %}
             </div>

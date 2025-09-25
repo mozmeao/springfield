@@ -39,10 +39,10 @@ class Migration(migrations.Migration):
                             ("paragraph", 2),
                             ("intro", 16),
                             ("features", 25),
-                            ("highlights", 29),
-                            ("subscribe_banner", 30),
-                            ("tag_cards", 39),
-                            ("qr_code_banner", 41),
+                            ("sticker_cards", 30),
+                            ("subscribe_banner", 31),
+                            ("tag_cards", 40),
+                            ("qr_code_banner", 42),
                         ],
                         block_lookup={
                             0: (
@@ -176,14 +176,19 @@ class Migration(migrations.Migration):
                             25: ("wagtail.blocks.StructBlock", [[("heading", 6), ("cta", 20), ("rows", 24)]], {}),
                             26: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
                             27: (
+                                "wagtail.blocks.BooleanBlock",
+                                (),
+                                {"default": False, "help_text": "Expand the link click area to the whole card", "required": False},
+                            ),
+                            28: (
                                 "wagtail.blocks.StructBlock",
-                                [[("image", 21), ("dark_image", 26), ("headline", 0), ("content", 0), ("button", 22)]],
+                                [[("image", 21), ("dark_image", 26), ("headline", 0), ("content", 0), ("expand_link", 27), ("buttons", 22)]],
                                 {},
                             ),
-                            28: ("wagtail.blocks.ListBlock", (27,), {}),
-                            29: ("wagtail.blocks.StructBlock", [[("heading", 6), ("cards", 28)]], {}),
-                            30: ("wagtail.blocks.StructBlock", [[("heading", 6)]], {}),
-                            31: (
+                            29: ("wagtail.blocks.ListBlock", (28,), {}),
+                            30: ("wagtail.blocks.StructBlock", [[("heading", 6), ("cards", 29)]], {}),
+                            31: ("wagtail.blocks.StructBlock", [[("heading", 6)]], {}),
+                            32: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -253,13 +258,13 @@ class Migration(migrations.Migration):
                                     ]
                                 },
                             ),
-                            32: (
+                            33: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {"choices": [("before", "Before"), ("after", "After")], "inline_form": True, "label": "Icon Position"},
                             ),
-                            33: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
-                            34: (
+                            34: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
+                            35: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -275,21 +280,21 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            35: (
+                            36: (
                                 "wagtail.blocks.StructBlock",
-                                [[("title", 12), ("icon", 31), ("icon_position", 32), ("corners", 33), ("color", 34)]],
+                                [[("title", 12), ("icon", 32), ("icon_position", 33), ("corners", 34), ("color", 35)]],
                                 {},
                             ),
-                            36: ("wagtail.blocks.ListBlock", (35,), {"max_num": 3, "min_num": 1}),
-                            37: ("wagtail.blocks.StructBlock", [[("headline", 0), ("content", 0), ("button", 22), ("tags", 36)]], {}),
-                            38: ("wagtail.blocks.ListBlock", (37,), {}),
-                            39: ("wagtail.blocks.StructBlock", [[("heading", 6), ("cards", 38)]], {}),
-                            40: (
+                            37: ("wagtail.blocks.ListBlock", (36,), {"max_num": 3, "min_num": 1}),
+                            38: ("wagtail.blocks.StructBlock", [[("headline", 0), ("content", 0), ("button", 22), ("tags", 37)]], {}),
+                            39: ("wagtail.blocks.ListBlock", (38,), {}),
+                            40: ("wagtail.blocks.StructBlock", [[("heading", 6), ("cards", 39)]], {}),
+                            41: (
                                 "wagtail.blocks.CharBlock",
                                 (),
                                 {"help_text": "Content to encode in the QR code, e.g., a URL or text.", "required": True},
                             ),
-                            41: ("wagtail.blocks.StructBlock", [[("qr_content", 40), ("headline", 0), ("content", 0)]], {}),
+                            42: ("wagtail.blocks.StructBlock", [[("qr_content", 41), ("headline", 0), ("content", 0)]], {}),
                         },
                     ),
                 ),

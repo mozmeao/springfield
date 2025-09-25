@@ -242,27 +242,32 @@ class FeaturesBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class HighlightCardBlock(blocks.StructBlock):
+class StickerCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
-        label = "Highlight Card"
+        label = "Sticker Card"
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
 
 
-class HighlightsBlock(blocks.StructBlock):
+class StickerCardsBlock(blocks.StructBlock):
     heading = HeadingBlock()
-    cards = blocks.ListBlock(HighlightCardBlock())
+    cards = blocks.ListBlock(StickerCardBlock())
 
     class Meta:
-        template = "cms/blocks/highlights.html"
-        label = "Highlights"
-        label_format = "Highlights - {heading}"
+        template = "cms/blocks/sticker-cards.html"
+        label = "Sticker Cards"
+        label_format = "Sticker Cards - {heading}"
         form_classname = "compact-form struct-block"
 
 

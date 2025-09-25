@@ -508,10 +508,6 @@ the future and this file will be removed.
     margin-inline: auto;
 }
 
-.wnp-section-highlights .wnp-subtitle {
-    margin-top: 0;
-}
-
 .wnp-section-mobile {
     padding: var(--fds-spacing-4xl) 0;
 }
@@ -1405,25 +1401,29 @@ the future and this file will be removed.
     height: 100%;
 }
 
+.wnp-card .heading {
+    margin: 0;
+}
+
 .wnp-feature .wnp-subtitle a,
-.wnp-card .wnp-subtitle a {
+.wnp-card .heading a {
     color: inherit;
     text-decoration: none;
 }
 
 .wnp-feature .wnp-subtitle a:hover,
-.wnp-card .wnp-subtitle a:hover {
+.wnp-card .heading a:hover {
     text-decoration: underline;
 }
 
 .wnp-feature .wnp-subtitle a:focus,
-.wnp-card .wnp-subtitle a:focus {
+.wnp-card .heading a:focus {
     outline: 2px solid var(--fds-color-blue);
     outline-offset: 2px;
 }
 
 .wnp-feature .wnp-button,
-.wnp-card .wnp-button {
+.wnp-card .button {
     margin-top: auto;
     align-self: flex-start;
 }
@@ -1431,7 +1431,7 @@ the future and this file will be removed.
 @media (min-width: 1024px) {
 
     .wnp-feature .wnp-button,
-    .wnp-card .wnp-button {
+    .wnp-card .button {
         width: fit-content
     }
 }
