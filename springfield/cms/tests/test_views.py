@@ -226,6 +226,7 @@ class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
                             "locale": "de",
                             "edit_url": f"/cms-admin/pages/{translation.id}/edit/",
                             "view_url": translation.get_url(),
+                            "percent_translated": 0,
                         }
                     ],
                     "edit_url": f"/cms-admin/pages/{original_page.id}/edit/",
