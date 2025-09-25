@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from wagtail.models import Locale, Page
@@ -14,6 +14,11 @@ from springfield.cms.models.pages import SimpleRichTextPage
 User = get_user_model()
 
 
+# Disable SSO login for tests in this test case
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
 class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
     """Test cases for the TranslationsListView."""
 
