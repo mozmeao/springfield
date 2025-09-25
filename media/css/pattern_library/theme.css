@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern, color-function-notation */
 @font-face {
   font-display: swap;
   font-family: "Mozilla Text";
@@ -54,6 +55,7 @@
 body {
     color: var(--text-color);
 }
+
 /* TODO: refactor some of these opinions into the pattern library repo */
 .tabbed-content__heading > a {
     background-color: var(--color-ash);
@@ -89,7 +91,7 @@ body {
     display: inline-flex;
     width: 24px;
     height: 24px;
-    background-image: url(/media/img/favicons/firefox/browser/apple-touch-icon.png);
+    background-image: url("/media/img/favicons/firefox/browser/apple-touch-icon.png");
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -105,6 +107,7 @@ body {
     background-color: transparent;
     color: var(--color-active);
 }
+
 .header,
 .sidebar {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -117,10 +120,10 @@ body {
 }
 
 .sidebar__search {
-    border: 1px solid oklch(44.2% 0.017 285.786);
-    border-width: 0 0 1.5px 0;
+    border: 1px solid oklch(44.2% 0.017 285.786deg);
+    border-width: 0 0 1.5px;
     padding: 10px 20px;
-    margin: 0 -20px 20px -20px;
+    margin: 0 -20px 20px;
     width: calc(40px + 100%);
     transform: translateY(-20px);
 }
@@ -133,6 +136,7 @@ body {
     color: var(--text-color);
     text-decoration: none;
 }
+
 .heading a:hover {
     color: var(--color-active);
     text-decoration: underline;
@@ -175,3 +179,4 @@ body {
 .hljs {
     background: var(--text-color);
 }
+/* stylelint-enable */
