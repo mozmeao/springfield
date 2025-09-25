@@ -30,7 +30,6 @@
 }
 
 @media (max-width: 1024px) {
-
     .page-header-notification {
         max-width: calc(100vw - var(--fds-spacing-lg))
     }
