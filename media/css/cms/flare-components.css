@@ -126,6 +126,12 @@ the future and this file will be removed.
     background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
 }
 
+@media (prefers-color-scheme: dark) {
+    .wnp-logo-fx {
+        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    }
+}
+
 .wnp-nav {
     display: none;
 }
@@ -845,6 +851,13 @@ the future and this file will be removed.
 
 [data-theme="dark"] .wnp-footer-logo {
     background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+}
+
+@media (prefers-color-scheme: dark) {
+    .wnp-footer-logo {
+        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    }
+
 }
 
 .wnp-footer-logo {
