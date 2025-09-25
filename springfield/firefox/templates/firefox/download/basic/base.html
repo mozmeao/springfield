@@ -31,16 +31,16 @@
 
 {# All stylesheets are loaded in extrahead to serve legacy IE basic styles #}
 {% block extrahead %}
-  {{ css_bundle('protocol-mozilla') }}
-  {% if ftl_file_is_active('navigation_refresh') and ftl_file_is_active('footer-refresh') %}
-    {{ css_bundle('m24-navigation-and-footer') }}
-  {% else %}
-    {{ css_bundle('legacy-navigation-and-footer') }}
-  {% endif %}
-
+  {{ css_bundle('protocol') }}
   <!--[if IE]>
     {{ css_bundle('firefox_download_ie') }}
   <![endif]-->
+{% endblock %}
+
+{% block site_header %}
+  {% with hide_nav_cta=True %}
+    {% include 'includes/navigation/navigation.html' %}
+  {% endwith %}
 {% endblock %}
 
 {% block old_ie_styles %}{% endblock %}

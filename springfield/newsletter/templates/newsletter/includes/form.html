@@ -6,6 +6,8 @@
 
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=newsletter-form' %}
+
 {% if not success %}
   <form id="newsletter-form" class="mzp-c-newsletter-form" action="{{ action }}" method="post" data-testid="newsletter-form">
     {% if not is_multi_newsletter_form %}
@@ -94,7 +96,7 @@
 
         <p>
           <label for="privacy" class="mzp-u-inline">
-            <input type="checkbox" id="privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox"> {{ ftl('newsletter-form-im-okay-with-mozilla', url='https://www.mozilla.org/' + LANG + '/privacy/websites/') }}
+            <input type="checkbox" id="privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox"> {{ ftl('newsletter-form-im-okay-with-mozilla', url='https://www.mozilla.org/' + LANG + '/privacy/websites/' + params) }}
           </label>
         </p>
         </div>

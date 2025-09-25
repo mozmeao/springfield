@@ -4,20 +4,12 @@
 
 import pytest
 
-from pages.firefox.home import FirefoxHomePage
+from pages.firefox.browsers.desktop_landing import DesktopPage
 
 
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_navigation(base_url, selenium):
-    page = FirefoxHomePage(selenium, base_url, locale="de").open()
-    page.navigation.open_firefox_menu()
-    assert page.navigation.is_firefox_menu_displayed
-
-    page.navigation.open_products_menu()
-    assert page.navigation.is_products_menu_displayed
-    assert not page.navigation.is_firefox_menu_displayed
-
-    page.navigation.open_about_menu()
-    assert page.navigation.is_about_menu_displayed
-    assert not page.navigation.is_products_menu_displayed
+    page = DesktopPage(selenium, base_url).open()
+    page.navigation.open_resources_menu()
+    assert page.navigation.is_resources_menu_displayed

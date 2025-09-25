@@ -174,14 +174,17 @@ if (typeof window.Mozilla === 'undefined') {
             var directLink;
             // Append stub attribution data to direct download links.
             if (
-                (link.href &&
-                    (link.href.indexOf('https://download.mozilla.org') !== -1 ||
-                        link.href.indexOf(
-                            'https://bouncer-bouncer.stage.mozaws.net/'
-                        ) !== -1)) ||
-                link.href.indexOf(
-                    'https://dev.bouncer.nonprod.webservices.mozgcp.net'
-                ) !== -1
+                link.href &&
+                (link.href.indexOf('https://download.mozilla.org') !== -1 ||
+                    link.href.indexOf(
+                        'https://bouncer-bouncer.stage.mozaws.net/'
+                    ) !== -1 ||
+                    link.href.indexOf(
+                        'https://stage.bouncer.nonprod.webservices.mozgcp.net'
+                    ) !== -1 ||
+                    link.href.indexOf(
+                        'https://dev.bouncer.nonprod.webservices.mozgcp.net'
+                    ) !== -1)
             ) {
                 version = link.getAttribute('data-download-version');
 
@@ -203,10 +206,7 @@ if (typeof window.Mozilla === 'undefined') {
                         data
                     );
                 }
-            } else if (
-                link.href &&
-                link.href.indexOf('/download/thanks/') !== -1
-            ) {
+            } else if (link.href && link.href.indexOf('/thanks/') !== -1) {
                 // Append stub data to direct-link data attributes on transitional links for old IE browsers (Issue #9350)
                 directLink = link.getAttribute('data-direct-link');
 
@@ -498,7 +498,7 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Gets utm parameters and referrer information from the web page if they exist.
      * @param {String} ref - Optional referrer to facilitate testing.
-     * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential for RTAMO.
+     * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential.
      * @return {Object} - Stub attribution data object.
      */
     StubAttribution.getAttributionData = function (
@@ -594,7 +594,7 @@ if (typeof window.Mozilla === 'undefined') {
     StubAttribution.isFirefoxDownloadThanks = function (location) {
         location =
             typeof location !== 'undefined' ? location : window.location.href;
-        return location.indexOf('/download/thanks/') > -1;
+        return location.indexOf('/thanks/') > -1;
     };
 
     /**
@@ -625,7 +625,11 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Determines whether to make a request to the stub authentication service.
      */
-    StubAttribution.init = function (successCallback, timeoutCallback) {
+    StubAttribution.init = function (
+        successCallback,
+        timeoutCallback,
+        omitNonEssentialFields = false
+    ) {
         var data = {};
 
         if (!StubAttribution.meetsRequirements()) {
@@ -655,7 +659,10 @@ if (typeof window.Mozilla === 'undefined') {
             // Wait for GA4 to load and return client IDs
             StubAttribution.waitForGoogleAnalyticsThen(function () {
                 // get attribution data
-                data = StubAttribution.getAttributionData();
+                data = StubAttribution.getAttributionData(
+                    null,
+                    omitNonEssentialFields
+                );
 
                 if (
                     data &&

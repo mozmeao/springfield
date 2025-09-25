@@ -11,12 +11,11 @@
   title={
     'text':  ftl('sub-navigation-firefox'),
     'href':  url('firefox'),
-    'icon':  static('protocol/img/logos/firefox/browser/logo.svg')
   },
   links=[
     {
       'text':  ftl('sub-navigation-desktop'),
-      'href':  url('firefox.download'),
+      'href':  url('firefox'),
       'cta_name': 'Desktop'
     },
     {
@@ -31,12 +30,12 @@
     },
     {
       'text': ftl('sub-navigation-compare-browsers'),
-      'href': 'https://www.mozilla.org/' + LANG + '/firefox/browsers/compare/',
+      'href': url('firefox.browsers.compare.index'),
       'cta_name': 'Compare Browsers'
     },
     {
       'text': ftl('sub-navigation-more'),
-      'href': 'https://www.mozilla.org/' + LANG + '/firefox/more/',
+      'href': url('firefox.more.index'),
       'cta_name': 'More'
     }
   ]

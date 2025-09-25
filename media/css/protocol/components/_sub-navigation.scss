@@ -5,6 +5,8 @@
 // * -------------------------------------------------------------------------- */
 // Should be replaced by https://github.com/mozilla/protocol/issues/471
 
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as *;
+
 .c-sub-navigation {
     background: $color-marketing-gray-10;
 

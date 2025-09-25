@@ -12,7 +12,7 @@
 {% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
 {% set android_url = play_store_url('firefox', 'firefox-browsers-mobile') %}
 {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile') %}
-{% set referrals = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-mobile' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-mobile' %}
 {% set _entrypoint = 'www.firefox.com-firefox-mobile' %}
 
 {% block page_title %}{{ ftl('browsers-mobile-firefox-mobile-browsers-put') }}{% endblock %}
@@ -34,10 +34,6 @@
   {% if show_firefox_app_store_banner %}
     {% include 'includes/banners/mobile/firefox-app-store.html' %}
   {% endif %}
-{% endblock %}
-
-{% block sub_navigation %}
-  {% include 'firefox/includes/sub-nav-firefox.html' %}
 {% endblock %}
 
 {% block content %}
@@ -142,20 +138,6 @@
       <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.mobile.focus') }}" data-cta-text="Focus Learn More">{{ ftl('ui-learn-more') }}</a></p>
     </div>
 
-  </section>
-
-  <section class="c-browser-compare mzp-l-content mzp-t-content-lg">
-    {% call split(
-      image=resp_img('img/firefox/browsers/mobile/dev.png',
-        srcset={ 'img/firefox/browsers/mobile/dev-high-res.png': '2x' },
-        optional_attributes={ 'class': 'mzp-c-split-media-asset'}
-      ),
-      block_class='t-compare'
-    ) %}
-      <h2>{{ ftl('browsers-mobile-see-how-firefox-for-desktop-compare-v2') }}</h2>
-      <p class="c-compare-title mzp-has-zap-06">{{ ftl('browsers-mobile-see-how-firefox-for-desktop-strong-v2') }}</p>
-      <p><a class="mzp-c-cta-link" href="https://www.mozilla.org/firefox/browsers/compare/" data-cta-text="Compare">{{ ftl('browsers-mobile-compare') }}</a></p>
-    {% endcall %}
   </section>
 
   {% include 'firefox/includes/mozilla-account-promo.html' %}

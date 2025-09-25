@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_content=download-button' %}
+
 {% macro alt_buttons(builds) %}
   <div class="download download-dumb">
     <p role="heading" class="download-heading">
@@ -25,7 +27,12 @@
                data-cta-text="Download Firefox for {{ plat.os_arch_pretty or plat.os_pretty }}"
                {% if plat.os == 'android' %}data-cta-type="firefox_mobile"
                {% elif plat.os == 'ios' %}data-cta-type="firefox_mobile"
-               {% else %}data-cta-type="firefox"{% endif %}>{{ plat.os_arch_pretty or plat.os_pretty }}</a>
+               {% else %}data-cta-type="firefox"{% endif %}>{{ plat.os_arch_pretty or plat.os_pretty }}
+              <span class="mzp-c-button-icon-end">
+                <!-- TODO: replace with new protocol-assets version -->
+                <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+              </span>
+              </a>
         </li>
       {%- endfor %}
     </ul>
@@ -101,12 +108,16 @@
               {% endif %}
             {% endif %}
           </strong>
+          <span class="mzp-c-button-icon-end">
+            <!-- TODO: replace with new protocol-assets version -->
+            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+          </span>
         </a>
       </li>
     {% endfor %}
   </ul>
   <small class="fx-privacy-link mzp-c-button-download-privacy-link">
-    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
       {{ ftl('download-button-firefox-privacy-notice', fallback='download-button-firefox-privacy') }}
     </a>
   </small>

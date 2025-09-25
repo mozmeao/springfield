@@ -208,15 +208,15 @@ $image-path: '/media/protocol/img';
             visibility: hidden;
         }
     }
+}
+
+.c-release-notes > .mzp-l-content {
+    padding-top: $layout-lg;
 
     h3 {
         @include text-title-xs;
         margin-bottom: $layout-sm;
     }
-}
-
-.c-release-notes > .mzp-l-content {
-    padding-top: $layout-lg;
 
     &::before {
         content: '';
@@ -421,6 +421,10 @@ $image-path: '/media/protocol/img';
 
     .relevant-countries {
         @include text-body-xs;
+        margin-bottom: $spacing-lg;
+    }
+
+    video {
         margin-bottom: $spacing-lg;
     }
 

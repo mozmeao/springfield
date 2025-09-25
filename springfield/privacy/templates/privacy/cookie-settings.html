@@ -8,6 +8,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
+
 {% block page_title %}{{ ftl('cookie-settings-page-title') }}{% endblock %}
 {% block page_desc %}{{ ftl('cookie-settings-page-desc') }}{% endblock %}
 
@@ -16,11 +18,8 @@
 {% endblock %}
 
 {% block site_header %}
-  {% with
-    hide_nav_download_button=True,
-    hide_nav_get_vpn_button=True
-  %}
-    {% include 'includes/protocol/navigation/navigation.html' %}
+  {% with hide_nav_cta=True %}
+    {% include 'includes/navigation/navigation.html' %}
   {% endwith %}
 {% endblock %}
 
@@ -169,7 +168,7 @@
       <p>{{ ftl('cookie-settings-privacy-desc') }}</p>
 
       <p>
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ params }}">
           {{ ftl('cookie-settings-privacy-policy-link') }}
         </a>
       </p>

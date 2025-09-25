@@ -9,6 +9,7 @@ from django.test import TestCase as DjangoTestCase
 from django.test.client import RequestFactory
 
 import pytest
+from waffle.testutils import override_switch
 
 from springfield.base import views
 from springfield.base.tests import TestCase
@@ -56,16 +57,29 @@ class TestRobots(TestCase):
         self.rf = RequestFactory()
         self.view = views.Robots()
 
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
     def test_production_disallow_all_is_false(self):
-        self.view.request = self.rf.get("/", HTTP_HOST="www.mozilla.org")
+        self.view.request = self.rf.get("/", HTTP_HOST="www.firefox.com")
         self.assertFalse(self.view.get_context_data()["disallow_all"])
 
-    def test_non_production_disallow_all_is_true(self):
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=True)
+    def test_production_disallow_all_is_false_unless_switch_is_on(self):
+        self.view.request = self.rf.get("/", HTTP_HOST="www.firefox.com")
+        self.assertTrue(self.view.get_context_data()["disallow_all"])
+
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=True)
+    def test_non_production_disallow_all_is_always_true__switch_set(self):
         self.view.request = self.rf.get("/", HTTP_HOST="www.springfield.moz.works")
         self.assertTrue(self.view.get_context_data()["disallow_all"])
 
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
+    def test_non_production_disallow_all_is_always_true__switch_not_set(self):
+        self.view.request = self.rf.get("/", HTTP_HOST="www.springfield.moz.works")
+        self.assertTrue(self.view.get_context_data()["disallow_all"])
+
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
     def test_robots_no_redirect(self):
-        response = self.client.get("/robots.txt", headers={"host": "www.mozilla.org"})
+        response = self.client.get("/robots.txt", headers={"host": "www.firefox.com"})
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context_data["disallow_all"])
         self.assertEqual(response.get("Content-Type"), "text/plain")

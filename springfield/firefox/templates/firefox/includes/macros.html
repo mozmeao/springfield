@@ -4,6 +4,8 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
  #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=download-button' %}
+
 {% macro firefox_download_desktop_button_windows(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-win', build='32', position='primary cta') -%}
   {% set class_name = 'os_win' if build == '32' else 'os_win64' %}
   {% set os = 'win' if build == '32' else 'win64' %}
@@ -20,10 +22,14 @@
         <strong class="download-title">
           {{ cta_copy }}
         </strong>
+        <span class="mzp-c-button-icon-end">
+          <!-- TODO: replace with new protocol-assets version -->
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        </span>
       </a>
 
       <small class="mzp-c-button-download-privacy-link">
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
           {{ ftl('download-button-firefox-privacy-notice') }}
         </a>
       </small>
@@ -37,10 +43,11 @@
 {%- endmacro %}
 
 {% macro firefox_download_desktop_button_mac(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-osx', position='primary cta') -%}
+  {% set download_lang = "ja-JP-mac" if LANG == "ja" else LANG %}
   <div class="firefox-platform-button-mac">
     <div class="firefox-platform-button">
       <a class="download-link os_osx mzp-t-xl mzp-c-button mzp-t-product ga-product-download"
-        id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=osx&lang={{ LANG }}"
+        id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=osx&lang={{ download_lang }}"
         data-download-version="osx"
         data-cta-text="Download Now"
         data-cta-type="firefox"
@@ -50,10 +57,14 @@
         <strong class="download-title">
           {{ cta_copy }}
         </strong>
+        <span class="mzp-c-button-icon-end">
+          <!-- TODO: replace with new protocol-assets version -->
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        </span>
       </a>
 
       <small class="mzp-c-button-download-privacy-link">
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
           {{ ftl('download-button-firefox-privacy-notice') }}
         </a>
       </small>
@@ -74,19 +85,27 @@
         <strong class="download-title">
           {{ ftl('download-button-linux-32-v2') }}
         </strong>
+        <span class="mzp-c-button-icon-end">
+          <!-- TODO: replace with new protocol-assets version -->
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        </span>
       </a>
 
       <a class="download-link os_linux64 mzp-t-xl mzp-c-button mzp-t-product ga-product-download" id="{{ id }}-64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Download for Linux 64-bit" data-cta-position="{{ position }}" data-testid="{{ id }}-64">
         <strong class="download-title">
           {{ ftl('download-button-linux-64-v2') }}
         </strong>
+        <span class="mzp-c-button-icon-end">
+          <!-- TODO: replace with new protocol-assets version -->
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        </span>
       </a>
 
       <p class="c-linux-debian">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
       data-cta-text="You can set up our APT repository instead"')}}</p>
 
       <small class="mzp-c-button-download-privacy-link">
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
           {{ ftl('download-button-firefox-privacy-notice') }}
         </a>
       </small>

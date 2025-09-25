@@ -21,7 +21,7 @@ class DownloadButton(BaseRegion):
 
     @property
     def is_transitional_link(self):
-        return "/download/thanks/" in self.platform_link.get_attribute("href")
+        return "/thanks/" in self.platform_link.get_attribute("href")
 
     def click(self):
         self.platform_link.click()

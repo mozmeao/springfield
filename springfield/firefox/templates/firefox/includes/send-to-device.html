@@ -4,6 +4,8 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=send-to-device' %}
+
 <section id="{{ dom_id }}" class="send-to-device {{ class_name }}" data-testid="send-to-device-form">
   <div class="form-container">
     {% if include_title %}
@@ -41,7 +43,7 @@
               {{ ftl('send-to-device-enter-your-email') }}
             {% endif %}
           </label>
-          <input id="{{ dom_id }}-input" class="mzp-c-field-control send-to-device-input" name="email" type="text" required data-testid="send-to-device-form-email-field">
+          <input id="{{ dom_id }}-input" class="mzp-c-field-control send-to-device-input" name="email" type="email" autocomplete="email" placeholder="{{ ftl('send-to-device-email-placeholder') }}" required data-testid="send-to-device-form-email-field">
         </div>
         <div class="mzp-c-button-container mzp-l-stretch">
           <button type="submit" class="button mzp-c-button {% if button_class %} {{ button_class }} {% else %} mzp-t-product {% endif %}" data-testid="send-to-device-form-submit-button">
@@ -54,7 +56,7 @@
           {% else %}
             {{ ftl('send-to-device-intended-recipient-email') }}
           {% endif %}
-          <a href="https://www.mozilla.org/privacy/websites/#campaigns" class="more">{{ ftl('ui-learn-more') }}</a>
+          <a href="https://www.mozilla.org/privacy/websites/{{ params }}#campaigns" class="more">{{ ftl('ui-learn-more') }}</a>
         </p>
       </div>
       <div class="thank-you hidden" data-testid="send-to-device-form-thanks">

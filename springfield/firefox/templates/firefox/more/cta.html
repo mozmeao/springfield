@@ -1,0 +1,27 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros-protocol.html" import callout_compact with context %}
+
+{% if LANG.startswith('en-') %}
+  {# some articles are translated and some are not #}
+  {% set callout_title="Take control of your browser." %}
+{% else %}
+  {% set callout_title=ftl('firefox-more-take-control-of') %}
+{% endif %}
+
+{% call callout_compact(
+  title=callout_title,
+  class='mzp-t-product-firefox mzp-t-firefox mzp-t-dark',
+  brand=True,
+  brand_product='firefox',
+  brand_type='logo',
+  brand_size='lg',
+) %}
+  <div class="download-firefox">
+    {{ download_firefox_thanks(dom_id='download-button-secondary', download_location='secondary') }}
+  </div>
+{% endcall %}

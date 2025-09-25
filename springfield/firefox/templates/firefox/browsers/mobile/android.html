@@ -45,12 +45,8 @@
 
 {% block site_header %}
   {% with hide_nav_download_button=True %}
-    {% include 'includes/protocol/navigation/navigation.html' %}
+    {% include 'includes/navigation/navigation.html' %}
   {% endwith %}
-{% endblock %}
-
-{% block sub_navigation %}
-  {% include 'firefox/includes/sub-nav-firefox.html' %}
 {% endblock %}
 
 {% block content %}
@@ -168,7 +164,7 @@
     media_after=True
   ) %}
     <h3>{{ ftl('mobile-android-about-mozilla') }}</h3>
-    <p>{{ ftl('mobile-android-mozilla-exists-to') }}</p>
+    <p>{{ ftl('mobile-android-mozilla-exists-to-v2', 'mobile-android-mozilla-exists-to') }}</p>
   {% endcall %}
 
 </main>

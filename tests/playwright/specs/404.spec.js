@@ -8,12 +8,12 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../scripts/open-page');
-const url = '/en-US/download/';
+const url = '/en-US/compare/';
 
 test.describe(
-    `${url} page`,
+    `404 page`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.beforeEach(async ({ page, browserName }) => {
@@ -25,7 +25,7 @@ test.describe(
             const goBackLink = page.getByTestId('link-go-back');
             await expect(goBackLink).toBeVisible();
             await goBackLink.click();
-            await page.waitForURL('**/download/?automation=true', {
+            await page.waitForURL('/en-US/compare/?automation=true', {
                 waitUntil: 'commit'
             });
         });

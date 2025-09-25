@@ -6,6 +6,8 @@
 
 {% extends "firefox/features/base-article.html" %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
+
 {% block article_title_short %}{{ ftl('features-private-browsing-private-browsing-mode') }}{% endblock %}
 {% block article_title %}{{ ftl('features-private-browsing-firefox-private-browsing-mode') }}{% endblock %}
 
@@ -29,6 +31,6 @@
 </figure>
 
 <h2>{{ ftl('features-private-browsing-what-private-browsing-doesnt-do') }}</h2>
-<p>{{ ftl('features-private-browsing-private-browsing-mode-will-not', vpn="https://www.mozilla.org/products/vpn/") }}</p>
-<p>{{ ftl('features-private-browsing-compare-firefoxs-private-browsing', chrome='https://www.mozilla.org/' + LANG + '/firefox/browsers/incognito-browser/') }}</p>
+<p>{{ ftl('features-private-browsing-private-browsing-mode-will-not', vpn="https://www.mozilla.org/products/vpn/" + params) }}</p>
+<p>{{ ftl('features-private-browsing-compare-firefoxs-private-browsing', chrome=url('firefox.more.incognito-browser')) }}</p>
 {% endblock article_content %}

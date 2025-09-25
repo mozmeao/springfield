@@ -462,11 +462,22 @@ def ifeq(a, b, text):
 
 @library.global_function
 @jinja2.pass_context
-def app_store_url(ctx, product, campaign=None):
+def app_store_url(ctx, product, campaign=None, ppid=None):
     """Returns a localised app store URL for a given product"""
     locale = getattr(ctx["request"], "locale", "en-US")
     countries = settings.APPLE_APPSTORE_COUNTRY_MAP
-    params = "?pt=373246&ct={cmp}&mt=8"
+
+    # Map product names to tracking product codes
+    product_mapping = {
+        "firefox": "firefox_mobile",
+        "firefox_beta": "firefox_mobile",
+        "firefox_nightly": "firefox_mobile",
+        "focus": "focus",
+        "klar": "klar",
+        "vpn": "vpn",
+    }
+
+    tracking_product = product_mapping.get(product, "unrecognized")
 
     if product == "focus" and locale == "de":
         base_url = getattr(settings, "APPLE_APPSTORE_KLAR_LINK")
@@ -474,12 +485,22 @@ def app_store_url(ctx, product, campaign=None):
         base_url = getattr(settings, f"APPLE_APPSTORE_{product.upper()}_LINK")
 
     if campaign:
-        base_url = base_url + params.format(cmp=campaign)
+        params = "?mz_pr={tp}&pt=373246&ct={cmp}&mt=8"
+        base_url = base_url + params.format(tp=tracking_product, cmp=campaign)
+    else:
+        params = "?mz_pr={tp}"
+        base_url = base_url + params.format(tp=tracking_product)
 
     if locale in countries:
-        return base_url.format(country=countries[locale])
+        base_url = base_url.format(country=countries[locale])
     else:
-        return base_url.replace("/{country}/", "/")
+        base_url = base_url.replace("/{country}/", "/")
+
+    # ppid stands for Product Page ID and is a parameter added to target a custom product page on the apple app store.
+    if ppid:
+        base_url = base_url + f"&ppid={ppid}"
+
+    return base_url
 
 
 @library.global_function
@@ -513,6 +534,16 @@ def ms_store_url(ctx, product="firefox", mode="mini", campaign=None, handler=Non
     See https://apps.microsoft.com/badge for details.
     """
 
+    channel_mapping = {
+        "firefox": "release",
+        "firefox_beta": "beta",
+    }
+
+    channel = channel_mapping.get(product, "unrecognized")
+
+    if product not in channel_mapping:
+        product = "firefox"
+
     if handler == "ms-windows-store":
         base_url = getattr(settings, f"MICROSOFT_WINDOWS_STORE_{product.upper()}_DIRECT_LINK")
     else:
@@ -521,6 +552,7 @@ def ms_store_url(ctx, product="firefox", mode="mini", campaign=None, handler=Non
     params = {
         "mode": mode,
         "cid": campaign,
+        "mz_cn": channel,
     }
 
     return urlparams(base_url, **params)
@@ -583,28 +615,6 @@ def _fxa_product_button(
     markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{button_text}</a>'
 
     return Markup(markup)
-
-
-@library.global_function
-@jinja2.pass_context
-def pocket_fxa_button(
-    ctx, entrypoint, button_text, class_name=None, is_button_class=True, include_metrics=True, optional_parameters=None, optional_attributes=None
-):
-    """
-    Render a getpocket.com link with required params for Mozilla account authentication.
-
-    Examples
-    ========
-
-    In Template
-    -----------
-
-        {{ pocket_fxa_button(entrypoint='mozilla.org-firefox-pocket', button_text='Try Pocket Now') }}
-    """
-    product_url = "https://getpocket.com/ff_signup"
-    return _fxa_product_button(
-        product_url, entrypoint, button_text, class_name, is_button_class, include_metrics, optional_parameters, optional_attributes
-    )
 
 
 @library.global_function

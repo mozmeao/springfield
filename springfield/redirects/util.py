@@ -92,15 +92,27 @@ def mobile_app_redirector(request, product, campaign):
     android_re = re.compile(r"\bAndroid\b", flags=re.I)
     value = request.headers.get("User-Agent", "")
 
+    # Map product names to tracking product codes
+    product_mapping = {
+        "firefox": "firefox_mobile",
+        "firefox_beta": "firefox_mobile",
+        "firefox_nightly": "firefox_mobile",
+        "focus": "focus",
+        "klar": "klar",
+        "vpn": "vpn",
+    }
+
+    tracking_product = product_mapping.get(product, "unrecognized")
+
     if android_re.search(value):
         base_url = getattr(settings, f"GOOGLE_PLAY_{product.upper()}_LINK")
         params = "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3D{cmp}"
     else:
         base_url = getattr(settings, f"APPLE_APPSTORE_{product.upper()}_LINK").replace("/{country}/", "/")
-        params = "?pt=373246&ct={cmp}&mt=8"
+        params = "?pt=373246&ct={cmp}&mt=8&mz_pr={tp}"
 
     if campaign:
-        return base_url + params.format(cmp=campaign)
+        return base_url + params.format(cmp=campaign, tp=tracking_product)
     else:
         return base_url
 
@@ -187,7 +199,7 @@ def redirect(
         redirect(r'projects/$', 'base.product'),
         redirect(r'^projects/vpn$', 'vpn.product', locale_prefix=False),
         redirect(r'apps/$', 'https://marketplace.firefox.com'),
-        redirect(r'firefox/$', 'firefox.download', name='firefox'),
+        redirect(r'firefox/$', 'firefox', name='firefox_home'),
         redirect(r'the/dude$', 'abides', query={'aggression': 'not_stand'}),
     ]
     """

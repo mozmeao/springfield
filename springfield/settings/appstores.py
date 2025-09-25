@@ -88,20 +88,11 @@ APPLE_APPSTORE_KLAR_LINK = "https://apps.apple.com/{country}/app/apple-store/id1
 # Link to Firefox Klar on the Google Play store.
 GOOGLE_PLAY_KLAR_LINK = "https://play.google.com/store/apps/details?id=org.mozilla.klar"
 
-# Link to Pocket on the Apple App Store.
-APPLE_APPSTORE_POCKET_LINK = "https://apps.apple.com/{country}/app/apple-store/id309601447"
-
-# Link to Pocket on the Google Play store.
-GOOGLE_PLAY_POCKET_LINK = "https://play.google.com/store/apps/details?id=com.ideashower.readitlater.pro"
-
 # Link to Firefox Beta on the Google Play Store.
 GOOGLE_PLAY_FIREFOX_BETA_LINK = "https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta"
 
 # Link to Firefox Nightly on the Google Play Store.
 GOOGLE_PLAY_FIREFOX_NIGHTLY_LINK = "https://play.google.com/store/apps/details?id=org.mozilla.fenix"
-
-# Link to Firefox for Fire TV on Amazon Store.
-AMAZON_FIREFOX_FIRE_TV_LINK = "https://www.amazon.com/Mozilla-Firefox-for-Fire-TV/dp/B078B5YMPD"
 
 # Link to Firefox Send on the Google Play Store.
 GOOGLE_PLAY_FIREFOX_SEND_LINK = "https://play.google.com/store/apps/details?id=org.mozilla.firefoxsend"

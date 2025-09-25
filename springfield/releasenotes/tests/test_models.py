@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-
 from itertools import chain
 from pathlib import Path
 from unittest.mock import call, patch
@@ -11,6 +10,8 @@ from django.core.cache import caches
 from django.test.utils import override_settings
 
 import markdown
+import pytest
+from product_details import product_details
 
 from springfield.base.tests import TestCase
 from springfield.releasenotes import models
@@ -119,6 +120,18 @@ class TestReleaseModel(TestCase):
         assert note.note.startswith("<p>Firefox Nightly")
         assert note.id == 787203
 
+    def test_product_method_gets_specifically_latest_esr_based_on_product_details(self):
+        _patched_dict = product_details.firefox_versions
+        _patched_dict.update({"FIREFOX_ESR": "999.76"})
+
+        with patch.dict("springfield.releasenotes.models.product_details.firefox_versions", _patched_dict):
+            # See https://github.com/mozilla/bedrock/issues/16289
+            query = models.ProductRelease.objects.product(product_name="firefox", channel_name="esr")
+
+        raw_query_as_str = str(query.query)
+        assert 'AND "releasenotes_productrelease"."channel" LIKE esr' in raw_query_as_str
+        assert 'AND "releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
+
     @override_settings(DEV=False)
     def test_is_public_query(self):
         """Should not return the release value when DEV is false.
@@ -199,3 +212,43 @@ class StrikethroughExtensionTestCase(TestCase):
             markdown.markdown("*hello~~test~~*"),
             "<p><em>hello~~test~~</em></p>",
         )
+
+
+@pytest.mark.parametrize(
+    "input_md, expected",
+    (
+        ("basic test", "<p>basic test</p>"),
+        ("This is [a link](https://example.com)", '<p>This is <a href="https://example.com">a link</a></p>'),
+        (
+            (
+                "<video width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
+                "<source src='example.mp4' type='video/mp4' rel='prefetch' foo bar evilattribute/>"
+                "<source src='example.webm' type='video/webm' rel='prefetch' foo bar/>"
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+            (
+                '<video width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<source src="example.mp4" type="video/mp4" rel="prefetch">'
+                '<source src="example.webm" type="video/webm" rel="prefetch">'
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+        ),
+        (
+            (
+                "<video src='example.mp4' type='video/mp4' width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+            (
+                '<video src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+        ),
+    ),
+)
+def test_process_markdown(input_md, expected):
+    processed = models.process_markdown(input_md)
+    assert processed == expected

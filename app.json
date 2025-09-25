@@ -14,6 +14,7 @@
     "DB_DOWNLOAD_IGNORE_GIT": "True",
     "DEBUG": "False",
     "DEV": "True",
+    "GTM_CONTAINER_ID": "GTM-527L9RBL",
     "LOG_LEVEL": "INFO",
     "PROD_DETAILS_STORAGE": "product_details.storage.PDDatabaseStorage",
     "RUN_SUPERVISOR": "True",

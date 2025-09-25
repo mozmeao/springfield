@@ -6,6 +6,8 @@ awesome, and open source as always. Perhaps even a little more.
 
 [firefox]: https://www.firefox.com/
 
+[![What's deployed on dev/stage/prod?](https://img.shields.io/badge/whatsdeployed-dev/stage/prod-teal.svg)](https://whatsdeployed.io/s/gKn/mozmeao/springfield)
+
 Docs
 ----
 

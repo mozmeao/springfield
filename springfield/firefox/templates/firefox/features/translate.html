@@ -6,26 +6,29 @@
 
 {% extends "firefox/features/base-article.html" %}
 
-{% block page_desc %}{{ ftl('features-translate-firefox-translations-is-a-built-in-v2', fallback='features-translate-firefox-translations-is-a-built-in') }}{% endblock %}
-{% block page_image %}{{ static('img/firefox/features/translate/og.png') }}{% endblock %}
+{% block page_desc %}{{ ftl('features-translate-firefox-translations-is-a-built-in-v2') }}{% endblock %}
 
 {% block article_title_short %}{{ ftl('features-translate-translate-the-web') }}{% endblock %}
 {% block article_title %}{{ ftl('features-translate-translate-a-webpage-with-firefox') }}{% endblock %}
 
 {% block article_content %}
 <p>{{ ftl('features-translate-one-of-the-best-things-about') }}</p>
-<p>{{ ftl('features-translate-while-other-browsers-rely-on-v2', fallback='features-translate-while-other-browsers-rely-on') }}</p>
+<p>{{ ftl('features-translate-while-other-browsers-rely-on-v2') }}</p>
 
 <h2>{{ ftl('features-translate-when-you-translate-a-webpage') }}</h2>
 <p>{{ ftl('features-translate-when-your-translations-are') }}</p>
 
 <h2>{{ ftl('features-translate-what-languages-are-currently') }}</h2>
-<p>{{ ftl('features-translate-the-languages-below-are-what-v2', fallback='features-translate-the-languages-below-are-what') }}</p>
+<p>{{ ftl('features-translate-the-languages-below-are-what-v2') }}</p>
 
-<ul class="c-lang-list mzp-u-list-styled">
+<ul class="c-lang-list c-translate-lang-list mzp-u-list-styled" data-translate-langs="{{ translate_langs|join(',') }}">
 {% if LANG.startswith('en-') %}
+  <li>Albanian</li>
+  <li>Arabic</li>
+  <li>Bangla</li>
   <li>Bulgarian</li>
   <li>Catalan</li>
+  <li>Chinese (Simplified)</li>
   <li>Croatian</li>
   <li>Czech</li>
   <li>Danish</li>
@@ -36,11 +39,20 @@
   <li>French</li>
   <li>German</li>
   <li>Greek</li>
+  <li>Gujarati</li>
+  <li>Hebrew</li>
+  <li>Hindi</li>
   <li>Hungarian</li>
   <li>Indonesian</li>
   <li>Italian</li>
+  <li>Japanese</li>
+  <li>Kannada</li>
+  <li>Korean</li>
   <li>Latvian</li>
   <li>Lithuanian</li>
+  <li>Malay</li>
+  <li>Malayalam</li>
+  <li>Persian</li>
   <li>Polish</li>
   <li>Portuguese</li>
   <li>Romanian</li>
@@ -50,6 +62,8 @@
   <li>Slovenian</li>
   <li>Spanish</li>
   <li>Swedish</li>
+  <li>Tamil</li>
+  <li>Telugu</li>
   <li>Turkish</li>
   <li>Ukrainian</li>
   <li>Vietnamese</li>
@@ -69,9 +83,10 @@
 <p>{{ ftl('features-translate-and-more-languages-are-in') }}</p>
 
 <h2>{{ ftl('features-translate-firefox-speaks-your-language') }}</h2>
-{% if ftl_has_messages('features-translate-the-firefox-translations-feature-v2') %}
-<p>{{ ftl('features-translate-the-firefox-translations-feature-v2', download='href="%s" data-cta-text="Get started in your preferred language"'|safe|format(url('firefox.download'))) }}</p>
-{% else %}
-<p>{{ ftl('features-translate-the-firefox-translations-feature', download='href="%s" data-cta-text="Get started in your preferred language"'|safe|format(url('firefox.download'))) }}</p>
-{% endif %}
+<p>{{ ftl('features-translate-the-firefox-translations-feature-v2', download='href="%s" data-cta-text="Get started in your preferred language"'|safe|format(url('firefox'))) }}</p>
+{% endblock %}
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('firefox_features_translate') }}
 {% endblock %}

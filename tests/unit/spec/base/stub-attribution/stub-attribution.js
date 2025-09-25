@@ -171,7 +171,7 @@ describe('stub-attribution.js', function () {
             ).not.toHaveBeenCalled();
         });
 
-        it('should do nothing if page is download/thanks', function () {
+        it('should do nothing if page is /thanks', function () {
             spyOn(
                 Mozilla.StubAttribution,
                 'withinAttributionRate'
@@ -435,14 +435,13 @@ describe('stub-attribution.js', function () {
     });
 
     describe('isFirefoxDownloadThanks', function () {
-        it('should return true if the page is download/thanks/', function () {
-            const url = 'https://www.firefox.com/en-US/download/thanks/';
+        it('should return true if the page is thanks/', function () {
+            const url = 'https://www.firefox.com/en-US/thanks/';
             expect(
                 Mozilla.StubAttribution.isFirefoxDownloadThanks(url)
             ).toBeTruthy();
 
-            const url2 =
-                'https://www.firefox.com/en-US/download/thanks/?foo=bar';
+            const url2 = 'https://www.firefox.com/en-US/thanks/?foo=bar';
             expect(
                 Mozilla.StubAttribution.isFirefoxDownloadThanks(url2)
             ).toBeTruthy();
@@ -835,9 +834,11 @@ describe('stub-attribution.js', function () {
             'https://download.mozilla.org/?product=firefox-latest-ssl&os=win&lang=en-US';
         const win64Url =
             'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US';
-        const transitionalUrl = 'https://www.firefox.com/download/thanks/';
+        const transitionalUrl = 'https://www.firefox.com/thanks/';
         const winStageUrl =
             'https://bouncer-bouncer.stage.mozaws.net/?product=firefox-latest-ssl&os=win&lang=en-US';
+        const winGCPStageUrl =
+            'https://stage.bouncer.nonprod.webservices.mozgcp.net/?product=firefox-latest-ssl&os=win&lang=en-US';
         const win64StageUrl =
             'https://bouncer-bouncer.stage.mozaws.net/?product=firefox-latest-ssl&os=win64&lang=en-US';
         const winDevUrl =
@@ -861,6 +862,7 @@ describe('stub-attribution.js', function () {
                     <li><a id="link-direct-win" class="download-link" data-download-version="win" href="${winUrl}">Download</a></li>
                     <li><a id="link-direct-win64" class="download-link" data-download-version="win64" href="${win64Url}">Download</a></li>
                     <li><a id="link-stage-transitional" class="download-link" data-download-version="win" href="${transitionalUrl}" data-direct-link="${winStageUrl}">Download</a></li>
+                    <li><a id="link-gcp-stage-transitional" class="download-link" data-download-version="win" href="${transitionalUrl}" data-direct-link="${winGCPStageUrl}">Download</a></li>
                     <li><a id="link-stage-direct-win" class="download-link" data-download-version="win" href="${winStageUrl}">Download</a></li>
                     <li><a id="link-stage-direct-win64" class="download-link" data-download-version="win64" href="${win64StageUrl}">Download</a></li>
                     <li><a id="link-dev-transitional" class="download-link" data-download-version="win" href="${transitionalUrl}" data-direct-link="${winDevUrl}">Download</a></li>
@@ -887,7 +889,7 @@ describe('stub-attribution.js', function () {
             );
             Mozilla.StubAttribution.updateBouncerLinks(data);
             expect(document.getElementById('link-transitional').href).toEqual(
-                'https://www.firefox.com/download/thanks/'
+                'https://www.firefox.com/thanks/'
             );
 
             // prod download links
@@ -922,6 +924,14 @@ describe('stub-attribution.js', function () {
                 document.getElementById('link-stage-direct-win64').href
             ).toEqual(
                 'https://bouncer-bouncer.stage.mozaws.net/?product=firefox-latest-ssl&os=win64&lang=en-US&attribution_code=test-code&attribution_sig=test-sig'
+            );
+
+            expect(
+                document
+                    .getElementById('link-gcp-stage-transitional')
+                    .getAttribute('data-direct-link')
+            ).toEqual(
+                'https://stage.bouncer.nonprod.webservices.mozgcp.net/?product=firefox-latest-ssl&os=win&lang=en-US&attribution_code=test-code&attribution_sig=test-sig'
             );
 
             // dev download links
@@ -1262,8 +1272,7 @@ describe('stub-attribution.js', function () {
                 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win&lang=en-US&attribution_code=test-code&attribution_sig=test-sig';
             const win64Url =
                 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US&attribution_code=test-code&attribution_sig=test-sig';
-            const transitionalUrl =
-                'https://www.mozilla.org/firefox/download/thanks/';
+            const transitionalUrl = 'https://www.mozilla.org/firefox/thanks/';
             const winStageUrl =
                 'https://bouncer-bouncer.stage.mozaws.net/?product=firefox-latest-ssl&os=win&lang=en-US&attribution_code=test-code&attribution_sig=test-sig';
             const win64StageUrl =

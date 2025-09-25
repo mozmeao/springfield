@@ -20,10 +20,8 @@ ID02:
 CO01:
   enabled: true
   brands:
-    - Fakespot
     - Firefox
     - Mozilla
-    - Pocket
     - "{ -brand-name-mozilla } account"
   exclusions:
     files: []

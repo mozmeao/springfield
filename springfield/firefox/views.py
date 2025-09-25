@@ -439,6 +439,7 @@ class DownloadView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/base_download.html": ["firefox/download/download"],
         "firefox/download/desktop/download.html": ["firefox/download/desktop"],
+        "firefox/download/home.html": ["firefox/download/desktop", "firefox/download/home"],
     }
     activation_files = [
         "firefox/download/download",
@@ -451,7 +452,7 @@ class DownloadView(L10nTemplateView):
     def get(self, *args, **kwargs):
         # Remove legacy query parameters (Bug 1236791)
         if self.request.GET.get("product", None) or self.request.GET.get("os", None):
-            return HttpResponsePermanentRedirect(reverse("firefox.download"))
+            return HttpResponsePermanentRedirect(reverse("firefox"))
 
         scene = self.request.GET.get("scene", None)
         if scene == "2":
@@ -492,7 +493,9 @@ class DownloadView(L10nTemplateView):
         if variation not in self.variations:
             variation = None
 
-        if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
+        if ftl_file_is_active("firefox/download/home") and experience not in ["basic", "legacy"]:
+            template = "firefox/download/home.html"
+        elif ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             template = "firefox/download/desktop/download.html"
         else:
             template = "firefox/download/basic/base_download.html"
@@ -509,11 +512,6 @@ def ios_testflight(request):
     ctx = {"action": action, "newsletter_form": newsletter_form}
 
     return l10n_utils.render(request, "firefox/testflight.html", ctx)
-
-
-class FirefoxHomeView(L10nTemplateView):
-    ftl_files_map = {"firefox/index.html": ["firefox/browsers"]}
-    template_name = "firefox/index.html"
 
 
 class FirefoxFeaturesIndex(L10nTemplateView):
@@ -662,23 +660,35 @@ class FirefoxFeaturesFreePDFEditor(L10nTemplateView):
 @require_safe
 def firefox_features_translate(request):
     translate_langs = [
+        "ar",
         "bg",
+        "bn",
         "ca",
+        "zh-CN",
         "hr",
         "cs",
         "da",
         "nl",
         "en-US",
         "et",
+        "fa",
         "fi",
         "fr",
         "de",
         "el",
+        "gu",
+        "he",
+        "hi",
         "hu",
         "id",
         "it",
+        "ja",
+        "kn",
+        "ko",
         "lv",
         "lt",
+        "ml",
+        "ms",
         "pl",
         "pt-PT",
         "ro",
@@ -686,8 +696,11 @@ def firefox_features_translate(request):
         "sr",
         "sk",
         "sl",
+        "sq",
         "es-ES",
         "sv-SE",
+        "ta",
+        "te",
         "tr",
         "uk",
         "vi",
@@ -695,7 +708,7 @@ def firefox_features_translate(request):
 
     names = get_translations_native_names(sorted(translate_langs))
 
-    context = {"context_test": names}
+    context = {"context_test": names, "translate_langs": translate_langs}
 
     template_name = "firefox/features/translate.html"
 
@@ -808,3 +821,90 @@ class PlatformViewWindows(L10nTemplateView):
 
     # all active locales, this will make the lang switcher work properly
     activation_files = ["firefox/download/download", "firefox/download/platform"]
+
+
+def detect_channel(version):
+    match = re.match(r"\d{1,3}", version)
+    if match:
+        num_version = int(match.group(0))
+        if num_version >= 35:
+            if version.endswith("a1"):
+                return "nightly"
+            if version.endswith("a2"):
+                return "developer"
+
+    return "unknown"
+
+
+class WhatsnewView(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
+        "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
+        "firefox/whatsnew/evergreen.html": ["firefox/whatsnew/evergreen"],
+    }
+
+    # place expected ?v= values in this list
+    variations = ["1", "2", "3", "4"]
+
+    # Nimbus experiment variation expected values
+    nimbus_variations = ["v1", "v2", "v3", "v4"]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        version = self.kwargs.get("version") or ""
+        pre_release_channels = ["nightly", "developer"]
+        channel = detect_channel(version)
+
+        # add version to context for use in templates
+        match = re.match(r"\d{1,3}", version)
+        num_version = int(match.group(0)) if match else ""
+        ctx["version"] = version
+        ctx["num_version"] = num_version
+
+        # add analytics parameters to context for use in templates
+        if channel not in pre_release_channels:
+            channel = ""
+
+        analytics_version = str(num_version) + channel
+        entrypoint = "firefox.com-whatsnew" + analytics_version
+        campaign = "whatsnew" + analytics_version
+        ctx["analytics_version"] = analytics_version
+        ctx["entrypoint"] = entrypoint
+        ctx["campaign"] = campaign
+        ctx["utm_params"] = f"utm_source={entrypoint}&utm_medium=referral&utm_campaign={campaign}&entrypoint={entrypoint}"
+
+        variant = self.request.GET.get("v", None)
+        nimbus_variant = self.request.GET.get("variant", None)
+
+        # ensure variant matches pre-defined value
+        if variant not in self.variations:
+            variant = None
+
+        # ensure nimbus_variant matches pre-defined value
+        if nimbus_variant not in self.nimbus_variations:
+            nimbus_variant = None
+
+        ctx["variant"] = variant
+        ctx["nimbus_variant"] = nimbus_variant
+
+        return ctx
+
+    def get_template_names(self):
+        version = self.kwargs.get("version") or ""
+
+        oldversion = self.request.GET.get("oldversion", "")
+        # old versions of Firefox sent a prefixed version
+        if oldversion.startswith("rv:"):
+            oldversion = oldversion[3:]
+
+        channel = detect_channel(version)
+
+        if channel == "nightly":
+            template = "firefox/whatsnew/nightly/evergreen.html"
+        elif channel == "developer":
+            template = "firefox/whatsnew/developer/evergreen.html"
+        else:
+            template = "firefox/whatsnew/evergreen.html"
+
+        # return a list to conform with original intention
+        return [template]

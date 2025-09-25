@@ -4,16 +4,18 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# QR code for Firefox Focus #}
+{# QR code for Firefox Focus/Klar #}
+
+{% if LANG == 'de' %}
+  {% set qr_url = "https://www.firefox.com/browsers/mobile/app/?product=klar&campaign=firefox-browsers-mobile-klar" %}
+{% else %}
+  {% set qr_url = "https://www.firefox.com/browsers/mobile/app/?product=focus&campaign=firefox-browsers-mobile-focus" %}
+{% endif %}
 
 <div class="c-inline-form">
   <h2 class="c-inline-form-title">{{ ftl('mobile-focus-get-firefox-focus') }}</h2>
   <p class="c-inline-form-body">{{ ftl('mobile-focus-scan-the-qr-code-to-get-started') }}</p>
-  <div class="qr-code-wrapper">
-  {% if LANG == 'de' %}
-    <img src="{{ static('img/firefox/browsers/mobile/qrcode-firefox-browsers-mobile-klar.png') }}" id="focus-qr" width="400" height="400" alt="{{ ftl('mobile-focus-scan-alt-text') }}">
-  {% else %}
-    <img src="{{ static('img/firefox/browsers/mobile/qrcode-firefox-browsers-mobile-focus.png') }}" id="focus-qr" width="400" height="400" alt="{{ ftl('mobile-focus-scan-alt-text') }}">
-  {% endif %}
+  <div class="qr-code-wrapper" id="focus-qr" aria-label="{{ ftl('mobile-focus-scan-alt-text') }}">
+    {{ qrcode(qr_url) }}
   </div>
 </div>

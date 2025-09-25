@@ -13,7 +13,7 @@ const url = '/en-US/';
 test.describe(
     `${url} footer (mobile)`,
     {
-        tag: '@mozorg'
+        tag: '@firefox'
     },
     () => {
         test.use({ viewport: { width: 360, height: 780 } });
@@ -30,7 +30,7 @@ test.describe(
 
             // Change page language from /en-US/ to /de/
             await languageSelect.selectOption('de');
-            await page.waitForURL('**/de/?automation=true', {
+            await page.waitForURL('/de/?automation=true*', {
                 waitUntil: 'commit'
             });
 

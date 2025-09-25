@@ -76,10 +76,12 @@ M24PencilBanner.close = function () {
 };
 
 M24PencilBanner.bindEvents = function () {
+    const closeButton = _pencilBanner.querySelector('.m24-pencil-banner-close');
+
     // Wire up close button
-    _pencilBanner
-        .querySelector('.m24-pencil-banner-close')
-        .addEventListener('click', M24PencilBanner.close, false);
+    if (closeButton) {
+        closeButton.addEventListener('click', M24PencilBanner.close, false);
+    }
 
     // Record widget display action in GA4
     window.dataLayer.push({

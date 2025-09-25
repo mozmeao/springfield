@@ -292,3 +292,11 @@ ul.download-list {
         margin: 0
     }
 }
+
+// Download Icon
+// Hack to ensure only component authored margin is applied
+// https://github.com/mozmeao/springfield/pull/238#issuecomment-2954261185
+.download-link .mzp-c-button-icon-end img {
+    /* stylelint-disable-next-line declaration-no-important */
+    margin-bottom: 0 !important;
+}

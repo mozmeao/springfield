@@ -4,6 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=account-promo' %}
 
 <div class="mzp-l-content is-js-dependent">
 
@@ -22,10 +23,6 @@
         <li>
           <img loading="lazy" src="{{ static('protocol/img/logos/mozilla/vpn/logo-flat-white.svg') }}" alt="">
           <span class="visually-hidden">{{ ftl('moz-account-product-vpn') }}</span>
-        </li>
-        <li>
-          <img loading="lazy" src="{{ static('protocol/img/logos/pocket/logo.svg') }}" alt="">
-          <span class="visually-hidden">{{ ftl('moz-account-product-pocket') }}</span>
         </li>
         <li>
           <img loading="lazy" src="{{ static('protocol/img/logos/firefox/relay/logo-white.svg') }}" alt="">
@@ -48,7 +45,7 @@
       <p class="accounts-signin">
         {% set fxa_link = fxa_link_fragment(entrypoint=_entrypoint, action='signin') %}
         {% set sign_in_url = fxa_link ~ ' class="js-fxa-cta-link js-fxa-product-button" data-cta-text="Accounts Learn More"'|safe %}
-        {% set learn_more_url = 'href="'|safe ~ 'https://www.mozilla.org/' ~ LANG ~ '/account/' ~ '"'|safe %}
+        {% set learn_more_url = 'href="https://www.mozilla.org/{}/account/{}"'.format(LANG, params) %}
         {{ ftl('moz-account-already-have-v2', sign_in_url=sign_in_url, learn_more_url=learn_more_url) }}
       </p>
     </div>

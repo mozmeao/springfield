@@ -1,0 +1,106 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "base-protocol.html" %}
+{% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
+
+{# Issue 13019: Avoid duplicate content for English pages. #}
+{%- block page_title -%}
+  {%- if LANG == 'en-US' -%}
+    Firefox for Desktop — Firefox (US)
+  {%- elif LANG == 'en-GB' -%}
+    Firefox for Desktop  — Firefox (UK)
+  {%- else -%}
+    {{ ftl('firefox-browsers-page-title-v2') }} - Firefox
+  {%- endif -%}
+{%- endblock -%}
+
+{% block page_desc %}{{ ftl('firefox-browsers-page-desc-v2') }}{% endblock %}
+
+{% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
+
+{% block page_css %}
+  {{ css_bundle('protocol-emphasis-box')}}
+  {{ css_bundle('firefox-desktop') }}
+
+  {% if show_firefox_app_store_banner %}
+    {{ css_bundle('firefox-app-store-banner') }}
+  {% endif %}
+{% endblock %}
+
+{% block page_banner %}
+  {% if show_firefox_app_store_banner %}
+    {% include 'includes/banners/mobile/firefox-app-store.html' %}
+  {% endif %}
+{% endblock %}
+
+{% set android_url = play_store_url('firefox', 'firefox-desktop') %}
+{% set ios_url = app_store_url('firefox', 'firefox-desktop') %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-desktop' %}
+{% set _entrypoint = 'firefox.com-firefox-desktop' %}
+
+{% block content %}
+<main>
+  <header class="c-main-header mzp-l-content mzp-t-content-md">
+    <div class="mzp-c-logo mzp-t-logo-lg mzp-t-product-firefox"></div>
+      <h1>{{ ftl('firefox-browsers-main-heading-v2') }}</h1>
+      <h2 class="mzp-has-zap-11">
+        {{ ftl('firefox-browsers-get-the-browsers-strong-v2') }}
+      </h2>
+      {{ download_firefox_thanks(locale_in_transition=True, download_location='desktop hero cta', dom_id='firefox-desktop-download') }}
+  </header>
+
+  <div class="mzp-l-content mzp-t-content-lg c-landing-grid">
+    <div class="c-landing-grid-item">
+      {{ resp_img(
+        url='img/firefox/home/desktop.jpg',
+        srcset={
+          'img/firefox/home/desktop-high-res.jpg': '2x'
+        },
+        optional_attributes={
+          'class': 'c-landing-grid-img',
+          'width': '350',
+          'height': '233'
+        }
+      ) }}
+      <h2 class="c-landing-grid-title"><a href="{{ url('firefox') }}" data-cta-text="Desktop">{{ ftl('firefox-browsers-desktop') }}</a></h2>
+      <p>{{ ftl('firefox-browsers-seriously-private-browsing') }}</p>
+
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.windows') }}" data-cta-text="Firefox for Windows">{{ ftl('firefox-browsers-windows') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.mac') }}" data-cta-text="Firefox for Mac">{{ ftl('firefox-browsers-mac') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.browsers.desktop.linux') }}" data-cta-text="Firefox for Linux">{{ ftl('firefox-browsers-linux') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ firefox_url('desktop', 'all') }}" data-cta-text="Custom Download Options">{{ ftl('firefox-browsers-custom') }}</a></p>
+    </div>
+    <div class="c-landing-grid-item">
+      {{ resp_img(
+        url='img/firefox/home/enterprise.jpg',
+        srcset={
+          'img/firefox/home/enterprise-high-res.jpg': '2x'
+        },
+        optional_attributes={
+          'class': 'c-landing-grid-img',
+          'width': '350',
+          'height': '233'
+        }
+      ) }}
+      <h2 class="c-landing-grid-title"><a href="{{ url('firefox.enterprise.index') }}" data-cta-text="Enterprise">{{ ftl('firefox-browsers-enterprise') }}</a></h2>
+      <p>{{ ftl('firefox-browsers-get-unmatched-data-protection') }}</p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.enterprise.index') }}#download" data-cta-text="Enterprise packages">{{ ftl('firefox-browsers-enterprise-packages') }}</a></p>
+      <p><a class="mzp-c-cta-link" href="{{ url('firefox.enterprise.index') }}" data-cta-text="Enterprise Learn More">{{ ftl('ui-learn-more') }}</a></p>
+    </div>
+  </div>
+
+  {% include 'firefox/includes/mozilla-account-promo.html' %}
+</main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('fxa_form') }}
+
+  {% if show_firefox_app_store_banner %}
+    {{ js_bundle('firefox-app-store-banner') }}
+  {% endif %}
+{% endblock %}

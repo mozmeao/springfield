@@ -9,6 +9,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=developer' %}
+
 {% block page_title %}{{ ftl('firefox-developer-page-title') }}{% endblock %}
 {% block page_desc %}{{ ftl('firefox-developer-firefox-developer-edition-desc') }}{% endblock %}
 {% block page_image %}{{ static('protocol/img/logos/firefox/browser/developer/og.png') }}{% endblock %}
@@ -28,36 +30,8 @@
 
 {% block site_header %}
   {% with hide_nav_download_button=True %}
-    {% include 'includes/protocol/navigation/navigation.html' %}
+    {% include 'includes/navigation/navigation.html' %}
   {% endwith %}
-{% endblock %}
-
-{% block sub_navigation %}
-  {{ sub_nav(
-    title={
-      'text':  ftl('sub-navigation-firefox'),
-      'href':  url('firefox'),
-      'icon':  static('protocol/img/logos/firefox/browser/logo.svg'),
-      'cta_name': 'Firefox'
-    },
-    links=[
-      {
-        'text':  ftl('sub-navigation-enterprise'),
-        'href':  url('firefox.enterprise.index'),
-        'cta_name': 'Enterprise'
-      },
-      {
-        'text':  ftl('sub-navigation-nightly-and-beta'),
-        'href':  url('firefox.channel.desktop'),
-        'cta_name': 'Nightly and Beta'
-      },
-      {
-        'text':  ftl('sub-navigation-all-languages', fallback='download-button-systems-languages'),
-        'href':  url('firefox.all'),
-        'cta_name': 'All Languages'
-      }
-    ]
-  ) }}
 {% endblock %}
 
 {% block content %}
@@ -73,7 +47,7 @@
      data-cta-text="Get help with your installation"')}}</p>
     <p class="intro-feedback-note">
       {{ ftl('firefox-developer-firefox-developer-edition-sends') }}
-      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/#pre-release" class="more">{{ ftl('ui-learn-more') }}</a>
+      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#pre-release" class="more">{{ ftl('ui-learn-more') }}</a>
     </p>
   </div>
 

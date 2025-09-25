@@ -62,6 +62,12 @@
     },
     {
       "files": [
+        "css/firefox/browsers/desktop/chromebook.scss"
+      ],
+      "name": "chromebook"
+    },
+    {
+      "files": [
         "css/firefox/download/common/thanks-messaging.scss",
         "css/firefox/download/desktop/thanks.scss"
       ],
@@ -91,6 +97,12 @@
         "css/firefox/testflight.scss"
       ],
       "name": "firefox_ios_testflight"
+    },
+    {
+      "files": [
+        "css/firefox/ios-summarizer.scss"
+      ],
+      "name": "firefox-ios-summarizer"
     },
     {
       "files": [
@@ -142,6 +154,24 @@
     },
     {
       "files": [
+        "css/firefox/compare/index.scss"
+      ],
+      "name": "firefox-compare-index"
+    },
+    {
+      "files": [
+        "css/firefox/compare/article.scss"
+      ],
+      "name": "firefox-compare-article"
+    },
+    {
+      "files": [
+        "css/firefox/unsupported-systems.scss"
+      ],
+      "name": "firefox_unsupported_systems"
+    },
+    {
+      "files": [
         "css/firefox/default/landing.scss"
       ],
       "name": "firefox-default-landing"
@@ -179,9 +209,27 @@
     {
       "files": [
         "css/firefox/mozilla-account-promo.scss",
+        "css/firefox/browsers/desktop-index.scss"
+      ],
+      "name": "firefox-desktop"
+    },
+    {
+      "files": [
         "css/firefox/home.scss"
       ],
       "name": "firefox-home"
+    },
+        {
+      "files": [
+        "css/firefox/home-ie9.scss"
+      ],
+      "name": "firefox-home-ie9"
+    },
+    {
+      "files": [
+        "css/firefox/home-ie8.scss"
+      ],
+      "name": "firefox-home-ie8"
     },
     {
       "files": [
@@ -240,21 +288,9 @@
     {
       "files": [
         "css/m24/root.scss",
-        "css/protocol/protocol-mozilla.scss"
+        "css/protocol/protocol.scss"
       ],
-      "name": "protocol-mozilla"
-    },
-    {
-      "files": [
-        "css/m24/navigation-and-footer.scss"
-      ],
-      "name": "m24-navigation-and-footer"
-    },
-    {
-      "files": [
-        "css/protocol/navigation-and-footer.scss"
-      ],
-      "name": "legacy-navigation-and-footer"
+      "name": "protocol"
     },
     {
       "files": [
@@ -288,6 +324,60 @@
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "css/firefox/landing/index.scss"
+      ],
+      "name": "firefox_landing"
+    },
+    {
+      "files": [
+        "css/firefox/more/more.scss"
+      ],
+      "name": "more"
+    },
+    {
+      "files": [
+        "css/firefox/more/best-browser.scss"
+      ],
+      "name": "best-browser"
+    },
+    {
+      "files": [
+        "css/firefox/more/article.scss"
+      ],
+      "name": "more-article"
+    },
+    {
+      "files": [
+        "css/firefox/more/faq.scss"
+      ],
+      "name": "more-faq"
+    },
+    {
+      "files": [
+        "css/firefox/more/windows-64-bit.scss"
+      ],
+      "name": "windows-64-bit"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/nightly/evergreen.scss"
+      ],
+      "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/developer/evergreen.scss"
+      ],
+      "name": "whatsnew_developer"
+    },
+    {
+      "files": [
+        "css/firefox/whatsnew/evergreen.scss"
+      ],
+      "name": "whatsnew"
     }
   ],
   "js": [
@@ -318,6 +408,25 @@
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"
+    },
+    {
+      "files": [
+        "js/firefox/home.js"
+      ],
+      "name": "firefox-home"
+    },
+    {
+      "files": [
+        "js/firefox/download/desktop/download-as-default.es6.js",
+        "js/firefox/download/desktop/download-as-default-init.es6.js"
+      ],
+      "name": "download_as_default"
+    },
+    {
+      "files": [
+        "js/firefox/browsers/desktop/chromebook.js"
+      ],
+      "name": "chromebook"
     },
     {
       "files": [
@@ -366,6 +475,18 @@
     },
     {
       "files": [
+        "js/firefox/features/translate.es6.js"
+      ],
+      "name": "firefox_features_translate"
+    },
+    {
+      "files": [
+        "js/firefox/browsers/compare-article.es6.js"
+      ],
+      "name": "firefox_compare_article"
+    },
+    {
+      "files": [
         "js/firefox/default/thanks.js"
       ],
       "name": "firefox-default-thanks"
@@ -382,12 +503,6 @@
         "js/base/banners/firefox-newsletter-banner-check.js"
       ],
       "name": "firefox-newsletter-banner"
-    },
-    {
-      "files": [
-        "js/firefox/home.js"
-      ],
-      "name": "firefox-home"
     },
     {
       "files": [
@@ -429,29 +544,16 @@
     },
     {
       "files": [
-        "js/base/protocol/init-details.es6.js",
-        "js/base/protocol/init-footer.es6.js",
-        "js/base/protocol/init-lang-switcher.es6.js",
-        "js/base/protocol/protocol-sub-navigation.js",
-        "js/base/base-page-init.js",
-        "js/base/protocol/protocol-menu.js",
-        "js/base/protocol/protocol-navigation.js",
-        "js/base/protocol/init-navigation.js"
-      ],
-      "name": "ui"
-    },
-    {
-      "files": [
         "js/base/banners/m24-pencil-banner-init.es6.js",
         "js/base/protocol/init-details.es6.js",
         "js/base/protocol/init-lang-switcher.es6.js",
         "js/base/protocol/protocol-sub-navigation.js",
         "js/base/base-page-init.js",
-        "js/base/protocol/m24-menu.es6.js",
-        "js/base/protocol/m24-navigation.es6.js",
-        "js/base/protocol/init-m24-navigation.es6.js"
+        "js/base/protocol/menu.es6.js",
+        "js/base/protocol/navigation.es6.js",
+        "js/base/protocol/init-navigation.es6.js"
       ],
-      "name": "m24-ui"
+      "name": "ui"
     },
     {
       "files": [
@@ -512,6 +614,12 @@
     },
     {
       "files": [
+        "js/firefox/browsers/ios-summarizer.js"
+      ],
+      "name": "ios_summarizer"
+    },
+    {
+      "files": [
         "js/base/send-to-device.es6.js",
         "js/firefox/browsers/mobile.es6.js"
       ],
@@ -537,6 +645,24 @@
         "js/firefox/landing/get/marketing-opt-out-init.es6.js"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "js/firefox/landing/init.es6.js"
+      ],
+      "name": "firefox_landing"
+    },
+    {
+      "files": [
+        "js/firefox/landing/partner-build-download-init.es6.js"
+      ],
+      "name": "firefox_partner_build_download"
+    },
+    {
+      "files": [
+        "js/firefox/whatsnew/nightly/uitour.js"
+      ],
+      "name": "whatsnew_nightly"
     }
   ]
 }

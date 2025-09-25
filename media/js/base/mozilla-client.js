@@ -229,8 +229,8 @@ if (typeof window.Mozilla === 'undefined') {
 
     /**
      * Use the async mozUITour API of Firefox to retrieve the user's browser info, including the update channel and
-     * accurate, patch-level version number. This API is available on Firefox 35 and later. See
-     * http://bedrock.readthedocs.org/en/latest/uitour.html for details.
+     * accurate, patch-level version number. This API is available on Firefox 35 and later *however* it is
+     * not available on www.firefox.com until 136. See http://bedrock.readthedocs.org/en/latest/uitour.html for details.
      *
      * @param  {Function} callback - callback function to be executed with the Firefox details
      * @return {None}
@@ -324,20 +324,20 @@ if (typeof window.Mozilla === 'undefined') {
      *     - firefox: true if Firefox
      *     - legacy: true if older than FxALastSupported
      *     - mobile: false | android | ios
-     *     - setup: true if Fx >= 29 and logged into *Sync*.
-     *              true if Fx >= 74 and logged into *FxA*.
+     *     - setup: true if Fx >= 136 and logged into *Sync*.
+     *              true if Fx >= 136 and logged into *FxA*.
      *     - browserServices.sync
      *              setup: logged into Sync.
      *              desktopDevices: number of desktop devices synced.
      *              mobileDevices: number of mobile devices synced.
      *              totalDevices: number of total devices synced.
      * Notes:
-     * - Fx < 50 has FxA and UITour support but the API does not return device counts
+     * - Fx < 136 does not have UITour enabled on www.firefox.com
      * - Fx < FxALastSupported accounts.firefox.com does not work
      *     - FxALastSupported is supplied by the FxA team
      *     - these versions are still capable of logging in through the browser
      *     - differentiated because we generally do not give these versions the FxA calls to action (eg. "Create an Account")
-     * - Fx < 29 the mozUITour API is not available, though the user may still be logged in
+     * - Fx < 136 the mozUITour API is not available, though the user may still be logged in
      * - If you're curious, "sync" began with Fx 4.
      *
      * @param  {Function} callback - callback function to be executed with the FxA details
@@ -387,7 +387,7 @@ if (typeof window.Mozilla === 'undefined') {
             details.firefox = true;
             var userVer = parseFloat(Client._getFirefoxVersion());
 
-            if (userVer < 29) {
+            if (userVer < 136) {
                 // UITour not supported
                 details.legacy = true;
                 returnFxaDetails();
@@ -395,6 +395,8 @@ if (typeof window.Mozilla === 'undefined') {
             } else {
                 // UITour supported
                 // still note if it's older than accounts.firefox.com supports
+                // this check isn't as relavant on www.firefox.com because if UITour is enabled, it's more
+                // modern than FxALastSupported. However, I fear removing it.
                 if (userVer < Client.FxALastSupported) {
                     details.legacy = true;
                 }

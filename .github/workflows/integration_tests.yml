@@ -42,7 +42,7 @@ jobs:
           - LABEL: test-ie-saucelabs
             BROWSER_NAME: internet explorer
             DRIVER: SauceLabs
-            MARK_EXPRESSION: "smoke or sanity"
+            MARK_EXPRESSION: smoke
             PLATFORM: Windows 10
             PYTEST_PROCESSES: 8
           - LABEL: test-headless
@@ -99,9 +99,6 @@ jobs:
     env:
       PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.springfield_service_hostname }}
       CI: true
-      CI_JOB_ID: ${{ github.run_id }}
-      DRIVER: ""
-      LABEL: playwright-tests
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -111,6 +108,13 @@ jobs:
       run: cd tests/playwright && npm ci && npm run install-deps
     - name: Run Playwright tests
       run: cd tests/playwright && npm run integration-tests
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: test-results-${{ github.event.inputs.git_sha }}-${{ github.run_id }}
+        path: tests/playwright/test-results/
+        if-no-files-found: ignore  # this avoids a false "Warning" if there were no issues
+        retention-days: 30
 
   notify-of-test-run-completion:
     if: always()

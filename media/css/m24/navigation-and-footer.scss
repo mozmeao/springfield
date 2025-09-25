@@ -5,13 +5,10 @@
 @use '~@mozilla-protocol/core/protocol/css/includes/lib' as *;
 
 // global components
-@use 'components/footer-newsletter';
-@use 'components/footer-refresh';
 @use 'components/navigation-refresh';
 @use 'components/pencil-banner';
 
-.m24-navigation-refresh,
-.moz24-footer {
+.m24-navigation {
     --body-font-family: #{$font-stack-mozilla-text};
     --title-font-family: #{$font-stack-mozilla-headline};
     font-family: var(--body-font-family);

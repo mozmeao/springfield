@@ -8,12 +8,9 @@ $font-path: '/media/protocol/fonts';
 $image-path: '/media/protocol/img';
 
 @import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
 @import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
 @import '~@mozilla-protocol/core/protocol/css/components/section-heading';
 @import '~@mozilla-protocol/core/protocol/css/components/zap';
-@import '../../../protocol/components/sub-navigation';
 
 // --------------------------------------------------------------------------
 // Protocol over-rides
@@ -37,6 +34,13 @@ $h-grid-lg: 80px;
 main {
     background-color: $color-white; // for IE6
     color: $color-dark-gray-30;
+
+    h1 {
+        color: $color-dark-gray-30;
+        font-family: var(--body-font-family);
+        font-size: var(--text-body-sm);
+        font-weight: normal;
+    }
 
     h2,
     h3,
@@ -614,10 +618,6 @@ button.mzp-c-cta-link {
         @include font-size(40px);
     }
 
-    .mzp-c-wordmark {
-        margin-bottom: $v-grid-md;
-    }
-
     // issue 13317
     .fx-unsupported-message {
         @include bidi(((text-align, left, right),));
@@ -999,7 +999,7 @@ button.mzp-c-cta-link {
 #protection-report {
     display: none;
 
-    .state-firefox-desktop-70 & {
+    .state-firefox-desktop-136 & {
         display: block;
     }
 }
@@ -1234,11 +1234,11 @@ button.mzp-c-cta-link {
             background-position: top center;
             background-repeat: no-repeat;
             border-radius: $border-radius-sm;
-            bottom: $layout-lg;
+            bottom: $layout-sm;
             content: '';
             display: block;
             position: absolute;
-            top: $layout-lg;
+            top: $layout-md;
             width: 40%;
 
             &,
@@ -1322,5 +1322,29 @@ button.mzp-c-cta-link {
             opacity: 1;
             transform: scaleX(1) scaleY(1);
         }
+    }
+}
+
+// --------------------------------------------------------------------------
+// download as default checkbox
+
+.default-browser-label {
+    display: block;
+    font-weight: normal;
+    margin: 0 auto $spacing-lg;
+    padding-bottom: 0;
+    width: max-content;
+
+    &.hidden {
+        display: none;
+    }
+
+    input[type="checkbox"] {
+        margin-right: $spacing-sm;
+        vertical-align: top;
+    }
+
+    .c-intro-download & {
+        margin: 0 0 $spacing-lg;
     }
 }

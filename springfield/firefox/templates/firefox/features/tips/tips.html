@@ -6,6 +6,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-features' %}
+
 {% block page_image %}{{ static('img/firefox/features/tips/tips-and-tools.png') }}{% endblock %}
 
 {% from "macros-protocol.html" import split, callout, zap, card, callout_compact with context %}
@@ -84,7 +86,7 @@
         aspect_ratio='mzp-has-aspect-16-9',
         youtube_id='-Rv5MKSBNUM',
         image=resp_img('img/firefox/features/tips/fx_video-thumb_secret-menu_screenshot_mj.jpg', optional_attributes={"loading": "lazy", "class": "mzp-c-card-image"}),
-        link_url='https://blog.mozilla.org/products/firefox/firefox-tips/firefox-secret-tips/#screenshots'
+        link_url='https://blog.mozilla.org/products/firefox/firefox-tips/firefox-secret-tips/' + params + '#screenshots'
       )}}
 
        <!-- HTTps -->
@@ -147,7 +149,7 @@
         aspect_ratio='mzp-has-aspect-16-9',
         youtube_id='M9DK-taZsrw',
         image=resp_img('img/firefox/features/tips/fx_video-thumb_secret-menu_facebook-steve.jpg', optional_attributes={"loading": "lazy", "class": "mzp-c-card-image"}),
-        link_url='https://www.mozilla.org/' + LANG + '/firefox/facebookcontainer/'
+        link_url='https://addons.mozilla.org/firefox/addon/facebook-container/' + params
       )}}
 
       <!-- password manager -->
@@ -199,18 +201,6 @@
         image=resp_img('img/firefox/features/tips/fx_video-thumb_secret-menu_forget_damiano.jpg', optional_attributes={"loading": "lazy", "class": "mzp-c-card-image"}),
         link_url='https://blog.mozilla.org/products/firefox/firefox-tips/firefox-secret-tips/#forget'
       )}}
-
-        <!-- pocket button -->
-       {{ card(
-        title='Save the best of the web',
-        ga_title='Save the best of the web',
-        tag_label='Amy from Pocket Curation',
-        desc='Save articles, videos and more to consume later, even when you’re offline.',
-        aspect_ratio='mzp-has-aspect-16-9',
-        youtube_id='MGHFog9F48A',
-        image=resp_img('img/firefox/features/tips/fx_video-thumb_secret-menu_pocket_amy.jpg', optional_attributes={"loading": "lazy", "class": "mzp-c-card-image"}),
-        link_url='https://blog.mozilla.org/products/firefox/firefox-tips/firefox-secret-tips/#pocket'
-      )}}
     </div>
 
     {% call callout(
@@ -236,7 +226,7 @@
       brand_product='mozilla',
       brand_size='lg'
     ) %}
-    <a href="https://www.mozilla.org/{{ LANG }}/account/" class="mzp-c-button mzp-t-product mzp-t-dark" id="fxa-learn-secondary">{{ ftl('ui-learn-more') }}</a>
+    <a href="https://www.mozilla.org/{{ LANG }}/account/{{ params }}" class="mzp-c-button mzp-t-product mzp-t-dark" id="fxa-learn-secondary">{{ ftl('ui-learn-more') }}</a>
   {% endcall %}
   </main>
 {% endblock %}

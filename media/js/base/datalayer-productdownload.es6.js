@@ -6,7 +6,8 @@
 
 const TrackProductDownload = {};
 const prodURL = /^https:\/\/download.mozilla.org/;
-const stageURL = /^https:\/\/bouncer-bouncer.stage.mozaws.net/;
+const stageURL =
+    /^https:\/\/(bouncer-bouncer.stage.mozaws.net|stage.bouncer.nonprod.webservices.mozgcp.net)/;
 const devURL = /^https:\/\/dev.bouncer.nonprod.webservices.mozgcp.net/;
 const iTunesURL = /^https:\/\/itunes.apple.com/;
 const appStoreURL = /^https:\/\/apps.apple.com/;
@@ -99,7 +100,7 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             downloadURL.split('?')[1]
         );
     } else {
-        params = [];
+        params = {};
     }
 
     let eventObject = {};
@@ -181,20 +182,7 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             androidRelease
         );
     } else if (appStoreURL.test(downloadURL) || iTunesURL.test(downloadURL)) {
-        let iosProduct = 'unrecognized';
-        if (downloadURL.indexOf('/id989804926') !== -1) {
-            iosProduct = 'firefox_mobile';
-        } else if (downloadURL.indexOf('/id1055677337') !== -1) {
-            iosProduct = 'focus';
-        } else if (downloadURL.indexOf('/id1073435754') !== -1) {
-            iosProduct = 'klar';
-        } else if (downloadURL.indexOf('/id309601447') !== -1) {
-            iosProduct = 'pocket';
-        } else if (downloadURL.indexOf('/id1489407738') !== -1) {
-            iosProduct = 'vpn';
-        }
-
-        // Apple App Store
+        const iosProduct = params.mz_pr ? params.mz_pr : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
             iosProduct,
             'ios',
@@ -202,14 +190,10 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             'release'
         );
     } else if (msStoreUrl.test(downloadURL) || msStoreUrl2.test(downloadURL)) {
-        let channel = 'unrecognized';
-        if (downloadURL.indexOf('9nzvdkpmr9rd') !== -1) {
-            channel = 'release';
-        } else if (downloadURL.indexOf('9nzw26frndln') !== -1) {
-            channel = 'beta';
-        }
-
-        // MS Store
+        const channel =
+            params.mz_cn === 'release' || params.mz_cn === 'beta'
+                ? params.mz_cn
+                : 'unrecognized';
         eventObject = TrackProductDownload.getEventObject(
             'firefox',
             'win',
@@ -261,9 +245,20 @@ TrackProductDownload.sendEventFromURL = (downloadURL) => {
  * @param {Object} - product details formatted into a product_download event
  */
 TrackProductDownload.sendEvent = (eventObject) => {
-    window.dataLayer.push(eventObject);
-    // we also want to keep the old event name around for a few months to help with the transition
-    // this can be deleted as part of the UA cleanup
+    // Treating this as the source of mozmeao/springfield#323 and wrapping it in a try/catch
+    try {
+        const result = window.dataLayer.push(eventObject);
+        // Handle if dataLayer.push returns a promise (some GTM configurations do this)
+        if (result && typeof result.then === 'function') {
+            result.catch(() => {
+                // Silently handle promise rejections to prevent unhandled rejection errors
+            });
+        }
+    } catch (error) {
+        // Handle synchronous errors
+    }
+    // we wanted to keep the old event name around for a few months to help with the transition
+    // now there are a bunch of dashboards built to use it so it gets to live on forever
     TrackProductDownload.sendOldEvent(eventObject);
 };
 
@@ -272,12 +267,23 @@ TrackProductDownload.sendEvent = (eventObject) => {
  * @param {Object} - product details formatted into a product_download event
  */
 TrackProductDownload.sendOldEvent = (eventObject) => {
-    // deep copy of event object
-    const oldEventObject = JSON.parse(JSON.stringify(eventObject));
-    // replace event name with old event name
-    oldEventObject['event'] = 'product_download';
-    // add to dataLayer
-    window.dataLayer.push(oldEventObject);
+    // Treating this as the source of mozmeao/springfield#323 and wrapping it in a try/catch
+    try {
+        // deep copy of event object
+        const oldEventObject = JSON.parse(JSON.stringify(eventObject));
+        // replace event name with old event name
+        oldEventObject['event'] = 'product_download';
+        // add to dataLayer
+        const result = window.dataLayer.push(oldEventObject);
+        // Handle if dataLayer.push returns a promise (some GTM configurations do this)
+        if (result && typeof result.then === 'function') {
+            result.catch(() => {
+                // Silently handle promise rejections to prevent unhandled rejection errors
+            });
+        }
+    } catch (error) {
+        // Handle synchronous errors (JSON.stringify/parse or dataLayer.push errors)
+    }
 };
 
 export default TrackProductDownload;

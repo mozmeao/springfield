@@ -21,6 +21,7 @@ from waffle.models import Switch
 from lib import l10n_utils
 from lib.l10n_utils import RequireSafeMixin
 from springfield.base.geo import get_country_from_request
+from springfield.base.waffle import switch
 from springfield.utils import git
 
 
@@ -183,7 +184,8 @@ class Robots(RequireSafeMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         hostname = self.request.get_host()
-        return {"disallow_all": not hostname == "www.mozilla.org"}
+        _disallow_all = switch("ROBOTS_FORCE_DISALLOW_ALL") or (not hostname == "www.firefox.com")
+        return {"disallow_all": _disallow_all}
 
 
 class SecurityDotTxt(RequireSafeMixin, TemplateView):
