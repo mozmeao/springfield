@@ -254,6 +254,7 @@ class SubscribeBannerBlock(blocks.StructBlock):
 
 # Card Lists
 
+
 class StickerCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
@@ -337,7 +338,6 @@ class IconCardListBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-
 class IllustrationCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -358,6 +358,11 @@ class IllustrationCardBlock(blocks.StructBlock):
 
 class IllustrationCardListBlock(blocks.StructBlock):
     heading = HeadingBlock()
+    illustrations_below = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Place illustrations below the content",
+    )
     cards = blocks.ListBlock(IllustrationCardBlock())
 
     class Meta:
@@ -365,6 +370,36 @@ class IllustrationCardListBlock(blocks.StructBlock):
         label = "Card List / Illustration"
         label_format = "Illustration Cards - {heading}"
         form_classname = "compact-form struct-block"
+
+
+class StepCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/step-card.html"
+        label = "Step Card"
+        label_format = "{headline}"
+        form_classname = "compact-form struct-block"
+
+
+class StepCardListBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    cards = blocks.ListBlock(StepCardBlock())
+
+    class Meta:
+        template = "cms/blocks/step-cards.html"
+        label = "Card List / Step"
+        label_format = "Step Cards - {heading}"
+        form_classname = "compact-form struct-block"
+
 
 class QRCodeBannerBlock(blocks.StructBlock):
     qr_content = blocks.CharBlock(

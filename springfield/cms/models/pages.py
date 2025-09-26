@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
@@ -18,6 +17,7 @@ from springfield.cms.blocks import (
     IllustrationCardListBlock,
     IntroBlock,
     QRCodeBannerBlock,
+    StepCardListBlock,
     StickerCardListBlock,
     SubscribeBannerBlock,
     TagCardListBlock,
@@ -141,6 +141,7 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
             ("tag_cards", TagCardListBlock(group="Card Lists")),
             ("icon_cards", IconCardListBlock(group="Card Lists")),
             ("illustration_cards", IllustrationCardListBlock(group="Card Lists")),
+            ("step_cards", StepCardListBlock(group="Card Lists")),
         ]
     )
 

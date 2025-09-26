@@ -12,8 +12,9 @@
       {% endwith %}
     </div>
 
-    <div class="wnp-grid {% if value.illustrations_below %}fl-illustration-cards-reverse{% endif %}">
+    <div class="wnp-grid fl-illustration-cards-reverse">
       {% for card in value.cards %}
+        {% set card_index = loop.index0 %}
         {% include_block card %}
       {% endfor %}
     </div>

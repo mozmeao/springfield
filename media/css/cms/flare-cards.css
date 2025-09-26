@@ -50,6 +50,10 @@
     content: "";
 }
 
+.fl-card.expand-link:hover .heading {
+    text-decoration: underline;
+}
+
 .fl-card .button {
     margin-top: auto;
     align-self: flex-start;
@@ -85,6 +89,25 @@
     justify-content: flex-start;
     gap: var(--fds-spacing-md);
     height: 100%;
+}
+
+.fl-illustration-cards-reverse .fl-card {
+    gap: 0;
+}
+
+.fl-illustration-cards-reverse .fl-card .media {
+    position: relative;
+    order: 1;
+    margin-top: calc(var(--fds-spacing-lg) * -1);
+    z-index: 0;
+}
+
+.fl-illustration-cards-reverse .fl-card .card-content {
+    position: relative;
+    order: 0;
+    background: light-dark(var(--fds-color-white), var(--fds-color-charcoal));
+    border-radius: var(--fds-border-radius-xl);
+    z-index: 1;
 }
 
 @media (max-width: 767px) {
