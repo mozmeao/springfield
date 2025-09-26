@@ -378,6 +378,12 @@
         "css/firefox/whatsnew/evergreen.scss"
       ],
       "name": "whatsnew"
+    },
+    {
+      "files": [
+        "css/firefox/data.scss"
+      ],
+      "name": "data_protection"
     }
   ],
   "js": [
@@ -663,6 +669,18 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
+    },
+    {
+      "files": [
+        "js/data/data-uitour.es6.js"
+      ],
+      "name": "data_uitour"
+    },
+    {
+      "files": [
+        "js/data/data-protection.js"
+      ],
+      "name": "data_protection"
     }
   ]
 }
