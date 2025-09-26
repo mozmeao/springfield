@@ -294,7 +294,6 @@ class TagCard(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-# TODO: find a better name for this
 class TagCardsBlock(blocks.StructBlock):
     heading = HeadingBlock()
     cards = blocks.ListBlock(TagCard())
@@ -305,6 +304,34 @@ class TagCardsBlock(blocks.StructBlock):
         label_format = "Tag Cards - {heading}"
         form_classname = "compact-form struct-block"
 
+
+class IconCard(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Expand the link click area to the whole card",
+    )
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/icon-card.html"
+        label = "Icon Card"
+        label_format = "Icon Card - {headline}"
+        form_classname = "compact-form struct-block"
+
+class IconCardsBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    cards = blocks.ListBlock(IconCard())
+
+    class Meta:
+        template = "cms/blocks/icon-cards.html"
+        label = "Icon Cards"
+        label_format = "Icon Cards - {heading}"
+        form_classname = "compact-form struct-block"
 
 class QRCodeBannerBlock(blocks.StructBlock):
     qr_content = blocks.CharBlock(

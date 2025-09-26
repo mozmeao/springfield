@@ -22,3 +22,7 @@
     z-index: 1;
     content: "";
 }
+
+.card-icon {
+    font-size: var(--font-size-h4);
+}
