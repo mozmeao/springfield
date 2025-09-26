@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from wagtail import blocks
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 HEADING_TEXT_FEATURES = [
@@ -201,6 +202,7 @@ class HeaderNotificationBlock(blocks.StructBlock):
 
 class IntroBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=False, inline_form=True)
+    embed = EmbedBlock(required=False, label="Media (Video or other)")
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),
         default="after",

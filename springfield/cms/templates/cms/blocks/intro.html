@@ -22,5 +22,10 @@
     <content:media>
       {{ image(value.image, "width-800") }}
     </content:media>
+  {% elif value.embed %}
+    <content:media>
+      {% include_block value.embed %}
+    </content:media>
   {% endif %}
+
 </include:intro>
