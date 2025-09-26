@@ -26,3 +26,24 @@
 .card-icon {
     font-size: var(--font-size-h4);
 }
+
+.card-illustration {
+    padding: 0;
+}
+
+.card-illustration .card-illustration-content {
+    padding: var(--fds-spacing-lg);
+}
+
+.card-illustration .media,
+.card-illustration .media img {
+    width: 100%;
+}
+
+.card-illustration-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--fds-spacing-md);
+    height: 100%;
+}

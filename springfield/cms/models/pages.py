@@ -14,12 +14,13 @@ from wagtail.models import Page as WagtailBasePage
 from springfield.cms.blocks import (
     FeaturesBlock,
     HeaderNotificationBlock,
-    IconCardsBlock,
+    IconCardListBlock,
+    IllustrationCardListBlock,
     IntroBlock,
     QRCodeBannerBlock,
-    StickerCardsBlock,
+    StickerCardListBlock,
     SubscribeBannerBlock,
-    TagCardsBlock,
+    TagCardListBlock,
 )
 
 from .base import AbstractSpringfieldCMSPage
@@ -136,9 +137,10 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
             ("features", FeaturesBlock(group="Media + Content")),
             ("subscribe_banner", SubscribeBannerBlock(group="Banners")),
             ("qr_code_banner", QRCodeBannerBlock(group="Banners")),
-            ("sticker_cards", StickerCardsBlock(group="Cards")),
-            ("tag_cards", TagCardsBlock(group="Cards")),
-            ("icon_cards", IconCardsBlock(group="Cards")),
+            ("sticker_cards", StickerCardListBlock(group="Card Lists")),
+            ("tag_cards", TagCardListBlock(group="Card Lists")),
+            ("icon_cards", IconCardListBlock(group="Card Lists")),
+            ("illustration_cards", IllustrationCardListBlock(group="Card Lists")),
         ]
     )
 

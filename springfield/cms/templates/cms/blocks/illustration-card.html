@@ -1,0 +1,22 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<article class="wnp-card card-illustration">
+  {% set img = image(value.image, "width-600") %}
+  <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
+  <div class="card-illustration-content">
+    {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+    <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+    <div class="body">{{ value.content }}</div>
+    {% if value.buttons %}
+      <div class="buttons">
+        {% for button in value.buttons %}
+          {% include_block button %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</article>

@@ -769,12 +769,12 @@ the future and this file will be removed.
     margin: 0;
 }
 
-.wnp-card .wnp-button {
+.wnp-card .buttons {
     margin-top: auto;
 }
 
 @media (min-width: 1024px) {
-    .wnp-card .wnp-button {
+    .wnp-card .button {
         width: fit-content;
     }
 }

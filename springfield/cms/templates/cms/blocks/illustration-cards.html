@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="wnp-section wnp-section-mobile card-deck">
+  <div class="wnp-container">
+    <div class="card-deck-header">
+      {% with alignment_class="text-center" %}
+        {% include_block value.heading %}
+      {% endwith %}
+    </div>
+
+    <div class="wnp-grid">
+      {% for card in value.cards %}
+        {% include_block card %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
