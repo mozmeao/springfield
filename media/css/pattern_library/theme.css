@@ -76,13 +76,16 @@ body {
     border-right: 1px solid #ffffff25;
 }
 
+.header {
+    background-color: var(--text-color);
+}
 .header__title {
     letter-spacing: normal;
     text-transform: none;
     display: flex;
-  gap: 8px;
-  align-items: center;
-  line-height: 1;
+    gap: 8px;
+    align-items: center;
+    line-height: 1;
 }
 
 .header__title::before {
@@ -93,6 +96,10 @@ body {
     background-image: url("/media/img/favicons/firefox/browser/apple-touch-icon.png");
     background-size: contain;
     background-repeat: no-repeat;
+}
+
+.header__title::after {
+    content: "";
 }
 
 .list__item-link {
