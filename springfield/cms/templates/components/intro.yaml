@@ -1,0 +1,30 @@
+name: "Intro"
+context:
+  contents:
+    media_position: 'after'
+    heading:
+      heading_text: Heading
+      superheading_text: Superheading
+      subheading_text: Subheading
+      alignment: center
+      subheading_size: 3
+    actions:
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: arrow-right
+          icon_position: right
+          theme_class: ''
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: arrow-left
+          icon_position: left
+          theme_class: 'button-secondary'
+      orientation: horizontal
+      center_class: is-center
+    fine_print: Fine print
+    media:
+      url: /media/img/firefox/flare/placeholder.png
+      alt: PlaceholderImage
