@@ -6,7 +6,9 @@
 
 <section class="wnp-section wnp-section-mobile">
   <div class="wnp-container">
-    {% include_block value.heading %}
+    {% with alignment_class="text-center" %}
+      {% include_block value.heading %}
+    {% endwith %}
 
     <div class="wnp-grid">
       {% for card in value.cards %}

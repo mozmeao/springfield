@@ -1,0 +1,70 @@
+name: "Intro variants"
+context:
+  variants:
+    - title: Intro With Media
+      media_position: 'after'
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: arrow-right
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: arrow-left
+          icon_position: left
+      fine_print: Fine print
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro With Media (Media Before)
+      media_position: 'before'
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: arrow-right
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: arrow-left
+          icon_position: left
+      fine_print: Fine print
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro Without Media
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: arrow-right
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: arrow-left
+          icon_position: left
+      fine_print: Fine print

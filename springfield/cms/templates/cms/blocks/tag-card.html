@@ -10,7 +10,8 @@
       {% include_block tag %}
     {% endfor %}
   </div>
-  <h3 class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</h3>
+  {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+  <{{ heading_level }} class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
   <div class="wnp-text">{{ value.content }}</div>
   {% if value.button %}
     {% for button in value.button %}

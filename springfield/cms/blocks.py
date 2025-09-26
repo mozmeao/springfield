@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.templatetags.static import static
-
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
@@ -16,7 +14,7 @@ HEADING_TEXT_FEATURES = [
     "strikethrough",
 ]
 
-HEADING_SIZE_CHOICES = (
+HEADING_LEVEL_CHOICES = (
     ("h1", "H1"),
     ("h2", "H2"),
     ("h3", "H3"),
@@ -28,6 +26,8 @@ HEADING_SIZE_CHOICES = (
 ICON_CHOICES = [
     ("ai", "AI"),
     ("alert", "Alert"),
+    ("android", "Android"),
+    ("apple", "Apple"),
     ("arrow-down", "Arrow Down"),
     ("arrow-left", "Arrow Left"),
     ("arrow-right", "Arrow Right"),
@@ -54,8 +54,8 @@ ICON_CHOICES = [
     ("external-link", "External Link"),
     ("eye-closed", "Eye Closed"),
     ("eye-open", "Eye Open"),
-    ("folder", "Folder"),
     ("folder-plus", "Folder Plus"),
+    ("folder", "Folder"),
     ("gear", "Gear"),
     ("globe", "Globe"),
     ("hashtag", "Hashtag"),
@@ -91,54 +91,17 @@ ICON_CHOICES = [
 # Element blocks
 
 
-def get_next_heading_size(size: str) -> str:
-    sizes = [choice[0] for choice in HEADING_SIZE_CHOICES]
-    index = sizes.index(size)
-    return sizes[index + 1] if index + 1 < len(sizes) else "h3"
-
-
-class HeadingValue(blocks.StructValue):
-    def alignment_class(self) -> str:
-        classes = {
-            "left": "text-left",
-            "center": "text-center",
-        }
-        return classes.get(self.get("alignment", "left"))
-
-    def subheading_size(self) -> str:
-        size_classes = {
-            "h1": "subheading-1",
-            "h2": "subheading-2",
-            "h3": "subheading-3",
-            "h4": "subheading-4",
-            "h5": "subheading-5",
-            "h6": "subheading-6",
-        }
-        return size_classes.get(self.get("heading_size", "h2"))
-
-
 class HeadingBlock(blocks.StructBlock):
-    heading_size = blocks.ChoiceBlock(
-        choices=HEADING_SIZE_CHOICES,
-        default="h2",
-        inline_form=True,
-    )
-    alignment = blocks.ChoiceBlock(
-        choices=(("center", "Center"), ("left", "Left")),
-        default="left",
-        inline_form=True,
-    )
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
         icon = "title"
         label = "Heading"
-        label_format = "{headline_text}"
+        label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
         form_classname = "compact-form struct-block"
-        value_class = HeadingValue
 
 
 class ButtonValue(blocks.StructValue):
@@ -166,6 +129,12 @@ class ButtonBlock(blocks.StructBlock):
     external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
     center = blocks.BooleanBlock(required=False, default=False, inline_form=True)
     icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="right",
+        label="Icon Position",
+        inline_form=True,
+    )
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
 
@@ -188,7 +157,7 @@ class TagBlock(blocks.StructBlock):
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
     icon_position = blocks.ChoiceBlock(
         choices=(("before", "Before"), ("after", "After")),
-        required=False,
+        default="before",
         label="Icon Position",
         inline_form=True,
     )
@@ -203,6 +172,9 @@ class TagBlock(blocks.StructBlock):
             ("blue", "Blue"),
             ("orange", "Orange"),
             ("yellow", "Yellow"),
+            ("white", "White"),
+            ("black", "Black"),
+            ("outline", "Outline"),
         ],
         required=False,
     )
@@ -214,18 +186,34 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class HeaderNotificationBlock(blocks.StructBlock):
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/header-notification.html"
+        label = "Header Notification"
+        label_format = "Header Notification - {message}"
+        form_classname = "compact-form struct-block"
+
+
 # Section blocks
 
 
-class HeroBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    heading = HeadingBlock(classname="compact-form")
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+class IntroBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=False, inline_form=True)
+    media_position = blocks.ChoiceBlock(
+        choices=(("after", "After"), ("before", "Before")),
+        default="after",
+        label="Media Position",
+        inline_form=True,
+    )
+    heading = HeadingBlock()
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
-        template = "cms/blocks/hero.html"
-        label = "Hero"
-        label_format = "Hero - {heading}"
+        template = "cms/blocks/intro.html"
+        label = "Intro"
+        label_format = "Intro - {heading}"
         form_classname = "compact-form struct-block"
 
 
@@ -254,41 +242,36 @@ class FeaturesBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class HighlightCardBlock(blocks.StructBlock):
+class StickerCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
-        label = "Highlight Card"
+        label = "Sticker Card"
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
 
 
-class HighlightsValue(blocks.StructValue):
-    def card_heading_size(self):
-        heading = self.get("heading")
-        size = heading.get("heading_size", "h2")
-        return get_next_heading_size(size)
-
-
-class HighlightsBlock(blocks.StructBlock):
+class StickerCardsBlock(blocks.StructBlock):
     heading = HeadingBlock()
-    cards = blocks.ListBlock(HighlightCardBlock())
+    cards = blocks.ListBlock(StickerCardBlock())
 
     class Meta:
-        template = "cms/blocks/highlights.html"
-        label = "Highlights"
-        label_format = "Highlights - {heading}"
+        template = "cms/blocks/sticker-cards.html"
+        label = "Sticker Cards"
+        label_format = "Sticker Cards - {heading}"
         form_classname = "compact-form struct-block"
-        value_class = HighlightsValue
 
 
 class SubscribeBannerBlock(blocks.StructBlock):
-    # TODO: does it make sense to have the option to left align the heading
-    # Maybe a simpler heading block without the alignment options
     heading = HeadingBlock()
 
     class Meta:

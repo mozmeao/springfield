@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:intro media_position="{{ value.media_position }}">
+  <content:heading>
+    {% include_block value.heading %}
+  </content:heading>
+  <content:actions>
+    {% for button in value.buttons %}
+      {% include_block button %}
+    {% endfor %}
+  </content:actions>
+  {% if value.fine_print %}
+    <content:fine_print>
+      {{ value.fine_print|richtext|remove_p_tag }}
+    </content:fine_print>
+  {% endif %}
+  {% if value.image %}
+    <content:media>
+      {{ image(value.image, "width-800") }}
+    </content:media>
+  {% endif %}
+</include:intro>

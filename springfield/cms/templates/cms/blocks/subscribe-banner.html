@@ -6,13 +6,16 @@
 
 <section class="wnp-section wnp-section-subscribe">
   <div class="wnp-container">
-    {% include_block value.heading %}
+    {% with alignment_class="text-center" %}
+      {% include_block value.heading %}
+    {% endwith %}
+
     {{ email_newsletter_form(
-    template="cms/newsletter_form.html",
-    include_country=true,
-    include_language=true,
-    footer=false,
-    include_title=false
+      template="cms/newsletter_form.html",
+      include_country=true,
+      include_language=true,
+      footer=false,
+      include_title=false
     ) }}
   </div>
 </section>

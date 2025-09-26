@@ -7,8 +7,8 @@
 .intro {
     text-align: center;
     font-family: var(--font-family-inter);
-    background-color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
-    padding: calc(var(--scale-80) * 1px);
+    background-color: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    padding: calc(var(--scale-80) * 1px) var(--fds-spacing-lg);
     max-width: 1440px;
     margin: 0 auto;
 }
@@ -72,4 +72,5 @@
 .intro .subheading {
     margin-top: 0;
     margin-bottom: calc(var(--scale-64) * 1px);
+    font-size: var(--font-size-base);
 }

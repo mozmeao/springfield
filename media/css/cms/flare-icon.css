@@ -16,6 +16,8 @@
 
 .icon-ai { --icon-src: url('/media/img/firefox/flare/icons/ai.svg'); }
 .icon-alert { --icon-src: url('/media/img/firefox/flare/icons/alert.svg'); }
+.icon-android { --icon-src: url('/media/img/firefox/flare/icons/android.svg'); }
+.icon-apple { --icon-src: url('/media/img/firefox/flare/icons/apple.svg'); }
 .icon-arrow-down { --icon-src: url('/media/img/firefox/flare/icons/arrow-down.svg'); }
 .icon-arrow-left { --icon-src: url('/media/img/firefox/flare/icons/arrow-left.svg'); }
 .icon-arrow-right { --icon-src: url('/media/img/firefox/flare/icons/arrow-right.svg'); }
@@ -49,7 +51,6 @@
 .icon-hashtag { --icon-src: url('/media/img/firefox/flare/icons/hashtag.svg'); }
 .icon-headphone { --icon-src: url('/media/img/firefox/flare/icons/headphone.svg'); }
 .icon-heart { --icon-src: url('/media/img/firefox/flare/icons/heart.svg'); }
-.icon-heart-filled { --icon-src: url('/media/img/firefox/flare/icons/heart_filled.svg'); }
 .icon-home { --icon-src: url('/media/img/firefox/flare/icons/home.svg'); }
 .icon-language { --icon-src: url('/media/img/firefox/flare/icons/language.svg'); }
 .icon-lock { --icon-src: url('/media/img/firefox/flare/icons/lock.svg'); }

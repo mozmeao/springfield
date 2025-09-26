@@ -11,7 +11,15 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
 
-from springfield.cms.blocks import FeaturesBlock, HeroBlock, HighlightsBlock, QRCodeBannerBlock, SubscribeBannerBlock, TagCardsBlock
+from springfield.cms.blocks import (
+    FeaturesBlock,
+    HeaderNotificationBlock,
+    IntroBlock,
+    QRCodeBannerBlock,
+    StickerCardsBlock,
+    SubscribeBannerBlock,
+    TagCardsBlock,
+)
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -122,10 +130,11 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
 
     content = StreamField(
         [
+            ("header_notification", HeaderNotificationBlock()),
             ("paragraph", blocks.RichTextBlock()),
-            ("hero", HeroBlock()),
+            ("intro", IntroBlock()),
             ("features", FeaturesBlock()),
-            ("highlights", HighlightsBlock()),
+            ("sticker_cards", StickerCardsBlock()),
             ("subscribe_banner", SubscribeBannerBlock()),
             ("tag_cards", TagCardsBlock()),
             ("qr_code_banner", QRCodeBannerBlock()),
