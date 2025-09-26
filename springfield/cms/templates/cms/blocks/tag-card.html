@@ -11,8 +11,8 @@
     {% endfor %}
   </div>
   {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-  <{{ heading_level }} class="wnp-subtitle">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-  <div class="wnp-text">{{ value.content }}</div>
+  <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+  <div class="body">{{ value.content }}</div>
   {% if value.button %}
     {% for button in value.button %}
       {% include_block button %}
