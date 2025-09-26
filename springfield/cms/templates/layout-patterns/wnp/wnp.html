@@ -1,0 +1,352 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+<div class="wnp-page">
+  <main class="wnp-main">
+
+    {# Header notification #}
+    <include:header-notification message="Your Firefox has been updated." />
+
+    {# Hero intro section #}
+    <include:intro media_position="{{ intro.media_position}}">
+      <content:heading>
+        <include:heading
+          level="{{ intro.heading.level }}"
+          heading_text="{{ intro.heading.heading_text }}"
+          superheading_text="{{ intro.heading.superheading_text }}"
+          subheading_text="{{ intro.heading.subheading_text }}"
+          heading_size="{{ intro.heading.heading_size }}"
+          subheading_size="{{ intro.heading.subheading_size }}"
+          alignment=""
+        />
+      </content:heading>
+      <content:actions>
+        <include:buttons buttons="{{ intro.actions.buttons }}" />
+      </content:actions>
+      <content:media>
+        <include:image url="{{ intro.media.url }}" alt="{{ intro.media.alt }}" />
+      </content:media>
+    </include:intro>
+
+
+    {# Main features section #}
+    <section class="wnp-section">
+      <div class="wnp-container">
+
+        {# Section heading #}
+        <include:heading
+          level="h2"
+          heading_size="heading-size-2"
+          heading_text="Know before you click. Stay in control as you browse."
+          alignment_class="text-center"
+        />
+
+        <include:subheading
+          subheading_text="Firefox helps you preview links and keep tabs tidy so nothing slows you down."
+          size="subheading-4"
+          alignment_class="text-center"
+        />
+
+        {# Feature 1: Link Previews #}
+        <div class="wnp-feature">
+          <div class="wnp-feature-media" aria-hidden="true">
+            <div class="wnp-media-frame wnp-media-frame--settings">
+              <include:image
+                url="/custom-media/images/link-previews.width-800.png"
+                alt="link-previews"
+              />
+            </div>
+          </div>
+          <div class="wnp-feature-content">
+            <p class="wnp-feature-eyebrow">Link Previews</p>
+            <h3 class="wnp-subtitle">See what's behind the link before you click.</h3>
+            <div class="wnp-body">
+              <p data-block-key="d1ptf">Link Previews show a snapshot of a page before you open it, helping you decide what's worth your time. Just long press any link to preview and reduce distractions.</p>
+            </div>
+            <div class="wnp-btn-wrap">
+              <include:button
+                label="Learn More"
+                link="https://connect.mozilla.org/t5/discussions/try-link-previews-in-firefox-142-see-what-s-behind-a-link-before/m-p/103496#M40177"
+                external="true"
+              />
+            </div>
+          </div>
+        </div>
+
+        {# Feature 2: Tab Groups #}
+        <div class="wnp-feature wnp-feature--reverse">
+          <div class="wnp-feature-media" aria-hidden="true">
+            <div class="wnp-media-frame wnp-media-frame--settings">
+              <include:image
+                url="/custom-media/images/tab-groups_ttXMhCh.width-800.png"
+                alt="tab-groups"
+              />
+            </div>
+          </div>
+          <div class="wnp-feature-content">
+            <p class="wnp-feature-eyebrow">AI-Enhanced Tab Groups</p>
+            <h3 class="wnp-subtitle">Your tabs, automatically grouped by topic.</h3>
+            <div class="wnp-body">
+              <p data-block-key="d1ptf">A local AI model identifies similar tabs, automatically organizes them into groups, and even suggests group names, helping you stay organized. Everything happens on your device to respect your privacy.</p>
+            </div>
+            <div class="wnp-btn-wrap">
+              <include:button
+                label="Learn More"
+                link="https://support.mozilla.org/en-US/kb/how-use-ai-enhanced-tab-groups"
+                external="true"
+              />
+            </div>
+          </div>
+        </div>
+
+        {# Release notes link #}
+        <div class="wnp-link-wrap">
+          <a class="wnp-link" href="https://www.mozilla.org/firefox/142.0/releasenotes/" data-cta-text="TODO">See Full Release Notes</a>
+        </div>
+      </div>
+    </section>
+
+    {# Card deck section #}
+    <section class="wnp-section card-deck">
+      <div class="wnp-container">
+        <div class="card-deck-header">
+          <include:heading
+            level="h2"
+            heading_size="heading-size-2"
+            heading_text="Tailor Firefox to fit your flow."
+            alignment_class="text-center"
+          />
+
+          <include:subheading
+            subheading_text="Stay organized, find what you need, and browse your way."
+            size="subheading-4"
+            alignment_class="text-center"
+          />
+        </div>
+
+        <div class="wnp-grid">
+          <article class="wnp-card">
+            <img class="wnp-card-sticker" src="/custom-media/images/tab-groups-sticker.width-400.svg" alt="" aria-hidden="true" />
+
+            <include:heading
+              level="h3"
+              heading_size="heading-size-3"
+              heading_text="Take control of your browsing with tab groups"
+            />
+
+            <include:body_text
+              text="No more tab overload. Stay organized and in control of your time and attention. Drag one tab onto another to create your first group."
+              size="medium"
+            />
+
+            <div class="buttons">
+              <include:button
+                label="Learn More"
+                link="/"
+              />
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    {# Newsletter subscription section #}
+    <section class="wnp-section wnp-section-subscribe">
+      <div class="wnp-container">
+        <include:heading
+          level="h2"
+          heading_size="heading-size-2"
+          heading_text="Keep up with all things Firefox"
+          alignment_class="text-center"
+        />
+
+        <include:subheading
+          subheading_text="Get monthly how-tos, advice and news to make your Firefox experience work best for you."
+          size="subheading-4"
+          alignment_class="text-center"
+        />
+
+        {# Newsletter form would go here - this is complex and might need its own component #}
+        <form id="newsletter-form" class="wnp-subscribe mzp-c-newsletter-form" action="https://basket.mozilla.org/news/subscribe/" method="post" novalidate>
+          <div hidden>
+            <div id="id_newsletters">
+              <div>
+                <label for="id_newsletters_0">
+                  <input type="checkbox" name="newsletters" value="mozilla-and-you" id="id_newsletters_0" checked>
+                  Firefox
+                </label>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="source_url" value="http://localhost:8080/en-US/whats-new/">
+
+          <label class="visually-hidden" for="wnp-email">Your email address</label>
+          <input id="wnp-email" class="wnp-input mzp-js-email-field" type="email" name="email" placeholder="yourname@example.com" autocomplete="email" />
+
+          <div class="wnp-form-details wnp-form-row-hidden">
+            {# Country and language selects would be here - these are quite complex #}
+
+            <div class="wnp-subscribe-consent">
+              <label for="wnp-privacy" class="wnp-body wnp-checkbox-label">
+                <input type="checkbox" id="wnp-privacy" name="privacy" required aria-required="true">
+                <span class="wnp-checkbox-text">Firefox <a href="https://www.mozilla.org/en-US/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="/privacy/websites/">Privacy Policy</a>. We will only send you Firefox-related information. You can unsubscribe at any time.</span>
+              </label>
+            </div>
+          </div>
+
+          <button id="newsletter-submit" class="wnp-button wnp-button-outline" type="submit" disabled>Sign Up</button>
+
+          <div id="newsletter-details" style="display:block;"></div>
+          <div class="wnp-body wnp-form-feedback wnp-form-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+            <ul class="wnp-form-error-list mzp-u-list-styled">
+              <li class="error-email-invalid hidden">Please enter a valid email address</li>
+              <li class="error-try-again-later hidden">We are sorry, but there was a problem with our system. Please try again later!</li>
+            </ul>
+          </div>
+        </form>
+
+        <div id="newsletter-thanks" class="wnp-newsletter-success hidden" data-testid="newsletter-thanks-message">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="40" cy="40" r="40" fill="white" />
+            <path d="M28 40L36 48L52 32" stroke="black" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    {# Mobile features section #}
+    <section class="wnp-section wnp-section-mobile">
+      <div class="wnp-container">
+        <include:heading
+          level="h2"
+          heading_size="heading-size-2"
+          heading_text="What's New on Firefox Mobile?"
+          alignment_class="text-center"
+        />
+
+        <include:subheading
+          subheading_text="New tools for focus, privacy, and smoother mobile browsing."
+          size="subheading-4"
+          alignment_class="text-center"
+        />
+
+        <div class="wnp-grid">
+          {# Mobile feature cards #}
+          <article class="wnp-card">
+            <div>
+              <include:tag
+                text="Privacy"
+                before_icon="shield"
+                color="purple"
+                corners="round"
+              />
+              <include:tag
+                text="Android"
+                before_icon="android"
+                color=""
+                corners="round"
+              />
+            </div>
+            <h3 class="wnp-subtitle">Private tabs that stay private</h3>
+            <div class="wnp-text">
+              <p data-block-key="pcu5o">Your private tabs lock automatically when you step away — and only unlock with your face, fingerprint, or PIN.</p>
+            </div>
+          </article>
+
+          <article class="wnp-card">
+            <div>
+              <include:tag
+                text="Language"
+                before_icon="language"
+                color="blue"
+                corners="round"
+              />
+              <include:tag
+                text="Android"
+                before_icon="android"
+                color=""
+                corners="round"
+              />
+            </div>
+            <h3 class="wnp-subtitle">Getting even more multilingual</h3>
+            <div class="wnp-text">
+              <p data-block-key="pcu5o">Now translate web pages into Japanese, Chinese, Korean and more, so you can browse in your preferred language.</p>
+            </div>
+          </article>
+
+          <article class="wnp-card">
+            <div>
+              <include:tag
+                text="Security"
+                before_icon="shield"
+                color="orange"
+                corners="round"
+              />
+              <include:tag
+                text="iOS"
+                before_icon="apple"
+                color=""
+                corners="round"
+              />
+            </div>
+            <h3 class="wnp-subtitle">Smarter passwords, fewer hassles</h3>
+            <div class="wnp-text">
+              <p data-block-key="pcu5o">Firefox suggests strong passwords when you're creating a new account on any site, and keeps them secure, ready on any device when you sync.</p>
+            </div>
+          </article>
+
+          <article class="wnp-card">
+            <div>
+              <include:tag
+                text="Design"
+                before_icon="design"
+                color="yellow"
+                corners="round"
+              />
+              <include:tag
+                text="iOS"
+                before_icon="apple"
+                color=""
+                corners="round"
+              />
+            </div>
+            <h3 class="wnp-subtitle">A cleaner look with sharper focus</h3>
+            <div class="wnp-text">
+              <p data-block-key="pcu5o">A streamlined UI and upgraded dark mode on Firefox for iOS bring clarity and calm to everything you browse.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    {# QR code section #}
+    <section class="wnp-section wnp-section-mobile" aria-labelledby="wnp-qr-qr-heading">
+      <div class="wnp-container">
+        <div class="wnp-qr">
+          <div class="wnp-qr-layout">
+            <div class="wnp-qr-media" aria-hidden="true">
+              <div class="wnp-qr-qr" role="img">
+                {# QR code SVG would go here - this is quite large, could be its own component #}
+                <svg width="58.8mm" height="58.8mm" version="1.1" viewBox="0 0 58.8 58.8" xmlns="http://www.w3.org/2000/svg">
+                  <rect fill="white" x="0" y="0" width="100%" height="100%" />
+                  {# QR code paths would continue here... #}
+                </svg>
+              </div>
+            </div>
+            <div class="wnp-qr-content">
+              <div class="wnp-qr-content-inner">
+                <h2 id="wnp-qr-qr-heading" class="wnp-subtitle">Take Firefox with you</h2>
+                <div class="wnp-body">
+                  <p data-block-key="cd0gt">Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
