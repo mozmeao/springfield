@@ -1145,7 +1145,7 @@ the future and this file will be removed.
 .wnp-qr-qr {
     color: var(--fds-color-gray-90);
     border-radius: var(--fds-border-radius-lg) var(--fds-border-radius-lg) 0 0;
-    width: 224px;
+    width: 200px;
     height: 300px;
     display: flex;
     align-items: center;

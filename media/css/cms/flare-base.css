@@ -98,13 +98,12 @@ body {
     width: 700px;
     max-width: 100%;
     margin: 0 auto;
+    padding: 0;
 
     /* Figma body font */
     font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #333336; /* Figma Neutrals-Charcoal */
     background: #f8f6f4; /* Figma Neutrals-Ash */
-    padding: 16px; /* IE 8 fallback */
-    padding: 1rem;
     min-height: 100vh;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;

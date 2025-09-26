@@ -8,7 +8,7 @@
     text-align: center;
     font-family: var(--font-family-inter);
     background-color: light-dark(var(--neutrals-ash), var(--neutrals-black));
-    padding: calc(var(--scale-80) * 1px);
+    padding: calc(var(--scale-80) * 1px) var(--fds-spacing-lg);
     max-width: 1440px;
     margin: 0 auto;
 }
