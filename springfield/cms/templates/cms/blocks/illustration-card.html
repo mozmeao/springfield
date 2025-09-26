@@ -4,10 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="wnp-card card-illustration">
+<article class="fl-card fl-card-fill fl-illustration-card">
+
   {% set img = image(value.image, "width-600") %}
   <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
-  <div class="card-illustration-content">
+
+  <div class="card-content">
     {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
     <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
     <div class="body">{{ value.content }}</div>

@@ -4,9 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="wnp-section card-deck">
+<section class="wnp-section fl-card-list">
   <div class="wnp-container">
-    <div class="card-deck-header">
+    <div class="fl-card-list-header">
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}
       {% endwith %}
@@ -16,12 +16,12 @@
 
     <div class="wnp-grid">
       {% for card in value.cards %}
-        <article class="wnp-card {% if card.expand_link %}expand-link{% endif %}">
+        <article class="fl-card {% if card.expand_link %}expand-link{% endif %}">
           {% set img=image(card.image, 'width-400') %}
           {% if card.image_dark %}
             {% set img_dark=image(card.image_dark, 'width-400') %}
           {% endif %}
-          <img class="wnp-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
+          <img class="fl-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
           <{{ card_heading_level }} class="heading heading-size-3">{{ card.headline|richtext|remove_p_tag }}</{{ card_heading_level }}>
           <div class="body body-medium">{{ card.content }}</div>
           {% if card.buttons %}

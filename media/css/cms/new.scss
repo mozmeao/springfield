@@ -486,11 +486,6 @@
     .wnp-subtitle {
         margin-top: 0;
     }
-
-    .wnp-card {
-        border: none;
-        background: light-dark(var(--flare-color-white), var(--flare-color-charcoal));
-    }
 }
 
 // =========================================================================
@@ -529,8 +524,6 @@
         gap: var(--flare-spacing-lg);
         grid-template-columns: 1fr;
     }
-
-    .wnp-card { padding: var(--flare-spacing-lg); }
 
     .wnp-feature { gap: var(--flare-spacing-lg); }
     .wnp-feature-media { height: auto; }
@@ -649,48 +642,6 @@
 }
 
 .wnp-link-wrap { text-align: center; }
-
-.wnp-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: var(--flare-spacing-md);
-    border: 1px solid light-dark(var(--flare-color-charcoal), var(--flare-color-ash));
-    border-radius: var(--flare-border-radius-xl);
-    padding: var(--flare-spacing-lg);
-    transition: all var(--flare-transition-base);
-
-    &:hover {
-        background: light-dark(var(--flare-color-white), var(--flare-color-gray-90));
-        border-color: transparent;
-    }
-
-    .wnp-body {
-        text-align: left;
-    }
-
-    .wnp-subtitle {
-        font-size: var(--flare-font-size-2xl);
-        margin: 0;
-    }
-
-    .wnp-button {
-        margin-top: auto;
-    }
-
-    @media (min-width: 1024px) {
-        .wnp-button {
-            width: fit-content;
-        }
-    }
-}
-
-.wnp-card-sticker {
-    width: auto;
-    height: 94px;
-    margin-bottom: var(--flare-spacing-sm);
-    align-self: flex-start;
-}
 
 .wnp-footer {
     margin-top: auto;
@@ -1281,46 +1232,4 @@
     font-size: var(--flare-font-size-base);
     font-family: var(--flare-font-family-secondary);
     background: light-dark(var(--flare-color-ash), var(--flare-color-charcoal));
-}
-
-// Inclusive Card Pattern - Making entire cards clickable
-// Based on https://inclusive-components.design/cards/
-.wnp-feature, .wnp-card {
-    position: relative;
-
-    .wnp-feature-content-inner {
-        position: relative;
-        z-index: 1;
-    }
-
-    .wnp-card-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .wnp-subtitle a {
-        color: inherit;
-        text-decoration: none;
-
-        &:hover {
-            text-decoration: underline;
-        }
-
-        &:focus {
-            outline: 2px solid var(--flare-color-blue);
-            outline-offset: 2px;
-        }
-    }
-
-    .wnp-button {
-        margin-top: auto;
-        align-self: flex-start;
-
-        @media (min-width: 1024px) {
-            width: fit-content;
-        }
-    }
 }
