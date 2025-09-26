@@ -207,11 +207,9 @@
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
-            initInclusiveCards();
             initNewsletterForm();
         });
     } else {
-        initInclusiveCards();
         initNewsletterForm();
     }
 
