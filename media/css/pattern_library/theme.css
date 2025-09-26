@@ -80,6 +80,7 @@ body {
 .header {
     background-color: var(--text-color);
 }
+
 .header__title {
     letter-spacing: normal;
     text-transform: none;

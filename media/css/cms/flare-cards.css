@@ -74,10 +74,6 @@
     padding: 0;
 }
 
-.fl-illustration-card .card-content {
-    padding: var(--fds-spacing-lg);
-}
-
 .fl-illustration-card .media,
 .fl-illustration-card .media img {
     width: 100%;
@@ -89,6 +85,7 @@
     justify-content: flex-start;
     gap: var(--fds-spacing-md);
     height: 100%;
+    padding: var(--fds-spacing-lg);
 }
 
 .fl-illustration-cards-reverse .fl-card {
