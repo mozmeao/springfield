@@ -2,4 +2,4 @@ name: "Subheading"
 context:
   subheading_text: 'Subheading example. Lorem ipsum dolor sit amet, consectetur.'
   size: 'subheading-1'
-  alignment: 'center'
+  alignment_class: 'text-center'

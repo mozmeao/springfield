@@ -10,14 +10,26 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <include:header-notification message="Your Firefox has been updated." />
 
     {# Hero intro section #}
-    <include:intro
-      contents='{
-        "media": {
-          "url": "/custom-media/images/relay-hero-600.width-800.png",
-          "alt": "relay-hero-600"
-        }
-      }'
-    />
+    <include:intro media_position="{{ intro.media_position}}">
+      <content:heading>
+        <include:heading
+          level="{{ intro.heading.level }}"
+          heading_text="{{ intro.heading.heading_text }}"
+          superheading_text="{{ intro.heading.superheading_text }}"
+          subheading_text="{{ intro.heading.subheading_text }}"
+          heading_size="{{ intro.heading.heading_size }}"
+          subheading_size="{{ intro.heading.subheading_size }}"
+          alignment=""
+        />
+      </content:heading>
+      <content:actions>
+        <include:buttons buttons="{{ intro.actions.buttons }}" />
+      </content:actions>
+      <content:media>
+        <include:image url="{{ intro.media.url }}" alt="{{ intro.media.alt }}" />
+      </content:media>
+    </include:intro>
+
 
     {# Main features section #}
     <section class="wnp-section">

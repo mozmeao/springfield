@@ -3,11 +3,11 @@ context:
   contents:
     media_position: 'after'
     heading:
+      level: h2
       heading_text: Heading
       superheading_text: Superheading
       subheading_text: Subheading
-      alignment: center
-      subheading_size: 3
+      subheading_size: subheading-3
     actions:
       buttons:
         - label: Learn More

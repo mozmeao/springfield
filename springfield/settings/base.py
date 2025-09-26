@@ -872,7 +872,7 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
-        ("Base Components", ["components"]),
+        ("Base Components", ["base-components"]),
         ("Base Styles", ["base-patterns"]),
         ("Variants", ["component-variants"]),
         ("Layouts", ["layout-patterns"]),

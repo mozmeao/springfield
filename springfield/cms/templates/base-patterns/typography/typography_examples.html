@@ -7,26 +7,27 @@
 <div class="pl-frame pl-frame--white">
   {% for heading in headings %}
     <div class="pl-row">
-      {% set heading_text = heading.text %}
-      {% set level = heading.level %}
-      {% set superheading_text = heading.superheading_text %}
-      {% include "components/heading.html" %}
+      <include:heading
+        level="{{ heading.level }}"
+        heading_text="{{ heading.heading_text }}"
+        superheading_text="{{ heading.superheading_text }}"
+      />
     </div>
   {% endfor %}
   <hr>
   {% for subheading in subheadings %}
     <div class="pl-row">
-      {% set subheading_text = subheading.text %}
-      {% set size = subheading.size %}
-      {% include "components/subheading.html" %}
+      <include:subheading
+        subheading_text="{{ subheading.subheading_text }}"
+        size="{{ subheading.size }}"
+        alignment_class="{{ subheading.alignment_class }}"
+      />
     </div>
   {% endfor %}
   <hr>
   {% for body_text in body_texts %}
     <div class="pl-row">
-      {% set text = body_text.text %}
-      {% set size = body_text.size %}
-      {% include "components/body_text.html" %}
+      <include:body_text text="{{ body_text.text }}" size="{{ body_text.size }}" />
     </div>
   {% endfor %}
 </div>
