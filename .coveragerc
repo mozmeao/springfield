@@ -8,7 +8,6 @@ omit =
     **/tests/*
     config/*
     conftest.py
-    docs/*
     manage.py
     node_modules/*
     python_coverage/*
