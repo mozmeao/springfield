@@ -70,13 +70,13 @@ class Migration(migrations.Migration):
                                 [],
                                 {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
                             ),
-                            8: (
+                            7: (
                                 "wagtail.blocks.BooleanBlock",
                                 (),
                                 {"default": False, "inline_form": True, "label": "External link", "required": False},
                             ),
-                            9: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "required": False}),
-                            10: (
+                            8: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "required": False}),
+                            9: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
