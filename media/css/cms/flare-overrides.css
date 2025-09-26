@@ -12,10 +12,6 @@ specific exceptions that can't be handled by the other layers
 ===================================================================== */
 
 
-.wnp-card .button {
-    margin-top: auto;
-}
-
 .wnp-footer .button-outline img {
     margin-right: var(--fds-spacing-md);
 }
@@ -39,8 +35,7 @@ specific exceptions that can't be handled by the other layers
     color: var(--fds-color-white);
 }
 
-.wnp-feature .button,
-.wnp-card .button {
+.wnp-feature .button {
     margin-top: auto;
     align-self: flex-start;
 }
@@ -71,8 +66,7 @@ specific exceptions that can't be handled by the other layers
 }
 
 @media (min-width: 1024px) {
-    .wnp-feature .button,
-    .wnp-card .button {
+    .wnp-feature .button {
         width: fit-content
     }
 }

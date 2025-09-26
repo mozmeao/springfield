@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
@@ -14,11 +13,14 @@ from wagtail.models import Page as WagtailBasePage
 from springfield.cms.blocks import (
     FeaturesBlock,
     HeaderNotificationBlock,
+    IconCardListBlock,
+    IllustrationCardListBlock,
     IntroBlock,
     QRCodeBannerBlock,
-    StickerCardsBlock,
+    StepCardListBlock,
+    StickerCardListBlock,
     SubscribeBannerBlock,
-    TagCardsBlock,
+    TagCardListBlock,
 )
 
 from .base import AbstractSpringfieldCMSPage
@@ -131,13 +133,15 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
     content = StreamField(
         [
             ("header_notification", HeaderNotificationBlock()),
-            ("paragraph", blocks.RichTextBlock()),
-            ("intro", IntroBlock()),
-            ("features", FeaturesBlock()),
-            ("sticker_cards", StickerCardsBlock()),
-            ("subscribe_banner", SubscribeBannerBlock()),
-            ("tag_cards", TagCardsBlock()),
-            ("qr_code_banner", QRCodeBannerBlock()),
+            ("intro", IntroBlock(group="Media + Content")),
+            ("features", FeaturesBlock(group="Media + Content")),
+            ("subscribe_banner", SubscribeBannerBlock(group="Banners")),
+            ("qr_code_banner", QRCodeBannerBlock(group="Banners")),
+            ("sticker_cards", StickerCardListBlock(group="Card Lists")),
+            ("tag_cards", TagCardListBlock(group="Card Lists")),
+            ("icon_cards", IconCardListBlock(group="Card Lists")),
+            ("illustration_cards", IllustrationCardListBlock(group="Card Lists")),
+            ("step_cards", StepCardListBlock(group="Card Lists")),
         ]
     )
 

@@ -12,7 +12,7 @@
       {% endwith %}
     </div>
 
-    <div class="wnp-grid">
+    <div class="wnp-grid {% if value.illustrations_below %}fl-illustration-cards-reverse{% endif %}">
       {% for card in value.cards %}
         {% include_block card %}
       {% endfor %}

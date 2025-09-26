@@ -242,6 +242,19 @@ class FeaturesBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class SubscribeBannerBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+
+    class Meta:
+        template = "cms/blocks/subscribe-banner.html"
+        label = "Subscribe Banner"
+        label_format = "Subscribe Banner - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+# Card Lists
+
+
 class StickerCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
@@ -260,28 +273,18 @@ class StickerCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class StickerCardsBlock(blocks.StructBlock):
+class StickerCardListBlock(blocks.StructBlock):
     heading = HeadingBlock()
     cards = blocks.ListBlock(StickerCardBlock())
 
     class Meta:
         template = "cms/blocks/sticker-cards.html"
-        label = "Sticker Cards"
+        label = "Card List / Sticker"
         label_format = "Sticker Cards - {heading}"
         form_classname = "compact-form struct-block"
 
 
-class SubscribeBannerBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-
-    class Meta:
-        template = "cms/blocks/subscribe-banner.html"
-        label = "Subscribe Banner"
-        label_format = "Subscribe Banner - {heading}"
-        form_classname = "compact-form struct-block"
-
-
-class TagCard(blocks.StructBlock):
+class TagCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
@@ -294,15 +297,107 @@ class TagCard(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-# TODO: find a better name for this
-class TagCardsBlock(blocks.StructBlock):
+class TagCardListBlock(blocks.StructBlock):
     heading = HeadingBlock()
-    cards = blocks.ListBlock(TagCard())
+    cards = blocks.ListBlock(TagCardBlock())
 
     class Meta:
         template = "cms/blocks/tag-cards.html"
-        label = "Tag Cards"
+        label = "Card List / Tag"
         label_format = "Tag Cards - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+class IconCardBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Expand the link click area to the whole card",
+    )
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/icon-card.html"
+        label = "Icon Card"
+        label_format = "Icon Card - {headline}"
+        form_classname = "compact-form struct-block"
+
+
+class IconCardListBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    cards = blocks.ListBlock(IconCardBlock())
+
+    class Meta:
+        template = "cms/blocks/icon-cards.html"
+        label = "Card List / Icon"
+        label_format = "Icon Cards - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+class IllustrationCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/illustration-card.html"
+        label = "Illustration Card"
+        label_format = "{headline}"
+        form_classname = "compact-form struct-block"
+
+
+class IllustrationCardListBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    illustrations_below = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Place illustrations below the content",
+    )
+    cards = blocks.ListBlock(IllustrationCardBlock())
+
+    class Meta:
+        template = "cms/blocks/illustration-cards.html"
+        label = "Card List / Illustration"
+        label_format = "Illustration Cards - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+class StepCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/step-card.html"
+        label = "Step Card"
+        label_format = "{headline}"
+        form_classname = "compact-form struct-block"
+
+
+class StepCardListBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    cards = blocks.ListBlock(StepCardBlock())
+
+    class Meta:
+        template = "cms/blocks/step-cards.html"
+        label = "Card List / Step"
+        label_format = "Step Cards - {heading}"
         form_classname = "compact-form struct-block"
 
 
