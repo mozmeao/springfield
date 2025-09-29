@@ -159,8 +159,11 @@ p, h1, h2, h3, h4, h5, h6 {
     /* Prevents long words from overflowing or breaking layout. */
     overflow-wrap: break-word;
 
-    /* Adds hyphens to long words at language-appropriate places. */
-    hyphens: auto;
+    /* Adds hyphens to long words at language-appropriate places.
+    Swapping `auto` with `manual`for now, because it's too aggressive
+    in English when combined with `text-wrap: balance`. Maybe we can
+    add it to specific languages later, or remove `balance`.  */
+    hyphens: manual;
 }
 
 a {
