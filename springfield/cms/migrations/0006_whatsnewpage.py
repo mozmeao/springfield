@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                     "content",
                     wagtail.fields.StreamField(
                         [
-                            ("header_notification", 1),
+                            ("inline_notification", 1),
                             ("paragraph", 2),
                             ("intro", 16),
                             ("features", 25),
