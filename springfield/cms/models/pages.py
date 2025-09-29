@@ -16,10 +16,10 @@ from springfield.cms.blocks import (
     IllustrationCardListBlock,
     InlineNotificationBlock,
     IntroBlock,
-    QRCodeBannerBlock,
+    QRCodeBlock,
     StepCardListBlock,
     StickerCardListBlock,
-    SubscribeBannerBlock,
+    SubscriptionBlock,
     TagCardListBlock,
 )
 
@@ -135,8 +135,8 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
             ("inline_notification", InlineNotificationBlock(group="Notifications")),
             ("intro", IntroBlock(group="Media + Content")),
             ("features", FeaturesBlock(group="Media + Content")),
-            ("subscribe_banner", SubscribeBannerBlock(group="Banners")),
-            ("qr_code_banner", QRCodeBannerBlock(group="Banners")),
+            ("subscription", SubscriptionBlock(group="Banners")),
+            ("qr_code", QRCodeBlock(group="Banners")),
             ("sticker_cards", StickerCardListBlock(group="Card Lists")),
             ("tag_cards", TagCardListBlock(group="Card Lists")),
             ("icon_cards", IconCardListBlock(group="Card Lists")),

@@ -242,16 +242,6 @@ class FeaturesBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class SubscribeBannerBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-
-    class Meta:
-        template = "cms/blocks/subscribe-banner.html"
-        label = "Subscribe Banner"
-        label_format = "Subscribe Banner - {heading}"
-        form_classname = "compact-form struct-block"
-
-
 # Card Lists
 
 
@@ -401,7 +391,20 @@ class StepCardListBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class QRCodeBannerBlock(blocks.StructBlock):
+# Banners
+
+
+class SubscriptionBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+
+    class Meta:
+        template = "cms/blocks/subscription.html"
+        label = "Subscription"
+        label_format = "Subscription - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+class QRCodeBlock(blocks.StructBlock):
     qr_content = blocks.CharBlock(
         required=True,
         help_text="Content to encode in the QR code, e.g., a URL or text.",
@@ -410,6 +413,6 @@ class QRCodeBannerBlock(blocks.StructBlock):
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
-        template = "cms/blocks/qr-code-banner.html"
-        label = "QR Code Banner"
-        label_format = "QR Code Banner - {headline}"
+        template = "cms/blocks/qr-code.html"
+        label = "QR Code"
+        label_format = "QR Code - {headline}"
