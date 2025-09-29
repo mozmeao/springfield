@@ -56,3 +56,4 @@ tmp/*
 venv
 /custom-media
 /local-credentials/*.json
+AGENTS.md
