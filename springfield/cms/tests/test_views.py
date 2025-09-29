@@ -74,6 +74,9 @@ class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
         self.client.force_login(self.staff_user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+        # Verify that the filter form is included in the context.
+        self.assertIn("filter_form", response.context)
+        self.assertEqual(response.context["filter_form"].__class__.__name__, "TranslationsFilterForm")
 
     def test_no_pages_scenario(self):
         """Test view when there are no pages (except root pages)."""
@@ -251,3 +254,54 @@ class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
         for page_data in pages_with_translations:
             page = page_data["page"]
             self.assertGreater(page.depth, 2, f"Page '{page.title}' with depth {page.depth} should be excluded")
+
+    def test_original_language_filter(self):
+        """Test filtering by a specific original_language."""
+        self.client.force_login(self.staff_user)
+
+        # Create a page in English.
+        en_page = SimpleRichTextPage(title="English Page", slug="english-page", locale=self.en_locale, content="English content")
+        self.en_home.add_child(instance=en_page)
+        en_page.save_revision().publish()
+        # Create a page in German.
+        de_page = SimpleRichTextPage(title="German Page", slug="german-page", locale=self.de_locale, content="German content")
+        self.de_home.add_child(instance=de_page)
+        de_page.save_revision().publish()
+
+        # Create a page in French.
+        fr_page = SimpleRichTextPage(title="French Page", slug="french-page", locale=self.fr_locale, content="French content")
+        self.fr_home.add_child(instance=fr_page)
+        fr_page.save_revision().publish()
+
+        # Give the en_page page a German translation.
+        de_translation = en_page.copy_for_translation(self.de_locale)
+        de_translation.title = "English Page translated to German"
+        de_translation.content = "German content"
+        de_translation.save_revision().publish()
+
+        with self.subTest("Filter by German"):
+            response = self.client.get(self.url, {"original_language": "de"})
+            pages_with_translations = response.context["pages_with_translations"]
+            # The response should contain only the de_page (not the de_translation of the English page).
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([de_page.page_ptr]))
+
+        with self.subTest("Filter by English"):
+            response = self.client.get(self.url, {"original_language": "en-US"})
+            pages_with_translations = response.context["pages_with_translations"]
+
+            # The response should contain only the en_page.
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([en_page.page_ptr]))
+
+            # The page data should show the German translation of the en_page.
+            page_data = pages_with_translations[0]
+            translation_locales = [t["locale"] for t in page_data["translations"]]
+            self.assertEqual(len(translation_locales), 1)
+            self.assertIn("de", translation_locales)
+
+        with self.subTest("Filter by invalid language"):
+            # The response hould contain no results.
+            response = self.client.get(self.url, {"original_language": "invalid-code"})
+            pages_with_translations = response.context["pages_with_translations"]
+            self.assertEqual(len(pages_with_translations), 0)

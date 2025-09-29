@@ -10,6 +10,7 @@ from django.views.generic import ListView, TemplateView
 
 from wagtail.models import Page
 
+from springfield.cms.forms import TranslationsFilterForm
 from springfield.cms.utils import calculate_translation_data
 
 
@@ -40,8 +41,17 @@ class TranslationsListView(ListView):
             all_pages.order_by("translation_key").values("translation_key").annotate(min_id=Min("id")).values_list("min_id", flat=True)
         )
 
-        # Return original pages (not any of their translations).
-        return Page.objects.filter(id__in=min_ids_by_translation_key).order_by("title")
+        # Get the original pages (not any of their translations).
+        pages_qs = Page.objects.filter(id__in=min_ids_by_translation_key).order_by("title")
+
+        # Filter by original language (if specified).
+        form = TranslationsFilterForm(self.request.GET)
+        if not form.is_valid():
+            pages_qs = pages_qs.none()
+        elif form.cleaned_data.get("original_language"):
+            pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
+
+        return pages_qs
 
     def get_context_data(self, **kwargs):
         """Add translation data to the context."""
@@ -61,4 +71,8 @@ class TranslationsListView(ListView):
             )
 
         context["pages_with_translations"] = pages_with_translations
+
+        # Add filter form to context
+        context["filter_form"] = TranslationsFilterForm(self.request.GET)
+
         return context
