@@ -1,0 +1,26 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="wnp-section">
+  <div class="wnp-container fl-section">
+    {% with alignment_class="text-center" %}
+      {% include_block value.heading %}
+    {% endwith %}
+
+    {% for block in value.content %}
+      {% include_block block %}
+    {% endfor %}
+
+    {% if value.cta %}
+      <div class="wnp-link-wrap">
+        {% for link in value.cta %}
+          <a class="wnp-link" href="{{ link.link }}" {% if link.external %}target="_blank"{% endif %} data-cta-text="TODO">{{ link.label }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>

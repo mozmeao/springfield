@@ -24,6 +24,10 @@
     margin: 0; /* Margins are handled by the hgroup */
 }
 
+.heading-group .heading + .subheading {
+    margin-top: var(--fds-spacing-lg);
+}
+
 .superheading {
     font-family: var(--font-family-inter);
     font-size: var(--font-size-superheading);

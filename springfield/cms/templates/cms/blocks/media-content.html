@@ -1,0 +1,29 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+<div class="wnp-feature {% if value.media_after %}wnp-feature--reverse{% endif %}">
+  <div class="wnp-feature-media" aria-hidden="true">
+    <div class="wnp-media-frame wnp-media-frame--settings">
+      {{ image(value.image, "width-800") }}
+    </div>
+  </div>
+  <div class="wnp-feature-content">
+    <p class="wnp-feature-eyebrow">{{ value.eyebrow|richtext|remove_p_tag }}</p>
+    <{{ row_heading_level }} class="heading heading-size-1">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
+    <div class="wnp-body">
+      {{ value.content }}
+    </div>
+    {% if value.buttons %}
+      <div class="buttons">
+        {% for button in value.buttons %}
+          {% include_block button %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>

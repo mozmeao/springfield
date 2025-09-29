@@ -88,18 +88,18 @@
     padding: var(--fds-spacing-lg);
 }
 
-.fl-illustration-cards-reverse .fl-card {
+.fl-illustration-card-reverse {
     gap: 0;
 }
 
-.fl-illustration-cards-reverse .fl-card .media {
+.fl-illustration-card-reverse .media {
     position: relative;
     order: 1;
     margin-top: calc(var(--fds-spacing-lg) * -1);
     z-index: 0;
 }
 
-.fl-illustration-cards-reverse .fl-card .card-content {
+.fl-illustration-card-reverse .card-content {
     position: relative;
     order: 0;
     background: light-dark(var(--fds-color-white), var(--fds-color-charcoal));

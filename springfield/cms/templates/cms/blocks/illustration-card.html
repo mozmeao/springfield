@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="fl-card fl-card-fill fl-illustration-card  {% if card.expand_link %}expand-link{% endif %}">
+<article class="fl-card fl-card-fill fl-illustration-card {% if value.image_after %}fl-illustration-card-reverse{% endif %} {% if card.expand_link %}expand-link{% endif %}">
 
   {% set img = image(value.image, "width-600") %}
   <include:image url="{{ img.url }}" alt="{{ img.alt }}" />

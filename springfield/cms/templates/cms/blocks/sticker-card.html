@@ -4,15 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="fl-card fl-card-fill">
-  <div>
-    {% for tag in value.tags %}
-      {% include_block tag %}
-    {% endfor %}
-  </div>
-  {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+
+<article class="fl-card {% if value.expand_link %}expand-link{% endif %}">
+  {% set img=image(value.image, 'width-400') %}
+  {% if value.image_dark %}
+    {% set img_dark=image(value.image_dark, 'width-400') %}
+  {% endif %}
+  <img class="fl-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
   <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-  <div class="body">{{ value.content }}</div>
+  <div class="body body-medium">{{ value.content }}</div>
   {% if value.buttons %}
     <div class="buttons">
       {% for button in value.buttons %}

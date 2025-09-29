@@ -192,57 +192,32 @@ class InlineNotificationBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/inline-notification.html"
         label = "Inline Notification"
-        label_format = "Inline Notification - {message}"
+        label_format = "{message}"
         form_classname = "compact-form struct-block"
 
 
-# Section blocks
-
-
-class IntroBlock(blocks.StructBlock):
-    image = ImageChooserBlock(required=False, inline_form=True)
-    media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before")),
-        default="after",
-        label="Media Position",
-        inline_form=True,
-    )
-    heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
-
-    class Meta:
-        template = "cms/blocks/intro.html"
-        label = "Intro"
-        label_format = "Intro - {heading}"
-        form_classname = "compact-form struct-block"
-
-
-class FeatureRowBlock(blocks.StructBlock):
+class MediaContentBlock(blocks.StructBlock):
     image = ImageChooserBlock()
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop",
+    )
     eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
-        label = "Feature Row"
+        label = "Media + Content"
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
+        template = "cms/blocks/media-content.html"
 
 
-class FeaturesBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, label="Call to Action")
-    rows = blocks.ListBlock(FeatureRowBlock())
-
-    class Meta:
-        template = "cms/blocks/features.html"
-        label = "Features"
-        label_format = "Features - {heading}"
-        form_classname = "compact-form struct-block"
-
-
-# Card Lists
+# Cards
 
 
 class StickerCardBlock(blocks.StructBlock):
@@ -261,40 +236,19 @@ class StickerCardBlock(blocks.StructBlock):
         label = "Sticker Card"
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
-
-
-class StickerCardListBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    cards = blocks.ListBlock(StickerCardBlock())
-
-    class Meta:
-        template = "cms/blocks/sticker-cards.html"
-        label = "Card List / Sticker"
-        label_format = "Sticker Cards - {heading}"
-        form_classname = "compact-form struct-block"
+        template = "cms/blocks/sticker-card.html"
 
 
 class TagCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
     tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
 
     class Meta:
         template = "cms/blocks/tag-card.html"
         label = "Tag Card"
         label_format = "Tag Card - {headline}"
-        form_classname = "compact-form struct-block"
-
-
-class TagCardListBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    cards = blocks.ListBlock(TagCardBlock())
-
-    class Meta:
-        template = "cms/blocks/tag-cards.html"
-        label = "Card List / Tag"
-        label_format = "Tag Cards - {heading}"
         form_classname = "compact-form struct-block"
 
 
@@ -317,48 +271,29 @@ class IconCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IconCardListBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    cards = blocks.ListBlock(IconCardBlock())
-
-    class Meta:
-        template = "cms/blocks/icon-cards.html"
-        label = "Card List / Icon"
-        label_format = "Icon Cards - {heading}"
-        form_classname = "compact-form struct-block"
-
-
 class IllustrationCardBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    image = ImageChooserBlock(inline_form=True)
+    image_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Image After",
+        inline_form=True,
+        help_text="Place image after text content",
+    )
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
+        inline_form=True,
         help_text="Expand the link click area to the whole card",
     )
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
         label = "Illustration Card"
         label_format = "{headline}"
-        form_classname = "compact-form struct-block"
-
-
-class IllustrationCardListBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    illustrations_below = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Place illustrations below the content",
-    )
-    cards = blocks.ListBlock(IllustrationCardBlock())
-
-    class Meta:
-        template = "cms/blocks/illustration-cards.html"
-        label = "Card List / Illustration"
-        label_format = "Illustration Cards - {heading}"
         form_classname = "compact-form struct-block"
 
 
@@ -380,14 +315,69 @@ class StepCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class CardsListBlock(blocks.StructBlock):
+    cards = blocks.StreamBlock(
+        [
+            ("sticker_card", StickerCardBlock()),
+            ("tag_card", TagCardBlock()),
+            ("icon_card", IconCardBlock()),
+            ("illustration_card", IllustrationCardBlock()),
+        ]
+    )
+
+    class Meta:
+        template = "cms/blocks/cards-list.html"
+        label = "Cards List"
+        label_format = "Cards List - {heading}"
+        form_classname = "compact-form struct-block"
+
+
 class StepCardListBlock(blocks.StructBlock):
-    heading = HeadingBlock()
     cards = blocks.ListBlock(StepCardBlock())
 
     class Meta:
-        template = "cms/blocks/step-cards.html"
-        label = "Card List / Step"
+        template = "cms/blocks/cards-list.html"
+        label = "Step Cards List"
         label_format = "Step Cards - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+# Section blocks
+
+
+class IntroBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=False, inline_form=True)
+    media_position = blocks.ChoiceBlock(
+        choices=(("after", "After"), ("before", "Before")),
+        default="after",
+        label="Media Position",
+        inline_form=True,
+    )
+    heading = HeadingBlock()
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+
+    class Meta:
+        template = "cms/blocks/intro.html"
+        label = "Intro"
+        label_format = "{heading}"
+        form_classname = "compact-form struct-block"
+
+
+class SectionBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    content = blocks.StreamBlock(
+        [
+            ("media_content", MediaContentBlock()),
+            ("cards_list", CardsListBlock()),
+            ("step_cards", StepCardListBlock()),
+        ]
+    )
+    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, label="Call to Action")
+
+    class Meta:
+        template = "cms/blocks/section.html"
+        label = "Section"
+        label_format = "{heading}"
         form_classname = "compact-form struct-block"
 
 

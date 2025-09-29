@@ -376,81 +376,6 @@ the future and this file will be removed.
     padding: 0 var(--fds-spacing-2xl);
 }
 
-.wnp-section-intro {
-    padding: var(--fds-spacing-4xl) 0;
-}
-
-.wnp-section-intro .wnp-intro-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--fds-spacing-3xl);
-}
-
-@media (min-width: 1024px) {
-
-    .wnp-section-intro .wnp-intro-layout {
-        grid-template-columns: 1fr 520px;
-        align-items: center
-    }
-}
-
-.wnp-section-intro .wnp-intro-content {
-    text-align: center;
-
-}
-
-.wnp-section-intro .wnp-intro-content .wnp-title {
-    max-width: 16ch;
-}
-
-.wnp-section-intro .wnp-intro-content .wnp-subtitle-5 {
-    max-width: 54ch;
-}
-
-.wnp-section-intro .wnp-intro-content .wnp-eyebrow,
-.wnp-section-intro .wnp-intro-content .wnp-title,
-.wnp-section-intro .wnp-intro-content .wnp-subtitle-5 {
-    text-align: center;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-@media (max-width: 1024px) {
-
-    .wnp-section-intro .wnp-intro-content .wnp-eyebrow,
-    .wnp-section-intro .wnp-intro-content .wnp-title,
-    .wnp-section-intro .wnp-intro-content .wnp-subtitle-5 {
-        margin: 0 auto var(--fds-spacing-lg)
-    }
-}
-
-@media (max-width: 1024px) {
-
-    .wnp-section-intro .wnp-intro-content .wnp-eyebrow {
-        margin-bottom: var(--fds-spacing-sm)
-    }
-}
-
-.wnp-section-intro .wnp-intro-content .wnp-btn-wrap {
-    margin-top: var(--fds-spacing-3xl);
-}
-
-@media (min-width: 1024px) {
-    .wnp-section-intro .wnp-intro-content {
-        text-align: left;
-    }
-
-    .wnp-section-intro .wnp-intro-content .wnp-eyebrow,
-    .wnp-section-intro .wnp-intro-content .wnp-title,
-    .wnp-section-intro .wnp-intro-content .wnp-subtitle-5 {
-        text-align: left;
-    }
-
-    .wnp-section-intro .wnp-intro-content .wnp-btn-wrap {
-        margin-top: var(--fds-spacing-3xl);
-    }
-}
-
 .wnp-media-frame {
     overflow: hidden;
 }
@@ -936,7 +861,6 @@ the future and this file will be removed.
     grid-template-columns: 1fr;
     gap: var(--fds-spacing-lg);
     align-items: center;
-    margin: var(--fds-spacing-2xl) 0;
 }
 
 .wnp-feature .wnp-subtitle {
@@ -948,7 +872,6 @@ the future and this file will be removed.
     .wnp-feature {
         gap: var(--fds-spacing-3xl);
         grid-template-columns: 1fr 1fr;
-        margin: var(--fds-spacing-4xl) 0
     }
 }
 
