@@ -11,13 +11,13 @@ const openPage = require('../../scripts/open-page');
 const url = '/en-US/';
 const slugs = ['channel/desktop', 'channel/desktop/developer', 'newsletter'];
 
-test.describe(
-    `${url} page`,
-    {
-        tag: '@newsletter'
-    },
-    () => {
-        for (const slug of slugs) {
+slugs.forEach((slug) => {
+    test.describe(
+        `${url}${slug} page`,
+        {
+            tag: '@newsletter'
+        },
+        () => {
             test.beforeEach(async ({ page, browserName }) => {
                 await openPage(url + `${slug}/`, page, browserName);
             });
@@ -80,5 +80,5 @@ test.describe(
                 await expect(thanksMessage).not.toBeVisible();
             });
         }
-    }
-);
+    );
+});
