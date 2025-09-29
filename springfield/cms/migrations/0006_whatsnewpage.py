@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                     "content",
                     wagtail.fields.StreamField(
                         [
-                            ("header_notification", 1),
+                            ("inline_notification", 1),
                             ("intro", 15),
                             ("features", 24),
                             ("subscribe_banner", 25),
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                                 (),
                                 {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"]},
                             ),
-                            1: ("wagtail.blocks.StructBlock", [[("message", 0)]], {}),
+                            1: ("wagtail.blocks.StructBlock", [[("message", 0)]], {"group": "Notifications"}),
                             2: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True, "required": False}),
                             3: (
                                 "wagtail.blocks.ChoiceBlock",

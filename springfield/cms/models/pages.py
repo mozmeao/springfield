@@ -12,9 +12,9 @@ from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
     FeaturesBlock,
-    HeaderNotificationBlock,
     IconCardListBlock,
     IllustrationCardListBlock,
+    InlineNotificationBlock,
     IntroBlock,
     QRCodeBannerBlock,
     StepCardListBlock,
@@ -132,7 +132,7 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
 
     content = StreamField(
         [
-            ("header_notification", HeaderNotificationBlock()),
+            ("inline_notification", InlineNotificationBlock(group="Notifications")),
             ("intro", IntroBlock(group="Media + Content")),
             ("features", FeaturesBlock(group="Media + Content")),
             ("subscribe_banner", SubscribeBannerBlock(group="Banners")),
