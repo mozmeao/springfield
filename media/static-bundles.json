@@ -608,6 +608,12 @@
     },
     {
       "files": [
+        "js/base/video-prefers-reduced-motion.es6.js"
+      ],
+      "name": "video-prefers-reduced-motion"
+    },
+    {
+      "files": [
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
