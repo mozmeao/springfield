@@ -22,5 +22,12 @@
     <content:media>
       {{ image(value.image, "width-800") }}
     </content:media>
+  {% elif value.embed %}
+    <content:media>
+      {# Jinja interprets the HTML from the embed block as a string #}
+      {% autoescape false %}
+        {% include_block value.embed %}
+      {% endautoescape %}
+    </content:media>
   {% endif %}
 </include:intro>
