@@ -11,9 +11,9 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
+    BannerBlock,
     InlineNotificationBlock,
     IntroBlock,
-    QRCodeBlock,
     SectionBlock,
     SubscriptionBlock,
 )
@@ -131,7 +131,7 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
             ("intro", IntroBlock()),
             ("section", SectionBlock()),
             ("subscription", SubscriptionBlock(group="Banners")),
-            ("qr_code", QRCodeBlock(group="Banners")),
+            ("banner", BannerBlock(group="Banners")),
         ]
     )
 

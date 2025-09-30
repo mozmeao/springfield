@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 (
                     "content",
                     wagtail.fields.StreamField(
-                        [("inline_notification", 1), ("intro", 15), ("section", 46), ("subscription", 47), ("qr_code", 49)],
+                        [("inline_notification", 1), ("intro", 15), ("section", 46), ("subscription", 47), ("banner", 50)],
                         block_lookup={
                             0: (
                                 "wagtail.blocks.RichTextBlock",
@@ -402,12 +402,20 @@ class Migration(migrations.Migration):
                             45: ("wagtail.blocks.ListBlock", (44,), {"label": "Call to Action", "max_num": 1, "min_num": 0}),
                             46: ("wagtail.blocks.StructBlock", [[("heading", 5), ("content", 41), ("cta", 45)]], {}),
                             47: ("wagtail.blocks.StructBlock", [[("heading", 5)]], {"group": "Banners"}),
-                            48: (
+                            48: ("wagtail.images.blocks.ImageChooserBlock", (), {"required": False}),
+                            49: (
                                 "wagtail.blocks.CharBlock",
                                 (),
-                                {"help_text": "Content to encode in the QR code, e.g., a URL or text.", "required": True},
+                                {
+                                    "help_text": "Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+                                    "required": False,
+                                },
                             ),
-                            49: ("wagtail.blocks.StructBlock", [[("qr_content", 48), ("headline", 0), ("content", 0)]], {"group": "Banners"}),
+                            50: (
+                                "wagtail.blocks.StructBlock",
+                                [[("image", 48), ("qr_code", 49), ("headline", 0), ("content", 0)]],
+                                {"group": "Banners"},
+                            ),
                         },
                     ),
                 ),

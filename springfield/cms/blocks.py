@@ -394,15 +394,16 @@ class SubscriptionBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class QRCodeBlock(blocks.StructBlock):
-    qr_content = blocks.CharBlock(
-        required=True,
-        help_text="Content to encode in the QR code, e.g., a URL or text.",
+class BannerBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=False)
+    qr_code = blocks.CharBlock(
+        required=False,
+        help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
-        template = "cms/blocks/qr-code.html"
-        label = "QR Code"
-        label_format = "QR Code - {headline}"
+        template = "cms/blocks/banner.html"
+        label = "Banner"
+        label_format = "{headline}"
