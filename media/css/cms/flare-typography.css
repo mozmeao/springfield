@@ -82,3 +82,9 @@
 .body p {
     margin: 0 0 calc(var(--scale-16) * 1px);
 }
+
+@media (max-width: 767px) {
+    .body {
+        max-width: 60ch;
+    }
+}

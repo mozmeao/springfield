@@ -1,0 +1,282 @@
+.fl-newsletterform {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: calc(var(--scale-16) * 1px);
+    max-width: 700px;
+    margin: 0 auto;
+    margin-top: calc(var(--scale-24) * 1px);
+}
+
+.fl-newsletterform.fl-newsletterform-expanded:not(.hidden) {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
+.fl-newsletterform.fl-newsletterform-expanded .button {
+    width: 100%;
+}
+
+.fl-newsletterform .fl-newsletterform-input {
+    height: 50px;
+    min-height: 50px;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .button {
+    order: 3;
+}
+
+.fl-newsletterform-input {
+    padding: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--scale-8) * 1px);
+    border: 1px solid var(--neutrals-grey-3);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-body);
+    background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+}
+
+.fl-section-subscribe .body.fl-newsletterform-error,
+.fl-section-subscribe .subheading.fl-newsletterform-error {
+    color: var(--orange-orange);
+}
+
+.fl-section-subscribe .fl-newsletterform-feedback {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.fl-section-subscribe {
+    background: var(--purple-light-purple);
+    color: var(--neutrals-charcoal);
+    padding: calc(var(--scale-64) * 1px) 0;
+
+}
+
+.fl-section-subscribe .body,
+.fl-section-subscribe .heading,
+.fl-section-subscribe .superheading,
+.fl-section-subscribe .subheading {
+    color: var(--neutrals-charcoal);
+    margin-top: 0;
+}
+
+.fl-section-subscribe .fl-newsletterform-input {
+    background: var(--neutrals-white);
+    color: var(--neutrals-charcoal);
+    border: none;
+    font-family: var(--font-family-body);
+}
+
+.fl-section-subscribe .fl-newsletterform-input::placeholder {
+    color: var(--neutrals-grey-5);
+    opacity: 1;
+}
+
+.fl-section-subscribe input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 19px;
+    height: 19px;
+    background: var(--neutrals-white);
+    border: 1px solid var(--neutrals-grey-5);
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    vertical-align: baseline;
+    top: 2px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.fl-section-subscribe input[type="checkbox"]:checked {
+    background: var(--neutrals-charcoal);
+    border-color: var(--neutrals-charcoal);
+}
+
+.fl-section-subscribe input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid var(--neutrals-white);
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+.fl-section-subscribe input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--functional-info-buttons);
+    outline-offset: 2px;
+}
+
+.fl-section-subscribe input[type="checkbox"]:hover {
+    background: var(--neutrals-black);
+}
+
+.fl-section-subscribe .button {
+    color: var(--neutrals-charcoal);
+    border-color: var(--neutrals-charcoal);
+}
+
+.fl-section-subscribe .button:hover {
+    background: var(--neutrals-black);
+    color: var(--neutrals-white);
+}
+
+.fl-section-subscribe .fl-newsletterform-error-list {
+    padding: 0;
+    margin: 0 auto;
+}
+
+.fl-section-subscribe .fl-newsletterform-input,
+.fl-section-subscribe .button {
+    padding: 12px 18px;
+}
+
+.fl-section-subscribe a {
+    color: var(--neutrals-charcoal);
+}
+
+@media (max-width: 767px) {
+    .fl-section-subscribe {
+        order: 6
+    }
+}
+
+@media (max-width: 767px) {
+    .fl-section-subscribe .fl-newsletterform {
+        grid-template-columns: 1fr;
+    }
+
+    .fl-section-subscribe .fl-newsletterform .button {
+        width: 100%;
+    }
+
+}
+
+.fl-newsletterform-label {
+    display: block;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--neutrals-charcoal);
+    margin-bottom: calc(var(--scale-8) * 1px);
+}
+
+.fl-newsletterform-consent,
+.fl-newsletterform-feedback {
+    grid-column: 1 / -1;
+}
+
+.fl-newsletterform-row-hidden {
+    display: none;
+}
+
+.fl-newsletterform-field {
+    position: relative;
+    margin-bottom: calc(var(--scale-16) * 1px);
+}
+
+.fl-newsletterform-select-arrow {
+    position: absolute;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    top: calc(50% - 0.5rem);
+    right: calc(var(--scale-16) * 1px);
+    transition: transform var(--transition-base);
+}
+
+.fl-newsletterform-select-arrow.open~.fl-newsletterform-select-arrow {
+    transform: rotate(180deg);
+}
+
+
+.fl-newsletterform-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    height: 50px;
+    padding: calc(var(--scale-8) * 1px) calc(var(--scale-16) * 1px);
+    padding-right: 24px;
+    border: 1px solid var(--neutrals-grey-3);
+    border-radius: calc(var(--scale-8) * 1px);
+    background: var(--neutrals-white);
+    color: var(--neutrals-charcoal);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-body);
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color var(--transition-base);
+}
+
+.fl-newsletterform-select:hover {
+    border-color: var(--neutrals-grey-5);
+}
+
+.fl-newsletterform-select:focus {
+    outline: 2px solid var(--functional-info-buttons);
+    outline-offset: 2px;
+    border-color: var(--functional-info-buttons);
+}
+
+.fl-newsletterform-select option {
+    padding: calc(var(--scale-16) * 1px);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+    border-bottom: 1px solid var(--neutrals-grey-2);
+}
+
+.fl-newsletterform-select option:last-child {
+    border-bottom: none;
+}
+
+.fl-newsletterform-select option:hover {
+    background: var(--neutrals-charcoal);
+    color: var(--neutrals-white);
+}
+
+.fl-newsletterform-select option.fl-newsletterform-select-selected {
+    background: var(--neutrals-black);
+    color: var(--neutrals-white);
+}
+
+.fl-newsletterform-checkbox-label {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: calc(var(--scale-8) * 1px);
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.fl-newsletterform-checkbox-label input[type="checkbox"] {
+    flex-shrink: 0;
+    margin: 0;
+    margin-top: 2px;
+}
+
+.fl-newsletterform-checkbox-label .fl-newsletterform-checkbox-text {
+    flex: 1;
+    line-height: 1.4;
+    margin: 0;
+    text-align: left;
+    min-width: 0;
+}
+
+.fl-newsletterform-success {
+    text-align: center;
+    margin-top: calc(var(--scale-32) * 1px);
+}
+
+.fl-newsletterform-success svg {
+    display: block;
+    margin: 0 auto;
+}
