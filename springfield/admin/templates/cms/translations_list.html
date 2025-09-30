@@ -85,7 +85,7 @@
         </div>
 
         {% if pages_with_translations %}
-            <div>
+            <div class="w-pt-4">
                 <table class="listing full-width">
                     <thead>
                         <tr class="table-headers">
@@ -149,7 +149,7 @@
                 {% include "wagtailadmin/shared/pagination.html" %}
             {% endif %}
         {% else %}
-            <p>No pages found.</p>
+            <p class="pl-4em w-pt-4"><span class="sm:w-pl-5">No pages found.</span></p>
         {% endif %}
     </div>
 {% endblock %}
