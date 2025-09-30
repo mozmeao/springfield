@@ -25,7 +25,7 @@
 }
 
 .heading-group .heading + .subheading {
-    margin-top: var(--fds-spacing-lg);
+    margin-top: calc(var(--scale-24) * 1px);
 }
 
 .superheading {

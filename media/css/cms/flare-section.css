@@ -7,11 +7,11 @@
 .fl-section {
     display: flex;
     flex-direction: column;
-    gap: var(--fds-spacing-2xl);
+    gap: calc(var(--scale-40) * 1px);
 }
 
 @media (min-width: 1024px) {
     .fl-section {
-        gap: var(--fds-spacing-4xl);
+        gap: calc(var(--scale-64) * 1px);
     }
 }

@@ -9,6 +9,11 @@ demo purposes, but new modular component stylesheets will be added in
 the future and this file will be removed.
 */
 
+/* Mark deprecated wnp-* styles */
+:where([class^="wnp-"], [class*=" wnp-"]) {
+    outline: 1px dotted red;
+}
+
 /* stylelint-disable */
 :root {
     --fds-color-purple-light: var(--purple-light-purple);

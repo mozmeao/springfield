@@ -13,7 +13,7 @@ specific exceptions that can't be handled by the other layers
 
 
 .wnp-footer .button-outline img {
-    margin-right: var(--fds-spacing-md);
+    margin-right: calc(var(--scale-16) * 1px);
 }
 
 .wnp-footer-cta .button {
@@ -21,8 +21,8 @@ specific exceptions that can't be handled by the other layers
 }
 
 .wnp-section-subscribe .button-outline {
-    color: var(--fds-color-charcoal);
-    border-color: var(--fds-color-charcoal);
+    color: var(--neutrals-charcoal);
+    border-color: var(--neutrals-charcoal);
 }
 
 .wnp-section-subscribe .wnp-input,
@@ -31,8 +31,8 @@ specific exceptions that can't be handled by the other layers
 }
 
 .wnp-section-subscribe .button-outline:hover {
-    background: var(--fds-color-black);
-    color: var(--fds-color-white);
+    background: var(--neutrals-black);
+    color: var(--neutrals-white);
 }
 
 .wnp-feature .button {
