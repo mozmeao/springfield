@@ -14,12 +14,6 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-black));
 }
 
-@media (max-width: 1024px) {
-    .fl-header {
-        padding: 10px calc(var(--scale-32) * 1px)
-    }
-}
-
 .fl-header-inner {
     max-width: 1280px;
     margin: 0 auto;
@@ -40,12 +34,6 @@
     text-decoration: none;
 }
 
-@media (min-width: 1025px) {
-    .fl-logo-fx {
-        margin: 0;
-    }
-}
-
 [data-theme="dark"] .fl-logo-fx {
     background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
 }
@@ -61,8 +49,16 @@
 }
 
 @media (min-width: 1025px) {
+    .fl-logo-fx {
+        margin: 0;
+    }
+
     .fl-nav {
         display: block
+    }
+
+    .fl-hamburger {
+        display: none
     }
 }
 
@@ -102,12 +98,6 @@
 
 .fl-hamburger::after {
     bottom: 9px;
-}
-
-@media (min-width: 1025px) {
-    .fl-hamburger {
-        display: none
-    }
 }
 
 .fl-hamburger[aria-expanded="true"] {
@@ -153,12 +143,6 @@
     border: none;
     background: transparent;
     cursor: pointer;
-}
-
-@media (max-width: 1024px) {
-    .fl-nav-toggle {
-        display: none
-    }
 }
 
 .fl-nav-toggle span {
@@ -210,7 +194,19 @@
     transform: translateX(18px);
 }
 
+.fl-theme-toggle {
+    display: none;
+}
+
 @media (max-width: 1024px) {
+    .fl-nav-toggle {
+        display: none
+    }
+
+    .fl-header {
+        padding: 10px calc(var(--scale-32) * 1px)
+    }
+
     .fl-nav.is-open {
         display: block;
         position: fixed;
@@ -226,13 +222,7 @@
         flex-direction: column;
         gap: calc(var(--scale-40) * 1px);
     }
-}
 
-.fl-theme-toggle {
-    display: none;
-}
-
-@media (max-width: 1024px) {
     .fl-theme-toggle {
         margin-top: auto;
         position: fixed;
@@ -262,12 +252,6 @@
     flex-direction: column;
 }
 
-@media (max-width: 767px) {
-    .fl-main {
-        padding: 0;
-    }
-}
-
 .fl-content-inner {
     max-width: 1200px;
     margin: 0 auto;
@@ -280,19 +264,6 @@
     grid-template-columns: 1fr;
 }
 
-@media (min-width: 768px) {
-    .fl-grid {
-        gap: calc(var(--scale-24) * 1px);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1024px) {
-    .fl-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
 .fl-footer {
     margin-top: auto;
     padding: calc(var(--scale-64) * 1px) 0;
@@ -303,12 +274,6 @@
     margin-right: calc(var(--scale-16) * 1px);
 }
 
-@media (min-width: 768px) {
-    .fl-footer {
-        padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px)
-    }
-}
-
 .fl-footer-inner {
     max-width: 1380px;
     margin: 0 auto;
@@ -317,6 +282,10 @@
 }
 
 @media (min-width: 1024px) {
+    .fl-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .fl-footer-inner {
         padding: 0 calc(var(--scale-40) * 1px)
     }
@@ -391,36 +360,21 @@
 }
 
 @media (min-width: 768px) {
+    .fl-grid {
+        gap: calc(var(--scale-24) * 1px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fl-footer {
+        padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px)
+    }
+
     .fl-footer-cta {
         width: unset;
     }
 
     .fl-footer-cta .fl-button {
         width: unset;
-    }
-}
-
-@media (max-width: 767px) {
-    .fl-footer .fl-footer-top {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .fl-footer .fl-footer-logo {
-        order: -1;
-        align-self: flex-start;
-        margin-bottom: calc(var(--scale-24) * 1px);
-        width: 140px;
-        height: 46px;
-    }
-
-    .fl-footer .fl-footer-copy {
-        margin-bottom: calc(var(--scale-16) * 1px);
-    }
-
-    .fl-footer .fl-footer-links {
-        margin-bottom: calc(var(--scale-32) * 1px);
     }
 }
 
@@ -462,6 +416,32 @@
 }
 
 @media (max-width: 767px) {
+    .fl-main {
+        padding: 0;
+    }
+
+    .fl-footer .fl-footer-top {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .fl-footer .fl-footer-logo {
+        order: -1;
+        align-self: flex-start;
+        margin-bottom: calc(var(--scale-24) * 1px);
+        width: 140px;
+        height: 46px;
+    }
+
+    .fl-footer .fl-footer-copy {
+        margin-bottom: calc(var(--scale-16) * 1px);
+    }
+
+    .fl-footer .fl-footer-links {
+        margin-bottom: calc(var(--scale-32) * 1px);
+    }
+
     .fl-footer-inner {
         padding: 0 calc(var(--scale-24) * 1px);
     }

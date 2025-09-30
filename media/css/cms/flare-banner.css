@@ -16,12 +16,6 @@
     width: auto;
 }
 
-@media (max-width: 767px) {
-    .fl-banner-media {
-        background-size: cover;
-    }
-}
-
 .fl-banner-qr {
     color: var(--neutrals-grey-8);
     border-radius: calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0 0;
@@ -45,6 +39,10 @@
 }
 
 @media (max-width: 767px) {
+    .fl-banner-media {
+        background-size: cover;
+    }
+
     .fl-section-mobile .fl-banner {
         padding: calc(var(--scale-24) * 1px);
     }

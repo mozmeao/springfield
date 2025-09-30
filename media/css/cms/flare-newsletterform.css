@@ -143,9 +143,7 @@
     .fl-section-subscribe {
         order: 6
     }
-}
 
-@media (max-width: 767px) {
     .fl-section-subscribe .fl-newsletterform {
         grid-template-columns: 1fr;
     }
