@@ -44,6 +44,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 
 /* TODO: Port components to modules and remove flare-components.css */
 @import 'flare-components.css' layer(components);
+@import 'flare-template.css' layer(template);
 @import 'flare-icon.css' layer(components);
 @import 'flare-button.css' layer(components);
 @import 'flare-tag.css' layer(components);
@@ -56,7 +57,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */
-@layer base, theme, defaults, components, utilities, overrides;
+@layer base, theme, defaults, template, components, utilities, overrides;
 
 /* Fallback for browsers that don't support CSS layers
 IE11 and below don't support @supports, so the base CSS is also
