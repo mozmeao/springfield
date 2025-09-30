@@ -75,9 +75,13 @@
                     {{ filter_form.original_language.label_tag }}
                     {{ filter_form.original_language }}
                 </div>
+                <div>
+                    {{ filter_form.exists_in_language.label_tag }}
+                    {{ filter_form.exists_in_language }}
+                </div>
                 <div class="flex align-items-end">
                     <button type="submit" class="button">Filter</button>
-                    {% if filter_form.original_language.value %}
+                    {% if filter_form.original_language.value or filter_form.exists_in_language.value %}
                         <a href="?" class="button button-secondary">Clear</a>
                     {% endif %}
                 </div>

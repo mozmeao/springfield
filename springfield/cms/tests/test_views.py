@@ -55,6 +55,11 @@ class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
         self.fr_home.title = "French Home"
         self.fr_home.save_revision().publish()
 
+        # Create Italian home page as a translation of the English home page
+        self.it_home = self.en_home.copy_for_translation(self.it_locale)
+        self.it_home.title = "Italian Home"
+        self.it_home.save_revision().publish()
+
         self.url = reverse("cms:translations_list")
 
     def test_view_requires_staff_authentication(self):
@@ -305,3 +310,141 @@ class TranslationsListViewTestCase(TestCase, WagtailTestUtils):
             response = self.client.get(self.url, {"original_language": "invalid-code"})
             pages_with_translations = response.context["pages_with_translations"]
             self.assertEqual(len(pages_with_translations), 0)
+
+    def test_exists_in_language_filter(self):
+        """Test filtering by exists_in_language (whether a page exists in a particular language)."""
+        self.client.force_login(self.staff_user)
+
+        # Create a page originally in English.
+        en_page = SimpleRichTextPage(title="English Original", slug="english-page", locale=self.en_locale, content="English content")
+        self.en_home.add_child(instance=en_page)
+        en_page.save_revision().publish()
+
+        # Create a page originally in German.
+        de_page = SimpleRichTextPage(title="German Original", slug="german-page", locale=self.de_locale, content="German content")
+        self.de_home.add_child(instance=de_page)
+        de_page.save_revision().publish()
+
+        # Create a page originally in French.
+        fr_page = SimpleRichTextPage(title="French Original", slug="french-page", locale=self.fr_locale, content="French content")
+        self.fr_home.add_child(instance=fr_page)
+        fr_page.save_revision().publish()
+
+        # Create German and French translations for the en_page.
+        de_translation = en_page.copy_for_translation(self.de_locale)
+        de_translation.title = "German Translation"
+        de_translation.save_revision().publish()
+
+        fr_translation = en_page.copy_for_translation(self.fr_locale)
+        fr_translation.title = "French Translation"
+        fr_translation.save_revision().publish()
+
+        # Create Italian translations for the fr_page.
+        it_translation = fr_page.copy_for_translation(self.it_locale)
+        it_translation.title = "Italian Translation"
+        it_translation.save_revision().publish()
+
+        with self.subTest("Filter by exists in English"):
+            # The response should contain en_page, since it is in English. No other
+            # page has an English translation
+            response = self.client.get(self.url, {"exists_in_language": "en-US"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([en_page.page_ptr]))
+
+        with self.subTest("Filter by exists in German"):
+            # The response should contain:
+            #   - de_page, since it is in German
+            #   - en_page, since it has a German translation
+            response = self.client.get(self.url, {"exists_in_language": "de"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([de_page.page_ptr, en_page.page_ptr]))
+
+        with self.subTest("Filter by exists in Italian"):
+            # The response should contain:
+            #   - fr_page, since it has an Italian translation
+            response = self.client.get(self.url, {"exists_in_language": "it"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([fr_page.page_ptr]))
+
+        with self.subTest("Filter by exists in French"):
+            # The response should contain:
+            #   - fr_page, since it is in French
+            #   - en_page, since it has a French translation
+            response = self.client.get(self.url, {"exists_in_language": "fr"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([en_page.page_ptr, fr_page.page_ptr]))
+
+        with self.subTest("Filter by invalid language"):
+            # The response should contain no results.
+            response = self.client.get(self.url, {"exists_in_language": "invalid-code"})
+            pages_with_translations = response.context["pages_with_translations"]
+            self.assertEqual(len(pages_with_translations), 0)
+
+        with self.subTest("Filter by blank value"):
+            # The response should contain all pages.
+            response = self.client.get(self.url, {"exists_in_language": ""})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(
+                set(pages_in_response),
+                set([en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr]),
+            )
+
+    def test_multiple_filters_together(self):
+        """Test using both original_language and exists_in_language filters together."""
+        self.client.force_login(self.staff_user)
+
+        # Create a page originally in English.
+        en_page = SimpleRichTextPage(title="English Original", slug="english-page", locale=self.en_locale, content="English content")
+        self.en_home.add_child(instance=en_page)
+        en_page.save_revision().publish()
+
+        # Create a page originally in German.
+        de_page = SimpleRichTextPage(title="German Original", slug="german-page", locale=self.de_locale, content="German content")
+        self.de_home.add_child(instance=de_page)
+        de_page.save_revision().publish()
+
+        # Create a page originally in French.
+        fr_page = SimpleRichTextPage(title="French Original", slug="french-page", locale=self.fr_locale, content="French content")
+        self.fr_home.add_child(instance=fr_page)
+        fr_page.save_revision().publish()
+
+        # Create German and French translations for the en_page.
+        de_translation = en_page.copy_for_translation(self.de_locale)
+        de_translation.title = "German Translation"
+        de_translation.save_revision().publish()
+
+        fr_translation = en_page.copy_for_translation(self.fr_locale)
+        fr_translation.title = "French Translation"
+        fr_translation.save_revision().publish()
+
+        # Create Italian translations for the fr_page.
+        it_translation = fr_page.copy_for_translation(self.it_locale)
+        it_translation.title = "Italian Translation"
+        it_translation.save_revision().publish()
+
+        with self.subTest("original_language=en-US AND exists_in_language=de"):
+            # The response should contain:
+            #   - en_page, since it is originally in English and has a German translation
+            response = self.client.get(self.url, {"original_language": "en-US", "exists_in_language": "de"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([en_page.page_ptr]))
+
+        with self.subTest("original_language=de AND exists_in_language=fr"):
+            # The response should contain no results
+            response = self.client.get(self.url, {"original_language": "de", "exists_in_language": "fr"})
+            pages_with_translations = response.context["pages_with_translations"]
+            self.assertEqual(len(pages_with_translations), 0)
+
+        with self.subTest("original_language=en-US AND exists_in_language=fr"):
+            # The response should contain:
+            #   - en_page, since it is originally in English and has a French translation
+            response = self.client.get(self.url, {"original_language": "en-US", "exists_in_language": "fr"})
+            pages_with_translations = response.context["pages_with_translations"]
+            pages_in_response = [p["page"] for p in pages_with_translations]
+            self.assertEqual(set(pages_in_response), set([en_page.page_ptr]))

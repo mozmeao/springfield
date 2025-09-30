@@ -44,12 +44,23 @@ class TranslationsListView(ListView):
         # Get the original pages (not any of their translations).
         pages_qs = Page.objects.filter(id__in=min_ids_by_translation_key).order_by("title")
 
-        # Filter by original language (if specified).
+        # Filter pages_qs by any filters (if specified).
         form = TranslationsFilterForm(self.request.GET)
         if not form.is_valid():
             pages_qs = pages_qs.none()
-        elif form.cleaned_data.get("original_language"):
-            pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
+        else:
+            # Filter by original language.
+            if form.cleaned_data.get("original_language"):
+                pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
+            # Filter by whether a page exists in a particular language.
+            if form.cleaned_data.get("exists_in_language"):
+                # Get all translation keys that have a translation in the selected language
+                translation_keys_with_locale = (
+                    all_pages.filter(locale__language_code=form.cleaned_data["exists_in_language"])
+                    .values_list("translation_key", flat=True)
+                    .distinct()
+                )
+                pages_qs = pages_qs.filter(translation_key__in=translation_keys_with_locale)
 
         return pages_qs
 

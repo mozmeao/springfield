@@ -62,25 +62,91 @@ class TranslationsFilterFormTestCase(TestCase):
     def test_form_field_attributes(self):
         """Test that form field has correct attributes."""
         form = TranslationsFilterForm()
-        field = form.fields["original_language"]
 
-        # Test field properties
-        self.assertEqual(field.label, "Original Language")
-        self.assertFalse(field.required)
-        self.assertEqual(field.widget.attrs.get("class"), "w-field__input")
+        # Test "original_language" field properties
+        original_language_field = form.fields["original_language"]
+        self.assertEqual(original_language_field.label, "Original Language")
+        self.assertFalse(original_language_field.required)
+        self.assertEqual(original_language_field.widget.attrs.get("class"), "w-field__input")
+
+        # Test "exists_in_language" field properties
+        exists_in_language_field = form.fields["exists_in_language"]
+        self.assertEqual(exists_in_language_field.label, "Exists In")
+        self.assertFalse(exists_in_language_field.required)
+        self.assertEqual(exists_in_language_field.widget.attrs.get("class"), "w-field__input")
 
     def test_form_dynamic_choices_update(self):
         """Test that choices are updated dynamically on form initialization."""
         # First create form with default settings
         with override_settings(WAGTAIL_CONTENT_LANGUAGES=[("en-US", "English (US)")]):
             form1 = TranslationsFilterForm()
-            choices1 = form1.fields["original_language"].choices
-            expected1 = [("", "All languages"), ("en-US", "English (US)")]
-            self.assertEqual(choices1, expected1)
+            choices_original_language1 = form1.fields["original_language"].choices
+            choices_exists_in_language1 = form1.fields["exists_in_language"].choices
+            self.assertEqual(
+                choices_original_language1,
+                [("", "All languages"), ("en-US", "English (US)")],
+            )
+            self.assertEqual(
+                choices_exists_in_language1,
+                [("", "All languages"), ("en-US", "English (US)")],
+            )
 
         # Then create form with different settings
         with override_settings(WAGTAIL_CONTENT_LANGUAGES=[("de", "German"), ("fr", "French")]):
             form2 = TranslationsFilterForm()
-            choices2 = form2.fields["original_language"].choices
-            expected2 = [("", "All languages"), ("de", "German"), ("fr", "French")]
-            self.assertEqual(choices2, expected2)
+            choices_original_language2 = form2.fields["original_language"].choices
+            choices_exists_in_language2 = form2.fields["exists_in_language"].choices
+            self.assertEqual(
+                choices_original_language2,
+                [("", "All languages"), ("de", "German"), ("fr", "French")],
+            )
+            self.assertEqual(
+                choices_exists_in_language2,
+                [("", "All languages"), ("de", "German"), ("fr", "French")],
+            )
+
+    @override_settings(
+        WAGTAIL_CONTENT_LANGUAGES=[
+            ("en-US", "English (US)"),
+            ("de", "German"),
+            ("fr", "French"),
+        ]
+    )
+    def test_exists_in_language_form_choices_include_all_languages(self):
+        """Test that exists_in_language field choices include all configured languages."""
+        form = TranslationsFilterForm()
+        exists_in_language_choices = form.fields["exists_in_language"].choices
+
+        # Should have "All languages" option plus all configured languages
+        expected_choices = [
+            ("", "All languages"),
+            ("en-US", "English (US)"),
+            ("de", "German"),
+            ("fr", "French"),
+        ]
+        self.assertEqual(exists_in_language_choices, expected_choices)
+
+    def test_exists_in_language_form_validation_with_valid_language(self):
+        """Test form validation with valid language code for exists_in_language."""
+        form = TranslationsFilterForm(data={"exists_in_language": "de"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["exists_in_language"], "de")
+
+    def test_exists_in_language_form_validation_with_empty_language(self):
+        """Test form validation with empty exists_in_language (all languages)."""
+        form = TranslationsFilterForm(data={"exists_in_language": ""})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["exists_in_language"], "")
+
+    def test_exists_in_language_form_validation_with_invalid_language(self):
+        """Test form validation with invalid language code for exists_in_language."""
+        form = TranslationsFilterForm(data={"exists_in_language": "invalid-code"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("exists_in_language", form.errors)
+
+    def test_multiple_filters_together(self):
+        """Test form validation with multiple filters applied."""
+        form = TranslationsFilterForm(data={"original_language": "en-US", "exists_in_language": "de"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["original_language"], "en-US")
+        self.assertEqual(form.cleaned_data["exists_in_language"], "de")

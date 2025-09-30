@@ -13,8 +13,15 @@ class TranslationsFilterForm(forms.Form):
         label="Original Language",
         widget=forms.Select(attrs={"class": "w-field__input"}),
     )
+    exists_in_language = forms.ChoiceField(
+        choices=[("", "All languages")] + list(settings.WAGTAIL_CONTENT_LANGUAGES),
+        required=False,
+        label="Exists In",
+        widget=forms.Select(attrs={"class": "w-field__input"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Ensure choices are always up to date
         self.fields["original_language"].choices = [("", "All languages")] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
+        self.fields["exists_in_language"].choices = [("", "All languages")] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
