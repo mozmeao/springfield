@@ -81,7 +81,7 @@
     width: 16px;
     height: 16px;
     background-color: currentColor;
-    mask: url('/media/img/firefox/flare/arrow-right.svg') no-repeat center/16px 16px;
+    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/16px 16px;
 }
 
 .button[disabled] {
