@@ -14,9 +14,23 @@
             entries.forEach(entry => {
                 const id = entry.target.getAttribute('id');
                 if (entry.intersectionRatio > 0) {
-                    document.querySelector(`.sidebar li a[href="#${id}"]`).parentElement.classList.add('visible');
+                    // try/catch because it errors if there's no matching selector
+                    try {
+                        document
+                            .querySelector(`.sidebar li a[href="#${id}"]`)
+                            .parentElement.classList.add('current');
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
                 } else {
-                    document.querySelector(`.sidebar li a[href="#${id}"]`).parentElement.classList.remove('visible');
+                     // try/catch because it errors if there's no matching selector
+                    try {
+                        document.querySelector(`.sidebar li a[href="#${id}"]`).parentElement.classList.remove('current');
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
                 }
             });
         });

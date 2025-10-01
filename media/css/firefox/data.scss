@@ -73,7 +73,7 @@ html {
                 margin-bottom: $spacing-lg;
                 min-width: max-content;
 
-                &.visible.current {
+                &.current {
                     font-weight: 600;
 
                     a .table-content-icon {
@@ -110,6 +110,16 @@ html {
                     width: 16px;
                     height: 4px;
                     vertical-align: middle;
+                    -webkit-mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                    mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                }
+            }
+
+            li.current+li.current {
+                font-weight: 400;
+
+                a .table-content-icon {
+                    background-color: $color-purple;
                     -webkit-mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
                     mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
                 }
