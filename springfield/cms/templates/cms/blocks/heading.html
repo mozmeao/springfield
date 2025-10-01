@@ -4,15 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set level = value.heading_size %}
-{% set text = value.headline_text|richtext|remove_p_tag %}
-{% if value.superheading_text %}
-  {% set superheading_text = value.superheading_text|richtext|remove_p_tag %}
-{% endif %}
-{% if value.subheading_text %}
-  {% set subheading_text = value.subheading_text|richtext|remove_p_tag %}
-{% endif %}
-{% set alignment_class = value.alignment_class() %}
-{% set subheading_size = value.subheading_size() %}
 
-{% include "cms/components/heading/heading.html" %}
+<include:heading
+  level="{{ 'h' ~ block_level if block_level else 'h2' }}"
+  heading_size="{{ 'heading-size-' ~ block_level if block_level else 'heading-size-2' }}"
+  heading_text="{{ value.heading_text|richtext|remove_p_tag if value.heading_text else '' }}"
+  superheading_text="{{ value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' }}"
+  subheading_text="{{ value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' }}"
+  subheading_size="{{ 'subheading-' ~ (block_level + 2) if block_level else 'subheading-3' }}"
+  alignment_class="{{ alignment_class }}"
+/>

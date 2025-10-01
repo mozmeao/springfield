@@ -26,6 +26,8 @@ services:
       target: devapp
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     platform: linux/amd64
+    tty: true
+    stdin_open: true
     command: python manage.py runserver 0.0.0.0:8080
     env_file:
       - docker/envfiles/local.env

@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  {% for heading in headings %}
+    <div class="pl-row">
+      <include:heading
+        level="{{ heading.level }}"
+        heading_text="{{ heading.heading_text }}"
+        superheading_text="{{ heading.superheading_text }}"
+      />
+    </div>
+  {% endfor %}
+  <hr>
+  {% for subheading in subheadings %}
+    <div class="pl-row">
+      <include:subheading
+        subheading_text="{{ subheading.subheading_text }}"
+        size="{{ subheading.size }}"
+        alignment_class="{{ subheading.alignment_class }}"
+      />
+    </div>
+  {% endfor %}
+  <hr>
+  {% for body_text in body_texts %}
+    <div class="pl-row">
+      <include:body_text text="{{ body_text.text }}" size="{{ body_text.size }}" />
+    </div>
+  {% endfor %}
+</div>

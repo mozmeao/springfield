@@ -1,0 +1,19 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="buttons {% if orientation == 'stacked' %}is-stacked{% else %}is-horizontal{% endif %} {% if center %}is-center{% endif %}">
+  {% for btn in buttons %}
+    <include:button
+      label="{{ btn.label }}"
+      link="{{ btn.link }}"
+      theme_class="{{ btn.theme_class }}"
+      external="{{ btn.external }}"
+      disabled="{{ btn.disabled }}"
+      icon_name="{{ btn.icon_name }}"
+      icon_position="{{ btn.icon_position }}"
+    />
+  {% endfor %}
+</div>

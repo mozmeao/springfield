@@ -7,8 +7,8 @@
 .intro {
     text-align: center;
     font-family: var(--font-family-inter);
-    background-color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
-    padding: calc(var(--scale-80) * 1px);
+    background-color: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    padding: calc(var(--scale-80) * 1px) calc(var(--scale-40) * 1px);
     max-width: 1440px;
     margin: 0 auto;
 }
@@ -65,6 +65,13 @@
     flex: 1 1 0;
 }
 
+.intro-media iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--scale-16) * 1px);
+}
+
 .intro .heading-group {
     margin-bottom: calc(var(--scale-24) * 1px);
 }
@@ -72,4 +79,5 @@
 .intro .subheading {
     margin-top: 0;
     margin-bottom: calc(var(--scale-64) * 1px);
+    font-size: var(--font-size-base);
 }

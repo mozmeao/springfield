@@ -1,8 +1,0 @@
-context:
-  variants:
-    - text: 'Lorem ipsum dolor sit amet'
-      alignment_class: 'text-left'
-      title: 'Left aligned'
-    - text: 'Lorem ipsum dolor sit amet'
-      alignment_class: 'text-center'
-      title: 'Center aligned'

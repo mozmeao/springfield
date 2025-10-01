@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-section fl-section-mobile" aria-labelledby="fl-banner-qr-heading">
+  <div class="fl-section-container">
+    <div class="fl-banner">
+      <div class="fl-banner-layout">
+        {% if value.image %}
+          {% set img = image(value.image, "width-600") %}
+        {% endif %}
+        {% if value.qr_code %}
+          <div class="fl-banner-media" aria-hidden="true" {% if value.image %}style="background-image: url('{{ img.url }}');"{% endif %}>
+            <div class="fl-banner-qr" role="img">{{ qrcode(value.qr_code, 12) }}</div>
+          </div>
+        {% elif value.image %}
+          <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
+        {% endif %}
+        <div class="fl-banner-content">
+          <div class="fl-banner-content-inner">
+            {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+            <{{ heading_level }} id="fl-banner-qr-heading" class="subheading">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+            <div class="body">{{ value.content }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

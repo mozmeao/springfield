@@ -1,10 +1,16 @@
-{% set center_class = value.center_class() %}
-{% set theme_class = value.theme_class() %}
-{% set link = value.link %}
-{% set external = value.external %}
-{% set disabled = value.disabled %}
-{% set icon_name = value.icon %}
-{% set icon_position = value.icon_position %}
-{% set label = value.label %}
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
 
-{% include 'cms/components/button/button.html' %}
+<include:button
+  center_class="{{ value.center_class() }}"
+  theme_class="{{ value.theme_class() }}"
+  link="{{ value.link }}"
+  external="{{ value.external }}"
+  disabled="{{ value.disabled }}"
+  icon_name="{{ value.icon }}"
+  icon_position="{{ value.icon_position }}"
+  label="{{ value.label }}"
+/>

@@ -1,0 +1,120 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+
+.fl-card-list-header {
+    margin-bottom: calc(var(--scale-40) * 1px);
+}
+
+.fl-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: calc(var(--scale-16) * 1px);
+    border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border-radius: calc(var(--scale-16) * 1px);
+    padding: calc(var(--scale-24) * 1px);
+    transition: all var(--transition-base);
+}
+
+.fl-card:hover {
+    background: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
+    border-color: transparent;
+}
+
+.fl-card.fl-card-fill {
+    border: none;
+    background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
+}
+
+.fl-card .heading {
+    margin: 0;
+}
+
+.fl-card .body {
+    text-align: left;
+}
+
+.fl-card .buttons {
+    margin-top: auto;
+}
+
+.fl-card.expand-link a.button::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+}
+
+.fl-card.expand-link:hover .heading {
+    text-decoration: underline;
+}
+
+.fl-card .button {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.fl-card-sticker {
+    width: auto;
+    height: 94px;
+    margin-bottom: calc(var(--scale-8) * 1px);
+    align-self: flex-start;
+}
+
+.fl-card-icon {
+    font-size: var(--font-size-h4);
+}
+
+.fl-illustration-card {
+    padding: 0;
+}
+
+.fl-illustration-card .media,
+.fl-illustration-card .media img {
+    width: 100%;
+}
+
+.fl-illustration-card .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: calc(var(--scale-16) * 1px);
+    height: 100%;
+    padding: calc(var(--scale-24) * 1px);
+}
+
+.fl-illustration-card-reverse {
+    gap: 0;
+}
+
+.fl-illustration-card-reverse .media {
+    position: relative;
+    order: 1;
+    margin-top: calc(var(--scale-24) * -1px);
+    z-index: 0;
+}
+
+.fl-illustration-card-reverse .card-content {
+    position: relative;
+    order: 0;
+    background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
+    border-radius: calc(var(--scale-16) * 1px);
+    z-index: 1;
+}
+
+@media (max-width: 767px) {
+    .fl-card {
+        padding: calc(var(--scale-24) * 1px);
+    }
+}
+
+@media (min-width: 1024px) {
+    .fl-card .button {
+        width: fit-content
+    }
+}

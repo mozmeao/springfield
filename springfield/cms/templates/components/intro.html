@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="intro{% if contents.media %} intro-has-media{% endif %}{% if contents.media and media_position %} intro-media-{{ media_position }}{% endif %}">
+  <div class="intro-content">
+    {{ contents.heading }}
+    {% if contents.actions %}
+      <div class="intro-actions">
+        {{ contents.actions }}
+      </div>
+    {% endif %}
+    {% if contents.fine_print %}
+      <div class="fine-print">{{ contents.fine_print }}</div>
+    {% endif %}
+  </div>
+  {% if contents.media %}
+    <div class="intro-media">
+      {{ contents.media }}
+    </div>
+  {% endif %}
+</div>
