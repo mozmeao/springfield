@@ -9,7 +9,7 @@
 }
 
 .fl-section-container {
-    max-width: 1380px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 0 calc(var(--scale-40) * 1px);
     display: flex;
