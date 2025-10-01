@@ -10,13 +10,9 @@ $color-charcoal: #333336;
 $color-purple-dark: #754fe0;
 $space-gap-lg: 80px;
 
-html {
-	scroll-behavior: smooth;
-}
-
 .intro {
     padding-top: 0;
-    padding-bottom: 0;
+    padding-bottom: $space-gap-lg;
 
     .eyebrow {
         @include text-body-xs;
@@ -34,12 +30,13 @@ html {
 }
 
 .main-content {
+    border-top: 1px solid $color-charcoal;
+    padding: calc($space-gap-lg / 2) 0;
+
     @media #{$mq-md} {
-        border-top: 1px solid $color-charcoal;
         display: flex;
         gap: $space-gap-lg;
         justify-content: space-between;
-        padding-top: calc($space-gap-lg / 2);
     }
 
     section {
@@ -69,7 +66,6 @@ html {
 	        align-self: start;
 
             li {
-                @include bidi(((padding-left, $spacing-xl, padding-right, 0),));
                 margin-bottom: $spacing-lg;
                 min-width: max-content;
 
@@ -136,7 +132,7 @@ html {
         justify-content: center;
         gap: $spacing-md;
 
-        @media #{$mq-md} {
+        @media #{$mq-lg} {
             flex-direction: row;
         }
 
@@ -145,7 +141,6 @@ html {
             @include text-body-md;
             display: inline-block;
             padding: $spacing-md $spacing-xl;
-            font-size: var(--fds-font-size-base);
             font-weight: 500;
             line-height: 1.5;
             text-align: center;
@@ -237,4 +232,10 @@ html {
 
 body.data-uitour #privacy-settings {
     display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
 }
