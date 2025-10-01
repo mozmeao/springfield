@@ -15,6 +15,7 @@ html {
 }
 
 .intro {
+    padding-top: 0;
     padding-bottom: 0;
 
     .eyebrow {
@@ -202,6 +203,12 @@ html {
             display: none;
         }
     }
+}
+
+.c-section-link-wrapper {
+    display: grid;
+    justify-items: start;
+    gap: $spacing-sm;
 }
 
 // only include cta if UITour JS runs
