@@ -24,6 +24,5 @@
         document.querySelectorAll('.content-container section[id]').forEach((section) => {
             observer.observe(section);
         });
-        document.querySelector('.sidebar li.visible').classList.add('current');
     });
 })();
