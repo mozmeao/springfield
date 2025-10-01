@@ -4,20 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set level = 'h' ~ block_level if block_level else 'h2' %}
-{% set heading_size = 'heading-size-' ~ block_level if block_level else 'heading-size-2' %}
-{% set alignment_class = alignment_class or '' %}
-{% set subheading_size = 'subheading-' ~ (block_level + 2) if block_level else 'subheading-3' %}
-{% set heading_text = value.heading_text|richtext|remove_p_tag if value.heading_text else '' %}
-{% set superheading_text = value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' %}
-{% set subheading_text = value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' %}
 
 <include:heading
-  level="{{ level }}"
-  heading_size="{{ heading_size }}"
-  heading_text="{{ heading_text }}"
-  superheading_text="{{ superheading_text }}"
-  subheading_text="{{ subheading_text }}"
-  subheading_size="{{ subheading_size }}"
+  level="{{ 'h' ~ block_level if block_level else 'h2' }}"
+  heading_size="{{ 'heading-size-' ~ block_level if block_level else 'heading-size-2' }}"
+  heading_text="{{ value.heading_text|richtext|remove_p_tag if value.heading_text else '' }}"
+  superheading_text="{{ value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' }}"
+  subheading_text="{{ value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' }}"
+  subheading_size="{{ 'subheading-' ~ (block_level + 2) if block_level else 'subheading-3' }}"
   alignment_class="{{ alignment_class }}"
 />

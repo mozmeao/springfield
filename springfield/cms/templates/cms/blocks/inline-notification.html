@@ -4,5 +4,4 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set message = value.message|richtext|remove_p_tag %}
-<include:inline-notification message="{{ message }}" />
+<include:inline-notification message="{{ value.message|richtext|remove_p_tag }}" />
