@@ -27,8 +27,14 @@
                 font-style: italic;
                 font-size: 12px;
             }
+            .flex {
+                display: flex;
+            }
             .pl-4em {
                 padding-left: 4em;
+            }
+            .align-items-end {
+                align-items: flex-end;
             }
             .actions .button {
                 border: none;
@@ -62,6 +68,25 @@
             <div class="merged-header__icon icon icon-wagtail-localize-language"></div>
             <h1 class="w-pl-slim-header sm:w-pl-5 w-min-h-slim-header sm:w-pr-2 w-w-full w-flex-1 w-overflow-x-auto w-box-border">Translations List</h1>
         </header>
+
+        <div class="pl-4em">
+            <form method="get" class="w-flex w-gap-4 w-items-end sm:w-pl-5">
+                <div>
+                    {{ filter_form.original_language.label_tag }}
+                    {{ filter_form.original_language }}
+                </div>
+                <div>
+                    {{ filter_form.exists_in_language.label_tag }}
+                    {{ filter_form.exists_in_language }}
+                </div>
+                <div class="flex align-items-end">
+                    <button type="submit" class="button">Filter</button>
+                    {% if filter_form.original_language.value or filter_form.exists_in_language.value %}
+                        <a href="?" class="button button-secondary">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
 
         {% if pages_with_translations %}
             <div class="w-pt-4">
