@@ -77,11 +77,7 @@ class TranslationsListView(ListView):
                     # Then find the intersection of all these sets
                     translation_keys_sets = []
                     for core_lang in core_language_codes:
-                        keys = set(
-                            all_pages.filter(locale__language_code=core_lang)
-                            .values_list("translation_key", flat=True)
-                            .distinct()
-                        )
+                        keys = set(all_pages.filter(locale__language_code=core_lang).values_list("translation_key", flat=True).distinct())
                         translation_keys_sets.append(keys)
 
                     # Get intersection of all sets (translation keys that exist in ALL core languages)
