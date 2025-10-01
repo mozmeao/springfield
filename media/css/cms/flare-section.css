@@ -9,6 +9,9 @@
 }
 
 .fl-section-container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 0 calc(var(--scale-40) * 1px);
     display: flex;
     flex-direction: column;
     gap: calc(var(--scale-40) * 1px);

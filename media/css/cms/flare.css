@@ -41,10 +41,8 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-base.css' layer(base);
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
-
-/* TODO: Port components to modules and remove flare-components.css */
-@import 'flare-components.css' layer(components);
 @import 'flare-template.css' layer(template);
+
 @import 'flare-icon.css' layer(components);
 @import 'flare-button.css' layer(components);
 @import 'flare-tag.css' layer(components);
@@ -56,6 +54,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-banner.css' layer(components);
 @import 'flare-cards.css' layer(components);
 @import 'flare-section.css' layer(components);
+
 @import 'flare-utilities.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 
