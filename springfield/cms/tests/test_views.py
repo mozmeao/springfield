@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import Client, override_settings
 from django.urls import reverse
@@ -413,3 +414,46 @@ def test_translations_list_view_multiple_filters_together(staff_user, site_with_
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert set(pages_in_response) == set([fr_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,  # Disable SSO login for this test
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),  # Disable SSO login for this test
+    WAGTAIL_CONTENT_LANGUAGES=[  # Define all languages in Wagtail
+        ("en-US", "English (US)"),
+        ("de", "German"),
+        ("fr", "French"),
+        ("it", "Italian"),
+    ],
+)
+@pytest.mark.django_db
+def test_translations_list_view_exists_in_all_languages_filter(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test filtering by 'All languages' option (pages that exist in every configured language)."""
+    from springfield.cms.forms import TranslationsFilterForm
+
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    # Currently, no page exists in all languages.
+    response = client.get(url, {"exists_in_language": TranslationsFilterForm.ALL_LANGUAGES})
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert len(pages_in_response) == 0
+
+    # Translate the en_page to the remaining languages.
+    en_page = SimpleRichTextPage.objects.get(locale__language_code="en-US", slug="english-page")
+    en_page_languages = Page.objects.filter(translation_key=en_page.translation_key).values_list("locale__language_code", flat=True)
+    for language_code, language_name in settings.WAGTAIL_CONTENT_LANGUAGES:
+        if language_code not in en_page_languages:
+            locale, _ = Locale.objects.get_or_create(language_code=language_code)
+            translation_page = en_page.copy_for_translation(locale)
+            translation_page.title = f"{language_name} Translation"
+            translation_page.save_revision().publish()
+
+    # Now, the en_page exists in all languages.
+    response = client.get(url, {"exists_in_language": TranslationsFilterForm.ALL_LANGUAGES})
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert len(pages_in_response) == 1
+    assert set(pages_in_response) == set([en_page.page_ptr])

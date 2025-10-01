@@ -2,8 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Min
+from django.db.models import Count, Min
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, TemplateView
@@ -53,14 +54,27 @@ class TranslationsListView(ListView):
             if form.cleaned_data.get("original_language"):
                 pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
             # Filter by whether a page exists in a particular language.
-            if form.cleaned_data.get("exists_in_language"):
-                # Get all translation keys that have a translation in the selected language
-                translation_keys_with_locale = (
-                    all_pages.filter(locale__language_code=form.cleaned_data["exists_in_language"])
-                    .values_list("translation_key", flat=True)
-                    .distinct()
-                )
-                pages_qs = pages_qs.filter(translation_key__in=translation_keys_with_locale)
+            exists_in_language = form.cleaned_data.get("exists_in_language")
+            if exists_in_language:
+                if exists_in_language == TranslationsFilterForm.ALL_LANGUAGES:
+                    # Special case: filter for pages that exist in ALL configured languages
+                    num_languages = len(settings.WAGTAIL_CONTENT_LANGUAGES)
+
+                    # Get translation keys that have exactly num_languages pages (one per language)
+                    translation_keys_in_all_languages = (
+                        all_pages.order_by("translation_key")
+                        .values("translation_key")
+                        .annotate(locale_count=Count("locale", distinct=True))
+                        .filter(locale_count=num_languages)
+                        .values_list("translation_key", flat=True)
+                    )
+                    pages_qs = pages_qs.filter(translation_key__in=translation_keys_in_all_languages)
+                else:
+                    # Get all translation keys that have a translation in the selected language
+                    translation_keys_with_locale = (
+                        all_pages.filter(locale__language_code=exists_in_language).values_list("translation_key", flat=True).distinct()
+                    )
+                    pages_qs = pages_qs.filter(translation_key__in=translation_keys_with_locale)
 
         return pages_qs
 
