@@ -73,6 +73,16 @@ html {
                 margin-bottom: $spacing-lg;
                 min-width: max-content;
 
+                &.visible.current {
+                    font-weight: 600;
+
+                    a .table-content-icon {
+                        background-color: $color-purple-dark;
+                        -webkit-mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                        mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                    }
+                }
+
                 a {
                     color: $color-charcoal;
                     display: flex;
@@ -83,8 +93,7 @@ html {
                     transition: all 100ms ease-in-out;
 
                     &:hover,
-                    &:active,
-                    &.current {
+                    &:active {
                         font-weight: 600;
 
                         .table-content-icon {

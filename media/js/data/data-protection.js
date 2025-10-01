@@ -14,9 +14,9 @@
             entries.forEach(entry => {
                 const id = entry.target.getAttribute('id');
                 if (entry.intersectionRatio > 0) {
-                    document.querySelector(`.sidebar li a[href="#${id}"]`).classList.add('current');
+                    document.querySelector(`.sidebar li a[href="#${id}"]`).parentElement.classList.add('visible');
                 } else {
-                    document.querySelector(`.sidebar li a[href="#${id}"]`).classList.remove('current');
+                    document.querySelector(`.sidebar li a[href="#${id}"]`).parentElement.classList.remove('visible');
                 }
             });
         });
@@ -24,6 +24,6 @@
         document.querySelectorAll('.content-container section[id]').forEach((section) => {
             observer.observe(section);
         });
-
+        document.querySelector('.sidebar li.visible').classList.add('current');
     });
 })();
