@@ -6,8 +6,8 @@
 #}
 
 {% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<div class="wnp-feature {% if value.media_after %}wnp-feature--reverse{% endif %}">
-  <div class="wnp-feature-media" aria-hidden="true">
+<div class="fl-mediacontent fl-mediacontent-feature {% if value.media_after %}fl-mediacontent-reverse{% endif %}">
+  <div class="fl-mediacontent-media" aria-hidden="true">
     {% if value.embed %}
       {# Jinja interprets the HTML from the embed block as a string #}
       {% autoescape false %}
@@ -17,10 +17,10 @@
       {{ image(value.image, "width-800") }}
     {% endif %}
   </div>
-  <div class="wnp-feature-content">
-    <p class="wnp-feature-eyebrow">{{ value.eyebrow|richtext|remove_p_tag }}</p>
+  <div class="fl-mediacontent-content">
+    <p class="fl-mediacontent-eyebrow">{{ value.eyebrow|richtext|remove_p_tag }}</p>
     <{{ row_heading_level }} class="heading heading-size-1">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
-    <div class="wnp-body">
+    <div class="body">
       {{ value.content }}
     </div>
     {% if value.buttons %}

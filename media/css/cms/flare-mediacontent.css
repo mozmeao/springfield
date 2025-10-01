@@ -1,0 +1,112 @@
+.fl-mediacontent-eyebrow {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-body-xsmall);
+    color: light-dark(var(--neutrals-grey-6), var(--neutrals-grey-3));
+    margin-bottom: 0;
+}
+
+.fl-mediacontent-eyebrow+.fl-subtitle {
+    margin-top: calc(var(--scale-8) * 1px);
+}
+
+.fl-mediacontent {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--scale-24) * 1px);
+    align-items: center;
+    position: relative;
+}
+
+.fl-mediacontent .fl-subtitle {
+    font-size: var(--font-size-h4);
+}
+
+.fl-mediacontent-media {
+    background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+    border-radius: calc(var(--scale-16) * 1px);
+    height: auto;
+}
+
+.fl-mediacontent-content .fl-subtitle,
+.fl-mediacontent-content .fl-body,
+.fl-mediacontent-content .fl-eyebrow {
+    text-align: left;
+}
+
+@media (min-width: 1024px) {
+    .fl-mediacontent {
+        gap: calc(var(--scale-48) * 1px);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-mediacontent-reverse {
+        grid-auto-flow: dense
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-media {
+        order: 2;
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-content {
+        order: 1;
+    }
+
+    .fl-mediacontent-content {
+        padding: 0
+    }
+
+    .fl-mediacontent .fl-button {
+        width: fit-content
+    }
+}
+
+@media (max-width: 767px) {
+    .fl-mediacontent-content .fl-button {
+        width: 100%;
+    }
+
+    .fl-mediacontent {
+        gap: calc(var(--scale-24) * 1px);
+    }
+
+    .fl-mediacontent-media {
+        height: auto;
+    }
+}
+
+.fl-mediacontent .fl-subtitle a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-mediacontent .fl-subtitle a:hover {
+    text-decoration: underline;
+}
+
+.fl-mediacontent .fl-subtitle a:focus {
+    outline: 2px solid var(--blue-blue);
+    outline-offset: 2px;
+}
+
+.fl-mediacontent .fl-button {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.fl-mediacontent-frame {
+    overflow: hidden;
+}
+
+.fl-mediacontent-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: calc(var(--scale-16) * 1px);
+}
+
+.fl-mediacontent-media iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--scale-16) * 1px);
+}

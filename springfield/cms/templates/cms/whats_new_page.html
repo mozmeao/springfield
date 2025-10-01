@@ -8,8 +8,8 @@
 
 
 {% block content %}
-<div class="wnp-page">
-  <main class="wnp-main">
+<div class="fl-page">
+  <main class="fl-main">
     {% set ns = namespace(headings=0) %}
     {% for block in page.content %}
       {% if block.value.heading and block.value.heading.heading_text %}

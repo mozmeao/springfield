@@ -4,15 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="wnp-section wnp-section-mobile fl-card-list">
-  <div class="wnp-container">
+<section class="fl-section fl-section-mobile fl-card-list">
+  <div class="fl-section-container">
     <div class="fl-card-list-header">
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}
       {% endwith %}
     </div>
 
-    <div class="wnp-grid fl-illustration-cards-reverse">
+    <div class="fl-grid fl-illustration-cards-reverse">
       {% for card in value.cards %}
         {% set card_index = loop.index0 %}
         {% include_block card %}

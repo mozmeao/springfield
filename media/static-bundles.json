@@ -300,12 +300,6 @@
     },
     {
       "files": [
-        "css/cms/new.scss"
-      ],
-      "name": "cms-new"
-    },
-    {
-      "files": [
         "css/cms/wagtail-admin.scss"
       ],
       "name": "wagtail-admin"
