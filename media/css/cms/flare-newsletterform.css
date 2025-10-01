@@ -35,6 +35,10 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
+.fl-section-subscribe .fl-section-container {
+    gap: calc(var(--scale-20) * 1px);
+}
+
 .fl-section-subscribe .body.fl-newsletterform-error,
 .fl-section-subscribe .subheading.fl-newsletterform-error {
     color: var(--orange-orange);
