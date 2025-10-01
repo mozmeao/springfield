@@ -65,6 +65,13 @@
     flex: 1 1 0;
 }
 
+.intro-media iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--scale-16) * 1px);
+}
+
 .intro .heading-group {
     margin-bottom: calc(var(--scale-24) * 1px);
 }
