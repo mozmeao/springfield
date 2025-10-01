@@ -8,6 +8,7 @@ from django.conf import settings
 
 class TranslationsFilterForm(forms.Form):
     ALL_LANGUAGES = "__all__"
+    CORE_LANGUAGES = "__core__"
 
     original_language = forms.ChoiceField(
         choices=[("", "Any language")] + list(settings.WAGTAIL_CONTENT_LANGUAGES),
@@ -16,7 +17,8 @@ class TranslationsFilterForm(forms.Form):
         widget=forms.Select(attrs={"class": "w-field__input"}),
     )
     exists_in_language = forms.ChoiceField(
-        choices=[("", "Any language"), (ALL_LANGUAGES, "All languages")] + list(settings.WAGTAIL_CONTENT_LANGUAGES),
+        choices=[("", "Any language"), (ALL_LANGUAGES, "All languages"), (CORE_LANGUAGES, "Core languages")]
+        + list(settings.WAGTAIL_CONTENT_LANGUAGES),
         required=False,
         label="Exists In",
         widget=forms.Select(attrs={"class": "w-field__input"}),
@@ -26,4 +28,8 @@ class TranslationsFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         # Ensure choices are always up to date
         self.fields["original_language"].choices = [("", "Any language")] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
-        self.fields["exists_in_language"].choices = [("", "Any language"), ("__all__", "All languages")] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
+        self.fields["exists_in_language"].choices = [
+            ("", "Any language"),
+            (self.ALL_LANGUAGES, "All languages"),
+            (self.CORE_LANGUAGES, "Core languages"),
+        ] + list(settings.WAGTAIL_CONTENT_LANGUAGES)

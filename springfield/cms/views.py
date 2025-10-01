@@ -69,6 +69,27 @@ class TranslationsListView(ListView):
                         .values_list("translation_key", flat=True)
                     )
                     pages_qs = pages_qs.filter(translation_key__in=translation_keys_in_all_languages)
+                elif exists_in_language == TranslationsFilterForm.CORE_LANGUAGES:
+                    # Special case: filter for pages that exist in ALL core languages
+                    core_language_codes = [lang_code for lang_code, lang_name in settings.WAGTAIL_CORE_LANGUAGES]
+
+                    # For each core language, get translation keys that have a page in that language
+                    # Then find the intersection of all these sets
+                    translation_keys_sets = []
+                    for core_lang in core_language_codes:
+                        keys = set(
+                            all_pages.filter(locale__language_code=core_lang)
+                            .values_list("translation_key", flat=True)
+                            .distinct()
+                        )
+                        translation_keys_sets.append(keys)
+
+                    # Get intersection of all sets (translation keys that exist in ALL core languages)
+                    if translation_keys_sets:
+                        translation_keys_in_all_core = set.intersection(*translation_keys_sets)
+                        pages_qs = pages_qs.filter(translation_key__in=translation_keys_in_all_core)
+                    else:
+                        pages_qs = pages_qs.none()
                 else:
                     # Get all translation keys that have a translation in the selected language
                     translation_keys_with_locale = (

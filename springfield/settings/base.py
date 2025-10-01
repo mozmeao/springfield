@@ -1329,6 +1329,24 @@ def lazy_wagtail_langs():
 WAGTAIL_I18N_ENABLED = True
 WAGTAIL_CONTENT_LANGUAGES = lazy(lazy_wagtail_langs, list)()
 
+
+# The handful of 'core' languages that most pages will be translated into.
+def lazy_wagtail_core_langs():
+    # Languages from the lazy_wagtail_langs() definition above.
+    enabled_wagtail_core_langs = [
+        ("en-US", "English (US)"),
+        ("de", "German"),
+        ("fr", "French"),
+        ("es-ES", "Spanish (Spain)"),
+        ("it", "Italian"),
+    ]
+    enabled_language_codes = [x[0] for x in LANGUAGES]
+    retval = [wagtail_lang for wagtail_lang in enabled_wagtail_core_langs if wagtail_lang[0] in enabled_language_codes]
+    return retval
+
+
+WAGTAIL_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+
 # Don't automatically make a page for a non-default locale availble in the default locale
 WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = False  # note that WAGTAILLOCALIZE is correct without the _
 
