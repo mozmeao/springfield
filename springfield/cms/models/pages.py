@@ -155,7 +155,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         verbose_name_plural = "What's New Index Pages"
 
     def serve(self, request):
-        latest_whats_new = WhatsNewPage.objects.live().public().order_by("-version").first()
+        latest_whats_new = self.get_children().live().public().order_by("-whatsnewpage__version").first()
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
         else:
