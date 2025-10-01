@@ -161,7 +161,7 @@ $space-gap-lg: 80px;
             text-decoration: none;
             border-radius: $border-radius-md;
             cursor: pointer;
-            transition: all var(--fds-transition-base);
+            transition: all 0.2s ease;;
             background: transparent;
             color: $color-charcoal;
             position: relative;
