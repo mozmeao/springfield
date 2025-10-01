@@ -2,7 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.core.exceptions import ValidationError
+
 from wagtail import blocks
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 HEADING_TEXT_FEATURES = [
@@ -197,7 +200,18 @@ class InlineNotificationBlock(blocks.StructBlock):
 
 
 class MediaContentBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
+    image = ImageChooserBlock(
+        required=False,
+        help_text="Either an image or embed is required.",
+        inline_form=True,
+    )
+    embed = EmbedBlock(
+        required=False,
+        help_text="Either an image or embed is required.",
+        max_width=800,
+        max_height=400,
+        inline_form=True,
+    )
     media_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -215,6 +229,14 @@ class MediaContentBlock(blocks.StructBlock):
         label_format = "{headline}"
         form_classname = "compact-form struct-block"
         template = "cms/blocks/media-content.html"
+
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        if not cleaned_data.get("image") and not cleaned_data.get("embed"):
+            raise ValidationError(
+                "Either an image or embed is required.",
+            )
+        return cleaned_data
 
 
 # Cards
@@ -346,7 +368,18 @@ class StepCardListBlock(blocks.StructBlock):
 
 
 class IntroBlock(blocks.StructBlock):
-    image = ImageChooserBlock(required=False, inline_form=True)
+    image = ImageChooserBlock(
+        required=False,
+        inline_form=True,
+        help_text="Either enter an image or embed, or leave both blank.",
+    )
+    embed = EmbedBlock(
+        required=False,
+        max_width=800,
+        max_height=400,
+        inline_form=True,
+        help_text="Either enter an image or embed, or leave both blank.",
+    )
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),
         default="after",
@@ -394,15 +427,16 @@ class SubscriptionBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class QRCodeBlock(blocks.StructBlock):
-    qr_content = blocks.CharBlock(
-        required=True,
-        help_text="Content to encode in the QR code, e.g., a URL or text.",
+class BannerBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=False)
+    qr_code = blocks.CharBlock(
+        required=False,
+        help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
-        template = "cms/blocks/qr-code.html"
-        label = "QR Code"
-        label_format = "QR Code - {headline}"
+        template = "cms/blocks/banner.html"
+        label = "Banner"
+        label_format = "{headline}"

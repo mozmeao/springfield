@@ -8,9 +8,16 @@
   <div class="fl-section-container">
     <div class="fl-banner">
       <div class="fl-banner-layout">
-        <div class="fl-banner-media" aria-hidden="true">
-          <div class="fl-banner-qr" role="img">{{ qrcode(value.qr_content, 12) }}</div>
-        </div>
+        {% if value.image %}
+          {% set img = image(value.image, "width-600") %}
+        {% endif %}
+        {% if value.qr_code %}
+          <div class="fl-banner-media" aria-hidden="true" {% if value.image %}style="background-image: url('{{ img.url }}');"{% endif %}>
+            <div class="fl-banner-qr" role="img">{{ qrcode(value.qr_code, 12) }}</div>
+          </div>
+        {% elif value.image %}
+          <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
+        {% endif %}
         <div class="fl-banner-content">
           <div class="fl-banner-content-inner">
             {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}

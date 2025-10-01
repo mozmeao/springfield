@@ -6,11 +6,16 @@
 #}
 
 {% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<div class="fl-mediacontent {% if value.media_after %}fl-mediacontent-reverse{% endif %}">
+<div class="fl-mediacontent-feature {% if value.media_after %}fl-mediacontent-reverse{% endif %}">
   <div class="fl-mediacontent-media" aria-hidden="true">
-    <div class="fl-mediacontent-frame">
+    {% if value.embed %}
+      {# Jinja interprets the HTML from the embed block as a string #}
+      {% autoescape false %}
+        {% include_block value.embed %}
+      {% endautoescape %}
+    {% elif value.image %}
       {{ image(value.image, "width-800") }}
-    </div>
+    {% endif %}
   </div>
   <div class="fl-mediacontent-content">
     <p class="fl-mediacontent-eyebrow">{{ value.eyebrow|richtext|remove_p_tag }}</p>
