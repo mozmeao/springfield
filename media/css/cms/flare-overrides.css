@@ -12,61 +12,61 @@ specific exceptions that can't be handled by the other layers
 ===================================================================== */
 
 
-.wnp-footer .button-outline img {
+.fl-footer .button img {
     margin-right: calc(var(--scale-16) * 1px);
 }
 
-.wnp-footer-cta .button {
+.fl-footer-cta .button {
     width: 100%;
 }
 
-.wnp-section-subscribe .button-outline {
+.fl-section-subscribe .button {
     color: var(--neutrals-charcoal);
     border-color: var(--neutrals-charcoal);
 }
 
-.wnp-section-subscribe .wnp-input,
-.wnp-section-subscribe .button-outline {
+.fl-section-subscribe .fl-newsletterform-input,
+.fl-section-subscribe .button {
     padding: 12px 18px;
 }
 
-.wnp-section-subscribe .button-outline:hover {
+.fl-section-subscribe .button:hover {
     background: var(--neutrals-black);
     color: var(--neutrals-white);
 }
 
-.wnp-feature .button {
+.fl-section .button {
     margin-top: auto;
     align-self: flex-start;
 }
 
-.wnp-subscribe.wnp-subscribe-expanded .wnp-input,
-.wnp-subscribe.wnp-subscribe-expanded .button {
+.fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
+.fl-newsletterform.fl-newsletterform-expanded .button {
     width: 100%;
 }
 
-.wnp-subscribe.wnp-subscribe-expanded .button {
+.fl-newsletterform.fl-newsletterform-expanded .button {
     order: 3;
 }
 
 @media (max-width: 767px) {
-    .wnp-feature-content .button {
+    .fl-mediacontent-feature-content .button {
         width: 100%;
     }
 
-    .wnp-section-subscribe .wnp-subscribe .button {
+    .fl-section-subscribe .fl-newsletterform .button {
         width: 100%;
     }
 }
 
 @media (min-width: 768px) {
-    .wnp-footer-cta .button {
+    .fl-footer-cta .button {
         width: unset;
     }
 }
 
 @media (min-width: 1024px) {
-    .wnp-feature .button {
+    .fl-mediacontent-feature .button {
         width: fit-content
     }
 }
