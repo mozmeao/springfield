@@ -1,0 +1,255 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+@import '~@mozilla-protocol/core/protocol/css/components/callout';
+
+$color-purple: #dcd2ff;
+$color-charcoal: #333336;
+$color-purple-dark: #754fe0;
+$space-gap-lg: 80px;
+
+.intro {
+    padding-top: 0;
+    padding-bottom: $space-gap-lg;
+
+    .eyebrow {
+        @include text-body-xs;
+        align-items: center;
+        background-color: $color-purple;
+        border-radius: $border-radius-lg;
+        display: inline-flex;
+        color: $color-charcoal;
+        font-weight: 600;
+        gap: $spacing-xs;
+        padding: $spacing-sm $spacing-md;
+        line-height: 1.2;
+        margin-bottom: $spacing-lg;
+    }
+}
+
+.main-content-section {
+    padding: 0;
+
+    @media #{$mq-sm} {
+        padding: var(--v-grid-md) var(--h-grid-md);
+    }
+}
+
+.main-content {
+    border-top: 1px solid $color-charcoal;
+    padding: calc($space-gap-lg / 2) 0;
+
+    @media #{$mq-md} {
+        display: flex;
+        gap: $space-gap-lg;
+        justify-content: space-between;
+    }
+
+    section {
+        margin-bottom: $space-gap-lg;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        img {
+            margin-bottom: $spacing-xl;
+        }
+
+        h2 {
+            @include text-title-sm;
+        }
+    }
+
+    .sidebar {
+        display: none;
+
+        @media #{$mq-md} {
+            display: inline-block;
+            margin-top: 146px; // vertically align with text on the side
+            position: sticky;
+            top: 146px;
+	        align-self: start;
+
+            li {
+                margin-bottom: $spacing-lg;
+                min-width: max-content;
+
+                &.current {
+                    font-weight: 600;
+
+                    a .table-content-icon {
+                        background-color: $color-purple-dark;
+                        -webkit-mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                        mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                    }
+                }
+
+                a {
+                    color: $color-charcoal;
+                    display: flex;
+                    gap: $spacing-md;
+                    justify-content: flex-start;
+                    align-items: center;
+                    text-decoration: none;
+                    transition: all 100ms ease-in-out;
+
+                    &:hover,
+                    &:active {
+                        font-weight: 600;
+
+                        .table-content-icon {
+                            background-color: $color-purple-dark;
+                            -webkit-mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                            mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                        }
+                    }
+                }
+
+                .table-content-icon {
+                    background-color: $color-purple;
+                    display: inline-block;
+                    width: 16px;
+                    height: 4px;
+                    vertical-align: middle;
+                    -webkit-mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                    mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                }
+            }
+
+            li.current+li.current {
+                font-weight: 400;
+
+                a .table-content-icon {
+                    background-color: $color-purple;
+                    -webkit-mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                    mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
+                }
+            }
+        }
+    }
+}
+
+.cta-section > .mzp-l-content {
+    padding: 0;
+
+    @media #{$mq-sm} {
+        padding: var(--v-grid-md) var(--h-grid-md);
+    }
+
+    .cta-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-md;
+
+        @media #{$mq-lg} {
+            flex-direction: row;
+        }
+
+        .button-outline,
+        .download-cta.mzp-c-button.mzp-t-product {
+            @include text-body-md;
+            display: inline-block;
+            padding: $spacing-md $spacing-xl;
+            font-weight: 500;
+            line-height: 1.5;
+            text-align: center;
+            text-decoration: none;
+            border-radius: $border-radius-md;
+            cursor: pointer;
+            transition: all 0.2s ease;;
+            background: transparent;
+            color: $color-charcoal;
+            position: relative;
+            border: 1px solid $color-charcoal;
+
+            &.c-button-download-thanks-link {
+                display: inline-flex;
+                flex-direction: row-reverse;
+                align-items: center;
+                justify-content: center;
+            }
+
+            &:hover {
+                background: $color-charcoal;
+                color: $color-white;
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+
+            .button-icon {
+                background-color: currentColor;
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                vertical-align: middle;
+
+                &.button-icon-gear {
+                    @include bidi(((margin-right, $spacing-sm, margin-left, 0),));
+                    -webkit-mask: url('/media/img/data/gear.svg') no-repeat center/16px 16px;
+                    mask: url('/media/img/data/gear.svg') no-repeat center/16px 16px;
+                }
+
+                &.button-icon-arrow {
+                    @include bidi(((margin-left, $spacing-sm, margin-right, 0),));
+                    -webkit-mask: url('/media/img/data/arrow-right.svg') no-repeat center/16px 16px;
+                    mask: url('/media/img/data/arrow-right.svg') no-repeat center/16px 16px;
+                }
+            }
+
+            // override default Firefox download button icon styles
+            .mzp-c-button-icon-end {
+                @include bidi(((margin-right, $spacing-sm, margin-left, 0),));
+                background-color: currentColor;
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                vertical-align: middle;
+                -webkit-mask: url('/media/img/icons/m24-small/download-white.svg') no-repeat center/16px 16px;
+                mask: url('/media/img/icons/m24-small/download-white.svg') no-repeat center/16px 16px;
+
+                img {
+                    display: none;
+                }
+            }
+        }
+
+        // override default download Firefox layout and privacy notice styles
+        .mzp-c-button-download-container {
+            display: flex;
+            gap: $spacing-md;
+            margin-bottom: 0;
+        }
+
+        .mzp-c-button-download-privacy-link {
+            display: none;
+        }
+    }
+}
+
+.c-section-link-wrapper {
+    display: grid;
+    justify-items: start;
+    gap: $spacing-sm;
+}
+
+// only include cta if UITour JS runs
+#privacy-settings {
+    display: none;
+}
+
+body.data-uitour #privacy-settings {
+    display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
