@@ -5,7 +5,7 @@
     margin-bottom: 0;
 }
 
-.fl-mediacontent-eyebrow+.fl-subtitle {
+.fl-mediacontent-eyebrow + .heading {
     margin-top: calc(var(--scale-8) * 1px);
 }
 
@@ -17,17 +17,13 @@
     position: relative;
 }
 
-.fl-mediacontent .fl-subtitle {
-    font-size: var(--font-size-h4);
-}
-
 .fl-mediacontent-media {
     background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
     border-radius: calc(var(--scale-16) * 1px);
     height: auto;
 }
 
-.fl-mediacontent-content .fl-subtitle,
+.fl-mediacontent-content .heading,
 .fl-mediacontent-content .fl-body,
 .fl-mediacontent-content .fl-eyebrow {
     text-align: left;
