@@ -29,6 +29,14 @@ $space-gap-lg: 80px;
     }
 }
 
+.main-content-section {
+    padding: 0;
+
+    @media #{$mq-sm} {
+        padding: var(--v-grid-md) var(--h-grid-md);
+    }
+}
+
 .main-content {
     border-top: 1px solid $color-charcoal;
     padding: calc($space-gap-lg / 2) 0;
@@ -124,7 +132,13 @@ $space-gap-lg: 80px;
     }
 }
 
-.cta-section {
+.cta-section > .mzp-l-content {
+    padding: 0;
+
+    @media #{$mq-sm} {
+        padding: var(--v-grid-md) var(--h-grid-md);
+    }
+
     .cta-container {
         display: flex;
         flex-direction: column;
