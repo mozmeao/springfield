@@ -1,6 +1,0 @@
-name: "Body Text"
-context:
-  value:
-    text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
-    size: 'large'
-    alignment: 'center'

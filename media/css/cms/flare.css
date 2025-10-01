@@ -41,19 +41,25 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-base.css' layer(base);
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
+@import 'flare-template.css' layer(template);
 
-/* TODO: Port components to modules and remove flare-components.css */
-@import 'flare-components.css' layer(components);
 @import 'flare-icon.css' layer(components);
 @import 'flare-button.css' layer(components);
 @import 'flare-tag.css' layer(components);
 @import 'flare-typography.css' layer(components);
 @import 'flare-intro.css' layer(components);
+@import 'flare-notification.css' layer(components);
+@import 'flare-mediacontent.css' layer(components);
+@import 'flare-newsletterform.css' layer(components);
+@import 'flare-banner.css' layer(components);
+@import 'flare-cards.css' layer(components);
+@import 'flare-section.css' layer(components);
+
 @import 'flare-utilities.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */
-@layer base, theme, defaults, components, utilities, overrides;
+@layer base, theme, defaults, template, components, utilities, overrides;
 
 /* Fallback for browsers that don't support CSS layers
 IE11 and below don't support @supports, so the base CSS is also

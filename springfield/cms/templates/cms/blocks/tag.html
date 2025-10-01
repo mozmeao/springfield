@@ -4,13 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set text = value.title %}
-{% set color = value.color %}
-{% set corners = value.corners %}
-{% if value.icon %}
-  {% if value.icon_position == "before" %}
-    {% set before_icon = value.icon %}
-  {% else %}
-    {% set after_icon = value.icon %}
-  {% endif %}
-{% endif %}
+<include:tag
+  text="{{ value.title }}"
+  color="{{ value.color }}"
+  corners="{{ value.corners }}"
+  before_icon="{{ value.icon if value.icon and value.icon_position == 'before' else '' }}"
+  after_icon="{{ value.icon if value.icon and value.icon_position == 'after' else '' }}"
+/>

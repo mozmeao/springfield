@@ -306,6 +306,7 @@ FLUENT_DEFAULT_FILES = [
     "sub_navigation",
     "ui",
     "mozilla-account-promo",
+    "cms",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -731,6 +732,7 @@ INSTALLED_APPS = [
     "django_jinja",
     "waffle",
     "watchman",
+    "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
     "wagtail.documents",
@@ -842,6 +844,7 @@ TEMPLATES = [
                 "django_jinja_markdown.extensions.MarkdownExtension",
                 "wagtail.jinja2tags.core",
                 "wagtail.images.jinja2tags.images",
+                "includecontents.jinja2.IncludeContentsExtension",
             ],
             "environment": "springfield.jinja2.custom_environment",
         },
@@ -862,7 +865,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
-            "builtins": ["pattern_library.loader_tags"],
         },
     },
 ]
@@ -871,8 +873,9 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
-        # ("components", ["patterns/components"]),
-        ("blocks", ["cms/components"]),
+        ("Components", ["pattern-library/components"]),
+        ("Base Styles", ["pattern-library/base-styles"]),
+        ("Pages", ["pattern-library/pages"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",

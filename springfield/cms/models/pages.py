@@ -6,12 +6,17 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
 
-from springfield.cms.blocks import FeaturesBlock, HeroBlock, HighlightsBlock, QRCodeBannerBlock, SubscribeBannerBlock, TagCardsBlock
+from springfield.cms.blocks import (
+    BannerBlock,
+    InlineNotificationBlock,
+    IntroBlock,
+    SectionBlock,
+    SubscriptionBlock,
+)
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -122,13 +127,11 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
 
     content = StreamField(
         [
-            ("paragraph", blocks.RichTextBlock()),
-            ("hero", HeroBlock()),
-            ("features", FeaturesBlock()),
-            ("highlights", HighlightsBlock()),
-            ("subscribe_banner", SubscribeBannerBlock()),
-            ("tag_cards", TagCardsBlock()),
-            ("qr_code_banner", QRCodeBannerBlock()),
+            ("inline_notification", InlineNotificationBlock(group="Notifications")),
+            ("intro", IntroBlock()),
+            ("section", SectionBlock()),
+            ("subscription", SubscriptionBlock(group="Banners")),
+            ("banner", BannerBlock(group="Banners")),
         ]
     )
 

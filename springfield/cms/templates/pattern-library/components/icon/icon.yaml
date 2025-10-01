@@ -1,0 +1,6 @@
+name: 'Icon'
+context:
+  icon_name: 'globe'
+  extra_class: ''
+  hidden: true
+  aria_label: ''

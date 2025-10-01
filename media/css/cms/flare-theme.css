@@ -73,6 +73,7 @@ non-determinative so you need to check and adjust the results as needed.
     --scale-18: 18;
     --scale-24: 24;
     --scale-32: 32;
+    --scale-40: 40;
     --scale-48: 48;
     --scale-64: 64;
     --scale-80: 80;
@@ -114,14 +115,12 @@ non-determinative so you need to check and adjust the results as needed.
 
     /* Font size variables NOT from Figma */
     --font-size-base: 16px;
-
-    /* Heading font size variables */
-    --font-size-h1: 5rem; /* 80px */
-    --font-size-h2: 4rem; /* 64px */
-    --font-size-h3: 3rem; /* 48px */
-    --font-size-h4: 2rem; /* 32px */
-    --font-size-h5: 1.5rem; /* 24px */
-    --font-size-h6: 1.125rem; /* 18px */
+    --font-size-h1: 3rem;
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.5rem;
+    --font-size-h4: 1.125rem;
+    --font-size-h5: 1.125rem;
+    --font-size-h6: 1.125rem;
 
     /* Subheading font size variables */
     --font-size-subheading-1: 1.5rem; /* 24px */

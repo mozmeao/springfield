@@ -1,0 +1,22 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-card {% if card.expand_link %}expand-link{% endif %}">
+  <div class="fl-card-icon">
+    <include:icon icon_name="{{ value.icon }}" extra_class="icon-size-4" hidden="true" />
+  </div>
+  {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+
+  <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+  <div class="body">{{ value.content }}</div>
+  {% if value.button %}
+    <div class="buttons">
+      {% for button in value.button %}
+        {% include_block button %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

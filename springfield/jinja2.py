@@ -1,7 +1,9 @@
+from includecontents.jinja2 import IncludeContentsExtension
 from jinja2 import Environment
 
 
 def custom_environment(**options):
+    options["extensions"] = options.get("extensions", []) + [IncludeContentsExtension]
     env = Environment(**options)
 
     from django.apps import apps

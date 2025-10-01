@@ -23,7 +23,7 @@ body {
     font-family: var(--font-family-body);
     font-weight: var(--font-weight-body);
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
     width: 100%;
     max-width: var(--widths-viewport-wrapper-screen-2xl);
 }
