@@ -58,6 +58,11 @@
               {# <!-- The <a> start and end tags must be on the same line to avoid extra white space between the text and external link icon --> #}
               <a class="m24-c-menu-item-link" href="https://www.youtube.com/@firefox/podcasts{{params}}" data-link-text="Podcast" data-link-position="topnav - podcast">{{ ftl('navigation-podcast') }}</a>
             </li>
+            <li>
+              <a class="m24-c-menu-item-link" href="{{ url('firefox.user-privacy') }}" data-link-text="Data Protection" data-link-position="topnav - data protection">
+                {{ ftl('navigation-data-protection') }}
+              </a>
+            </li>
           </ul>
         </div>
       </div>
