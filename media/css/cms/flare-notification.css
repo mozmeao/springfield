@@ -179,17 +179,3 @@
 .notification-black .notification-content {
     color: var(--neutrals-ash);
 }
-
-@media (max-width: 639px) {
-    .notification {
-        max-width: calc(100vw - var(--scale-24) * 1px);
-    }
-
-    .notification-content p {
-        white-space: normal;
-    }
-
-    .notification-content {
-        padding: calc(var(--scale-8) * 1px) calc(var(--scale-16) * 1px);
-    }
-}
