@@ -191,6 +191,31 @@ class TagBlock(blocks.StructBlock):
 
 
 class InlineNotificationBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("white", "White"),
+            ("black", "Black"),
+            ("blue", "Blue"),
+            ("purple", "Purple"),
+            ("orange", "Orange"),
+            ("yellow", "Yellow"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    inverted = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Inverted colors on icon background",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button",
+    )
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:

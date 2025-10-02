@@ -1,0 +1,33 @@
+name: "Inline Notification variants"
+context:
+  notifications:
+    - message: 'This is a simple notification'
+      color: 'white'
+      icon: ''
+      closable: false
+      inverted: false
+    - message: 'This is a notification with an icon'
+      color: 'white'
+      icon: 'earth'
+      closable: false
+      inverted: false
+    - message: 'This is a closable notification'
+      color: 'white'
+      icon: ''
+      closable: true
+      inverted: false
+    - message: 'This is a notification with icon and close button'
+      color: 'white'
+      icon: 'earth'
+      closable: true
+      inverted: false
+    - message: 'This is a notification with an inverted icon'
+      color: 'white'
+      icon: 'earth'
+      closable: false
+      inverted: true
+    - message: 'Moving to Windows 11? Check if your bookmarks and passwords are <a href="https://support.mozilla.org/en-US/kb/how-do-i-sync-firefox-settings-and-data">synced and ready</a>.'
+      color: 'white'
+      icon: 'earth'
+      closable: true
+      inverted: true

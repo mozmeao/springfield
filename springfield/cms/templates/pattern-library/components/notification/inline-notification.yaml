@@ -1,3 +1,7 @@
 name: "Inline Notification"
 context:
   message: Your Firefox has been updated.
+  color: purple
+  icon: 'update'
+  closable: false
+  inverted: false

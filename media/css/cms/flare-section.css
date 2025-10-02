@@ -22,6 +22,10 @@
         gap: calc(var(--scale-64) * 1px);
     }
 
+    .fl-section-container .heading-group {
+        margin-bottom: 0;
+    }
+
     .fl-section {
         padding: calc(var(--scale-64) * 1px) 0
     }

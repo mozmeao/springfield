@@ -4,10 +4,27 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="inline-notification-wrapper">
-  <div class="inline-notification">
-    <div class="notification-bar">
+<div class="notification-wrapper">
+  <div class="notification{% if color %} notification-{{ color }}{% endif %}">
+    {% if icon %}
+      <div class="notification-icon-section{% if inverted %} notification-icon-inverted{% endif %}">
+        <include:icon
+          icon_name="{{ icon }}"
+          hidden=true
+          extra_class="notification-icon" />
+      </div>
+    {% endif %}
+    <div class="notification-content">
       <p>{{ message }}</p>
+      {% if closable %}
+        <button class="notification-close" aria-label="Close notification">
+          <include:icon
+            icon_name="close"
+            hidden=true
+            extra_class="close-icon"
+          />
+        </button>
+      {% endif %}
     </div>
   </div>
 </div>
