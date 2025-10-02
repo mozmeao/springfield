@@ -127,6 +127,15 @@ $space-gap-lg: 80px;
                     -webkit-mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
                     mask: url('/media/img/data/indicator-light.svg') no-repeat center/16px 4px;
                 }
+
+                a:hover,
+                a:active {
+                    .table-content-icon {
+                        background-color: $color-purple-dark;
+                        -webkit-mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                        mask: url('/media/img/data/indicator-dark.svg') no-repeat center/16px 4px;
+                    }
+                }
             }
         }
     }
