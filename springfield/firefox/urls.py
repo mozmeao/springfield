@@ -170,5 +170,5 @@ urlpatterns = (
     page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
     # What's New Page (WNP)
     re_path(f"whatsnew/(?P<version>{version_re})", views.WhatsnewView.as_view(), name="firefox.whatsnew"),
-    page("user-privacy/", "firefox/data.html"),
+    page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
 )
