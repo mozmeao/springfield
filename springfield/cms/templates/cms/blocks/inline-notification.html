@@ -4,4 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:inline-notification message="{{ value.message|richtext|remove_p_tag }}" />
+<include:inline-notification
+  message="{{ value.message|richtext|remove_p_tag }}"
+  icon="{{ value.icon }}"
+  color="{{ value.color }}"
+  inverted="{{ value.inverted }}"
+  closable="{{ value.closable }}"
+/>

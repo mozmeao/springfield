@@ -21,7 +21,7 @@
         <div class="fl-banner-content">
           <div class="fl-banner-content-inner">
             {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-            <{{ heading_level }} id="fl-banner-qr-heading" class="subheading">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+            <{{ heading_level }} id="fl-banner-qr-heading" class="heading heading-size-2">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
             <div class="body">{{ value.content }}</div>
           </div>
         </div>

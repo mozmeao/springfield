@@ -40,3 +40,20 @@ class LocaleFactory(factory.django.DjangoModelFactory):
 class StructuralPageFactory(wagtail_factories.PageFactory):
     class Meta:
         model = models.StructuralPage
+
+
+class WhatsNewIndexPageFactory(wagtail_factories.PageFactory):
+    slug = "whatsnew"
+
+    class Meta:
+        model = models.WhatsNewIndexPage
+
+
+class WhatsNewPageFactory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox 123"
+    live = True
+    slug = "123"
+    version = "123"
+
+    class Meta:
+        model = models.WhatsNewPage

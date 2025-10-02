@@ -7,14 +7,14 @@ from unittest import mock
 from django.test import override_settings
 
 import pytest
-from wagtail.models import Page
+from wagtail.models import Locale, Page, Site
 
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     SimpleRichTextPage,
     StructuralPage,
 )
-from springfield.cms.tests.factories import StructuralPageFactory
+from springfield.cms.tests.factories import StructuralPageFactory, WhatsNewIndexPageFactory, WhatsNewPageFactory
 
 pytestmark = [
     pytest.mark.django_db,
@@ -124,3 +124,98 @@ def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_sit
 
     patched_request = en_us_test_page.specific._patch_request_for_springfield(request)
     assert patched_request.is_cms_page is True
+
+
+def test_whats_new_index_page_redirects_to_latest_whats_new(
+    minimal_site,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    v123_page = WhatsNewPageFactory(parent=index_page, slug="123", version="123")
+    v123_page.save()
+    v124_page = WhatsNewPageFactory(parent=index_page, slug="124", version="124")
+    v124_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v124_page.url)
+
+
+def test_whats_new_index_page_redirects_to_home_if_no_children(
+    minimal_site,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    request = rf.get(_relative_url)
+
+    # No WhatsNewPage exists yet, so should redirect to /
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
+
+
+def test_whats_new_index_page_redirects_to_locale_appropriate_child(
+    tiny_localized_site,
+    rf,
+):
+    site = Site.objects.get(is_default_site=True)
+    en_us_root_page = site.root_page
+
+    pt_br_locale = Locale.objects.get(language_code="pt-BR")
+    pt_br_root_page = en_us_root_page.get_translation(pt_br_locale)
+
+    assert pt_br_root_page
+
+    en_us_index_page = WhatsNewIndexPageFactory(parent=en_us_root_page, slug="whatsnew")
+    en_us_index_page.save()
+
+    pt_br_index_page = en_us_index_page.copy_for_translation(pt_br_locale)
+    pt_br_index_page.title = "O que há de novo no Firefox"
+    pt_br_index_page.save()
+    pt_br_index_page.save_revision().publish()
+
+    _en_us_relative_url = en_us_index_page.relative_url(tiny_localized_site)
+    assert _en_us_relative_url == "/en-US/whatsnew/"
+
+    _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
+    assert _pt_br_relative_url == "/pt-BR/whatsnew/"
+
+    en_us_v123_page = WhatsNewPageFactory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page.save()
+    en_us_v124_page = WhatsNewPageFactory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page.save()
+
+    pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
+    pt_br_v123_page.title = "O que tem de novo no Firefox 123"
+    pt_br_v123_page.save_revision().publish()
+
+    pt_br_v124_page = en_us_v124_page.copy_for_translation(pt_br_locale)
+    pt_br_v124_page.title = "O que tem de novo no Firefox 124"
+    pt_br_v124_page.save_revision().publish()
+
+    pt_br_index_page.refresh_from_db()
+
+    en_us_request = rf.get(_en_us_relative_url)
+
+    response = en_us_index_page.specific.serve(en_us_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(en_us_v124_page.url)
+
+    pt_br_request = rf.get(_pt_br_relative_url)
+    response = pt_br_index_page.specific.serve(pt_br_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(pt_br_v124_page.url)

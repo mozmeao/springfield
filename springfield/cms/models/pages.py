@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page as WagtailBasePage
 
@@ -122,19 +122,67 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         abstract = True
 
 
-class WhatsNewPage(AbstractSpringfieldCMSPage):
-    """A page that displays the latest Firefox updates and changes."""
+FREEFORM_PAGE_BLOCKS = [
+    ("inline_notification", InlineNotificationBlock(group="Notifications")),
+    ("intro", IntroBlock()),
+    ("section", SectionBlock()),
+    ("subscription", SubscriptionBlock(group="Banners")),
+    ("banner", BannerBlock(group="Banners")),
+]
 
-    content = StreamField(
-        [
-            ("inline_notification", InlineNotificationBlock(group="Notifications")),
-            ("intro", IntroBlock()),
-            ("section", SectionBlock()),
-            ("subscription", SubscriptionBlock(group="Banners")),
-            ("banner", BannerBlock(group="Banners")),
-        ]
-    )
+
+class FreeFormPage(AbstractSpringfieldCMSPage):
+    """A flexible page type that allows a variety of content blocks to be added."""
+
+    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
     ]
+
+
+class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
+    """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
+
+    # Empty parent page types will prevent this page from being created from the Wagtail admin
+    # Only one instance of this page should exist
+    # When a HomePage is implemented, this page should be moved to be a child of HomePage
+    # parent_page_types = []
+    subpage_types = ["cms.WhatsNewPage"]
+
+    class Meta:
+        verbose_name = "What's New Index Page"
+        verbose_name_plural = "What's New Index Pages"
+
+    def serve(self, request):
+        latest_whats_new = self.get_children().live().public().order_by("-whatsnewpage__version").first()
+        if latest_whats_new:
+            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
+        else:
+            return redirect("/")
+
+
+class WhatsNewPage(AbstractSpringfieldCMSPage):
+    """A page that displays the latest Firefox updates and changes."""
+
+    parent_page_types = ["cms.WhatsNewIndexPage"]
+    subpage_types = []
+
+    version = models.CharField(
+        max_length=10,
+        help_text="The version of Firefox this What's New page refers to.",
+    )
+    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
+
+    content_panels = [
+        FieldPanel("title"),
+        TitleFieldPanel("version", placeholder="123"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["version"]),
+        ]
+        verbose_name = "What's New Page"
+        verbose_name_plural = "What's New Pages"

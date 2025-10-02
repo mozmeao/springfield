@@ -2,10 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 
 from wagtail import blocks
-from wagtail.embeds.blocks import EmbedBlock
+
+# from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 HEADING_TEXT_FEATURES = [
@@ -190,6 +191,31 @@ class TagBlock(blocks.StructBlock):
 
 
 class InlineNotificationBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("white", "White"),
+            ("black", "Black"),
+            ("blue", "Blue"),
+            ("purple", "Purple"),
+            ("orange", "Orange"),
+            ("yellow", "Yellow"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    inverted = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Inverted colors on icon background",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button",
+    )
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
@@ -200,18 +226,21 @@ class InlineNotificationBlock(blocks.StructBlock):
 
 
 class MediaContentBlock(blocks.StructBlock):
+    # TODO: re-enable the embed block and make the image optional
+    # when this issue with Wagtail Localize is resolved
+    # https://github.com/wagtail/wagtail-localize/issues/875
     image = ImageChooserBlock(
-        required=False,
-        help_text="Either an image or embed is required.",
+        # required=False,
+        # help_text="Either an image or embed is required.",
         inline_form=True,
     )
-    embed = EmbedBlock(
-        required=False,
-        help_text="Either an image or embed is required.",
-        max_width=800,
-        max_height=400,
-        inline_form=True,
-    )
+    # embed = EmbedBlock(
+    #     required=False,
+    #     help_text="Either an image or embed is required.",
+    #     max_width=800,
+    #     max_height=400,
+    #     inline_form=True,
+    # )
     media_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -230,13 +259,13 @@ class MediaContentBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
         template = "cms/blocks/media-content.html"
 
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        if not cleaned_data.get("image") and not cleaned_data.get("embed"):
-            raise ValidationError(
-                "Either an image or embed is required.",
-            )
-        return cleaned_data
+    # def clean(self, value):
+    #     cleaned_data = super().clean(value)
+    #     if not cleaned_data.get("image") and not cleaned_data.get("embed"):
+    #         raise ValidationError(
+    #             "Either an image or embed is required.",
+    #         )
+    #     return cleaned_data
 
 
 # Cards
@@ -371,15 +400,17 @@ class IntroBlock(blocks.StructBlock):
     image = ImageChooserBlock(
         required=False,
         inline_form=True,
-        help_text="Either enter an image or embed, or leave both blank.",
+        # help_text="Either enter an image or embed, or leave both blank.",
     )
-    embed = EmbedBlock(
-        required=False,
-        max_width=800,
-        max_height=400,
-        inline_form=True,
-        help_text="Either enter an image or embed, or leave both blank.",
-    )
+    # TODO: re-enable the block when this issue with Wagtail Localize is resolved
+    # https://github.com/wagtail/wagtail-localize/issues/875
+    # embed = EmbedBlock(
+    #     required=False,
+    #     max_width=800,
+    #     max_height=400,
+    #     inline_form=True,
+    #     help_text="Either enter an image or embed, or leave both blank.",
+    # )
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),
         default="after",

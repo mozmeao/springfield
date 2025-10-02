@@ -1,0 +1,30 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Inline Notification variants</h4>
+  {% set colors = ['white', 'black', 'orange', 'purple', 'blue'] %}
+  <div class="pl-row" style="display: flex; flex-direction: column; gap: 16px;">
+    {% for color in colors %}
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          {% for notification in notifications %}
+            <div>
+              <include:inline-notification
+                message="{{ notification.message }}"
+                color="{{ color }}"
+                icon="{{ notification.icon }}"
+                closable="{{ notification.closable }}"
+                inverted="{{ notification.inverted }}"
+              />
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
