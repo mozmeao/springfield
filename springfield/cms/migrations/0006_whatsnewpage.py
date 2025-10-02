@@ -34,53 +34,9 @@ class Migration(migrations.Migration):
                 (
                     "content",
                     wagtail.fields.StreamField(
-                        [("inline_notification", 1), ("intro", 16), ("section", 49), ("subscription", 50), ("banner", 53)],
+                        [("inline_notification", 5), ("intro", 19), ("section", 52), ("subscription", 53), ("banner", 56)],
                         block_lookup={
                             0: (
-                                "wagtail.blocks.RichTextBlock",
-                                (),
-                                {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"]},
-                            ),
-                            1: ("wagtail.blocks.StructBlock", [[("message", 0)]], {"group": "Notifications"}),
-                            2: (
-                                "wagtail.images.blocks.ImageChooserBlock",
-                                (),
-                                {"help_text": "Either enter an image or embed, or leave both blank.", "inline_form": True, "required": False},
-                            ),
-                            3: (
-                                "wagtail.embeds.blocks.EmbedBlock",
-                                (),
-                                {
-                                    "help_text": "Either enter an image or embed, or leave both blank.",
-                                    "inline_form": True,
-                                    "max_height": 400,
-                                    "max_width": 800,
-                                    "required": False,
-                                },
-                            ),
-                            4: (
-                                "wagtail.blocks.ChoiceBlock",
-                                [],
-                                {"choices": [("after", "After"), ("before", "Before")], "inline_form": True, "label": "Media Position"},
-                            ),
-                            5: (
-                                "wagtail.blocks.RichTextBlock",
-                                (),
-                                {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"], "required": False},
-                            ),
-                            6: ("wagtail.blocks.StructBlock", [[("superheading_text", 5), ("heading_text", 0), ("subheading_text", 5)]], {}),
-                            7: (
-                                "wagtail.blocks.ChoiceBlock",
-                                [],
-                                {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
-                            ),
-                            8: (
-                                "wagtail.blocks.BooleanBlock",
-                                (),
-                                {"default": False, "inline_form": True, "label": "External link", "required": False},
-                            ),
-                            9: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "required": False}),
-                            10: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -152,30 +108,104 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
+                            1: (
+                                "wagtail.blocks.ChoiceBlock",
+                                [],
+                                {
+                                    "choices": [
+                                        ("white", "White"),
+                                        ("black", "Black"),
+                                        ("blue", "Blue"),
+                                        ("purple", "Purple"),
+                                        ("orange", "Orange"),
+                                        ("yellow", "Yellow"),
+                                    ],
+                                    "inline_form": True,
+                                    "required": False,
+                                },
+                            ),
+                            2: (
+                                "wagtail.blocks.BooleanBlock",
+                                (),
+                                {"default": False, "help_text": "Inverted colors on icon background", "inline_form": True, "required": False},
+                            ),
+                            3: (
+                                "wagtail.blocks.BooleanBlock",
+                                (),
+                                {"default": False, "help_text": "Show close button", "inline_form": True, "required": False},
+                            ),
+                            4: (
+                                "wagtail.blocks.RichTextBlock",
+                                (),
+                                {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"]},
+                            ),
+                            5: (
+                                "wagtail.blocks.StructBlock",
+                                [[("icon", 0), ("color", 1), ("inverted", 2), ("closable", 3), ("message", 4)]],
+                                {"group": "Notifications"},
+                            ),
+                            6: (
+                                "wagtail.images.blocks.ImageChooserBlock",
+                                (),
+                                {"help_text": "Either enter an image or embed, or leave both blank.", "inline_form": True, "required": False},
+                            ),
+                            7: (
+                                "wagtail.embeds.blocks.EmbedBlock",
+                                (),
+                                {
+                                    "help_text": "Either enter an image or embed, or leave both blank.",
+                                    "inline_form": True,
+                                    "max_height": 400,
+                                    "max_width": 800,
+                                    "required": False,
+                                },
+                            ),
+                            8: (
+                                "wagtail.blocks.ChoiceBlock",
+                                [],
+                                {"choices": [("after", "After"), ("before", "Before")], "inline_form": True, "label": "Media Position"},
+                            ),
+                            9: (
+                                "wagtail.blocks.RichTextBlock",
+                                (),
+                                {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"], "required": False},
+                            ),
+                            10: ("wagtail.blocks.StructBlock", [[("superheading_text", 9), ("heading_text", 4), ("subheading_text", 9)]], {}),
                             11: (
+                                "wagtail.blocks.ChoiceBlock",
+                                [],
+                                {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                            ),
+                            12: (
+                                "wagtail.blocks.BooleanBlock",
+                                (),
+                                {"default": False, "inline_form": True, "label": "External link", "required": False},
+                            ),
+                            13: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "required": False}),
+                            14: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {"choices": [("left", "Left"), ("right", "Right")], "inline_form": True, "label": "Icon Position"},
                             ),
-                            12: ("wagtail.blocks.CharBlock", (), {}),
-                            13: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
-                            14: (
-                                "wagtail.blocks.StructBlock",
-                                [[("theme", 7), ("external", 8), ("center", 9), ("icon", 10), ("icon_position", 11), ("link", 12), ("label", 13)]],
-                                {},
-                            ),
-                            15: ("wagtail.blocks.ListBlock", (14,), {"max_num": 2, "min_num": 0}),
-                            16: (
-                                "wagtail.blocks.StructBlock",
-                                [[("image", 2), ("embed", 3), ("media_position", 4), ("heading", 6), ("buttons", 15)]],
-                                {},
-                            ),
+                            15: ("wagtail.blocks.CharBlock", (), {}),
+                            16: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
                             17: (
+                                "wagtail.blocks.StructBlock",
+                                [[("theme", 11), ("external", 12), ("center", 13), ("icon", 0), ("icon_position", 14), ("link", 15), ("label", 16)]],
+                                {},
+                            ),
+                            18: ("wagtail.blocks.ListBlock", (17,), {"max_num": 2, "min_num": 0}),
+                            19: (
+                                "wagtail.blocks.StructBlock",
+                                [[("image", 6), ("embed", 7), ("media_position", 8), ("heading", 10), ("buttons", 18)]],
+                                {},
+                            ),
+                            20: (
                                 "wagtail.images.blocks.ImageChooserBlock",
                                 (),
                                 {"help_text": "Either an image or embed is required.", "inline_form": True, "required": False},
                             ),
-                            18: (
+                            21: (
                                 "wagtail.embeds.blocks.EmbedBlock",
                                 (),
                                 {
@@ -186,7 +216,7 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            19: (
+                            22: (
                                 "wagtail.blocks.BooleanBlock",
                                 (),
                                 {
@@ -197,35 +227,35 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            20: (
+                            23: (
                                 "wagtail.blocks.StructBlock",
                                 [
                                     [
-                                        ("image", 17),
-                                        ("embed", 18),
-                                        ("media_after", 19),
-                                        ("eyebrow", 5),
-                                        ("headline", 0),
-                                        ("content", 0),
-                                        ("buttons", 15),
+                                        ("image", 20),
+                                        ("embed", 21),
+                                        ("media_after", 22),
+                                        ("eyebrow", 9),
+                                        ("headline", 4),
+                                        ("content", 4),
+                                        ("buttons", 18),
                                     ]
                                 ],
                                 {},
                             ),
-                            21: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
-                            22: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
-                            23: (
+                            24: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
+                            25: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
+                            26: (
                                 "wagtail.blocks.BooleanBlock",
                                 (),
                                 {"default": False, "help_text": "Expand the link click area to the whole card", "required": False},
                             ),
-                            24: ("wagtail.blocks.ListBlock", (14,), {"max_num": 1, "min_num": 0}),
-                            25: (
+                            27: ("wagtail.blocks.ListBlock", (17,), {"max_num": 1, "min_num": 0}),
+                            28: (
                                 "wagtail.blocks.StructBlock",
-                                [[("image", 21), ("dark_image", 22), ("headline", 0), ("content", 0), ("expand_link", 23), ("buttons", 24)]],
+                                [[("image", 24), ("dark_image", 25), ("headline", 4), ("content", 4), ("expand_link", 26), ("buttons", 27)]],
                                 {},
                             ),
-                            26: (
+                            29: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -295,13 +325,13 @@ class Migration(migrations.Migration):
                                     ]
                                 },
                             ),
-                            27: (
+                            30: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {"choices": [("before", "Before"), ("after", "After")], "inline_form": True, "label": "Icon Position"},
                             ),
-                            28: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
-                            29: (
+                            31: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
+                            32: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -317,14 +347,14 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            30: (
+                            33: (
                                 "wagtail.blocks.StructBlock",
-                                [[("title", 12), ("icon", 26), ("icon_position", 27), ("corners", 28), ("color", 29)]],
+                                [[("title", 15), ("icon", 29), ("icon_position", 30), ("corners", 31), ("color", 32)]],
                                 {},
                             ),
-                            31: ("wagtail.blocks.ListBlock", (30,), {"max_num": 3, "min_num": 1}),
-                            32: ("wagtail.blocks.StructBlock", [[("headline", 0), ("content", 0), ("buttons", 24), ("tags", 31)]], {}),
-                            33: (
+                            34: ("wagtail.blocks.ListBlock", (33,), {"max_num": 3, "min_num": 1}),
+                            35: ("wagtail.blocks.StructBlock", [[("headline", 4), ("content", 4), ("buttons", 27), ("tags", 34)]], {}),
+                            36: (
                                 "wagtail.blocks.ChoiceBlock",
                                 [],
                                 {
@@ -395,7 +425,7 @@ class Migration(migrations.Migration):
                                     "inline_form": True,
                                 },
                             ),
-                            34: (
+                            37: (
                                 "wagtail.blocks.BooleanBlock",
                                 (),
                                 {
@@ -405,13 +435,13 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            35: (
+                            38: (
                                 "wagtail.blocks.StructBlock",
-                                [[("icon", 33), ("expand_link", 34), ("headline", 0), ("content", 0), ("button", 24)]],
+                                [[("icon", 36), ("expand_link", 37), ("headline", 4), ("content", 4), ("button", 27)]],
                                 {},
                             ),
-                            36: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
-                            37: (
+                            39: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
+                            40: (
                                 "wagtail.blocks.BooleanBlock",
                                 (),
                                 {
@@ -422,33 +452,33 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            38: (
-                                "wagtail.blocks.StructBlock",
-                                [[("image", 36), ("image_after", 37), ("expand_link", 34), ("headline", 0), ("content", 0), ("buttons", 24)]],
-                                {},
-                            ),
-                            39: (
-                                "wagtail.blocks.StreamBlock",
-                                [[("sticker_card", 25), ("tag_card", 32), ("icon_card", 35), ("illustration_card", 38)]],
-                                {},
-                            ),
-                            40: ("wagtail.blocks.StructBlock", [[("cards", 39)]], {}),
                             41: (
                                 "wagtail.blocks.StructBlock",
-                                [[("image", 21), ("headline", 0), ("content", 0), ("expand_link", 23), ("buttons", 24)]],
+                                [[("image", 39), ("image_after", 40), ("expand_link", 37), ("headline", 4), ("content", 4), ("buttons", 27)]],
                                 {},
                             ),
-                            42: ("wagtail.blocks.ListBlock", (41,), {}),
+                            42: (
+                                "wagtail.blocks.StreamBlock",
+                                [[("sticker_card", 28), ("tag_card", 35), ("icon_card", 38), ("illustration_card", 41)]],
+                                {},
+                            ),
                             43: ("wagtail.blocks.StructBlock", [[("cards", 42)]], {}),
-                            44: ("wagtail.blocks.StreamBlock", [[("media_content", 20), ("cards_list", 40), ("step_cards", 43)]], {}),
-                            45: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
-                            46: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
-                            47: ("wagtail.blocks.StructBlock", [[("link", 12), ("label", 45), ("external", 46)]], {}),
-                            48: ("wagtail.blocks.ListBlock", (47,), {"label": "Call to Action", "max_num": 1, "min_num": 0}),
-                            49: ("wagtail.blocks.StructBlock", [[("heading", 6), ("content", 44), ("cta", 48)]], {}),
-                            50: ("wagtail.blocks.StructBlock", [[("heading", 6)]], {"group": "Banners"}),
-                            51: ("wagtail.images.blocks.ImageChooserBlock", (), {"required": False}),
-                            52: (
+                            44: (
+                                "wagtail.blocks.StructBlock",
+                                [[("image", 24), ("headline", 4), ("content", 4), ("expand_link", 26), ("buttons", 27)]],
+                                {},
+                            ),
+                            45: ("wagtail.blocks.ListBlock", (44,), {}),
+                            46: ("wagtail.blocks.StructBlock", [[("cards", 45)]], {}),
+                            47: ("wagtail.blocks.StreamBlock", [[("media_content", 23), ("cards_list", 43), ("step_cards", 46)]], {}),
+                            48: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
+                            49: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
+                            50: ("wagtail.blocks.StructBlock", [[("link", 15), ("label", 48), ("external", 49)]], {}),
+                            51: ("wagtail.blocks.ListBlock", (50,), {"label": "Call to Action", "max_num": 1, "min_num": 0}),
+                            52: ("wagtail.blocks.StructBlock", [[("heading", 10), ("content", 47), ("cta", 51)]], {}),
+                            53: ("wagtail.blocks.StructBlock", [[("heading", 10)]], {"group": "Banners"}),
+                            54: ("wagtail.images.blocks.ImageChooserBlock", (), {"required": False}),
+                            55: (
                                 "wagtail.blocks.CharBlock",
                                 (),
                                 {
@@ -456,9 +486,9 @@ class Migration(migrations.Migration):
                                     "required": False,
                                 },
                             ),
-                            53: (
+                            56: (
                                 "wagtail.blocks.StructBlock",
-                                [[("image", 51), ("qr_code", 52), ("headline", 0), ("content", 0)]],
+                                [[("image", 54), ("qr_code", 55), ("headline", 4), ("content", 4)]],
                                 {"group": "Banners"},
                             ),
                         },
