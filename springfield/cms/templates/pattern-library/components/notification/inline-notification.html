@@ -6,4 +6,8 @@
 
 <include:inline-notification
   message="{{ message }}"
+  color="{{ color|default('') }}"
+  icon="{{ icon|default('') }}"
+  closable="{{ closable|default(false) }}"
+  inverted="{{ inverted|default(false) }}"
 />
