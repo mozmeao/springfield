@@ -63,6 +63,13 @@ class TranslationsFilterFormTestCase(TestCase):
         """Test that form field has correct attributes."""
         form = TranslationsFilterForm()
 
+        # Test "search" field properties
+        search_field = form.fields["search"]
+        self.assertEqual(search_field.label, "Search")
+        self.assertFalse(search_field.required)
+        self.assertEqual(search_field.widget.attrs.get("class"), "w-field__input")
+        self.assertEqual(search_field.widget.attrs.get("placeholder"), "Search by title or slug...")
+
         # Test "original_language" field properties
         original_language_field = form.fields["original_language"]
         self.assertEqual(original_language_field.label, "Original Language")
@@ -173,5 +180,39 @@ class TranslationsFilterFormTestCase(TestCase):
         """Test form validation with multiple filters applied."""
         form = TranslationsFilterForm(data={"original_language": "en-US", "exists_in_language": "de"})
         self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["original_language"], "en-US")
+        self.assertEqual(form.cleaned_data["exists_in_language"], "de")
+
+    def test_search_field_validation_with_search_term(self):
+        """Test form validation with a search term."""
+        form = TranslationsFilterForm(data={"search": "test page"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "test page")
+
+    def test_search_field_validation_with_empty_search(self):
+        """Test form validation with empty search field."""
+        form = TranslationsFilterForm(data={"search": ""})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "")
+
+    def test_validation_with_empty_data(self):
+        """Test form validation with no search field provided."""
+        form = TranslationsFilterForm(data={})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data.get("search"), "")
+        self.assertEqual(form.cleaned_data["original_language"], "")
+        self.assertEqual(form.cleaned_data["exists_in_language"], "")
+
+    def test_search_with_other_filters(self):
+        """Test form validation with search combined with other filters."""
+        form = TranslationsFilterForm(
+            data={
+                "search": "homepage",
+                "original_language": "en-US",
+                "exists_in_language": "de",
+            }
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "homepage")
         self.assertEqual(form.cleaned_data["original_language"], "en-US")
         self.assertEqual(form.cleaned_data["exists_in_language"], "de")

@@ -70,18 +70,22 @@
         </header>
 
         <div class="pl-4em">
-            <form method="get" class="w-flex w-gap-4 w-items-end sm:w-pl-5">
-                <div>
+            <form method="get" class="w-flex w-flex-wrap w-gap-4 w-items-end sm:w-pl-5">
+                <div class="w-flex w-flex-col">
+                    {{ filter_form.search.label_tag }}
+                    {{ filter_form.search }}
+                </div>
+                <div class="w-flex w-flex-col">
                     {{ filter_form.original_language.label_tag }}
                     {{ filter_form.original_language }}
                 </div>
-                <div>
+                <div class="w-flex w-flex-col">
                     {{ filter_form.exists_in_language.label_tag }}
                     {{ filter_form.exists_in_language }}
                 </div>
                 <div class="flex align-items-end">
                     <button type="submit" class="button">Filter</button>
-                    {% if filter_form.original_language.value or filter_form.exists_in_language.value %}
+                    {% if filter_form.search.value or filter_form.original_language.value or filter_form.exists_in_language.value %}
                         <a href="?" class="button button-secondary">Clear</a>
                     {% endif %}
                 </div>

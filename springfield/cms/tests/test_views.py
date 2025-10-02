@@ -504,3 +504,123 @@ def test_translations_list_view_exists_in_core_languages_filter(staff_user, site
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert len(pages_in_response) == 1
     assert set(pages_in_response) == set([en_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_search_by_title(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test search functionality by page title."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    de_original_page = SimpleRichTextPage.objects.get(title="German Original")
+
+    # Search for "German Original" should return the de_original_page.
+    response = client.get(url, {"search": "German Original"})
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([de_original_page.page_ptr])
+
+    # Searching for "Original" should return all pages matching "Original".
+    response = client.get(url, {"search": "Original"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    expected_pages = SimpleRichTextPage.objects.filter(title__icontains="Original")
+    assert set(pages_in_response) == set(page.page_ptr for page in expected_pages)
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_search_by_slug(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test search functionality by page slug."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    en_page = SimpleRichTextPage.objects.get(
+        title="English Original",
+        slug="english-page",
+        locale__language_code="en-US",
+    )
+
+    # Search for "english-page" should return the english-page
+    response = client.get(url, {"search": "english-page"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_search_with_filters(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test that search works together with filters."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    en_page = SimpleRichTextPage.objects.get(
+        title="English Original",
+        slug="english-page",
+        locale__language_code="en-US",
+    )
+    fr_page = SimpleRichTextPage.objects.get(
+        title="French Original",
+        slug="french-page",
+        locale__language_code="fr",
+    )
+    de_page = SimpleRichTextPage.objects.get(
+        title="German Original",
+        slug="german-page",
+        locale__language_code="de",
+    )
+
+    # Searching for "page" returns multiple results.
+    response = client.get(url, {"search": "page"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr, fr_page.page_ptr, de_page.page_ptr])
+
+    # Searching for "page" and filtering by original language "en-US" returns 1 result.
+    response = client.get(url, {"search": "page", "original_language": "en-US"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_search_case_insensitive(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test that search is case insensitive."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    en_page = SimpleRichTextPage.objects.get(
+        title="English Original",
+        slug="english-page",
+        locale__language_code="en-US",
+    )
+
+    # Search for "ENGLISH" (uppercase) should return the en_page.
+    response = client.get(url, {"search": "ENGLISH"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr])

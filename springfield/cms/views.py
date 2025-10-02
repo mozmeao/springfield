@@ -4,7 +4,7 @@
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Count, Min
+from django.db.models import Count, Min, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, TemplateView
@@ -50,6 +50,11 @@ class TranslationsListView(ListView):
         if not form.is_valid():
             pages_qs = pages_qs.none()
         else:
+            # Filter by search query.
+            search_query = form.cleaned_data.get("search")
+            if search_query:
+                pages_qs = pages_qs.filter(Q(title__icontains=search_query) | Q(slug__icontains=search_query))
+
             # Filter by original language.
             if form.cleaned_data.get("original_language"):
                 pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
