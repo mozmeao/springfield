@@ -50,6 +50,11 @@ class TranslationsListView(ListView):
         if not form.is_valid():
             pages_qs = pages_qs.none()
         else:
+            # Filter by translation key.
+            translation_key = form.cleaned_data.get("translation_key")
+            if translation_key:
+                pages_qs = pages_qs.filter(translation_key=translation_key)
+
             # Filter by search query.
             search_query = form.cleaned_data.get("search")
             if search_query:

@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import uuid
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import Client, override_settings
@@ -600,6 +602,16 @@ def test_translations_list_view_search_with_filters(staff_user, site_with_en_de_
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert set(pages_in_response) == set([en_page.page_ptr])
 
+    # Searching for "page" and filtering by original language "en-US" and translation_key returns 1 result.
+    response = client.get(
+        url,
+        {"search": "page", "original_language": "en-US", "translation_key": str(en_page.translation_key)},
+    )
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr])
+
 
 @override_settings(
     USE_SSO_AUTH=False,
@@ -624,3 +636,76 @@ def test_translations_list_view_search_case_insensitive(staff_user, site_with_en
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert set(pages_in_response) == set([en_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_filter_by_translation_key(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test filtering by translation key."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    en_page = SimpleRichTextPage.objects.get(
+        title="English Original",
+        slug="english-page",
+        locale__language_code="en-US",
+    )
+    de_page = SimpleRichTextPage.objects.get(
+        title="German Original",
+        slug="german-page",
+        locale__language_code="de",
+    )
+
+    # Filtering by en_page's translation_key should return only en_page.
+    response = client.get(url, {"translation_key": str(en_page.translation_key)})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([en_page.page_ptr])
+
+    # Filtering by de_page's translation_key should return only de_page.
+    response = client.get(url, {"translation_key": str(de_page.translation_key)})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    pages_in_response = [p["page"] for p in pages_with_translations]
+    assert set(pages_in_response) == set([de_page.page_ptr])
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_filter_by_nonexistent_translation_key(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test filtering by a translation key that doesn't exist."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    # Filtering by a non-existent translation key should return no results.
+    response = client.get(url, {"translation_key": str(uuid.uuid4())})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    assert len(pages_with_translations) == 0
+
+
+@override_settings(
+    USE_SSO_AUTH=False,
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+)
+@pytest.mark.django_db
+def test_translations_list_view_filter_by_invalid_translation_key(staff_user, site_with_en_de_fr_it_homepages_and_some_translations):
+    """Test filtering by an invalid translation key."""
+    client = Client()
+    client.force_login(staff_user)
+    url = reverse("cms:translations_list")
+
+    # Filtering by an invalid translation key should return no results.
+    response = client.get(url, {"translation_key": "not-a-uuid"})
+    assert response.status_code == 200
+    pages_with_translations = response.context["pages_with_translations"]
+    assert len(pages_with_translations) == 0
