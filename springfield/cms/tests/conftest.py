@@ -119,7 +119,7 @@ def tiny_localized_site():
     pt_br_homepage.publish(rev)
 
     pt_br_child = fr_child.copy_for_translation(pt_br_locale)
-    pt_br_child.title = "Página Filho"
+    pt_br_child.title = "Página Filha"
     pt_br_child.save()
     rev = pt_br_child.save_revision()
     pt_br_child.publish(rev)
