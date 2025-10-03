@@ -87,12 +87,14 @@
     flex-direction: column;
     justify-content: center;
     max-width: 840px;
+    text-align: left;
 }
 
 
 .fl-banner-content-centered {
     text-align: center;
     align-items: center;
+    margin: auto;
 }
 
 .fl-banner-content-centered .fl-banner-content-inner {
@@ -261,7 +263,7 @@
         margin-bottom: 0;
     }
 
-    .fl-banner-layout {
+    .fl-banner-layout:has(.fl-banner-media) {
         gap: calc(var(--scale-48) * 1px);
         grid-template-columns: 1fr 1fr;
     }

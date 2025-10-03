@@ -26,7 +26,7 @@
       </div>
     {% endif %}
 
-    <div class="fl-banner-content {% if not contents.media %}fl-banner-content-centered{% endif %}">
+    <div class="fl-banner-content {% if not contents.media and not qr_code %}fl-banner-content-centered{% endif %}">
       <div class="fl-banner-content-inner">
         {% if contents.heading %}
           {{ contents.heading }}
