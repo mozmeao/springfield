@@ -4,28 +4,47 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="fl-section fl-section-mobile" aria-labelledby="fl-banner-qr-heading">
-  <div class="fl-section-container">
-    <div class="fl-banner">
-      <div class="fl-banner-layout">
-        {% if value.image %}
-          {% set img = image(value.image, "width-600") %}
-        {% endif %}
-        {% if value.qr_code %}
-          <div class="fl-banner-media" aria-hidden="true" {% if value.image %}style="background-image: url('{{ img.url }}');"{% endif %}>
-            <div class="fl-banner-qr" role="img">{{ qrcode(value.qr_code, 12) }}</div>
-          </div>
-        {% elif value.image %}
-          <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
-        {% endif %}
-        <div class="fl-banner-content">
-          <div class="fl-banner-content-inner">
-            {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-            <{{ heading_level }} id="fl-banner-qr-heading" class="heading heading-size-2">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-            <div class="body">{{ value.content }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<include:banner
+  theme="outlined"
+  media_after="false"
+  brand_image_position="bottom-right"
+  qr_code="{{ value.qr_code }}"
+  media_url="{% if value.media %}{{ image(value.media, 'width-800').url }}{% endif %}">
+
+  <content:heading>
+    {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+    <include:heading
+      level="{{ heading_level }}"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      heading_size="heading-size-2"
+      alignment_class="text-left"
+      superheading_text=""
+    />
+  </content:heading>
+
+  <content:subheading>
+    <include:body_text
+      text="{{ value.content|richtext|remove_p_tag }}"
+      size="medium"
+      alignment="left"
+    />
+  </content:subheading>
+
+  {% if value.media %}
+    <content:media>
+      <include:image url="{{ image(value.media, 'width-800').url }}" alt="{{ value.media.alt }}" />
+    </content:media>
+  {% endif %}
+
+  {% if value.qr_code %}
+    <content:qr>
+      {{ qrcode(value.qr_code, 12) }}
+    </content:qr>
+  {% endif %}
+
+  {% if value.brand_image is defined and value.brand_image.url %}
+    <content:brand>
+      <include:image url="{{ value.brand_image.url }}" alt="{{ value.brand_image.alt }}" />
+    </content:brand>
+  {% endif %}
+</include:banner>

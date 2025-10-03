@@ -1,0 +1,89 @@
+name: "Banner variants"
+context:
+  variants:
+    - title: "QR Code Banner"
+      theme: "outlined"
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Take Firefox with you"
+        heading_size: "heading-size-2"
+        superheading_text: "Scan to Download"
+        alignment_class: "text-left"
+      subheading: "Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go."
+      media:
+        url: "/media/img/firefox/flare/qr-background-simple.png"
+        alt: "QR background"
+      qr_code: "https://mozilla.org/firefox/mobile/"
+
+    - title: "Banner with Media"
+      theme: "outlined"
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Banner with Media"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        alignment_class: "text-left"
+      subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Filled Banner with Brand Image"
+      theme: "filled"
+      media_after: true
+      heading:
+        level: "h2"
+        heading_text: "Filled Banner with Brand Image"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        alignment_class: "text-left"
+      subheading: "This variant uses the earth-glow gradient background with white text and a brand image positioned at the top."
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      brand_image:
+        url: "/media/img/firefox/flare/fox-brand.png"
+        alt: "Firefox"
+      brand_image_position: "bottom-right"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-secondary"
+
+    - title: "Full Width Filled Banner with Brand Image"
+      theme: "filled"
+      media_after: true
+      full_width: true
+      heading:
+        level: "h2"
+        heading_text: "Full Width Filled Banner with Brand Image"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        alignment_class: "text-left"
+      subheading: "This variant uses the earth-glow gradient background with white text and a brand image positioned at the top."
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      brand_image:
+        url: "/media/img/firefox/flare/fox-brand.png"
+        alt: "Firefox"
+      brand_image_position: "bottom-right"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-secondary"
