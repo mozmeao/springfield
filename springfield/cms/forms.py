@@ -10,6 +10,16 @@ class TranslationsFilterForm(forms.Form):
     ALL_LANGUAGES = "__all__"
     CORE_LANGUAGES = "__core__"
 
+    search = forms.CharField(
+        required=False,
+        label="Search",
+        widget=forms.TextInput(attrs={"class": "w-field__input", "placeholder": "Search by title or slug..."}),
+    )
+    translation_key = forms.UUIDField(
+        required=False,
+        label="Translation Key",
+        widget=forms.TextInput(attrs={"class": "w-field__input", "placeholder": "Filter by translation key..."}),
+    )
     original_language = forms.ChoiceField(
         choices=[("", "Any language")] + list(settings.WAGTAIL_CONTENT_LANGUAGES),
         required=False,
