@@ -679,6 +679,9 @@
     },
     {
       "files": [
+        "js/base/mozilla-client.js",
+        "js/base/mozilla-fxa.js",
+        "js/base/mozilla-fxa-init.js",
         "js/cms/new.es6.js"
       ],
       "name": "firefox-cms-new"
@@ -700,12 +703,6 @@
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
-    },
-    {
-      "files": [
-        "js/cms/new.es6.js"
-      ],
-      "name": "firefox-cms-new"
     }
   ]
 }
