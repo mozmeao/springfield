@@ -124,14 +124,10 @@ class ButtonValue(blocks.StructValue):
             "ghost": "button-ghost",
             "secondary": "button-secondary",
         }
-        return classes.get(self.get("theme"), "")
-
-    def center_class(self) -> str:
-        """TODO"""
-        return "" if self.get("center", False) else ""
+        return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class ButtonBlock(blocks.StructBlock):
+class ButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
@@ -140,8 +136,6 @@ class ButtonBlock(blocks.StructBlock):
         required=False,
         inline_form=True,
     )
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
-    center = blocks.BooleanBlock(required=False, default=False, inline_form=True)
     icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
     icon_position = blocks.ChoiceBlock(
         choices=(("left", "Left"), ("right", "Right")),
@@ -149,12 +143,23 @@ class ButtonBlock(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Button Settings"
+        label_format = "Theme: {theme} - Icon: {icon} {icon_position}"
+        form_classname = "compact-form struct-block"
+
+
+class ButtonBlock(blocks.StructBlock):
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
+    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
+    settings = ButtonSettings()
 
     class Meta:
         template = "cms/blocks/button.html"
-        form_classname = "compact-form struct-block"
         label = "Button"
         label_format = "Button - {label}"
         value_class = ButtonValue
@@ -200,7 +205,7 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class InlineNotificationBlock(blocks.StructBlock):
+class InlineNotificationSettings(blocks.StructBlock):
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
     color = blocks.ChoiceBlock(
         choices=[
@@ -233,7 +238,18 @@ class InlineNotificationBlock(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Notification Settings"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class InlineNotificationBlock(blocks.StructBlock):
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    settings = InlineNotificationSettings()
 
     class Meta:
         template = "cms/blocks/inline-notification.html"
@@ -242,7 +258,25 @@ class InlineNotificationBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class MediaContentSettings(blocks.StructBlock):
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Media + Content Settings"
+        label_format = "Media After: {media_after}"
+        form_classname = "compact-form struct-block"
+
+
 class MediaContentBlock(blocks.StructBlock):
+    settings = MediaContentSettings()
     # TODO: re-enable the embed block and make the image optional
     # when this issue with Wagtail Localize is resolved
     # https://github.com/wagtail/wagtail-localize/issues/875
@@ -258,13 +292,6 @@ class MediaContentBlock(blocks.StructBlock):
     #     max_height=400,
     #     inline_form=True,
     # )
-    media_after = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Media After",
-        inline_form=True,
-        help_text="Place media after text content on desktop",
-    )
     eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -273,7 +300,6 @@ class MediaContentBlock(blocks.StructBlock):
     class Meta:
         label = "Media + Content"
         label_format = "{headline}"
-        form_classname = "compact-form struct-block"
         template = "cms/blocks/media-content.html"
 
     # def clean(self, value):
@@ -288,17 +314,28 @@ class MediaContentBlock(blocks.StructBlock):
 # Cards
 
 
-class StickerCardBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+class StickerCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
         help_text="Expand the link click area to the whole card",
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Sticker Card Settings"
+        label_format = "Expand Link: {expand_link}"
+        form_classname = "compact-form struct-block"
+
+
+class StickerCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    settings = StickerCardSettings()
 
     class Meta:
         label = "Sticker Card"
@@ -320,17 +357,27 @@ class TagCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IconCardBlock(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+class IconCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
-        inline_form=True,
         help_text="Expand the link click area to the whole card",
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Icon Card Settings"
+        label_format = "Expand Link: {expand_link}"
+        form_classname = "compact-form struct-block"
+
+
+class IconCardBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    settings = IconCardSettings()
 
     class Meta:
         template = "cms/blocks/icon-card.html"
@@ -339,8 +386,12 @@ class IconCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IllustrationCardBlock(blocks.StructBlock):
-    image = ImageChooserBlock(inline_form=True)
+class IllustrationCardSettings(blocks.StructBlock):
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
     image_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -348,15 +399,21 @@ class IllustrationCardBlock(blocks.StructBlock):
         inline_form=True,
         help_text="Place image after text content",
     )
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Expand the link click area to the whole card",
-    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Illustration Card Settings"
+        label_format = "Expand Link: {expand_link} - Image After: {image_after}"
+        form_classname = "compact-form struct-block"
+
+
+class IllustrationCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock(inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    settings = IllustrationCardSettings()
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -365,16 +422,27 @@ class IllustrationCardBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class StepCardBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+class StepCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
         help_text="Expand the link click area to the whole card",
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Step Card Settings"
+        label_format = "Expand Link: {expand_link}"
+        form_classname = "compact-form struct-block"
+
+
+class StepCardBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    settings = StepCardSettings()
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -413,10 +481,26 @@ class StepCardListBlock(blocks.StructBlock):
 # Section blocks
 
 
+class IntroBlockSettings(blocks.StructBlock):
+    media_position = blocks.ChoiceBlock(
+        choices=(("after", "After"), ("before", "Before")),
+        default="after",
+        label="Media Position",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Intro Settings"
+        label_format = "Media Position: {media_position}"
+        form_classname = "compact-form struct-block"
+
+
 class IntroBlock(blocks.StructBlock):
+    settings = IntroBlockSettings()
     image = ImageChooserBlock(
         required=False,
-        inline_form=True,
         # help_text="Either enter an image or embed, or leave both blank.",
     )
     # TODO: re-enable the block when this issue with Wagtail Localize is resolved
@@ -428,12 +512,6 @@ class IntroBlock(blocks.StructBlock):
     #     inline_form=True,
     #     help_text="Either enter an image or embed, or leave both blank.",
     # )
-    media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before")),
-        default="after",
-        label="Media Position",
-        inline_form=True,
-    )
     heading = HeadingBlock()
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
@@ -441,7 +519,6 @@ class IntroBlock(blocks.StructBlock):
         template = "cms/blocks/intro.html"
         label = "Intro"
         label_format = "{heading}"
-        form_classname = "compact-form struct-block"
 
 
 class SectionBlock(blocks.StructBlock):
@@ -475,6 +552,23 @@ class SubscriptionBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class BannerSettings(blocks.StructBlock):
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Banner Settings"
+        label_format = "Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class BannerBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=False)
     qr_code = blocks.CharBlock(
@@ -483,13 +577,7 @@ class BannerBlock(blocks.StructBlock):
     )
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="",
-        label="Show To",
-        inline_form=True,
-        help_text="Control which users can see this content block",
-    )
+    settings = BannerSettings()
 
     class Meta:
         template = "cms/blocks/banner.html"

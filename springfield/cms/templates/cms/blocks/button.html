@@ -5,12 +5,11 @@
 #}
 
 <include:button
-  center_class="{{ value.center_class() }}"
   theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
   link="{{ value.link }}"
   external="{{ value.external }}"
-  disabled="{{ value.disabled }}"
-  icon_name="{{ value.icon }}"
-  icon_position="{{ value.icon_position }}"
-  label="{{ value.label }}"
+  disabled=""
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
 />
