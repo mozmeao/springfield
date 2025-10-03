@@ -8,6 +8,7 @@ import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
+from springfield.cms.models import PageTranslationData
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -202,6 +203,38 @@ def site_with_en_de_fr_it_homepages():
     it_home = en_home.copy_for_translation(it_locale)
     it_home.title = "Italian Home"
     it_home.save_revision().publish()
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages_1_en_page(site_with_en_de_fr_it_homepages):
+    """
+    Generates a small site tree with homepages and 1 English page:
+
+    en-US:
+        / [Page]
+            /english-page [SimpleRichTextPage]
+    de:
+        / [Page]
+    fr:
+        / [Page]
+    it:
+        / [Page]
+    """
+    # Get the locales
+    en_locale = Locale.objects.get(language_code="en-US")
+
+    # Get the home pages
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+
+    # Create a page originally in English.
+    en_page = SimpleRichTextPageFactory(
+        title="English Original",
+        slug="english-page",
+        locale=en_locale,
+        content="English content",
+        parent=en_home,
+    )
+    en_page.save_revision().publish()
 
 
 @pytest.fixture
