@@ -5,7 +5,11 @@
 #}
 
 <div class="media">
-  <video controls aria-label="{{ alt }}">
+  <video controls aria-label="{{ alt }}" class="ga-video-engagement">
     <source src="{{ url }}" />
   </video>
 </div>
+
+{% block js %}
+{{ js_bundle('data_videoengagement') }}
+{% endblock %}

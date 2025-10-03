@@ -1,4 +1,4 @@
 name: "Video"
 context:
-  url: '/media/img/firefox/flare/placeholder.png'
+  url: 'https://assets.mozilla.net/video/whatsnew/143/google-lens.webm'
   alt: 'Placeholder image'
