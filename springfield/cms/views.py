@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, TemplateView
 
+from wagtail.admin.views.generic.base import BaseListingView
 from wagtail.models import Page
 
 from springfield.cms.forms import TranslationsFilterForm
@@ -21,7 +22,7 @@ class FlareTestView(TemplateView):
 
 @method_decorator(staff_member_required, name="dispatch")
 @method_decorator(never_cache, name="dispatch")
-class TranslationsListView(ListView):
+class TranslationsListView(ListView, BaseListingView):
     """A view that shows a list of pages with their translations."""
 
     model = Page
