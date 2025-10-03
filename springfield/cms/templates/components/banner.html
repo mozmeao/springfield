@@ -1,0 +1,51 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if not full_width %}
+<div class="fl-banner-container">
+{% endif %}
+  <div class="fl-banner fl-banner-{{ theme|default('outlined') }} {% if media_after %}fl-banner-reverse{% endif %}" aria-labelledby="fl-banner-heading">
+
+  {% if contents.brand %}
+    <div class="fl-banner-brand fl-banner-brand-{{ brand_image_position|default('bottom-right') }}" aria-hidden="true">
+      {{ contents.brand }}
+    </div>
+  {% endif %}
+
+  <div class="fl-banner-layout">
+    {% if contents.media or qr_code %}
+      <div class="fl-banner-media" aria-hidden="true"{% if media_url %} style="background-image: url('{{ media_url }}');"{% endif %}>
+        {% if qr_code %}
+          <div class="fl-banner-qr" role="img">{{ contents.qr }}</div>
+        {% else %}
+          {{ contents.media }}
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="fl-banner-content {% if not contents.media and not qr_code %}fl-banner-content-centered{% endif %}">
+      <div class="fl-banner-content-inner">
+        {% if contents.heading %}
+          {{ contents.heading }}
+        {% endif %}
+
+        {% if contents.subheading %}
+          {{ contents.subheading }}
+        {% endif %}
+
+        {% if contents.actions %}
+          <div class="fl-banner-actions">
+            {{ contents.actions }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  </div>
+{% if not full_width %}
+</div>
+{% endif %}
