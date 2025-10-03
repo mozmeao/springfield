@@ -663,6 +663,12 @@
     },
     {
       "files": [
+        "js/base/datalayer-videoengagement-init.es6.js"
+      ],
+      "name": "data_videoengagement"
+    },
+    {
+      "files": [
         "js/firefox/browsers/ios-summarizer.js"
       ],
       "name": "ios_summarizer"
