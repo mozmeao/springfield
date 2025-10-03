@@ -9,7 +9,7 @@
   media_after="false"
   brand_image_position="bottom-right"
   qr_code="{{ value.qr_code }}"
-  media_url="{% if value.media %}{{ image(value.media, 'width-800').url }}{% endif %}">
+  media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
 
   <content:heading>
     {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
@@ -30,9 +30,9 @@
     />
   </content:subheading>
 
-  {% if value.media %}
+  {% if value.image %}
     <content:media>
-      <include:image url="{{ image(value.media, 'width-800').url }}" alt="{{ value.media.alt }}" />
+      <include:image url="{{ image(value.image, 'width-800').url }}" alt="{{ value.image.alt }}" />
     </content:media>
   {% endif %}
 
