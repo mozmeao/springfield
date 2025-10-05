@@ -21,7 +21,6 @@ from django.core.exceptions import MiddlewareNotUsed
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.locale import LocaleMiddleware as DjangoLocaleMiddleware
 from django.utils import translation
-from django.utils.cache import add_never_cache_headers
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import trans_real
 
