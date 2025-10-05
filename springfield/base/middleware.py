@@ -386,23 +386,6 @@ class HostnameMiddleware:
         return response
 
 
-class VaryNoCacheMiddleware:
-    def __init__(self, get_response):
-        if not settings.ENABLE_VARY_NOCACHE_MIDDLEWARE:
-            raise MiddlewareNotUsed
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        return self.process_response(request, response)
-
-    @staticmethod
-    def process_response(request, response):
-        if "vary" in response:
-            path = request.path
-            if path != "/" and not any(path.startswith(x) for x in settings.VARY_NOCACHE_EXEMPT_URL_PREFIXES):
-                del response["vary"]
-                del response["expires"]
-                add_never_cache_headers(response)
-
-        return response
+# VaryNoCacheMiddleware has been removed as it was CloudFlare-specific
+# and not needed with Fastly CDN which properly handles vary headers
+# for accept-language. See GitHub issue #265 for details.
