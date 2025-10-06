@@ -30,7 +30,7 @@ $image-path: '/media/protocol/img';
     }
 
     @media #{$mq-lg} {
-        margin-top: $layout-sm / 2 * -1;
+        margin-top: $layout-sm * -0.5;
     }
 }
 

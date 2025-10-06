@@ -56,6 +56,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-section.css' layer(components);
 
 @import 'flare-utilities.css' layer(utilities);
+@import 'flare-conditional-display.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */

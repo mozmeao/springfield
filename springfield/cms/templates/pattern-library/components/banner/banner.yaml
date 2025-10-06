@@ -1,0 +1,25 @@
+name: "Banner"
+context:
+  theme: "outlined"
+  media_after: false
+  heading:
+    level: "h2"
+    superheading_text: "New Feature"
+    heading_text: "Headline"
+    heading_size: "heading-size-2"
+    alignment_class: "text-left"
+  subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+  media:
+    url: "/media/img/firefox/flare/placeholder.png"
+    alt: "Feature image"
+  brand_image:
+    url: "/media/img/firefox/flare/fox-brand.png"
+    alt: "Firefox"
+  brand_image_position: "bottom-right"
+  buttons:
+    - label: "Learn More"
+      link: "/"
+      external: false
+      icon_name: "arrow-right"
+      icon_position: "right"
+      theme_class: ""
