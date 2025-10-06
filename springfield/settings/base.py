@@ -712,14 +712,6 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",  # needs to be loaded after django.contrib.auth
 ]
 
-# Legacy setting - VaryNoCacheMiddleware has been removed as it was
-# CloudFlare-specific and not needed with Fastly CDN which properly
-# handles vary headers for accept-language.
-# VARY_NOCACHE_EXEMPT_URL_PREFIXES = (
-#     "/firefox/",
-#     "/newsletter/",
-# )
-
 # Sessions
 #
 # NB: There are no sessions in Springfield - it's currently stateless.

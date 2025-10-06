@@ -384,7 +384,3 @@ class HostnameMiddleware:
         response["X-Backend-Server"] = self.backend_server
         return response
 
-
-# VaryNoCacheMiddleware has been removed as it was CloudFlare-specific
-# and not needed with Fastly CDN which properly handles vary headers
-# for accept-language. See GitHub issue #265 for details.
