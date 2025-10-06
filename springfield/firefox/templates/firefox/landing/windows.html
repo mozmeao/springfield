@@ -8,6 +8,7 @@
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=windows-landing' %}
 {% set ios_url = app_store_url('firefox', 'windows-landing') %}
+{% set android_url = play_store_url('firefox', 'windows-landing') %}
 
 {% if LANG == 'de' %}
   {% set intro_title = "Behalte dein Internet im Blick." %}
@@ -74,6 +75,8 @@
 {%- endmacro %}
 
 {% extends "firefox/download/desktop/base.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
 {% block string_data %}{% endblock %}
 
@@ -209,7 +212,7 @@
             {% block mobile_secondary_cta %}
               <ul class="mobile-download-buttons">
                 <li class="android">
-                  {{ google_play_button() }}
+                  {{ google_play_button(href=android_url) }}
                 </li>
                 <li class="ios">
                   {{ apple_app_store_button(href=ios_url) }}
@@ -286,7 +289,7 @@
 
           {% block mobile_primary_cta %}
             <div class="show-android">
-              {{ google_play_button() }}
+              {{ google_play_button(href=android_url) }}
             </div>
             <div class="show-ios">
               {{ apple_app_store_button(href=ios_url) }}
