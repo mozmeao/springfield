@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import uuid
+
 from django.test import TestCase, override_settings
 
 from springfield.cms.forms import TranslationsFilterForm
@@ -63,6 +65,13 @@ class TranslationsFilterFormTestCase(TestCase):
         """Test that form field has correct attributes."""
         form = TranslationsFilterForm()
 
+        # Test "search" field properties
+        search_field = form.fields["search"]
+        self.assertEqual(search_field.label, "Search")
+        self.assertFalse(search_field.required)
+        self.assertEqual(search_field.widget.attrs.get("class"), "w-field__input")
+        self.assertEqual(search_field.widget.attrs.get("placeholder"), "Search by title or slug...")
+
         # Test "original_language" field properties
         original_language_field = form.fields["original_language"]
         self.assertEqual(original_language_field.label, "Original Language")
@@ -74,6 +83,13 @@ class TranslationsFilterFormTestCase(TestCase):
         self.assertEqual(exists_in_language_field.label, "Exists In")
         self.assertFalse(exists_in_language_field.required)
         self.assertEqual(exists_in_language_field.widget.attrs.get("class"), "w-field__input")
+
+        # Test "translation_key" field properties
+        translation_key_field = form.fields["translation_key"]
+        self.assertEqual(translation_key_field.label, "Translation Key")
+        self.assertFalse(translation_key_field.required)
+        self.assertEqual(translation_key_field.widget.attrs.get("class"), "w-field__input")
+        self.assertEqual(translation_key_field.widget.attrs.get("placeholder"), "Filter by translation key...")
 
     def test_form_dynamic_choices_update(self):
         """Test that choices are updated dynamically on form initialization."""
@@ -175,3 +191,59 @@ class TranslationsFilterFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["original_language"], "en-US")
         self.assertEqual(form.cleaned_data["exists_in_language"], "de")
+
+    def test_search_field_validation_with_search_term(self):
+        """Test form validation with a search term."""
+        form = TranslationsFilterForm(data={"search": "test page"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "test page")
+
+    def test_search_field_validation_with_empty_search(self):
+        """Test form validation with empty search field."""
+        form = TranslationsFilterForm(data={"search": ""})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "")
+
+    def test_validation_with_empty_data(self):
+        """Test form validation with no search field provided."""
+        form = TranslationsFilterForm(data={})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data.get("search"), "")
+        self.assertEqual(form.cleaned_data["original_language"], "")
+        self.assertEqual(form.cleaned_data["exists_in_language"], "")
+
+    def test_search_with_other_filters(self):
+        """Test form validation with search combined with other filters."""
+        test_uuid = uuid.uuid4()
+        form = TranslationsFilterForm(
+            data={
+                "search": "homepage",
+                "original_language": "en-US",
+                "exists_in_language": "de",
+                "translation_key": str(test_uuid),
+            }
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["search"], "homepage")
+        self.assertEqual(form.cleaned_data["original_language"], "en-US")
+        self.assertEqual(form.cleaned_data["exists_in_language"], "de")
+        self.assertEqual(form.cleaned_data["translation_key"], test_uuid)
+
+    def test_translation_key_field_validation_with_valid_uuid(self):
+        """Test form validation with a valid translation key UUID."""
+        test_uuid = uuid.uuid4()
+        form = TranslationsFilterForm(data={"translation_key": str(test_uuid)})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["translation_key"], test_uuid)
+
+    def test_translation_key_field_validation_with_empty_key(self):
+        """Test form validation with empty translation key field."""
+        form = TranslationsFilterForm(data={"translation_key": ""})
+        self.assertTrue(form.is_valid())
+        self.assertIsNone(form.cleaned_data.get("translation_key"))
+
+    def test_translation_key_field_validation_with_invalid_uuid(self):
+        """Test form validation with invalid translation key."""
+        form = TranslationsFilterForm(data={"translation_key": "not-a-uuid"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("translation_key", form.errors)

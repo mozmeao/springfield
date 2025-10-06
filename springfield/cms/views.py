@@ -4,11 +4,12 @@
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Count, Min
+from django.db.models import Count, Min, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, TemplateView
 
+from wagtail.admin.views.generic.base import BaseListingView
 from wagtail.models import Page
 
 from springfield.cms.forms import TranslationsFilterForm
@@ -21,7 +22,7 @@ class FlareTestView(TemplateView):
 
 @method_decorator(staff_member_required, name="dispatch")
 @method_decorator(never_cache, name="dispatch")
-class TranslationsListView(ListView):
+class TranslationsListView(ListView, BaseListingView):
     """A view that shows a list of pages with their translations."""
 
     model = Page
@@ -50,6 +51,16 @@ class TranslationsListView(ListView):
         if not form.is_valid():
             pages_qs = pages_qs.none()
         else:
+            # Filter by translation key.
+            translation_key = form.cleaned_data.get("translation_key")
+            if translation_key:
+                pages_qs = pages_qs.filter(translation_key=translation_key)
+
+            # Filter by search query.
+            search_query = form.cleaned_data.get("search")
+            if search_query:
+                pages_qs = pages_qs.filter(Q(title__icontains=search_query) | Q(slug__icontains=search_query))
+
             # Filter by original language.
             if form.cleaned_data.get("original_language"):
                 pages_qs = pages_qs.filter(locale__language_code=form.cleaned_data["original_language"])
