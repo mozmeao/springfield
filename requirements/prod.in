@@ -2,13 +2,13 @@ APScheduler==3.11.0
 babis==0.2.4
 basket-client==1.2.0
 bleach[css]==6.1.0
-boto3==1.40.27
+boto3==1.40.43
 chardet==5.2.0
 commonware==0.6.0
 contextlib2==21.6.0
 dirsync==2.2.6
 dj-database-url==3.0.1
-django-cors-headers==4.8.0
+django-cors-headers==4.9.0
 django-crum==0.7.9
 django-csp==4.0
 django-extensions==4.1
@@ -22,8 +22,8 @@ django-rq-email-backend==2.0.0
 django-storages[google]==1.14.4
 django-waffle==4.2.0
 django-watchman==1.3.0
-Django==5.2.6
-docutils==0.21.2
+Django==5.2.7
+docutils==0.22.2
 envcat==0.1.1
 everett==3.4.0
 fluent.runtime==0.4.0
@@ -48,7 +48,7 @@ querystringsafe-base64==1.1.1  # Pinned to maintain stub attribution signatures 
 requests==2.32.5
 rich-text-renderer==0.2.8
 sentry-processor==0.0.1
-sentry-sdk==2.37.1
+sentry-sdk==2.39.0
 supervisor==4.2.5
 timeago==1.0.16
 wagtaildraftsharing==0.3.0
@@ -56,6 +56,6 @@ wagtail-localize-smartling==0.10.3
 wagtail-localize==1.12.2
 Wand==0.6.13  # For animated GIF support
 Wagtail==7.1.1
-whitenoise==6.10.0
+whitenoise==6.11.0
 https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.0-jinja/django_pattern_library-1.5.0.tar.gz
 django-includecontents==4.*

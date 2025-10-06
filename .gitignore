@@ -10,7 +10,6 @@ __pycache__/
 .eslintcache
 .idea
 .jshintrc
-.noseids
 .python-version
 .vscode/*
 *-all.css
@@ -33,8 +32,6 @@ build
 build.py
 db.sql
 Desktop.ini
-docs/site
-james.ini
 node_modules
 npm-debug.log
 pip-log.txt
@@ -59,3 +56,4 @@ tmp/*
 venv
 /custom-media
 /local-credentials/*.json
+AGENTS.md

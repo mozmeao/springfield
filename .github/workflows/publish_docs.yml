@@ -25,17 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.13
-          cache: pip
       - id: pages
         uses: actions/configure-pages@v5
-      - run: pip install -r requirements/docs.txt
-      - run: cd docs && mkdocs build -d site
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/site
+          path: ./docs
   deploy:
     environment:
       name: github-pages
