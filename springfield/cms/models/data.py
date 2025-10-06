@@ -47,7 +47,7 @@ class PageTranslationData(models.Model):
         return ""
 
     def to_dict(self):
-        """Return dictionary matching the structure from calculate_translation_data()."""
+        """Return dictionary with translation data."""
         return {
             "locale": self.translated_page.locale.language_code,
             "edit_url": self.get_edit_url,

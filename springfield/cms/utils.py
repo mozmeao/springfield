@@ -84,16 +84,14 @@ def get_translation_percentages_for_page(source_page, target_locale):
         return None
 
 
-def calculate_translation_data(source_page):
-    """Calculate translation data for a given page.
+def create_page_translation_data(source_page):
+    """Calculate translation data for a given page and create a PageTranslationData object.
 
     Args:
         page: A Page object
-
-    Returns:
-        list: Each object contains 'locale', 'edit_url', 'view_url', and 'percent_translated'
     """
-    translations_data = []
+    from springfield.cms.models import PageTranslationData
+
     try:
         page_translations = source_page.get_translations()
         # Loop over all translations for this source_page, and get data for each of them.
@@ -115,16 +113,9 @@ def calculate_translation_data(source_page):
                     if percent_translated is not None:
                         break
 
-            translations_data.append(
-                {
-                    "locale": translation.locale.language_code,
-                    "edit_url": f"/cms-admin/pages/{translation.id}/edit/",
-                    "view_url": translation.get_url() if hasattr(translation, "get_url") else "#",
-                    "percent_translated": percent_translated or 0,
-                }
+            PageTranslationData.objects.update_or_create(
+                source_page=source_page, translated_page=translation, defaults={"percent_translated": percent_translated or 0}
             )
     except (ValueError, AttributeError) as error:
         # If there is an unexpected error, then log it.
         logger.exception(error, stack_info=True)
-
-    return translations_data
