@@ -289,7 +289,6 @@ def _put_default_lang_first(langs, default_lang=LANGUAGE_CODE):
 # Our accepted production locales are the values from the above, plus an exception.
 PROD_LANGUAGES = _put_default_lang_first(sorted(sum(LOCALES_BY_REGION.values(), [])) + ["ja-JP-mac"])
 
-GITHUB_REPO = "https://github.com/mozmeao/springfield"
 
 # Global L10n files.
 FLUENT_DEFAULT_FILES = [
@@ -331,22 +330,6 @@ FLUENT_PATHS = [
     FLUENT_REPO_PATH,
 ]
 
-# Templates to exclude from having an "edit this page" link in the footer
-# these are typically ones for which most of the content is in the DB
-EXCLUDE_EDIT_TEMPLATES = [
-    "firefox/releases/nightly-notes.html",
-    "firefox/releases/dev-browser-notes.html",
-    "firefox/releases/esr-notes.html",
-    "firefox/releases/beta-notes.html",
-    "firefox/releases/aurora-notes.html",
-    "firefox/releases/release-notes.html",
-    "firefox/releases/notes.html",
-    "firefox/releases/system_requirements.html",
-]
-# Also allow entire directories to be skipped
-EXCLUDE_EDIT_TEMPLATES_DIRECTORIES = [
-    "cms",
-]
 
 IGNORE_LANG_DIRS = [
     ".git",

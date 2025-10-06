@@ -1,0 +1,32 @@
+name: Conditional Display
+context:
+  variants:
+    - name: All Users
+      condition: all
+      contents: |
+        <p>No condition class is applied to this content.</p>
+    - name: Firefox Users
+      condition: is-firefox
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-is-firefox</b>
+          will be displayed if wrapped in class <b>.is-firefox</b>.</p>
+    - name: Non-Firefox Users
+      condition: not-firefox
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-not-firefox</b>
+          will be displayed if not wrapped in class <b>.is-firefox</b>.</p>
+    - name: Signed-in Users
+      condition: state-fxa-supported-signed-in
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-in</b>
+          will be displayed if wrapped in class <b>.state-fxa-supported-signed-in</b>.</p>
+    - name: Signed-out Users
+      condition: state-fxa-supported-signed-out
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-out</b>
+          will be displayed if wrapped in class <b>.state-fxa-supported-signed-out</b>.</p>
+    - name: Windows 10 Users
+      condition: windows-10-plus
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-windows-10-plus</b>
+          will be displayed if wrapped in class <b>.windows-10-plus</b>.</p>

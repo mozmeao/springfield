@@ -92,6 +92,16 @@ ICON_CHOICES = [
     ("user", "User"),
 ]
 
+CONDITIONAL_DISPLAY_CHOICES = [
+    ("all", "All Users"),
+    ("is-firefox", "Firefox Users"),
+    ("not-firefox", "Non Firefox Users"),
+    ("state-fxa-supported-signed-in", "Signed-in Users"),
+    ("state-fxa-supported-signed-out", "Signed-out Users"),
+    ("windows-10-plus", "Windows 10 Users"),
+]
+
+
 # Element blocks
 
 
@@ -215,6 +225,13 @@ class InlineNotificationBlock(blocks.StructBlock):
         default=False,
         inline_form=True,
         help_text="Show close button",
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
     )
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
@@ -466,6 +483,13 @@ class BannerBlock(blocks.StructBlock):
     )
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
 
     class Meta:
         template = "cms/blocks/banner.html"

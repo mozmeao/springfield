@@ -29,15 +29,21 @@
     <ul class="content-list">
       <li>
         <img class="list-icon" alt="" src="{{ static('protocol/img/icons/mozilla.svg') }}" width="30" height="30">
-        {{ ftl('not-found-page-learn-about-mozilla-the-non', about="https://www.mozilla.org/about/" + params) }}
+        <span>
+          {{ ftl('not-found-page-learn-about-mozilla-the-non', about="https://www.mozilla.org/about/" + params) }}
+        </span>
       </li>
       <li>
         <img class="list-icon" alt="" src="{{ static('protocol/img/icons/desktop.svg') }}" width="30" height="30">
-        {{ ftl('not-found-page-download-the-firefox-browser', download=url('firefox')) }}
+        <span>
+          {{ ftl('not-found-page-download-the-firefox-browser', download="https://www.firefox.com/") }}
+        </span>
       </li>
       <li>
         <img class="list-icon" alt="" src="{{ static('protocol/img/icons/default-browser.svg') }}" width="30" height="30">
-        {{ ftl('not-found-page-donate-to-mozilla-reclaim-from', donate='href="%s"'|safe|format(donate_url(location='donate-404'))) }}
+        <span>
+          {{ ftl('not-found-page-donate-to-mozilla-reclaim-from', donate='href="%s"'|safe|format(donate_url(location='donate-404'))) }}
+        </span>
       </li>
     </ul>
   </main>

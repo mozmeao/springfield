@@ -36,7 +36,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TITLE: "[bot] Remove obsolete l10n strings and ftl files"
           ASSIGNEES:
-          LABELS: L10n,Frontend
+          LABELS: L10N,Frontend
           BODY: |
             ### Remove obsolete strings
 

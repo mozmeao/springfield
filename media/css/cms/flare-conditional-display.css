@@ -1,0 +1,29 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.conditional-display {
+    display: none;
+}
+
+.is-firefox .conditional-display.condition-is-firefox {
+    display: block;
+}
+
+:not(.is-firefox) .conditional-display.condition-not-firefox {
+    display: block;
+}
+
+.state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
+    display: block;
+}
+
+.state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
+    display: block;
+}
+
+.windows-10-plus .conditional-display.condition-windows-10-plus {
+    display: block;
+}

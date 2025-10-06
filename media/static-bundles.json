@@ -352,6 +352,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/win10-eos.scss"
+      ],
+      "name": "firefox_win10_eos"
+    },
+    {
+      "files": [
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
@@ -409,6 +415,12 @@
         "css/firefox/whatsnew/evergreen.scss"
       ],
       "name": "whatsnew"
+    },
+    {
+      "files": [
+        "css/firefox/data.scss"
+      ],
+      "name": "data_protection"
     }
   ],
   "js": [
@@ -639,6 +651,12 @@
     },
     {
       "files": [
+        "js/base/video-prefers-reduced-motion.es6.js"
+      ],
+      "name": "video-prefers-reduced-motion"
+    },
+    {
+      "files": [
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
@@ -679,6 +697,9 @@
     },
     {
       "files": [
+        "js/base/mozilla-client.js",
+        "js/base/mozilla-fxa.js",
+        "js/base/mozilla-fxa-init.js",
         "js/cms/new.es6.js"
       ],
       "name": "firefox-cms-new"
@@ -703,9 +724,15 @@
     },
     {
       "files": [
-        "js/cms/new.es6.js"
+        "js/data/data-uitour.es6.js"
       ],
-      "name": "firefox-cms-new"
+      "name": "data_uitour"
+    },
+    {
+      "files": [
+        "js/data/data-protection.js"
+      ],
+      "name": "data_protection"
     }
   ]
 }

@@ -1,0 +1,51 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:banner
+  theme="{{ theme }}"
+  media_after="{{ media_after }}"
+  full_width="{{ full_width }}"
+  brand_image_position="{{ brand_image_position }}"
+  media_url="{{ media.get('url', '') if media else '' }}">
+
+  <content:heading>
+    <include:heading
+      level="{{ heading.level }}"
+      heading_text="{{ heading.heading_text }}"
+      heading_size="{{ heading.heading_size }}"
+      alignment_class="{{ heading.alignment_class }}"
+      superheading_text="{{ heading.superheading_text }}"
+    />
+  </content:heading>
+
+  {% if subheading %}
+    <content:subheading>
+      <include:subheading
+        subheading_text="{{ subheading }}"
+        size="subheading-4"
+        alignment_class="{{ heading.alignment_class }}"
+      />
+    </content:subheading>
+  {% endif %}
+
+  {% if media %}
+    <content:media>
+      <include:image url="{{ media.url }}" alt="{{ media.alt }}" />
+    </content:media>
+  {% endif %}
+
+  {% if brand_image %}
+    <content:brand>
+      <include:image url="{{ brand_image.url }}" alt="{{ brand_image.alt }}" />
+    </content:brand>
+  {% endif %}
+
+  {% if buttons %}
+    <content:actions>
+      <include:buttons buttons="{{ buttons }}" orientation="horizontal" />
+    </content:actions>
+  {% endif %}
+</include:banner>
