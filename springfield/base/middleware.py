@@ -383,4 +383,3 @@ class HostnameMiddleware:
     def process_response(self, request, response):
         response["X-Backend-Server"] = self.backend_server
         return response
-
