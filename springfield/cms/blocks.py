@@ -147,16 +147,16 @@ class ButtonSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Button Settings"
-        label_format = "Theme: {theme} - Icon: {icon} {icon_position}"
+        label = "Settings"
+        label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
         form_classname = "compact-form struct-block"
 
 
 class ButtonBlock(blocks.StructBlock):
+    settings = ButtonSettings()
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
     external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
-    settings = ButtonSettings()
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -242,14 +242,14 @@ class InlineNotificationSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Notification Settings"
+        label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
 class InlineNotificationBlock(blocks.StructBlock):
-    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     settings = InlineNotificationSettings()
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         template = "cms/blocks/inline-notification.html"
@@ -270,7 +270,7 @@ class MediaContentSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Media + Content Settings"
+        label = "Settings"
         label_format = "Media After: {media_after}"
         form_classname = "compact-form struct-block"
 
@@ -324,37 +324,35 @@ class StickerCardSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Sticker Card Settings"
+        label = "Settings"
         label_format = "Expand Link: {expand_link}"
         form_classname = "compact-form struct-block"
 
 
 class StickerCardBlock(blocks.StructBlock):
+    settings = StickerCardSettings()
     image = ImageChooserBlock()
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-    settings = StickerCardSettings()
 
     class Meta:
         label = "Sticker Card"
         label_format = "{headline}"
-        form_classname = "compact-form struct-block"
         template = "cms/blocks/sticker-card.html"
 
 
 class TagCardBlock(blocks.StructBlock):
+    tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-    tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
 
     class Meta:
         template = "cms/blocks/tag-card.html"
         label = "Tag Card"
         label_format = "Tag Card - {headline}"
-        form_classname = "compact-form struct-block"
 
 
 class IconCardSettings(blocks.StructBlock):
@@ -367,23 +365,22 @@ class IconCardSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Icon Card Settings"
+        label = "Settings"
         label_format = "Expand Link: {expand_link}"
         form_classname = "compact-form struct-block"
 
 
 class IconCardBlock(blocks.StructBlock):
+    settings = IconCardSettings()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-    settings = IconCardSettings()
 
     class Meta:
         template = "cms/blocks/icon-card.html"
         label = "Icon Card"
         label_format = "Icon Card - {headline}"
-        form_classname = "compact-form struct-block"
 
 
 class IllustrationCardSettings(blocks.StructBlock):
@@ -403,23 +400,22 @@ class IllustrationCardSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Illustration Card Settings"
+        label = "Settings"
         label_format = "Expand Link: {expand_link} - Image After: {image_after}"
         form_classname = "compact-form struct-block"
 
 
 class IllustrationCardBlock(blocks.StructBlock):
+    settings = IllustrationCardSettings()
     image = ImageChooserBlock(inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-    settings = IllustrationCardSettings()
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
         label = "Illustration Card"
         label_format = "{headline}"
-        form_classname = "compact-form struct-block"
 
 
 class StepCardSettings(blocks.StructBlock):
@@ -432,23 +428,22 @@ class StepCardSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Step Card Settings"
+        label = "Settings"
         label_format = "Expand Link: {expand_link}"
         form_classname = "compact-form struct-block"
 
 
 class StepCardBlock(blocks.StructBlock):
+    settings = StepCardSettings()
     image = ImageChooserBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
-    settings = StepCardSettings()
 
     class Meta:
         template = "cms/blocks/step-card.html"
         label = "Step Card"
         label_format = "{headline}"
-        form_classname = "compact-form struct-block"
 
 
 class CardsListBlock(blocks.StructBlock):
@@ -465,7 +460,6 @@ class CardsListBlock(blocks.StructBlock):
         template = "cms/blocks/cards-list.html"
         label = "Cards List"
         label_format = "Cards List - {heading}"
-        form_classname = "compact-form struct-block"
 
 
 class StepCardListBlock(blocks.StructBlock):
@@ -475,7 +469,6 @@ class StepCardListBlock(blocks.StructBlock):
         template = "cms/blocks/cards-list.html"
         label = "Step Cards List"
         label_format = "Step Cards - {heading}"
-        form_classname = "compact-form struct-block"
 
 
 # Section blocks
@@ -492,7 +485,7 @@ class IntroBlockSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Intro Settings"
+        label = "Settings"
         label_format = "Media Position: {media_position}"
         form_classname = "compact-form struct-block"
 
@@ -564,12 +557,13 @@ class BannerSettings(blocks.StructBlock):
     class Meta:
         icon = "cog"
         collapsed = True
-        label = "Banner Settings"
+        label = "Settings"
         label_format = "Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
 class BannerBlock(blocks.StructBlock):
+    settings = BannerSettings()
     image = ImageChooserBlock(required=False)
     qr_code = blocks.CharBlock(
         required=False,
@@ -577,7 +571,6 @@ class BannerBlock(blocks.StructBlock):
     )
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    settings = BannerSettings()
 
     class Meta:
         template = "cms/blocks/banner.html"
