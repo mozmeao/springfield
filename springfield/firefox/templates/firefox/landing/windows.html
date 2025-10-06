@@ -20,7 +20,7 @@
   {% set feature_three_description = "Ob 5 oder 50 Tabs – mit Firefox behältst du den Überblick. Du kannst Tabs durchsuchen, anpinnen oder doppelte ganz easy schließen." %}
   {% set hightlights_title = "Hol dir den Browser, der macht was er soll." %}
   {% set hightlight_one_title = "Werbe-Tracker? Blocken wir für dich." %}
-  {% set hightlight_one_description = "Sie machen Seiten langsam und nerven. Firefox kümmert sich automatisch darum. Für Schnelligkeit und mehr Privatsphäre, ohne dass du etwas einstellen musst" %}
+  {% set hightlight_one_description = "Sie machen Seiten langsam und nerven. Firefox kümmert sich automatisch darum. Für Schnelligkeit und mehr Privatsphäre, ohne dass du etwas einstellen musst." %}
   {% set hightlight_two_title = "Tschüss Ablenkung." %}
   {% set hightlight_two_description = 'Erweiterungen wie <a href="https://addons.mozilla.org/firefox/addon/tomato-clock/' ~ params ~ '">Tomato Clock</a> und <a href="https://addons.mozilla.org/firefox/addon/turn-off-the-lights/' ~ params ~ '">Turn Off the Lights</a> helfen dir dabei, fokussiert zu bleiben. Sie sind empfohlen, heißt sie haben von uns ein Sternchen für besondere Sicherheit und Funktionalität.' %}
   {% set hightlight_three_title = "Alles Wichtige, auf all deinen Geräten." %}
@@ -39,7 +39,7 @@
   {% set feature_one_title = "Dial down the noise" %}
   {% set feature_one_description = "With Firefox, ads and trackers won’t be in your way. Enjoy faster browsing and stronger privacy with customizable settings and downloadable extensions that puts you in control." %}
   {% set feature_two_title = "Multitask or focus? You pick." %}
-  {% set feature_two_description = "Use reading mode for focus, pop‑out videos for flexibility and vertical tab groups for organization. However you browse, Firefox makes it easy and stays fast even with dozens of tabs" %}
+  {% set feature_two_description = "Use reading mode for focus, pop‑out videos for flexibility and vertical tab groups for organization. However you browse, Firefox makes it easy and stays fast even with dozens of tabs." %}
   {% set feature_three_title = "Keep tabs on all your tabs" %}
   {% set feature_three_description = "Whether you’ve got 5 or 50 tabs open, Firefox gives you smarter tab management. Search, pin or close duplicates with ease. " %}
   {% set hightlights_title = "Get the browser that helps you get the job done" %}
@@ -50,7 +50,9 @@
   {% set hightlight_three_title = "Your web, on all your screens" %}
   {% set hightlight_three_description = "Take your passwords, tabs, and history with you with Firefox mobile. Firefox works seamlessly across devices so you can pick up where you left off." %}
   {% set personalization_title = "Make Firefox yours" %}
+  {% set personalization_one_title = "Work smarter, play harder" %}
   {% set personalization_one_description = 'From research to shopping to entertainment, Firefox has thousands of <a href="https://addons.mozilla.org/firefox/extensions/' ~ params ~ '">extensions</a> to support the way you work and play.' %}
+  {% set personalization_two_title = "Bye, boring browser" %}
   {% set personalization_two_description = 'Add <a href="https://addons.mozilla.org/firefox/themes/' ~ params ~ '">themes</a> to match your style and make Firefox a browser that feels like your own.' %}
 
   {% set legacy_title = "Billionaire-free for 20+ years" %}
@@ -235,16 +237,12 @@
 
       <ul class="mzp-l-columns mzp-t-columns-two">
         <li>
-          {% if LANG == "de" %}
-            <h3>{{ personalization_one_title }}</h3>
-          {% endif %}
+          <h3>{{ personalization_one_title }}</h3>
           <p>{{ personalization_one_description | safe }}</p>
         </li>
 
         <li>
-          {% if LANG == "de" %}
-            <h3>{{ personalization_two_title }}</h3>
-          {% endif %}
+          <h3>{{ personalization_two_title }}</h3>
           <p>{{ personalization_two_description | safe }}</p>
         </li>
       </ul>
