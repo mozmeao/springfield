@@ -106,9 +106,13 @@ CONDITIONAL_DISPLAY_CHOICES = [
 
 
 class HeadingBlock(blocks.StructBlock):
-    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    superheading_text = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES, required=False
+    )
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    subheading_text = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES, required=False
+    )
 
     class Meta:
         icon = "title"
@@ -143,6 +147,9 @@ class ButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
+    external = blocks.BooleanBlock(
+        required=False, default=False, label="External link", inline_form=True
+    )
 
     class Meta:
         icon = "cog"
@@ -156,7 +163,6 @@ class ButtonBlock(blocks.StructBlock):
     settings = ButtonSettings()
     link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
 
     class Meta:
         template = "cms/blocks/button.html"
