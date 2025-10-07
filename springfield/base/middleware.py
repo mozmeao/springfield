@@ -21,7 +21,6 @@ from django.core.exceptions import MiddlewareNotUsed
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.locale import LocaleMiddleware as DjangoLocaleMiddleware
 from django.utils import translation
-from django.utils.cache import add_never_cache_headers
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import trans_real
 
@@ -383,26 +382,4 @@ class HostnameMiddleware:
 
     def process_response(self, request, response):
         response["X-Backend-Server"] = self.backend_server
-        return response
-
-
-class VaryNoCacheMiddleware:
-    def __init__(self, get_response):
-        if not settings.ENABLE_VARY_NOCACHE_MIDDLEWARE:
-            raise MiddlewareNotUsed
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        return self.process_response(request, response)
-
-    @staticmethod
-    def process_response(request, response):
-        if "vary" in response:
-            path = request.path
-            if path != "/" and not any(path.startswith(x) for x in settings.VARY_NOCACHE_EXEMPT_URL_PREFIXES):
-                del response["vary"]
-                del response["expires"]
-                add_never_cache_headers(response)
-
         return response
