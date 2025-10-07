@@ -90,21 +90,38 @@ test.describe(
             await page.goto(url + '?automation=true');
 
             // Assert Linux download buttons are displayed.
-            await expect(introDownloadLinux).toBeVisible();
-            await expect(introDownloadLinux).toHaveAttribute(
-                'href',
-                /\?product=firefox-devedition-latest-ssl&os=linux/
+
+            // Linux 32 buttons disappearing in release 145 (Release will be at 144 when Dev ed is at 145) (Issue #466)
+            const latest_firefox = await page.evaluate(
+                () =>
+                    document.documentElement
+                        .getAttribute('data-latest-firefox')
+                        .split('.')[0]
             );
+            const dev_linux_32 = latest_firefox < 144 ? true : false;
+
+            if (dev_linux_32) {
+                await expect(introDownloadLinux).toBeVisible();
+                await expect(introDownloadLinux).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-devedition-latest-ssl&os=linux/
+                );
+            }
+
             await expect(introDownloadLinux64).toBeVisible();
             await expect(introDownloadLinux64).toHaveAttribute(
                 'href',
                 /\?product=firefox-devedition-latest-ssl&os=linux64/
             );
-            await expect(footerDownloadLinux).toBeVisible();
-            await expect(footerDownloadLinux).toHaveAttribute(
-                'href',
-                /\?product=firefox-devedition-latest-ssl&os=linux/
-            );
+
+            if (dev_linux_32) {
+                await expect(footerDownloadLinux).toBeVisible();
+                await expect(footerDownloadLinux).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-devedition-latest-ssl&os=linux/
+                );
+            }
+
             await expect(footerDownloadLinux64).toBeVisible();
             await expect(footerDownloadLinux64).toHaveAttribute(
                 'href',
