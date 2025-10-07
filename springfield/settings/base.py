@@ -664,7 +664,6 @@ HOSTNAME = platform.node()
 APP_NAME = config("APP_NAME", default=get_app_name(HOSTNAME))
 CLUSTER_NAME = config("CLUSTER_NAME", default="")
 ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bool(APP_NAME)), parser=bool)
-ENABLE_VARY_NOCACHE_MIDDLEWARE = config("ENABLE_VARY_NOCACHE_MIDDLEWARE", default="false", parser=bool)
 # set this to enable basic auth for the entire site
 # e.g. BASIC_AUTH_CREDS="thedude:thewalrus"
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
@@ -677,9 +676,6 @@ MIDDLEWARE = [
     "springfield.base.middleware.HostnameMiddleware",
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    # VaryNoCacheMiddleware must be above LocaleMiddleware"
-    # so that it can see the response has a vary on accept-language.
-    "springfield.base.middleware.VaryNoCacheMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
@@ -752,14 +748,6 @@ INSTALLED_APPS = [
     "django_rq_email_backend",
     "mozilla_django_oidc",  # needs to be loaded after django.contrib.auth
 ]
-
-# Must match the list at CloudFlare if the
-# VaryNoCacheMiddleware is enabled. The home
-# page is exempt by default.
-VARY_NOCACHE_EXEMPT_URL_PREFIXES = (
-    "/firefox/",
-    "/newsletter/",
-)
 
 # Sessions
 #
