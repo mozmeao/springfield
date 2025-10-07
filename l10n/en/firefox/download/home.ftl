@@ -36,7 +36,7 @@ firefox-home-stay-focused = Stay focused with extensions like <a { $tomato_clock
 firefox-home-your-stuff = Your stuff, on all your screens
 firefox-home-get-firefox-mobile = Get { -brand-name-firefox } mobile so your passwords, tabs and history — and the privacy and security you rely on — go with you wherever you go.
 firefox-home-privacy-built-in = Privacy built in
-firefox-home-personal-data-not-for-sale = Your personal data isn’t for sale. Trackers and 3rd party cookies are blocked by default, so you can just…browse.
+firefox-home-personal-data-not-for-sale = Your personal data isn’t for sale. Trackers and 3rd party cookies are blocked by default, so you can just … browse.
 firefox-home-learn-data-protection = Learn how { -brand-name-firefox } protects your data
 
 ## Customization
