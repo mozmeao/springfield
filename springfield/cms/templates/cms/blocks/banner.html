@@ -6,9 +6,11 @@
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
-    theme="outlined"
-    media_after="false"
-    brand_image_position="bottom-right"
+    theme="{{ value.settings.theme }}"
+    media_after="{{ value.settings.media_after }}"
+    full_width="{{ value.settings.full_width }}"
+    brand_image_position="{{ value.settings.brand_image_position}}"
+    brand_image_size="{{ value.settings.brand_image_size }}"
     qr_code="{{ value.qr_code }}"
     media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
 
@@ -16,18 +18,18 @@
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
       <include:heading
         level="{{ heading_level }}"
-        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
         heading_size="heading-size-2"
         alignment_class=""
-        superheading_text=""
+        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
       />
     </content:heading>
 
     <content:subheading>
-      <include:body_text
-        text="{{ value.content|richtext|remove_p_tag }}"
-        size="medium"
-        alignment=""
+      <include:subheading
+        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+        size="subheading-4"
+        alignment_class=""
       />
     </content:subheading>
 
@@ -43,15 +45,32 @@
       </content:qr>
     {% endif %}
 
-    {% if value.brand_image is defined and value.brand_image.url %}
+    {% if value.brand_image %}
       <content:brand>
-        <include:image url="{{ value.brand_image.url }}" alt="{{ value.brand_image.alt }}" />
+        <include:image url="{{ image(value.brand_image, 'width-800').url }}" alt="{{ value.brand_image.alt }}" />
       </content:brand>
     {% endif %}
 
     {% if value.buttons %}
       <content:actions>
-        <include:buttons buttons="{{ value.buttons }}" center="{% if not value.image and not value.qr_code %}true{% endif %}" orientation="horizontal" />
+        <div class="buttons">
+          {% set data = namespace(buttons=[]) %}
+          {% for button in value.buttons %}
+            {% set _ = data.buttons.append({
+              "label": button.label,
+              "link": button.link,
+              "external": button.settings.external,
+              "theme_class": button.theme_class(),
+              "icon_name": button.settings.icon_name,
+              "icon_position": button.settings.icon_position,
+            }) %}
+          {% endfor %}
+          <include:buttons
+            buttons="{{ data.buttons }}"
+            center="{% if not value.image and not value.qr_code and value.settings.brand_image_size != 'large'%}true{% endif %}"
+            orientation="horizontal"
+          />
+        </div>
       </content:actions>
     {% endif %}
   </include:banner>

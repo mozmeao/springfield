@@ -323,4 +323,10 @@
         text-align: left;
         align-items: flex-start;
     }
+
+    .fl-banner-brandsize-large.fl-banner-hasbrand-left .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-top-left .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-left .fl-banner-actions {
+        justify-content: flex-end;
+    }
 }

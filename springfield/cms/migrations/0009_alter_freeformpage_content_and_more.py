@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name="freeformpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 21), ("section", 54), ("subscription", 55), ("banner", 58)],
+                [("inline_notification", 7), ("intro", 21), ("section", 54), ("subscription", 55), ("banner", 64)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -155,7 +155,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
@@ -393,8 +397,78 @@ class Migration(migrations.Migration):
                     53: ("wagtail.blocks.ListBlock", (52,), {"label": "Call to Action", "max_num": 1, "min_num": 0}),
                     54: ("wagtail.blocks.StructBlock", [[("heading", 12), ("content", 49), ("cta", 53)]], {}),
                     55: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    56: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    56: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("outlined", "Outlined"), ("filled", "Filled")], "inline_form": True}),
                     57: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Make the banner span the full width of the viewport.",
+                            "inline_form": True,
+                            "label": "Full Width",
+                            "required": False,
+                        },
+                    ),
+                    58: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Place media after text content on desktop.",
+                            "inline_form": True,
+                            "label": "Media After",
+                            "required": False,
+                        },
+                    ),
+                    59: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("bottom-right", "Bottom Right"),
+                                ("top-right", "Top Right"),
+                                ("right", "Right"),
+                                ("bottom-left", "Bottom Left"),
+                                ("top-left", "Top Left"),
+                                ("left", "Left"),
+                            ],
+                            "help_text": "Position of the brand image within the banner. Only applies if a brand image is added.",
+                            "inline_form": True,
+                            "label": "Brand Image Position",
+                            "required": False,
+                        },
+                    ),
+                    60: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [("", "Default"), ("large", "Large")],
+                            "help_text": "Size of the brand image within the banner. Only applies if a brand image is added.",
+                            "inline_form": True,
+                            "label": "Brand Image Size",
+                            "required": False,
+                        },
+                    ),
+                    61: (
+                        "wagtail.blocks.StructBlock",
+                        [
+                            [
+                                ("theme", 56),
+                                ("full_width", 57),
+                                ("media_after", 58),
+                                ("show_to", 4),
+                                ("brand_image_position", 59),
+                                ("brand_image_size", 60),
+                            ]
+                        ],
+                        {},
+                    ),
+                    62: (
+                        "wagtail.images.blocks.ImageChooserBlock",
+                        (),
+                        {"help_text": "Used as a background image in one of the banner corners.", "required": False},
+                    ),
+                    63: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -403,9 +477,9 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    58: (
+                    64: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 56), ("image", 10), ("qr_code", 57), ("headline", 6), ("content", 6)]],
+                        [[("settings", 61), ("image", 10), ("brand_image", 62), ("qr_code", 63), ("heading", 12), ("buttons", 20)]],
                         {"group": "Banners"},
                     ),
                 },
@@ -415,7 +489,7 @@ class Migration(migrations.Migration):
             model_name="whatsnewpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 21), ("section", 54), ("subscription", 55), ("banner", 58)],
+                [("inline_notification", 7), ("intro", 21), ("section", 54), ("subscription", 55), ("banner", 64)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -551,7 +625,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
@@ -789,8 +867,78 @@ class Migration(migrations.Migration):
                     53: ("wagtail.blocks.ListBlock", (52,), {"label": "Call to Action", "max_num": 1, "min_num": 0}),
                     54: ("wagtail.blocks.StructBlock", [[("heading", 12), ("content", 49), ("cta", 53)]], {}),
                     55: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    56: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    56: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("outlined", "Outlined"), ("filled", "Filled")], "inline_form": True}),
                     57: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Make the banner span the full width of the viewport.",
+                            "inline_form": True,
+                            "label": "Full Width",
+                            "required": False,
+                        },
+                    ),
+                    58: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Place media after text content on desktop.",
+                            "inline_form": True,
+                            "label": "Media After",
+                            "required": False,
+                        },
+                    ),
+                    59: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("bottom-right", "Bottom Right"),
+                                ("top-right", "Top Right"),
+                                ("right", "Right"),
+                                ("bottom-left", "Bottom Left"),
+                                ("top-left", "Top Left"),
+                                ("left", "Left"),
+                            ],
+                            "help_text": "Position of the brand image within the banner. Only applies if a brand image is added.",
+                            "inline_form": True,
+                            "label": "Brand Image Position",
+                            "required": False,
+                        },
+                    ),
+                    60: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [("", "Default"), ("large", "Large")],
+                            "help_text": "Size of the brand image within the banner. Only applies if a brand image is added.",
+                            "inline_form": True,
+                            "label": "Brand Image Size",
+                            "required": False,
+                        },
+                    ),
+                    61: (
+                        "wagtail.blocks.StructBlock",
+                        [
+                            [
+                                ("theme", 56),
+                                ("full_width", 57),
+                                ("media_after", 58),
+                                ("show_to", 4),
+                                ("brand_image_position", 59),
+                                ("brand_image_size", 60),
+                            ]
+                        ],
+                        {},
+                    ),
+                    62: (
+                        "wagtail.images.blocks.ImageChooserBlock",
+                        (),
+                        {"help_text": "Used as a background image in one of the banner corners.", "required": False},
+                    ),
+                    63: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -799,9 +947,9 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    58: (
+                    64: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 56), ("image", 10), ("qr_code", 57), ("headline", 6), ("content", 6)]],
+                        [[("settings", 61), ("image", 10), ("brand_image", 62), ("qr_code", 63), ("heading", 12), ("buttons", 20)]],
                         {"group": "Banners"},
                     ),
                 },

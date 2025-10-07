@@ -35,7 +35,27 @@ context:
           icon_position: "right"
           theme_class: ""
 
-    - title: "Sneak Peek Banner"
+    - title: "Banner with Media After"
+      theme: "outlined"
+      media_after: true
+      heading:
+        level: "h2"
+        heading_text: "Banner with Media After"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+      subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Filled Banner"
       theme: "filled"
       media_after: false
       heading:
@@ -54,7 +74,7 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Sneak Peek Banner 2"
+    - title: "Full Width, Centered and Filled Banner with Brand Image"
       theme: "filled"
       full_width: true
       heading:
@@ -62,7 +82,6 @@ context:
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
       subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
-
       brand_image:
         url: "/media/img/firefox/flare/fox-brand.png"
         alt: "Firefox"
@@ -75,7 +94,7 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Sneak Peek Banner 3"
+    - title: "Filled Banner with Brand Image"
       theme: "filled"
       full_width: true
       heading:

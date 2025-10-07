@@ -6,6 +6,7 @@
 
 {% for variant in variants %}
 <div style="margin-bottom: 2em;">
+  <h2>{{ variant.title }}</h2>
   <include:banner
     theme="{{ variant.theme }}"
     media_after="{{ variant.media_after }}"
@@ -20,7 +21,7 @@
         level="{{ variant.heading.level }}"
         heading_text="{{ variant.heading.heading_text }}"
         heading_size="{{ variant.heading.heading_size }}"
-        alignment_class="{{ variant.heading.alignment_class }}"
+        alignment_class=""
         superheading_text="{{ variant.heading.superheading_text }}"
       />
     </content:heading>
@@ -30,7 +31,7 @@
         <include:subheading
           subheading_text="{{ variant.subheading }}"
           size="subheading-4"
-          alignment_class="{{ variant.heading.alignment_class }}"
+          alignment_class=""
         />
       </content:subheading>
     {% endif %}
