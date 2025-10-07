@@ -133,7 +133,7 @@ urlpatterns = (
         "landing/windows/",
         "firefox/landing/windows.html",
         active_locales=["en-US", "de"],
-        ftl_files=["firefox/download/desktop"],
+        ftl_files=["firefox/download/desktop", "firefox/download/home"],
     ),
     page(
         "compare/",
