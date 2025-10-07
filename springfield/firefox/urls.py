@@ -128,6 +128,13 @@ urlpatterns = (
         "firefox/landing/win10-eos.html",
         active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
+    # Issue 606 - NA + DE Windows Defense/Josef Landing Page
+    page(
+        "landing/windows/",
+        "firefox/landing/windows.html",
+        active_locales=["en-US", "de"],
+        ftl_files=["firefox/download/desktop", "firefox/download/home"],
+    ),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",
