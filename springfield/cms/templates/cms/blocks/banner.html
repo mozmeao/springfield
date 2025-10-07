@@ -48,5 +48,11 @@
         <include:image url="{{ value.brand_image.url }}" alt="{{ value.brand_image.alt }}" />
       </content:brand>
     {% endif %}
+
+    {% if value.buttons %}
+      <content:actions>
+        <include:buttons buttons="{{ value.buttons }}" center="{% if not value.image and not value.qr_code %}true{% endif %}" orientation="horizontal" />
+      </content:actions>
+    {% endif %}
   </include:banner>
 </include:conditional-display>

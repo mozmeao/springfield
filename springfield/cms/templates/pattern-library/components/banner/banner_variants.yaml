@@ -9,7 +9,6 @@ context:
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-        alignment_class: "text-left"
       subheading: "Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go."
       media:
         url: "/media/img/firefox/flare/qr-background-simple.png"
@@ -24,7 +23,6 @@ context:
         heading_text: "Banner with Media"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        alignment_class: "text-left"
       subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
       media:
         url: "/media/img/firefox/flare/placeholder.png"
@@ -37,53 +35,63 @@ context:
           icon_position: "right"
           theme_class: ""
 
-    - title: "Filled Banner with Brand Image"
+    - title: "Sneak Peek Banner"
       theme: "filled"
-      media_after: true
+      media_after: false
       heading:
         level: "h2"
-        heading_text: "Filled Banner with Brand Image"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        superheading_text: "New Feature"
-        alignment_class: "text-left"
-      subheading: "This variant uses the earth-glow gradient background with white text and a brand image positioned at the top."
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       media:
-        url: "/media/img/firefox/flare/placeholder.png"
+        url: "/media/img/firefox/flare/fox-mirror.png"
         alt: "Feature image"
-      brand_image:
-        url: "/media/img/firefox/flare/fox-brand.png"
-        alt: "Firefox"
-      brand_image_position: "bottom-right"
       buttons:
-        - label: "Learn More"
+        - label: "Sneak Peek"
           link: "/"
           external: false
           icon_name: "arrow-right"
           icon_position: "right"
-          theme_class: "button-secondary"
+          theme_class: "button-tertiary"
 
-    - title: "Full Width Filled Banner with Brand Image"
+    - title: "Sneak Peek Banner 2"
       theme: "filled"
-      media_after: true
       full_width: true
       heading:
         level: "h2"
-        heading_text: "Full Width Filled Banner with Brand Image"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        superheading_text: "New Feature"
-        alignment_class: "text-left"
-      subheading: "This variant uses the earth-glow gradient background with white text and a brand image positioned at the top."
-      media:
-        url: "/media/img/firefox/flare/placeholder.png"
-        alt: "Feature image"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+
       brand_image:
         url: "/media/img/firefox/flare/fox-brand.png"
         alt: "Firefox"
       brand_image_position: "bottom-right"
       buttons:
-        - label: "Learn More"
+        - label: "Sneak Peek"
           link: "/"
           external: false
           icon_name: "arrow-right"
           icon_position: "right"
-          theme_class: "button-secondary"
+          theme_class: "button-tertiary"
+
+    - title: "Sneak Peek Banner 3"
+      theme: "filled"
+      full_width: true
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      brand_image:
+        url: "/media/img/firefox/flare/fox-brand.png"
+        alt: "Firefox"
+      brand_image_position: "bottom-right"
+      brand_image_size: "large"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"

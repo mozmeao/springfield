@@ -53,6 +53,7 @@ non-determinative so you need to check and adjust the results as needed.
     --blue-button: #0360df;
     --purple-purple: #754fe0;
     --purple-medium-purple: #d98dfa;
+    --purple-dark-purple: #210340;
     --purple-light-purple: #dcd2ff;
     --pink-power-pink: #ff97e2;
     --functional-error: var(--orange-orange);
@@ -64,6 +65,7 @@ non-determinative so you need to check and adjust the results as needed.
     /* Gradients from Figma */
     --gradient-earth-glow: linear-gradient(90deg, var(--blue-blue) 0%, var(--purple-purple) 100%);
     --gradient-fox-fire: linear-gradient(90deg, var(var(--yellow-yellow)) 0%, var(--orange-orange) 100%);
+    --gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--purple-purple) 0%, var(--purple-dark-purple) 100%);
 
     /* Scale variables from Figma */
     --scale-4: 4;

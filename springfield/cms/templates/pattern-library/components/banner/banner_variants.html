@@ -11,6 +11,7 @@
     media_after="{{ variant.media_after }}"
     full_width="{{ variant.full_width }}"
     brand_image_position="{{ variant.brand_image_position }}"
+    brand_image_size="{{ variant.brand_image_size }}"
     qr_code="{{ variant.qr_code }}"
     media_url="{{ variant.get('media', {}).get('url', '') }}">
 
@@ -57,7 +58,11 @@
 
     {% if variant.buttons %}
       <content:actions>
-        <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
+        {% if not variant.media and not variant.qr_code and variant.brand_image_size != 'large' %}
+          <include:buttons buttons="{{ variant.buttons }}" center="true" orientation="horizontal" />
+        {% else %}
+          <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
+        {% endif %}
       </content:actions>
     {% endif %}
   </include:banner>
