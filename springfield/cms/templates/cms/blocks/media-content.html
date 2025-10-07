@@ -6,7 +6,7 @@
 #}
 
 {% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<div class="fl-mediacontent fl-mediacontent-feature {% if value.media_after %}fl-mediacontent-reverse{% endif %}">
+<div class="fl-mediacontent fl-mediacontent-feature {% if value.settings.media_after %}fl-mediacontent-reverse{% endif %}">
   <div class="fl-mediacontent-media" aria-hidden="true">
     {% if value.embed %}
       {# Jinja interprets the HTML from the embed block as a string #}
