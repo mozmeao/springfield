@@ -102,6 +102,9 @@ CONDITIONAL_DISPLAY_CHOICES = [
 ]
 
 
+UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_CHOICES = ((UITOUR_BUTTON_NEW_TAB, "Open New Tab"),)
+
 # Element blocks
 
 
@@ -127,7 +130,7 @@ class ButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class ButtonSettings(blocks.StructBlock):
+class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
@@ -143,7 +146,6 @@ class ButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
 
     class Meta:
         icon = "cog"
@@ -151,6 +153,14 @@ class ButtonSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
         form_classname = "compact-form struct-block"
+
+
+class ButtonSettings(BaseButtonSettings):
+    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
+
+
+class UITourButtonSettings(BaseButtonSettings):
+    pass
 
 
 class ButtonBlock(blocks.StructBlock):
@@ -163,6 +173,34 @@ class ButtonBlock(blocks.StructBlock):
         label = "Button"
         label_format = "Button - {label}"
         value_class = ButtonValue
+
+
+class UITourButtonValue(ButtonValue):
+    def theme_class(self) -> str:
+        """
+        Give the button the appropriate CSS class, based on its button_type.
+        """
+        theme_classes = super().theme_class()
+        button_type = self.get("button_type", "")
+        if button_type == UITOUR_BUTTON_NEW_TAB:
+            theme_classes += " ui-tour-open-new-tab"
+        return theme_classes
+
+
+class UITourButtonBlock(blocks.StructBlock):
+    settings = UITourButtonSettings()
+    button_type = blocks.ChoiceBlock(
+        default=UITOUR_BUTTON_NEW_TAB,
+        choices=UITOUR_BUTTON_CHOICES,
+        inline_form=True,
+    )
+    label = blocks.CharBlock(label="Button Text")
+
+    class Meta:
+        template = "cms/blocks/uitour_button.html"
+        label = "UI Tour Button"
+        label_format = "UI Tour Button - {label}"
+        value_class = UITourButtonValue
 
 
 class LinkBlock(blocks.StructBlock):
@@ -296,6 +334,7 @@ class MediaContentBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         label = "Media + Content"
@@ -336,6 +375,7 @@ class StickerCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         label = "Sticker Card"
@@ -348,6 +388,7 @@ class TagCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         template = "cms/blocks/tag-card.html"
@@ -411,6 +452,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -439,6 +481,7 @@ class StepCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -507,6 +550,7 @@ class IntroBlock(blocks.StructBlock):
     # )
     heading = HeadingBlock()
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
 
     class Meta:
         template = "cms/blocks/intro.html"

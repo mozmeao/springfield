@@ -20,5 +20,10 @@
         {% endfor %}
       </div>
     {% endif %}
+    {% if value.uitour_buttons %}
+      {% for button in value.uitour_buttons %}
+        {% include_block button %}
+      {% endfor %}
+    {% endif %}
   </div>
 </article>

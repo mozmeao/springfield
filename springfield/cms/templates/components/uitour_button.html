@@ -1,0 +1,27 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="ui-tour">
+  <div role="button" class="button {{ theme_class }}" {% if disabled %}disabled{% endif %}>
+    {% if icon_name and icon_position == "left" %}
+      {% set extra_class = "icon-left" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+    {{ label }}
+    {% if icon_name and icon_position == "right" %}
+      {% set extra_class = "icon-right" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+  </div>
+</div>
