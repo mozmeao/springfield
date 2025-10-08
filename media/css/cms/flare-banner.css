@@ -109,6 +109,11 @@
     margin: auto;
 }
 
+.fl-banner-content-centered .fl-banner-actions,
+.fl-banner-content-centered .buttons {
+    justify-content: center;
+}
+
 .fl-banner-content-centered .fl-banner-content-inner {
     max-width: 600px;
     margin: 0 auto;
@@ -186,6 +191,15 @@
     transform: translateY(-50%);
 }
 
+.fl-banner-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--scale-24) * 1px);
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
 @media (max-width: 767px) {
     .fl-banner-container {
         padding: 0 calc(var(--scale-24) * 1px);
@@ -221,10 +235,6 @@
         max-height: calc(var(--scale-200) * 1px);
     }
 
-    .fl-banner-layout {
-        gap: calc(var(--scale-24) * 1px);
-    }
-
     .fl-banner-media {
         min-height: 200px;
     }
@@ -248,13 +258,14 @@
     }
 }
 
-.fl-banner-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: calc(var(--scale-24) * 1px);
-    align-items: center;
-    position: relative;
-    z-index: 2;
+@media (min-width: 768px) and (max-width: 1023px) {
+    .fl-banner-brandsize-small .fl-banner-content-centered {
+        padding-bottom: calc(var(--scale-96) * 1px);
+    }
+
+    .fl-banner-brandsize-large .fl-banner-content-centered {
+        padding-bottom: calc(var(--scale-128) * 1px);
+    }
 }
 
 @media (min-width: 1024px) {
@@ -277,10 +288,16 @@
 
     .fl-banner-reverse .fl-banner-media {
         order: 2;
+        grid-column: 2;
     }
 
     .fl-banner-reverse .fl-banner-content {
         order: 1;
+        grid-column: 1;
+    }
+
+    .fl-banner-reverse.fl-banner-hasbrand-bottom {
+        padding-bottom: calc(var(--scale-200) * 1px);
     }
 
     .fl-banner-layout-qr {
@@ -316,6 +333,12 @@
         align-items: flex-end;
     }
 
+    .fl-banner-brandsize-large.fl-banner-hasbrand-left .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-top-left .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-left .fl-banner-actions {
+        justify-content: flex-end;
+    }
+
     .fl-banner-brandsize-large.fl-banner-hasbrand-right .fl-banner-content,
     .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-content,
     .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
@@ -324,9 +347,9 @@
         align-items: flex-start;
     }
 
-    .fl-banner-brandsize-large.fl-banner-hasbrand-left .fl-banner-actions,
-    .fl-banner-brandsize-large.fl-banner-hasbrand-top-left .fl-banner-actions,
-    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-left .fl-banner-actions {
-        justify-content: flex-end;
+    .fl-banner-brandsize-large.fl-banner-hasbrand-right .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-actions,
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-actions {
+        justify-content: flex-start;
     }
 }

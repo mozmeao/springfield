@@ -553,16 +553,11 @@ class BannerSettings(blocks.StructBlock):
         (
             ("outlined", "Outlined"),
             ("filled", "Filled"),
+            ("filled-small", "Filled with Small Brand Image"),
+            ("filled-large", "Filled with Large Brand Image"),
         ),
         default="outlined",
         inline_form=True,
-    )
-    full_width = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Full Width",
-        inline_form=True,
-        help_text="Make the banner span the full width of the viewport.",
     )
     media_after = blocks.BooleanBlock(
         required=False,
@@ -578,48 +573,18 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
-    brand_image_position = blocks.ChoiceBlock(
-        choices=(
-            ("bottom-right", "Bottom Right"),
-            ("top-right", "Top Right"),
-            ("right", "Right"),
-            ("bottom-left", "Bottom Left"),
-            ("top-left", "Top Left"),
-            ("left", "Left"),
-        ),
-        required=False,
-        default="bottom-right",
-        label="Brand Image Position",
-        inline_form=True,
-        help_text="Position of the brand image within the banner. Only applies if a brand image is added.",
-    )
-    brand_image_size = blocks.ChoiceBlock(
-        choices=(
-            ("", "Default"),
-            ("large", "Large"),
-        ),
-        required=False,
-        default="medium",
-        label="Brand Image Size",
-        inline_form=True,
-        help_text="Size of the brand image within the banner. Only applies if a brand image is added.",
-    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = (
-            "Show To: {show_to} - Theme: {theme} - Media After: {media_after} - Full Width: {full_width} "
-            "- Brand Image: {brand_image_position} - Brand Image Size: {brand_image_size}, {brand_image_position}"
-        )
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
 class BannerBlock(blocks.StructBlock):
     settings = BannerSettings()
     image = ImageChooserBlock(required=False)
-    brand_image = ImageChooserBlock(required=False, help_text="Used as a background image in one of the banner corners.")
     qr_code = blocks.CharBlock(
         required=False,
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",

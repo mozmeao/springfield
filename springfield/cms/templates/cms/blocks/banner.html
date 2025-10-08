@@ -4,13 +4,22 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set brand_image_size = '' %}
+{% set brand_image_position = "" %}
+{% if value.settings.theme in ['filled-large', 'filled-small'] %}
+  {% set brand_image_size = 'large' if value.settings.theme == 'filled-large' else 'small' %}
+  {% set brand_image_position = 'bottom-right' %}
+  {% if value.settings.media_after %}
+    {% set brand_image_position = 'bottom-left' if value.settings.theme == 'filled-large' else 'bottom' %}
+  {% endif %}
+{% endif %}
+
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
-    theme="{{ value.settings.theme }}"
+    theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
     media_after="{{ value.settings.media_after }}"
-    full_width="{{ value.settings.full_width }}"
-    brand_image_position="{{ value.settings.brand_image_position}}"
-    brand_image_size="{{ value.settings.brand_image_size }}"
+    brand_image_position="{{ brand_image_position }}"
+    brand_image_size="{{ brand_image_size }}"
     qr_code="{{ value.qr_code }}"
     media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
 
@@ -45,32 +54,29 @@
       </content:qr>
     {% endif %}
 
-    {% if value.brand_image %}
+    {% if value.settings.theme in ['filled-small', 'filled-large'] %}
       <content:brand>
-        <include:image url="{{ image(value.brand_image, 'width-800').url }}" alt="{{ value.brand_image.alt }}" />
+        <include:image url="/media/img/firefox/flare/fox-brand.png" alt="Firefox" />
       </content:brand>
     {% endif %}
 
     {% if value.buttons %}
       <content:actions>
-        <div class="buttons">
-          {% set data = namespace(buttons=[]) %}
-          {% for button in value.buttons %}
-            {% set _ = data.buttons.append({
-              "label": button.label,
-              "link": button.link,
-              "external": button.settings.external,
-              "theme_class": button.theme_class(),
-              "icon_name": button.settings.icon_name,
-              "icon_position": button.settings.icon_position,
-            }) %}
-          {% endfor %}
-          <include:buttons
-            buttons="{{ data.buttons }}"
-            center="{% if not value.image and not value.qr_code and value.settings.brand_image_size != 'large'%}true{% endif %}"
-            orientation="horizontal"
-          />
-        </div>
+        {% set data = namespace(buttons=[]) %}
+        {% for button in value.buttons %}
+          {% set _ = data.buttons.append({
+            "label": button.label,
+            "link": button.link,
+            "external": button.settings.external,
+            "theme_class": button.theme_class(),
+            "icon_name": button.settings.icon_name,
+            "icon_position": button.settings.icon_position,
+          }) %}
+        {% endfor %}
+        <include:buttons
+          buttons="{{ data.buttons }}"
+          orientation="horizontal"
+        />
       </content:actions>
     {% endif %}
   </include:banner>

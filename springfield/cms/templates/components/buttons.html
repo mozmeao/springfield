@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="buttons {% if orientation == 'stacked' %}is-stacked{% else %}is-horizontal{% endif %} {% if center == 'true' %}is-center{% endif %}">
+<div class="buttons {% if orientation == 'stacked' %}is-stacked{% else %}is-horizontal{% endif %} {% if center %}is-center{% endif %}">
   {% for btn in buttons %}
     <include:button
       label="{{ btn.label }}"
