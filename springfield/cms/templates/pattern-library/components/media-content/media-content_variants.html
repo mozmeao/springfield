@@ -1,0 +1,45 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <div class="pl-row">
+    <h4>Media Content variants</h4>
+    <hr/>
+  </div>
+  {% for item in variants %}
+    <div class="pl-row">
+      <h5>{{ item.title }}</h5>
+      <hr/>
+      <include:media-content media_after="{{ item.media_after }}">
+        {% if item.eyebrow %}
+          <content:eyebrow>
+            {{ item.eyebrow }}
+          </content:eyebrow>
+        {% endif %}
+        <content:heading>
+          <include:heading
+            level="{{ item.heading.level }}"
+            heading_text="{{ item.heading.heading_text }}"
+          />
+        </content:heading>
+        <content:body>
+          <p>{{ item.body }}</p>
+        </content:body>
+        {% if item.buttons %}
+          <content:buttons>
+            <include:buttons buttons="{{ item.buttons }}" />
+          </content:buttons>
+        {% endif %}
+        {% if item.media %}
+          <content:media>
+            <include:image url="{{ item.media.url }}" alt="{{ item.media.alt }}" />
+          </content:media>
+        {% endif %}
+      </include:media-content>
+      <hr>
+    </div>
+  {% endfor %}
+</div>

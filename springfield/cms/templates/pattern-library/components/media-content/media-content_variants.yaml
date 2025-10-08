@@ -1,0 +1,58 @@
+name: "Media Content variants"
+context:
+  variants:
+    - title: Media Content (Media Before)
+      media_after: false
+      eyebrow: Eyebrow
+      heading:
+        level: h3
+        heading_text: Media Content with Image First
+      body: This variant shows the media content component with the image positioned before the content. This is the default layout.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: false
+          icon_name: arrow-right
+          icon_position: right
+      media:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Image
+
+    - title: Media Content (Media After)
+      media_after: true
+      eyebrow: Eyebrow
+      heading:
+        level: h3
+        heading_text: Media Content with Image After
+      body: This variant shows the media content component with the image positioned after the content, creating a reversed layout.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: false
+          icon_name: arrow-right
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: arrow-left
+          icon_position: left
+          theme_class: button-secondary
+      media:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Image
+
+    - title: Media Content (No Eyebrow)
+      media_after: false
+      heading:
+        level: h3
+        heading_text: Media Content without Eyebrow
+      body: This variant demonstrates the media content component without an eyebrow, showing that all content pieces are optional.
+      buttons:
+        - label: Get Started
+          link: testurl
+          external: false
+          icon_name: arrow-right
+          icon_position: right
+      media:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Image

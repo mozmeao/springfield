@@ -1,0 +1,19 @@
+name: "Media Content"
+context:
+  media_after: false
+  contents:
+    eyebrow: Eyebrow text
+    heading:
+      level: h3
+      heading_text: Media Content Heading
+    body: This is the body content for the media content component. It provides additional information and context.
+    buttons:
+      - label: Learn More
+        link: testurl
+        external: false
+        icon_name: arrow-right
+        icon_position: right
+        theme_class: ''
+    media:
+      url: /media/img/firefox/flare/placeholder.png
+      alt: Placeholder Image

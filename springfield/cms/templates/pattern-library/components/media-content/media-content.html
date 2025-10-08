@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:media-content media_after="{{ media_after }}">
+  <content:eyebrow>
+    {{ contents.eyebrow }}
+  </content:eyebrow>
+  <content:heading>
+    <include:heading
+      level="{{ contents.heading.level }}"
+      heading_text="{{ contents.heading.heading_text }}"
+    />
+  </content:heading>
+  <content:body>
+    <p>{{ contents.body }}</p>
+  </content:body>
+  <content:buttons>
+    <include:buttons buttons="{{ contents.buttons }}" />
+  </content:buttons>
+  <content:media>
+    <include:image url="{{ contents.media.url }}" alt="{{ contents.media.alt }}" />
+  </content:media>
+</include:media-content>
