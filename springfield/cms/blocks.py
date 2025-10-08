@@ -294,6 +294,7 @@ class MediaContentBlock(blocks.StructBlock):
     # )
     eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
