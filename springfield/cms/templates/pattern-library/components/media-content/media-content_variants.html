@@ -25,6 +25,19 @@
             heading_text="{{ item.heading.heading_text }}"
           />
         </content:heading>
+        {% if item.tags %}
+          <content:tags>
+            {% for tag in item.tags %}
+              <include:tag
+                text="{{ tag.text }}"
+                color="{{ tag.color }}"
+                corners="{{ tag.corners }}"
+                before_icon="{{ tag.before_icon }}"
+                after_icon="{{ tag.after_icon }}"
+              />
+            {% endfor %}
+          </content:tags>
+        {% endif %}
         <content:body>
           <p>{{ item.body }}</p>
         </content:body>

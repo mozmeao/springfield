@@ -6,6 +6,17 @@ context:
     heading:
       level: h3
       heading_text: Media Content Heading
+    tags:
+      - text: Feature
+        color: purple
+        corners: round
+        before_icon: star
+        after_icon: ''
+      - text: New
+        color: blue
+        corners: round
+        before_icon: ''
+        after_icon: ''
     body: This is the body content for the media content component. It provides additional information and context.
     buttons:
       - label: Learn More

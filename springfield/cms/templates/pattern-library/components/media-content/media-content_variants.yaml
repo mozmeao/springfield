@@ -7,6 +7,17 @@ context:
       heading:
         level: h3
         heading_text: Media Content with Image First
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       body: This variant shows the media content component with the image positioned before the content. This is the default layout.
       buttons:
         - label: Learn More
@@ -24,6 +35,12 @@ context:
       heading:
         level: h3
         heading_text: Media Content with Image After
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: star
+          after_icon: ''
       body: This variant shows the media content component with the image positioned after the content, creating a reversed layout.
       buttons:
         - label: Learn More

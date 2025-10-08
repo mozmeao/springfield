@@ -15,6 +15,13 @@
   <content:heading>
     <{{ row_heading_level }} class="heading heading-size-4">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
   </content:heading>
+  {% if value.tags %}
+    <content:tags>
+      {% for tag in value.tags %}
+        {% include_block tag %}
+      {% endfor %}
+    </content:tags>
+  {% endif %}
   <content:body>
     {{ value.content }}
   </content:body>

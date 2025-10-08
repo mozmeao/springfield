@@ -15,6 +15,11 @@
       <p class="fl-mediacontent-eyebrow">{{ contents.eyebrow }}</p>
     {% endif %}
     {{ contents.heading }}
+    {% if contents.tags %}
+      <div class="fl-mediacontent-tags">
+        {{ contents.tags }}
+      </div>
+    {% endif %}
     {% if contents.body %}
       <div class="body">
         {{ contents.body }}
