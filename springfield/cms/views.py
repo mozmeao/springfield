@@ -13,7 +13,6 @@ from wagtail.admin.views.generic.base import BaseListingView
 from wagtail.models import Page
 
 from springfield.cms.forms import TranslationsFilterForm
-from springfield.cms.utils import calculate_translation_data
 
 
 class FlareTestView(TemplateView):
@@ -104,7 +103,7 @@ class TranslationsListView(ListView, BaseListingView):
                     )
                     pages_qs = pages_qs.filter(translation_key__in=translation_keys_with_locale)
 
-        return pages_qs
+        return pages_qs.select_related("locale").prefetch_related("translation_data__translated_page__locale")
 
     def get_context_data(self, **kwargs):
         """Add translation data to the context."""
@@ -113,11 +112,10 @@ class TranslationsListView(ListView, BaseListingView):
         # Add translation data for each page using utility function
         pages_with_translations = []
         for page in context["pages"]:
-            translations = calculate_translation_data(page)
             pages_with_translations.append(
                 {
                     "page": page,
-                    "translations": translations,
+                    "translations": [p.to_dict() for p in page.translation_data.all()],
                     "edit_url": f"/cms-admin/pages/{page.id}/edit/",
                     "view_url": page.get_url() if hasattr(page, "get_url") else "#",
                 }

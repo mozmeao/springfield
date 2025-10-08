@@ -13,8 +13,14 @@ from wagtail.coreutils import get_dummy_request
 from wagtail.models import Locale, Page
 from wagtail_localize.models import StringTranslation, TranslatableObject, Translation, TranslationSource
 
+from springfield.cms.models import PageTranslationData
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
-from springfield.cms.utils import calculate_translation_data, get_cms_locales_for_path, get_locales_for_cms_page, get_page_for_request
+from springfield.cms.utils import (
+    create_page_translation_data,
+    get_cms_locales_for_path,
+    get_locales_for_cms_page,
+    get_page_for_request,
+)
 
 pytestmark = [pytest.mark.django_db]
 
@@ -151,19 +157,19 @@ def test_get_cms_locales_for_path(
         mock_get_locales_for_cms_page.assert_called_once_with(page=page)
 
 
-class TestCalculateTranslationData:
-    def test_calculate_translation_data_no_translations(self, minimal_site):
-        """Test calculate_translation_data with a page that has no translations."""
+class TestCreateTranslationData:
+    def test_create_page_translation_data_no_translations(self, minimal_site):
+        """Test create_page_translation_data with a page that has no translations."""
         # Get the page that has no translations
         en_page = Page.objects.get(slug="test-page")
 
-        result = calculate_translation_data(en_page)
+        create_page_translation_data(en_page)
 
-        # Should return empty list since there are no translations
-        assert result == []
+        # No PageTranslationData objects were created.
+        assert not PageTranslationData.objects.exists()
 
-    def test_calculate_translation_data_with_wagtail_localize_objects(self, tiny_localized_site):
-        """Test calculate_translation_data with actual wagtail-localize objects."""
+    def test_create_page_translation_data_with_wagtail_localize_objects(self, tiny_localized_site):
+        """Test create_page_translation_data with actual wagtail-localize objects."""
         # Get the English page and its translations
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
         fr_homepage = Page.objects.get(locale__language_code="fr", slug="test-page")
@@ -194,27 +200,36 @@ class TestCalculateTranslationData:
         pt_br_locale = pt_br_homepage.locale
 
         # Create Translation for French
-        fr_translation, created = Translation.objects.get_or_create(source=translation_source, target_locale=fr_locale, defaults={"enabled": True})
+        Translation.objects.get_or_create(source=translation_source, target_locale=fr_locale, defaults={"enabled": True})
 
         # Create Translation for Portuguese
-        pt_br_translation, created = Translation.objects.get_or_create(
-            source=translation_source, target_locale=pt_br_locale, defaults={"enabled": True}
-        )
+        Translation.objects.get_or_create(source=translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
 
-        result = calculate_translation_data(en_us_homepage)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
 
-        # Make sure that the results contain a translation for each of the locales
-        # that have a translation.
-        assert len(result) == 2
-        assert {item["locale"] for item in result} == {"fr", "pt-BR"}
-        expected_result = [
-            {"edit_url": f"/cms-admin/pages/{fr_homepage.id}/edit/", "locale": "fr", "percent_translated": 100, "view_url": fr_homepage.url},
-            {"edit_url": f"/cms-admin/pages/{pt_br_homepage.id}/edit/", "locale": "pt-BR", "percent_translated": 100, "view_url": pt_br_homepage.url},
-        ]
-        # Verify the expected result.
-        assert result == expected_result
+        create_page_translation_data(en_us_homepage)
 
-    def test_calculate_translation_data_with_nested_translations(self, minimal_site):
+        # A PageTranslationData object was created for each locale, with the expected data.
+        assert PageTranslationData.objects.count() == 2
+        fr_translation_data = PageTranslationData.objects.get(source_page=en_us_homepage, translated_page__locale=fr_locale)
+        pt_br_translation_data = PageTranslationData.objects.get(source_page=en_us_homepage, translated_page__locale=pt_br_locale)
+        expected_fr_data = {
+            "edit_url": f"/cms-admin/pages/{fr_homepage.id}/edit/",
+            "locale": "fr",
+            "percent_translated": 100,
+            "view_url": fr_homepage.url,
+        }
+        expected_pt_br_data = {
+            "edit_url": f"/cms-admin/pages/{pt_br_homepage.id}/edit/",
+            "locale": "pt-BR",
+            "percent_translated": 100,
+            "view_url": pt_br_homepage.url,
+        }
+        assert fr_translation_data.to_dict() == expected_fr_data
+        assert pt_br_translation_data.to_dict() == expected_pt_br_data
+
+    def test_create_page_translation_data_with_nested_translations(self, minimal_site):
         """
         Test translation of a translation scenario.
 
@@ -274,7 +289,7 @@ class TestCalculateTranslationData:
                 "last_updated_at": timezone.now(),
             },
         )
-        es_translation, _ = Translation.objects.get_or_create(source=translation_source, target_locale=es_locale, defaults={"enabled": True})
+        Translation.objects.get_or_create(source=translation_source, target_locale=es_locale, defaults={"enabled": True})
 
         # Translate the es_child into Portuguese.
         es_specific_page = es_child.specific
@@ -288,7 +303,7 @@ class TestCalculateTranslationData:
                 "last_updated_at": timezone.now(),
             },
         )
-        pt_br_translation, _ = Translation.objects.get_or_create(source=es_translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
+        Translation.objects.get_or_create(source=es_translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
 
         # Force creation of segments using wagtail-localize's API. This translates
         # each relevant page field.
@@ -322,29 +337,31 @@ class TestCalculateTranslationData:
                 },
             )
 
-        # Get the calculation results for the en_us_child.
-        result = calculate_translation_data(en_us_child)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
 
-        # The translation results should contain data for the es_child and the
-        # pt_br_child.
-        assert len(result) == 2
-        assert {item["locale"] for item in result} == {"es", "pt-BR"}
-        expected_result = [
-            {
-                "edit_url": f"/cms-admin/pages/{es_child.id}/edit/",
-                "locale": "es",
-                "percent_translated": 100,  # We translated all fields
-                "view_url": es_child.url,
-            },
-            {
-                "edit_url": f"/cms-admin/pages/{pt_br_child.id}/edit/",
-                "locale": "pt-BR",
-                "percent_translated": 100,  # We translated all fields
-                "view_url": pt_br_child.url,
-            },
-        ]
-        # Verify the expected result.
-        assert result == expected_result
+        # Create the PageTranslationData objects.
+        create_page_translation_data(en_us_child)
+
+        # A PageTranslationData object was created for the es_child and the
+        # pt_br_child, with the expected data.
+        assert PageTranslationData.objects.count() == 2
+        es_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=es_locale)
+        pt_br_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=pt_br_locale)
+        expected_es_data = {
+            "edit_url": f"/cms-admin/pages/{es_child.id}/edit/",
+            "locale": "es",
+            "percent_translated": 100,
+            "view_url": es_child.url,
+        }
+        expected_pt_br_data = {
+            "edit_url": f"/cms-admin/pages/{pt_br_child.id}/edit/",
+            "locale": "pt-BR",
+            "percent_translated": 100,
+            "view_url": pt_br_child.url,
+        }
+        assert es_child_translation_data.to_dict() == expected_es_data
+        assert pt_br_child_translation_data.to_dict() == expected_pt_br_data
 
         # Now, the es_child title gets updated, so the pt_br_child title translation should become stale.
         es_child.title = "Página secundaria"
@@ -355,20 +372,22 @@ class TestCalculateTranslationData:
         # Create a new Portuguese translation based on the Spanish source
         Translation.objects.get_or_create(source=es_translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
 
-        # Get the calculation results for the en_us_child.
-        result = calculate_translation_data(en_us_child)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
+
+        # Create the PageTranslationData objects.
+        create_page_translation_data(en_us_child)
 
         # The Portuguese translation is now stale since the Spanish source changed.
-        expected_result = [
-            {"edit_url": f"/cms-admin/pages/{es_child.id}/edit/", "locale": "es", "percent_translated": 100, "view_url": es_child.url},
-            {"edit_url": f"/cms-admin/pages/{pt_br_child.id}/edit/", "locale": "pt-BR", "percent_translated": 0, "view_url": pt_br_child.url},
-        ]
-        # Verify the expected result.
-        assert result == expected_result
+        pt_br_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=pt_br_locale)
+        assert pt_br_child_translation_data.percent_translated == 0
+        # The Spanish translation is still as it was before.
+        es_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=es_locale)
+        assert es_child_translation_data.to_dict() == expected_es_data
 
     @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
     @patch("springfield.cms.utils.Translation.objects.get")
-    def test_calculate_translation_data_with_translation_progress(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
+    def test_create_page_translation_data_with_translation_progress(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
         """
         Verify that calculations return the percentage for data that wagtail-localize gives us.
         """
@@ -382,17 +401,20 @@ class TestCalculateTranslationData:
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
-        result = calculate_translation_data(en_us_homepage)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
+
+        create_page_translation_data(en_us_homepage)
 
         # Should calculate 70% translation progress
-        assert len(result) == 2  # fr and pt-BR translations
-        for item in result:
-            assert item["percent_translated"] == 70
+        assert PageTranslationData.objects.count() == 2  # fr and pt-BR translations
+        for translation_data in PageTranslationData.objects.all():
+            assert translation_data.percent_translated == 70
 
     @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
     @patch("springfield.cms.utils.Translation.objects.get")
-    def test_calculate_translation_data_with_zero_segments(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
-        """Test calculate_translation_data when total segments is zero."""
+    def test_create_page_translation_data_with_zero_segments(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
+        """Test create_page_translation_data when total segments is zero."""
         # Setup mocks
         mock_source = Mock()
         mock_translation_source_get.return_value = mock_source
@@ -403,16 +425,19 @@ class TestCalculateTranslationData:
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
-        result = calculate_translation_data(en_us_homepage)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
+
+        create_page_translation_data(en_us_homepage)
 
         # Should return 100% when there are no segments to translate
-        assert len(result) == 2
-        for item in result:
-            assert item["percent_translated"] == 100
+        assert PageTranslationData.objects.count() == 2
+        for translation_data in PageTranslationData.objects.all():
+            assert translation_data.percent_translated == 100
 
     @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
-    def test_calculate_translation_data_no_translation_source(self, mock_translation_source_get, tiny_localized_site):
-        """Test calculate_translation_data when TranslationSource doesn't exist."""
+    def test_create_page_translation_data_no_translation_source(self, mock_translation_source_get, tiny_localized_site):
+        """Test create_page_translation_data when TranslationSource doesn't exist."""
         # Mock TranslationSource.DoesNotExist
         from wagtail_localize.models import TranslationSource
 
@@ -420,16 +445,19 @@ class TestCalculateTranslationData:
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
-        result = calculate_translation_data(en_us_homepage)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
+
+        create_page_translation_data(en_us_homepage)
 
         # Should still return translation data with 0% progress
-        assert len(result) == 2
-        for item in result:
-            assert item["percent_translated"] == 0
+        assert PageTranslationData.objects.count() == 2
+        for translation_data in PageTranslationData.objects.all():
+            assert translation_data.percent_translated == 0
 
     @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
     @patch("springfield.cms.utils.Translation.objects.get")
-    def test_calculate_translation_data_fallback_to_nested_search(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
+    def test_create_page_translation_data_fallback_to_nested_search(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
         """Test the fallback logic when translation is from another translation."""
         mock_translation_record = Mock()
         mock_translation_record.get_progress.return_value = (8, 6)  # 75% translated
@@ -442,36 +470,45 @@ class TestCalculateTranslationData:
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
-        result = calculate_translation_data(en_us_homepage)
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
+
+        create_page_translation_data(en_us_homepage)
 
         # Should find translations via the fallback method
-        assert len(result) == 2
+        assert PageTranslationData.objects.count() == 2
         # At least one translation should have 75% progress from the nested search
-        progress_values = {item["percent_translated"] for item in result}
+        progress_values = {td.percent_translated for td in PageTranslationData.objects.all()}
         assert 75 in progress_values
 
-    def test_calculate_translation_data_handles_value_error(self, tiny_localized_site):
-        """Test calculate_translation_data handles ValueError gracefully."""
+    def test_create_page_translation_data_handles_value_error(self, tiny_localized_site):
+        """Test create_page_translation_data handles ValueError gracefully."""
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
+
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
 
         # Mock get_translations to raise ValueError
         with patch.object(Page, "get_translations", side_effect=ValueError("Test error")):
-            result = calculate_translation_data(en_us_homepage)
+            create_page_translation_data(en_us_homepage)
 
-            # Should return empty list when ValueError occurs
-            assert result == []
+            # Should not create any PageTranslationData when ValueError occurs
+            assert PageTranslationData.objects.count() == 0
 
     @patch("springfield.cms.utils.logger")
-    def test_calculate_translation_data_handles_attribute_error(self, mock_logger, tiny_localized_site):
-        """Test calculate_translation_data handles AttributeError gracefully."""
+    def test_create_page_translation_data_handles_attribute_error(self, mock_logger, tiny_localized_site):
+        """Test create_page_translation_data handles AttributeError gracefully."""
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
+
+        # Make sure there are currently no PageTranslationData objects.
+        PageTranslationData.objects.all().delete()
 
         # Mock specific property to raise AttributeError
         with patch.object(Page, "get_translations", side_effect=AttributeError("Test error")):
-            result = calculate_translation_data(en_us_homepage)
+            create_page_translation_data(en_us_homepage)
 
-            # If an AttributeError occurs, then the results should be empty.
-            assert result == []
+            # If an AttributeError occurs, then no PageTranslationData should be created.
+            assert PageTranslationData.objects.count() == 0
             # The logger was called with an exception.
             assert mock_logger.exception.call_count == 1
             assert [str(thing.args[0]) for thing in mock_logger.exception.call_args_list] == ["Test error"]
