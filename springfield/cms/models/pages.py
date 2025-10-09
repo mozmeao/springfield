@@ -186,3 +186,8 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
         ]
         verbose_name = "What's New Page"
         verbose_name_plural = "What's New Pages"
+
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["is_preview"] = True
+        return context
