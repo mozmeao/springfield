@@ -93,7 +93,7 @@ button, [role="button"] {
     height: auto;
 }
 
-[role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
     background: var(--blue-button);
     color: var(--neutrals-white);
 }
