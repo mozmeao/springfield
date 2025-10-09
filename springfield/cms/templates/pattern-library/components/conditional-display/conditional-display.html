@@ -6,13 +6,15 @@
 
 {% for variant in variants %}
   <h2>{{ variant.name }}</h2>
-  <div class="{{ variant.condition }}">
-    <include:conditional-display condition="{{ variant.condition }}">
-      {{ variant.contents }}
-    </include:conditional-display>
-    <include:conditional-display condition="something-else">
-      <p>This will not be displayed.</p>
-    </include:conditional-display>
+  <div class="{{ variant.html_class }}">
+    <div class="{{ variant.body_class }}">
+      <include:conditional-display condition="{{ variant.condition }}">
+        {{ variant.contents }}
+      </include:conditional-display>
+      <include:conditional-display condition="something-else">
+        <p>This will not be displayed.</p>
+      </include:conditional-display>
+    </div>
   </div>
   <hr/>
 {% endfor %}
