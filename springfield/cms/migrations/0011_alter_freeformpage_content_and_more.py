@@ -452,7 +452,10 @@ class Migration(migrations.Migration):
                         "wagtail.blocks.CharBlock",
                         (),
                         {
-                            "help_text": "Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+                            "help_text": (
+                                "Content to encode in the QR code, e.g., a URL or text. If an "
+                                "image is added, it will be used as the QR code background."
+                            ),
                             "required": False,
                         },
                     ),
@@ -905,7 +908,10 @@ class Migration(migrations.Migration):
                         "wagtail.blocks.CharBlock",
                         (),
                         {
-                            "help_text": "Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+                            "help_text": (
+                                "Content to encode in the QR code, e.g., a URL or text. If an "
+                                "image is added, it will be used as the QR code background."
+                            ),
                             "required": False,
                         },
                     ),
