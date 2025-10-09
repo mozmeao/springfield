@@ -98,9 +98,9 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("not-firefox", "Non Firefox Users"),
     ("state-fxa-supported-signed-in", "Signed-in Users"),
     ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("windows-10-plus", "Windows 10 Users"),
-    ("windows-10-plus-signed-in", "Signed-in Windows 10 Users"),
-    ("windows-10-plus-signed-out", "Signed-out Windows 10 Users"),
+    ("windows-10-plus", "Windows 10+ Users"),
+    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
+    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
 ]
 
 
