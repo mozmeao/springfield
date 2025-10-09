@@ -300,7 +300,7 @@
     },
     {
       "files": [
-        "css/cms/wagtail-admin.scss"
+        "css/cms/wagtail-admin.css"
       ],
       "name": "wagtail-admin"
     },
