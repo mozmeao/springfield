@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 @jinja2.pass_context
 def email_newsletter_form(
     ctx,
-    template="newsletter/includes/form.html",
     newsletters="mozilla-and-you",
     title=None,
     subtitle=None,
@@ -40,6 +39,7 @@ def email_newsletter_form(
     email_label=None,
     email_placeholder=None,
     multi_opt_in_required=False,  # switches multi-newsletter forms to be opt-in rather than pre-checked.
+    template="newsletter/includes/form.html",
 ):
     request = ctx["request"]
     context = ctx.get_all()
