@@ -165,7 +165,21 @@ class Migration(migrations.Migration):
                     19: ("wagtail.blocks.StructBlock", [[("settings", 16), ("link", 17), ("label", 18)]], {}),
                     20: ("wagtail.blocks.ListBlock", (19,), {"max_num": 2, "min_num": 0}),
                     21: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14)]], {}),
-                    22: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("open_new_tab", "Open New Tab")], "inline_form": True}),
+                    22: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("open_new_tab", "Open New Tab"),
+                                ("open_about_preferences", "Open Preferences"),
+                                ("open_about_preferences_general", "Open Preferences - General"),
+                                ("open_about_preferences_home", "Open Preferences - Home"),
+                                ("open_about_preferences_search", "Open Preferences - Search"),
+                                ("open_about_preferences_privacy", "Open Preferences - Privacy"),
+                            ],
+                            "inline_form": True,
+                        },
+                    ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 18)]], {}),
                     24: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
                     25: (
@@ -601,7 +615,21 @@ class Migration(migrations.Migration):
                     19: ("wagtail.blocks.StructBlock", [[("settings", 16), ("link", 17), ("label", 18)]], {}),
                     20: ("wagtail.blocks.ListBlock", (19,), {"max_num": 2, "min_num": 0}),
                     21: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14)]], {}),
-                    22: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("open_new_tab", "Open New Tab")], "inline_form": True}),
+                    22: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("open_new_tab", "Open New Tab"),
+                                ("open_about_preferences", "Open Preferences"),
+                                ("open_about_preferences_general", "Open Preferences - General"),
+                                ("open_about_preferences_home", "Open Preferences - Home"),
+                                ("open_about_preferences_search", "Open Preferences - Search"),
+                                ("open_about_preferences_privacy", "Open Preferences - Privacy"),
+                            ],
+                            "inline_form": True,
+                        },
+                    ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 18)]], {}),
                     24: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
                     25: (

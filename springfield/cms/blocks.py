@@ -104,10 +104,22 @@ CONDITIONAL_DISPLAY_CHOICES = [
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_CHOICES = ((UITOUR_BUTTON_NEW_TAB, "Open New Tab"),)
+UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
+UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
+UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
+UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_CHOICES = (
+    (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+)
+
 
 # Element blocks
-
-
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -184,6 +196,16 @@ class UITourButtonValue(ButtonValue):
         button_type = self.get("button_type", "")
         if button_type == UITOUR_BUTTON_NEW_TAB:
             theme_classes += " ui-tour-open-new-tab"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES:
+            theme_classes += " ui-tour-open-about-preferences"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL:
+            theme_classes += " ui-tour-open-about-preferences-general"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_HOME:
+            theme_classes += " ui-tour-open-about-preferences-home"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH:
+            theme_classes += " ui-tour-open-about-preferences-search"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
+            theme_classes += " ui-tour-open-about-preferences-privacy"
         return theme_classes
 
 
