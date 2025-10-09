@@ -75,5 +75,5 @@
 
 .fl-section-cta-link {
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
-    text-decoration: underline;
+    font-weight: var(--font-weight-semibold);
 }

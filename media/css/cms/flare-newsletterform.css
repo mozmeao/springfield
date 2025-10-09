@@ -164,7 +164,7 @@
     display: block;
     font-family: var(--font-family-body);
     font-size: var(--font-size-base);
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
     color: var(--neutrals-charcoal);
     margin-bottom: calc(var(--scale-8) * 1px);
 }

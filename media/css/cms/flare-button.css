@@ -7,9 +7,9 @@
 .button {
     display: inline-block;
     padding: 16px 32px;
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-button);
     font-size: var(--font-size-base);
-    font-weight: 500;
+    font-weight: var(--font-weight-button);
     line-height: 1.5;
     text-align: center;
     text-decoration: none;
