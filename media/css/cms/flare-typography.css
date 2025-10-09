@@ -28,13 +28,17 @@
     margin-top: calc(var(--scale-24) * 1px);
 }
 
-.superheading {
+.fl-superheading {
     font-family: var(--font-family-inter);
     font-size: var(--font-size-superheading);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-semibold);
     line-height: var(--line-height-base);
-    color: light-dark(var(--neutrals-grey-5), var(--neutrals-grey-5));
+    color: light-dark(var(--neutrals-grey-7), var(--neutrals-grey-5));
     margin: calc(var(--scale-8) * 1px) 0;
+}
+
+.fl-superheading + .heading {
+    margin-top: calc(var(--scale-8) * 1px);
 }
 
 .heading h1, h1.heading, .heading-size-1 { font-size: var(--font-size-h1); }

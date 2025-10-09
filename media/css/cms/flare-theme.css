@@ -134,10 +134,11 @@ non-determinative so you need to check and adjust the results as needed.
     --font-size-body-medium: 1.125rem; /* 18px */
     --font-size-body-small: 1rem; /* 16px */
     --font-size-body-xsmall: 0.875rem; /* 14px */
+    --font-size-body-2xsmall: 0.75rem; /* 12px */
 
     /* Other font size variables */
     --font-size-tag: 0.75rem; /* 12px */
-    --font-size-superheading: 0.875rem; /* 14px */
+    --font-size-superheading: var(--font-size-body-2xsmall); /* 12px */
 
     /* Line height variables NOT from Figma */
     --line-height-base: 1.2;

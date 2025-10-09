@@ -60,7 +60,7 @@
 
 .fl-section-subscribe .body,
 .fl-section-subscribe .heading,
-.fl-section-subscribe .superheading,
+.fl-section-subscribe .fl-superheading,
 .fl-section-subscribe .subheading {
     color: var(--neutrals-charcoal);
     margin-top: 0;

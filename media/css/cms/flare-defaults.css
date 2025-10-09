@@ -65,6 +65,12 @@ img, svg {
     margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
 }
 
+@media (prefers-color-scheme: dark) {
+  .dim-images-on-dark-mode img {
+    filter: brightness(.8) contrast(1.2);
+  }
+}
+
 hr {
     border-top: 1px solid var(--neutrals-grey-3);
     margin: var(--grids-spacing-interior-spacing-x1)rem 0;

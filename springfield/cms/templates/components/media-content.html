@@ -6,13 +6,13 @@
 
 <div class="fl-mediacontent fl-mediacontent-feature{% if media_after %} fl-mediacontent-reverse{% endif %}">
   {% if contents.media %}
-    <div class="fl-mediacontent-media" aria-hidden="true">
+    <div class="fl-mediacontent-media dim-images-on-dark-mode" aria-hidden="true">
       {{ contents.media }}
     </div>
   {% endif %}
   <div class="fl-mediacontent-content">
     {% if contents.eyebrow %}
-      <p class="fl-mediacontent-eyebrow">{{ contents.eyebrow }}</p>
+      <p class="fl-superheading">{{ contents.eyebrow }}</p>
     {% endif %}
     {{ contents.heading }}
     {% if contents.tags %}
