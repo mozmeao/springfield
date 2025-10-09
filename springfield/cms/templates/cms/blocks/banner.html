@@ -44,7 +44,17 @@
 
     {% if value.image %}
       <content:media>
-        <include:image url="{{ image(value.image, 'width-800').url }}" alt="{{ value.image.alt }}" />
+        {{ srcset_image(
+            value.image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="
+              (min-width: 768px) 50vw,
+              (min-width: 1440px) 680px,
+              100vw
+            ",
+            width=(value.image.width / 2)|round|int,
+            loading="lazy"
+          ) }}
       </content:media>
     {% endif %}
 
