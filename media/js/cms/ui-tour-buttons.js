@@ -46,6 +46,32 @@ function init() {
                 false
             );
         });
+
+        // Find any buttons that should open the protections report.
+        const openProtectionsReportButtons = document.querySelectorAll('.ui-tour-open-protections-report');
+        // Clicking any of the openProtectionsReportButtons should open the protections report.
+        openProtectionsReportButtons.forEach((button) => {
+            button.addEventListener(
+                'click',
+                (e) => {
+                    e.preventDefault();
+
+                    // Make sure that the window has a protection report datalayer.
+                    if (typeof window.dataLayer === 'undefined') {
+                        window.dataLayer = [];
+                    }
+                    window.dataLayer.push({
+                        event: 'widget_action',
+                        type: 'protection report',
+                        action: 'open',
+                        label: 'View your dashboard'
+                    });
+                    // Show the protections report.
+                    Mozilla.UITour.showProtectionReport();
+                },
+                false
+            );
+        });
     });
 }
 

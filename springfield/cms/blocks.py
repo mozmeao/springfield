@@ -109,6 +109,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -116,6 +117,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
 
@@ -206,6 +208,8 @@ class UITourButtonValue(ButtonValue):
             theme_classes += " ui-tour-open-about-preferences-search"
         elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
             theme_classes += " ui-tour-open-about-preferences-privacy"
+        elif button_type == UITOUR_BUTTON_PROTECTIONS_REPORT:
+            theme_classes += " ui-tour-open-protections-report"
         return theme_classes
 
 
