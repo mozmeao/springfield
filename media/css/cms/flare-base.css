@@ -234,7 +234,7 @@ button, [role="button"] {
     border-radius: 8px;
 }
 
-[role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
     background: #0360df; /* Figma Blue-Button */
     color: #fff; /* Figma Neutrals-White */
 }
