@@ -77,16 +77,28 @@ test.describe(
             });
 
             // Assert Linux 32-bit / 64-bit choices are displayed.
-            const downloadButtonLinux32 = page.getByTestId(
-                'thanks-download-button-linux-32'
+
+            // Linux 32 buttons disappearing in 145 (Issue #466)
+            const latest_firefox = await page.evaluate(
+                () =>
+                    document.documentElement
+                        .getAttribute('data-latest-firefox')
+                        .split('.')[0]
             );
+            const release_linux_32 = latest_firefox < 145 ? true : false;
+
+            if (release_linux_32) {
+                const downloadButtonLinux32 = page.getByTestId(
+                    'thanks-download-button-linux-32'
+                );
+                await expect(downloadButtonLinux32).toBeVisible();
+                await expect(downloadButtonLinux32).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-latest-ssl&os=linux/
+                );
+            }
             const downloadButtonLinux64 = page.getByTestId(
                 'thanks-download-button-linux-64'
-            );
-            await expect(downloadButtonLinux32).toBeVisible();
-            await expect(downloadButtonLinux32).toHaveAttribute(
-                'href',
-                /\?product=firefox-latest-ssl&os=linux/
             );
             await expect(downloadButtonLinux64).toBeVisible();
             await expect(downloadButtonLinux64).toHaveAttribute(

@@ -6,34 +6,47 @@
 #}
 
 {% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<div class="fl-mediacontent fl-mediacontent-feature {% if value.settings.media_after %}fl-mediacontent-reverse{% endif %}">
-  <div class="fl-mediacontent-media" aria-hidden="true">
-    {% if value.embed %}
-      {# Jinja interprets the HTML from the embed block as a string #}
-      {% autoescape false %}
-        {% include_block value.embed %}
-      {% endautoescape %}
-    {% elif value.image %}
-      {{ image(value.image, "width-800") }}
-    {% endif %}
-  </div>
-  <div class="fl-mediacontent-content">
-    <p class="fl-mediacontent-eyebrow">{{ value.eyebrow|richtext|remove_p_tag }}</p>
+<include:media-content media_after="{{ value.settings.media_after }}">
+  {% if value.eyebrow %}
+    <content:eyebrow>
+      {{ value.eyebrow|richtext|remove_p_tag }}
+    </content:eyebrow>
+  {% endif %}
+  <content:heading>
     <{{ row_heading_level }} class="heading heading-size-4">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
-    <div class="body">
-      {{ value.content }}
-    </div>
-    {% if value.buttons %}
-      <div class="buttons">
-        {% for button in value.buttons %}
-          {% include_block button %}
-        {% endfor %}
-      </div>
-    {% endif %}
-    {% if value.uitour_buttons %}
-      {% for button in value.uitour_buttons %}
+  </content:heading>
+  {% if value.tags %}
+    <content:tags>
+      {% for tag in value.tags %}
+        {% include_block tag %}
+      {% endfor %}
+    </content:tags>
+  {% endif %}
+  <content:body>
+    {{ value.content }}
+  </content:body>
+  {% if value.buttons %}
+    <content:buttons>
+      {% for button in value.buttons %}
         {% include_block button %}
       {% endfor %}
-    {% endif %}
-  </div>
-</div>
+    </content:buttons>
+  {% endif %}
+  {% if value.uitour_buttons %}
+    {% for button in value.uitour_buttons %}
+      {% include_block button %}
+    {% endfor %}
+  {% endif %}
+  {% if value.embed or value.image %}
+    <content:media>
+      {% if value.embed %}
+        {# Jinja interprets the HTML from the embed block as a string #}
+        {% autoescape false %}
+          {% include_block value.embed %}
+        {% endautoescape %}
+      {% elif value.image %}
+        {{ image(value.image, "width-800") }}
+      {% endif %}
+    </content:media>
+  {% endif %}
+</include:media-content>

@@ -130,9 +130,9 @@
     }
 
     function initNewsletterForm() {
-        const emailInput = document.getElementById('wnp-email');
-        const formDetails = document.querySelector('.wnp-form-details');
-        const checkbox = document.getElementById('wnp-privacy');
+        const emailInput = document.getElementById('newsletter-email');
+        const formDetails = document.getElementById('newsletter-details');
+        const checkbox = document.getElementById('newsletter-privacy');
         const submit = document.getElementById('newsletter-submit');
 
         const include_country = document.getElementById('id_country') !== null;
@@ -146,26 +146,26 @@
 
         emailInput.addEventListener('input', function () {
             if (this.value.length > 0 && !isFormExpanded) {
-                formDetails.classList.remove('wnp-form-row-hidden');
+                formDetails.classList.remove('fl-newsletterform-row-hidden');
                 emailInput
-                    .closest('.wnp-subscribe')
-                    .classList.add('wnp-subscribe-expanded');
+                    .closest('.fl-newsletterform')
+                    .classList.add('fl-newsletterform-expanded');
                 isFormExpanded = true;
             } else if (this.value.length === 0 && isFormExpanded) {
-                formDetails.classList.add('wnp-form-row-hidden');
+                formDetails.classList.add('fl-newsletterform-row-hidden');
                 emailInput
-                    .closest('.wnp-subscribe')
-                    .classList.remove('wnp-subscribe-expanded');
+                    .closest('.fl-newsletterform')
+                    .classList.remove('fl-newsletterform-expanded');
                 isFormExpanded = false;
             }
         });
 
         emailInput.addEventListener('focus', function () {
             if (this.value.length > 0 && !isFormExpanded) {
-                formDetails.classList.remove('wnp-form-row-hidden');
+                formDetails.classList.remove('fl-newsletterform-row-hidden');
                 emailInput
-                    .closest('.wnp-subscribe')
-                    .classList.add('wnp-subscribe-expanded');
+                    .closest('.fl-newsletterform')
+                    .classList.add('fl-newsletterform-expanded');
                 isFormExpanded = true;
             }
         });
@@ -205,12 +205,122 @@
         sync();
     }
 
+    function handleNewsletterSubmission() {
+        const form = document.getElementById('newsletter-form');
+        if (!form) return;
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const newsletters = Array.from(
+                form.querySelectorAll('input[name="newsletters"]:checked')
+            ).map((input) => input.value);
+
+            // Disable form during submission
+            const submitButton = document.getElementById('newsletter-submit');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Subscribing...';
+
+            // Submit to Basket
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+                .then((response) => {
+                    // Check if response is JSON
+                    const contentType = response.headers.get('content-type');
+                    if (
+                        contentType &&
+                        contentType.includes('application/json')
+                    ) {
+                        return response.json();
+                    } else {
+                        // If not JSON, treat as success for 200 status
+                        if (response.status === 200) {
+                            return { success: true };
+                        } else {
+                            return { success: false, errors: ['Server error'] };
+                        }
+                    }
+                })
+                .then((data) => {
+                    if (data.success || data.status === 'ok') {
+                        // Show success message
+                        showNewsletterSuccess();
+
+                        // Analytics tracking
+                        if (window.dataLayer) {
+                            for (let i = 0; i < newsletters.length; ++i) {
+                                window.dataLayer.push({
+                                    event: 'newsletter_subscribe',
+                                    newsletter_id: newsletters[i]
+                                });
+                            }
+                        }
+                    } else {
+                        // Show error message
+                        showNewsletterError(
+                            data.errors || [
+                                'An error occurred. Please try again.'
+                            ]
+                        );
+                    }
+                })
+                .catch((error) => {
+                    // eslint-disable-next-line no-console
+                    console.error('Newsletter subscription error:', error);
+                    showNewsletterError([
+                        'An error occurred. Please try again.'
+                    ]);
+                })
+                .finally(() => {
+                    // Re-enable form
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                });
+        });
+    }
+
+    function showNewsletterSuccess() {
+        const form = document.getElementById('newsletter-form');
+        const successDiv = document.getElementById('newsletter-thanks');
+
+        if (form && successDiv) {
+            form.style.display = 'none';
+            successDiv.classList.remove('hidden');
+        }
+    }
+
+    function showNewsletterError(errors) {
+        const errorDiv = document.getElementById('newsletter-errors');
+        const errorList =
+            errorDiv && errorDiv.querySelector('.fl-newsletterform-error-list');
+
+        if (errorDiv && errorList) {
+            // Clear existing errors
+            errorList.innerHTML = '';
+
+            // Add new errors
+            errors.forEach((error) => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+
+            errorDiv.classList.remove('hidden');
+        }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
+            handleNewsletterSubmission();
         });
     } else {
         initNewsletterForm();
+        handleNewsletterSubmission();
     }
 
     applyStoredTheme();

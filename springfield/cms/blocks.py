@@ -358,8 +358,9 @@ class MediaContentBlock(blocks.StructBlock):
     # )
     eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -400,7 +401,7 @@ class StickerCardBlock(blocks.StructBlock):
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -413,7 +414,7 @@ class TagCardBlock(blocks.StructBlock):
     tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -442,7 +443,7 @@ class IconCardBlock(blocks.StructBlock):
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
 
     class Meta:
         template = "cms/blocks/icon-card.html"
@@ -477,7 +478,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     image = ImageChooserBlock(inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -506,7 +507,7 @@ class StepCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -575,7 +576,7 @@ class IntroBlock(blocks.StructBlock):
     #     help_text="Either enter an image or embed, or leave both blank.",
     # )
     heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
 
     class Meta:
@@ -593,7 +594,7 @@ class SectionBlock(blocks.StructBlock):
             ("step_cards", StepCardListBlock()),
         ]
     )
-    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, label="Call to Action")
+    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
     class Meta:
         template = "cms/blocks/section.html"

@@ -1,0 +1,316 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
+
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=windows-landing' %}
+{% set ios_url = app_store_url('firefox', 'windows-landing') %}
+{% set android_url = play_store_url('firefox', 'windows-landing') %}
+
+{% if LANG == 'de' %}
+  {% set intro_title = "Behalte dein Internet im Blick." %}
+  {% set intro_description = "Dein Browser sollte für dich arbeiten und nicht für Big Tech. Weniger Ablenkung, weniger Tracking, schnell und sicher." %}
+  {% set feature_one_title = "Weniger Lärm. Mehr Kontrolle." %}
+  {% set feature_one_description = "Blockiere Werbung, schütze deine Daten und passe Firefox so an, wie du’s brauchst. Mit unzähligen Erweiterungen und Einstellungen." %}
+  {% set feature_two_title = "Multitasking oder mehr Fokus? Du entscheidest." %}
+  {% set feature_two_description = "Lesemodus für volle Konzentration. Pop-out-Videos für mehr Flexibilität. Vertikale Tabs und Tab-Gruppen für eine bessere Übersicht. Egal wie du surfst. Firefox passt sich dir an." %}
+  {% set feature_three_title = "Behalte deine Tabs im Griff." %}
+  {% set feature_three_description = "Ob 5 oder 50 Tabs – mit Firefox behältst du den Überblick. Du kannst Tabs durchsuchen, anpinnen oder doppelte ganz easy schließen." %}
+  {% set hightlights_title = "Hol dir den Browser, der macht was er soll." %}
+  {% set hightlight_one_title = "Werbe-Tracker? Blocken wir für dich." %}
+  {% set hightlight_one_description = "Sie machen Seiten langsam und nerven. Firefox kümmert sich automatisch darum. Für Schnelligkeit und mehr Privatsphäre, ohne dass du etwas einstellen musst." %}
+  {% set hightlight_two_title = "Tschüss Ablenkung." %}
+  {% set hightlight_two_description = 'Erweiterungen wie <a href="https://addons.mozilla.org/firefox/addon/tomato-clock/' ~ params ~ '">Tomato Clock</a> und <a href="https://addons.mozilla.org/firefox/addon/turn-off-the-lights/' ~ params ~ '">Turn Off the Lights</a> helfen dir dabei, fokussiert zu bleiben. Sie sind empfohlen, heißt sie haben von uns ein Sternchen für besondere Sicherheit und Funktionalität.' %}
+  {% set hightlight_three_title = "Alles Wichtige, auf all deinen Geräten." %}
+  {% set hightlight_three_description = "Hol dir Firefox Mobile und nimm Passwörter, Tabs, Verlauf, Datenschutz und Sicherheit überallhin mit." %}
+  {% set personalization_title = "Richte dir Firefox genau so ein, wie du willst." %}
+  {% set personalization_one_title = "Smart arbeiten und entspannt spielen." %}
+  {% set personalization_one_description = 'Entdecke <a href="https://addons.mozilla.org/firefox/extensions/' ~ params ~ '">Erweiterungen</a> für Recherche, Shopping und alles, was du sonst noch online machst.' %}
+  {% set personalization_two_title = "Mach Schluss mit Langeweile." %}
+  {% set personalization_two_description = 'Mit dem passenden <a href="https://addons.mozilla.org/firefox/themes/' ~ params ~ '">Add-on-Hintergrund</a> macht dein Internet mehr Spaß.' %}
+  {% set legacy_title = "Seit 2004 unabhängig." %}
+  {% set legacy_description = "Firefox ist kein Produkt von Investoren oder Großkonzernen, sondern das Projekt einer gemeinnützigen Organisation. Unser Ziel: ein besseres Internet für alle, nicht für den Profit." %}
+  {% set see_release = "Versionshinweise ansehen" %}
+{% else %}
+  {% set intro_title = "Fast. Private. Easy to switch. Billionaire-free." %}
+  {% set intro_description = "Your browser should work for you – not big tech. Firefox puts people first. We always have and we always will." %}
+  {% set feature_one_title = "Dial down the noise" %}
+  {% set feature_one_description = "With Firefox, ads and trackers won’t be in your way. Enjoy faster browsing and stronger privacy with customizable settings and downloadable extensions that puts you in control." %}
+  {% set feature_two_title = "Multitask or focus? You pick." %}
+  {% set feature_two_description = "Use reading mode for focus, pop‑out videos for flexibility and vertical tab groups for organization. However you browse, Firefox makes it easy and stays fast even with dozens of tabs." %}
+  {% set feature_three_title = "Keep tabs on all your tabs" %}
+  {% set feature_three_description = "Whether you’ve got 5 or 50 tabs open, Firefox gives you smarter tab management. Search, pin or close duplicates with ease. " %}
+  {% set hightlights_title = "Get the browser that helps you get the job done" %}
+  {% set hightlight_one_title = "Built-in automatic protection" %}
+  {% set hightlight_one_description = "Ad trackers make web pages load slower. Firefox blocks most ad trackers by default – no searching through settings required. Faster performance, more privacy, less effort." %}
+  {% set hightlight_two_title = "Stay focused" %}
+  {% set hightlight_two_description = 'Extensions like <a href="https://addons.mozilla.org/firefox/addon/tomato-clock/' ~ params ~ '">Tomato Clock</a> and <a href="https://addons.mozilla.org/firefox/addon/turn-off-the-lights/' ~ params ~ '">Turn Off the Lights</a> help you cut distractions. They’re recommended, because they meet Firefox’s high standards for security and functionality.' %}
+  {% set hightlight_three_title = "Your web, on all your screens" %}
+  {% set hightlight_three_description = "Take your passwords, tabs, and history with you with Firefox mobile. Firefox works seamlessly across devices so you can pick up where you left off." %}
+  {% set personalization_title = "Make Firefox yours" %}
+  {% set personalization_one_title = "Work smarter, play harder" %}
+  {% set personalization_one_description = 'From research to shopping to entertainment, Firefox has thousands of <a href="https://addons.mozilla.org/firefox/extensions/' ~ params ~ '">extensions</a> to support the way you work and play.' %}
+  {% set personalization_two_title = "Bye, boring browser" %}
+  {% set personalization_two_description = 'Add <a href="https://addons.mozilla.org/firefox/themes/' ~ params ~ '">themes</a> to match your style and make Firefox a browser that feels like your own.' %}
+
+  {% set legacy_title = "Billionaire-free for 20+ years" %}
+  {% set legacy_description = "Firefox was created in 2004 by Mozilla as a faster, more private, and customizable alternative to browsers like Internet Explorer. Today, we are still not-for-profit, still not owned by any billionaires and still working to make the internet, and the time you spend on it, better." %}
+  {% set see_release = "See Release Notes" %}
+{% endif %}
+
+{% if switch('download_as_default') %}
+  {% set download_as_default_enabled = true %}
+{% else %}
+  {% set download_as_default_enabled = false %}
+{% endif %}
+
+{% macro default_browser_checkbox(id='default-browser-checkbox') -%}
+<label for="{{ id }}" class="default-browser-label hidden">
+  <input type="checkbox" id="{{ id }}" class="default-browser-checkbox">
+  {{ ftl('firefox-home-set-firefox-as')}}
+</label>
+{%- endmacro %}
+
+{% extends "firefox/download/desktop/base.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block string_data %}{% endblock %}
+
+{% block page_image %}
+  {% if LANG.startswith('en-') %}
+    {{ static('img/firefox/home/meta-img-en.png') }}
+  {% else %}
+    {{ static('img/firefox/home/meta-img-global.png') }}
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+  {{ super() }}
+  {{ css_bundle('firefox-home') }}
+
+  <!--[if IE 9]>
+    {{ css_bundle('firefox-home-ie9') }}
+  <![endif]-->
+
+  <!--[if lt IE 9]>
+    {{ css_bundle('firefox-home-ie8') }}
+  <![endif]-->
+{% endblock %}
+
+{% block content %}
+
+{% if outdated %}
+
+  {% set update_url = 'href="%s" data-cta-text="Update to the latest version"'|safe|format(('https://support.mozilla.org/kb/update-firefox-latest-release' + params)) %}
+
+  {% if ftl_has_messages('firefox-desktop-out-of-date') %}
+    <aside class="c-page-header-notification">
+      <div class="mzp-c-notification-bar mzp-t-warning">
+        {{ ftl('firefox-desktop-out-of-date', update_url=update_url) }}
+      </div>
+    </aside>
+  {% endif %}
+
+{% endif %}
+
+<main class="main-download" {% if variation %}data-variation="{{ variation }}"{% endif %}>
+  <section id="desktop-banner" class="c-block t-intro show-else mzp-has-media-hide-on-sm">
+    <div class="c-block-container">
+      <div class="c-block-body">
+        <h1>{{ ftl('firefox-desktop-download-firefox') }}</h1>
+          <h2>{{ intro_title }}</h2>
+          <p>{{ intro_description }}</p>
+        <div class="c-intro-download">
+          {% block primary_cta %}
+            {{ default_browser_checkbox(id='default-browser-checkbox-primary') }}
+            {{ download_firefox_thanks(locale_in_transition=True, download_location='primary cta') }}
+          {% endblock %}
+
+          <div class="c-intro-download-alt"><a href="{{ url('firefox.all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
+
+          <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+        </div>
+      </div>
+      <div class="c-block-media l-v-center">
+      {{ resp_img(
+        url='img/firefox/home/hero.png',
+        srcset={
+          'img/firefox/home/hero-high-res.png': '2x'
+        },
+        optional_attributes={
+          'class': 'c-block-media-img',
+          'alt': ftl('firefox-home-firefox-on-desktop'),
+          'width': '768'
+        }
+      ) }}
+      </div>
+    </div>
+  </section>
+
+  <section class="mzp-l-content t-releases" id="next">
+    <div class="mzp-c-emphasis-box js-animate">
+      <ul class="c-trio">
+        <li>
+          <img alt="{{ ftl('firefox-home-happy-toggle') }}" src="{{ static('img/firefox/home/toggle.svg') }}" width="90" height="54">
+          <h3>{{ feature_one_title }}</h3>
+          <p>{{ feature_one_description }}</p>
+        </li>
+        <li class="t-cursor">
+          <img alt="{{ ftl('firefox-home-multiple-cursors') }}" src="{{ static('img/firefox/home/multi.svg') }}" width="134" height="38">
+          <h3>{{ feature_two_title }}</h3>
+          <p>{{ feature_two_description }}</p>
+        </li>
+        <li>
+          <img alt="{{ ftl('firefox-home-lots-of-open') }}" src="{{ static('img/firefox/home/tabs.svg') }}" width="72" height="54">
+          <h3>{{ feature_three_title }}</h3>
+          <p>{{ feature_three_description }}</p>
+        </li>
+      </ul>
+
+      <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">{{ see_release }}</a></p>
+    </div>
+  </section>
+
+  <section class="t-highlights">
+    <h2 class="mzp-c-section-heading">{{ hightlights_title }}</h2>
+
+    <div class="t-block c-block l-reversed js-animate">
+      <div class="c-block-container">
+        <div class="c-block-body l-v-center l-h-start">
+          <h3 class="mzp-u-title-sm">{{ hightlight_one_title }}</h3>
+          <p>{{ hightlight_one_description }}</p>
+          <button id="protection-report" type="button" class="mzp-c-cta-link">{{ ftl('firefox-desktop-download-see-your-report') }}</button>
+        </div>
+        <div class="c-block-media l-v-end l-h-end l-media-constrain-on-sm">
+        <img alt="{{ ftl('firefox-home-shield-and-hand') }}" class="c-block-media-img" src="{{ static('img/firefox/home/block.svg') }}" width="220">
+        </div>
+      </div>
+    </div>
+
+    <div class="t-think c-block js-animate">
+      <div class="c-block-container">
+        <div class="c-block-body l-v-center l-h-end">
+          <h3 class="mzp-u-title-sm">{{  hightlight_two_title }}</h3>
+          <p>{{ hightlight_two_description | safe }}</p>
+        </div>
+        <div class="c-block-media l-v-center l-h-start l-media-constrain-on-sm">
+        <img alt="{{ ftl('firefox-home-a-human-brain') }}" class="c-block-media-img" src="{{ static('img/firefox/home/think.svg') }}" width="260">
+        </div>
+      </div>
+    </div>
+
+    <div class="t-devices c-block l-reversed js-animate">
+      <div class="c-block-container">
+        <div class="c-block-body l-v-center">
+          <h3 class="mzp-u-title-sm">{{ hightlight_three_title }}</h3>
+          <p>{{ hightlight_three_description }}</p>
+          <div class="mobile-download-buttons-wrapper">
+            {% block mobile_secondary_cta %}
+              <ul class="mobile-download-buttons">
+                <li class="android">
+                  {{ google_play_button(href=android_url) }}
+                </li>
+                <li class="ios">
+                  {{ apple_app_store_button(href=ios_url) }}
+                </li>
+              </ul>
+            {% endblock %}
+          </div>
+        </div>
+        <div class="c-block-media l-v-end l-h-end l-media-constrain-on-sm">
+        <img alt="{{ ftl('firefox-home-desktop-laptop-and-phone') }}" class="c-block-media-img" src="{{ static('img/firefox/home/screens.svg') }}" width="350">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="t-custom">
+    <section class="mzp-l-content mzp-t-content-md js-animate">
+      <h2 class="mzp-c-section-heading">{{ personalization_title }}</h2>
+
+      <div class="c-screen">
+        <div class="c-screenshot">
+          <img alt="{{ ftl('firefox-home-firefox-in-dark') }}" src="{{ static('img/firefox/home/dark.svg') }}" width="1000">
+        </div>
+      </div>
+
+      <ul class="mzp-l-columns mzp-t-columns-two">
+        <li>
+          <h3>{{ personalization_one_title }}</h3>
+          <p>{{ personalization_one_description | safe }}</p>
+        </li>
+
+        <li>
+          <h3>{{ personalization_two_title }}</h3>
+          <p>{{ personalization_two_description | safe }}</p>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="mzp-l-content t-free">
+    <div class="mzp-c-emphasis-box js-animate">
+      <div class="c-free">
+        <div class="c-free-img">
+          <img alt="{{ ftl('firefox-home-firefox-on-a-desktop') }}" src="{{ static('img/firefox/home/free.svg') }}" width="300">
+        </div>
+        <div class="c-free-body">
+          <h2>{{ legacy_title }}</h2>
+          <p>{{ legacy_description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mzp-c-section-heading">
+    {% block discover_cta %}
+      {{ default_browser_checkbox(id='default-browser-checkbox-discover') }}
+      {{ download_firefox_thanks(dom_id='download-discover', locale_in_transition=True, download_location='discover cta') }}
+    {% endblock %}
+  </section>
+
+  <section class="c-support">
+    {% set questions_attrs = 'href="https://support.mozilla.org/products/firefox%s&utm_content=mozilla-support" rel="external noopener" data-cta-text="Mozilla support"'|safe|format(params) %}
+    {{ ftl('firefox-desktop-download-questions', attrs=questions_attrs) }}
+  </section>
+
+  <aside id="mobile-banner" class="show-android show-ios" data-nosnippet>
+    <div class="c-mobile mzp-t-dark">
+      <div class="mzp-l-content">
+        <div class="c-mobile-text">
+          <h2 class="mzp-has-zap-7 mzp-u-title-md show-android">{{ ftl('firefox-desktop-download-get-firefox-android') }}</h2>
+          <h2 class="mzp-has-zap-7 mzp-u-title-md show-ios">{{ ftl('firefox-desktop-download-get-firefox-ios') }}</h2>
+
+          <p>{{ ftl('firefox-desktop-download-download-the-mobile') }}</p>
+
+          {% block mobile_primary_cta %}
+            <div class="show-android">
+              {{ google_play_button(href=android_url) }}
+            </div>
+            <div class="show-ios">
+              {{ apple_app_store_button(href=ios_url) }}
+            </div>
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+    <h2 class="c-desktop">
+      <a href="#next">{{ ftl('firefox-desktop-download-learn-about-the') }}</a>
+    </h2>
+  </aside>
+</main>
+
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('firefox-home') }}
+
+{% if download_as_default_enabled %}
+  {{ js_bundle('download_as_default') }}
+{% endif %}
+
+{% endblock %}
