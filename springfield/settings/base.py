@@ -1415,6 +1415,9 @@ WAGTAILIMAGES_EXTENSIONS = [
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
+    "cms.FreeFormPage",
+    "cms.WhatsNewIndexPage",
+    "cms.WhatsNewPage",
     "firefox.FeaturesDetailPage",
     "firefox.FeaturesIndexPage",
 ]
