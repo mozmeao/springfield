@@ -5,6 +5,7 @@
  */
 
 function init() {
+    'use strict';
     Mozilla.UITour.ping(() => {
         // Find any buttons that should open a new tab.
         const openNewTabButtons = document.querySelectorAll('.ui-tour-open-new-tab');
@@ -76,6 +77,7 @@ function init() {
 }
 
 function hideUITourElements() {
+    'use strict';
     const uiTourElements = document.querySelectorAll('.ui-tour');
     uiTourElements.forEach((element) => {
         element.style.display = "none";
