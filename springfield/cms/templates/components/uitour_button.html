@@ -5,7 +5,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <div class="ui-tour">
-  <div role="button" class="button {{ theme_class }}" {% if disabled %}disabled{% endif %}>
+  <button class="button {{ theme_class }}" {% if disabled %}disabled{% endif %}>
     {% if icon_name and icon_position == "left" %}
       {% set extra_class = "icon-left" %}
       <include:icon
@@ -23,5 +23,5 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         extra_class="{{ extra_class }}"
       />
     {% endif %}
-  </div>
+  </button>
 </div>
