@@ -40,7 +40,7 @@
     },
     "ignoreFiles": [
         "media/css/libs/**/*",
-        "media/css/cms/wagtail-admin.scss",
+        "media/css/cms/wagtail-admin.css",
         "media/css/pattern_library/theme.css"
     ]
 }

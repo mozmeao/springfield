@@ -6,14 +6,26 @@
 
 <article class="fl-card fl-card-fill fl-illustration-card {% if card.settings.expand_link %}expand-link{% endif %}">
 
-  {% set img = image(value.image, "width-600") %}
-  <include:image url="{{ img.url }}" alt="{{ img.alt }}" />
+  <div class="media">
+    {{ srcset_image(
+        value.image,
+        "width-{200,400,600,800,1000,1200,1400}",
+        sizes="
+          (min-width: 768px) 50vw,
+          (min-width: 1024px) 30vw,
+          (min-width: 1440px) 500px,
+          100vw
+        ",
+        width=value.image.width,
+        loading="lazy"
+      ) }}
+  </div>
 
   <div class="card-content">
     <hgroup>
       {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
       {% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
-      <{{ superheading_level }} class="superheading">{{ ftl('block-step-card-step') }} {{ "{:02d}".format(card_index) }}</{{ superheading_level }}>
+      <{{ superheading_level }} class="fl-superheading">{{ ftl('block-step-card-step') }} {{ "{:02d}".format(card_index) }}</{{ superheading_level }}>
       <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
     </hgroup>
     <div class="body">{{ value.content }}</div>

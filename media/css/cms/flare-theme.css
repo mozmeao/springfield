@@ -98,8 +98,9 @@ non-determinative so you need to check and adjust the results as needed.
     --font-family-inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     --font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     --font-weight-regular: 400;
-    --font-weight-medium: 500;
+    --font-weight-medium: 500; /* Metropolis only */
     --font-weight-semibold: 600;
+    --font-weight-bold: 700; /* Inter only */
     --font-family-headline: var(--font-family-metropolis);
     --font-weight-headline: var(--font-weight-semibold);
     --font-family-subheader: var(--font-family-metropolis);
@@ -110,8 +111,8 @@ non-determinative so you need to check and adjust the results as needed.
     --font-weight-link: var(--font-weight-semibold);
     --font-family-label: var(--font-family-inter);
     --font-weight-label: var(--font-weight-medium);
-    --font-family-button: var(--font-family-mozilla-text);
-    --font-weight-button: var(--font-weight-semibold);
+    --font-family-button: var(--font-family-metropolis);
+    --font-weight-button: var(--font-weight-medium);
 
     /* Font size variables NOT from Figma */
     --font-size-base: 16px;
@@ -134,10 +135,11 @@ non-determinative so you need to check and adjust the results as needed.
     --font-size-body-medium: 1.125rem; /* 18px */
     --font-size-body-small: 1rem; /* 16px */
     --font-size-body-xsmall: 0.875rem; /* 14px */
+    --font-size-body-2xsmall: 0.75rem; /* 12px */
 
     /* Other font size variables */
     --font-size-tag: 0.75rem; /* 12px */
-    --font-size-superheading: 0.875rem; /* 14px */
+    --font-size-superheading: var(--font-size-body-2xsmall); /* 12px */
 
     /* Line height variables NOT from Figma */
     --line-height-base: 1.2;
