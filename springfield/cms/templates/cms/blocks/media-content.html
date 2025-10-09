@@ -1,0 +1,57 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+<include:media-content media_after="{{ value.settings.media_after }}">
+  {% if value.eyebrow %}
+    <content:eyebrow>
+      {{ value.eyebrow|richtext|remove_p_tag }}
+    </content:eyebrow>
+  {% endif %}
+  <content:heading>
+    <{{ row_heading_level }} class="heading heading-size-4">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
+  </content:heading>
+  {% if value.tags %}
+    <content:tags>
+      {% for tag in value.tags %}
+        {% include_block tag %}
+      {% endfor %}
+    </content:tags>
+  {% endif %}
+  <content:body>
+    {{ value.content }}
+  </content:body>
+  {% if value.buttons %}
+    <content:buttons>
+      {% for button in value.buttons %}
+        {% include_block button %}
+      {% endfor %}
+    </content:buttons>
+  {% endif %}
+  {% if value.embed or value.image %}
+    <content:media>
+      {% if value.embed %}
+        {# Jinja interprets the HTML from the embed block as a string #}
+        {% autoescape false %}
+          {% include_block value.embed %}
+        {% endautoescape %}
+      {% elif value.image %}
+        {{ srcset_image(
+            value.image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="
+              (min-width: 768px) 50vw,
+              (min-width: 1440px) 680px,
+              100vw
+            ",
+            width=(value.image.width / 2)|round|int,
+            loading="lazy"
+          ) }}
+      {% endif %}
+    </content:media>
+  {% endif %}
+</include:media-content>

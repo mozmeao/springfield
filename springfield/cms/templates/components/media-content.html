@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-mediacontent fl-mediacontent-feature{% if media_after %} fl-mediacontent-reverse{% endif %}">
+  {% if contents.media %}
+    <div class="fl-mediacontent-media dim-images-on-dark-mode" aria-hidden="true">
+      {{ contents.media }}
+    </div>
+  {% endif %}
+  <div class="fl-mediacontent-content">
+    {% if contents.eyebrow %}
+      <p class="fl-superheading">{{ contents.eyebrow }}</p>
+    {% endif %}
+    {{ contents.heading }}
+    {% if contents.tags %}
+      <div class="fl-mediacontent-tags">
+        {{ contents.tags }}
+      </div>
+    {% endif %}
+    {% if contents.body %}
+      <div class="body">
+        {{ contents.body }}
+      </div>
+    {% endif %}
+    {% if contents.buttons %}
+      <div class="buttons">
+        {{ contents.buttons }}
+      </div>
+    {% endif %}
+  </div>
+</div>

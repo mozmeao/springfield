@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+
+<include:heading
+  level="{{ 'h' ~ block_level if block_level else 'h2' }}"
+  heading_size="{{ 'heading-size-' ~ block_level if block_level else 'heading-size-2' }}"
+  heading_text="{{ value.heading_text|richtext|remove_p_tag if value.heading_text else '' }}"
+  superheading_text="{{ value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' }}"
+  subheading_text="{{ value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' }}"
+  subheading_size="{{ 'subheading-' ~ (block_level + 2) if block_level else 'subheading-3' }}"
+  alignment_class="{{ alignment_class }}"
+/>

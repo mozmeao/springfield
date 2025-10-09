@@ -2,11 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.contrib.auth import get_user_model
+
 import pytest
 import wagtail_factories
-from wagtail.models import Locale, Site
+from wagtail.models import Locale, Page, Site
 
+from springfield.cms.models import PageTranslationData
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+
+User = get_user_model()
 
 
 @pytest.fixture
@@ -119,7 +124,7 @@ def tiny_localized_site():
     pt_br_homepage.publish(rev)
 
     pt_br_child = fr_child.copy_for_translation(pt_br_locale)
-    pt_br_child.title = "Página Filho"
+    pt_br_child.title = "Página Filha"
     pt_br_child.save()
     rev = pt_br_child.save_revision()
     pt_br_child.publish(rev)
@@ -148,3 +153,176 @@ def tiny_localized_site():
     assert fr_homepage.live is True
     assert fr_child.live is True
     assert fr_grandchild.live is True
+
+
+@pytest.fixture
+def staff_user(base_url, request):
+    user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass", is_staff=True)
+
+    return user
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages():
+    """
+    Generates a small site tree with home pages in the following languages:
+
+    en-US:
+        / [Page]
+    de:
+        / [Page]
+    fr:
+        / [Page]
+    it:
+        / [Page]
+    """
+    # Get or create locales
+    en_locale, created = Locale.objects.get_or_create(language_code="en-US")
+    de_locale, created = Locale.objects.get_or_create(language_code="de")
+    fr_locale, created = Locale.objects.get_or_create(language_code="fr")
+    it_locale, created = Locale.objects.get_or_create(language_code="it")
+
+    # Set default locale
+    if not Locale.objects.filter(language_code="en-US").exists():
+        Locale.objects.create(language_code="en-US")
+
+    # Get the English home page
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+
+    # Create German home page as a translation of the English home page
+    de_home = en_home.copy_for_translation(de_locale)
+    de_home.title = "German Home"
+    de_home.save_revision().publish()
+
+    # Create French home page as a translation of the English home page
+    fr_home = en_home.copy_for_translation(fr_locale)
+    fr_home.title = "French Home"
+    fr_home.save_revision().publish()
+
+    # Create Italian home page as a translation of the English home page
+    it_home = en_home.copy_for_translation(it_locale)
+    it_home.title = "Italian Home"
+    it_home.save_revision().publish()
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages_1_en_page(site_with_en_de_fr_it_homepages):
+    """
+    Generates a small site tree with homepages and 1 English page:
+
+    en-US:
+        / [Page]
+            /english-page [SimpleRichTextPage]
+    de:
+        / [Page]
+    fr:
+        / [Page]
+    it:
+        / [Page]
+    """
+    # Get the locales
+    en_locale = Locale.objects.get(language_code="en-US")
+
+    # Get the home pages
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+
+    # Create a page originally in English.
+    en_page = SimpleRichTextPageFactory(
+        title="English Original",
+        slug="english-page",
+        locale=en_locale,
+        content="English content",
+        parent=en_home,
+    )
+    en_page.save_revision().publish()
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_homepages):
+    """
+    Generates a small site tree with a few pages:
+
+    en-US:
+        / [Page]
+            /english-page [SimpleRichTextPage]
+    de:
+        / [Page]
+            /german-page [SimpleRichTextPage]
+            /english-page [SimpleRichTextPage] - translation of the en-US english-page
+    fr:
+        / [Page]
+            /french-page [SimpleRichTextPage]
+            /english-page [SimpleRichTextPage] - translation of the en-US english-page
+    it:
+        / [Page]
+            /french-page [SimpleRichTextPage] - translation of the fr french-page
+    """
+    # Get the locales
+    en_locale = Locale.objects.get(language_code="en-US")
+    de_locale = Locale.objects.get(language_code="de")
+    fr_locale = Locale.objects.get(language_code="fr")
+    it_locale = Locale.objects.get(language_code="it")
+
+    # Get the home pages
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+    de_home = Page.objects.get(locale__language_code="de", slug="home-de")
+    fr_home = Page.objects.get(locale__language_code="fr", slug="home-fr")
+
+    # Create a page originally in English.
+    en_page = SimpleRichTextPageFactory(
+        title="English Original",
+        slug="english-page",
+        locale=en_locale,
+        content="English content",
+        parent=en_home,
+    )
+    en_page.save_revision().publish()
+
+    # Create a page originally in German.
+    de_page = SimpleRichTextPageFactory(
+        title="German Original",
+        slug="german-page",
+        locale=de_locale,
+        content="German content",
+        parent=de_home,
+    )
+    de_page.save_revision().publish()
+
+    # Create a page originally in French.
+    fr_page = SimpleRichTextPageFactory(
+        title="French Original",
+        slug="french-page",
+        locale=fr_locale,
+        content="French content",
+        parent=fr_home,
+    )
+    fr_page.save_revision().publish()
+
+    # Create German and French translations for the en_page.
+    de_translation = en_page.copy_for_translation(de_locale)
+    de_translation.title = "German Translation"
+    de_translation.save_revision().publish()
+    # Make sure that the PageTranslationData object for the translation exists.
+    PageTranslationData.objects.get_or_create(
+        source_page=en_page,
+        translated_page=de_translation,
+    )
+
+    fr_translation = en_page.copy_for_translation(fr_locale)
+    fr_translation.title = "French Translation"
+    fr_translation.save_revision().publish()
+    # Make sure that the PageTranslationData object for the translation exists.
+    PageTranslationData.objects.get_or_create(
+        source_page=en_page,
+        translated_page=fr_translation,
+    )
+
+    # Create Italian translations for the fr_page.
+    it_translation = fr_page.copy_for_translation(it_locale)
+    it_translation.title = "Italian Translation"
+    it_translation.save_revision().publish()
+    # Make sure that the PageTranslationData object for the translation exists.
+    PageTranslationData.objects.get_or_create(
+        source_page=fr_page,
+        translated_page=it_translation,
+    )

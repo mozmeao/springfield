@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+
+<article class="fl-card {% if value.settings.expand_link %}expand-link{% endif %}">
+  {% set img=image(value.image, 'width-400') %}
+  {% if value.dark_image %}
+    {% set img_dark=image(value.dark_image, 'width-400') %}
+  {% endif %}
+  <img class="fl-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
+  <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+  <div class="body body-medium">{{ value.content }}</div>
+  {% if value.buttons %}
+    <div class="buttons">
+      {% for button in value.buttons %}
+        {% include_block button %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</article>

@@ -1,0 +1,78 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    vertical-align: middle;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+}
+
+.icon-ai { --icon-src: url('/media/img/firefox/flare/icons/ai.svg'); }
+.icon-alert { --icon-src: url('/media/img/firefox/flare/icons/alert.svg'); }
+.icon-android { --icon-src: url('/media/img/firefox/flare/icons/android.svg'); }
+.icon-apple { --icon-src: url('/media/img/firefox/flare/icons/apple.svg'); }
+.icon-arrow-down { --icon-src: url('/media/img/firefox/flare/icons/arrow-down.svg'); }
+.icon-arrow-left { --icon-src: url('/media/img/firefox/flare/icons/arrow-left.svg'); }
+.icon-arrow-right { --icon-src: url('/media/img/firefox/flare/icons/arrow-right.svg'); }
+.icon-arrow-up { --icon-src: url('/media/img/firefox/flare/icons/arrow-up.svg'); }
+.icon-bell { --icon-src: url('/media/img/firefox/flare/icons/bell.svg'); }
+.icon-blog { --icon-src: url('/media/img/firefox/flare/icons/blog.svg'); }
+.icon-bookmark { --icon-src: url('/media/img/firefox/flare/icons/bookmark.svg'); }
+.icon-calendar { --icon-src: url('/media/img/firefox/flare/icons/calendar.svg'); }
+.icon-caret-down { --icon-src: url('/media/img/firefox/flare/icons/caret-down.svg'); }
+.icon-caret-up { --icon-src: url('/media/img/firefox/flare/icons/caret-up.svg'); }
+.icon-chat { --icon-src: url('/media/img/firefox/flare/icons/chat.svg'); }
+.icon-check { --icon-src: url('/media/img/firefox/flare/icons/check.svg'); }
+.icon-close { --icon-src: url('/media/img/firefox/flare/icons/close.svg'); }
+.icon-cloud { --icon-src: url('/media/img/firefox/flare/icons/cloud.svg'); }
+.icon-copy { --icon-src: url('/media/img/firefox/flare/icons/copy.svg'); }
+.icon-data-insights { --icon-src: url('/media/img/firefox/flare/icons/data-insights.svg'); }
+.icon-data-pie { --icon-src: url('/media/img/firefox/flare/icons/data-pie.svg'); }
+.icon-design { --icon-src: url('/media/img/firefox/flare/icons/design.svg'); }
+.icon-download { --icon-src: url('/media/img/firefox/flare/icons/download.svg'); }
+.icon-earth { --icon-src: url('/media/img/firefox/flare/icons/earth.svg'); }
+.icon-edit-write { --icon-src: url('/media/img/firefox/flare/icons/edit-write.svg'); }
+.icon-email { --icon-src: url('/media/img/firefox/flare/icons/email.svg'); }
+.icon-event { --icon-src: url('/media/img/firefox/flare/icons/event.svg'); }
+.icon-external-link { --icon-src: url('/media/img/firefox/flare/icons/external-link.svg'); }
+.icon-eye-closed { --icon-src: url('/media/img/firefox/flare/icons/eye-closed.svg'); }
+.icon-eye-open { --icon-src: url('/media/img/firefox/flare/icons/eye-open.svg'); }
+.icon-folder { --icon-src: url('/media/img/firefox/flare/icons/folder.svg'); }
+.icon-folder-plus { --icon-src: url('/media/img/firefox/flare/icons/folder-plus.svg'); }
+.icon-gear { --icon-src: url('/media/img/firefox/flare/icons/gear.svg'); }
+.icon-globe { --icon-src: url('/media/img/firefox/flare/icons/globe.svg'); }
+.icon-hashtag { --icon-src: url('/media/img/firefox/flare/icons/hashtag.svg'); }
+.icon-headphone { --icon-src: url('/media/img/firefox/flare/icons/headphone.svg'); }
+.icon-heart { --icon-src: url('/media/img/firefox/flare/icons/heart.svg'); }
+.icon-home { --icon-src: url('/media/img/firefox/flare/icons/home.svg'); }
+.icon-language { --icon-src: url('/media/img/firefox/flare/icons/language.svg'); }
+.icon-lock { --icon-src: url('/media/img/firefox/flare/icons/lock.svg'); }
+.icon-megaphone { --icon-src: url('/media/img/firefox/flare/icons/megaphone.svg'); }
+.icon-menu { --icon-src: url('/media/img/firefox/flare/icons/menu.svg'); }
+.icon-minus { --icon-src: url('/media/img/firefox/flare/icons/minus.svg'); }
+.icon-mobile-phone { --icon-src: url('/media/img/firefox/flare/icons/mobile-phone.svg'); }
+.icon-paperclip { --icon-src: url('/media/img/firefox/flare/icons/paperclip.svg'); }
+.icon-pause { --icon-src: url('/media/img/firefox/flare/icons/pause.svg'); }
+.icon-play { --icon-src: url('/media/img/firefox/flare/icons/play.svg'); }
+.icon-plus { --icon-src: url('/media/img/firefox/flare/icons/plus.svg'); }
+.icon-quote { --icon-src: url('/media/img/firefox/flare/icons/quote.svg'); }
+.icon-read { --icon-src: url('/media/img/firefox/flare/icons/read.svg'); }
+.icon-report { --icon-src: url('/media/img/firefox/flare/icons/report.svg'); }
+.icon-search { --icon-src: url('/media/img/firefox/flare/icons/search.svg'); }
+.icon-shield { --icon-src: url('/media/img/firefox/flare/icons/shield.svg'); }
+.icon-sound-off { --icon-src: url('/media/img/firefox/flare/icons/sound-off.svg'); }
+.icon-sound-on { --icon-src: url('/media/img/firefox/flare/icons/sound-on.svg'); }
+.icon-star { --icon-src: url('/media/img/firefox/flare/icons/star.svg'); }
+.icon-thumbs-up { --icon-src: url('/media/img/firefox/flare/icons/thumbs-up.svg'); }
+.icon-toggle-off { --icon-src: url('/media/img/firefox/flare/icons/toggle-off.svg'); }
+.icon-toggle-on { --icon-src: url('/media/img/firefox/flare/icons/toggle-on.svg'); }
+.icon-trash { --icon-src: url('/media/img/firefox/flare/icons/trash.svg'); }
+.icon-update { --icon-src: url('/media/img/firefox/flare/icons/update.svg'); }
+.icon-user { --icon-src: url('/media/img/firefox/flare/icons/user.svg'); }

@@ -26,6 +26,8 @@ services:
       target: devapp
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     platform: linux/amd64
+    tty: true
+    stdin_open: true
     command: python manage.py runserver 0.0.0.0:8080
     env_file:
       - docker/envfiles/local.env
@@ -33,6 +35,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - ./data/:/app/data
+      - media_volume:/app/custom-media
       - ./springfield/:/app/springfield:delegated
       - ./bin/:/app/bin:delegated
       - ./docker/:/app/docker:delegated
@@ -151,3 +155,6 @@ services:
       ./bin/compile-requirements.sh
     volumes:
       - .:/app
+
+volumes:
+  media_volume:

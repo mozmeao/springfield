@@ -1,0 +1,13 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:tag
+  text="{{ value.title }}"
+  color="{{ value.color }}"
+  corners="{{ value.corners }}"
+  before_icon="{{ value.icon if value.icon and value.icon_position == 'before' else '' }}"
+  after_icon="{{ value.icon if value.icon and value.icon_position == 'after' else '' }}"
+/>

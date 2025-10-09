@@ -87,7 +87,8 @@ module.exports = [
             'media/js/ie/libs/**/*.js',
             'media/js/libs/**/*.js',
             'static/**/*.js',
-            'tests/unit/dist/**/*.js'
+            'tests/unit/dist/**/*.js',
+            'webpack/**/*.js'
         ]
     },
     {

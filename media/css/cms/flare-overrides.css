@@ -1,0 +1,72 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Overrides - Exceptions to the rules
+
+Rules in this layer will override everything else. Use sparingly for
+specific exceptions that can't be handled by the other layers
+===================================================================== */
+
+
+.fl-footer .button img {
+    margin-right: calc(var(--scale-16) * 1px);
+}
+
+.fl-footer-cta .button {
+    width: 100%;
+}
+
+.fl-section-subscribe .button {
+    color: var(--neutrals-charcoal);
+    border-color: var(--neutrals-charcoal);
+}
+
+.fl-section-subscribe .fl-newsletterform-input,
+.fl-section-subscribe .button {
+    padding: 12px 18px;
+}
+
+.fl-section-subscribe .button:hover {
+    background: var(--neutrals-black);
+    color: var(--neutrals-white);
+}
+
+.fl-section .button {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
+.fl-newsletterform.fl-newsletterform-expanded .button {
+    width: 100%;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .button {
+    order: 3;
+}
+
+@media (max-width: 767px) {
+    .fl-mediacontent-content .button {
+        width: 100%;
+    }
+
+    .fl-section-subscribe .fl-newsletterform .button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .fl-footer-cta .button {
+        width: unset;
+    }
+}
+
+@media (min-width: 1024px) {
+    .fl-mediacontent .button {
+        width: fit-content
+    }
+}

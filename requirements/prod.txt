@@ -319,10 +319,12 @@ django==5.2.7 \
     #   django-csp
     #   django-extensions
     #   django-filter
+    #   django-includecontents
     #   django-jinja
     #   django-memoize
     #   django-modelcluster
     #   django-mozilla-product-details
+    #   django-pattern-library
     #   django-permissionedforms
     #   django-rq
     #   django-rq-email-backend
@@ -359,6 +361,10 @@ django-filter==25.1 \
     --hash=sha256:1ec9eef48fa8da1c0ac9b411744b16c3f4c31176c867886e4c48da369c407153 \
     --hash=sha256:4fa48677cf5857b9b1347fed23e355ea792464e0fe07244d1fdfb8a806215b80
     # via wagtail
+django-includecontents==4.0.1 \
+    --hash=sha256:adbe0c3a9385ac0743433e1a2358822a658fe72c19b56c215eec46a23d7e1aea \
+    --hash=sha256:e8df11c79876394520aa8a9e6a564f7782b726054ea5ef78c243337ad0fbcde1
+    # via -r requirements/prod.in
 django-jinja==2.11.0 \
     --hash=sha256:47c06d3271e6b2f27d3596278af517bfe2e19c1eb36ae1c0b1cc302d7f0259af \
     --hash=sha256:cc4c72246a6e346aa0574e0c56c3e534c1a20ef47b8476f05d7287781f69a0a9
@@ -383,6 +389,9 @@ django-modelcluster==6.4 \
 django-mozilla-product-details==1.0.3 \
     --hash=sha256:1d139ba01f4484f3bb43b72864ce33f249835405449e0dc940217cfa42ce5b46 \
     --hash=sha256:a4aba6a68b296dffe8c1afb95d236cdbd402bd855cd49eef4d8a1a610105fd36
+    # via -r requirements/prod.in
+django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.0-jinja/django_pattern_library-1.5.0.tar.gz \
+    --hash=sha256:671604a8797712c7a7ebe7b6f42926b79ba5f50f32242e271fe4933a64d5ce5c
     # via -r requirements/prod.in
 django-permissionedforms==0.1 \
     --hash=sha256:4340bb20c4477fffb13b4cc5cccf9f1b1010b64f79956c291c72d2ad2ed243f8 \
@@ -888,6 +897,7 @@ markdown==3.8 \
     # via
     #   -r requirements/prod.in
     #   django-jinja-markdown
+    #   django-pattern-library
     #   mdx-outline
 markupsafe==3.0.3 \
     --hash=sha256:0303439a41979d9e74d18ff5e2dd8c43ed6c6001fd40e5bf2e43f7bd9bbc523f \
@@ -1000,7 +1010,9 @@ openpyxl==3.1.5 \
 packaging==25.0 \
     --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
     --hash=sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f
-    # via django-csp
+    # via
+    #   django-csp
+    #   django-includecontents
 pillow==11.3.0 \
     --hash=sha256:023f6d2d11784a465f09fd09a34b150ea4672e85fb3d05931d89f373ab14abb2 \
     --hash=sha256:02a723e6bf909e7cea0dac1b0e0310be9d7650cd66222a5f1c571455c0a45214 \
@@ -1317,7 +1329,9 @@ pyyaml==6.0.2 \
     --hash=sha256:efdca5630322a10774e8e98e1af481aad470dd62c3170801852d752aa7a783ba \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
-    # via -r requirements/prod.in
+    # via
+    #   -r requirements/prod.in
+    #   django-pattern-library
 qrcode==8.2 \
     --hash=sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f \
     --hash=sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c

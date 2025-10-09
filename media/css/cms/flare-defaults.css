@@ -1,0 +1,114 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Defaults - Default styles for typography, spacing, and classless
+HTML element styles
+
+This layer overrides some of the constraints from the base layer and
+provides defaults for generic elements using CSS variables from the
+theme layer.
+===================================================================== */
+
+/* TODO: Fix spacing values */
+
+html {
+    font-size: var(--font-size-base);
+}
+
+body {
+    font-family: var(--font-family-body);
+    font-weight: var(--font-weight-body);
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    width: 100%;
+    max-width: var(--widths-viewport-wrapper-screen-2xl);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-headline);
+    font-weight: var(--font-weight-headline);
+    margin-bottom: var(--grids-spacing-interior-spacing-x1)rem;
+}
+
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+h3 { font-size: var(--font-size-h3); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
+
+p {
+    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+    line-height: 1.6;
+}
+
+a:link, a:visited {
+    color: light-dark(var(--blue-button), var(--blue-blue));
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+a:visited {
+    color: light-dark(var(--purple-purple), var(--purple-light-purple));
+}
+
+a:hover, a:active, a:focus {
+    text-decoration: none;
+}
+
+img, svg {
+    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dim-images-on-dark-mode img {
+    filter: brightness(.8) contrast(1.2);
+  }
+}
+
+hr {
+    border-top: 1px solid var(--neutrals-grey-3);
+    margin: var(--grids-spacing-interior-spacing-x1)rem 0;
+}
+
+/* Remove section border, since it was just used to provide a clean
+visual break between sections in legacy browsers */
+section {
+    border: none;
+}
+
+ul, ol {
+    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem var(--grids-spacing-interior-spacing-x1)rem;
+}
+
+li {
+    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+}
+
+/* Override base button styles with theme variables and relax constraints */
+button, [role="button"] {
+    background: var(--blue-button);
+    color: var(--neutrals-white);
+    border-radius: calc(var(--border-radius-md) * 1px);
+    width: auto;
+    height: auto;
+}
+
+button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+    background: var(--blue-button);
+    color: var(--neutrals-white);
+}
+
+button:hover, [role="button"]:hover {
+    background: var(--blue-dark-blue);
+    color: var(--neutrals-white);
+}
+
+/* Use theme color for table borders */
+th, td {
+    border-color: var(--neutrals-charcoal);
+}

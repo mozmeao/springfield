@@ -1,0 +1,91 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.heading, .heading-group {
+    font-family: var(--font-family-metropolis);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-base);
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    margin: calc(var(--scale-24) * 1px) 0;
+}
+
+.heading {
+    font-size: var(--font-size-h1);
+}
+
+.heading:first-child, .heading-group:first-child {
+    margin-top: 0; /* No top margin for the first heading */
+}
+
+.heading-group .heading {
+    margin: 0; /* Margins are handled by the hgroup */
+}
+
+.heading-group .heading + .subheading {
+    margin-top: calc(var(--scale-24) * 1px);
+}
+
+.fl-superheading {
+    font-family: var(--font-family-inter);
+    font-size: var(--font-size-superheading);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-base);
+    color: light-dark(var(--neutrals-grey-7), var(--neutrals-grey-5));
+    margin: calc(var(--scale-8) * 1px) 0;
+}
+
+.fl-superheading + .heading {
+    margin-top: calc(var(--scale-8) * 1px);
+}
+
+.heading h1, h1.heading, .heading-size-1 { font-size: var(--font-size-h1); }
+.heading h2, h2.heading, .heading-size-2 { font-size: var(--font-size-h2); }
+.heading h3, h3.heading, .heading-size-3 { font-size: var(--font-size-h3); }
+.heading h4, h4.heading, .heading-size-4 { font-size: var(--font-size-h4); }
+.heading h5, h5.heading, .heading-size-5 { font-size: var(--font-size-h5); }
+.heading h6, h6.heading, .heading-size-6 { font-size: var(--font-size-h6); }
+
+@media (max-width: 400px) {
+    .heading h1, h1.heading, .heading-size-1 { font-size: var(--font-size-h2); }
+}
+
+.subheading {
+    font-family: var(--font-family-metropolis);
+    font-size: var(--font-size-subheading-1);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-base);
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    margin: calc(var(--scale-16) * 1px) 0;
+}
+
+.subheading-1 { font-size: var(--font-size-subheading-1); }
+.subheading-2 { font-size: var(--font-size-subheading-2); }
+.subheading-3 { font-size: var(--font-size-subheading-3); }
+.subheading-4 { font-size: var(--font-size-subheading-4); }
+.subheading-5 { font-size: var(--font-size-subheading-5); }
+
+.body {
+    font-family: var(--font-family-inter);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-base);
+    color: light-dark(var(--neutrals-black), var(--neutrals-white));
+}
+
+.body-large { font-size: var(--font-size-body-large); }
+.body-medium { font-size: var(--font-size-body-medium); }
+.body-small { font-size: var(--font-size-body-small); }
+.body-xsmall { font-size: var(--font-size-body-xsmall); }
+
+.body p {
+    margin: 0 0 calc(var(--scale-16) * 1px);
+}
+
+@media (max-width: 767px) {
+    .body {
+        max-width: 60ch;
+    }
+}

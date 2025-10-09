@@ -1,0 +1,190 @@
+/* stylelint-disable selector-class-pattern, color-function-notation */
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: 600;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: 600;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-SemiBoldItalic.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: normal;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Mozilla Text";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/media/protocol/fonts/mozilla-text/MozillaText-BoldItalic.woff2") format("woff2");
+}
+
+:root {
+    --color-primary: #333336;
+    --text-color: var(--color-primary);
+    --color-ash: #F8F6F4;
+    --text-color-secondary: #6e6e73;
+    --border-color: #e0dedc;
+    --family-primary: "Mozilla Text", sans-serif;
+    --color-active: #0079D3;
+}
+
+body {
+    color: var(--text-color);
+}
+
+/* TODO: refactor some of these opinions into the pattern library repo */
+.tabbed-content__heading > a {
+    background-color: var(--color-ash);
+    color: var(--text-color);
+}
+
+.tabbed-content__heading > a:hover {
+    color: var(--color-active);
+    background-color: var(--color-ash);
+}
+
+.tabbed-content__heading.tabbed-content__heading--active > a,
+.tabbed-content__heading.tabbed-content__heading--active > a:hover {
+    background-color: var(--text-color);
+    color: white;
+}
+
+.tabbed-content__heading:not(:last-child) {
+    border-right: 1px solid #ffffff25;
+}
+
+.header {
+    background-color: var(--text-color);
+}
+
+.header__title {
+    letter-spacing: normal;
+    text-transform: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    line-height: 1;
+}
+
+.header__title::before {
+    content: "";
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    background-image: url("/media/img/favicons/firefox/browser/apple-touch-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.header__title::after {
+    content: "";
+}
+
+.list__item-link {
+    color: var(--text-color);
+    text-decoration: none;
+    margin: 0 -20px 0 -45px;
+    padding: 5px 16px 5px 45px;
+}
+
+.list__item-link:hover {
+    background-color: transparent;
+    color: var(--color-active);
+}
+
+.header,
+.sidebar {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    z-index: 10;
+}
+
+.sidebar {
+    background-color: var(--color-ash);
+    border-right: 0.5px solid var(--border-color);
+}
+
+.sidebar__search {
+    border: 1px solid oklch(44.2% 0.017 285.786deg);
+    border-width: 0 0 1.5px;
+    padding: 10px 20px;
+    margin: 0 -20px 20px;
+    width: calc(40px + 100%);
+    transform: translateY(-20px);
+}
+
+.sidebar__search:focus-visible {
+    outline-color: var(--color-active);
+}
+
+.heading a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.heading a:hover {
+    color: var(--color-active);
+    text-decoration: underline;
+}
+
+.icon--external {
+    fill: var(--color-active);
+}
+
+
+.button--resize {
+    border-width: 0.5px;
+    border-radius: 2px;
+    border-color: var(--border-color);
+    background-color: var(--color-ash);
+    box-shadow: 1px 2px 0 rgb(0 0 0 / 0.05);
+    z-index: 10;
+}
+
+.button--resize:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-color: var(--text-color);
+}
+
+.button--resize.is-active {
+    border-width: 0.5px;
+    background-color: var(--text-color);
+    border-color: var(--text-color);
+    color: white;
+}
+
+.iframe {
+    border-color: var(--border-color);
+}
+
+.wrapper--pattern-header {
+    overflow: unset;
+}
+
+.hljs {
+    background: var(--text-color);
+}
+/* stylelint-enable */

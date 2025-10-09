@@ -1,0 +1,116 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<!doctype html>
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}" {% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}" {% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}" {% endif %} {% block html_attrs %}{% endblock %}>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex,follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_meta %}{% endblock %}
+
+    <title>{% block page_title %}{{ page.title if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
+
+    {% block site_css %}
+    {% if settings.FLARECSS_LEGACY_MODE %}
+    {{ css_bundle('flare_base') }}
+    {{ css_bundle('flare_utilities') }}
+    {% else %}
+    {{ css_bundle('flare_base', target_old_ie=True) }}
+    {{ css_bundle('flare_utilities', target_old_ie=True) }}
+    {{ css_bundle('flare') }}
+    {% endif %}
+    {% endblock %}
+
+    {% block page_css %}{% endblock %}
+
+    {% block google_analytics %}
+    {% if settings.GTM_CONTAINER_ID %}
+    {{ js_bundle('gtm-snippet') }}
+    {% endif %}
+    {% endblock %}
+  </head>
+
+  <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+
+    {% block flare_header %}
+    <header class="fl-header">
+      <div class="fl-header-inner">
+        <h2 class="fl-logo-fx">{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h2>
+      </div>
+    </header>
+    {% endblock %}
+
+    <div id="outer-wrapper">
+      {% block content %}
+      <main class="fl-content">
+        <div class="fl-content-inner">
+          <h1>{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h1>
+        </div>
+      </main>
+      {% endblock %}
+
+      {% block flare_footer %}
+      <footer class="fl-footer">
+          <div class="fl-footer-inner">
+          <div class="fl-footer-top">
+            <p class="fl-footer-copy">
+              Visit <a class="fl-footer-link" href="https://www.mozilla.org/en-US/">Mozilla Corporation’s</a> not-for-profit parent, the
+              <a class="fl-footer-link" href="https://foundation.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer">Mozilla Foundation</a>.<br>
+              Portions of this content are ©1998–2025 by individual mozilla.org contributors.<br>
+              Content available under a <a class="fl-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/">Creative Commons license</a>.
+            </p>
+            <nav class="fl-footer-links" aria-label="Footer">
+              <ul>
+                <li>
+                  <a class="fl-footer-link" href="https://support.mozilla.org/">Firefox Support
+                    <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 13" width="12" height="12" alt="" aria-hidden="true">
+                      <path d="M6.938.5v1.125h3.141L5.337 6.367l.796.795 4.742-4.742v3.143H12V.5H6.937Z" fill="currentColor"/>
+                      <path d="M7.875 11.375h-6.75v-6.75H4.5V3.5H0v9h9V8H7.875v3.375Z" fill="currentColor"/>
+                    </svg>
+                  </a>
+                </li>
+                <li>
+                  <a class="fl-footer-link" href="/privacy/websites/">Privacy Notice</a>
+                </li>
+                <li>
+                  <a class="fl-footer-link" href="/about/legal/terms/mozilla/">Terms of Use</a>
+                </li>
+                <li>
+                  <a class="fl-footer-link" href="/privacy/websites/cookie-settings/">Cookie Policy</a>
+                </li>
+              </ul>
+            </nav>
+            <div class="fl-footer-logo" aria-hidden="true"></div>
+          </div>
+
+          <hr class="fl-footer-divider">
+
+          <div class="fl-footer-bottom">
+            <div class="fl-footer-brand">
+              <h3 class="fl-footer-title">Powered by Mozilla</h3>
+              <p class="fl-footer-subtitle">Putting people before profits since 1998</p>
+            </div>
+            <div class="fl-footer-cta">
+              <a class="button button-outline hidden-ie8" href="https://foundation.mozilla.org/?form=whats-new-product"><img src="/media/img/firefox/flare/icons/heart.svg" width="12" height="12" alt="" aria-hidden="true" />Donate to Mozilla</a>
+              <p class="fl-footer-note">Make good things together</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+      {% endblock %}
+    </div>
+
+    {% block site_js %}
+    {{ js_bundle('site') }}
+    {{ js_bundle('lib') }}
+    {{ js_bundle('data') }}
+    {{ js_bundle('firefox-cms-new') }}
+    {% endblock %}
+  </body>
+
+</html>

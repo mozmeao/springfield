@@ -281,6 +281,37 @@
     },
     {
       "files": [
+        "css/cms/flare.css"
+      ],
+      "name": "flare"
+    },
+    {
+      "files": [
+        "css/cms/flare-base.css",
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_base"
+    },
+    {
+      "files": [
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_utilities"
+    },
+    {
+      "files": [
+        "css/cms/wagtail-admin.css"
+      ],
+      "name": "wagtail-admin"
+    },
+    {
+      "files": [
+        "css/cms/pattern-library.css"
+      ],
+      "name": "pattern_library"
+    },
+    {
+      "files": [
         "css/privacy/cookie-settings-form.scss"
       ],
       "name": "cookie-settings-form"
@@ -663,6 +694,15 @@
         "js/firefox/landing/get/marketing-opt-out-init.es6.js"
       ],
       "name": "firefox_marketing_opt_out"
+    },
+    {
+      "files": [
+        "js/base/mozilla-client.js",
+        "js/base/mozilla-fxa.js",
+        "js/base/mozilla-fxa-init.js",
+        "js/cms/new.es6.js"
+      ],
+      "name": "firefox-cms-new"
     },
     {
       "files": [

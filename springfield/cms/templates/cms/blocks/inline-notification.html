@@ -1,0 +1,15 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:inline-notification
+    message="{{ value.message|richtext|remove_p_tag }}"
+    icon="{{ value.settings.icon }}"
+    color="{{ value.settings.color }}"
+    inverted="{{ value.settings.inverted }}"
+    closable="{{ value.settings.closable }}"
+  />
+</include:conditional-display>

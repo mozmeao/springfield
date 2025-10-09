@@ -8,3 +8,8 @@ from django.apps import AppConfig
 class CmsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "springfield.cms"
+
+    def ready(self):
+        from springfield.cms import signals  # noqa
+
+        pass
