@@ -65,12 +65,8 @@ img, svg {
     margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
 }
 
-[data-theme="dark"] img, [data-theme="dark"] svg {
-  filter: brightness(.8) contrast(1.2);
-}
-
 @media (prefers-color-scheme: dark) {
-  img, svg {
+  .dim-images-on-dark-mode img {
     filter: brightness(.8) contrast(1.2);
   }
 }
