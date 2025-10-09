@@ -361,7 +361,7 @@ class MediaContentBlock(blocks.StructBlock):
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         label = "Media + Content"
@@ -402,7 +402,7 @@ class StickerCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         label = "Sticker Card"
@@ -415,7 +415,7 @@ class TagCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/tag-card.html"
@@ -479,7 +479,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -508,7 +508,7 @@ class StepCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -577,7 +577,7 @@ class IntroBlock(blocks.StructBlock):
     # )
     heading = HeadingBlock()
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons")
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/intro.html"

@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
                         },
                     ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 18)]], {}),
-                    24: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
+                    24: ("wagtail.blocks.ListBlock", (23,), {"default": [], "label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
                     25: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 20), ("uitour_buttons", 24)]],
@@ -320,7 +320,7 @@ class Migration(migrations.Migration):
                     38: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
                     39: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
                     40: ("wagtail.blocks.ListBlock", (19,), {"default": [], "max_num": 1, "min_num": 0}),
-                    41: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 1, "min_num": 0}),
+                    41: ("wagtail.blocks.ListBlock", (23,), {"default": [], "label": "UI Tour Buttons", "max_num": 1, "min_num": 0}),
                     42: (
                         "wagtail.blocks.StructBlock",
                         [
@@ -638,7 +638,7 @@ class Migration(migrations.Migration):
                         },
                     ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 18)]], {}),
-                    24: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
+                    24: ("wagtail.blocks.ListBlock", (23,), {"default": [], "label": "UI Tour Buttons", "max_num": 2, "min_num": 0}),
                     25: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 20), ("uitour_buttons", 24)]],
@@ -776,7 +776,7 @@ class Migration(migrations.Migration):
                     38: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
                     39: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
                     40: ("wagtail.blocks.ListBlock", (19,), {"default": [], "max_num": 1, "min_num": 0}),
-                    41: ("wagtail.blocks.ListBlock", (23,), {"label": "UI Tour Buttons", "max_num": 1, "min_num": 0}),
+                    41: ("wagtail.blocks.ListBlock", (23,), {"default": [], "label": "UI Tour Buttons", "max_num": 1, "min_num": 0}),
                     42: (
                         "wagtail.blocks.StructBlock",
                         [
