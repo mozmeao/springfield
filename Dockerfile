@@ -16,7 +16,7 @@ RUN python -m venv /venv
 COPY requirements/prod.txt ./requirements/
 
 # Install Python deps
-RUN PDM_BUILD_SCM_VERSION=0+jinja pip install --require-hashes --no-cache-dir -r requirements/prod.txt
+RUN pip install --require-hashes --no-cache-dir -r requirements/prod.txt
 
 ########
 # assets builder and dev server
@@ -96,13 +96,11 @@ FROM app-base AS devapp
 
 CMD ["./bin/run-tests.sh"]
 
-# TODO: remove PDM_BUILD_SCM_VERSION
-
 RUN apt-install make
 COPY docker/bin/ssllabs-scan /usr/local/bin/ssllabs-scan
 COPY requirements/* ./requirements/
-RUN PDM_BUILD_SCM_VERSION=0+jinja pip install --require-hashes --no-cache-dir -r requirements/dev.txt
-RUN PDM_BUILD_SCM_VERSION=0+jinja pip install --require-hashes --no-cache-dir -r requirements/docs.txt
+RUN pip install --require-hashes --no-cache-dir -r requirements/dev.txt
+RUN pip install --require-hashes --no-cache-dir -r requirements/docs.txt
 COPY ./setup.cfg ./
 COPY ./pyproject.toml ./
 COPY ./.coveragerc ./
