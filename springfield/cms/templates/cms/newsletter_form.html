@@ -9,7 +9,7 @@
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
 {% if not success %}
-  <form id="newsletter-form" class="fl-newsletterform mzp-c-newsletter-form" action="{{ action }}" method="post" novalidate>
+  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
     {% if not is_multi_newsletter_form %}
       <div hidden>
         {{ form.newsletters|safe }}
@@ -29,7 +29,7 @@
       <input type="hidden" name="lang" id="id_lang" value="en">
     {% endif %}
 
-    <div class="fl-newsletterform-details fl-newsletterform-row-hidden">
+    <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
       {% if include_country %}
         <div class="fl-newsletterform-field">
           <label for="{{ form.country.id_for_label }}" class="visually-hidden">{{ form.country.label }}</label>
@@ -71,7 +71,6 @@
       </div>
     </div>
     <button id="newsletter-submit" class="button" type="submit" disabled>Sign Up</button>
-    <div id="newsletter-details" style="display:block;"></div>
     <div class="body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
       <ul class="fl-newsletterform-error-list mzp-u-list-styled">
         <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>
