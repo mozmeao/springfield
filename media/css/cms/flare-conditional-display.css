@@ -8,6 +8,23 @@
     display: none;
 }
 
+.conditional-display.is-preview {
+    display: block;
+    border: red dashed 2px;
+    position: relative;
+}
+
+.conditional-display.is-preview .preview-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    z-index: 10;
+}
+
 .is-firefox .conditional-display.condition-is-firefox {
     display: block;
 }
