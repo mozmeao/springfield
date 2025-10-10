@@ -5,6 +5,7 @@
 #}
 
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set block_text =  value.headline|richtext|remove_tags %}
 
 <article class="fl-card {% if value.settings.expand_link %}expand-link{% endif %}">
   {% set img=image(value.image, 'width-400') %}
@@ -17,6 +18,7 @@
   {% if value.buttons %}
     <div class="buttons">
       {% for button in value.buttons %}
+        {% set block_position = block_position ~ "_button-" ~ loop.index %}
         {% include_block button %}
       {% endfor %}
     </div>

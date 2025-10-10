@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_text =  value.headline|richtext|remove_tags %}
+
 <article class="fl-card fl-card-fill fl-illustration-card {% if card.settings.expand_link %}expand-link{% endif %}">
 
   <div class="media">
@@ -32,6 +34,7 @@
     {% if value.buttons %}
       <div class="buttons">
         {% for button in value.buttons %}
+          {% set block_position = block_position ~ "_button-" ~ loop.index %}
           {% include_block button %}
         {% endfor %}
       </div>
