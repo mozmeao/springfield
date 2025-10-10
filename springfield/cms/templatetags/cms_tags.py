@@ -18,3 +18,11 @@ def remove_p_tag(value: str) -> str:
     if soup and soup.p:
         content = "<br/>".join("".join(str(c) for c in tag.contents) for tag in soup.find_all("p"))
     return mark_safe(content)
+
+
+@library.filter
+def remove_tags(value: str) -> str:
+    rich_text = RichText(value)
+    html_content = str(rich_text.source)
+    soup = BeautifulSoup(html_content, "html.parser")
+    return soup.get_text()
