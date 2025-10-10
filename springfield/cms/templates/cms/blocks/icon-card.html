@@ -17,7 +17,7 @@
   {% if value.button %}
     <div class="buttons">
       {% for button in value.button %}
-        {% set block_position = block_position ~ "_button-" ~ loop.index %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
         {% include_block button %}
       {% endfor %}
     </div>

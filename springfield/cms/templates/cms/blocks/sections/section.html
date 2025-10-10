@@ -14,7 +14,7 @@
     {% endwith %}
 
     {% for block in value.content %}
-      {% set block_position = block_position ~ "_item-" ~ loop.index ~ "_" ~ block.block_type %}
+      {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ block.block_type %}
       {% include_block block %}
     {% endfor %}
 
@@ -25,7 +25,7 @@
             href="{{ link.link }}"
             {% if link.external %}target="_blank" rel="external noopener"{% endif %}
             data-cta-priority="cta-link"
-            data-cta-position="{{ block_position + "_cta" }}"
+            data-cta-position="{{ block_position + ".cta" }}"
             data-cta-text="{{ block_text + " - " + link.label }}"
           >{{ link.label }}</a>
         {% endfor %}
