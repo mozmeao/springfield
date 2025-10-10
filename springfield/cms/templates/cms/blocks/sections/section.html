@@ -25,8 +25,8 @@
             href="{{ link.link }}"
             {% if link.external %}target="_blank" rel="external noopener"{% endif %}
             data-cta-priority="cta-link"
-            data-cta-position="{{ block_position + ".cta" }}"
-            data-cta-text="{{ block_text + " - " + link.label }}"
+            data-cta-text="{{ block_position + ".cta" }}"
+            data-cta-label="{{ block_text + " - " + link.label }}"
           >{{ link.label }}</a>
         {% endfor %}
       </div>
