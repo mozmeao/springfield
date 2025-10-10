@@ -12,6 +12,11 @@
     {% for button in value.buttons %}
       {% include_block button %}
     {% endfor %}
+    {% if value.uitour_buttons %}
+      {% for button in value.uitour_buttons %}
+        {% include_block button %}
+      {% endfor %}
+    {% endif %}
   </content:actions>
   {% if value.fine_print %}
     <content:fine_print>
