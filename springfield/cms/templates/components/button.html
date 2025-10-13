@@ -5,7 +5,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <div class="">
-  <a class="button {{ theme_class }}" href="{{ link }}" {% if external %}target="_blank" {% endif %} {% if disabled %}disabled{% endif %}>
+  <a class="button {{ theme_class }}" href="{{ link }}" {% if external %}target="_blank" rel="external noopener"{% endif %} {% if disabled %}disabled{% endif %}>
     {% if icon_name and icon_position == "left" %}
       {% set extra_class = "icon-left" %}
       <include:icon

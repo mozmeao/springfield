@@ -46,23 +46,28 @@ p {
     line-height: 1.6;
 }
 
-a {
-    color: var(--neutrals-charcoal);
-    text-decoration: none;
+a:link, a:visited {
+    color: light-dark(var(--blue-button), var(--blue-blue));
+    text-decoration: underline;
     transition: color var(--transition-fast);
 }
 
-a:hover, a:active, a:focus {
-    color: var(--blue-dark-blue);
-    text-decoration: underline;
+a:visited {
+    color: light-dark(var(--purple-purple), var(--purple-light-purple));
 }
 
-a:visited {
-    color: var(--neutrals-charcoal);
+a:hover, a:active, a:focus {
+    text-decoration: none;
 }
 
 img, svg {
     margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dim-images-on-dark-mode img {
+    filter: brightness(.8) contrast(1.2);
+  }
 }
 
 hr {

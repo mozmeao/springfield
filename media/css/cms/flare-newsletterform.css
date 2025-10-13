@@ -60,7 +60,7 @@
 
 .fl-section-subscribe .body,
 .fl-section-subscribe .heading,
-.fl-section-subscribe .superheading,
+.fl-section-subscribe .fl-superheading,
 .fl-section-subscribe .subheading {
     color: var(--neutrals-charcoal);
     margin-top: 0;
@@ -164,7 +164,7 @@
     display: block;
     font-family: var(--font-family-body);
     font-size: var(--font-size-base);
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
     color: var(--neutrals-charcoal);
     margin-bottom: calc(var(--scale-8) * 1px);
 }

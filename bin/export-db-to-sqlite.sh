@@ -157,6 +157,9 @@ python manage.py dumpdata \
     waffle.Switch \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
+    cms.FreeFormPage \
+    cms.WhatsNewIndexPage \
+    cms.WhatsNewPage \
     cms.SpringfieldImage \
     firefox.FeaturesCallToActionSnippet \
     firefox.FeaturesDetailPage \
