@@ -48,7 +48,38 @@
     color: var(--neutrals-white);
 }
 
-.fl-banner-filled .superheading {
+.fl-banner-filled .fl-superheading {
+    color: var(--neutrals-white);
+}
+
+.fl-banner-filled .button:not([class*="button-"]) {
+    color: var(--neutrals-white);
+    border-color: var(--neutrals-white);
+}
+
+.fl-banner-filled .button:not([class*="button-"]):hover,
+.fl-banner-filled .button:not([class*="button-"]):focus,
+.fl-banner-filled .button:not([class*="button-"]):active {
+    color: var(--neutrals-charcoal);
+    background-color: var(--neutrals-ash);
+    border-color: var(--neutrals-charcoal);
+}
+
+.fl-banner-filled .button.button-ghost {
+    color: var(--neutrals-white);
+}
+
+.fl-banner-filled .button.button-ghost:hover,
+.fl-banner-filled .button.button-ghost:focus,
+.fl-banner-filled .button.button-ghost:active {
+    background: var(--neutrals-white);
+    color: var(--neutrals-grey-8);
+}
+
+.fl-banner-filled .button.button-secondary:hover,
+.fl-banner-filled .button.button-secondary:focus,
+.fl-banner-filled .button.button-secondary:active {
+    background: var(--blue-medium-blue);
     color: var(--neutrals-white);
 }
 
