@@ -34,6 +34,8 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         `serve_password_required_response` method, via the @method_decorator above
     """
 
+    ftl_files = None
+
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
     # every localized variant of the page and shouldn't get sent for translation.
     # See https://wagtail-localize.org/stable/how-to/field-configuration/
@@ -69,7 +71,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         context = self.get_context(request, *args, **kwargs)
         # We shouldn't need to spec any special ftl_files param for render()
         # here because the global spec is in settings.FLUENT_DEFAULT_FILES
-        return l10n_utils.render(request, template, context)
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
     def serve(self, request, *args, **kwargs):
         # Need to replicate behaviour in https://github.com/wagtail/wagtail/blob/stable/5.2.x/wagtail/models/__init__.py#L1928
