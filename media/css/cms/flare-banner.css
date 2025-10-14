@@ -60,7 +60,7 @@
 .fl-banner-filled .button:not([class*="button-"]):hover,
 .fl-banner-filled .button:not([class*="button-"]):focus,
 .fl-banner-filled .button:not([class*="button-"]):active {
-    color: var(--neutrals-charcoal);
+    color: var(--purple-dark-purple);
     background-color: var(--neutrals-ash);
     border-color: var(--neutrals-charcoal);
 }
@@ -73,7 +73,7 @@
 .fl-banner-filled .button.button-ghost:focus,
 .fl-banner-filled .button.button-ghost:active {
     background: var(--neutrals-white);
-    color: var(--neutrals-grey-8);
+    color: var(--purple-dark-purple);
 }
 
 .fl-banner-filled .button.button-secondary:hover,
