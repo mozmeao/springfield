@@ -66,21 +66,11 @@
 
     {% if value.buttons %}
       <content:actions>
-        {% set data = namespace(buttons=[]) %}
-        {% for button in value.buttons %}
-          {% set _ = data.buttons.append({
-            "label": button.label,
-            "link": button.link,
-            "external": button.settings.external,
-            "theme_class": button.theme_class(),
-            "icon_name": button.settings.icon_name,
-            "icon_position": button.settings.icon_position,
-          }) %}
-        {% endfor %}
-        <include:buttons
-          buttons="{{ data.buttons }}"
-          orientation="horizontal"
-        />
+        <div class="buttons is-horizontal">
+          {% for btn in value.buttons %}
+            {% include_block btn %}
+          {% endfor %}
+        </div>
       </content:actions>
     {% endif %}
   </include:banner>
