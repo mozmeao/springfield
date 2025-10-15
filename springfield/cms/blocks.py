@@ -636,7 +636,25 @@ class IntroBlock(blocks.StructBlock):
         label_format = "{heading}"
 
 
+class SectionBlockSettings(blocks.StructBlock):
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class SectionBlock(blocks.StructBlock):
+    settings = SectionBlockSettings()
     heading = HeadingBlock()
     content = blocks.StreamBlock(
         [
