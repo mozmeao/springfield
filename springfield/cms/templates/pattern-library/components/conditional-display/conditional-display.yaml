@@ -14,11 +14,11 @@ context:
           will be displayed if wrapped in class <b>.is-firefox</b>.</p>
     - name: Non-Firefox Users
       condition: not-firefox
-      html_class:
+      html_class: not-firefox
       body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-not-firefox</b>
-          will be displayed if not wrapped in class <b>.is-firefox</b>.</p>
+          will be displayed if wrapped in class <b>.not-firefox</b>.</p>
     - name: Signed-in Users
       condition: state-fxa-supported-signed-in
       html_class:
