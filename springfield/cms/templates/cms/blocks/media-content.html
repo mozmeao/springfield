@@ -34,6 +34,11 @@
       {% endfor %}
     </content:buttons>
   {% endif %}
+  {% if value.uitour_buttons %}
+    {% for button in value.uitour_buttons %}
+      {% include_block button %}
+    {% endfor %}
+  {% endif %}
   {% if value.embed or value.image %}
     <content:media>
       {% if value.embed %}
