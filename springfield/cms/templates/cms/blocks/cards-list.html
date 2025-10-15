@@ -6,8 +6,8 @@
 
 <div class="fl-grid {% if value.cards|length % 4 == 0 %}fl-grid-4{% endif %}">
   {% for card in value.cards %}
-    {% set card_index = loop.index0 %}
-    {% set block_position = block_position ~ ".card-" ~ loop.index %}
+    {% set card_index = loop.index %}
+    {% set block_position = block_position ~ ".card-" ~ card_index %}
     {% include_block card %}
   {% endfor %}
 </div>

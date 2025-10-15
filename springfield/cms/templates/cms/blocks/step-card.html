@@ -27,7 +27,7 @@
     <hgroup>
       {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
       {% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
-      <{{ superheading_level }} class="fl-superheading">{{ ftl('block-step-card-step') }} {{ "{:02d}".format(card_index) }}</{{ superheading_level }}>
+      <{{ superheading_level }} class="fl-superheading">{{ ftl('block-step-card-step', number="{:02d}".format(card_index)) }}</{{ superheading_level }}>
       <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
     </hgroup>
     <div class="body">{{ value.content }}</div>
