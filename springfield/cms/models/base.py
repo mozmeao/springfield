@@ -69,8 +69,8 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # can swap that for our Fluent-compatible rendering method
         template = self.get_template(request, *args, **kwargs)
         context = self.get_context(request, *args, **kwargs)
-        # We shouldn't need to spec any special ftl_files param for render()
-        # here because the global spec is in settings.FLUENT_DEFAULT_FILES
+        # If we need any special Fluent files to accompany CMS content, spec them as the ftl_files attribute (a List) 
+        # on the page class. If None is specced, we default to what's in settings.FLUENT_DEFAULT_FILES
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
     def serve(self, request, *args, **kwargs):
