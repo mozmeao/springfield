@@ -29,7 +29,7 @@
     display: block;
 }
 
-:not(.is-firefox) .conditional-display.condition-not-firefox {
+.not-firefox .conditional-display.condition-not-firefox {
     display: block;
 }
 
