@@ -5,22 +5,24 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="fl-section">
-  <div class="fl-section-container">
-    {% with alignment_class="text-center" %}
-      {% include_block value.heading %}
-    {% endwith %}
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <section class="fl-section">
+    <div class="fl-section-container">
+      {% with alignment_class="text-center" %}
+        {% include_block value.heading %}
+      {% endwith %}
 
-    {% for block in value.content %}
-      {% include_block block %}
-    {% endfor %}
+      {% for block in value.content %}
+        {% include_block block %}
+      {% endfor %}
 
-    {% if value.cta %}
-      <div class="fl-section-cta-wrap">
-        {% for link in value.cta %}
-          <a class="fl-section-cta-link" href="{{ link.link }}" {% if link.external %}target="_blank" rel="external noopener"{% endif %} data-cta-text="TODO">{{ link.label }}</a>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
-</section>
+      {% if value.cta %}
+        <div class="fl-section-cta-wrap">
+          {% for link in value.cta %}
+            <a class="fl-section-cta-link" href="{{ link.link }}" {% if link.external %}target="_blank" rel="external noopener"{% endif %} data-cta-text="TODO">{{ link.label }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</include:conditional-display>
