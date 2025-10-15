@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name="freeformpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 21), ("section", 55), ("subscription", 56), ("banner", 59)],
+                [("inline_notification", 7), ("intro", 21), ("section", 55), ("subscription", 56), ("banner", 62)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -157,7 +157,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
@@ -396,8 +400,32 @@ class Migration(migrations.Migration):
                     54: ("wagtail.blocks.ListBlock", (53,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
                     55: ("wagtail.blocks.StructBlock", [[("heading", 12), ("content", 50), ("cta", 54)]], {}),
                     56: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    57: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    57: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("outlined", "Outlined"),
+                                ("filled", "Filled"),
+                                ("filled-small", "Filled with Small Brand Image"),
+                                ("filled-large", "Filled with Large Brand Image"),
+                            ],
+                            "inline_form": True,
+                        },
+                    ),
                     58: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Place media after text content on desktop.",
+                            "inline_form": True,
+                            "label": "Media After",
+                            "required": False,
+                        },
+                    ),
+                    59: ("wagtail.blocks.StructBlock", [[("theme", 57), ("media_after", 58), ("show_to", 4)]], {}),
+                    60: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -406,9 +434,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    59: (
+                    61: ("wagtail.blocks.ListBlock", (19,), {"max_num": 2, "min_num": 0}),
+                    62: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 57), ("image", 10), ("qr_code", 58), ("headline", 6), ("content", 6)]],
+                        [[("settings", 59), ("image", 10), ("qr_code", 60), ("heading", 12), ("buttons", 61)]],
                         {"group": "Banners"},
                     ),
                 },
@@ -418,7 +447,7 @@ class Migration(migrations.Migration):
             model_name="whatsnewpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 21), ("section", 55), ("subscription", 56), ("banner", 59)],
+                [("inline_notification", 7), ("intro", 21), ("section", 55), ("subscription", 56), ("banner", 62)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -556,7 +585,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
@@ -795,8 +828,32 @@ class Migration(migrations.Migration):
                     54: ("wagtail.blocks.ListBlock", (53,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
                     55: ("wagtail.blocks.StructBlock", [[("heading", 12), ("content", 50), ("cta", 54)]], {}),
                     56: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    57: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    57: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
+                        {
+                            "choices": [
+                                ("outlined", "Outlined"),
+                                ("filled", "Filled"),
+                                ("filled-small", "Filled with Small Brand Image"),
+                                ("filled-large", "Filled with Large Brand Image"),
+                            ],
+                            "inline_form": True,
+                        },
+                    ),
                     58: (
+                        "wagtail.blocks.BooleanBlock",
+                        (),
+                        {
+                            "default": False,
+                            "help_text": "Place media after text content on desktop.",
+                            "inline_form": True,
+                            "label": "Media After",
+                            "required": False,
+                        },
+                    ),
+                    59: ("wagtail.blocks.StructBlock", [[("theme", 57), ("media_after", 58), ("show_to", 4)]], {}),
+                    60: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -805,9 +862,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    59: (
+                    61: ("wagtail.blocks.ListBlock", (19,), {"max_num": 2, "min_num": 0}),
+                    62: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 57), ("image", 10), ("qr_code", 58), ("headline", 6), ("content", 6)]],
+                        [[("settings", 59), ("image", 10), ("qr_code", 60), ("heading", 12), ("buttons", 61)]],
                         {"group": "Banners"},
                     ),
                 },

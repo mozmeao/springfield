@@ -6,11 +6,22 @@
 
 {# TODO: configure button analytics #}
 
+{% set brand_image_size = '' %}
+{% set brand_image_position = "" %}
+{% if value.settings.theme in ['filled-large', 'filled-small'] %}
+  {% set brand_image_size = 'large' if value.settings.theme == 'filled-large' else 'small' %}
+  {% set brand_image_position = 'bottom-right' %}
+  {% if value.settings.media_after %}
+    {% set brand_image_position = 'bottom-left' if value.settings.theme == 'filled-large' else 'bottom' %}
+  {% endif %}
+{% endif %}
+
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
-    theme="outlined"
-    media_after="false"
-    brand_image_position="bottom-right"
+    theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
+    media_after="{{ value.settings.media_after }}"
+    brand_image_position="{{ brand_image_position }}"
+    brand_image_size="{{ brand_image_size }}"
     qr_code="{{ value.qr_code }}"
     media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
 
@@ -18,24 +29,28 @@
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
       <include:heading
         level="{{ heading_level }}"
-        heading_text="{{ value.headline|richtext|remove_p_tag }}"
         heading_size="heading-size-2"
         alignment_class=""
-        superheading_text=""
+        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+        subheading_size="subheading-4"
       />
     </content:heading>
 
-    <content:subheading>
-      <include:body_text
-        text="{{ value.content|richtext|remove_p_tag }}"
-        size="medium"
-        alignment=""
-      />
-    </content:subheading>
-
     {% if value.image %}
       <content:media>
-        <include:image url="{{ image(value.image, 'width-800').url }}" alt="{{ value.image.alt }}" />
+        {{ srcset_image(
+            value.image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="
+              (min-width: 768px) 50vw,
+              (min-width: 1440px) 680px,
+              100vw
+            ",
+            width=(value.image.width / 2)|round|int,
+            loading="lazy"
+          ) }}
       </content:media>
     {% endif %}
 
@@ -45,10 +60,20 @@
       </content:qr>
     {% endif %}
 
-    {% if value.brand_image is defined and value.brand_image.url %}
+    {% if value.settings.theme in ['filled-small', 'filled-large'] %}
       <content:brand>
-        <include:image url="{{ value.brand_image.url }}" alt="{{ value.brand_image.alt }}" />
+        <include:image url="/media/img/firefox/flare/fox-brand.png" alt="Firefox" />
       </content:brand>
+    {% endif %}
+
+    {% if value.buttons %}
+      <content:actions>
+        <div class="buttons is-horizontal">
+          {% for btn in value.buttons %}
+            {% include_block btn %}
+          {% endfor %}
+        </div>
+      </content:actions>
     {% endif %}
   </include:banner>
 </include:conditional-display>
