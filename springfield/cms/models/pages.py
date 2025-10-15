@@ -131,16 +131,7 @@ FREEFORM_PAGE_BLOCKS = [
 ]
 
 
-class FreeFormPageMixin:
-    """Utilities for pages using the FreeFormPage blocks."""
-
-    def get_preview_context(self, request, mode_name):
-        context = super().get_preview_context(request, mode_name)
-        context["is_preview"] = True
-        return context
-
-
-class FreeFormPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage(AbstractSpringfieldCMSPage):
     """A flexible page type that allows a variety of content blocks to be added."""
 
     content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
@@ -171,7 +162,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             return redirect("/")
 
 
-class WhatsNewPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage(AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]

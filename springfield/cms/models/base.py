@@ -86,6 +86,11 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
             add_never_cache_headers(response)
         return response
 
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["is_preview"] = True
+        return context
+
     def serve_preview(self, request, *args, **kwargs):
         request = self._patch_request_for_springfield(request)
         request.is_preview = True
