@@ -79,11 +79,13 @@
                       {% if page_data.translations %}
                         <div class="actions actions-inline-start">
                           {% for translation in page_data.translations %}
-                            <a href="{{ translation.edit_url }}" class="button button-small button-secondary {% if translation.percent_translated == 100 %}btn-success{% elif translation.percent_translated >= 80 %}btn-warning{% else %}btn-danger{% endif %}" title="Edit {{ translation.locale }} version">
+                            <a href="{{ translation.edit_url }}" class="button button-small button-secondary {% if translation.percent_translated == 100 %}btn-success{% elif translation.percent_translated >= 80 %}btn-warning{% else %}btn-danger{% endif %}" title="Edit {{ translation.locale }} version - {{ translation.percent_translated }}% complete">
                               {% if translation.percent_translated == 100 %}
                                 {% icon name="circle-check" %}
+                                <span class="w-sr-only">Complete:</span>
                               {% else %}
                                 {% icon name="warning" %}
+                                <span class="w-sr-only">In progress:</span>
                               {% endif %}
                               {{ translation.locale.upper }} {% if translation.percent_translated != 100 %}{{ translation.percent_translated }}%{% endif %}
                             </a>
