@@ -1,7 +1,7 @@
 Springfield
 ===========
 
-*Springfield* is the code name of [www.firefox.com][firefox]. It is as shiny,
+*Springfield* is the code name of the codebase for [www.firefox.com](https://www.firefox.com). It is as shiny,
 awesome, and open source as always. Perhaps even a little more.
 
 [firefox]: https://www.firefox.com/
