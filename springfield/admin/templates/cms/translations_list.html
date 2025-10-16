@@ -95,9 +95,9 @@
                     </td>
                     <td>
                       <div class="actions actions-inline-start">
-                        <a href="{{ page_data.edit_url }}" class="button button-small">Edit</a>
+                        <a href="{{ page_data.edit_url }}" class="button button-small" aria-label="Edit {{ page_data.page.get_admin_display_title }}">Edit</a>
                         {% if page_data.page.live %}
-                          <a href="{{ page_data.view_url }}" class="button button-small button-secondary" target="_blank">View</a>
+                          <a href="{{ page_data.view_url }}" class="button button-small button-secondary" target="_blank" aria-label="View {{ page_data.page.get_admin_display_title }}">View</a>
                         {% endif %}
                       </div>
                     </td>
