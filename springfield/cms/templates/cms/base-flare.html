@@ -63,7 +63,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
               {% set mozilla_foundation_link_attrs = 'class="fl-footer-link" href="https://foundation.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer"'|safe %}
               {{ ftl('footer-visit-mozilla', mozilla_link_attrs=mozilla_link_attrs, mozilla_foundation_link_attrs=mozilla_foundation_link_attrs) }}
               <br>
-              {{ ftl('footer-contributors') }}
+              {{ ftl('footer-contributors', years='©1998–2025') }}
               <br>
               {% set license_attrs = 'class="fl-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/"'|safe %}
               {{ ftl('footer-license', license_attrs=license_attrs) }}
@@ -96,7 +96,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
           <div class="fl-footer-bottom">
             <div class="fl-footer-brand">
-              <h3 class="fl-footer-title">{{ ftl('footer-powered-by') }}</h3>
+              <h3 class="fl-footer-title">{{ ftl('footer-powdered-by') }}</h3>
               <p class="fl-footer-subtitle">{{ ftl('footer-putting-people') }}</p>
             </div>
             <div class="fl-footer-cta">
