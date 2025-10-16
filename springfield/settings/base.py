@@ -844,8 +844,8 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
-        ("Components", ["pattern-library/components"]),
         ("Base Styles", ["pattern-library/base-styles"]),
+        ("Components", ["pattern-library/components"]),
         ("Pages", ["pattern-library/pages"]),
     ),
     # Configure which files to detect as templates.
