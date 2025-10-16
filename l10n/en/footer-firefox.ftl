@@ -83,7 +83,9 @@ footer-putting-people = Putting people before profits since 1998
 # $mozilla_foundation_link_attrs (attrs) - link to https://foundation.mozilla.org/
 footer-visit-mozilla = Visit <a {$mozilla_link_attrs}>{ -brand-name-mozilla-corporation }’s</a> not-for-profit parent, the <a {$mozilla_foundation_link_attrs}>{ -brand-name-mozilla-foundation }</a>.
 
-footer-contributors = Portions of this content are ©1998–2025 by individual mozilla.org contributors.
+# Variables:
+# $years (string) - license years ©1998–2025
+footer-contributors = Portions of this content are { $years } by individual mozilla.org contributors.
 
 # Variables:
 # $license_attrs (attrs) - link to https://www.mozilla.org/en-US/foundation/licensing/website-content/
@@ -91,6 +93,5 @@ footer-license = Content available under a <a {$license_attrs}>{ -brand-name-cre
 
 footer-firefox-support = { -brand-name-firefox } Support
 footer-privacy-notice = Privacy Notice
-footer-powered-by = Powered by { -brand-name-mozilla }
 footer-donate = Donate to { -brand-name-mozilla }
 footer-make-good-things = Make good things together
