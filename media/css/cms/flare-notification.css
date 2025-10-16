@@ -20,13 +20,14 @@
     margin: calc(var(--scale-8) * 1px) 0;
     border-radius: calc(var(--scale-8) * 1px);
     border: none;
-    background: light-dark(var(--blue-light-blue), var(--blue-light-blue));
     color: var(--neutrals-charcoal);
     display: flex;
     align-items: stretch;
     min-height: 48px;
     overflow: hidden;
     position: relative;
+    margin-left: calc(var(--scale-16) * 1px);
+    margin-right: calc(var(--scale-16) * 1px);
 }
 
 .notification-icon-section {
@@ -51,6 +52,7 @@
 
 .notification-icon-inverted {
     background: var(--neutrals-charcoal);
+    color: var(--blue-light-blue);
     width: 56px;
 }
 
@@ -93,6 +95,8 @@
     gap: calc(var(--scale-16) * 1px);
     padding: calc(var(--scale-16) * 1px) calc(var(--scale-24) * 1px);
     position: relative;
+    background: light-dark(var(--blue-light-blue), var(--blue-light-blue));
+    border-radius: 0 calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0;
 }
 
 .notification-content p {
@@ -101,7 +105,6 @@
     font-size: var(--font-size-body-xsmall);
     line-height: 1.2;
     flex: 1;
-    white-space: nowrap;
 }
 
 .notification-content a {
@@ -114,7 +117,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: calc(var(--scale-4) * 1px);
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,33 +137,35 @@
     font-size: 14px;
 }
 
-.notification-blue {
+.notification-blue .notification-content {
     background: light-dark(var(--blue-light-blue), var(--blue-medium-blue));
 }
 
-.notification-purple {
+.notification-purple .notification-content {
     background: light-dark(var(--purple-light-purple), var(--purple-purple));
 }
 
-.notification-orange {
+.notification-orange .notification-content {
     background: light-dark(var(--orange-light-orange), var(--orange-medium-orange));
 }
 
-.notification-yellow {
+.notification-yellow .notification-content {
     background: var(--yellow-yellow);
 }
 
-.notification-black {
+.notification-black .notification-content {
     background: var(--neutrals-charcoal);
+    color: var(--neutrals-ash);
 }
 
-.notification-white {
+.notification-white .notification-content {
     background: light-dark(var(--neutrals-white), var(--neutrals-ash));
 }
 
-.notification-outline {
+.notification-outline .notification-content {
     background: transparent;
     border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border-left: none;
 }
 
 .notification-blue .notification-content,
@@ -183,8 +188,4 @@
 .notification-white .notification-content,
 .notification-outline .notification-content {
     color: var(--neutrals-charcoal);
-}
-
-.notification-black .notification-content {
-    color: var(--neutrals-ash);
 }
