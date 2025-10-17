@@ -134,7 +134,6 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
-        form_classname = "compact-form struct-block"
 
 
 class ButtonValue(blocks.StructValue):
