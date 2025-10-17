@@ -100,7 +100,7 @@ jobs:
   upload_static_assets:
     name: Upload static assets to GCS
     runs-on: ubuntu-latest
-    environment: build
+    environment: ${{ needs.build_and_publish_public_images.outputs.deployment_env }}
     needs: build_and_publish_public_images
     permissions:
       contents: read
