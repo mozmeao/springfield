@@ -13,6 +13,7 @@ function init() {
         );
         // Clicking any of the openNewTabButtons should open a new tab.
         openNewTabButtons.forEach((button) => {
+            // Add an event listener to the button.
             button.addEventListener(
                 'click',
                 (e) => {
@@ -22,6 +23,22 @@ function init() {
                 },
                 false
             );
+
+            // If the button exists in a .fl-card element with an .expand-link class,
+            // then the link is meant to expand to the entire .fl-card, so we add
+            // the same event listener to the .fl-card.expand-link element.
+            const card = button.closest('.fl-card.expand-link');
+            if (card) {
+                card.addEventListener(
+                    'click',
+                    (e) => {
+                        e.preventDefault();
+
+                        Mozilla.UITour.showNewTab();
+                    },
+                    false
+                );
+            }
         });
 
         // Find any buttons that should open about:preferences to any of the panes.
@@ -31,23 +48,20 @@ function init() {
         // Clicking any of the openPreferencesButtons should open the about:preferences to a
         // particular pane (if no specific pane is specified, then open without specifying a pane).
         openPreferencesButtons.forEach((button) => {
+            // Find the class that starts with "ui-tour-open-about-preferences-"
+            const classList = Array.from(button.classList);
+            const preferencesClass = classList.find((cls) =>
+                cls.startsWith('ui-tour-open-about-preferences-')
+            );
+            // Extract the pane name (the part after "ui-tour-open-about-preferences-")
+            const pane = preferencesClass ? preferencesClass.replace('ui-tour-open-about-preferences-', '') : null;
+
+            // Add an event listener to the button.
             button.addEventListener(
                 'click',
                 (e) => {
                     e.preventDefault();
 
-                    // Find the class that starts with "ui-tour-open-about-preferences-"
-                    const classList = Array.from(button.classList);
-                    const preferencesClass = classList.find((cls) =>
-                        cls.startsWith('ui-tour-open-about-preferences-')
-                    );
-                    // Extract the pane name (the part after "ui-tour-open-about-preferences-")
-                    const pane = preferencesClass
-                        ? preferencesClass.replace(
-                              'ui-tour-open-about-preferences-',
-                              ''
-                          )
-                        : null;
                     // Open preferences to the relevant pane.
                     if (pane === null) {
                         Mozilla.UITour.openPreferences();
@@ -57,6 +71,26 @@ function init() {
                 },
                 false
             );
+            // If the button exists in a .fl-card element with an .expand-link class,
+            // then the link is meant to expand to the entire .fl-card, so we add
+            // the same event listener to the .fl-card.expand-link element.
+            const card = button.closest('.fl-card.expand-link');
+            if (card) {
+                card.addEventListener(
+                    'click',
+                    (e) => {
+                        e.preventDefault();
+
+                        // Open preferences to the relevant pane.
+                        if (pane === null) {
+                            Mozilla.UITour.openPreferences();
+                        } else {
+                            Mozilla.UITour.openPreferences(pane);
+                        }
+                    },
+                    false
+                );
+            }
         });
 
         // Find any buttons that should open the protections report.
@@ -65,26 +99,44 @@ function init() {
         );
         // Clicking any of the openProtectionsReportButtons should open the protections report.
         openProtectionsReportButtons.forEach((button) => {
+            // Make sure that the window has a protection report datalayer.
+            if (typeof window.dataLayer === 'undefined') {
+                window.dataLayer = [];
+            }
+            window.dataLayer.push({
+                event: 'widget_action',
+                type: 'protection report',
+                action: 'open',
+                label: 'View your dashboard'
+            });
+
+            // Add an event listener to the button.
             button.addEventListener(
                 'click',
                 (e) => {
                     e.preventDefault();
 
-                    // Make sure that the window has a protection report datalayer.
-                    if (typeof window.dataLayer === 'undefined') {
-                        window.dataLayer = [];
-                    }
-                    window.dataLayer.push({
-                        event: 'widget_action',
-                        type: 'protection report',
-                        action: 'open',
-                        label: 'View your dashboard'
-                    });
                     // Show the protections report.
                     Mozilla.UITour.showProtectionReport();
                 },
                 false
             );
+            // If the button exists in a .fl-card element with an .expand-link class,
+            // then the link is meant to expand to the entire .fl-card, so we add
+            // the same event listener to the .fl-card.expand-link element.
+            const card = button.closest('.fl-card.expand-link');
+            if (card) {
+                card.addEventListener(
+                    'click',
+                    (e) => {
+                        e.preventDefault();
+
+                        // Show the protections report.
+                        Mozilla.UITour.showProtectionReport();
+                    },
+                    false
+                );
+            }
         });
     });
 }
