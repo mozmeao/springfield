@@ -12,10 +12,6 @@ context:
   media:
     url: "/media/img/firefox/flare/placeholder.png"
     alt: "Feature image"
-  brand_image:
-    url: "/media/img/firefox/flare/fox-brand.png"
-    alt: "Firefox"
-  brand_image_position: "bottom-right"
   buttons:
     - label: "Learn More"
       link: "/"
