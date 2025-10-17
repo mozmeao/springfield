@@ -581,7 +581,6 @@ class SectionBlock(blocks.StructBlock):
         template = "cms/blocks/sections/section.html"
         label = "Section"
         label_format = "{heading}"
-        form_classname = "compact-form struct-block"
 
 
 # Banners
