@@ -66,7 +66,10 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # Normally, Wagtail's serve() returns a TemplateResponse, so we
         # can swap that for our Fluent-compatible rendering method
         template = self.get_template(request, *args, **kwargs)
-        context = self.get_context(request, *args, **kwargs)
+        if request.is_preview:
+            context = self.get_preview_context(request, *args, **kwargs)
+        else:
+            context = self.get_context(request, *args, **kwargs)
         # We shouldn't need to spec any special ftl_files param for render()
         # here because the global spec is in settings.FLUENT_DEFAULT_FILES
         return l10n_utils.render(request, template, context)
@@ -83,6 +86,12 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
             add_never_cache_headers(response)
         return response
 
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["is_preview"] = True
+        return context
+
     def serve_preview(self, request, *args, **kwargs):
         request = self._patch_request_for_springfield(request)
+        request.is_preview = True
         return self._render_with_fluent_string_support(request, *args, **kwargs)
