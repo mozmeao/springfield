@@ -1,24 +1,25 @@
-{#
+{% extends "wagtailadmin/base.html" %}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
  This Source Code Form is subject to the terms of the Mozilla Public
  License, v. 2.0. If a copy of the MPL was not distributed with this
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#}
+{% endcomment %}
 
-{% extends "wagtailadmin/base.html" %}
 {% load wagtailadmin_tags %}
 
 {% block titletag %}Translations List{% endblock %}
 {% block bodyclass %}listing{% endblock %}
 
 {% block content %}
-  <div>
+  <div class="w-bg-surface-header w-border-b w-top-0 w-top-0 sm:w-sticky w-z-header">
     <header class="w-sticky w-top-0 w-z-header pl-4em">
-      <div class="merged-header__icon icon icon-wagtail-localize-language"></div>
-      <h1 class="w-pl-slim-header sm:w-pl-5 w-min-h-slim-header sm:w-pr-2 w-w-full w-flex-1 w-overflow-x-auto w-box-border">Translations List</h1>
+      <div class="merged-header__icon icon icon-wagtail-localize-language" aria-hidden="true"></div>
+      <h1 class="w-pl-slim-header sm:w-pl-5 w-min-h-slim-header sm:w-pr-2 w-w-full w-flex-1 w-overflow-x-auto w-box-border w-mb-0">Translations List</h1>
     </header>
 
-    <div class="pl-4em">
-      <form method="get" class="w-flex w-flex-wrap w-gap-4 w-items-end sm:w-pl-5">
+    <div class="pl-4em pb-4">
+      <form method="get" class="w-flex w-flex-wrap w-gap-4 w-items-end sm:w-pl-5" aria-label="Filter translations">
         <div class="w-flex w-flex-col">
           {{ filter_form.search.label_tag }}
           {{ filter_form.search }}
@@ -43,10 +44,13 @@
         </div>
       </form>
     </div>
+  </div>
 
+  <div>
     {% if pages_with_translations %}
       <div class="w-py-6">
         <table class="listing full-width">
+          <caption class="w-sr-only">Pages with their translations</caption>
           <thead>
             <tr class="table-headers">
               <th class="title">Page Title</th>
@@ -60,26 +64,28 @@
                 <tr>
                   <td class="title">
                     <div class="title-wrapper">
-                      <h2><a href="{{ page_data.edit_url }}">{{ page_data.page.get_admin_display_title }}</a></h2>
+                      <strong><a href="{{ page_data.edit_url }}">{{ page_data.page.get_admin_display_title }}</a></strong>
                       <div class="page-slug">{{ page_data.page.get_url }}</div>
                     </div>
                   </td>
                   <td>
                     {% if page_data.page.live %}
-                      <span class="status-tag primary status-published">Published</span>
+                      <span class="status-tag primary status-published" role="status" aria-label="Publication status: Published">Published</span>
                     {% else %}
-                      <span class="status-tag status-draft">Draft</span>
+                      <span class="status-tag status-draft" role="status" aria-label="Publication status: Draft">Draft</span>
                     {% endif %}
                   </td>
                     <td>
                       {% if page_data.translations %}
                         <div class="actions actions-inline-start">
                           {% for translation in page_data.translations %}
-                            <a href="{{ translation.edit_url }}" class="button button-small button-secondary {% if translation.percent_translated == 100 %}btn-success{% elif translation.percent_translated >= 80 %}btn-warning{% else %}btn-danger{% endif %}" title="Edit {{ translation.locale }} version">
+                            <a href="{{ translation.edit_url }}" class="button button-small button-secondary {% if translation.percent_translated == 100 %}btn-success{% elif translation.percent_translated >= 80 %}btn-warning{% else %}btn-danger{% endif %}" title="Edit {{ translation.locale }} version - {{ translation.percent_translated }}% complete">
                               {% if translation.percent_translated == 100 %}
                                 {% icon name="circle-check" %}
+                                <span class="w-sr-only">Complete:</span>
                               {% else %}
                                 {% icon name="warning" %}
+                                <span class="w-sr-only">In progress:</span>
                               {% endif %}
                               {{ translation.locale.upper }} {% if translation.percent_translated != 100 %}{{ translation.percent_translated }}%{% endif %}
                             </a>
@@ -91,9 +97,9 @@
                     </td>
                     <td>
                       <div class="actions actions-inline-start">
-                        <a href="{{ page_data.edit_url }}" class="button button-small">Edit</a>
+                        <a href="{{ page_data.edit_url }}" class="button button-small" aria-label="Edit {{ page_data.page.get_admin_display_title }}">Edit</a>
                         {% if page_data.page.live %}
-                          <a href="{{ page_data.view_url }}" class="button button-small button-secondary" target="_blank">View</a>
+                          <a href="{{ page_data.view_url }}" class="button button-small button-secondary" target="_blank" rel="noopener noreferrer" aria-label="View {{ page_data.page.get_admin_display_title }} (opens in new window)">View <span class="w-sr-only">(opens in new window)</span></a>
                         {% endif %}
                       </div>
                     </td>
