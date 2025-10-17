@@ -55,6 +55,9 @@
 .pl-4em {
     padding-left: 4em;
 }
+.pb-4 {
+    padding-bottom: 1em;
+}
 
 .align-items-end {
     align-items: flex-end;
