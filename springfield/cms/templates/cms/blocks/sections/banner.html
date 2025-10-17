@@ -4,8 +4,6 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# TODO: configure button analytics #}
-
 {% set brand_image_size = '' %}
 {% set brand_image_position = "" %}
 {% if value.settings.theme in ['filled-large', 'filled-small'] %}
@@ -15,6 +13,9 @@
     {% set brand_image_position = 'bottom-left' if value.settings.theme == 'filled-large' else 'bottom' %}
   {% endif %}
 {% endif %}
+
+{% set block_position = block_position or "banner" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
@@ -69,8 +70,9 @@
     {% if value.buttons %}
       <content:actions>
         <div class="buttons is-horizontal">
-          {% for btn in value.buttons %}
-            {% include_block btn %}
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
           {% endfor %}
         </div>
       </content:actions>
