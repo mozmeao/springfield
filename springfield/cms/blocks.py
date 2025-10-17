@@ -580,7 +580,7 @@ class IntroBlock(blocks.StructBlock):
     uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
-        template = "cms/blocks/intro.html"
+        template = "cms/blocks/sections/intro.html"
         label = "Intro"
         label_format = "{heading}"
 
@@ -597,7 +597,7 @@ class SectionBlock(blocks.StructBlock):
     cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
     class Meta:
-        template = "cms/blocks/section.html"
+        template = "cms/blocks/sections/section.html"
         label = "Section"
         label_format = "{heading}"
         form_classname = "compact-form struct-block"
@@ -610,7 +610,7 @@ class SubscriptionBlock(blocks.StructBlock):
     heading = HeadingBlock()
 
     class Meta:
-        template = "cms/blocks/subscription.html"
+        template = "cms/blocks/sections/subscription.html"
         label = "Subscription"
         label_format = "Subscription - {heading}"
         form_classname = "compact-form struct-block"
@@ -644,6 +644,6 @@ class BannerBlock(blocks.StructBlock):
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
-        template = "cms/blocks/banner.html"
+        template = "cms/blocks/sections/banner.html"
         label = "Banner"
         label_format = "{headline}"

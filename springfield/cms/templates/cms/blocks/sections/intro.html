@@ -9,7 +9,10 @@
     {% include_block value.heading %}
   </content:heading>
   <content:actions>
+    {% set block_position = block_position or "intro" %}
+    {% set block_text = value.heading.heading_text|richtext|remove_tags %}
     {% for button in value.buttons %}
+      {% set block_position = block_position + "." + "button-" ~ loop.index %}
       {% include_block button %}
     {% endfor %}
     {% if value.uitour_buttons %}
