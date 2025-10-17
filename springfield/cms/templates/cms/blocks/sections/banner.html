@@ -14,7 +14,8 @@
   {% endif %}
 {% endif %}
 
-{# TODO: configure button analytics #}
+{% set block_position = block_position or "banner" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
@@ -69,8 +70,9 @@
     {% if value.buttons %}
       <content:actions>
         <div class="buttons is-horizontal">
-          {% for btn in value.buttons %}
-            {% include_block btn %}
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
           {% endfor %}
         </div>
       </content:actions>
