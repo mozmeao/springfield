@@ -733,6 +733,12 @@
         "js/data/data-protection.js"
       ],
       "name": "data_protection"
+    },
+    {
+      "files": [
+        "js/cms/ui-tour-buttons.js"
+      ],
+      "name": "ui-tour-buttons"
     }
   ]
 }

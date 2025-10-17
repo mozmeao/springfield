@@ -12,6 +12,7 @@
 .fl-card {
     position: relative;
     display: flex;
+    overflow: hidden;
     flex-direction: column;
     justify-content: flex-start;
     gap: calc(var(--scale-16) * 1px);

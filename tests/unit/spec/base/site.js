@@ -421,7 +421,7 @@ describe('site.js', function () {
                 32
             );
             expect(classString).toEqual(
-                'windows js windows-10-plus is-modern-browser'
+                'windows js windows-10-plus not-firefox is-modern-browser'
             );
             expect(window.site.fxSupported).toBeTrue;
         });
@@ -430,7 +430,7 @@ describe('site.js', function () {
             spyOn(window.site, 'cutsTheMustard').and.returnValue(true);
             spyOn(window.site, 'isFirefox').and.returnValue(false);
             const classString = window.site.getPlatformClass('osx', 10.15, 32);
-            expect(classString).toEqual('osx js is-modern-browser');
+            expect(classString).toEqual('osx js not-firefox is-modern-browser');
         });
 
         it('should return the appropriate HTML class for Linux', function () {
@@ -441,7 +441,9 @@ describe('site.js', function () {
                 undefined,
                 32
             );
-            expect(classString).toEqual('linux js is-modern-browser');
+            expect(classString).toEqual(
+                'linux js not-firefox is-modern-browser'
+            );
             expect(window.site.fxSupported).toBeTrue;
         });
 
@@ -453,7 +455,9 @@ describe('site.js', function () {
                 '4.1',
                 64
             );
-            expect(classString).toEqual('android js x64 is-modern-browser');
+            expect(classString).toEqual(
+                'android js x64 not-firefox is-modern-browser'
+            );
             expect(window.site.fxSupported).toBeTrue;
         });
 
@@ -465,7 +469,9 @@ describe('site.js', function () {
                 undefined,
                 64
             );
-            expect(classString).toEqual('ios js x64 is-modern-browser');
+            expect(classString).toEqual(
+                'ios js x64 not-firefox is-modern-browser'
+            );
             expect(window.site.fxSupported).toBeTrue;
         });
 
@@ -477,7 +483,9 @@ describe('site.js', function () {
                 undefined,
                 32
             );
-            expect(classString).toEqual('other js is-modern-browser');
+            expect(classString).toEqual(
+                'other js not-firefox is-modern-browser'
+            );
             expect(window.site.fxSupported).toBeTrue; // we don't know for sure here to say false.
         });
 
@@ -489,7 +497,9 @@ describe('site.js', function () {
                 10.0,
                 32
             );
-            expect(classString).toEqual('windows js windows-10-plus');
+            expect(classString).toEqual(
+                'windows js windows-10-plus not-firefox'
+            );
             expect(window.site.fxSupported).toBeTrue;
         });
 
@@ -515,7 +525,9 @@ describe('site.js', function () {
                 6.3,
                 32
             );
-            expect(classString).toEqual('windows js fx-unsupported');
+            expect(classString).toEqual(
+                'windows js fx-unsupported not-firefox'
+            );
             expect(window.site.fxSupported).toBeFalse;
         });
 
@@ -523,7 +535,9 @@ describe('site.js', function () {
             spyOn(window.site, 'cutsTheMustard').and.returnValue(false);
             spyOn(window.site, 'isFirefox').and.returnValue(false);
             const classString = window.site.getPlatformClass('osx', 10.14, 64);
-            expect(classString).toEqual('osx js fx-unsupported x64');
+            expect(classString).toEqual(
+                'osx js fx-unsupported x64 not-firefox'
+            );
             expect(window.site.fxSupported).toBeFalse;
         });
     });

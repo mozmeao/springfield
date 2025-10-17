@@ -4,6 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="{% if condition != 'all' %}conditional-display condition-{{ condition }}{% endif %}">
+<div class="{% if condition != 'all' %}conditional-display condition-{{ condition }} {% if is_preview %}is-preview{% endif %}{% endif %}">
+  {% if condition != 'all' and is_preview %}
+    <span class="preview-indicator">Condition: {{ condition }}</span>
+  {% endif %}
   {{ contents }}
 </div>

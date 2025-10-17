@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 
 from wagtail import blocks
 
@@ -98,13 +98,32 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("not-firefox", "Non Firefox Users"),
     ("state-fxa-supported-signed-in", "Signed-in Users"),
     ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("windows-10-plus", "Windows 10 Users"),
+    ("windows-10-plus", "Windows 10+ Users"),
+    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
+    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
 ]
 
 
+UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_CHOICES = ((UITOUR_BUTTON_NEW_TAB, "Open New Tab"),)
+UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
+UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
+UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
+UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
+UITOUR_BUTTON_CHOICES = (
+    (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
+)
+
+
 # Element blocks
-
-
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -115,7 +134,6 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
-        form_classname = "compact-form struct-block"
 
 
 class ButtonValue(blocks.StructValue):
@@ -123,14 +141,23 @@ class ButtonValue(blocks.StructValue):
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
+            "tertiary": "button-tertiary",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
+    def url(self) -> str:
+        link = self.get("link")
+        page = self.get("page")
+        if page:
+            return page.url
+        return link
 
-class ButtonSettings(blocks.StructBlock):
+
+class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
+            ("tertiary", "Tertiary"),
             ("ghost", "Ghost"),
         ),
         required=False,
@@ -143,7 +170,6 @@ class ButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
 
     class Meta:
         icon = "cog"
@@ -153,10 +179,19 @@ class ButtonSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class ButtonSettings(BaseButtonSettings):
+    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
+
+
+class UITourButtonSettings(BaseButtonSettings):
+    pass
+
+
 class ButtonBlock(blocks.StructBlock):
     settings = ButtonSettings()
-    link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
+    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
+    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -164,11 +199,94 @@ class ButtonBlock(blocks.StructBlock):
         label_format = "Button - {label}"
         value_class = ButtonValue
 
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        if not cleaned_data.get("link") and not cleaned_data.get("page"):
+            raise ValidationError(
+                "Either a link or a page is required.",
+            )
+        if cleaned_data.get("link") and cleaned_data.get("page"):
+            raise ValidationError(
+                "Please provide either a link or a page, not both.",
+            )
+        if cleaned_data.get("page") and cleaned_data.get("settings", {}).get("external"):
+            raise ValidationError(
+                "External link option cannot be selected when a page is chosen.",
+            )
+        return cleaned_data
+
+
+class LinkValue(blocks.StructValue):
+    def url(self) -> str:
+        link = self.get("link")
+        page = self.get("page")
+        if page:
+            return page.url
+        return link
+
+
+class UITourButtonValue(ButtonValue):
+    def theme_class(self) -> str:
+        """
+        Give the button the appropriate CSS class, based on its button_type.
+        """
+        theme_classes = super().theme_class()
+        button_type = self.get("button_type", "")
+        if button_type == UITOUR_BUTTON_NEW_TAB:
+            theme_classes += " ui-tour-open-new-tab"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES:
+            theme_classes += " ui-tour-open-about-preferences"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL:
+            theme_classes += " ui-tour-open-about-preferences-general"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_HOME:
+            theme_classes += " ui-tour-open-about-preferences-home"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH:
+            theme_classes += " ui-tour-open-about-preferences-search"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
+            theme_classes += " ui-tour-open-about-preferences-privacy"
+        elif button_type == UITOUR_BUTTON_PROTECTIONS_REPORT:
+            theme_classes += " ui-tour-open-protections-report"
+        return theme_classes
+
+
+class UITourButtonBlock(blocks.StructBlock):
+    settings = UITourButtonSettings()
+    button_type = blocks.ChoiceBlock(
+        default=UITOUR_BUTTON_NEW_TAB,
+        choices=UITOUR_BUTTON_CHOICES,
+        inline_form=True,
+    )
+    label = blocks.CharBlock(label="Button Text")
+
+    class Meta:
+        template = "cms/blocks/uitour_button.html"
+        label = "UI Tour Button"
+        label_format = "UI Tour Button - {label}"
+        value_class = UITourButtonValue
+
 
 class LinkBlock(blocks.StructBlock):
-    link = blocks.CharBlock()
     label = blocks.CharBlock(label="Link Text")
+    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
+    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
     external = blocks.BooleanBlock(required=False, default=False, label="External link")
+
+    class Meta:
+        label = "Link"
+        label_format = "Link - {label}"
+        value_class = LinkValue
+
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        if not cleaned_data.get("link") and not cleaned_data.get("page"):
+            raise ValidationError(
+                "Either a link or a page is required.",
+            )
+        if cleaned_data.get("link") and cleaned_data.get("page"):
+            raise ValidationError(
+                "Please provide either a link or a page, not both.",
+            )
+        return cleaned_data
 
 
 class TagBlock(blocks.StructBlock):
@@ -297,6 +415,7 @@ class MediaContentBlock(blocks.StructBlock):
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         label = "Media + Content"
@@ -337,6 +456,7 @@ class StickerCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         label = "Sticker Card"
@@ -349,6 +469,7 @@ class TagCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/tag-card.html"
@@ -412,6 +533,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -440,6 +562,7 @@ class StepCardBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -508,6 +631,7 @@ class IntroBlock(blocks.StructBlock):
     # )
     heading = HeadingBlock()
     buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
+    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
 
     class Meta:
         template = "cms/blocks/sections/intro.html"
@@ -515,38 +639,7 @@ class IntroBlock(blocks.StructBlock):
         label_format = "{heading}"
 
 
-class SectionBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    content = blocks.StreamBlock(
-        [
-            ("media_content", MediaContentBlock()),
-            ("cards_list", CardsListBlock()),
-            ("step_cards", StepCardListBlock()),
-        ]
-    )
-    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
-
-    class Meta:
-        template = "cms/blocks/sections/section.html"
-        label = "Section"
-        label_format = "{heading}"
-        form_classname = "compact-form struct-block"
-
-
-# Banners
-
-
-class SubscriptionBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-
-    class Meta:
-        template = "cms/blocks/sections/subscription.html"
-        label = "Subscription"
-        label_format = "Subscription - {heading}"
-        form_classname = "compact-form struct-block"
-
-
-class BannerSettings(blocks.StructBlock):
+class SectionBlockSettings(blocks.StructBlock):
     show_to = blocks.ChoiceBlock(
         choices=CONDITIONAL_DISPLAY_CHOICES,
         default="all",
@@ -563,6 +656,71 @@ class BannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class SectionBlock(blocks.StructBlock):
+    settings = SectionBlockSettings()
+    heading = HeadingBlock()
+    content = blocks.StreamBlock(
+        [
+            ("media_content", MediaContentBlock()),
+            ("cards_list", CardsListBlock()),
+            ("step_cards", StepCardListBlock()),
+        ]
+    )
+    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+    class Meta:
+        template = "cms/blocks/sections/section.html"
+        label = "Section"
+        label_format = "{heading}"
+
+
+# Banners
+
+
+class SubscriptionBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+
+    class Meta:
+        template = "cms/blocks/sections/subscription.html"
+        label = "Subscription"
+        label_format = "Subscription - {heading}"
+        form_classname = "compact-form struct-block"
+
+
+class BannerSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("outlined", "Outlined"),
+            ("filled", "Filled"),
+            ("filled-small", "Filled with Small Brand Image"),
+            ("filled-large", "Filled with Large Brand Image"),
+        ),
+        default="outlined",
+        inline_form=True,
+    )
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop.",
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class BannerBlock(blocks.StructBlock):
     settings = BannerSettings()
     image = ImageChooserBlock(required=False)
@@ -570,10 +728,10 @@ class BannerBlock(blocks.StructBlock):
         required=False,
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    heading = HeadingBlock()
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
         template = "cms/blocks/sections/banner.html"
         label = "Banner"
-        label_format = "{headline}"
+        label_format = "{heading}"

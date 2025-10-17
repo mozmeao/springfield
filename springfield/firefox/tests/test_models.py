@@ -49,7 +49,7 @@ def test_features_index_page(minimal_site, rf, serving_method):  # noqa
     assert _relative_url == "/en-US/test/"
     request = rf.get(_relative_url)
 
-    resp = getattr(test_index_page, serving_method)(request)
+    resp = getattr(test_index_page, serving_method)(request, mode_name="irrelevant")
     page_content = resp.text
     assert "Test Index Page Title" in page_content
     assert "Test Subtitle" in page_content
@@ -91,7 +91,7 @@ def test_features_detail_page(minimal_site, rf, serving_method):  # noqa
     assert _relative_url == "/en-US/test/test-detail-1/"
     request = rf.get(_relative_url)
 
-    resp = getattr(test_detail_page, serving_method)(request)
+    resp = getattr(test_detail_page, serving_method)(request, mode_name="irrelevant")
     page_content = resp.text
     assert "Test Detail Page Title" in page_content
     assert "Test Video Title" in page_content
