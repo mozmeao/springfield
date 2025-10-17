@@ -48,6 +48,22 @@
     color: light-dark(var(--neutrals-white), var(--neutrals-ash));
 }
 
+.button.button-tertiary {
+    background: light-dark(var(--purple-purple), var(--purple-purple));
+    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+    border-width: 0;
+}
+
+.button.button-tertiary:hover, .button.button-tertiary:focus {
+    background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
+    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+}
+
+.button.button-tertiary:active {
+    background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
+    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+}
+
 .button.button-ghost {
     border-color: transparent;
     background: transparent;
@@ -101,6 +117,7 @@
 
 .buttons.is-horizontal.is-center {
     justify-content: center;
+    width: 100%;
 }
 
 .buttons.is-stacked {

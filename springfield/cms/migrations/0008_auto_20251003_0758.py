@@ -215,6 +215,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        MigrateStreamData(app_name="cms", model_name="FreeformPage", field_name="content", operations_and_block_paths=operations),
+        MigrateStreamData(app_name="cms", model_name="FreeFormPage", field_name="content", operations_and_block_paths=operations),
         MigrateStreamData(app_name="cms", model_name="WhatsNewPage", field_name="content", operations_and_block_paths=operations),
     ]
