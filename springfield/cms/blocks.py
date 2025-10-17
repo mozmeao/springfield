@@ -210,6 +210,10 @@ class ButtonBlock(blocks.StructBlock):
             raise ValidationError(
                 "Please provide either a link or a page, not both.",
             )
+        if cleaned_data.get("page") and cleaned_data.get("settings", {}).get("external"):
+            raise ValidationError(
+                "External link option cannot be selected when a page is chosen.",
+            )
         return cleaned_data
 
 
