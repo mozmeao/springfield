@@ -55,7 +55,7 @@ context:
           icon_position: "right"
           theme_class: ""
 
-    - title: "Filled Banner"
+    - title: "Filled Banner with Media"
       theme: "filled"
       media_after: false
       heading:
@@ -74,9 +74,8 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Full Width, Centered and Filled Banner with Brand Image"
+    - title: "Centered Filled Banner with Small Brand Image"
       theme: "filled"
-      full_width: true
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
@@ -86,6 +85,7 @@ context:
         url: "/media/img/firefox/flare/fox-brand.png"
         alt: "Firefox"
       brand_image_position: "bottom-right"
+      brand_image_size: "small"
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -94,9 +94,8 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Filled Banner with Brand Image"
+    - title: "Filled Banner with Large Brand Image"
       theme: "filled"
-      full_width: true
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
