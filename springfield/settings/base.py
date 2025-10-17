@@ -1284,6 +1284,7 @@ def lazy_wagtail_langs():
         # 2) These are the springfield-side lang codes. They are mapped to
         # Smartling-specific ones in the WAGTAIL_LOCALIZE_SMARTLING settings, below
         ("en-US", "English (US)"),
+        ("en-GB", "English (Great Britain)"),
         ("de", "German"),
         ("fr", "French"),
         ("es-ES", "Spanish (Spain)"),
