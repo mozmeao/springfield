@@ -104,9 +104,26 @@ CONDITIONAL_DISPLAY_CHOICES = [
 ]
 
 
+UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_CHOICES = ((UITOUR_BUTTON_NEW_TAB, "Open New Tab"),)
+UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
+UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
+UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
+UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
+UITOUR_BUTTON_CHOICES = (
+    (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
+)
+
+
 # Element blocks
-
-
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -129,7 +146,7 @@ class ButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class ButtonSettings(blocks.StructBlock):
+class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
@@ -145,7 +162,6 @@ class ButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
 
     class Meta:
         icon = "cog"
@@ -153,6 +169,14 @@ class ButtonSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
         form_classname = "compact-form struct-block"
+
+
+class ButtonSettings(BaseButtonSettings):
+    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
+
+
+class UITourButtonSettings(BaseButtonSettings):
+    pass
 
 
 class ButtonBlock(blocks.StructBlock):
@@ -165,6 +189,66 @@ class ButtonBlock(blocks.StructBlock):
         label = "Button"
         label_format = "Button - {label}"
         value_class = ButtonValue
+
+
+class UITourButtonValue(ButtonValue):
+    def theme_class(self) -> str:
+        """
+        Give the button the appropriate CSS class, based on its button_type.
+        """
+        theme_classes = super().theme_class()
+        button_type = self.get("button_type", "")
+        if button_type == UITOUR_BUTTON_NEW_TAB:
+            theme_classes += " ui-tour-open-new-tab"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES:
+            theme_classes += " ui-tour-open-about-preferences"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL:
+            theme_classes += " ui-tour-open-about-preferences-general"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_HOME:
+            theme_classes += " ui-tour-open-about-preferences-home"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH:
+            theme_classes += " ui-tour-open-about-preferences-search"
+        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
+            theme_classes += " ui-tour-open-about-preferences-privacy"
+        elif button_type == UITOUR_BUTTON_PROTECTIONS_REPORT:
+            theme_classes += " ui-tour-open-protections-report"
+        return theme_classes
+
+
+class UITourButtonBlock(blocks.StructBlock):
+    settings = UITourButtonSettings()
+    button_type = blocks.ChoiceBlock(
+        default=UITOUR_BUTTON_NEW_TAB,
+        choices=UITOUR_BUTTON_CHOICES,
+        inline_form=True,
+    )
+    label = blocks.CharBlock(label="Button Text")
+
+    class Meta:
+        template = "cms/blocks/uitour_button.html"
+        label = "UI Tour Button"
+        label_format = "UI Tour Button - {label}"
+        value_class = UITourButtonValue
+
+
+def MixedButtonsBlock(min_num, max_num):
+    """
+    Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
+
+    The min_num and max_num parameters control the total number of buttons (combined).
+
+    Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
+    buttons, or up to 1 of each.
+    """
+    return blocks.StreamBlock(
+        [
+            ("button", ButtonBlock()),
+            ("uitour_button", UITourButtonBlock()),
+        ],
+        max_num=max_num,
+        min_num=min_num,
+        label="Buttons",
+    )
 
 
 class LinkBlock(blocks.StructBlock):
@@ -298,7 +382,7 @@ class MediaContentBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=2)
 
     class Meta:
         label = "Media + Content"
@@ -338,7 +422,7 @@ class StickerCardBlock(blocks.StructBlock):
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1)
 
     class Meta:
         label = "Sticker Card"
@@ -350,7 +434,7 @@ class TagCardBlock(blocks.StructBlock):
     tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1)
 
     class Meta:
         template = "cms/blocks/tag-card.html"
@@ -413,7 +497,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     image = ImageChooserBlock(inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1)
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -441,7 +525,7 @@ class StepCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1)
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -509,7 +593,7 @@ class IntroBlock(blocks.StructBlock):
     #     help_text="Either enter an image or embed, or leave both blank.",
     # )
     heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=2)
 
     class Meta:
         template = "cms/blocks/sections/intro.html"
