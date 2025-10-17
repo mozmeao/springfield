@@ -18,3 +18,13 @@
     border: none;
     border-top: 1px solid gray;
 }
+
+.pl-wrapper {
+    padding: 2rem;
+}
+
+.pl-narrow-content {
+    max-width: 688px;
+    margin: 0 auto;
+    padding: 4rem;
+}

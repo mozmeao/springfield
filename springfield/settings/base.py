@@ -305,7 +305,7 @@ FLUENT_DEFAULT_FILES = [
     "sub_navigation",
     "ui",
     "mozilla-account-promo",
-    "cms",
+    "components",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -844,8 +844,8 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
-        ("Components", ["pattern-library/components"]),
         ("Base Styles", ["pattern-library/base-styles"]),
+        ("Components", ["pattern-library/components"]),
         ("Pages", ["pattern-library/pages"]),
     ),
     # Configure which files to detect as templates.
@@ -1284,6 +1284,7 @@ def lazy_wagtail_langs():
         # 2) These are the springfield-side lang codes. They are mapped to
         # Smartling-specific ones in the WAGTAIL_LOCALIZE_SMARTLING settings, below
         ("en-US", "English (US)"),
+        ("en-GB", "English (Great Britain)"),
         ("de", "German"),
         ("fr", "French"),
         ("es-ES", "Spanish (Spain)"),

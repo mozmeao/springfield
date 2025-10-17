@@ -5,6 +5,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+
 <section class="fl-section">
   <div class="fl-section-container">
     {% with alignment_class="text-center" %}
@@ -12,13 +14,19 @@
     {% endwith %}
 
     {% for block in value.content %}
+      {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ block.block_type %}
       {% include_block block %}
     {% endfor %}
 
     {% if value.cta %}
       <div class="fl-section-cta-wrap">
         {% for link in value.cta %}
-          <a class="fl-section-cta-link" href="{{ link.link }}" {% if link.external %}target="_blank" rel="external noopener"{% endif %} data-cta-text="TODO">{{ link.label }}</a>
+          <a class="fl-section-cta-link"
+            href="{{ link.link }}"
+            {% if link.external %}target="_blank" rel="external noopener"{% endif %}
+            data-cta-position="{{ block_position + ".cta" }}"
+            data-cta-text="{{ block_text + " - " + link.label }}"
+          >{{ link.label }}</a>
         {% endfor %}
       </div>
     {% endif %}
