@@ -14,6 +14,8 @@
   {% endif %}
 {% endif %}
 
+{# TODO: configure button analytics #}
+
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:banner
     theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
