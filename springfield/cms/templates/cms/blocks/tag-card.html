@@ -15,17 +15,19 @@
   {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
   <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
   <div class="body">{{ value.content }}</div>
-  {% if value.buttons %}
+  {% if value.buttons or value.uitour_buttons %}
     <div class="buttons">
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
+      {% if value.buttons %}
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+      {% endif %}
+      {% if value.uitour_buttons %}
+        {% for button in value.uitour_buttons %}
+          {% include_block button %}
+        {% endfor %}
+      {% endif %}
     </div>
-  {% endif %}
-  {% if value.uitour_buttons %}
-    {% for button in value.uitour_buttons %}
-      {% include_block button %}
-    {% endfor %}
   {% endif %}
 </article>
