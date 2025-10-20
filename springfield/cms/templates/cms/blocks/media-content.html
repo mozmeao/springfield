@@ -29,7 +29,7 @@
     {{ value.content }}
   </content:body>
 
-  {% if value.buttons or value.uitour_buttons %}
+  {% if value.buttons %}
     <content:buttons>
       {% if value.buttons %}
           {% for button in value.buttons %}
@@ -37,11 +37,6 @@
             {% set block_text =  value.headline|richtext|remove_tags %}
             {% include_block button %}
           {% endfor %}
-      {% endif %}
-      {% if value.uitour_buttons %}
-        {% for button in value.uitour_buttons %}
-          {% include_block button %}
-        {% endfor %}
       {% endif %}
     </content:buttons>
   {% endif %}

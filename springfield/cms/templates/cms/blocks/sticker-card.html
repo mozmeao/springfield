@@ -15,16 +15,11 @@
   <img class="fl-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
   <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
   <div class="body body-medium">{{ value.content }}</div>
-  {% if value.buttons or value.uitour_buttons %}
+  {% if value.buttons %}
     <div class="buttons">
       {% if value.buttons %}
         {% for button in value.buttons %}
           {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      {% endif %}
-      {% if value.uitour_buttons %}
-        {% for button in value.uitour_buttons %}
           {% include_block button %}
         {% endfor %}
       {% endif %}
