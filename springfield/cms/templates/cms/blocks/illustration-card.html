@@ -9,18 +9,36 @@
 <article class="fl-card fl-card-fill fl-illustration-card {% if value.settings.image_after %}fl-illustration-card-reverse{% endif %} {% if value.settings.expand_link %}expand-link{% endif %}">
 
   <div class="media">
-    {{ srcset_image(
-        value.image,
-        "width-{200,400,600,800,1000,1200,1400}",
-        sizes="
-          (min-width: 768px) 50vw,
-          (min-width: 1024px) 30vw,
-          (min-width: 1440px) 500px,
-          100vw
-        ",
-        width=(value.image.width / 2)|round|int,
-        loading="lazy"
-      ) }}
+    <div class="light-dark-display">
+      {% if value.dark_image %}
+        {{ srcset_image(
+            value.dark_image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="
+              (min-width: 768px) 50vw,
+              (min-width: 1024px) 30vw,
+              (min-width: 1440px) 500px,
+              100vw
+            ",
+            width=(value.dark_image.width / 2)|round|int,
+            loading="lazy",
+            class="display-dark",
+          ) }}
+      {% endif %}
+      {{ srcset_image(
+          value.image,
+          "width-{200,400,600,800,1000,1200,1400}",
+          sizes="
+            (min-width: 768px) 50vw,
+            (min-width: 1024px) 30vw,
+            (min-width: 1440px) 500px,
+            100vw
+          ",
+          width=(value.image.width / 2)|round|int,
+          loading="lazy",
+          class="display-light",
+        ) }}
+      </div>
   </div>
 
   <div class="card-content">
