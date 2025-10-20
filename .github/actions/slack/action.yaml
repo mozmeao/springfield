@@ -39,8 +39,10 @@ runs:
   steps:
     - id: set-build-status-color
       shell: bash
+      env:
+        STATUS: ${{ inputs.status }}
       run: >-
-        eval "case ${{ inputs.status }} in
+        eval "case $STATUS in
             info)
                 echo 'STATUS_COLOR=#00FFFF';;
             success)
