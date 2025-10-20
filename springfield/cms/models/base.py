@@ -34,6 +34,8 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         `serve_password_required_response` method, via the @method_decorator above
     """
 
+    ftl_files = None
+
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
     # every localized variant of the page and shouldn't get sent for translation.
     # See https://wagtail-localize.org/stable/how-to/field-configuration/
@@ -66,10 +68,13 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # Normally, Wagtail's serve() returns a TemplateResponse, so we
         # can swap that for our Fluent-compatible rendering method
         template = self.get_template(request, *args, **kwargs)
-        context = self.get_context(request, *args, **kwargs)
-        # We shouldn't need to spec any special ftl_files param for render()
-        # here because the global spec is in settings.FLUENT_DEFAULT_FILES
-        return l10n_utils.render(request, template, context)
+        if request.is_preview:
+            context = self.get_preview_context(request, *args, **kwargs)
+        else:
+            context = self.get_context(request, *args, **kwargs)
+        # If we need any special Fluent files to accompany CMS content, spec them as the ftl_files attribute (a List)
+        # on the page class. If None is specced, we default to what's in settings.FLUENT_DEFAULT_FILES
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
     def serve(self, request, *args, **kwargs):
         # Need to replicate behaviour in https://github.com/wagtail/wagtail/blob/stable/5.2.x/wagtail/models/__init__.py#L1928
@@ -83,6 +88,12 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
             add_never_cache_headers(response)
         return response
 
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["is_preview"] = True
+        return context
+
     def serve_preview(self, request, *args, **kwargs):
         request = self._patch_request_for_springfield(request)
+        request.is_preview = True
         return self._render_with_fluent_string_support(request, *args, **kwargs)

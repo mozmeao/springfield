@@ -106,7 +106,7 @@ def test_locales_are_drawn_from_page_translations(minimal_site, rf, serving_meth
     assert _relative_url == "/en-US/test-page/"
     request = rf.get(_relative_url)
 
-    resp = getattr(page, serving_method)(request)
+    resp = getattr(page, serving_method)(request, mode_name="irrelevant")
     page_content = resp.text
     assert "Test Page" in page_content
     assert '<option lang="en-US" value="en-US" selected>English</option>' in page_content
