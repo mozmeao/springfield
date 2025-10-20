@@ -419,11 +419,6 @@ def MediaContentBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=2)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
-    )
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
@@ -446,7 +441,11 @@ def MediaContentBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=2)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+        )
 
         class Meta:
             label = "Media + Content"
@@ -489,11 +488,6 @@ def StickerCardBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=1)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-    )
 
     class _StickerCardBlock(blocks.StructBlock):
         settings = StickerCardSettings()
@@ -501,7 +495,11 @@ def StickerCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=1)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+        )
 
         class Meta:
             label = "Sticker Card"
@@ -518,17 +516,16 @@ def TagCardBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=1)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-    )
 
     class _TagCardBlock(blocks.StructBlock):
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=1)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+        )
 
         class Meta:
             template = "cms/blocks/tag-card.html"
@@ -595,18 +592,17 @@ def IllustrationCardBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=1)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-    )
 
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
         image = ImageChooserBlock(inline_form=True)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=1)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+        )
 
         class Meta:
             template = "cms/blocks/illustration-card.html"
@@ -638,18 +634,17 @@ def StepCardBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=1)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-    )
 
     class _StepCardBlock(blocks.StructBlock):
         settings = StepCardSettings()
         image = ImageChooserBlock()
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=1)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+        )
 
         class Meta:
             template = "cms/blocks/step-card.html"
@@ -730,11 +725,6 @@ def IntroBlock(allow_uitour=False):
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
-    buttons_block = (
-        MixedButtonsBlock(min_num=0, max_num=2)
-        if allow_uitour
-        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
-    )
 
     class _IntroBlock(blocks.StructBlock):
         settings = IntroBlockSettings()
@@ -752,7 +742,11 @@ def IntroBlock(allow_uitour=False):
         #     help_text="Either enter an image or embed, or leave both blank.",
         # )
         heading = HeadingBlock()
-        buttons = buttons_block
+        buttons = (
+            MixedButtonsBlock(min_num=0, max_num=2)
+            if allow_uitour
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+        )
 
         class Meta:
             template = "cms/blocks/sections/intro.html"
