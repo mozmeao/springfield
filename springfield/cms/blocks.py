@@ -265,6 +265,28 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
+def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
+    """
+    Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
+
+    The min_num and max_num parameters control the total number of buttons (combined).
+
+    Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
+    buttons, or up to 1 of each.
+    """
+    return blocks.StreamBlock(
+        [
+            ("button", ButtonBlock()),
+            ("uitour_button", UITourButtonBlock()),
+        ],
+        max_num=max_num,
+        min_num=min_num,
+        label="Buttons",
+        *args,
+        **kwargs,
+    )
+
+
 class LinkBlock(blocks.StructBlock):
     label = blocks.CharBlock(label="Link Text")
     link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
@@ -414,8 +436,7 @@ class MediaContentBlock(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=2, required=False)
 
     class Meta:
         label = "Media + Content"
@@ -455,8 +476,7 @@ class StickerCardBlock(blocks.StructBlock):
     dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1, required=False)
 
     class Meta:
         label = "Sticker Card"
@@ -468,8 +488,7 @@ class TagCardBlock(blocks.StructBlock):
     tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1, required=False)
 
     class Meta:
         template = "cms/blocks/tag-card.html"
@@ -532,8 +551,7 @@ class IllustrationCardBlock(blocks.StructBlock):
     image = ImageChooserBlock(inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1, required=False)
 
     class Meta:
         template = "cms/blocks/illustration-card.html"
@@ -561,8 +579,7 @@ class StepCardBlock(blocks.StructBlock):
     image = ImageChooserBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=1, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=1, required=False)
 
     class Meta:
         template = "cms/blocks/step-card.html"
@@ -630,8 +647,7 @@ class IntroBlock(blocks.StructBlock):
     #     help_text="Either enter an image or embed, or leave both blank.",
     # )
     heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, default=[])
-    uitour_buttons = blocks.ListBlock(UITourButtonBlock(), max_num=2, min_num=0, label="UI Tour Buttons", default=[])
+    buttons = MixedButtonsBlock(min_num=0, max_num=2, required=False)
 
     class Meta:
         template = "cms/blocks/sections/intro.html"

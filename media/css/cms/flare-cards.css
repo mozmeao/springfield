@@ -44,7 +44,7 @@
     margin-top: auto;
 }
 
-.fl-card.expand-link a.button::after {
+.fl-card.expand-link a.button::after, .fl-card.expand-link button::after {
     position: absolute;
     inset: 0;
     z-index: 1;
