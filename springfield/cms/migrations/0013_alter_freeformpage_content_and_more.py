@@ -188,7 +188,11 @@ class Migration(migrations.Migration):
                         },
                     ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 17)]], {}),
-                    24: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 2, "min_num": 0}),
+                    24: (
+                        "wagtail.blocks.StreamBlock",
+                        [[("button", 20), ("uitour_button", 23)]],
+                        {"label": "Buttons", "max_num": 2, "min_num": 0, "required": False},
+                    ),
                     25: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 24)]], {}),
                     26: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
                     27: (
@@ -312,7 +316,11 @@ class Migration(migrations.Migration):
                     39: ("wagtail.blocks.StructBlock", [[("expand_link", 38)]], {}),
                     40: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
                     41: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
-                    42: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 1, "min_num": 0}),
+                    42: (
+                        "wagtail.blocks.StreamBlock",
+                        [[("button", 20), ("uitour_button", 23)]],
+                        {"label": "Buttons", "max_num": 1, "min_num": 0, "required": False},
+                    ),
                     43: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 39), ("image", 40), ("dark_image", 41), ("headline", 6), ("content", 6), ("buttons", 42)]],
@@ -608,7 +616,11 @@ class Migration(migrations.Migration):
                         },
                     ),
                     23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 17)]], {}),
-                    24: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 2, "min_num": 0}),
+                    24: (
+                        "wagtail.blocks.StreamBlock",
+                        [[("button", 20), ("uitour_button", 23)]],
+                        {"label": "Buttons", "max_num": 2, "min_num": 0, "required": False},
+                    ),
                     25: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 24)]], {}),
                     26: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
                     27: (
@@ -732,7 +744,11 @@ class Migration(migrations.Migration):
                     39: ("wagtail.blocks.StructBlock", [[("expand_link", 38)]], {}),
                     40: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
                     41: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
-                    42: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 1, "min_num": 0}),
+                    42: (
+                        "wagtail.blocks.StreamBlock",
+                        [[("button", 20), ("uitour_button", 23)]],
+                        {"label": "Buttons", "max_num": 1, "min_num": 0, "required": False},
+                    ),
                     43: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 39), ("image", 40), ("dark_image", 41), ("headline", 6), ("content", 6), ("buttons", 42)]],
