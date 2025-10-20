@@ -54,7 +54,12 @@ function init() {
                 cls.startsWith('ui-tour-open-about-preferences-')
             );
             // Extract the pane name (the part after "ui-tour-open-about-preferences-")
-            const pane = preferencesClass ? preferencesClass.replace('ui-tour-open-about-preferences-', '') : null;
+            const pane = preferencesClass
+                ? preferencesClass.replace(
+                      'ui-tour-open-about-preferences-',
+                      ''
+                  )
+                : null;
 
             // Add an event listener to the button.
             button.addEventListener(
