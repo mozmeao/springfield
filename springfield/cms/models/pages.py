@@ -168,6 +168,8 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.WhatsNewIndexPage"]
     subpage_types = []
 
+    ftl_files = ["firefox/whatsnew/evergreen"]
+
     version = models.CharField(
         max_length=10,
         help_text="The version of Firefox this What's New page refers to.",
