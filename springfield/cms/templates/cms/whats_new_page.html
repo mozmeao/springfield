@@ -10,6 +10,11 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
+    <include:inline-notification
+      message="{{ ftl('whatsnew-update-notification') }}"
+      color="purple"
+    />
+
     {% set ns = namespace(headings=0) %}
     {% for block in page.content %}
       {% set block_index = loop.index %}

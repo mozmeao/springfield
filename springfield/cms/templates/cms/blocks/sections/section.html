@@ -23,7 +23,7 @@
         <div class="fl-section-cta-wrap">
           {% for link in value.cta %}
             <a class="fl-section-cta-link"
-              href="{{ link.link }}"
+              href="{{ link.url() }}"
               {% if link.external %}target="_blank" rel="external noopener"{% endif %}
               data-cta-position="{{ block_position + ".cta" }}"
               data-cta-text="{{ block_text + " - " + link.label }}"

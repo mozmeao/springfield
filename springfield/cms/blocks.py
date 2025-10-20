@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 
 from wagtail import blocks
 
@@ -128,6 +128,13 @@ class ButtonValue(blocks.StructValue):
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
+    def url(self) -> str:
+        link = self.get("link")
+        page = self.get("page")
+        if page:
+            return page.url
+        return link
+
 
 class ButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
@@ -157,8 +164,9 @@ class ButtonSettings(blocks.StructBlock):
 
 class ButtonBlock(blocks.StructBlock):
     settings = ButtonSettings()
-    link = blocks.CharBlock()
     label = blocks.CharBlock(label="Button Text")
+    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
+    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -166,11 +174,54 @@ class ButtonBlock(blocks.StructBlock):
         label_format = "Button - {label}"
         value_class = ButtonValue
 
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        if not cleaned_data.get("link") and not cleaned_data.get("page"):
+            raise ValidationError(
+                "Either a link or a page is required.",
+            )
+        if cleaned_data.get("link") and cleaned_data.get("page"):
+            raise ValidationError(
+                "Please provide either a link or a page, not both.",
+            )
+        if cleaned_data.get("page") and cleaned_data.get("settings", {}).get("external"):
+            raise ValidationError(
+                "External link option cannot be selected when a page is chosen.",
+            )
+        return cleaned_data
+
+
+class LinkValue(blocks.StructValue):
+    def url(self) -> str:
+        link = self.get("link")
+        page = self.get("page")
+        if page:
+            return page.url
+        return link
+
 
 class LinkBlock(blocks.StructBlock):
-    link = blocks.CharBlock()
     label = blocks.CharBlock(label="Link Text")
+    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
+    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
     external = blocks.BooleanBlock(required=False, default=False, label="External link")
+
+    class Meta:
+        label = "Link"
+        label_format = "Link - {label}"
+        value_class = LinkValue
+
+    def clean(self, value):
+        cleaned_data = super().clean(value)
+        if not cleaned_data.get("link") and not cleaned_data.get("page"):
+            raise ValidationError(
+                "Either a link or a page is required.",
+            )
+        if cleaned_data.get("link") and cleaned_data.get("page"):
+            raise ValidationError(
+                "Please provide either a link or a page, not both.",
+            )
+        return cleaned_data
 
 
 class TagBlock(blocks.StructBlock):
@@ -550,7 +601,6 @@ class SectionBlock(blocks.StructBlock):
         template = "cms/blocks/sections/section.html"
         label = "Section"
         label_format = "{heading}"
-        form_classname = "compact-form struct-block"
 
 
 # Banners
