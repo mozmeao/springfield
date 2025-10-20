@@ -264,7 +264,7 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
-def MixedButtonsBlock(min_num, max_num):
+def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
     """
     Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
 
@@ -281,6 +281,8 @@ def MixedButtonsBlock(min_num, max_num):
         max_num=max_num,
         min_num=min_num,
         label="Buttons",
+        *args,
+        **kwargs,
     )
 
 
@@ -442,7 +444,7 @@ def MediaContentBlock(allow_uitour=False):
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2)
+            MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
         )
@@ -496,7 +498,7 @@ def StickerCardBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1)
+            MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
         )
@@ -522,7 +524,7 @@ def TagCardBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1)
+            MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
         )
@@ -599,7 +601,7 @@ def IllustrationCardBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1)
+            MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
         )
@@ -641,7 +643,7 @@ def StepCardBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1)
+            MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
         )
@@ -743,7 +745,7 @@ def IntroBlock(allow_uitour=False):
         # )
         heading = HeadingBlock()
         buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2)
+            MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
             else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
         )
