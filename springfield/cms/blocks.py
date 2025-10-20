@@ -640,6 +640,23 @@ class IntroBlock(blocks.StructBlock):
 
 
 class SectionBlockSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("outlined", "Outlined"),
+            ("filled", "Filled"),
+            ("filled-small", "Filled with Small Brand Image"),
+            ("filled-large", "Filled with Large Brand Image"),
+        ),
+        default="outlined",
+        inline_form=True,
+    )
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop.",
+    )
     show_to = blocks.ChoiceBlock(
         choices=CONDITIONAL_DISPLAY_CHOICES,
         default="all",
