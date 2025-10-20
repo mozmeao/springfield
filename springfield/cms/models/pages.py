@@ -122,13 +122,28 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         abstract = True
 
 
-FREEFORM_PAGE_BLOCKS = [
-    ("inline_notification", InlineNotificationBlock(group="Notifications")),
-    ("intro", IntroBlock()),
-    ("section", SectionBlock()),
-    ("subscription", SubscriptionBlock(group="Banners")),
-    ("banner", BannerBlock(group="Banners")),
-]
+def _get_freeform_page_blocks(allow_uitour=False):
+    """Factory function to create block list with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
+                      If False, only allows regular buttons.
+
+    Returns:
+        List of tuples containing block names and instances configured
+        with the appropriate button types.
+    """
+    return [
+        ("inline_notification", InlineNotificationBlock(group="Notifications")),
+        ("intro", IntroBlock(allow_uitour=allow_uitour)),
+        ("section", SectionBlock(allow_uitour=allow_uitour)),
+        ("subscription", SubscriptionBlock(group="Banners")),
+        ("banner", BannerBlock(group="Banners")),
+    ]
+
+
+FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
+WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
 
 
 class FreeFormPage(AbstractSpringfieldCMSPage):
@@ -174,7 +189,7 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
         max_length=10,
         help_text="The version of Firefox this What's New page refers to.",
     )
-    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
+    content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
 
     content_panels = [
         FieldPanel("title"),

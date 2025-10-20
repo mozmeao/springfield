@@ -412,41 +412,56 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class MediaContentBlock(blocks.StructBlock):
-    settings = MediaContentSettings()
-    # TODO: re-enable the embed block and make the image optional
-    # when this issue with Wagtail Localize is resolved
-    # https://github.com/wagtail/wagtail-localize/issues/875
-    image = ImageChooserBlock(
-        # required=False,
-        # help_text="Either an image or embed is required.",
-        inline_form=True,
+def MediaContentBlock(allow_uitour=False):
+    """Factory function to create MediaContentBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=2)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
     )
-    # embed = EmbedBlock(
-    #     required=False,
-    #     help_text="Either an image or embed is required.",
-    #     max_width=800,
-    #     max_height=400,
-    #     inline_form=True,
-    # )
-    eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(min_num=0, max_num=2)
 
-    class Meta:
-        label = "Media + Content"
-        label_format = "{headline}"
-        template = "cms/blocks/media-content.html"
+    class _MediaContentBlock(blocks.StructBlock):
+        settings = MediaContentSettings()
+        # TODO: re-enable the embed block and make the image optional
+        # when this issue with Wagtail Localize is resolved
+        # https://github.com/wagtail/wagtail-localize/issues/875
+        image = ImageChooserBlock(
+            # required=False,
+            # help_text="Either an image or embed is required.",
+            inline_form=True,
+        )
+        # embed = EmbedBlock(
+        #     required=False,
+        #     help_text="Either an image or embed is required.",
+        #     max_width=800,
+        #     max_height=400,
+        #     inline_form=True,
+        # )
+        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = buttons_block
 
-    # def clean(self, value):
-    #     cleaned_data = super().clean(value)
-    #     if not cleaned_data.get("image") and not cleaned_data.get("embed"):
-    #         raise ValidationError(
-    #             "Either an image or embed is required.",
-    #         )
-    #     return cleaned_data
+        class Meta:
+            label = "Media + Content"
+            label_format = "{headline}"
+            template = "cms/blocks/media-content.html"
+
+        # def clean(self, value):
+        #     cleaned_data = super().clean(value)
+        #     if not cleaned_data.get("image") and not cleaned_data.get("embed"):
+        #         raise ValidationError(
+        #             "Either an image or embed is required.",
+        #         )
+        #     return cleaned_data
+
+    return _MediaContentBlock()
 
 
 # Cards
@@ -467,30 +482,60 @@ class StickerCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class StickerCardBlock(blocks.StructBlock):
-    settings = StickerCardSettings()
-    image = ImageChooserBlock()
-    dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(min_num=0, max_num=1)
+def StickerCardBlock(allow_uitour=False):
+    """Factory function to create StickerCardBlock with appropriate button types.
 
-    class Meta:
-        label = "Sticker Card"
-        label_format = "{headline}"
-        template = "cms/blocks/sticker-card.html"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=1)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+    )
+
+    class _StickerCardBlock(blocks.StructBlock):
+        settings = StickerCardSettings()
+        image = ImageChooserBlock()
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = buttons_block
+
+        class Meta:
+            label = "Sticker Card"
+            label_format = "{headline}"
+            template = "cms/blocks/sticker-card.html"
+
+    return _StickerCardBlock()
 
 
-class TagCardBlock(blocks.StructBlock):
-    tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(min_num=0, max_num=1)
+def TagCardBlock(allow_uitour=False):
+    """Factory function to create TagCardBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/tag-card.html"
-        label = "Tag Card"
-        label_format = "Tag Card - {headline}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=1)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+    )
+
+    class _TagCardBlock(blocks.StructBlock):
+        tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = buttons_block
+
+        class Meta:
+            template = "cms/blocks/tag-card.html"
+            label = "Tag Card"
+            label_format = "Tag Card - {headline}"
+
+    return _TagCardBlock()
 
 
 class IconCardSettings(blocks.StructBlock):
@@ -543,17 +588,32 @@ class IllustrationCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IllustrationCardBlock(blocks.StructBlock):
-    settings = IllustrationCardSettings()
-    image = ImageChooserBlock(inline_form=True)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(min_num=0, max_num=1)
+def IllustrationCardBlock(allow_uitour=False):
+    """Factory function to create IllustrationCardBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/illustration-card.html"
-        label = "Illustration Card"
-        label_format = "{headline}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=1)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+    )
+
+    class _IllustrationCardBlock(blocks.StructBlock):
+        settings = IllustrationCardSettings()
+        image = ImageChooserBlock(inline_form=True)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = buttons_block
+
+        class Meta:
+            template = "cms/blocks/illustration-card.html"
+            label = "Illustration Card"
+            label_format = "{headline}"
+
+    return _IllustrationCardBlock()
 
 
 class StepCardSettings(blocks.StructBlock):
@@ -571,42 +631,77 @@ class StepCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class StepCardBlock(blocks.StructBlock):
-    settings = StepCardSettings()
-    image = ImageChooserBlock()
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(min_num=0, max_num=1)
+def StepCardBlock(allow_uitour=False):
+    """Factory function to create StepCardBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/step-card.html"
-        label = "Step Card"
-        label_format = "{headline}"
-
-
-class CardsListBlock(blocks.StructBlock):
-    cards = blocks.StreamBlock(
-        [
-            ("sticker_card", StickerCardBlock()),
-            ("tag_card", TagCardBlock()),
-            ("icon_card", IconCardBlock()),
-            ("illustration_card", IllustrationCardBlock()),
-        ]
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=1)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
     )
 
-    class Meta:
-        template = "cms/blocks/cards-list.html"
-        label = "Cards List"
-        label_format = "Cards List - {heading}"
+    class _StepCardBlock(blocks.StructBlock):
+        settings = StepCardSettings()
+        image = ImageChooserBlock()
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = buttons_block
+
+        class Meta:
+            template = "cms/blocks/step-card.html"
+            label = "Step Card"
+            label_format = "{headline}"
+
+    return _StepCardBlock()
 
 
-class StepCardListBlock(blocks.StructBlock):
-    cards = blocks.ListBlock(StepCardBlock())
+def CardsListBlock(allow_uitour=False):
+    """Factory function to create CardsListBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/cards-list.html"
-        label = "Step Cards List"
-        label_format = "Step Cards - {heading}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _CardsListBlock(blocks.StructBlock):
+        cards = blocks.StreamBlock(
+            [
+                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
+                ("tag_card", TagCardBlock(allow_uitour=allow_uitour)),
+                ("icon_card", IconCardBlock()),
+                ("illustration_card", IllustrationCardBlock(allow_uitour=allow_uitour)),
+            ]
+        )
+
+        class Meta:
+            template = "cms/blocks/cards-list.html"
+            label = "Cards List"
+            label_format = "Cards List - {heading}"
+
+    return _CardsListBlock()
+
+
+def StepCardListBlock(allow_uitour=False):
+    """Factory function to create StepCardListBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _StepCardListBlock(blocks.StructBlock):
+        cards = blocks.ListBlock(StepCardBlock(allow_uitour=allow_uitour))
+
+        class Meta:
+            template = "cms/blocks/cards-list.html"
+            label = "Step Cards List"
+            label_format = "Step Cards - {heading}"
+
+    return _StepCardListBlock()
 
 
 # Section blocks
@@ -628,28 +723,43 @@ class IntroBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IntroBlock(blocks.StructBlock):
-    settings = IntroBlockSettings()
-    image = ImageChooserBlock(
-        required=False,
-        # help_text="Either enter an image or embed, or leave both blank.",
-    )
-    # TODO: re-enable the block when this issue with Wagtail Localize is resolved
-    # https://github.com/wagtail/wagtail-localize/issues/875
-    # embed = EmbedBlock(
-    #     required=False,
-    #     max_width=800,
-    #     max_height=400,
-    #     inline_form=True,
-    #     help_text="Either enter an image or embed, or leave both blank.",
-    # )
-    heading = HeadingBlock()
-    buttons = MixedButtonsBlock(min_num=0, max_num=2)
+def IntroBlock(allow_uitour=False):
+    """Factory function to create IntroBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/sections/intro.html"
-        label = "Intro"
-        label_format = "{heading}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+    buttons_block = (
+        MixedButtonsBlock(min_num=0, max_num=2)
+        if allow_uitour
+        else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+    )
+
+    class _IntroBlock(blocks.StructBlock):
+        settings = IntroBlockSettings()
+        image = ImageChooserBlock(
+            required=False,
+            # help_text="Either enter an image or embed, or leave both blank.",
+        )
+        # TODO: re-enable the block when this issue with Wagtail Localize is resolved
+        # https://github.com/wagtail/wagtail-localize/issues/875
+        # embed = EmbedBlock(
+        #     required=False,
+        #     max_width=800,
+        #     max_height=400,
+        #     inline_form=True,
+        #     help_text="Either enter an image or embed, or leave both blank.",
+        # )
+        heading = HeadingBlock()
+        buttons = buttons_block
+
+        class Meta:
+            template = "cms/blocks/sections/intro.html"
+            label = "Intro"
+            label_format = "{heading}"
+
+    return _IntroBlock()
 
 
 class SectionBlockSettings(blocks.StructBlock):
@@ -669,22 +779,32 @@ class SectionBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class SectionBlock(blocks.StructBlock):
-    settings = SectionBlockSettings()
-    heading = HeadingBlock()
-    content = blocks.StreamBlock(
-        [
-            ("media_content", MediaContentBlock()),
-            ("cards_list", CardsListBlock()),
-            ("step_cards", StepCardListBlock()),
-        ]
-    )
-    cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+def SectionBlock(allow_uitour=False):
+    """Factory function to create SectionBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/sections/section.html"
-        label = "Section"
-        label_format = "{heading}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _SectionBlock(blocks.StructBlock):
+        settings = SectionBlockSettings()
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
+                ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
+            ]
+        )
+        cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+        class Meta:
+            template = "cms/blocks/sections/section.html"
+            label = "Section"
+            label_format = "{heading}"
+
+    return _SectionBlock()
 
 
 # Banners
