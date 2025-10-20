@@ -7,26 +7,52 @@ context:
         <p>No condition class is applied to this content.</p>
     - name: Firefox Users
       condition: is-firefox
+      html_class:
+      body_class: is-firefox
       contents: |
         <p>Content with class <b>.conditional-display.condition-is-firefox</b>
           will be displayed if wrapped in class <b>.is-firefox</b>.</p>
     - name: Non-Firefox Users
       condition: not-firefox
+      html_class: not-firefox
+      body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-not-firefox</b>
-          will be displayed if not wrapped in class <b>.is-firefox</b>.</p>
+          will be displayed if wrapped in class <b>.not-firefox</b>.</p>
     - name: Signed-in Users
       condition: state-fxa-supported-signed-in
+      html_class:
+      body_class: state-fxa-supported-signed-in
       contents: |
         <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-in</b>
           will be displayed if wrapped in class <b>.state-fxa-supported-signed-in</b>.</p>
     - name: Signed-out Users
       condition: state-fxa-supported-signed-out
+      html_class:
+      body_class: state-fxa-supported-signed-out
       contents: |
         <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-out</b>
           will be displayed if wrapped in class <b>.state-fxa-supported-signed-out</b>.</p>
-    - name: Windows 10 Users
+    - name: Windows 10+ Users
       condition: windows-10-plus
+      html_class: windows-10-plus
+      body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-windows-10-plus</b>
           will be displayed if wrapped in class <b>.windows-10-plus</b>.</p>
+    - name: Signed-in Windows 10+ Users
+      condition: windows-10-plus-signed-in
+      html_class: windows-10-plus
+      body_class: state-fxa-supported-signed-in
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-windows-10-plus-signed-in</b>
+        will be displayed if wrapped in classes <b>.windows-10-plus</b> and
+        <b>.state-fxa-supported-signed-in</b>.</p>
+    - name: Signed-out Windows 10+ Users
+      condition: windows-10-plus-signed-out
+      html_class: windows-10-plus
+      body_class: state-fxa-supported-signed-out
+      contents: |
+        <p>Content with class <b>.conditional-display.condition-windows-10-plus-signed-out</b>
+        will be displayed if wrapped in classes <b>.windows-10-plus</b> and
+        <b>.state-fxa-supported-signed-out</b>.</p>
