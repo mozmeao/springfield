@@ -125,6 +125,11 @@ UITOUR_BUTTON_CHOICES = (
 )
 
 
+BUTTON_TYPE = "button"
+UITOUR_BUTTON_TYPE = "uitour_button"
+FXA_BUTTON_TYPE = "fxa_button"
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -139,7 +144,24 @@ class HeadingBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ButtonValue(blocks.StructValue):
+# Buttons
+
+
+def get_button_types(allow_uitour=False):
+    """Helper function to get button types based on allow_uitour flag.
+
+    Args:
+        allow_uitour: If True, includes UI Tour button type.
+
+    Returns:
+        List of button type strings.
+    """
+    if allow_uitour:
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE]
+
+
+class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
             "ghost": "button-ghost",
@@ -148,6 +170,8 @@ class ButtonValue(blocks.StructValue):
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
+
+class ButtonValue(BaseButtonValue):
     def url(self) -> str:
         link = self.get("link")
         page = self.get("page")
@@ -276,7 +300,22 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
-def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
+class FAXButtonSettings(BaseButtonSettings):
+    pass
+
+
+class FXAccountButtonBlock(blocks.StructBlock):
+    settings = FAXButtonSettings()
+    label = blocks.CharBlock(label="Button Text")
+
+    class Meta:
+        template = "cms/blocks/fxa_button.html"
+        label = "Firefox Account Button"
+        label_format = "Firefox Account Button"
+        value_class = BaseButtonValue
+
+
+def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **kwargs):
     """
     Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
 
@@ -285,11 +324,13 @@ def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
     Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
     buttons, or up to 1 of each.
     """
+    button_blocks = {
+        BUTTON_TYPE: ButtonBlock(),
+        UITOUR_BUTTON_TYPE: UITourButtonBlock(),
+        FXA_BUTTON_TYPE: FXAccountButtonBlock(),
+    }
     return blocks.StreamBlock(
-        [
-            ("button", ButtonBlock()),
-            ("uitour_button", UITourButtonBlock()),
-        ],
+        [(button_type, button_blocks[button_type]) for button_type in button_types],
         max_num=max_num,
         min_num=min_num,
         label="Buttons",
@@ -459,11 +500,7 @@ def MediaContentBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
 
         class Meta:
             label = "Media + Content"
@@ -513,11 +550,7 @@ def StickerCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             label = "Sticker Card"
@@ -539,11 +572,7 @@ def TagCardBlock(allow_uitour=False):
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/tag-card.html"
@@ -617,11 +646,7 @@ def IllustrationCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/illustration-card.html"
@@ -660,11 +685,7 @@ def StepCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/step-card.html"
@@ -763,11 +784,7 @@ def IntroBlock(allow_uitour=False):
         #     help_text="Either enter an image or embed, or leave both blank.",
         # )
         heading = HeadingBlock()
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
 
         class Meta:
             template = "cms/blocks/sections/intro.html"
