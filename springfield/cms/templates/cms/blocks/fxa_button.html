@@ -12,6 +12,8 @@
   "utm_campaign": value.label.lower().replace(" ", "_"),
 } %}
 
+{% set entrypoint = utm_parameters.get("utm_source") ~ '-' ~ utm_parameters.get("utm_campaign") %}
+
 {% if value.settings.icon %}
   {% set inner_html %}
     {% if value.settings.icon_position == "left" %}
@@ -36,7 +38,7 @@
 
 <div>
   {{ fxa_button(
-    entrypoint=utm_parameters.get('utm_source'),
+    entrypoint=entrypoint,
     button_text=value.label,
     optional_parameters={
       "utm_campaign": utm_parameters.get('utm_campaign'),
