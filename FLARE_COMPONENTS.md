@@ -6,16 +6,12 @@ This document describes the file structure and patterns for creating Wagtail CMS
 
 Every Flare component in Springfield consists of 4 parts:
 
-- [Flare CMS Components](#flare-cms-components)
-  - [Component Anatomy](#component-anatomy)
-    - [1. Base HTML Template](#1-base-html-template)
-    - [2. Component Styles](#2-component-styles)
-    - [3. Wagtail Block](#3-wagtail-block)
-    - [4. Pattern Library Documentation](#4-pattern-library-documentation)
-      - [Organization](#organization)
-      - [Adding Examples](#adding-examples)
+- [Base HTML Template](#base-html-template)
+- [Component Styles](#component-styles)
+- [Wagtail Block](#wagtail-block)
+- [Pattern Library Documentation](#pattern-library-documentation)
 
-### 1. Base HTML Template
+### Base HTML Template
 
 **Path**: `springfield/springfield/cms/templates/components/{component-name}.html`
 
@@ -60,7 +56,7 @@ Every Flare component in Springfield consists of 4 parts:
 </div>
 ```
 
-### 2. Component Styles
+### Component Styles
 
 **Path**: `springfield/media/css/cms/flare-{component-name}.css`
 
@@ -85,7 +81,7 @@ Every Flare component in Springfield consists of 4 parts:
 }
 ```
 
-### 3. Wagtail Block
+### Wagtail Block
 
 **Path**: `springfield/springfield/cms/templates/cms/blocks/{component-name}.html`
 
@@ -137,7 +133,7 @@ Every Flare component in Springfield consists of 4 parts:
 </include:banner>
 ```
 
-### 4. Pattern Library Documentation
+### Pattern Library Documentation
 
 The [Django Pattern Library](https://github.com/torchbox/django-pattern-library) is used to preview and test components similar to Storybook. You can view Flare components in the Pattern Library at http://localhost:8000/pattern-library/
 
