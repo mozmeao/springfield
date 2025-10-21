@@ -136,3 +136,7 @@
 .buttons.is-stacked > * {
     width: 100%;
 }
+
+.buttons .button {
+    margin-bottom: 0;
+}
