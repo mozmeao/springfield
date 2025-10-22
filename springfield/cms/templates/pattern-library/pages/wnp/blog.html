@@ -17,7 +17,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
           <include:heading
             level="h1"
-            heading_size="heading-size-1"
+            heading_size="fl-heading-size-1"
             superheading_text="{{ article_header.superheading }}"
             heading_text="{{ article_header.title }}"
             subheading_text="{{ article_header.subheading }}"
@@ -100,7 +100,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
                 <p class="fl-superheading">{{ article.category }}</p>
 
-                <h3 class="heading heading-size-4">{{ article.title }}</h3>
+                <h3 class="fl-heading fl-heading-size-4">{{ article.title }}</h3>
 
                 {% if article.description %}
                   <include:body_text text="{{ article.description }}" />

@@ -7,10 +7,10 @@
 
 <include:heading
   level="{{ 'h' ~ block_level if block_level else 'h2' }}"
-  heading_size="{{ 'heading-size-' ~ block_level if block_level else 'heading-size-2' }}"
+  heading_size="{{ 'fl-heading-size-' ~ block_level if block_level else 'fl-heading-size-2' }}"
   heading_text="{{ value.heading_text|richtext|remove_p_tag if value.heading_text else '' }}"
   superheading_text="{{ value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' }}"
   subheading_text="{{ value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' }}"
-  subheading_size="{{ 'subheading-' ~ (block_level + 2) if block_level else 'subheading-3' }}"
+  subheading_size="{{ 'fl-subheading-' ~ (block_level + 2) if block_level else 'fl-subheading-3' }}"
   alignment_class="{{ alignment_class }}"
 />
