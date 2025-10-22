@@ -124,10 +124,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
           <div class="fl-grid ">
             {% for card in cards_section.cards %}
-            <article class="fl-card expand-link">
+            <article class="fl-card fl-card-expand-link">
               <img class="fl-card-sticker" src="{{ card.sticker }}" data-dark-src="{{ card.sticker }}" alt="" aria-hidden="true" />
-              <h3 class="heading heading-size-3">{{ card.heading }}</h3>
-              <div class="body body-medium">
+              <h3 class="fl-heading fl-heading-size-3">{{ card.heading }}</h3>
+              <div class="fl-body fl-body-medium">
                 {{ card.body }}
               </div>
             </article>
@@ -199,14 +199,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             </div>
 
             <div class="fl-newsletterform-consent">
-              <label for="newsletter-privacy" class="body fl-newsletterform-checkbox-label">
+              <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
                 <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true">
                 <span class="fl-newsletterform-checkbox-text">Firefoxy <a href="https://www.mozilla.org/en-US/about/legal/terms/firefox/">Privacious Mozillan</a> &amp; <a href="/privacy/websites/">Opensourceo Tabulous</a>. Browsium communitous extensify developus. Downloadus secureum innovatum.</span>
               </label>
             </div>
           </div>
-          <button id="newsletter-submit" class="button" type="submit" disabled>Sign Up</button>
-          <div class="body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+          <button id="newsletter-submit" class="fl-button" type="submit" disabled>Sign Up</button>
+          <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
             <ul class="fl-newsletterform-error-list mzp-u-list-styled">
               <li class="error-email-invalid hidden">Extensify tabulous browsium firefoxy</li>
               <li class="error-try-again-later hidden">Mozillan opensourceo privacious. Communitous browsium developus extensium!</li>
@@ -252,8 +252,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
                 />
                 {% endfor %}
               </div>
-              <h3 class="heading heading-size-3">{{ card.heading }}</h3>
-              <div class="body">
+              <h3 class="fl-heading fl-heading-size-3">{{ card.heading }}</h3>
+              <div class="fl-body">
                 {{ card.body }}
               </div>
             </article>

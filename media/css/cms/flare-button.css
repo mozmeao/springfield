@@ -4,16 +4,16 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.button {
+.fl-button {
     display: inline-block;
-    padding: 16px 32px;
+    padding: calc(var(--scale-16) * 1px) calc(var(--scale-32) * 1px);
     font-family: var(--font-family-button);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-button);
     line-height: 1.5;
     text-align: center;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: calc(var(--scale-8) * 1px);
     cursor: pointer;
     transition: all var(--transition-base);
     background: transparent;
@@ -21,122 +21,122 @@
     border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
 }
 
-.button:hover, .button:focus {
+.fl-button:hover, .fl-button:focus {
     background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     color: light-dark(var(--neutrals-white), var(--neutrals-black));
 }
 
-.button:active {
+.fl-button:active {
     background: light-dark(var(--neutrals-black), var(--neutrals-white));
     color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
-.button.button-secondary {
+.fl-button.button-secondary {
     background: light-dark(var(--functional-info-buttons), var(--functional-info-buttons));
     color: light-dark(var(--neutrals-ash), var(--neutrals-ash));
     border-width: 0;
 }
 
-.button.button-secondary:hover, .button.button-secondary:focus {
+.fl-button.button-secondary:hover, .fl-button.button-secondary:focus {
     background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
     color: light-dark(var(--neutrals-white), var(--neutrals-white));
 }
 
-.button.button-secondary:active {
+.fl-button.button-secondary:active {
     background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
     color: light-dark(var(--neutrals-white), var(--neutrals-ash));
 }
 
-.button.button-tertiary {
+.fl-button.button-tertiary {
     background: light-dark(var(--purple-purple), var(--purple-purple));
     color: light-dark(var(--neutrals-white), var(--neutrals-white));
     border-width: 0;
 }
 
-.button.button-tertiary:hover, .button.button-tertiary:focus {
+.fl-button.button-tertiary:hover, .fl-button.button-tertiary:focus {
     background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
     color: light-dark(var(--neutrals-white), var(--neutrals-white));
 }
 
-.button.button-tertiary:active {
+.fl-button.button-tertiary:active {
     background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
     color: light-dark(var(--neutrals-white), var(--neutrals-white));
 }
 
-.button.button-ghost {
+.fl-button.button-ghost {
     border-color: transparent;
     background: transparent;
     color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
 }
 
-.button.button-ghost:hover {
+.fl-button.button-ghost:hover {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
-.button.button-ghost:active {
+.fl-button.button-ghost:active {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
-.button .icon {
+.fl-button .fl-icon {
     vertical-align: middle;
 }
 
-.button .icon-left {
-    margin-right: 10px;
+.fl-button .fl-icon-left {
+    margin-right: calc(var(--scale-10) * 1px);
 }
 
-.button .icon-right {
-    margin-left: 10px;
+.fl-button .fl-icon-right {
+    margin-left: calc(var(--scale-10) * 1px);
 }
 
-.button .icon-arrow {
+.fl-button .fl-icon-arrow {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: calc(var(--scale-16) * 1px);
+    height: calc(var(--scale-16) * 1px);
     background-color: currentColor;
-    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/16px 16px;
+    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/calc(var(--scale-16) * 1px) calc(var(--scale-16) * 1px);
 }
 
-.button[disabled] {
+.fl-button[disabled] {
     opacity: 0.5;
     pointer-events: none;
 }
 
-.buttons {
+.fl-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: calc(var(--grids-spacing-interior-spacing-x1-5, 12) * 1px);
 }
 
-.buttons.is-horizontal {
+.fl-buttons.is-horizontal {
     flex-direction: row;
 }
 
-.buttons.is-horizontal.is-center {
+.fl-buttons.is-horizontal.is-center {
     justify-content: center;
     width: 100%;
 }
 
-.buttons.is-stacked {
+.fl-buttons.is-stacked {
     flex-direction: column;
     gap: calc(var(--grids-spacing-interior-spacing-x1, 8) * 1px);
 }
 
-.buttons.is-stacked .button {
+.fl-buttons.is-stacked .fl-button {
     width: 100%;
 }
 
-.buttons > * {
+.fl-buttons > * {
     display: inline-flex;
 }
 
-.buttons.is-stacked > * {
+.fl-buttons.is-stacked > * {
     width: 100%;
 }
 
-.buttons .button {
+.fl-buttons .fl-button {
     margin-bottom: 0;
 }

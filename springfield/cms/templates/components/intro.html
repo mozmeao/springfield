@@ -4,11 +4,11 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="intro{% if contents.media %} intro-has-media{% endif %}{% if contents.media and media_position %} intro-media-{{ media_position }}{% endif %}">
-  <div class="intro-content">
+<div class="fl-intro{% if contents.media %} fl-intro-has-media{% endif %}{% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}">
+  <div class="fl-intro-content">
     {{ contents.heading }}
     {% if contents.actions %}
-      <div class="intro-actions">
+      <div class="fl-intro-actions">
         {{ contents.actions }}
       </div>
     {% endif %}
@@ -17,7 +17,7 @@
     {% endif %}
   </div>
   {% if contents.media %}
-    <div class="intro-media dim-images-on-dark-mode">
+    <div class="fl-intro-media dim-images-on-dark-mode">
       {{ contents.media }}
     </div>
   {% endif %}
