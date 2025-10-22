@@ -14,7 +14,7 @@
 {% block article_content %}
 <p>{{ ftl('features-translate-one-of-the-best-things-about') }}</p>
 <p>{{ ftl('features-translate-while-other-browsers-rely-on-v2') }}
-<a class="c-firefox-midpage-cta" href="{{ url('firefox.download.thanks') }}" data-cta-text="Get started in your preferred language">{{ ftl('features-translate-get-started-in-your-preferred') }}</a>.</p>
+{% if ftl_has_messages('features-translate-get-started-in-your-preferred') %}<a class="c-firefox-midpage-cta" href="{{ url('firefox.download.thanks') }}" data-cta-text="Get started in your preferred language">{{ ftl('features-translate-get-started-in-your-preferred') }}</a>.{% endif %}</p>
 
 <h2>{{ ftl('features-translate-when-you-translate-a-webpage') }}</h2>
 <p>{{ ftl('features-translate-when-your-translations-are') }}</p>
