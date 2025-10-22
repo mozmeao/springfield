@@ -12,9 +12,11 @@
       {{ value.eyebrow|richtext|remove_p_tag }}
     </content:eyebrow>
   {% endif %}
+
   <content:heading>
     <{{ row_heading_level }} class="heading heading-size-4">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
   </content:heading>
+
   {% if value.tags %}
     <content:tags>
       {% for tag in value.tags %}
@@ -22,18 +24,23 @@
       {% endfor %}
     </content:tags>
   {% endif %}
+
   <content:body>
     {{ value.content }}
   </content:body>
+
   {% if value.buttons %}
     <content:buttons>
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% set block_text =  value.headline|richtext|remove_tags %}
-        {% include_block button %}
-      {% endfor %}
+      {% if value.buttons %}
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% set block_text =  value.headline|richtext|remove_tags %}
+            {% include_block button %}
+          {% endfor %}
+      {% endif %}
     </content:buttons>
   {% endif %}
+
   {% if value.embed or value.image %}
     <content:media>
       {% if value.embed %}
