@@ -4,30 +4,4 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare.html" %}
-
-
-{% block content %}
-<div class="fl-page">
-  <main class="fl-main">
-    <include:inline-notification
-      message="{{ ftl('whatsnew-update-notification') }}"
-      color="purple"
-    />
-
-    {% set ns = namespace(headings=0) %}
-    {% for block in page.content %}
-      {% set block_index = loop.index %}
-      {% set block_type = block.block_type %}
-      {% set block_position = "block-" ~ block_index + "-" + block_type %}
-
-      {% if block.value.heading and block.value.heading.heading_text %}
-        {% set block_level = 1 if ns.headings == 0 else 2 %}
-        {% set ns.headings = ns.headings + 1 %}
-      {% endif %}
-
-      {% include_block block %}
-    {% endfor %}
-  </main>
-</div>
-{% endblock %}
+{% extends "cms/free_form_page.html" %}
