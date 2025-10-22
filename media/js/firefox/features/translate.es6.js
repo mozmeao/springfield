@@ -23,11 +23,8 @@ function initTranslateLanguageNames() {
 
     const currentLocale = document.documentElement.lang || 'en';
 
-    const translateLangsAttr = langList.dataset.translateLangs;
-
-    const supportedLanguages = translateLangsAttr
-        .split(',')
-        .map((lang) => lang.trim());
+    const supportedLanguages = [...langList.querySelectorAll('li')]
+        .map(li => li.dataset.lang.trim());
 
     const displayNames = new Intl.DisplayNames([currentLocale], {
         type: 'language',

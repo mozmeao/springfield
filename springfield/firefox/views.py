@@ -17,7 +17,7 @@ import querystringsafe_base64
 from product_details import product_details
 
 from lib import l10n_utils
-from lib.l10n_utils import L10nTemplateView, get_translations_native_names
+from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import (
@@ -706,9 +706,7 @@ def firefox_features_translate(request):
         "vi",
     ]
 
-    names = get_translations_native_names(sorted(translate_langs))
-
-    context = {"context_test": names, "translate_langs": translate_langs}
+    context = {"translate_langs": sorted(translate_langs), "lang_names": product_details.languages}
 
     template_name = "firefox/features/translate.html"
 
