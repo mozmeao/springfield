@@ -28,6 +28,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {% block page_css %}{% endblock %}
 
+    {# site bundle must load in head before analytics #}
+    {{ js_bundle('site') }}
     {% block google_analytics %}
     {% if settings.GTM_CONTAINER_ID %}
     {{ js_bundle('gtm-snippet') }}
@@ -110,7 +112,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     </div>
 
     {% block site_js %}
-    {{ js_bundle('site') }}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
     {{ js_bundle('firefox-cms-new') }}
