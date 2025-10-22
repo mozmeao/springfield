@@ -661,6 +661,7 @@ class FirefoxFeaturesFreePDFEditor(L10nTemplateView):
 def firefox_features_translate(request):
     translate_langs = [
         "ar",
+        "az",
         "bg",
         "bn",
         "ca",
@@ -681,6 +682,7 @@ def firefox_features_translate(request):
         "hi",
         "hu",
         "id",
+        "is",
         "it",
         "ja",
         "kn",
