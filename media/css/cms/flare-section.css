@@ -22,7 +22,7 @@
         gap: calc(var(--scale-64) * 1px);
     }
 
-    .fl-section-container .heading-group {
+    .fl-section-container .fl-heading-group {
         margin-bottom: 0;
     }
 
