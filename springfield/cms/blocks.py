@@ -462,7 +462,7 @@ def MediaContentBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
         )
 
         class Meta:
@@ -516,7 +516,7 @@ def StickerCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -542,7 +542,7 @@ def TagCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -620,7 +620,7 @@ def IllustrationCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -663,7 +663,7 @@ def StepCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -766,7 +766,7 @@ def IntroBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
         )
 
         class Meta:
@@ -877,7 +877,7 @@ class BannerBlock(blocks.StructBlock):
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
     heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, required=False)
 
     class Meta:
         template = "cms/blocks/sections/banner.html"

@@ -188,7 +188,7 @@ class Migration(migrations.Migration):
                     20: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
                     21: ("wagtail.blocks.PageChooserBlock", (), {"label": "Choose a page or enter a URL above", "required": False}),
                     22: ("wagtail.blocks.StructBlock", [[("settings", 18), ("label", 19), ("link", 20), ("page", 21)]], {}),
-                    23: ("wagtail.blocks.StreamBlock", [[("button", 22)]], {"label": "Buttons", "max_num": 2, "min_num": 0}),
+                    23: ("wagtail.blocks.StreamBlock", [[("button", 22)]], {"label": "Buttons", "max_num": 2, "min_num": 0, "required": False}),
                     24: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("dark_image", 11), ("heading", 13), ("buttons", 23)]], {}),
                     25: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
                     26: (
@@ -322,7 +322,7 @@ class Migration(migrations.Migration):
                     ),
                     38: ("wagtail.blocks.StructBlock", [[("expand_link", 37)]], {}),
                     39: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
-                    40: ("wagtail.blocks.StreamBlock", [[("button", 22)]], {"label": "Buttons", "max_num": 1, "min_num": 0}),
+                    40: ("wagtail.blocks.StreamBlock", [[("button", 22)]], {"label": "Buttons", "max_num": 1, "min_num": 0, "required": False}),
                     41: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 38), ("image", 39), ("dark_image", 11), ("headline", 6), ("content", 6), ("buttons", 40)]],
@@ -465,7 +465,7 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    65: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0}),
+                    65: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0, "required": False}),
                     66: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 63), ("image", 10), ("qr_code", 64), ("heading", 13), ("buttons", 65)]],
@@ -950,7 +950,7 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    68: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0}),
+                    68: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0, "required": False}),
                     69: (
                         "wagtail.blocks.StructBlock",
                         [[("settings", 66), ("image", 10), ("qr_code", 67), ("heading", 13), ("buttons", 68)]],
