@@ -17,10 +17,12 @@
   <div class="body body-medium">{{ value.content }}</div>
   {% if value.buttons %}
     <div class="buttons">
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
+      {% if value.buttons %}
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      {% endif %}
     </div>
   {% endif %}
 </article>

@@ -713,3 +713,71 @@ def test_smartling_sync_updates_page_translation_data(_mock_on_commit, site_with
     # Verify that the StringTranslations were created.
     smartling_translations = StringTranslation.objects.filter(locale=fr_locale)
     assert smartling_translations.count() == string_segments.count()
+
+
+@patch.object(transaction, "on_commit", side_effect=lambda func: func())
+def test_page_saved_signal_skips_raw_save(_mock_on_commit, site_with_en_de_fr_it_homepages_1_en_page, tmp_path):
+    """
+    Saving a Page with raw=True should NOT trigger the signal handler.
+
+    The post_save signal's "raw" argument from Django's documentation:
+      A boolean; True if the model is saved exactly as presented (i.e. when
+      loading a fixture). One should not query/modify other records in the
+      database as the database might not be in a consistent state yet.
+
+    When the export-db-to-sqlite.sh script is run, it triggers the post-save
+    signal for Pages, which try to call create_page_translation_data() for the
+    original translation of the Page. However, at this point in the script, there
+    are (purposely) no wagtail-localize tables, to avoid exporting in-flight
+    translated strings, so calling create_page_translation_data() would lead to
+    a server error. Since Django passes kwargs={"raw": True} to the signal
+    handler (correctly recognizing that the save is from a fixture/script, and
+    not a user action we should not call create_page_translation_data().
+    """
+    # Get locales used in this test.
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    # Get the English page.
+    en_page = SimpleRichTextPage.objects.get(locale__language_code="en-US", slug="english-page")
+
+    # Create a translation.
+    translation_source, _ = TranslationSource.get_or_create_from_instance(en_page)
+    translation = Translation.objects.create(
+        source=translation_source,
+        target_locale=fr_locale,
+        enabled=True,
+    )
+    translation.save_target(user=None, publish=True)
+
+    # Verify a PageTranslationData object was created.
+    assert PageTranslationData.objects.count() == 1
+
+    # Export to fixture including revisions
+    fixture_file = tmp_path / "test_fixture.json"
+    with open(fixture_file, "w") as f:
+        call_command(
+            "dumpdata",
+            "cms.simplerichtextpage",
+            "wagtailcore.page",
+            "wagtailcore.revision",
+            format="json",
+            stdout=f,
+        )
+
+    # Delete the pages and wagtail-localize tables to simulate export-db-to-sqlite.sh
+    en_page.delete()
+    TranslationSource.objects.all().delete()
+    Translation.objects.all().delete()
+    # Delete all PageTranslationData objects.
+    PageTranslationData.objects.all().delete()
+
+    # Load the fixture - with raw=True, the signal handler should skip processing
+    # This should not raise an error even though wagtail-localize tables don't exist.
+    call_command("loaddata", str(fixture_file))
+
+    # No PageTranslationData objects have been created.
+    PageTranslationData.objects.all().delete()
+
+    # Saving the en_page creates the PageTranslationData object again.
+    en_page.save()
+    assert PageTranslationData.objects.filter(source_page=en_page).exists()

@@ -663,6 +663,12 @@
     },
     {
       "files": [
+        "js/base/datalayer-videoengagement-init.es6.js"
+      ],
+      "name": "data_videoengagement"
+    },
+    {
+      "files": [
         "js/firefox/browsers/ios-summarizer.js"
       ],
       "name": "ios_summarizer"
@@ -733,6 +739,12 @@
         "js/data/data-protection.js"
       ],
       "name": "data_protection"
+    },
+    {
+      "files": [
+        "js/cms/ui-tour-buttons.js"
+      ],
+      "name": "ui-tour-buttons"
     }
   ]
 }
