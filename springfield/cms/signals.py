@@ -76,7 +76,7 @@ def translation_source_saved_signal(sender, instance, created, **kwargs):
 def page_saved_signal(sender, instance, created, **kwargs):
     """Create/update PageTranslationData when a Page is saved."""
     # Only process if it's a Page instance
-    if isinstance(instance, Page):
+    if isinstance(instance, Page) and not kwargs.get("raw", False):
         # Use transaction.on_commit to run after all database changes are committed
         def check_after_commit():
             original_translation_for_page = Page.objects.filter(translation_key=instance.translation_key).order_by("id").first()
