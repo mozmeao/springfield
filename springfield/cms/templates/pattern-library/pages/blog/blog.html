@@ -7,75 +7,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 <div class="fl-page">
   <main class="fl-main">
 
-    {# Article hero and metadata section #}
+    {# Article content - now using markdown component #}
     <div class="">
       <section class="fl-section">
         <div class="fl-section-container">
-
-          {# Hero image #}
-          <include:image url="{{ hero_image.url }}" alt="{{ hero_image.alt }}" />
-
-          <include:heading
-            level="h1"
-            heading_size="fl-heading-size-1"
-            superheading_text="{{ article_header.superheading }}"
-            heading_text="{{ article_header.title }}"
-            subheading_text="{{ article_header.subheading }}"
-          />
-
-          <include:body_text text="{{ article_header.author }}" />
-          <include:body_text text="{{ article_header.date }}" />
-
-        </div>
-      </section>
-    </div>
-
-    {# Article body content #}
-    <div class="">
-      <section class="fl-section">
-        <div class="fl-section-container">
-
-          {# Body content sections #}
-          {% for item in body_content %}
-            {% if item.type == 'heading' %}
-              <include:heading
-                level="{{ item.level }}"
-                heading_size="{{ item.size }}"
-                heading_text="{{ item.text }}"
-              />
-            {% elif item.type == 'body_text' %}
-              <include:body_text text="{{ item.text }}" size="{{ item.size }}" />
-            {% endif %}
-          {% endfor %}
-
-          {# Pull quote #}
-          <blockquote>
-            <p>{{ pullquote.text }}</p>
-            <cite>
-              <strong>{{ pullquote.attribution }}</strong><br>
-              {{ pullquote.role }}
-            </cite>
-          </blockquote>
-
-          {# Code block #}
-          <pre><code>{{ code_block.text }}</code></pre>
-
-          {# More content #}
-          {% for item in more_content %}
-            {% if item.type == 'heading' %}
-              <include:heading
-                level="{{ item.level }}"
-                heading_size="{{ item.size }}"
-                heading_text="{{ item.text }}"
-              />
-            {% elif item.type == 'body_text' %}
-              <include:body_text text="{{ item.text }}" size="{{ item.size }}" />
-            {% endif %}
-          {% endfor %}
-
-          {# Author bio #}
-          <include:body_text text="{{ author_bio }}" />
-
+          <include:markdown content="{{ read_markdown_file(content_file)|markdown_safe }}" />
         </div>
       </section>
     </div>
