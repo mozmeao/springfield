@@ -22,13 +22,11 @@
 <p>{{ ftl('features-translate-the-languages-below-are-what-v2') }}</p>
 
 <ul class="c-lang-list c-translate-lang-list mzp-u-list-styled">
-{% set variant = 'English' if LANG.startswith('en-') else 'native' -%}
-{% for lang in translate_langs -%}
-  {%- set name = lang_names[lang][variant] if lang_names[lang] else lang -%}
+{%- set display = 'English' if LANG.startswith('en-') else 'native' -%}
+{%- for lang in translate_langs -%}
   {# Remove regional variants for the listing #}
-  {%- set par = name.find(' (') -%}
-  {%- set name = name[0:par] if par > 0 else name %}
-  <li data-lang="{{ lang }}"{% if variant == 'native' %} lang="{{ lang }}"{% endif %}>{{ name }}</li>
+  {%- set name = (lang_names[lang][display] if lang_names[lang] else lang).split(' (')[0] %}
+  <li data-lang="{{ lang }}"{% if display == 'native' %} lang="{{ lang }}"{% endif %}>{{ name }}</li>
 {%- endfor %}
 </ul>
 
