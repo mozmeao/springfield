@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from uuid import uuid4
+
 from django.core.exceptions import ValidationError
 
 from wagtail import blocks
@@ -154,6 +156,11 @@ class ButtonValue(blocks.StructValue):
         return link
 
 
+class UUIDBlock(blocks.CharBlock):
+    def clean(self, value):
+        return super().clean(value) or str(uuid4())
+
+
 class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
@@ -170,6 +177,9 @@ class BaseButtonSettings(blocks.StructBlock):
         default="right",
         label="Icon Position",
         inline_form=True,
+    )
+    analytics_id = UUIDBlock(
+        label="Analytics ID", help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.", required=False
     )
 
     class Meta:
@@ -293,6 +303,9 @@ class LinkBlock(blocks.StructBlock):
     link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
     page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
     external = blocks.BooleanBlock(required=False, default=False, label="External link")
+    analytics_id = UUIDBlock(
+        label="Analytics ID", help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.", required=False
+    )
 
     class Meta:
         label = "Link"
