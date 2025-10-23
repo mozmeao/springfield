@@ -595,6 +595,7 @@ def _fxa_product_button(
     include_metrics=True,
     optional_parameters=None,
     optional_attributes=None,
+    inner_html=None,  # override button_text with custom inner HTML
 ):
     href = _fxa_product_url(product_url, entrypoint, optional_parameters)
     css_class = "js-fxa-cta-link"
@@ -612,7 +613,7 @@ def _fxa_product_button(
     if class_name:
         css_class += f" {class_name}"
 
-    markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{button_text}</a>'
+    markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{inner_html if inner_html else button_text}</a>'
 
     return Markup(markup)
 
@@ -701,6 +702,7 @@ def fxa_button(
     include_metrics=True,
     optional_parameters=None,
     optional_attributes=None,
+    inner_html=None,  # override button_text with custom inner HTML
 ):
     """
     Render a accounts.firefox.com link with required params for Mozilla account authentication.
@@ -722,5 +724,13 @@ def fxa_button(
     optional_attributes = optional_attributes or {}
 
     return _fxa_product_button(
-        product_url, entrypoint, button_text, class_name, is_button_class, include_metrics, optional_parameters, optional_attributes
+        product_url=product_url,
+        entrypoint=entrypoint,
+        button_text=button_text,
+        class_name=class_name,
+        is_button_class=is_button_class,
+        include_metrics=include_metrics,
+        optional_parameters=optional_parameters,
+        optional_attributes=optional_attributes,
+        inner_html=inner_html,
     )
