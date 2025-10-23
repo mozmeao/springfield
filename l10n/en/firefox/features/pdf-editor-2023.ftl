@@ -24,3 +24,7 @@ pdf-editor-add-image-with-alt-text = Add image with alt text
 pdf-editor-open-pdf-click-image-icon = Open the PDF in { -brand-name-firefox }. Click the image icon, which will then prompt you to upload an image. Adjust size and placement of your image as needed. Click the “+Alt text” button on the image to add a photo description to make your PDF more accessible.
 pdf-editor-create-a-highlight = Create a highlight
 pdf-editor-select-text-you-want-to = Open the PDF in { -brand-name-firefox }. Select the text you want to highlight, then click the highlight icon that appears below your selection, or right click to find the highlight option in the context menu. Click the icon in the top right to freehand highlight sections of the PDF.
+pdf-editor-create-a-signature = Create a signature
+pdf-editor-click-the-signature-icon = Open the PDF in { -brand-name-firefox }. Click the signature icon and then click “Add new signature“. Choose between Type, Draw or Image, and click the Add button to insert. You can also save your signatures and use them again later.
+pdf-editor-add-a-comment = Add comments
+pdf-editor-click-the-comment-icon = Open the PDF in { -brand-name-firefox }. Create a highlight, then click the Comment icon that appears below your selection, type your comment, and click Add to save. Lots of comments in a PDF? Click the Comment icon in the top right to open the sidebar and jump to the one you need.
