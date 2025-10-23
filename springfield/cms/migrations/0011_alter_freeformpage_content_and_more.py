@@ -157,7 +157,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
@@ -577,7 +581,11 @@ class Migration(migrations.Migration):
                     13: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
-                        {"choices": [("secondary", "Secondary"), ("ghost", "Ghost")], "inline_form": True, "required": False},
+                        {
+                            "choices": [("secondary", "Secondary"), ("tertiary", "Tertiary"), ("ghost", "Ghost")],
+                            "inline_form": True,
+                            "required": False,
+                        },
                     ),
                     14: (
                         "wagtail.blocks.ChoiceBlock",
