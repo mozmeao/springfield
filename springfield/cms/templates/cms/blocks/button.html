@@ -9,7 +9,7 @@
 <include:button
   theme_class="{{ value.theme_class() }}"
   label="{{ value.label }}"
-  link="{{ value.url() }}"
+  link="{{ value.url()|add_utm_parameters }}"
   external="{{ value.settings.external }}"
   disabled=""
   icon_name="{{ value.settings.icon }}"
