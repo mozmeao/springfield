@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name="freeformpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 23), ("section", 59), ("subscription", 60), ("banner", 62)],
+                [("inline_notification", 7), ("intro", 25), ("section", 62), ("subscription", 63), ("banner", 65)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -169,28 +169,33 @@ class Migration(migrations.Migration):
                         {"choices": [("left", "Left"), ("right", "Right")], "inline_form": True, "label": "Icon Position"},
                     ),
                     15: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
-                    16: (
-                        "springfield.cms.blocks.UUIDBlock",
-                        (),
+                    16: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15)]], {}),
+                    17: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
+                    18: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
+                    19: ("wagtail.blocks.PageChooserBlock", (), {"label": "Choose a page or enter a URL above", "required": False}),
+                    20: ("wagtail.blocks.StructBlock", [[("settings", 16), ("label", 17), ("link", 18), ("page", 19)]], {}),
+                    21: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14)]], {}),
+                    22: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
                         {
-                            "help_text": "Unique identifier for analytics tracking. Leave blank to auto-generate.",
-                            "label": "Analytics ID",
-                            "required": False,
+                            "choices": [
+                                ("open_new_tab", "Open New Tab"),
+                                ("open_about_preferences", "Open Preferences"),
+                                ("open_about_preferences_general", "Open Preferences - General"),
+                                ("open_about_preferences_home", "Open Preferences - Home"),
+                                ("open_about_preferences_search", "Open Preferences - Search"),
+                                ("open_about_preferences_privacy", "Open Preferences - Privacy"),
+                                ("open_protections_report", "Open Protections Report"),
+                            ],
+                            "inline_form": True,
                         },
                     ),
-                    17: (
-                        "wagtail.blocks.StructBlock",
-                        [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15), ("analytics_id", 16)]],
-                        {},
-                    ),
-                    18: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
-                    19: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
-                    20: ("wagtail.blocks.PageChooserBlock", (), {"label": "Choose a page or enter a URL above", "required": False}),
-                    21: ("wagtail.blocks.StructBlock", [[("settings", 17), ("label", 18), ("link", 19), ("page", 20)]], {}),
-                    22: ("wagtail.blocks.ListBlock", (21,), {"default": [], "max_num": 2, "min_num": 0}),
-                    23: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 22)]], {}),
-                    24: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
-                    25: (
+                    23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 17)]], {}),
+                    24: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 2, "min_num": 0}),
+                    25: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 24)]], {}),
+                    26: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    27: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -201,10 +206,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    26: ("wagtail.blocks.StructBlock", [[("media_after", 25)]], {}),
-                    27: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
-                    28: ("wagtail.blocks.CharBlock", (), {}),
-                    29: (
+                    28: ("wagtail.blocks.StructBlock", [[("media_after", 27)]], {}),
+                    29: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
+                    30: ("wagtail.blocks.CharBlock", (), {}),
+                    31: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -274,13 +279,13 @@ class Migration(migrations.Migration):
                             ]
                         },
                     ),
-                    30: (
+                    32: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {"choices": [("before", "Before"), ("after", "After")], "inline_form": True, "label": "Icon Position"},
                     ),
-                    31: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
-                    32: (
+                    33: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
+                    34: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -296,30 +301,30 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    33: ("wagtail.blocks.StructBlock", [[("title", 28), ("icon", 29), ("icon_position", 30), ("corners", 31), ("color", 32)]], {}),
-                    34: ("wagtail.blocks.ListBlock", (33,), {"default": [], "max_num": 3, "min_num": 0}),
-                    35: (
+                    35: ("wagtail.blocks.StructBlock", [[("title", 30), ("icon", 31), ("icon_position", 32), ("corners", 33), ("color", 34)]], {}),
+                    36: ("wagtail.blocks.ListBlock", (35,), {"default": [], "max_num": 3, "min_num": 0}),
+                    37: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 26), ("image", 27), ("eyebrow", 11), ("headline", 6), ("tags", 34), ("content", 6), ("buttons", 22)]],
+                        [[("settings", 28), ("image", 29), ("eyebrow", 11), ("headline", 6), ("tags", 36), ("content", 6), ("buttons", 24)]],
                         {},
                     ),
-                    36: (
+                    38: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {"default": False, "help_text": "Expand the link click area to the whole card", "required": False},
                     ),
-                    37: ("wagtail.blocks.StructBlock", [[("expand_link", 36)]], {}),
-                    38: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
-                    39: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
-                    40: ("wagtail.blocks.ListBlock", (21,), {"default": [], "max_num": 1, "min_num": 0}),
-                    41: (
+                    39: ("wagtail.blocks.StructBlock", [[("expand_link", 38)]], {}),
+                    40: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
+                    41: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
+                    42: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 1, "min_num": 0}),
+                    43: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 37), ("image", 38), ("dark_image", 39), ("headline", 6), ("content", 6), ("buttons", 40)]],
+                        [[("settings", 39), ("image", 40), ("dark_image", 41), ("headline", 6), ("content", 6), ("buttons", 42)]],
                         {},
                     ),
-                    42: ("wagtail.blocks.ListBlock", (33,), {"max_num": 3, "min_num": 1}),
-                    43: ("wagtail.blocks.StructBlock", [[("tags", 42), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    44: (
+                    44: ("wagtail.blocks.ListBlock", (35,), {"max_num": 3, "min_num": 1}),
+                    45: ("wagtail.blocks.StructBlock", [[("tags", 44), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    46: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -390,8 +395,9 @@ class Migration(migrations.Migration):
                             "inline_form": True,
                         },
                     ),
-                    45: ("wagtail.blocks.StructBlock", [[("settings", 37), ("icon", 44), ("headline", 6), ("content", 6), ("button", 40)]], {}),
-                    46: (
+                    47: ("wagtail.blocks.ListBlock", (20,), {"default": [], "max_num": 1, "min_num": 0}),
+                    48: ("wagtail.blocks.StructBlock", [[("settings", 39), ("icon", 46), ("headline", 6), ("content", 6), ("button", 47)]], {}),
+                    49: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -402,21 +408,21 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    47: ("wagtail.blocks.StructBlock", [[("expand_link", 36), ("image_after", 46)]], {}),
-                    48: ("wagtail.blocks.StructBlock", [[("settings", 47), ("image", 27), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    49: ("wagtail.blocks.StreamBlock", [[("sticker_card", 41), ("tag_card", 43), ("icon_card", 45), ("illustration_card", 48)]], {}),
-                    50: ("wagtail.blocks.StructBlock", [[("cards", 49)]], {}),
-                    51: ("wagtail.blocks.StructBlock", [[("settings", 37), ("image", 38), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    52: ("wagtail.blocks.ListBlock", (51,), {}),
+                    50: ("wagtail.blocks.StructBlock", [[("expand_link", 38), ("image_after", 49)]], {}),
+                    51: ("wagtail.blocks.StructBlock", [[("settings", 50), ("image", 29), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    52: ("wagtail.blocks.StreamBlock", [[("sticker_card", 43), ("tag_card", 45), ("icon_card", 48), ("illustration_card", 51)]], {}),
                     53: ("wagtail.blocks.StructBlock", [[("cards", 52)]], {}),
-                    54: ("wagtail.blocks.StreamBlock", [[("media_content", 35), ("cards_list", 50), ("step_cards", 53)]], {}),
-                    55: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
-                    56: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
-                    57: ("wagtail.blocks.StructBlock", [[("label", 55), ("link", 19), ("page", 20), ("external", 56), ("analytics_id", 16)]], {}),
-                    58: ("wagtail.blocks.ListBlock", (57,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
-                    59: ("wagtail.blocks.StructBlock", [[("settings", 24), ("heading", 12), ("content", 54), ("cta", 58)]], {}),
-                    60: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    61: (
+                    54: ("wagtail.blocks.StructBlock", [[("settings", 39), ("image", 40), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    55: ("wagtail.blocks.ListBlock", (54,), {}),
+                    56: ("wagtail.blocks.StructBlock", [[("cards", 55)]], {}),
+                    57: ("wagtail.blocks.StreamBlock", [[("media_content", 37), ("cards_list", 53), ("step_cards", 56)]], {}),
+                    58: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
+                    59: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
+                    60: ("wagtail.blocks.StructBlock", [[("label", 58), ("link", 18), ("page", 19), ("external", 59)]], {}),
+                    61: ("wagtail.blocks.ListBlock", (60,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
+                    62: ("wagtail.blocks.StructBlock", [[("settings", 26), ("heading", 12), ("content", 57), ("cta", 61)]], {}),
+                    63: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
+                    64: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -425,9 +431,9 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    62: (
+                    65: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 24), ("image", 10), ("qr_code", 61), ("headline", 6), ("content", 6)]],
+                        [[("settings", 26), ("image", 10), ("qr_code", 64), ("headline", 6), ("content", 6)]],
                         {"group": "Banners"},
                     ),
                 },
@@ -437,7 +443,7 @@ class Migration(migrations.Migration):
             model_name="whatsnewpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 23), ("section", 59), ("subscription", 60), ("banner", 62)],
+                [("inline_notification", 7), ("intro", 25), ("section", 62), ("subscription", 63), ("banner", 65)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -587,28 +593,33 @@ class Migration(migrations.Migration):
                         {"choices": [("left", "Left"), ("right", "Right")], "inline_form": True, "label": "Icon Position"},
                     ),
                     15: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
-                    16: (
-                        "springfield.cms.blocks.UUIDBlock",
-                        (),
+                    16: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15)]], {}),
+                    17: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
+                    18: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
+                    19: ("wagtail.blocks.PageChooserBlock", (), {"label": "Choose a page or enter a URL above", "required": False}),
+                    20: ("wagtail.blocks.StructBlock", [[("settings", 16), ("label", 17), ("link", 18), ("page", 19)]], {}),
+                    21: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14)]], {}),
+                    22: (
+                        "wagtail.blocks.ChoiceBlock",
+                        [],
                         {
-                            "help_text": "Unique identifier for analytics tracking. Leave blank to auto-generate.",
-                            "label": "Analytics ID",
-                            "required": False,
+                            "choices": [
+                                ("open_new_tab", "Open New Tab"),
+                                ("open_about_preferences", "Open Preferences"),
+                                ("open_about_preferences_general", "Open Preferences - General"),
+                                ("open_about_preferences_home", "Open Preferences - Home"),
+                                ("open_about_preferences_search", "Open Preferences - Search"),
+                                ("open_about_preferences_privacy", "Open Preferences - Privacy"),
+                                ("open_protections_report", "Open Protections Report"),
+                            ],
+                            "inline_form": True,
                         },
                     ),
-                    17: (
-                        "wagtail.blocks.StructBlock",
-                        [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15), ("analytics_id", 16)]],
-                        {},
-                    ),
-                    18: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
-                    19: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
-                    20: ("wagtail.blocks.PageChooserBlock", (), {"label": "Choose a page or enter a URL above", "required": False}),
-                    21: ("wagtail.blocks.StructBlock", [[("settings", 17), ("label", 18), ("link", 19), ("page", 20)]], {}),
-                    22: ("wagtail.blocks.ListBlock", (21,), {"default": [], "max_num": 2, "min_num": 0}),
-                    23: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 22)]], {}),
-                    24: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
-                    25: (
+                    23: ("wagtail.blocks.StructBlock", [[("settings", 21), ("button_type", 22), ("label", 17)]], {}),
+                    24: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 2, "min_num": 0}),
+                    25: ("wagtail.blocks.StructBlock", [[("settings", 9), ("image", 10), ("heading", 12), ("buttons", 24)]], {}),
+                    26: ("wagtail.blocks.StructBlock", [[("show_to", 4)]], {}),
+                    27: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -619,10 +630,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    26: ("wagtail.blocks.StructBlock", [[("media_after", 25)]], {}),
-                    27: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
-                    28: ("wagtail.blocks.CharBlock", (), {}),
-                    29: (
+                    28: ("wagtail.blocks.StructBlock", [[("media_after", 27)]], {}),
+                    29: ("wagtail.images.blocks.ImageChooserBlock", (), {"inline_form": True}),
+                    30: ("wagtail.blocks.CharBlock", (), {}),
+                    31: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -692,13 +703,13 @@ class Migration(migrations.Migration):
                             ]
                         },
                     ),
-                    30: (
+                    32: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {"choices": [("before", "Before"), ("after", "After")], "inline_form": True, "label": "Icon Position"},
                     ),
-                    31: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
-                    32: (
+                    33: ("wagtail.blocks.ChoiceBlock", [], {"choices": [("round", "Round"), ("soft", "Soft")], "inline_form": True}),
+                    34: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -714,30 +725,30 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    33: ("wagtail.blocks.StructBlock", [[("title", 28), ("icon", 29), ("icon_position", 30), ("corners", 31), ("color", 32)]], {}),
-                    34: ("wagtail.blocks.ListBlock", (33,), {"default": [], "max_num": 3, "min_num": 0}),
-                    35: (
+                    35: ("wagtail.blocks.StructBlock", [[("title", 30), ("icon", 31), ("icon_position", 32), ("corners", 33), ("color", 34)]], {}),
+                    36: ("wagtail.blocks.ListBlock", (35,), {"default": [], "max_num": 3, "min_num": 0}),
+                    37: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 26), ("image", 27), ("eyebrow", 11), ("headline", 6), ("tags", 34), ("content", 6), ("buttons", 22)]],
+                        [[("settings", 28), ("image", 29), ("eyebrow", 11), ("headline", 6), ("tags", 36), ("content", 6), ("buttons", 24)]],
                         {},
                     ),
-                    36: (
+                    38: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {"default": False, "help_text": "Expand the link click area to the whole card", "required": False},
                     ),
-                    37: ("wagtail.blocks.StructBlock", [[("expand_link", 36)]], {}),
-                    38: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
-                    39: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
-                    40: ("wagtail.blocks.ListBlock", (21,), {"default": [], "max_num": 1, "min_num": 0}),
-                    41: (
+                    39: ("wagtail.blocks.StructBlock", [[("expand_link", 38)]], {}),
+                    40: ("wagtail.images.blocks.ImageChooserBlock", (), {}),
+                    41: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
+                    42: ("wagtail.blocks.StreamBlock", [[("button", 20), ("uitour_button", 23)]], {"label": "Buttons", "max_num": 1, "min_num": 0}),
+                    43: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 37), ("image", 38), ("dark_image", 39), ("headline", 6), ("content", 6), ("buttons", 40)]],
+                        [[("settings", 39), ("image", 40), ("dark_image", 41), ("headline", 6), ("content", 6), ("buttons", 42)]],
                         {},
                     ),
-                    42: ("wagtail.blocks.ListBlock", (33,), {"max_num": 3, "min_num": 1}),
-                    43: ("wagtail.blocks.StructBlock", [[("tags", 42), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    44: (
+                    44: ("wagtail.blocks.ListBlock", (35,), {"max_num": 3, "min_num": 1}),
+                    45: ("wagtail.blocks.StructBlock", [[("tags", 44), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    46: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -808,8 +819,9 @@ class Migration(migrations.Migration):
                             "inline_form": True,
                         },
                     ),
-                    45: ("wagtail.blocks.StructBlock", [[("settings", 37), ("icon", 44), ("headline", 6), ("content", 6), ("button", 40)]], {}),
-                    46: (
+                    47: ("wagtail.blocks.ListBlock", (20,), {"default": [], "max_num": 1, "min_num": 0}),
+                    48: ("wagtail.blocks.StructBlock", [[("settings", 39), ("icon", 46), ("headline", 6), ("content", 6), ("button", 47)]], {}),
+                    49: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -820,21 +832,21 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    47: ("wagtail.blocks.StructBlock", [[("expand_link", 36), ("image_after", 46)]], {}),
-                    48: ("wagtail.blocks.StructBlock", [[("settings", 47), ("image", 27), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    49: ("wagtail.blocks.StreamBlock", [[("sticker_card", 41), ("tag_card", 43), ("icon_card", 45), ("illustration_card", 48)]], {}),
-                    50: ("wagtail.blocks.StructBlock", [[("cards", 49)]], {}),
-                    51: ("wagtail.blocks.StructBlock", [[("settings", 37), ("image", 38), ("headline", 6), ("content", 6), ("buttons", 40)]], {}),
-                    52: ("wagtail.blocks.ListBlock", (51,), {}),
+                    50: ("wagtail.blocks.StructBlock", [[("expand_link", 38), ("image_after", 49)]], {}),
+                    51: ("wagtail.blocks.StructBlock", [[("settings", 50), ("image", 29), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    52: ("wagtail.blocks.StreamBlock", [[("sticker_card", 43), ("tag_card", 45), ("icon_card", 48), ("illustration_card", 51)]], {}),
                     53: ("wagtail.blocks.StructBlock", [[("cards", 52)]], {}),
-                    54: ("wagtail.blocks.StreamBlock", [[("media_content", 35), ("cards_list", 50), ("step_cards", 53)]], {}),
-                    55: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
-                    56: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
-                    57: ("wagtail.blocks.StructBlock", [[("label", 55), ("link", 19), ("page", 20), ("external", 56), ("analytics_id", 16)]], {}),
-                    58: ("wagtail.blocks.ListBlock", (57,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
-                    59: ("wagtail.blocks.StructBlock", [[("settings", 24), ("heading", 12), ("content", 54), ("cta", 58)]], {}),
-                    60: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
-                    61: (
+                    54: ("wagtail.blocks.StructBlock", [[("settings", 39), ("image", 40), ("headline", 6), ("content", 6), ("buttons", 42)]], {}),
+                    55: ("wagtail.blocks.ListBlock", (54,), {}),
+                    56: ("wagtail.blocks.StructBlock", [[("cards", 55)]], {}),
+                    57: ("wagtail.blocks.StreamBlock", [[("media_content", 37), ("cards_list", 53), ("step_cards", 56)]], {}),
+                    58: ("wagtail.blocks.CharBlock", (), {"label": "Link Text"}),
+                    59: ("wagtail.blocks.BooleanBlock", (), {"default": False, "label": "External link", "required": False}),
+                    60: ("wagtail.blocks.StructBlock", [[("label", 58), ("link", 18), ("page", 19), ("external", 59)]], {}),
+                    61: ("wagtail.blocks.ListBlock", (60,), {"default": [], "label": "Call to Action", "max_num": 1, "min_num": 0}),
+                    62: ("wagtail.blocks.StructBlock", [[("settings", 26), ("heading", 12), ("content", 57), ("cta", 61)]], {}),
+                    63: ("wagtail.blocks.StructBlock", [[("heading", 12)]], {"group": "Banners"}),
+                    64: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -843,9 +855,9 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    62: (
+                    65: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 24), ("image", 10), ("qr_code", 61), ("headline", 6), ("content", 6)]],
+                        [[("settings", 26), ("image", 10), ("qr_code", 64), ("headline", 6), ("content", 6)]],
                         {"group": "Banners"},
                     ),
                 },
