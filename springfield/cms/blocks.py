@@ -144,6 +144,7 @@ class ButtonValue(blocks.StructValue):
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
+            "tertiary": "button-tertiary",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
@@ -164,6 +165,7 @@ class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
+            ("tertiary", "Tertiary"),
             ("ghost", "Ghost"),
         ),
         required=False,
@@ -184,7 +186,7 @@ class BaseButtonSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
+        label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -445,6 +447,7 @@ def MediaContentBlock(allow_uitour=False):
             # help_text="Either an image or embed is required.",
             inline_form=True,
         )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # embed = EmbedBlock(
         #     required=False,
         #     help_text="Either an image or embed is required.",
@@ -459,7 +462,7 @@ def MediaContentBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
         )
 
         class Meta:
@@ -513,7 +516,7 @@ def StickerCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -539,7 +542,7 @@ def TagCardBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -611,12 +614,13 @@ def IllustrationCardBlock(allow_uitour=False):
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
         image = ImageChooserBlock(inline_form=True)
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -653,12 +657,13 @@ def StepCardBlock(allow_uitour=False):
     class _StepCardBlock(blocks.StructBlock):
         settings = StepCardSettings()
         image = ImageChooserBlock()
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=1, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, required=False, label="Buttons")
         )
 
         class Meta:
@@ -747,6 +752,7 @@ def IntroBlock(allow_uitour=False):
             required=False,
             # help_text="Either enter an image or embed, or leave both blank.",
         )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # TODO: re-enable the block when this issue with Wagtail Localize is resolved
         # https://github.com/wagtail/wagtail-localize/issues/875
         # embed = EmbedBlock(
@@ -760,7 +766,7 @@ def IntroBlock(allow_uitour=False):
         buttons = (
             MixedButtonsBlock(min_num=0, max_num=2, required=False)
             if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
+            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, required=False, label="Buttons")
         )
 
         class Meta:
@@ -830,6 +836,23 @@ class SubscriptionBlock(blocks.StructBlock):
 
 
 class BannerSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("outlined", "Outlined"),
+            ("filled", "Filled"),
+            ("filled-small", "Filled with Small Brand Image"),
+            ("filled-large", "Filled with Large Brand Image"),
+        ),
+        default="outlined",
+        inline_form=True,
+    )
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop.",
+    )
     show_to = blocks.ChoiceBlock(
         choices=CONDITIONAL_DISPLAY_CHOICES,
         default="all",
@@ -842,7 +865,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -853,10 +876,10 @@ class BannerBlock(blocks.StructBlock):
         required=False,
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    heading = HeadingBlock()
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, required=False)
 
     class Meta:
         template = "cms/blocks/sections/banner.html"
         label = "Banner"
-        label_format = "{headline}"
+        label_format = "{heading}"
