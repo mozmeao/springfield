@@ -122,16 +122,48 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         abstract = True
 
 
-FREEFORM_PAGE_BLOCKS = [
-    ("inline_notification", InlineNotificationBlock(group="Notifications")),
-    ("intro", IntroBlock()),
-    ("section", SectionBlock()),
-    ("subscription", SubscriptionBlock(group="Banners")),
-    ("banner", BannerBlock(group="Banners")),
-]
+def _get_freeform_page_blocks(allow_uitour=False):
+    """Factory function to create block list with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
+                      If False, only allows regular buttons.
+
+    Returns:
+        List of tuples containing block names and instances configured
+        with the appropriate button types.
+    """
+    return [
+        ("inline_notification", InlineNotificationBlock(group="Notifications")),
+        ("intro", IntroBlock(allow_uitour=allow_uitour)),
+        ("section", SectionBlock(allow_uitour=allow_uitour)),
+        ("subscription", SubscriptionBlock(group="Banners")),
+        ("banner", BannerBlock(group="Banners")),
+    ]
 
 
-class FreeFormPage(AbstractSpringfieldCMSPage):
+FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
+WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
+
+
+class FreeFormPageMixin:
+    def get_utm_campaign(self):
+        return self.slug
+
+    def get_utm_parameters(self):
+        return {
+            "utm_source": "www.firefox.com",
+            "utm_medium": "referral",
+            "utm_campaign": self.get_utm_campaign(),
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
+
+
+class FreeFormPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
     """A flexible page type that allows a variety of content blocks to be added."""
 
     content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
@@ -162,7 +194,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             return redirect("/")
 
 
-class WhatsNewPage(AbstractSpringfieldCMSPage):
+class WhatsNewPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -174,7 +206,7 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
         max_length=10,
         help_text="The version of Firefox this What's New page refers to.",
     )
-    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
+    content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
 
     content_panels = [
         FieldPanel("title"),
@@ -188,3 +220,6 @@ class WhatsNewPage(AbstractSpringfieldCMSPage):
         ]
         verbose_name = "What's New Page"
         verbose_name_plural = "What's New Pages"
+
+    def get_utm_campaign(self):
+        return f"whatsnew-{self.version}"

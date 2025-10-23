@@ -4,11 +4,10 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/free_form_page.html" %}
-
-{% block pre_content %}
-  <include:inline-notification
-    message="{{ ftl('whatsnew-update-notification') }}"
-    color="purple"
-  />
-{% endblock %}
+<include:uitour_button
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  disabled=""
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+/>
