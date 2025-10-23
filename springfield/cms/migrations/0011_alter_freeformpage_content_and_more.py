@@ -148,13 +148,14 @@ class Migration(migrations.Migration):
                     ),
                     9: ("wagtail.blocks.StructBlock", [[("media_position", 8)]], {}),
                     10: ("wagtail.images.blocks.ImageChooserBlock", (), {"required": False}),
-                    11: (
+                    11: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
+                    12: (
                         "wagtail.blocks.RichTextBlock",
                         (),
                         {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"], "required": False},
                     ),
-                    12: ("wagtail.blocks.StructBlock", [[("superheading_text", 11), ("heading_text", 6), ("subheading_text", 11)]], {}),
-                    13: (
+                    13: ("wagtail.blocks.StructBlock", [[("superheading_text", 12), ("heading_text", 6), ("subheading_text", 12)]], {}),
+                    14: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -163,12 +164,12 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    14: (
+                    15: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {"choices": [("left", "Left"), ("right", "Right")], "inline_form": True, "label": "Icon Position"},
                     ),
-                    15: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
+                    151: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
                     16: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15)]], {}),
                     17: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
                     18: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),
@@ -572,13 +573,14 @@ class Migration(migrations.Migration):
                     ),
                     9: ("wagtail.blocks.StructBlock", [[("media_position", 8)]], {}),
                     10: ("wagtail.images.blocks.ImageChooserBlock", (), {"required": False}),
-                    11: (
+                    11: ("wagtail.images.blocks.ImageChooserBlock", (), {"help_text": "Optional dark mode image", "required": False}),
+                    12: (
                         "wagtail.blocks.RichTextBlock",
                         (),
                         {"features": ["bold", "italic", "link", "superscript", "subscript", "strikethrough"], "required": False},
                     ),
-                    12: ("wagtail.blocks.StructBlock", [[("superheading_text", 11), ("heading_text", 6), ("subheading_text", 11)]], {}),
-                    13: (
+                    13: ("wagtail.blocks.StructBlock", [[("superheading_text", 12), ("heading_text", 6), ("subheading_text", 12)]], {}),
+                    14: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {
@@ -587,12 +589,12 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    14: (
+                    15: (
                         "wagtail.blocks.ChoiceBlock",
                         [],
                         {"choices": [("left", "Left"), ("right", "Right")], "inline_form": True, "label": "Icon Position"},
                     ),
-                    15: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
+                    151: ("wagtail.blocks.BooleanBlock", (), {"default": False, "inline_form": True, "label": "External link", "required": False}),
                     16: ("wagtail.blocks.StructBlock", [[("theme", 13), ("icon", 0), ("icon_position", 14), ("external", 15)]], {}),
                     17: ("wagtail.blocks.CharBlock", (), {"label": "Button Text"}),
                     18: ("wagtail.blocks.CharBlock", (), {"label": "Enter a URL or choose a page below", "required": False}),

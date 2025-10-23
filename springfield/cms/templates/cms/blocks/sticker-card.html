@@ -12,7 +12,12 @@
   {% if value.dark_image %}
     {% set img_dark=image(value.dark_image, 'width-400') %}
   {% endif %}
-  <img class="fl-card-sticker" src="{{ img.url }}" {% if img_dark %}data-dark-src="{{ img_dark.url }}"{% endif %} alt="" aria-hidden="true" />
+  <div class="light-dark-display">
+    <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
+    {% if img_dark %}
+      <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
+    {% endif %}
+  </div>
   <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
   <div class="body body-medium">{{ value.content }}</div>
   {% if value.buttons %}

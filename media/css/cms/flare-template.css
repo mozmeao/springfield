@@ -34,10 +34,6 @@
     text-decoration: none;
 }
 
-[data-theme="dark"] .fl-logo-fx {
-    background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-}
-
 @media (prefers-color-scheme: dark) {
     .fl-logo-fx {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
@@ -314,10 +310,6 @@
     grid-column: 2;
     grid-row: 1 / span 2;
     justify-self: end;
-}
-
-[data-theme="dark"] .fl-footer-logo {
-    background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
 }
 
 @media (prefers-color-scheme: dark) {
