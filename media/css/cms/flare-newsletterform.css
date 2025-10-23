@@ -20,7 +20,7 @@
 }
 
 .fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
-.fl-newsletterform.fl-newsletterform-expanded .button {
+.fl-newsletterform.fl-newsletterform-expanded .fl-button {
     width: 100%;
     margin-bottom: 0;
 }
@@ -30,7 +30,7 @@
     min-height: 50px;
 }
 
-.fl-newsletterform.fl-newsletterform-expanded .button {
+.fl-newsletterform.fl-newsletterform-expanded .fl-button {
     order: 3;
 }
 
@@ -64,10 +64,10 @@
 
 }
 
-.fl-section-subscribe .body,
-.fl-section-subscribe .heading,
+.fl-section-subscribe .fl-body,
+.fl-section-subscribe .fl-heading,
 .fl-section-subscribe .fl-superheading,
-.fl-section-subscribe .subheading {
+.fl-section-subscribe .fl-subheading {
     color: var(--neutrals-charcoal);
     margin-top: 0;
 }
@@ -127,12 +127,12 @@
     background: var(--neutrals-black);
 }
 
-.fl-section-subscribe .button {
+.fl-section-subscribe .fl-button {
     color: var(--neutrals-charcoal);
     border-color: var(--neutrals-charcoal);
 }
 
-.fl-section-subscribe .button:hover {
+.fl-section-subscribe .fl-button:hover {
     background: var(--neutrals-black);
     color: var(--neutrals-white);
 }
@@ -143,7 +143,7 @@
 }
 
 .fl-section-subscribe .fl-newsletterform-input,
-.fl-section-subscribe .button {
+.fl-section-subscribe .fl-button {
     padding: 12px 18px;
 }
 
@@ -160,7 +160,7 @@
         grid-template-columns: 1fr;
     }
 
-    .fl-section-subscribe .fl-newsletterform .button {
+    .fl-section-subscribe .fl-newsletterform .fl-button {
         width: 100%;
     }
 

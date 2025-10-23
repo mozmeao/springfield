@@ -1,0 +1,65 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-page">
+  <main class="fl-main">
+
+    {# Article content - now using markdown component #}
+    <div class="">
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:markdown content="{{ read_markdown_file(content_file)|markdown_safe }}" />
+        </div>
+      </section>
+    </div>
+
+    {# Related articles section #}
+    <div class="">
+      <section class="fl-section">
+        <div class="fl-section-container">
+
+          <include:heading
+            level="{{ related_section.heading.level }}"
+            heading_size="{{ related_section.heading.size }}"
+            heading_text="{{ related_section.heading.text }}"
+          />
+
+          <div class="fl-grid">
+            {% for article in related_articles %}
+              <article class="fl-card">
+                {% if article.image %}
+                  <include:image url="{{ article.image }}" alt="" />
+                {% endif %}
+
+                <p class="fl-superheading">{{ article.category }}</p>
+
+                <h3 class="fl-heading fl-heading-size-4">{{ article.title }}</h3>
+
+                {% if article.description %}
+                  <include:body_text text="{{ article.description }}" />
+                {% endif %}
+
+                <include:body_text text="{{ article.date }}" />
+
+                <div>
+                  {% for tag in article.tags %}
+                    <include:tag
+                      text="{{ tag.text }}"
+                      color="{{ tag.color }}"
+                      corners="round"
+                    />
+                  {% endfor %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+  </main>
+</div>

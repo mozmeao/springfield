@@ -4,16 +4,20 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<span class="tag tag-{{ color }} tag-{{ corners }}">
+<span class="fl-tag fl-tag-{{ color }} fl-tag-{{ corners }}">
   {% if before_icon %}
-  {% set icon_name = before_icon %}
-  {% set hidden = true %}
-  {% include "components/icon.html" %}
+    <include:icon
+      icon_name="{{ before_icon }}"
+      hidden=true
+      extra_class="icon-left"
+    />
   {% endif %}
   {{ text }}
   {% if after_icon %}
-  {% set icon_name = after_icon %}
-  {% set hidden = true %}
-  {% include "components/icon.html" %}
+    <include:icon
+      icon_name="{{ after_icon }}"
+      hidden=true
+      extra_class="icon-right"
+    />
   {% endif %}
 </span>

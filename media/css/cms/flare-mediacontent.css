@@ -30,7 +30,7 @@
     flex-wrap: wrap;
     gap: calc(var(--scale-8) * 1px);
 
-    .tag {
+    .fl-tag {
         margin: 0;
     }
 }
@@ -57,7 +57,7 @@
         padding: 0
     }
 
-    .fl-mediacontent-content .buttons {
+    .fl-mediacontent-content .fl-buttons {
         margin-top: calc(var(--scale-24) * 1px);
     }
 

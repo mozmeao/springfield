@@ -6,24 +6,24 @@
 
 {# props message, icon=None, color=None, inverted=False, closable=False #}
 
-<div class="notification-wrapper">
-  <div class="notification{% if color %} notification-{{ color }}{% endif %}">
+<div class="fl-notification-wrapper">
+  <div class="fl-notification{% if color %} fl-notification-{{ color }}{% endif %}">
     {% if icon %}
-      <div class="notification-icon-section{% if inverted %} notification-icon-inverted{% endif %}">
+      <div class="fl-notification-icon-section{% if inverted %} fl-notification-icon-inverted{% endif %}">
         <include:icon
           icon_name="{{ icon }}"
           hidden=true
-          extra_class="notification-icon" />
+          extra_class="fl-notification-icon" />
       </div>
     {% endif %}
-    <div class="notification-content">
+    <div class="fl-notification-content">
       <p>{{ message }}</p>
       {% if closable %}
-        <button class="notification-close" aria-label="Close notification">
+        <button class="fl-notification-close" aria-label="Close notification">
           <include:icon
             icon_name="close"
             hidden=true
-            extra_class="close-icon"
+            extra_class="fl-notification-close-icon"
           />
         </button>
       {% endif %}
