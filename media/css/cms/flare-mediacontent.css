@@ -99,11 +99,11 @@
     align-self: flex-start;
 }
 
-.fl-mediacontent-frame {
+.fl-mediacontent-media {
     overflow: hidden;
 }
 
-.fl-mediacontent-frame img {
+.fl-mediacontent-media img {
     display: block;
     width: 100%;
     height: auto;
