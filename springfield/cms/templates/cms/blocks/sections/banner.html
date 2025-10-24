@@ -63,7 +63,10 @@
 
     {% if value.settings.theme in ['filled-small', 'filled-large'] %}
       <content:brand>
-        <include:image url="/media/img/firefox/flare/fox-brand.png" alt="Firefox" />
+        <picture>
+          <source media="(min-width: 1024px)" srcset="/media/img/firefox/flare/fox-brand-740w.png">
+          <img src="/media/img/firefox/flare/fox-brand-400w.png" alt="Firefox">
+        </picture>
       </content:brand>
     {% endif %}
 

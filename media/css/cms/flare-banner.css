@@ -7,7 +7,7 @@
 .fl-banner {
     position: relative;
     border-radius: calc(var(--scale-16) * 1px);
-    padding: calc(var(--scale-48) * 1px);
+    padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
     overflow: hidden;
 }
 
@@ -184,6 +184,10 @@
     object-fit: contain;
 }
 
+.fl-banner-brand picture {
+    margin: 0;
+}
+
 .fl-banner-brand-top-left {
     top: 0;
     left: 0;
@@ -239,7 +243,7 @@
 
 @media (max-width: 767px) {
     .fl-banner-container {
-        padding: 0 calc(var(--scale-24) * 1px);
+        padding: calc(var(--scale-24) * 1px);
     }
 
     .fl-banner {
