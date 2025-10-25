@@ -16,12 +16,6 @@
                 "ignoreFunctions": ["local"]
             }
         ],
-        "font-family-no-missing-generic-family-keyword": [
-            true,
-            {
-                "ignoreFontFamilies": ["FA-Icons-Contact"]
-            }
-        ],
         "declaration-block-no-redundant-longhand-properties": [
             true,
             {
