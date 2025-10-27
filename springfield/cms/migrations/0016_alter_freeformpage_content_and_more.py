@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name="freeformpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 23), ("section", 60), ("subscription", 61), ("banner", 67)],
+                [("inline_notification", 7), ("intro", 24), ("section", 59), ("subscription", 60), ("banner", 66)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -445,19 +445,6 @@ class Migration(migrations.Migration):
                         },
                     ),
                     62: (
-                        "wagtail.blocks.ChoiceBlock",
-                        [],
-                        {
-                            "choices": [
-                                ("outlined", "Outlined"),
-                                ("filled", "Filled"),
-                                ("filled-small", "Filled with Small Brand Image"),
-                                ("filled-large", "Filled with Large Brand Image"),
-                            ],
-                            "inline_form": True,
-                        },
-                    ),
-                    63: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -468,8 +455,8 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    64: ("wagtail.blocks.StructBlock", [[("theme", 62), ("media_after", 63), ("show_to", 4)]], {}),
-                    65: (
+                    63: ("wagtail.blocks.StructBlock", [[("theme", 61), ("media_after", 62), ("show_to", 4)]], {}),
+                    64: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -478,10 +465,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    66: ("wagtail.blocks.ListBlock", (21,), {"max_num": 2, "min_num": 0}),
-                    67: (
+                    65: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0}),
+                    66: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 64), ("image", 10), ("qr_code", 65), ("heading", 12), ("buttons", 66)]],
+                        [[("settings", 63), ("image", 10), ("qr_code", 64), ("heading", 13), ("buttons", 65)]],
                         {"group": "Banners"},
                     ),
                 },
@@ -491,7 +478,7 @@ class Migration(migrations.Migration):
             model_name="whatsnewpage",
             name="content",
             field=wagtail.fields.StreamField(
-                [("inline_notification", 7), ("intro", 26), ("section", 63), ("subscription", 64), ("banner", 70)],
+                [("inline_notification", 7), ("intro", 27), ("section", 62), ("subscription", 63), ("banner", 69)],
                 block_lookup={
                     0: (
                         "wagtail.blocks.ChoiceBlock",
@@ -943,19 +930,6 @@ class Migration(migrations.Migration):
                         },
                     ),
                     65: (
-                        "wagtail.blocks.ChoiceBlock",
-                        [],
-                        {
-                            "choices": [
-                                ("outlined", "Outlined"),
-                                ("filled", "Filled"),
-                                ("filled-small", "Filled with Small Brand Image"),
-                                ("filled-large", "Filled with Large Brand Image"),
-                            ],
-                            "inline_form": True,
-                        },
-                    ),
-                    66: (
                         "wagtail.blocks.BooleanBlock",
                         (),
                         {
@@ -966,8 +940,8 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    67: ("wagtail.blocks.StructBlock", [[("theme", 65), ("media_after", 66), ("show_to", 4)]], {}),
-                    68: (
+                    66: ("wagtail.blocks.StructBlock", [[("theme", 64), ("media_after", 65), ("show_to", 4)]], {}),
+                    67: (
                         "wagtail.blocks.CharBlock",
                         (),
                         {
@@ -976,10 +950,10 @@ class Migration(migrations.Migration):
                             "required": False,
                         },
                     ),
-                    69: ("wagtail.blocks.ListBlock", (21,), {"max_num": 2, "min_num": 0}),
-                    70: (
+                    68: ("wagtail.blocks.ListBlock", (22,), {"max_num": 2, "min_num": 0}),
+                    69: (
                         "wagtail.blocks.StructBlock",
-                        [[("settings", 67), ("image", 10), ("qr_code", 68), ("heading", 12), ("buttons", 69)]],
+                        [[("settings", 66), ("image", 10), ("qr_code", 67), ("heading", 13), ("buttons", 68)]],
                         {"group": "Banners"},
                     ),
                 },
