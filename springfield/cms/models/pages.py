@@ -138,7 +138,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
         ("intro", IntroBlock(allow_uitour=allow_uitour)),
         ("section", SectionBlock(allow_uitour=allow_uitour)),
         ("subscription", SubscriptionBlock(group="Banners")),
-        ("banner", BannerBlock(group="Banners")),
+        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
     ]
 
 

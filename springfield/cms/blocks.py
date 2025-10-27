@@ -470,7 +470,7 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def MediaContentBlock(allow_uitour=False):
+def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create MediaContentBlock with appropriate button types.
 
     Args:
@@ -514,7 +514,7 @@ def MediaContentBlock(allow_uitour=False):
         #         )
         #     return cleaned_data
 
-    return _MediaContentBlock()
+    return _MediaContentBlock(*args, **kwargs)
 
 
 # Cards
@@ -535,7 +535,7 @@ class StickerCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def StickerCardBlock(allow_uitour=False):
+def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StickerCardBlock with appropriate button types.
 
     Args:
@@ -556,10 +556,10 @@ def StickerCardBlock(allow_uitour=False):
             label_format = "{headline}"
             template = "cms/blocks/sticker-card.html"
 
-    return _StickerCardBlock()
+    return _StickerCardBlock(*args, **kwargs)
 
 
-def TagCardBlock(allow_uitour=False):
+def TagCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create TagCardBlock with appropriate button types.
 
     Args:
@@ -578,7 +578,7 @@ def TagCardBlock(allow_uitour=False):
             label = "Tag Card"
             label_format = "Tag Card - {headline}"
 
-    return _TagCardBlock()
+    return _TagCardBlock(*args, **kwargs)
 
 
 class IconCardSettings(blocks.StructBlock):
@@ -631,7 +631,7 @@ class IllustrationCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def IllustrationCardBlock(allow_uitour=False):
+def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create IllustrationCardBlock with appropriate button types.
 
     Args:
@@ -651,7 +651,7 @@ def IllustrationCardBlock(allow_uitour=False):
             label = "Illustration Card"
             label_format = "{headline}"
 
-    return _IllustrationCardBlock()
+    return _IllustrationCardBlock(*args, **kwargs)
 
 
 class StepCardSettings(blocks.StructBlock):
@@ -669,7 +669,7 @@ class StepCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def StepCardBlock(allow_uitour=False):
+def StepCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardBlock with appropriate button types.
 
     Args:
@@ -689,10 +689,10 @@ def StepCardBlock(allow_uitour=False):
             label = "Step Card"
             label_format = "{headline}"
 
-    return _StepCardBlock()
+    return _StepCardBlock(*args, **kwargs)
 
 
-def CardsListBlock(allow_uitour=False):
+def CardsListBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
     Args:
@@ -715,10 +715,10 @@ def CardsListBlock(allow_uitour=False):
             label = "Cards List"
             label_format = "Cards List - {heading}"
 
-    return _CardsListBlock()
+    return _CardsListBlock(*args, **kwargs)
 
 
-def StepCardListBlock(allow_uitour=False):
+def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardListBlock with appropriate button types.
 
     Args:
@@ -734,7 +734,7 @@ def StepCardListBlock(allow_uitour=False):
             label = "Step Cards List"
             label_format = "Step Cards - {heading}"
 
-    return _StepCardListBlock()
+    return _StepCardListBlock(*args, **kwargs)
 
 
 # Section blocks
@@ -756,7 +756,7 @@ class IntroBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def IntroBlock(allow_uitour=False):
+def IntroBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create IntroBlock with appropriate button types.
 
     Args:
@@ -787,7 +787,7 @@ def IntroBlock(allow_uitour=False):
             label = "Intro"
             label_format = "{heading}"
 
-    return _IntroBlock()
+    return _IntroBlock(*args, **kwargs)
 
 
 class SectionBlockSettings(blocks.StructBlock):
@@ -807,7 +807,7 @@ class SectionBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def SectionBlock(allow_uitour=False):
+def SectionBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create SectionBlock with appropriate button types.
 
     Args:
@@ -832,7 +832,7 @@ def SectionBlock(allow_uitour=False):
             label = "Section"
             label_format = "{heading}"
 
-    return _SectionBlock()
+    return _SectionBlock(*args, **kwargs)
 
 
 # Banners
@@ -882,17 +882,22 @@ class BannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class BannerBlock(blocks.StructBlock):
-    settings = BannerSettings()
-    image = ImageChooserBlock(required=False)
-    qr_code = blocks.CharBlock(
-        required=False,
-        help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
-    )
-    heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+def BannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create BannerBlock with appropriate button types."""
 
-    class Meta:
-        template = "cms/blocks/sections/banner.html"
-        label = "Banner"
-        label_format = "{heading}"
+    class _BannerBlock(blocks.StructBlock):
+        settings = BannerSettings()
+        image = ImageChooserBlock(required=False)
+        qr_code = blocks.CharBlock(
+            required=False,
+            help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+        )
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+
+        class Meta:
+            template = "cms/blocks/sections/banner.html"
+            label = "Banner"
+            label_format = "{heading}"
+
+    return _BannerBlock(*args, **kwargs)
