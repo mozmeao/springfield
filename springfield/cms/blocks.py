@@ -144,6 +144,7 @@ class ButtonValue(blocks.StructValue):
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
+            "tertiary": "button-tertiary",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
@@ -164,6 +165,7 @@ class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
+            ("tertiary", "Tertiary"),
             ("ghost", "Ghost"),
         ),
         required=False,
@@ -834,6 +836,23 @@ class SubscriptionBlock(blocks.StructBlock):
 
 
 class BannerSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("outlined", "Outlined"),
+            ("filled", "Filled"),
+            ("filled-small", "Filled with Small Brand Image"),
+            ("filled-large", "Filled with Large Brand Image"),
+        ),
+        default="outlined",
+        inline_form=True,
+    )
+    media_after = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After",
+        inline_form=True,
+        help_text="Place media after text content on desktop.",
+    )
     show_to = blocks.ChoiceBlock(
         choices=CONDITIONAL_DISPLAY_CHOICES,
         default="all",
@@ -846,7 +865,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -857,10 +876,10 @@ class BannerBlock(blocks.StructBlock):
         required=False,
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    heading = HeadingBlock()
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
 
     class Meta:
         template = "cms/blocks/sections/banner.html"
         label = "Banner"
-        label_format = "{headline}"
+        label_format = "{heading}"
