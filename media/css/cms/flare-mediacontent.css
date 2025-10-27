@@ -16,6 +16,7 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
     border-radius: calc(var(--scale-16) * 1px);
     height: auto;
+    overflow: hidden;
 }
 
 .fl-mediacontent-content .heading,
@@ -97,10 +98,6 @@
 .fl-mediacontent .fl-button {
     margin-top: auto;
     align-self: flex-start;
-}
-
-.fl-mediacontent-media {
-    overflow: hidden;
 }
 
 .fl-mediacontent-media img {
