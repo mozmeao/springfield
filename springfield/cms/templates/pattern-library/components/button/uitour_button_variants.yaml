@@ -1,0 +1,31 @@
+name: "UI Tour Buttons"
+context:
+  buttons:
+    - label: "Open New Tab"
+      theme_class: ui-tour-open-new-tab
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Preferences"
+      theme_class: ui-tour-open-about-preferences
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Preferences - General"
+      theme_class: ui-tour-open-about-preferences-general
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Preferences - Home"
+      theme_class: ui-tour-open-about-preferences-home
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Preferences - Search"
+      theme_class: ui-tour-open-about-preferences-search
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Preferences - Privacy"
+      theme_class: ui-tour-open-about-preferences-privacy
+      icon_name: 'arrow-right'
+      icon_position: 'right'
+    - label: "Open Protections - Report"
+      theme_class: ui-tour-open-protections-report
+      icon_name: 'arrow-right'
+      icon_position: 'right'
