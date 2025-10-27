@@ -1,0 +1,10 @@
+name: "Firefox Account Button"
+context:
+    label: "Sign in to Firefox Account"
+    icon_name: 'arrow-right'
+    icon_position: 'right'
+    theme_class: "button-tertiary"
+    utm_parameters:
+        utm_source: "www.firefox.com"
+        utm_medium: "referral"
+        utm_campaign: "whatsnew-145"

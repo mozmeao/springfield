@@ -1,0 +1,58 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+
+{% set utm_parameters = utm_parameters or {
+  "utm_source": "www.firefox.com",
+  "utm_medium": "referral",
+  "utm_campaign": label.lower().replace(" ", "_"),
+} %}
+
+{% set entrypoint = utm_parameters.get("utm_source") ~ '-' ~ utm_parameters.get("utm_campaign") %}
+
+{% if icon_name %}
+  {% set inner_html %}
+    {% if icon_position == "left" %}
+      {% set extra_class = "icon-left" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+    {{ label }}
+    {% if icon_position == "right" %}
+      {% set extra_class = "icon-right" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+  {% endset %}
+{% endif %}
+
+{% set optional_attributes = None %}
+{% if analytics_text %}
+  {% set optional_attributes = {
+    'data-cta-text': analytics_text,
+    'data-cta-position': analytics_position,
+    'data-cta-uid': analytics_id,
+  } %}
+{% endif %}
+
+<div>
+  {{ fxa_button(
+    entrypoint=entrypoint,
+    button_text=label,
+    optional_parameters={
+      "utm_campaign": utm_parameters.get('utm_campaign'),
+    },
+    optional_attributes=optional_attributes,
+    class_name="button " ~ theme_class,
+    inner_html=inner_html if icon_name else null,
+  ) }}
+</div>
