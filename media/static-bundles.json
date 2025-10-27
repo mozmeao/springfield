@@ -124,6 +124,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/kit.scss"
+      ],
+      "name": "kit"
+    },
+    {
+      "files": [
         "css/csrf-failure.scss"
       ],
       "name": "csrf-failure"
