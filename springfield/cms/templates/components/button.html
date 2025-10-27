@@ -8,7 +8,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   <a class="button {{ theme_class }}" href="{{ link }}"
     {% if external %}target="_blank" rel="external noopener"{% endif %}
     {% if disabled %}disabled{% endif %}
-    {% if analytics %}
+    {% if analytics_text %}
       data-cta-position="{{ analytics_position }}"
       data-cta-text="{{ analytics_text }}"
       data-cta-uid="{{ analytics_id }}"

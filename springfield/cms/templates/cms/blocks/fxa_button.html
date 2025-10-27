@@ -12,43 +12,13 @@
   "utm_campaign": value.label.lower().replace(" ", "_"),
 } %}
 
-{% set entrypoint = utm_parameters.get("utm_source") ~ '-' ~ utm_parameters.get("utm_campaign") %}
-
-{% if value.settings.icon %}
-  {% set inner_html %}
-    {% if value.settings.icon_position == "left" %}
-      {% set extra_class = "icon-left" %}
-      <include:icon
-        icon_name="{{ value.settings.icon }}"
-        hidden=true
-        extra_class="{{ extra_class }}"
-      />
-    {% endif %}
-    {{ value.label }}
-    {% if value.settings.icon_position == "right" %}
-      {% set extra_class = "icon-right" %}
-      <include:icon
-        icon_name="{{ value.settings.icon }}"
-        hidden=true
-        extra_class="{{ extra_class }}"
-      />
-    {% endif %}
-  {% endset %}
-{% endif %}
-
-<div>
-  {{ fxa_button(
-    entrypoint=entrypoint,
-    button_text=value.label,
-    optional_parameters={
-      "utm_campaign": utm_parameters.get('utm_campaign'),
-    },
-    optional_attributes={
-      'data-cta-text': block_text,
-      'data-cta-position': block_position,
-      'data-cta-uid': value.settings.analytics_id,
-    },
-    class_name="button " ~ value.theme_class(),
-    inner_html=inner_html if value.settings.icon else null,
-  ) }}
-</div>
+<include:fxa_button
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+  utm_parameters="{{ utm_parameters }}"
+/>

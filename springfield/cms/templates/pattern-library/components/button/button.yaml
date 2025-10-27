@@ -1,9 +1,11 @@
 name: "Button"
 context:
-  center_class: ''
   theme_class: ''
   label: "Primary Button"
   link: "testurl"
   external: false
   icon_name: 'arrow-right'
   icon_position: 'right'
+  analytics_position: "section-1.button-1"
+  analytics_text: "Section Heading - Primary Button"
+  analytics_id: "button-123"
