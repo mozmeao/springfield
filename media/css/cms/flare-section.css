@@ -17,6 +17,10 @@
     gap: calc(var(--scale-40) * 1px);
 }
 
+.fl-page-blog .fl-section-container {
+    max-width: 700px;
+}
+
 @media (min-width: 1024px) {
     .fl-section-container {
         gap: calc(var(--scale-64) * 1px);

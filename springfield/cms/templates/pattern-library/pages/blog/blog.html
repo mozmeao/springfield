@@ -4,48 +4,52 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-page">
+<div class="fl-page fl-page-blog">
   <main class="fl-main">
-
-    {# Article content - now using markdown component #}
-    <div class="">
-      <section class="fl-section">
-        <div class="fl-section-container">
-          <include:markdown content="{{ read_markdown_file(content_file)|markdown_safe }}" />
-        </div>
-      </section>
-    </div>
-
-    {# Related articles section #}
-    <div class="">
-      <section class="fl-section">
-        <div class="fl-section-container">
-
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <div class="fl-blog-header">
+          <include:image url="{{ hero_image.url }}" alt="{{ hero_image.alt }}" />
           <include:heading
-            level="{{ related_section.heading.level }}"
-            heading_size="{{ related_section.heading.size }}"
-            heading_text="{{ related_section.heading.text }}"
+            level="h1"
+            heading_text="{{ title}}"
+            superheading_text="{{ category }}"
+            subheading_text="{{ description }}"
+            heading_size="fl-heading-size-1"
+            subheading_size="fl-subheading-5"
+            alignment_class="text-left"
           />
-
-          <div class="fl-grid">
-            {% for article in related_articles %}
-              <article class="fl-card">
-                {% if article.image %}
-                  <include:image url="{{ article.image }}" alt="" />
-                {% endif %}
-
-                <p class="fl-superheading">{{ article.category }}</p>
-
-                <h3 class="fl-heading fl-heading-size-4">{{ article.title }}</h3>
-
-                {% if article.description %}
-                  <include:body_text text="{{ article.description }}" />
-                {% endif %}
-
-                <include:body_text text="{{ article.date }}" />
-
-                <div>
-                  {% for tag in article.tags %}
+          <div class="fl-body fl-body-xsmall">
+            <a href="https://firefox.com">{{ author }}</a>
+            <p>{{ published_date }}</p>
+          </div>
+        </div>
+        <div class="fl-blog-content">
+          <include:rich_text content="{{ read_markdown_file(content_file)|markdown_safe }}" />
+        </div>
+        <div class="fl-blog-related-articles">
+        <include:heading
+          level="h2"
+          heading_text="Related Articles"
+          heading_size="fl-heading-size-2"
+          alignment_class="text-left"
+        />
+        {% for related_article in related_articles %}
+          <include:media-content media_after="true">
+            <content:heading>
+              <include:heading
+                level="h3"
+                superheading_text="{{ related_article.category }}"
+                heading_text="{{ related_article.title }}"
+                heading_size="fl-heading-size-4"
+                alignment_class="text-left"
+              />
+            </content:heading>
+            <content:body>
+              <p class="fl-body fl-body-xsmall">{{ related_article.date }}</p>
+              {% if related_article.tags %}
+                <div class="fl-mediacontent-tags">
+                  {% for tag in related_article.tags %}
                     <include:tag
                       text="{{ tag.text }}"
                       color="{{ tag.color }}"
@@ -53,13 +57,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
                     />
                   {% endfor %}
                 </div>
-              </article>
-            {% endfor %}
-          </div>
-
+              {% endif %}
+            </content:body>
+            {% if related_article.image %}
+              <content:media>
+                <include:image url="{{ related_article.image }}" alt="{{ related_article.title }}" />
+              </content:media>
+            {% endif %}
+          </include:media-content>
+        {% endfor %}
         </div>
-      </section>
-    </div>
-
+      </div>
+    </section>
   </main>
 </div>
