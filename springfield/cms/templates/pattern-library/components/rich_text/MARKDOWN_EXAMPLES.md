@@ -50,7 +50,11 @@ Tabulous firefoxy opensourceo browsium communitous:
 4. **Final step**: Tabulous extensify downloadus privacious developus
 5. **Optional step**: Secureum innovatum webulous extensium firefoxy
 
-> Blockquote example: Opensourceo tabulous firefoxy browsium extensify communitous mozillan. Downloadus privacious developus innovatum secureum webulous extensium tabular. Firefoxy opensourceo browsium communitous mozillan extensify tabulous.
+> Opensourceo tabulous firefoxy browsium extensify communitous mozillan.
+> Downloadus privacious developus innovatum secureum webulous extensium tabular.
+> Firefoxy opensourceo browsium communitous mozillan extensify tabulous.
+>
+> <footer>— Author Name, <cite>Source Title</cite></footer>
 
 ### Code Examples
 

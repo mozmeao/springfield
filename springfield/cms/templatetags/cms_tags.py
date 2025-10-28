@@ -108,7 +108,7 @@ def read_markdown_file(file_path: str) -> str:
     This allows markdown files to contain template syntax without Jinja2 trying to execute it.
 
     Usage in templates:
-        {{ read_markdown_file('components/markdown/MARKDOWN_EXAMPLES.md')|markdown_safe }}
+        {{ read_markdown_file('components/rich_text/MARKDOWN_EXAMPLES.md')|markdown_safe }}
 
     Args:
         file_path: Path to the markdown file relative to the pattern-library directory

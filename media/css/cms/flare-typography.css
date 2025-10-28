@@ -4,7 +4,7 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-heading, .fl-heading-group, .fl-markdown h1, .fl-markdown h2, .fl-markdown h3, .fl-markdown h4, .fl-markdown h5, .fl-markdown h6 {
+.fl-heading, .fl-heading-group, .fl-rich-text h1, .fl-rich-text h2, .fl-rich-text h3, .fl-rich-text h4, .fl-rich-text h5, .fl-rich-text h6 {
     font-family: var(--font-family-metropolis);
     font-weight: var(--font-weight-semibold);
     line-height: var(--line-height-base);
@@ -16,7 +16,7 @@
     font-size: var(--font-size-h1);
 }
 
-.fl-heading:first-child, .fl-heading-group:first-child, .fl-markdown h1:first-child, .fl-markdown h2:first-child, .fl-markdown h3:first-child, .fl-markdown h4:first-child, .fl-markdown h5:first-child, .fl-markdown h6:first-child {
+.fl-heading:first-child, .fl-heading-group:first-child, .fl-rich-text h1:first-child, .fl-rich-text h2:first-child, .fl-rich-text h3:first-child, .fl-rich-text h4:first-child, .fl-rich-text h5:first-child, .fl-rich-text h6:first-child {
     margin-top: 0; /* No top margin for the first heading */
 }
 
@@ -41,15 +41,15 @@
     margin-top: calc(var(--scale-8) * 1px);
 }
 
-.fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-markdown h1 { font-size: var(--font-size-h1); }
-.fl-heading h2, h2.fl-heading, .fl-heading-size-2, .fl-markdown h2 { font-size: var(--font-size-h2); }
-.fl-heading h3, h3.fl-heading, .fl-heading-size-3, .fl-markdown h3 { font-size: var(--font-size-h3); }
-.fl-heading h4, h4.fl-heading, .fl-heading-size-4, .fl-markdown h4 { font-size: var(--font-size-h4); }
-.fl-heading h5, h5.fl-heading, .fl-heading-size-5, .fl-markdown h5 { font-size: var(--font-size-h5); }
-.fl-heading h6, h6.fl-heading, .fl-heading-size-6, .fl-markdown h6 { font-size: var(--font-size-h6); }
+.fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 { font-size: var(--font-size-h1); }
+.fl-heading h2, h2.fl-heading, .fl-heading-size-2, .fl-rich-text h2 { font-size: var(--font-size-h2); }
+.fl-heading h3, h3.fl-heading, .fl-heading-size-3, .fl-rich-text h3 { font-size: var(--font-size-h3); }
+.fl-heading h4, h4.fl-heading, .fl-heading-size-4, .fl-rich-text h4 { font-size: var(--font-size-h4); }
+.fl-heading h5, h5.fl-heading, .fl-heading-size-5, .fl-rich-text h5 { font-size: var(--font-size-h5); }
+.fl-heading h6, h6.fl-heading, .fl-heading-size-6, .fl-rich-text h6 { font-size: var(--font-size-h6); }
 
 @media (max-width: 400px) {
-    .fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-markdown h1 { font-size: var(--font-size-h2); }
+    .fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 { font-size: var(--font-size-h2); }
 }
 
 .fl-subheading {
@@ -67,7 +67,7 @@
 .fl-subheading-4 { font-size: var(--font-size-subheading-4); }
 .fl-subheading-5 { font-size: var(--font-size-subheading-5); }
 
-.fl-body, .fl-markdown {
+.fl-body, .fl-rich-text {
     font-family: var(--font-family-inter);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-regular);
@@ -80,35 +80,35 @@
 .fl-body-small { font-size: var(--font-size-body-small); }
 .fl-body-xsmall { font-size: var(--font-size-body-xsmall); }
 
-.fl-body p, .fl-markdown p {
+.fl-body p, .fl-rich-text p {
     margin: 0 0 calc(var(--scale-16) * 1px);
 }
 
 @media (max-width: 767px) {
-    .fl-body, .fl-markdown {
+    .fl-body, .fl-rich-text {
         max-width: 60ch;
     }
 }
 
-/* Markdown component additional styles */
-.fl-markdown a {
+/* Rich text component additional styles */
+.fl-rich-text a {
     color: light-dark(var(--blue-blue), var(--blue-light-blue));
     text-decoration: underline;
 }
 
-.fl-markdown a:hover {
+.fl-rich-text a:hover {
     text-decoration: none;
 }
 
-.fl-markdown strong {
+.fl-rich-text strong {
     font-weight: var(--font-weight-bold);
 }
 
-.fl-markdown em {
+.fl-rich-text em {
     font-style: italic;
 }
 
-.fl-markdown code {
+.fl-rich-text code {
     font-family: monospace;
     font-size: 0.9em;
     background: light-dark(var(--neutrals-grey-3), var(--neutrals-charcoal));
@@ -117,7 +117,7 @@
     border-radius: calc(var(--border-radius-xs) * 1px);
 }
 
-.fl-markdown pre {
+.fl-rich-text pre {
     background: light-dark(var(--neutrals-grey-3), var(--neutrals-charcoal));
     color: light-dark(var(--neutrals-black), var(--neutrals-white));
     padding: calc(var(--scale-16) * 1px);
@@ -126,15 +126,15 @@
     margin: calc(var(--scale-16) * 1px) 0;
 }
 
-.fl-markdown pre code {
+.fl-rich-text pre code {
     background: none;
     color: inherit;
     padding: 0;
     border-radius: 0;
 }
 
-.fl-markdown ul,
-.fl-markdown ol {
+.fl-rich-text ul,
+.fl-rich-text ol {
     font-family: var(--font-family-inter);
     font-size: var(--font-size-base);
     line-height: var(--line-height-base);
@@ -143,11 +143,11 @@
     padding-left: calc(var(--scale-24) * 1px);
 }
 
-.fl-markdown li {
+.fl-rich-text li {
     margin-bottom: calc(var(--scale-8) * 1px);
 }
 
-.fl-markdown blockquote {
+.fl-rich-text blockquote {
     font-family: var(--font-family-inter);
     font-size: var(--font-size-base);
     line-height: var(--line-height-base);
@@ -157,13 +157,13 @@
     margin: calc(var(--scale-16) * 1px) 0;
 }
 
-.fl-markdown hr {
+.fl-rich-text hr {
     border: 0;
     border-top: 1px solid light-dark(var(--neutrals-grey-3), var(--neutrals-grey-6));
     margin: calc(var(--scale-24) * 1px) 0;
 }
 
-.fl-markdown img {
+.fl-rich-text img {
     max-width: 100%;
     height: auto;
     display: block;
