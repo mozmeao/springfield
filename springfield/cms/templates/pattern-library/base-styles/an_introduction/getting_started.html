@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-subheading {{ alignment_class }} {{ size }}">
-  <p>{{ subheading_text }}</p>
+<div class="pl-narrow-content">
+  <div class="pl-frame pl-frame--white">
+    <include:rich_text content="{{ read_markdown_file(file)|markdown_safe }}" />
+  </div>
 </div>

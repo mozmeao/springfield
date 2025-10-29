@@ -210,7 +210,7 @@ class BaseButtonSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
+        label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
         form_classname = "compact-form struct-block"
 
 

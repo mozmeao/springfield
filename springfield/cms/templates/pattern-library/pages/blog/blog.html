@@ -1,0 +1,73 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-page fl-page-blog">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <div class="fl-blog-header">
+          <include:image url="{{ hero_image.url }}" alt="{{ hero_image.alt }}" />
+          <include:heading
+            level="h1"
+            heading_text="{{ title}}"
+            superheading_text="{{ category }}"
+            subheading_text="{{ description }}"
+            heading_size="fl-heading-size-1"
+            subheading_size="fl-subheading-5"
+            alignment_class="text-left"
+          />
+          <div class="fl-body fl-body-xsmall">
+            <a href="{{ author_url }}">{{ author }}</a>
+            <p>{{ published_date }}</p>
+          </div>
+        </div>
+        <div class="fl-blog-content">
+          <include:rich_text content="{{ read_markdown_file(content_file)|markdown_safe }}" />
+        </div>
+        <div class="fl-blog-related-articles">
+        <include:heading
+          level="h2"
+          heading_text="Related Articles"
+          heading_size="fl-heading-size-2"
+          alignment_class="text-left"
+        />
+        {% for related_article in related_articles %}
+          <include:media-content media_after="true">
+            <content:heading>
+              <include:heading
+                level="h3"
+                superheading_text="{{ related_article.category }}"
+                heading_text="{{ related_article.title }}"
+                heading_size="fl-heading-size-4"
+                alignment_class="text-left"
+              />
+            </content:heading>
+            <content:body>
+              <p class="fl-body fl-body-xsmall">{{ related_article.date }}</p>
+              {% if related_article.tags %}
+                <div class="fl-mediacontent-tags">
+                  {% for tag in related_article.tags %}
+                    <include:tag
+                      text="{{ tag.text }}"
+                      color="{{ tag.color }}"
+                      corners="round"
+                    />
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </content:body>
+            {% if related_article.image %}
+              <content:media>
+                <include:image url="{{ related_article.image }}" alt="{{ related_article.title }}" />
+              </content:media>
+            {% endif %}
+          </include:media-content>
+        {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

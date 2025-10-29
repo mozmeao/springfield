@@ -5,7 +5,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <div class="">
-  <a class="button {{ theme_class }}" href="{{ link }}"
+  <a class="fl-button {{ theme_class }}" href="{{ link }}"
     {% if external %}target="_blank" rel="external noopener"{% endif %}
     {% if disabled %}disabled{% endif %}
     {% if analytics_text %}
@@ -15,7 +15,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endif %}
   >
     {% if icon_name and icon_position == "left" %}
-      {% set extra_class = "icon-left" %}
+      {% set extra_class = "fl-icon-left" %}
       <include:icon
         icon_name="{{ icon_name }}"
         hidden=true
@@ -24,7 +24,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endif %}
     {{ label }}
     {% if icon_name and icon_position == "right" %}
-      {% set extra_class = "icon-right" %}
+      {% set extra_class = "fl-icon-right" %}
       <include:icon
         icon_name="{{ icon_name }}"
         hidden=true

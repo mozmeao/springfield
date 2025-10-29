@@ -1,0 +1,53 @@
+name: "Blog Article Page"
+context:
+  content_file: "pages/blog/BLOG_CONTENT.md"
+
+  hero_image:
+    url: "/media/img/firefox/flare/placeholder-scene.png"
+    alt: "Placeholder alt text"
+
+  title: "How to get started on open-source development"
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis."
+  author: "Mozilla Team"
+  author_url: "https://www.mozilla.org"
+  published_date: "September 22 2025"
+
+  related_articles:
+    - category: "Extensify"
+      title: "Browsium downloadus privacious"
+      date: "Mozillan 22 2025"
+      tags:
+        - text: "Secureum"
+          color: "purple"
+        - text: "Tabulous"
+          color: "purple"
+
+    - category: "Firefoxy"
+      title: "Opensourceo communitous developus"
+      date: "Mozillan 22 2025"
+      tags:
+        - text: "Tabulous"
+          color: "purple"
+        - text: "Webulous"
+          color: "purple"
+        - text: "Extensify"
+          color: "purple"
+
+    - category: "Opensourceo"
+      title: "Tabulous firefoxy browsium extensify"
+      description: "Mozillan downloadus privacious communitous. Developus secureum innovatum webulous."
+      date: "Mozillan 22 2025"
+      image: /media/img/firefox/flare/placeholder.png
+      tags:
+        - text: "Communitous"
+          color: "purple"
+
+    - category: "Communitous"
+      title: "Mozillan extensify tabulous developus"
+      description: "Firefoxy browsium opensourceo downloadus. Privacious communitous extensium webulous innovatum."
+      date: "Mozillan 22 2025"
+      tags:
+        - text: "Developus"
+          color: "purple"
+        - text: "Opensourceo"
+          color: "purple"

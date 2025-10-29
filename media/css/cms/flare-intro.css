@@ -4,7 +4,7 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.intro {
+.fl-intro {
     text-align: center;
     font-family: var(--font-family-inter);
     background-color: light-dark(var(--neutrals-ash), var(--neutrals-black));
@@ -13,70 +13,77 @@
     margin: 0 auto;
 }
 
-.intro > * {
+.fl-intro > * {
     margin: 0 auto;
 }
 
-.intro-content {
+.fl-intro-content {
     max-width: 848px;
 }
 
-.intro-has-media {
+.fl-intro-has-media {
     display: flex;
     flex-direction: var(--layout-direction);
-    gap: 24px;
+    gap: calc(var(--scale-24) * 1px);
     text-align: var(--default-text-align);
 }
 
-.intro-has-media > * {
+.fl-intro-has-media > * {
     margin: 0;
 }
 
-.intro-content .buttons {
+.fl-intro-content .fl-buttons {
     justify-content: center;
 }
 
-.intro-has-media .intro-content .buttons {
+.fl-intro-has-media .fl-intro-content .fl-buttons {
     justify-content: var(--default-justify-content);
 }
 
-.intro-media-after .intro-content {
+.fl-intro-media-after .fl-intro-content {
     order: 0;
 }
 
-.intro-media-after .intro-media {
+.fl-intro-media-after .fl-intro-media {
     order: 1;
 }
 
-.intro-media-before .intro-media {
+.fl-intro-media-before .fl-intro-media {
     order: 0;
 }
 
-.intro-media-before .intro-content {
+.fl-intro-media-before .fl-intro-content {
     order: 1;
 }
 
-.intro-content .text {
-    padding: 24px 0 64px;
+.fl-intro-content .text {
+    padding: calc(var(--scale-24) * 1px) 0 calc(var(--scale-64) * 1px);
 }
 
-.intro-has-media > .intro-content,
-.intro-has-media > .intro-media {
+.fl-intro-has-media > .fl-intro-content,
+.fl-intro-has-media > .fl-intro-media {
     flex: 1 1 0;
 }
 
-.intro-media iframe {
+.fl-intro-media iframe {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
+
+}
+
+.intro-media img {
+    display: block;
+    width: 100%;
+    height: auto;
     border-radius: calc(var(--scale-16) * 1px);
 }
 
-.intro .heading-group {
+.fl-intro .fl-heading-group {
     margin-bottom: calc(var(--scale-24) * 1px);
 }
 
-.intro .subheading {
+.fl-intro .fl-subheading {
     margin-top: 0;
     margin-bottom: calc(var(--scale-64) * 1px);
     font-size: var(--font-size-base);

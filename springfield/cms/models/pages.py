@@ -7,7 +7,7 @@ from django.db import models
 from django.shortcuts import redirect
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
-from wagtail.fields import RichTextField, StreamField
+from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
@@ -17,6 +17,7 @@ from springfield.cms.blocks import (
     SectionBlock,
     SubscriptionBlock,
 )
+from springfield.cms.fields import StreamField
 
 from .base import AbstractSpringfieldCMSPage
 

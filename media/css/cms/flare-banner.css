@@ -21,11 +21,11 @@
     gap: calc(var(--scale-40) * 1px);
 }
 
-.fl-banner .heading, .fl-banner .subheading {
+.fl-banner .fl-heading, .fl-banner .fl-subheading {
     margin: 0;
 }
 
-.fl-banner .subheading {
+.fl-banner .fl-subheading {
     font-size: var(--font-size-subheading-5);
 }
 
@@ -42,15 +42,15 @@
     position: relative;
 }
 
-.fl-banner-filled .body-text {
+.fl-banner-filled .fl-body-text {
     color: var(--neutrals-white);
 }
 
-.fl-banner-filled .heading {
+.fl-banner-filled .fl-heading {
     color: var(--neutrals-white);
 }
 
-.fl-banner-filled .subheading {
+.fl-banner-filled .fl-subheading {
     color: var(--neutrals-white);
 }
 
@@ -58,33 +58,33 @@
     color: var(--neutrals-white);
 }
 
-.fl-banner-filled .button:not([class*="button-"]) {
+.fl-banner-filled .fl-button:not([class*="button-"]) {
     color: var(--neutrals-white);
     border-color: var(--neutrals-white);
 }
 
-.fl-banner-filled .button:not([class*="button-"]):hover,
-.fl-banner-filled .button:not([class*="button-"]):focus,
-.fl-banner-filled .button:not([class*="button-"]):active {
+.fl-banner-filled .fl-button:not([class*="button-"]):hover,
+.fl-banner-filled .fl-button:not([class*="button-"]):focus,
+.fl-banner-filled .fl-button:not([class*="button-"]):active {
     color: var(--purple-dark-purple);
     background-color: var(--neutrals-ash);
     border-color: var(--neutrals-charcoal);
 }
 
-.fl-banner-filled .button.button-ghost {
+.fl-banner-filled .fl-button.button-ghost {
     color: var(--neutrals-white);
 }
 
-.fl-banner-filled .button.button-ghost:hover,
-.fl-banner-filled .button.button-ghost:focus,
-.fl-banner-filled .button.button-ghost:active {
+.fl-banner-filled .fl-button.button-ghost:hover,
+.fl-banner-filled .fl-button.button-ghost:focus,
+.fl-banner-filled .fl-button.button-ghost:active {
     background: var(--neutrals-white);
     color: var(--purple-dark-purple);
 }
 
-.fl-banner-filled .button.button-secondary:hover,
-.fl-banner-filled .button.button-secondary:focus,
-.fl-banner-filled .button.button-secondary:active {
+.fl-banner-filled .fl-button.button-secondary:hover,
+.fl-banner-filled .fl-button.button-secondary:focus,
+.fl-banner-filled .fl-button.button-secondary:active {
     background: var(--blue-medium-blue);
     color: var(--neutrals-white);
 }
@@ -314,7 +314,7 @@
         gap: calc(var(--scale-64) * 1px);
     }
 
-    .fl-banner-container .heading-group {
+    .fl-banner-container .fl-heading-group {
         margin-bottom: 0;
     }
 
