@@ -488,6 +488,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             # help_text="Either an image or embed is required.",
             inline_form=True,
         )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # embed = EmbedBlock(
         #     required=False,
         #     help_text="Either an image or embed is required.",
@@ -642,6 +643,7 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
         image = ImageChooserBlock(inline_form=True)
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
@@ -680,6 +682,7 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
     class _StepCardBlock(blocks.StructBlock):
         settings = StepCardSettings()
         image = ImageChooserBlock()
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
@@ -770,6 +773,7 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             required=False,
             # help_text="Either enter an image or embed, or leave both blank.",
         )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # TODO: re-enable the block when this issue with Wagtail Localize is resolved
         # https://github.com/wagtail/wagtail-localize/issues/875
         # embed = EmbedBlock(
