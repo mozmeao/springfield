@@ -4,12 +4,11 @@
 
 from uuid import uuid4
 
-from django.core.exceptions import ValidationError
-
 from wagtail import blocks
 
 # from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail_link_block.blocks import LinkBlock
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -171,15 +170,6 @@ class BaseButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class ButtonValue(BaseButtonValue):
-    def url(self) -> str:
-        link = self.get("link")
-        page = self.get("page")
-        if page:
-            return page.url
-        return link
-
-
 class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
@@ -218,15 +208,14 @@ class ButtonSettings(BaseButtonSettings):
     external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
 
 
-class UITourButtonSettings(BaseButtonSettings):
+class ButtonValue(BaseButtonValue):
     pass
 
 
 class ButtonBlock(blocks.StructBlock):
     settings = ButtonSettings()
     label = blocks.CharBlock(label="Button Text")
-    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
-    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
+    link = LinkBlock()
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -234,30 +223,9 @@ class ButtonBlock(blocks.StructBlock):
         label_format = "Button - {label}"
         value_class = ButtonValue
 
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        if not cleaned_data.get("link") and not cleaned_data.get("page"):
-            raise ValidationError(
-                "Either a link or a page is required.",
-            )
-        if cleaned_data.get("link") and cleaned_data.get("page"):
-            raise ValidationError(
-                "Please provide either a link or a page, not both.",
-            )
-        if cleaned_data.get("page") and cleaned_data.get("settings", {}).get("external"):
-            raise ValidationError(
-                "External link option cannot be selected when a page is chosen.",
-            )
-        return cleaned_data
 
-
-class LinkValue(blocks.StructValue):
-    def url(self) -> str:
-        link = self.get("link")
-        page = self.get("page")
-        if page:
-            return page.url
-        return link
+class UITourButtonSettings(BaseButtonSettings):
+    pass
 
 
 class UITourButtonValue(ButtonValue):
@@ -339,31 +307,26 @@ def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **k
     )
 
 
-class LinkBlock(blocks.StructBlock):
-    label = blocks.CharBlock(label="Link Text")
-    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
-    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
-    external = blocks.BooleanBlock(required=False, default=False, label="External link")
+class CTASettings(blocks.StructBlock):
     analytics_id = UUIDBlock(
         label="Analytics ID", help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.", required=False
     )
 
     class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Analytics ID: {analytics_id}"
+        form_classname = "compact-form struct-block"
+
+
+class CTABlock(blocks.StructBlock):
+    label = blocks.CharBlock(label="Link Text")
+    link = LinkBlock()
+
+    class Meta:
         label = "Link"
         label_format = "Link - {label}"
-        value_class = LinkValue
-
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        if not cleaned_data.get("link") and not cleaned_data.get("page"):
-            raise ValidationError(
-                "Either a link or a page is required.",
-            )
-        if cleaned_data.get("link") and cleaned_data.get("page"):
-            raise ValidationError(
-                "Please provide either a link or a page, not both.",
-            )
-        return cleaned_data
 
 
 class TagBlock(blocks.StructBlock):
@@ -829,7 +792,7 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
             ]
         )
-        cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
         class Meta:
             template = "cms/blocks/sections/section.html"
