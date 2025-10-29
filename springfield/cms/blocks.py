@@ -204,16 +204,8 @@ class BaseButtonSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ButtonSettings(BaseButtonSettings):
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
-
-
-class ButtonValue(BaseButtonValue):
-    pass
-
-
 class ButtonBlock(blocks.StructBlock):
-    settings = ButtonSettings()
+    settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
     link = LinkBlock()
 
@@ -221,14 +213,10 @@ class ButtonBlock(blocks.StructBlock):
         template = "cms/blocks/button.html"
         label = "Button"
         label_format = "Button - {label}"
-        value_class = ButtonValue
+        value_class = BaseButtonValue
 
 
-class UITourButtonSettings(BaseButtonSettings):
-    pass
-
-
-class UITourButtonValue(ButtonValue):
+class UITourButtonValue(BaseButtonValue):
     def theme_class(self) -> str:
         """
         Give the button the appropriate CSS class, based on its button_type.
@@ -253,7 +241,7 @@ class UITourButtonValue(ButtonValue):
 
 
 class UITourButtonBlock(blocks.StructBlock):
-    settings = UITourButtonSettings()
+    settings = BaseButtonSettings()
     button_type = blocks.ChoiceBlock(
         default=UITOUR_BUTTON_NEW_TAB,
         choices=UITOUR_BUTTON_CHOICES,
@@ -268,12 +256,8 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
-class FAXButtonSettings(BaseButtonSettings):
-    pass
-
-
 class FXAccountButtonBlock(blocks.StructBlock):
-    settings = FAXButtonSettings()
+    settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
 
     class Meta:
