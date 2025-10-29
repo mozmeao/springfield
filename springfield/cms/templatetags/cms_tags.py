@@ -95,7 +95,7 @@ def markdown_safe(value: str) -> str:
         protected_content = protected_content.replace(f"__CODE_BLOCK_{i}__", code_block)
 
     # Convert to markdown
-    md = markdown.Markdown(extensions=["fenced_code", "codehilite"])
+    md = markdown.Markdown(extensions=["fenced_code", "codehilite", "toc"])
     html = md.convert(protected_content)
 
     return mark_safe(html)
