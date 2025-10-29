@@ -675,6 +675,12 @@
     },
     {
       "files": [
+        "js/base/video-play-state.es6.js"
+      ],
+      "name": "video_play_state"
+    },
+    {
+      "files": [
         "js/firefox/browsers/ios-summarizer.js"
       ],
       "name": "ios_summarizer"

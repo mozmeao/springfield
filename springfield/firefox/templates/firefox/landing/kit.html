@@ -48,7 +48,7 @@
     <div class="fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right fl-banner-brandsize-large " aria-labelledby="fl-banner-heading">
         <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
           <div class="media">
-            <button class="button c-animation-button" data-js-animation-state="paused">
+            <button class="button c-animation-button" data-js-video-state="playing">
               <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <title>{{ ftl('ui-play-animation')}}</title>
                 <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
@@ -59,10 +59,10 @@
                 <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
               </svg>
             </button>
-              <!-- TODO: performant animation, animation button -->
-                <video playsinline autoplay="true" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up@2x.png') }}">
-                  <source src="https://assets.mozilla.net/video/kit/pop-up.webm" type="video/webm">
-                </video>
+              <!-- TODO: performant animation -->
+              <video playsinline autoplay="true" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up@2x.png') }}">
+                <source src="https://assets.mozilla.net/video/kit/pop-up.webm" type="video/webm">
+              </video>
           </div>
         </div>
         <div class="fl-banner-layout">
@@ -113,4 +113,8 @@
     </section>
   </div>
 </main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('video_play_state') }}
 {% endblock %}
