@@ -19,57 +19,88 @@ video[autoplay] {
     animation: js-check-autoplay 0s;
 }
 
-// TODO: confirm approach, responsive styles, clean up absolute values
+// TODO: responsive styles, clean up absolute values
 // Kit styles (unlayered to override both flare and m24)
 main {
+    // TODO: better fallbacks
     // We need the casing to stay on X-LocaleSpecific
     /* stylelint-disable-next-line value-keyword-case */
     --title-font-family: 'Mozilla Headline Condensed', X-LocaleSpecific, serif;
     --purple-light-purple: #F1E7F8; // Figma Soft Purple
+    display: grid;
+    row-gap: 16px;
+    padding-block: 16px;
+
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
 
     h1, h2, p, ol {
     margin-bottom: 0;
 }
 
-    img {
+    img,
+    video {
         width: 100%;
         display: block;
     }
 }
 
 .fl-banner-container {
-    padding-block: 16px;
+    padding-block: 0; // page spacing controlled by main
 }
 
 .fl-banner {
-    --border-radius: 40px;
-    --padding-block: 80px;
-    padding-block: var(--padding-block); // TODO: increase with image at bottom
-    border-radius: var(--border-radius);
+    border-radius: 40px;
 
     @media (min-width: 768px) {
-        --border-radius: 128px;
-        --padding-block: 128px;
+        border-radius: 128px;
+    }
+
+    @media (min-width: 1024px) {
+        padding: 120px;
     }
 }
 
 .fl-banner-filled {
     --title-text-color: var(--neutrals-white);
 }
+// Match with when .fl-banner-content-centered is overridden and layout moves to 2
+@media (min-width: 1024px) {
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: subgrid;
+    }
+
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content-inner {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: subgrid;
+
+        > * {
+            grid-column: 1;
+        }
+    }
+
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .heading {
+        grid-column: 1 / -1;
+    }
+}
 
 .fl-banner .heading {
-    --font-size: 64px;
-    font-size: var(--font-size);
+    font-size: 64px;
     font-weight: 600;
     line-height: 0.9;
     letter-spacing: -0.6;
 
     @media (min-width: 768px) {
-        --font-size: 80px;
+        font-size: 80px;
     }
 
     @media (min-width: 1024px) {
-        --font-size: 128px;
+        font-size: 128px;
     }
 }
 
@@ -89,21 +120,21 @@ main {
     margin-inline: auto;
     padding-inline: 40px;
     width: 100%;
-    max-width: 1440px;
+    max-width: calc(var(--widths-viewport-wrapper-screen-2xl) * 1px);
+
+    // card gallery styles
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    grid-auto-flow: column;
-    padding-bottom: 16px;
 }
 
 .c-gallery-card {
-    --border-radius: 40px;
     --padding: 32px;
-    border-radius: var(--border-radius);
+    border-radius: 40px;
     padding-block-start: var(--padding);
     overflow: clip;
     display: grid;
+    align-items: start;
     grid-template-columns: [full-width-start] var(--padding) [text-start] 1fr [text-end] var(--padding) [full-width-end];
     row-gap: 70px;
 
@@ -114,13 +145,13 @@ main {
     }
 
     @media (min-width: 768px) {
-        --border-radius: 80px;
         --padding: 56px;
+        border-radius: 80px;
     }
 
     @media (min-width: 1024px) {
-        --border-radius: 128px;
         --padding: 80px;
+        border-radius: 128px;
     }
 }
 
@@ -214,45 +245,12 @@ main {
     main {
         /* Color tokens from Figma */
         --neutrals-white: #fff;
-        --neutrals-off-white: #fafafa;
-        --neutrals-ash: #f8f6f4;
-        --neutrals-gray-1: #f8f8f8;
-        --neutrals-grey-2: #f2f2f2;
-        --neutrals-grey-3: #dedede;
-        --neutrals-grey-4: #9d9d9d;
-        --neutrals-grey-5: #9d9d9d;
-        --neutrals-grey-6: #7c7c7c;
-        --neutrals-grey-7: #5b5b5b;
-        --neutrals-grey-8: #5B5B5B;
-        --neutrals-charcoal: #333336;
-        --neutrals-off-black: #161616;
-        --neutrals-black: #000;
-        --orange-orange: #ff8a50;
-        --orange-medium-orange: #ffb279;
-        --orange-light-orange: #ffcfa5;
-        --yellow-yellow: #ffea80;
-        --yellow-medium-yellow: #ffd567;
-        --yellow-dark-yellow: #FFBD4F;
-        --green-zilla-green: #00d230;
-        --blue-light-blue: #ccedfe;
-        --blue-blue: #00A6F9;
-        --blue-medium-blue: #0079d3;
-        --blue-dark-blue: #003c6e;
-        --blue-button: #0360df;
         --purple-purple: #754fe0;
         --purple-medium-purple: #d98dfa;
         --purple-dark-purple: #210340;
         --purple-light-purple: #dcd2ff;
-        --pink-power-pink: #ff97e2;
-        --functional-error: var(--orange-orange);
-        --functional-warning: var(--yellow-dark-yellow);
-        --dark-yellow-alert: var(--yellow-dark-yellow);
-        --functional-success: var(--green-zilla-green);
-        --functional-info-buttons: var(--blue-button);
 
         /* Gradients from Figma */
-        --gradient-earth-glow: linear-gradient(90deg, var(--blue-blue) 0%, var(--purple-purple) 100%);
-        --gradient-fox-fire: linear-gradient(90deg, var(var(--yellow-yellow)) 0%, var(--orange-orange) 100%);
         --gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--purple-purple) 0%, var(--purple-dark-purple) 100%);
 
         /* Scale variables from Figma */
@@ -283,27 +281,6 @@ main {
         --widths-content-container-content-2xl: 1280;
         --widths-viewport-wrapper-screen-2xl: 1440;
         --widths-viewport-wrapper-screen-2xl-min: 1025;
-
-        /* Typography from Figma */
-        --font-family-metropolis: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-        --font-family-inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-        --font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-        --font-weight-regular: 400;
-        --font-weight-medium: 500; /* Metropolis only */
-        --font-weight-semibold: 600;
-        --font-weight-bold: 700; /* Inter only */
-        --font-family-headline: var(--font-family-metropolis);
-        --font-weight-headline: var(--font-weight-semibold);
-        --font-family-subheader: var(--font-family-metropolis);
-        --font-weight-subheader: var(--font-weight-medium);
-        --font-family-body: var(--font-family-inter);
-        --font-weight-body: var(--font-weight-regular);
-        --font-family-link: var(--font-family-inter);
-        --font-weight-link: var(--font-weight-semibold);
-        --font-family-label: var(--font-family-inter);
-        --font-weight-label: var(--font-weight-medium);
-        --font-family-button: var(--font-family-metropolis);
-        --font-weight-button: var(--font-weight-medium);
 
         /* Font size variables NOT from Figma */
         --font-size-base: 16px;
@@ -348,15 +325,6 @@ main {
         --transition-fast: 0.15s ease;
         --transition-base: 0.2s ease;
         --transition-slow: 0.3s ease;
-
-        /* Dark mode support */
-        color-scheme: light dark;
-
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
     }
 
     /* CSS custom properties are not resolved in media queries; so we
@@ -399,12 +367,6 @@ main {
         font-size: var(--font-size-subheading-5);
     }
 
-    .fl-banner-outlined {
-        border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-        background: transparent;
-        color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    }
-
     .fl-banner-filled {
         background: var(--gradient-radial-purple);
         color: var(--neutrals-white);
@@ -412,50 +374,11 @@ main {
         position: relative;
     }
 
-    .fl-banner-filled .body-text {
-        color: var(--neutrals-white);
-    }
-
     .fl-banner-filled .heading {
         color: var(--neutrals-white);
     }
 
     .fl-banner-filled .subheading {
-        color: var(--neutrals-white);
-    }
-
-    .fl-banner-filled .fl-superheading {
-        color: var(--neutrals-white);
-    }
-
-    .fl-banner-filled .button:not([class*="button-"]) {
-        color: var(--neutrals-white);
-        border-color: var(--neutrals-white);
-    }
-
-    .fl-banner-filled .button:not([class*="button-"]):hover,
-    .fl-banner-filled .button:not([class*="button-"]):focus,
-    .fl-banner-filled .button:not([class*="button-"]):active {
-        color: var(--purple-dark-purple);
-        background-color: var(--neutrals-ash);
-        border-color: var(--neutrals-charcoal);
-    }
-
-    .fl-banner-filled .button.button-ghost {
-        color: var(--neutrals-white);
-    }
-
-    .fl-banner-filled .button.button-ghost:hover,
-    .fl-banner-filled .button.button-ghost:focus,
-    .fl-banner-filled .button.button-ghost:active {
-        background: var(--neutrals-white);
-        color: var(--purple-dark-purple);
-    }
-
-    .fl-banner-filled .button.button-secondary:hover,
-    .fl-banner-filled .button.button-secondary:focus,
-    .fl-banner-filled .button.button-secondary:active {
-        background: var(--blue-medium-blue);
         color: var(--neutrals-white);
     }
 
@@ -472,35 +395,6 @@ main {
         background-repeat: no-repeat;
     }
 
-    .fl-banner-media img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        border-radius: calc(var(--scale-16) * 1px);
-    }
-
-    .fl-banner-media-qr {
-        background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
-        background-size: contain;
-        align-items: flex-end;
-        padding: 0 calc(var(--scale-24) * 1px);
-        height: 338px;
-    }
-
-    .fl-banner-qr {
-        color: var(--neutrals-grey-8);
-        border-radius: calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0 0;
-        width: 200px;
-        height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        font-family: var(--font-family-body);
-        font-size: var(--font-size-base);
-        box-shadow: none;
-        padding: 10px 18px 0;
-    }
-
     .fl-banner-content {
         display: flex;
         flex-direction: column;
@@ -509,16 +403,10 @@ main {
         text-align: left;
     }
 
-
     .fl-banner-content-centered {
         text-align: center;
         align-items: center;
         margin: auto;
-    }
-
-    .fl-banner-content-centered .fl-banner-actions,
-    .fl-banner-content-centered .buttons {
-        justify-content: center;
     }
 
     .fl-banner-content-centered .fl-banner-content-inner {
@@ -532,12 +420,6 @@ main {
         gap: calc(var(--scale-16) * 1px);
     }
 
-
-    .fl-banner-actions {
-        margin-top: calc(var(--scale-24) * 1px);
-        display: flex;
-    }
-
     .fl-banner-brand {
         position: absolute;
         z-index: 0;
@@ -548,58 +430,9 @@ main {
         justify-content: center;
     }
 
-    .fl-banner-brand img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-
-    .fl-banner-brand picture {
-        margin: 0;
-    }
-
-    .fl-banner-brand-top-left {
-        top: 0;
-        left: 0;
-    }
-
-    .fl-banner-brand-top-right {
-        top: 0;
-        right: 0;
-    }
-
-    .fl-banner-brand-bottom-left {
-        bottom: 0;
-        left: 0;
-    }
-
     .fl-banner-brand-bottom-right {
         bottom: 0;
         right: 0;
-    }
-
-    .fl-banner-brand-top {
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .fl-banner-brand-bottom {
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .fl-banner-brand-left {
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .fl-banner-brand-right {
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
     }
 
     .fl-banner-layout {
@@ -628,12 +461,6 @@ main {
             align-items: center;
         }
 
-        .fl-banner-hasbrand-top-left,
-        .fl-banner-hasbrand-top-right,
-        .fl-banner-hasbrand-top {
-            padding-top: calc(var(--scale-200) * 1px);
-        }
-
         .fl-banner-hasbrand-bottom-left,
         .fl-banner-hasbrand-bottom-right,
         .fl-banner-hasbrand-bottom {
@@ -649,31 +476,9 @@ main {
         .fl-banner-media {
             min-height: 200px;
         }
-
-        .fl-banner-actions {
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .fl-banner-media-qr {
-            background-size: cover;
-        }
-
-        .fl-section-mobile .fl-banner {
-            padding: calc(var(--scale-24) * 1px);
-        }
-
-        .fl-section-mobile .fl-banner-media-qr {
-            padding: calc(var(--scale-24) * 1px) calc(var(--scale-24) * 1px) 0;
-        }
     }
 
     @media (min-width: 768px) and (max-width: 1023px) {
-        .fl-banner-brandsize-small .fl-banner-content-centered {
-            padding-bottom: calc(var(--scale-96) * 1px);
-        }
-
         .fl-banner-brandsize-large .fl-banner-content-centered {
             padding-bottom: calc(var(--scale-128) * 1px);
         }
@@ -682,48 +487,6 @@ main {
     @media (min-width: 1024px) {
         .fl-banner-container {
             gap: calc(var(--scale-64) * 1px);
-        }
-
-        .fl-banner-container .heading-group {
-            margin-bottom: 0;
-        }
-
-        .fl-banner-layout:has(.fl-banner-media) {
-            gap: calc(var(--scale-48) * 1px);
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .fl-banner-reverse .fl-banner-layout {
-            grid-auto-flow: dense;
-        }
-
-        .fl-banner-reverse .fl-banner-media {
-            order: 2;
-            grid-column: 2;
-        }
-
-        .fl-banner-reverse .fl-banner-content {
-            order: 1;
-            grid-column: 1;
-        }
-
-        .fl-banner-reverse.fl-banner-hasbrand-bottom {
-            padding-bottom: calc(var(--scale-200) * 1px);
-        }
-
-        .fl-banner-layout-qr {
-            grid-template-columns: 520px 1fr;
-            gap: calc(var(--scale-40) * 1px);
-        }
-
-        .fl-banner-layout-qr .fl-banner-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fl-banner-layout-qr .fl-banner-content-inner {
-            max-width: 340px;
         }
 
         .fl-banner-brandsize-large .fl-banner-brand {
@@ -736,32 +499,12 @@ main {
             gap: calc(var(--scale-48) * 1px);
         }
 
-        .fl-banner-brandsize-large.fl-banner-hasbrand-left .fl-banner-content,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-top-left .fl-banner-content,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-left .fl-banner-content {
-            grid-column: 2;
-            text-align: right;
-            align-items: flex-end;
-        }
-
-        .fl-banner-brandsize-large.fl-banner-hasbrand-left .fl-banner-actions,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-top-left .fl-banner-actions,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-left .fl-banner-actions {
-            justify-content: flex-end;
-        }
-
         .fl-banner-brandsize-large.fl-banner-hasbrand-right .fl-banner-content,
         .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-content,
         .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
             grid-column: 1;
             text-align: left;
             align-items: flex-start;
-        }
-
-        .fl-banner-brandsize-large.fl-banner-hasbrand-right .fl-banner-actions,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-actions,
-        .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-actions {
-            justify-content: flex-start;
         }
     }
 
@@ -795,10 +538,6 @@ main {
 
     .button .icon {
         vertical-align: middle;
-    }
-
-    .button .icon-left {
-        margin-right: 10px;
     }
 
     .button .icon-right {
