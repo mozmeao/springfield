@@ -2,6 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+// From https://github.com/mozilla/mozilla-type-family/blob/main/Mozilla%20Headline/Web%20Fonts/Condensed
+@font-face {
+    font-family: 'Mozilla Headline Condensed';
+    src: url('/media/fonts/mozilla-headline/MozillaHeadlineCondensed-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
 // supports js/base/video-prefers-reduced-motion.es6.js
 /* stylelint-disable block-no-empty  */
 @keyframes js-check-autoplay {}
@@ -13,6 +22,9 @@ video[autoplay] {
 // TODO: confirm approach, responsive styles, clean up absolute values
 // Kit styles (unlayered to override both flare and m24)
 main {
+    // We need the casing to stay on X-LocaleSpecific
+    /* stylelint-disable-next-line value-keyword-case */
+    --title-font-family: 'Mozilla Headline Condensed', X-LocaleSpecific, serif;
     --purple-light-purple: #F1E7F8; // Figma Soft Purple
 
     h1, h2, p, ol {
