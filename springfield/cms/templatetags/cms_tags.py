@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
+import markdown
 from bs4 import BeautifulSoup
 from django_jinja import library
 from jinja2 import pass_context
@@ -68,9 +69,6 @@ def markdown_safe(value: str) -> str:
     template syntax within code blocks. This is a workaround for django-jinja-markdown
     issues with code blocks containing template syntax.
     """
-    import re
-
-    import markdown
 
     # First, protect code blocks by replacing them with placeholders
     code_blocks = []
