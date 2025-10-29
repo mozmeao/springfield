@@ -313,14 +313,30 @@
         }
     }
 
+    function initNotificationClose() {
+        const closeButtons = document.querySelectorAll(
+            '.fl-notification-close'
+        );
+        closeButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const wrapper = btn.closest('.fl-notification-wrapper');
+                if (wrapper) {
+                    wrapper.remove();
+                }
+            });
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
             handleNewsletterSubmission();
+            initNotificationClose();
         });
     } else {
         initNewsletterForm();
         handleNewsletterSubmission();
+        initNotificationClose();
     }
 
     applyStoredTheme();
