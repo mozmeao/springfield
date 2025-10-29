@@ -1,0 +1,143 @@
+name: "What's New Page"
+context:
+  intro:
+    heading:
+      level: h1
+      heading_size: heading-size-1
+      heading_text: "Tabulous <b>extensium</b> firefoxy downloadus."
+      superheading_text: "What's New | Firefox 1xx"
+      subheading_text: "Privacious browsium extensify secureum tabular mobileous. Downloadus firefoxy communitous opensourceo developus innovatum webulous."
+      subheading_size: subheading-3
+      alignment_class: ''
+    media_position: 'after'
+    media:
+      url: /media/img/firefox/flare/placeholder.png
+      alt: placeholder-image
+      srcset: ""
+      sizes: ""
+      width: 800
+      height: 450
+
+  features_section:
+    heading:
+      level: h2
+      heading_size: heading-size-2
+      heading_text: "Browsium tabulous firefoxy extensium."
+      superheading_text: ""
+      subheading_text: "Mozillan developus communitous opensourceo secureum privacious webulous innovatum."
+      subheading_size: subheading-4
+      alignment_class: text-center
+    features:
+      - eyebrow: "Extensium Firefoxy"
+        heading:
+          level: h3
+          heading_size: heading-size-4
+          heading_text: "Communitous opensourceo downloadus tabulous."
+        body: '<p data-block-key="2yga4">Mozillan browsium privacious secureum extensium tabular developus. Innovatum webulous firefoxy mobileous communitous.</p><p data-block-key="cghic"></p><p data-block-key="5gg12">Downloadus opensourceo <a href="/en-US/test-pages/">tabulous extensify</a> privacious browsium firefoxy.</p>'
+        image:
+          url: /media/img/firefox/flare/placeholder.png
+          alt: placeholder-image
+          srcset: ""
+          sizes: ""
+          width: 800
+          height: 450
+        tags:
+          - text: "Opensourcio"
+            color: purple
+            before_icon: user
+        media_after: false
+      - eyebrow: "Mobileous Secureum"
+        heading:
+          level: h3
+          heading_size: heading-size-4
+          heading_text: "Innovatum webulous communitous extensify."
+        body: '<p data-block-key="fjyq9">Tabulous browsium firefoxy downloadus mozillan opensourceo. Privacious developus secureum extensium communitous innovatum tabular webulous browsium.</p>'
+        image:
+          url: /media/img/firefox/flare/placeholder.png
+          alt: placeholder-image
+          srcset: ""
+          sizes: ""
+          width: 800
+          height: 450
+        tags: []
+        media_after: true
+    cta:
+      text: "See Full Release Notes"
+      url: "https://www.mozilla.org/firefox/142.0/releasenotes/"
+
+  cards_section:
+    heading:
+      level: h2
+      heading_size: heading-size-2
+      heading_text: "Privacious browsium extensium firefoxy."
+      superheading_text: ""
+      subheading_text: "Tabulous communitous opensourceo developus mozillan webulous innovatum."
+      subheading_size: subheading-4
+      alignment_class: text-center
+    cards:
+      - sticker: /media/img/firefox/flare/vertical-tabs-sticker.svg
+        heading: "Communitous secureum developus extensify"
+        body: '<p data-block-key="73fix">Browsium tabular firefoxy mozillan opensourceo innovatum privacious downloadus extensium webulous.</p>'
+      - sticker: /media/img/firefox/flare/tab-wallpapers-sticker.svg
+        heading: "Downloadus innovatum opensourceo tabulous"
+        body: '<p data-block-key="73fix">Webulous communitous mozillan extensify secureum. Firefoxy browsium developus privacious tabular downloadus opensourceo innovatum.</p>'
+      - sticker: /media/img/firefox/flare/tab-groups-sticker.svg
+        heading: "Mozillan extensium privacious webulous"
+        body: '<p data-block-key="73fix">Opensourceo tabulous firefoxy communitous downloadus. Browsium innovatum developus secureum extensify tabular.</p>'
+
+  newsletter_section:
+    heading:
+      level: h2
+      heading_size: heading-size-2
+      heading_text: "Keep up with all things Firefox"
+      superheading_text: ""
+      subheading_text: "Get monthly how-tos, advice and news to make your Firefox experience work best for you."
+      subheading_size: subheading-4
+      alignment_class: text-center
+
+  mobile_section:
+    heading:
+      level: h2
+      heading_size: heading-size-2
+      heading_text: "Tabulous Downloadus Mobileous Firefoxy?"
+      superheading_text: ""
+      subheading_text: "Innovatum browsium communitous privacious opensourceo extensify developus webulous."
+      subheading_size: subheading-4
+      alignment_class: text-center
+    cards:
+      - tags:
+          - text: "Secureum"
+            color: purple
+            before_icon: shield
+          - text: "Android"
+            color: ""
+            before_icon: android
+        heading: "Opensourceo extensium tabular communitous"
+        body: '<p data-block-key="wab7o">Firefoxy browsium downloadus privacious mozillan developus webulous innovatum secureum tabulous.</p>'
+      - tags:
+          - text: "Webulous"
+            color: blue
+            before_icon: language
+          - text: "Android"
+            color: ""
+            before_icon: android
+        heading: "Privacious firefoxy communitous extensify"
+        body: '<p data-block-key="wab7o">Browsium tabulous developus mozillan opensourceo downloadus innovatum secureum webulous.</p>'
+      - tags:
+          - text: "Innovatum"
+            color: orange
+            before_icon: shield
+          - text: "iOS"
+            color: ""
+            before_icon: apple
+        heading: "Developus browsium opensourceo extensium"
+        body: '<p data-block-key="wab7o">Communitous firefoxy mozillan tabulous privacious downloadus secureum webulous extensify browsium.</p>'
+      - tags:
+          - text: "Extensify"
+            color: purple
+            before_icon: design
+          - text: "iOS"
+            color: ""
+            before_icon: apple
+        heading: "Webulous communitous downloadus privacious"
+        body: '<p data-block-key="wab7o">Mozillan opensourceo firefoxy browsium developus innovatum secureum tabulous extensium communitous.</p>'

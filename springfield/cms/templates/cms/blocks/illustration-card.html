@@ -6,9 +6,9 @@
 
 {% set block_text =  value.headline|richtext|remove_tags %}
 
-<article class="fl-card fl-card-fill fl-illustration-card {% if value.settings.image_after %}fl-illustration-card-reverse{% endif %} {% if value.settings.expand_link %}expand-link{% endif %}">
+<article class="fl-card fl-card-fill fl-illustration-card {% if value.settings.image_after %}fl-illustration-card-reverse{% endif %} {% if value.settings.expand_link %}fl-card-expand-link{% endif %}">
 
-  <div class="media">
+  <div class="fl-card-media">
     <div class="light-dark-display">
       {% if value.dark_image %}
         {{ srcset_image(
@@ -41,12 +41,12 @@
       </div>
   </div>
 
-  <div class="card-content">
+  <div class="fl-card-content">
     {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-    <{{ heading_level }} class="heading heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-    <div class="body">{{ value.content }}</div>
+    <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
+    <div class="fl-body">{{ value.content }}</div>
     {% if value.buttons %}
-      <div class="buttons">
+      <div class="fl-buttons">
         {% if value.buttons %}
             {% for button in value.buttons %}
               {% set block_position = block_position ~ ".button-" ~ loop.index %}

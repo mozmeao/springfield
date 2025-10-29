@@ -31,30 +31,30 @@
     background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
 }
 
-.fl-card .heading {
+.fl-card .fl-heading {
     margin: 0;
 }
 
-.fl-card .body {
+.fl-card .fl-body {
     text-align: left;
 }
 
-.fl-card .buttons {
+.fl-card .fl-buttons {
     margin-top: auto;
 }
 
-.fl-card.expand-link a.button::after, .fl-card.expand-link button::after {
+.fl-card.fl-card-expand-link a.fl-button::after, .fl-card.fl-card-expand-link button::after {
     position: absolute;
     inset: 0;
     z-index: 1;
     content: "";
 }
 
-.fl-card.expand-link:hover .heading {
+.fl-card.fl-card-expand-link:hover .fl-heading {
     text-decoration: underline;
 }
 
-.fl-card .button {
+.fl-card .fl-button {
     margin-top: auto;
     align-self: flex-start;
 }
@@ -74,12 +74,13 @@
     padding: 0;
 }
 
-.fl-illustration-card .media,
-.fl-illustration-card .media img {
+.fl-illustration-card .fl-card-media,
+.fl-illustration-card .fl-card-media img {
     width: 100%;
+    border-radius: calc(var(--scale-16) * 1px);
 }
 
-.fl-illustration-card .card-content {
+.fl-illustration-card .fl-card-content {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -92,14 +93,14 @@
     gap: 0;
 }
 
-.fl-illustration-card-reverse .media {
+.fl-illustration-card-reverse .fl-card-media {
     position: relative;
     order: 1;
     margin-top: calc(var(--scale-24) * -1px);
     z-index: 0;
 }
 
-.fl-illustration-card-reverse .card-content {
+.fl-illustration-card-reverse .fl-card-content {
     position: relative;
     order: 0;
     background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));

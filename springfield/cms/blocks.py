@@ -186,7 +186,7 @@ class BaseButtonSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Icon: {icon} - {icon_position}"
+        label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -877,7 +877,7 @@ class BannerBlock(blocks.StructBlock):
         help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
     )
     heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0)
+    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, required=False)
 
     class Meta:
         template = "cms/blocks/sections/banner.html"

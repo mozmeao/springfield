@@ -5,19 +5,19 @@
 #}
 
 {% if superheading_text or subheading_text %}
-  <hgroup class="heading-group {{ alignment_class }}">
+  <hgroup class="fl-heading-group {{ alignment_class }}">
     <span class="fl-superheading">
       {{ superheading_text }}
     </span>
-    <{{ level|default('h2') }} class="heading  {{ heading_size }}">
+    <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
       {{ heading_text }}
     </{{ level|default('h2') }}>
     {% if subheading_text %}
-      <p class="subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
+      <p class="fl-subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
     {% endif %}
   </hgroup>
 {% else %}
-  <{{ level|default('h2') }} class="heading {{ alignment_class }} {{ heading_size }}">
+  <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
     {{ heading_text }}
   </{{ level|default('h2') }}>
 {% endif %}
