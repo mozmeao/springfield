@@ -48,13 +48,18 @@
     <div class="fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right fl-banner-brandsize-large " aria-labelledby="fl-banner-heading">
         <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
           <div class="media">
-              <!-- TODO: performant animation, animation button, respects reduced motion with static img -->
-              <!-- {{ resp_img(
-                url="img/firefox/landing/kit/kit-pop-up.png",
-                srcset={
-                    "img/firefox/landing/kit/kit-pop-up@2x.png": "2x",
-                },
-              ) }} -->
+            <button class="button c-animation-button" data-js-animation-state="paused">
+              <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <title>{{ ftl('ui-play-animation')}}</title>
+                <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
+              </svg>
+              <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <title>{{ ftl('ui-pause-animation')}}</title>
+                <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
+                <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
+              </svg>
+            </button>
+              <!-- TODO: performant animation, animation button -->
                 <video playsinline autoplay="true" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up@2x.png') }}">
                   <source src="https://assets.mozilla.net/video/kit/pop-up.webm" type="video/webm">
                 </video>
@@ -79,7 +84,7 @@
   <div class="c-card-gallery">
     <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
       <div class="c-gallery-card-text-container">
-        <h2 id="heading-2" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
+        <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
         <ol>
           <li>{{ card_1_list_1 }}</li>
           <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>

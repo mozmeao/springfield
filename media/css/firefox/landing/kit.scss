@@ -27,6 +27,8 @@ main {
     /* stylelint-disable-next-line value-keyword-case */
     --title-font-family: 'Mozilla Headline Condensed', X-LocaleSpecific, serif;
     --purple-light-purple: #F1E7F8; // Figma Soft Purple
+    --figma-link-purple: #6132BC;
+    --figma-black-4: #15141A;
     display: grid;
     row-gap: 16px;
     padding-block: 16px;
@@ -44,6 +46,44 @@ main {
     video {
         width: 100%;
         display: block;
+    }
+}
+
+.c-animation-button {
+    background-color: var(--purple-light-purple);
+    color: var(--figma-black-4);
+    box-sizing: content-box;
+    padding: 4px;
+
+    &:hover,
+    &:focus {
+        background-color: var(--figma-link-purple);
+        color: var(--neutrals-white);
+    }
+
+    &:active {
+        background-color: var(--purple-dark-purple);
+        color: var(--neutrals-white);
+    }
+
+    &[data-js-animation-state="paused"] {
+        .c-animation-button-play {
+            display: block;
+        }
+
+        .c-animation-button-pause {
+            display: none;
+        }
+    }
+
+    &[data-js-animation-state="playing"] {
+        .c-animation-button-play {
+            display: none;
+        }
+
+        .c-animation-button-pause {
+            display: block;
+        }
     }
 }
 
@@ -66,6 +106,13 @@ main {
 .fl-banner-filled {
     --title-text-color: var(--neutrals-white);
 }
+
+.fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .c-animation-button {
+    position: absolute;
+    bottom: 30px;
+    right: 80px;
+}
+
 // Match with when .fl-banner-content-centered is overridden and layout moves to 2
 @media (min-width: 1024px) {
     .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
@@ -230,13 +277,19 @@ main {
 .button {
     text-decoration: none;
     /* stylelint-disable-next-line declaration-no-important */
-    color:  var(--neutrals-white) !important; // override all other states
+    color:  var(--neutrals-white);
     background-color: var(--purple-purple);
     border-radius: 40px;
 
     &:hover,
     &:focus {
-        background-color: var(--purple-medium-purple);
+        background-color: var(--purple-light-purple);
+        color: var(--purple-dark-purple)
+    }
+
+    &:active {
+        background-color: var(--purple-dark-purple);
+        color:  var(--neutrals-white);
     }
 }
 
