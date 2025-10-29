@@ -69,6 +69,13 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
+
+}
+
+.intro-media img {
+    display: block;
+    width: 100%;
+    height: auto;
     border-radius: calc(var(--scale-16) * 1px);
 }
 

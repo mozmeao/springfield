@@ -16,6 +16,7 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
     border-radius: calc(var(--scale-16) * 1px);
     height: auto;
+    overflow: hidden;
 }
 
 .fl-mediacontent-content .heading,
@@ -99,11 +100,7 @@
     align-self: flex-start;
 }
 
-.fl-mediacontent-frame {
-    overflow: hidden;
-}
-
-.fl-mediacontent-frame img {
+.fl-mediacontent-media img {
     display: block;
     width: 100%;
     height: auto;

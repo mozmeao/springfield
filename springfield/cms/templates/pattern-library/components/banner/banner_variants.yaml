@@ -82,7 +82,7 @@ context:
         heading_size: "heading-size-2"
       subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       brand_image:
-        url: "/media/img/firefox/flare/fox-brand.png"
+        url: "/media/img/firefox/flare/fox-brand.svg"
         alt: "Firefox"
       brand_image_position: "bottom-right"
       brand_image_size: "small"
@@ -102,7 +102,7 @@ context:
         heading_size: "heading-size-2"
       subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       brand_image:
-        url: "/media/img/firefox/flare/fox-brand.png"
+        url: "/media/img/firefox/flare/fox-brand.svg"
         alt: "Firefox"
       brand_image_position: "bottom-right"
       brand_image_size: "large"

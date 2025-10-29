@@ -77,6 +77,7 @@
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     width: 100%;
+    border-radius: calc(var(--scale-16) * 1px);
 }
 
 .fl-illustration-card .fl-card-content {

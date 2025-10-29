@@ -12,6 +12,7 @@
     vertical-align: middle;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
     mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: contain;
 }
 
 .fl-icon-ai { --icon-src: url('/media/img/firefox/flare/icons/ai.svg'); }
