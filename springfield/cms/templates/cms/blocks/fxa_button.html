@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text = block_text ~ " - " ~ value.label %}
+
+{% set utm_parameters = utm_parameters or {
+  "utm_source": "www.firefox.com",
+  "utm_medium": "referral",
+  "utm_campaign": value.label.lower().replace(" ", "_"),
+} %}
+
+<include:fxa_button
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+  utm_parameters="{{ utm_parameters }}"
+/>

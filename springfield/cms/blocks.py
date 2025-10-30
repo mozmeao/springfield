@@ -125,6 +125,11 @@ UITOUR_BUTTON_CHOICES = (
 )
 
 
+BUTTON_TYPE = "button"
+UITOUR_BUTTON_TYPE = "uitour_button"
+FXA_BUTTON_TYPE = "fxa_button"
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -139,7 +144,24 @@ class HeadingBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ButtonValue(blocks.StructValue):
+# Buttons
+
+
+def get_button_types(allow_uitour=False):
+    """Helper function to get button types based on allow_uitour flag.
+
+    Args:
+        allow_uitour: If True, includes UI Tour button type.
+
+    Returns:
+        List of button type strings.
+    """
+    if allow_uitour:
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE]
+
+
+class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
             "ghost": "button-ghost",
@@ -148,6 +170,8 @@ class ButtonValue(blocks.StructValue):
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
+
+class ButtonValue(BaseButtonValue):
     def url(self) -> str:
         link = self.get("link")
         page = self.get("page")
@@ -276,7 +300,22 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
-def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
+class FAXButtonSettings(BaseButtonSettings):
+    pass
+
+
+class FXAccountButtonBlock(blocks.StructBlock):
+    settings = FAXButtonSettings()
+    label = blocks.CharBlock(label="Button Text")
+
+    class Meta:
+        template = "cms/blocks/fxa_button.html"
+        label = "Firefox Account Button"
+        label_format = "Firefox Account Button"
+        value_class = BaseButtonValue
+
+
+def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **kwargs):
     """
     Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
 
@@ -285,11 +324,13 @@ def MixedButtonsBlock(min_num, max_num, *args, **kwargs):
     Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
     buttons, or up to 1 of each.
     """
+    button_blocks = {
+        BUTTON_TYPE: ButtonBlock(),
+        UITOUR_BUTTON_TYPE: UITourButtonBlock(),
+        FXA_BUTTON_TYPE: FXAccountButtonBlock(),
+    }
     return blocks.StreamBlock(
-        [
-            ("button", ButtonBlock()),
-            ("uitour_button", UITourButtonBlock()),
-        ],
+        [(button_type, button_blocks[button_type]) for button_type in button_types],
         max_num=max_num,
         min_num=min_num,
         label="Buttons",
@@ -429,7 +470,7 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def MediaContentBlock(allow_uitour=False):
+def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create MediaContentBlock with appropriate button types.
 
     Args:
@@ -459,11 +500,7 @@ def MediaContentBlock(allow_uitour=False):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
 
         class Meta:
             label = "Media + Content"
@@ -478,7 +515,7 @@ def MediaContentBlock(allow_uitour=False):
         #         )
         #     return cleaned_data
 
-    return _MediaContentBlock()
+    return _MediaContentBlock(*args, **kwargs)
 
 
 # Cards
@@ -499,7 +536,7 @@ class StickerCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def StickerCardBlock(allow_uitour=False):
+def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StickerCardBlock with appropriate button types.
 
     Args:
@@ -513,21 +550,17 @@ def StickerCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             label = "Sticker Card"
             label_format = "{headline}"
             template = "cms/blocks/sticker-card.html"
 
-    return _StickerCardBlock()
+    return _StickerCardBlock(*args, **kwargs)
 
 
-def TagCardBlock(allow_uitour=False):
+def TagCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create TagCardBlock with appropriate button types.
 
     Args:
@@ -539,18 +572,14 @@ def TagCardBlock(allow_uitour=False):
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/tag-card.html"
             label = "Tag Card"
             label_format = "Tag Card - {headline}"
 
-    return _TagCardBlock()
+    return _TagCardBlock(*args, **kwargs)
 
 
 class IconCardSettings(blocks.StructBlock):
@@ -603,7 +632,7 @@ class IllustrationCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def IllustrationCardBlock(allow_uitour=False):
+def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create IllustrationCardBlock with appropriate button types.
 
     Args:
@@ -617,18 +646,14 @@ def IllustrationCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/illustration-card.html"
             label = "Illustration Card"
             label_format = "{headline}"
 
-    return _IllustrationCardBlock()
+    return _IllustrationCardBlock(*args, **kwargs)
 
 
 class StepCardSettings(blocks.StructBlock):
@@ -646,7 +671,7 @@ class StepCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def StepCardBlock(allow_uitour=False):
+def StepCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardBlock with appropriate button types.
 
     Args:
@@ -660,21 +685,17 @@ def StepCardBlock(allow_uitour=False):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=1, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=1, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
 
         class Meta:
             template = "cms/blocks/step-card.html"
             label = "Step Card"
             label_format = "{headline}"
 
-    return _StepCardBlock()
+    return _StepCardBlock(*args, **kwargs)
 
 
-def CardsListBlock(allow_uitour=False):
+def CardsListBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
     Args:
@@ -697,10 +718,10 @@ def CardsListBlock(allow_uitour=False):
             label = "Cards List"
             label_format = "Cards List - {heading}"
 
-    return _CardsListBlock()
+    return _CardsListBlock(*args, **kwargs)
 
 
-def StepCardListBlock(allow_uitour=False):
+def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardListBlock with appropriate button types.
 
     Args:
@@ -716,7 +737,7 @@ def StepCardListBlock(allow_uitour=False):
             label = "Step Cards List"
             label_format = "Step Cards - {heading}"
 
-    return _StepCardListBlock()
+    return _StepCardListBlock(*args, **kwargs)
 
 
 # Section blocks
@@ -738,7 +759,7 @@ class IntroBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def IntroBlock(allow_uitour=False):
+def IntroBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create IntroBlock with appropriate button types.
 
     Args:
@@ -763,18 +784,14 @@ def IntroBlock(allow_uitour=False):
         #     help_text="Either enter an image or embed, or leave both blank.",
         # )
         heading = HeadingBlock()
-        buttons = (
-            MixedButtonsBlock(min_num=0, max_num=2, required=False)
-            if allow_uitour
-            else blocks.StreamBlock([("button", ButtonBlock())], min_num=0, max_num=2, label="Buttons")
-        )
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
 
         class Meta:
             template = "cms/blocks/sections/intro.html"
             label = "Intro"
             label_format = "{heading}"
 
-    return _IntroBlock()
+    return _IntroBlock(*args, **kwargs)
 
 
 class SectionBlockSettings(blocks.StructBlock):
@@ -794,7 +811,7 @@ class SectionBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def SectionBlock(allow_uitour=False):
+def SectionBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create SectionBlock with appropriate button types.
 
     Args:
@@ -819,7 +836,7 @@ def SectionBlock(allow_uitour=False):
             label = "Section"
             label_format = "{heading}"
 
-    return _SectionBlock()
+    return _SectionBlock(*args, **kwargs)
 
 
 # Banners
@@ -869,17 +886,22 @@ class BannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class BannerBlock(blocks.StructBlock):
-    settings = BannerSettings()
-    image = ImageChooserBlock(required=False)
-    qr_code = blocks.CharBlock(
-        required=False,
-        help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
-    )
-    heading = HeadingBlock()
-    buttons = blocks.ListBlock(ButtonBlock(), max_num=2, min_num=0, required=False)
+def BannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create BannerBlock with appropriate button types."""
 
-    class Meta:
-        template = "cms/blocks/sections/banner.html"
-        label = "Banner"
-        label_format = "{heading}"
+    class _BannerBlock(blocks.StructBlock):
+        settings = BannerSettings()
+        image = ImageChooserBlock(required=False)
+        qr_code = blocks.CharBlock(
+            required=False,
+            help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+        )
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+
+        class Meta:
+            template = "cms/blocks/sections/banner.html"
+            label = "Banner"
+            label_format = "{heading}"
+
+    return _BannerBlock(*args, **kwargs)
