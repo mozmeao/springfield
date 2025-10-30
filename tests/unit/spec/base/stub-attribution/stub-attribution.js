@@ -38,6 +38,10 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
+            spyOn(
+                Mozilla.StubAttribution,
+                'checkDataAndRequestAuth'
+            ).and.callThrough();
             spyOn(Mozilla.StubAttribution, 'requestAuthentication');
             spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
             spyOn(window.dataLayer, 'push');
@@ -76,7 +80,7 @@ describe('stub-attribution.js', function () {
             ).toHaveBeenCalledWith(cookieData);
         });
 
-        it('should authenticate attribution data if none exists', function () {
+        it('should authenticate attribution data if no session cookie exists', function () {
             spyOn(
                 Mozilla.StubAttribution,
                 'withinAttributionRate'
@@ -99,6 +103,9 @@ describe('stub-attribution.js', function () {
 
             Mozilla.StubAttribution.init();
 
+            expect(
+                Mozilla.StubAttribution.checkDataAndRequestAuth
+            ).toHaveBeenCalled();
             expect(
                 Mozilla.StubAttribution.requestAuthentication
             ).toHaveBeenCalledWith(data);
@@ -116,38 +123,11 @@ describe('stub-attribution.js', function () {
                 Mozilla.StubAttribution,
                 'withinAttributionRate'
             ).and.returnValue(true);
+            expect(
+                Mozilla.StubAttribution.checkDataAndRequestAuth
+            ).not.toHaveBeenCalled();
             spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
                 false
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-
-        it('should do nothing if session is not within sample rate', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(false);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
             );
             spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
                 true
@@ -176,6 +156,9 @@ describe('stub-attribution.js', function () {
                 Mozilla.StubAttribution,
                 'withinAttributionRate'
             ).and.returnValue(true);
+            expect(
+                Mozilla.StubAttribution.checkDataAndRequestAuth
+            ).not.toHaveBeenCalled();
             spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
                 true
             );
@@ -187,6 +170,110 @@ describe('stub-attribution.js', function () {
                 Mozilla.StubAttribution,
                 'isFirefoxDownloadThanks'
             ).and.returnValue(true);
+            spyOn(
+                Mozilla.StubAttribution,
+                'getAttributionData'
+            ).and.returnValue(data);
+            Mozilla.StubAttribution.init();
+            expect(
+                Mozilla.StubAttribution.requestAuthentication
+            ).not.toHaveBeenCalled();
+            expect(window.dataLayer.push).not.toHaveBeenCalled();
+            expect(
+                Mozilla.StubAttribution.updateBouncerLinks
+            ).not.toHaveBeenCalled();
+        });
+
+        it('should not waitForGoogleAnalytics when `omitNonEssentialFields=true` is passed', function () {
+            spyOn(
+                Mozilla.StubAttribution,
+                'withinAttributionRate'
+            ).and.returnValue(true);
+            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
+                true
+            );
+            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
+                true
+            );
+            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
+            spyOn(
+                Mozilla.StubAttribution,
+                'isFirefoxDownloadThanks'
+            ).and.returnValue(false);
+            spyOn(
+                Mozilla.StubAttribution,
+                'getAttributionData'
+            ).and.returnValue(data);
+            spyOn(
+                Mozilla.StubAttribution,
+                'waitForGoogleAnalyticsThen'
+            ).and.callThrough();
+
+            Mozilla.StubAttribution.init(null, null, true);
+
+            expect(
+                Mozilla.StubAttribution.waitForGoogleAnalyticsThen
+            ).not.toHaveBeenCalled();
+            expect(
+                Mozilla.StubAttribution.checkDataAndRequestAuth
+            ).toHaveBeenCalledWith(true);
+            expect(
+                Mozilla.StubAttribution.requestAuthentication
+            ).toHaveBeenCalledWith(data);
+            expect(window.dataLayer.push).not.toHaveBeenCalledWith({
+                event: 'stub_session_set',
+                id: STUB_SESSION_ID
+            });
+            expect(
+                Mozilla.StubAttribution.updateBouncerLinks
+            ).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('checkDataAndRequestAuth', function () {
+        let data = {};
+
+        beforeEach(function () {
+            data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: STUB_SESSION_ID
+            };
+
+            spyOn(
+                Mozilla.StubAttribution,
+                'checkDataAndRequestAuth'
+            ).and.callThrough();
+            spyOn(Mozilla.StubAttribution, 'requestAuthentication');
+            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
+            spyOn(window.dataLayer, 'push');
+
+            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
+                GA4_CLIENT_ID
+            );
+        });
+
+        it('should do nothing if session is not within sample rate', function () {
+            spyOn(
+                Mozilla.StubAttribution,
+                'withinAttributionRate'
+            ).and.returnValue(false);
+            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
+                true
+            );
+            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
+                true
+            );
+            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
+            spyOn(
+                Mozilla.StubAttribution,
+                'isFirefoxDownloadThanks'
+            ).and.returnValue(false);
             spyOn(
                 Mozilla.StubAttribution,
                 'getAttributionData'
