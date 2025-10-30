@@ -24,12 +24,14 @@ handler500 = "springfield.base.views.server_error_view"
 handler404 = "springfield.base.views.page_not_found_view"
 locale404 = "lib.l10n_utils.locale_selection"
 
+
 # Paths that should have a locale prefix
 urlpatterns = springfield_i18n_patterns(
     # Main pages
     path("", include("springfield.firefox.urls")),
     path("privacy/", include("springfield.privacy.urls")),
     path("", include("springfield.newsletter.urls")),
+    path("_documents/", include(wagtaildocs_urls)),
 )
 
 # Paths that must not have a locale prefix
@@ -39,7 +41,6 @@ urlpatterns += (
     path("healthz/", watchman_views.ping, name="watchman.ping"),
     path("readiness/", watchman_views.status, name="watchman.status"),
     path("healthz-cron/", base_views.cron_health_check),
-    path("_documents/", include(wagtaildocs_urls)),
 )
 
 if settings.DEV:
