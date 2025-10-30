@@ -106,7 +106,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: block;
 }
 
-/* The platform class is places on the html element and the signed-in state class is placed on the body element */
+/* The platform class is placed on the html element and the signed-in state class is placed on the body element */
 
 .windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
     display: block;
