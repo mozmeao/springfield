@@ -64,3 +64,54 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .light-dark-display:not(:has(.display-dark)) .display-light {
     display: block;
 }
+
+.conditional-display {
+    display: none;
+}
+
+.conditional-display.is-preview {
+    display: block;
+    border: red dashed 2px;
+    position: relative;
+}
+
+.conditional-display.is-preview .preview-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    z-index: 10;
+}
+
+.is-firefox .conditional-display.condition-is-firefox {
+    display: block;
+}
+
+.not-firefox .conditional-display.condition-not-firefox {
+    display: block;
+}
+
+.state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
+    display: block;
+}
+
+.state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
+    display: block;
+}
+
+.windows-10-plus .conditional-display.condition-windows-10-plus {
+    display: block;
+}
+
+/* The platform class is places on the html element and the signed-in state class is placed on the body element */
+
+.windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
+    display: block;
+}
+
+.windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
+    display: block;
+}

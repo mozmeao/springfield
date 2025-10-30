@@ -223,7 +223,7 @@ button, input, select, textarea {
 
 button, [role="button"] {
     display: inline-block;
-    padding: 16px 32px;
+    padding: 8px 12px;
     margin: 0 0 16px;
     margin: 0 0 1rem;
     cursor: pointer;
