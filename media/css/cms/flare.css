@@ -56,7 +56,6 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-section.css' layer(components);
 
 @import 'flare-utilities.css' layer(utilities);
-@import 'flare-conditional-display.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */
@@ -70,6 +69,7 @@ included via a <link> tag in a conditional comment */
     a custom webpack loader. */
     @import 'flare-base.css';
 
-    /* Utility classes are useful in the legacy stylesheet as well */
+    /* Icons and utility classes are useful in the legacy stylesheet as well */
+    @import 'flare-icon.css';
     @import 'flare-utilities.css';
 }
