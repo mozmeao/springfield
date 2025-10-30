@@ -6,7 +6,7 @@
 
 
 :root {
-    --notification-bg: light-dark(var(--blue-light-blue), var(--blue-light-blue));
+    --notification-bg: var(--blue-light-blue);
     --notification-color: var(--neutrals-charcoal);
 }
 

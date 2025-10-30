@@ -33,14 +33,14 @@
 }
 
 .fl-button.button-secondary {
-    background: light-dark(var(--functional-info-buttons), var(--functional-info-buttons));
-    color: light-dark(var(--neutrals-ash), var(--neutrals-ash));
+    background: var(--functional-info-buttons);
+    color: var(--neutrals-ash);
     border-width: 0;
 }
 
 .fl-button.button-secondary:hover, .fl-button.button-secondary:focus {
     background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
-    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+    color: var(--neutrals-white);
 }
 
 .fl-button.button-secondary:active {
@@ -49,19 +49,19 @@
 }
 
 .fl-button.button-tertiary {
-    background: light-dark(var(--purple-purple), var(--purple-purple));
-    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+    background: var(--purple-purple);
+    color: var(--neutrals-white);
     border-width: 0;
 }
 
 .fl-button.button-tertiary:hover, .fl-button.button-tertiary:focus {
-    background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
-    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+    background: var(--purple-medium-purple);
+    color: var(--neutrals-white);
 }
 
 .fl-button.button-tertiary:active {
-    background: light-dark(var(--purple-medium-purple), var(--purple-medium-purple));
-    color: light-dark(var(--neutrals-white), var(--neutrals-white));
+    background: var(--purple-medium-purple);
+    color: var(--neutrals-white);
 }
 
 .fl-button.button-ghost {
