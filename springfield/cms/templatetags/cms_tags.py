@@ -156,6 +156,7 @@ def richtext(context, value: str) -> str:
 
     for fxa_tag in soup.find_all("fxa"):
         label = fxa_tag.text
+        uid = fxa_tag.get("data-cta-uid", "")
         utm_parameters = context.get(
             "utm_parameters",
             {
@@ -164,15 +165,22 @@ def richtext(context, value: str) -> str:
             },
         )
         entrypoint = f"{utm_parameters.get('utm_source', '')}-{utm_parameters.get('utm_campaign', '')}"
+        optional_parameters = {
+            "utm_campaign": utm_parameters.get("utm_campaign", ""),
+        }
+        optional_attributes = {
+            "data-cta-uid": uid,
+            "data-cta-position": context.get("block_position", "") + "-fxa-link",
+            "data-cta-text": context.get("block_text", label),
+        }
         fxa_link = fxa_button(
             ctx=context,
             entrypoint=entrypoint,
             button_text=label,
             is_button_class=False,
             class_name="fxa-link",
-            optional_parameters={
-                "utm_campaign": utm_parameters.get("utm_campaign", ""),
-            },
+            optional_parameters=optional_parameters,
+            optional_attributes=optional_attributes,
         )
         fxa_tag.replace_with(BeautifulSoup(fxa_link, "html.parser"))
 
