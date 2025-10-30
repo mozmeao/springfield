@@ -105,7 +105,8 @@
     border-radius: 0 calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0;
 }
 
-.fl-notification-content p {
+.fl-notification-content .fl-notification-message {
+    display: block;
     margin: 0;
     font-family: var(--font-family-body);
     font-size: var(--font-size-body-xsmall);
