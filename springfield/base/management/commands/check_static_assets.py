@@ -234,7 +234,7 @@ class Command(BaseCommand):
 
         # Disallow nested paths beyond "/" to avoid surprising base URLs.
         cleaned_path = parsed.path.rstrip("/")
-        if cleaned_path and cleaned_path != "":
+        if isinstance(cleaned_path, str) and cleaned_path:
             raise CommandError(f"--{option_name} must not include a path component: '{parsed.path}'")
 
         normalized = f"{parsed.scheme}://{parsed.netloc}"
