@@ -19,6 +19,7 @@ from django.utils.functional import cached_property
 
 import bleach
 import markdown
+from bs4 import BeautifulSoup
 from django_extensions.db.fields.json import JSONField
 from markdown.extensions import Extension
 from markdown.inlinepatterns import InlineProcessor
@@ -109,6 +110,7 @@ ALLOWED_ATTRS = {
     ],
     "video": [
         "autoplay",
+        "class",
         "controls",
         "loop",
         "muted",
@@ -121,9 +123,43 @@ ALLOWED_ATTRS = {
 }
 
 
+HTML_PATCHING = {
+    # a map of tags to target, an attribute to add, replace or delete and the value for that attribute, if adding or patching
+    "video": {
+        "attribute": "class",
+        "action": "add",
+        "value": "ga-video-engagement",
+    },
+}
+
+
+def _patch_html(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    for tag, patch in HTML_PATCHING.items():
+        for element in soup.find_all(tag):
+            action = patch["action"]
+            attr = patch["attribute"]
+            value = patch.get("value")
+            if action == "add":
+                existing_classes = element.get(attr, "")
+                if isinstance(existing_classes, list):
+                    classes = set(existing_classes)
+                else:
+                    classes = set(existing_classes.split())
+                classes.add(value)
+                element[attr] = " ".join(classes)
+            elif action == "replace":
+                element[attr] = value
+            elif action == "delete":
+                if attr in element.attrs:
+                    del element[attr]
+    return str(soup)
+
+
 def process_markdown(value):
     rendered_html = markdowner.reset().convert(value)
-    return bleach.clean(rendered_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS)
+    patched_html = _patch_html(rendered_html)
+    return bleach.clean(patched_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS)
 
 
 def process_notes(notes):
