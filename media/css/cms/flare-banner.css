@@ -42,6 +42,19 @@
     position: relative;
 }
 
+.fl-banner-filled::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/media/img/firefox/flare/noise-filter.svg');
+    background-size: 600px 600px;
+    background-repeat: repeat;
+    opacity: 0.3;
+    mix-blend-mode: normal;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
 .fl-banner-filled .fl-body-text {
     color: var(--neutrals-white);
 }
