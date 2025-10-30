@@ -21,7 +21,6 @@ from django.core.management.base import BaseCommand, CommandError
 
 import requests
 
-DEFAULT_MANIFEST_NAME = "staticfiles.json"
 DEFAULT_TIMEOUT = 10
 # Default concurrency keeps load manageable when probing cold CDN caches or direct origin checks
 DEFAULT_MAX_WORKERS = 8
@@ -57,8 +56,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--manifest-path",
-            default=None,
-            help=(f"Path to the staticfiles manifest. Defaults to <STATIC_ROOT>/{DEFAULT_MANIFEST_NAME}"),
+            required=True,
+            help="Path to the staticfiles manifest generated for the deployed release.",
         )
         parser.add_argument(
             "--timeout",
@@ -158,12 +157,8 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("All assets verified successfully."))
 
-    def _resolve_manifest_path(self, manifest_option: str | None) -> Path:
-        if manifest_option:
-            manifest_path = Path(manifest_option)
-        else:
-            manifest_path = Path(settings.STATIC_ROOT) / DEFAULT_MANIFEST_NAME
-
+    def _resolve_manifest_path(self, manifest_option: str) -> Path:
+        manifest_path = Path(manifest_option)
         if not manifest_path.is_file():
             raise CommandError(f"Manifest file not found at {manifest_path}")
 

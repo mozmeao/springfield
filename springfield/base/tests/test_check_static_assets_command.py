@@ -260,6 +260,7 @@ def test_handle_reports_failures(monkeypatch, tmp_path, settings, capsys):
         command.handle(
             origin_host="https://origin.example.com",
             cdn_host="https://cdn.example.com",
+            manifest_path=str(manifest_path),
         )
 
     assert "Asset availability check detected 3 failures" in str(excinfo.value)
@@ -310,6 +311,7 @@ def test_handle_respects_skip_patterns(monkeypatch, tmp_path, settings, capsys):
     command.handle(
         origin_host="https://origin.example.com",
         cdn_host="https://cdn.example.com",
+        manifest_path=str(manifest_path),
         skip_pattern=["js/sentry.*"],
     )
 
@@ -361,6 +363,7 @@ def test_handle_success(monkeypatch, tmp_path, settings):
     command.handle(
         origin_host="https://origin.example.com",
         cdn_host="https://cdn.example.com",
+        manifest_path=str(manifest_path),
     )
 
 
