@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 from django.core.cache import caches
+from django.test.html import parse_html
 from django.test.utils import override_settings
 
 import markdown
@@ -18,6 +19,10 @@ from springfield.releasenotes import models
 
 RELEASES_PATH = str(Path(__file__).parent)
 release_cache = caches["release-notes"]
+
+
+def assert_html_equal(actual: str, expected: str) -> None:
+    assert parse_html(actual) == parse_html(expected)
 
 
 @patch("springfield.releasenotes.models.reverse")
@@ -228,7 +233,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 '<source src="example.mp4" type="video/mp4" rel="prefetch">'
                 '<source src="example.webm" type="video/webm" rel="prefetch">'
                 "Your browser does not support the video tag."
@@ -242,7 +247,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 "Your browser does not support the video tag."
                 "</video>"
             ),
@@ -251,4 +256,162 @@ class StrikethroughExtensionTestCase(TestCase):
 )
 def test_process_markdown(input_md, expected):
     processed = models.process_markdown(input_md)
-    assert processed == expected
+    assert_html_equal(processed, expected)
+
+
+@pytest.mark.parametrize(
+    "input_html, expected_class",
+    [
+        (
+            '<video width="320" height="240"></video>',
+            "ga-video-engagement",
+        ),
+        (
+            '<video class="existing-class"></video>',
+            "existing-class ga-video-engagement",
+        ),
+        (
+            '<video class="ga-video-engagement"></video>',
+            "ga-video-engagement",
+        ),
+        (
+            "<video></video><video></video>",
+            "ga-video-engagement",
+        ),
+        (
+            "<div><video></video></div>",
+            "ga-video-engagement",
+        ),
+        (
+            '<video class="foo bar"></video>',
+            "foo bar ga-video-engagement",
+        ),
+    ],
+)
+def test_patch_html_adds_ga_video_engagement_class(input_html, expected_class):
+    patched = models._patch_html(input_html)
+    soup = models.BeautifulSoup(patched, "html.parser")
+    videos = soup.find_all("video")
+    assert videos, "No <video> tags found in patched HTML"
+    for video in videos:
+        classes = video.get("class", "")
+        # classes may be a string or list depending on BeautifulSoup version
+        if isinstance(classes, list):
+            classes = " ".join(classes)
+        # All expected classes should be present (order may vary)
+        for cls in expected_class.split():
+            assert cls in classes.split()
+        # No duplicates
+        assert len(classes.split()) == len(set(classes.split()))
+
+
+@pytest.mark.parametrize(
+    "input_html, patching, expected_html",
+    [
+        # Test adding a class to <video>
+        (
+            '<video width="320" height="240"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video width="320" height="240" class="ga-video-engagement"></video>',
+        ),
+        # Test adding a class to <video> with existing class
+        (
+            '<video class="existing-class"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="existing-class ga-video-engagement"></video>',
+        ),
+        # Test adding a class to <video> with duplicate class
+        (
+            '<video class="ga-video-engagement"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="ga-video-engagement"></video>',
+        ),
+        # Test replacing an attribute
+        (
+            '<video class="foo bar"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "replace",
+                    "value": "baz",
+                }
+            },
+            '<video class="baz"></video>',
+        ),
+        # Test deleting an attribute
+        (
+            '<video class="foo bar" width="320"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "delete",
+                }
+            },
+            '<video width="320"></video>',
+        ),
+        # Test deleting a non-existent attribute (should not error)
+        (
+            '<video width="320"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "delete",
+                }
+            },
+            '<video width="320"></video>',
+        ),
+        # Test multiple <video> tags
+        (
+            "<video></video><video></video>",
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="ga-video-engagement"></video><video class="ga-video-engagement"></video>',
+        ),
+        # Test nested <video> tag
+        (
+            "<div><video></video></div>",
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<div><video class="ga-video-engagement"></video></div>',
+        ),
+    ],
+)
+def test_patch_html_variants(input_html, patching, expected_html):
+    # Patch the HTML_PATCHING dict temporarily
+    orig_patching = models.HTML_PATCHING.copy()
+    models.HTML_PATCHING.clear()
+    models.HTML_PATCHING.update(patching)
+    try:
+        output = models._patch_html(input_html)
+        assert_html_equal(output, expected_html)
+    finally:
+        models.HTML_PATCHING.clear()
+        models.HTML_PATCHING.update(orig_patching)
