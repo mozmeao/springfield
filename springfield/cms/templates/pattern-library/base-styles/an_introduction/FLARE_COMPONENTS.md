@@ -198,7 +198,7 @@ Page structure styles: header, footer, navigation, and content containers.
 
 ##### 5. `components` Layer
 
-Components are modular CSS files for individual UI components. Each one is imported into the same components later with `@import 'filename.css' layer(components)`.
+Components are modular CSS files for individual UI components. Each one is imported into the same components layer with `@import 'filename.css' layer(components)`.
 
 Note: The icon component styles are also included in the legacy stylesheet because they are essential for accessibility.
 
