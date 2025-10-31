@@ -56,7 +56,10 @@ def add_utm_parameters(context: dict, value: str) -> str:
         # Allow for schemeless URLs like "www.example.com/page"
         elif parsed_url.path:
             host = parsed_url.path.split("/")[0]
-        pattern = re.compile(r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))", re.IGNORECASE)
+        pattern = re.compile(
+            r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))",
+            re.IGNORECASE,
+        )
         if host and host not in ["www.firefox.com", "firefox.com"] and pattern.match(host):
             query_string = parsed_url.query
             query = parse_qs(query_string)
@@ -147,8 +150,8 @@ def read_markdown_file(file_path: str) -> str:
 @library.filter()
 def richtext(context, value: str) -> str:
     """
-    Replaces Wagtail's richtext filter to process the custom <fxa> tag into
-    appropriate Firefox Account link.
+    Replaces Wagtail's `richtext` filter to process the custom <fxa> tag with Firefox Account link.
+    See springfield/cms/wagtail_hooks.py for the <fxa> tag registration.
     """
     rich_text = wagtail_richtext(value)
     text = rich_text.source if isinstance(rich_text, RichText) else str(rich_text)
@@ -170,9 +173,11 @@ def richtext(context, value: str) -> str:
         }
         optional_attributes = {
             "data-cta-uid": uid,
-            "data-cta-position": context.get("block_position", "") + "-fxa-link",
+            "data-cta-position": "-".join([context.get("block_position", ""), "fxa-link"]),
             "data-cta-text": context.get("block_text", label),
         }
+        # Same parameters as used in the fxa_button component, except the button class
+        # (springfield/cms/templates/components/fxa_button.html)
         fxa_link = fxa_button(
             ctx=context,
             entrypoint=entrypoint,

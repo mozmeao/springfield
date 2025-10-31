@@ -27,7 +27,10 @@ class FXASource extends window.React.Component {
         const contentWithEntity = content.createEntity(
             entityType.type,
             'MUTABLE',
-            { uid: uuid4() }
+            {
+                uid: uuid4(),
+                url: ''
+            }
         );
         const selection = editorState.getSelection();
         const entityKey = contentWithEntity.getLastCreatedEntityKey();
