@@ -30,10 +30,11 @@ https://mozmeao.github.io/platform-docs/browser-support/
 
 /* @import 'flare26-theme.css' layer(theme);
 @import 'flare26-defaults.css' layer(defaults);
-@import 'flare26-template.css' layer(template);
+@import 'flare26-template.css' layer(template); */
 
 @import 'flare26-icon.css' layer(components);
-@import 'flare26-button.css' layer(components); */
+@import 'flare26-button.css' layer(components);
+@import 'flare26-typography.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);

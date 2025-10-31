@@ -40,6 +40,7 @@ other variables that are used throughout the site
 
     /* Unitless scale variables from Figma */
     --scale-0: 0;
+    --scale-2: 2;
     --scale-4: 4;
     --scale-8: 8;
     --scale-12: 12;
