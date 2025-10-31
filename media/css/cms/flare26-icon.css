@@ -1,0 +1,20 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    vertical-align: middle;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: contain;
+}
+
+.fl-icon-chevron-down { --icon-src: url('/media/img/firefox/flare/icons/chevron-down.svg'); }
+.fl-icon-close { --icon-src: url('/media/img/firefox/flare/icons/close.svg'); }
+.fl-icon-external-link { --icon-src: url('/media/img/firefox/flare/icons/external-link.svg'); }
