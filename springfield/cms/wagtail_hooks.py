@@ -11,10 +11,12 @@ import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
-from wagtail.admin.rich_text.converters.html_to_contentstate import InlineEntityElementHandler
+from wagtail.admin.rich_text.converters.html_to_contentstate import (
+    InlineEntityElementHandler,
+)
 from wagtail.admin.widgets.button import Button
 
-from springfield.base.templatetags.helpers import css_bundle
+from springfield.base.templatetags.helpers import css_bundle, js_bundle
 
 
 @hooks.register("register_admin_menu_item")
@@ -50,6 +52,11 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
+
+
+@hooks.register("insert_global_admin_js")
+def global_admin_js():
+    return js_bundle("wagtail-admin")
 
 
 @hooks.register("construct_page_listing_buttons")
@@ -118,7 +125,11 @@ def register_fxa(features):
         "element": "fxa",
     }
 
-    features.register_editor_plugin("draftail", feature, draftail_features.EntityFeature(control, js=["js/cms/wagtailadmin-fxa.js"]))
+    features.register_editor_plugin(
+        "draftail",
+        feature,
+        draftail_features.EntityFeature(control, js=["js/cms/wagtailadmin-fxa.js"]),
+    )
 
     db_conversion = {
         "from_database_format": {tag: FXAEntityElementHandler(type_)},
