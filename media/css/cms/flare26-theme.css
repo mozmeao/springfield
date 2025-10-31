@@ -74,8 +74,14 @@ other variables that are used throughout the site
 
     /* Typography and fonts */
     --font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-    --font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-family-mozilla-text: 'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     --font-family-body: var(--font-family-mozilla-text);
+
+    /* Font weights */
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
 
     /* Font size variables NOT from Figma */
     --font-size-base: 16px;
