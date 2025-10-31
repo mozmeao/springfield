@@ -7,6 +7,103 @@
 /* =====================================================================
 Template - Layout styles for header, footer, and page structure
 
-This file will contain template-level styles for the Flare 2026 design.
-For now, this is a blank slate.
+This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
+
+/* Header */
+.fl-header {
+    position: relative;
+    padding: calc(var(--scale-16) * 1px);
+    background: transparent;
+}
+
+.fl-header-inner {
+    max-width: var(--width-desktop-layout);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--scale-32) * 1px);
+}
+
+/* Logo */
+.fl-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    height: calc(var(--scale-40) * 1px);
+}
+
+.fl-logo img {
+    height: calc(var(--scale-40) * 1px);
+    width: auto;
+}
+
+.fl-logo-light {
+    display: block;
+}
+
+.fl-logo-dark {
+    display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-logo-light {
+        display: none;
+    }
+
+    .fl-logo-dark {
+        display: block;
+    }
+}
+
+/* Navigation */
+.fl-nav {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.fl-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--scale-32) * 1px);
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.fl-nav-item {
+    display: flex;
+}
+
+.fl-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--scale-4) * 1px);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-base);
+    line-height: 1.4;
+    color: light-dark(var(--color-black-4), var(--color-white));
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.fl-nav-link:hover {
+    color: light-dark(var(--color-link-purple), var(--color-vibrant-purple));
+}
+
+.fl-nav-icon {
+    font-size: calc(var(--scale-20) * 1px);
+    width: calc(var(--scale-20) * 1px);
+    height: calc(var(--scale-20) * 1px);
+}
+
+.fl-header-cta {
+    flex-shrink: 0;
+}
+
+.fl-main {
+    max-width: var(--width-desktop-content);
+    margin: 0 auto;
+}
