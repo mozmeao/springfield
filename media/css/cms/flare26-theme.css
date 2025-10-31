@@ -1,0 +1,19 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Theme - Flare 2026 Design System Theme Variables
+
+This file will be populated with design tokens from Figma using the
+Figma MCP tool in future iterations.
+
+For now, this is a blank slate with minimal structure.
+===================================================================== */
+
+:root {
+    /* Flare 2026 theme variables will be defined here */
+    color-scheme: light dark;
+}
