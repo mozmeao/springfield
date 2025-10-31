@@ -5,8 +5,110 @@
 */
 
 /* =====================================================================
-Defaults - Default styles for Flare 2026 components
+Defaults - Default styles for typography, spacing, and classless
+HTML element styles
 
-This file will contain default component styles.
-For now, this is a blank slate.
+This layer overrides some of the constraints from the base layer and
+provides defaults for generic elements using CSS variables from the
+theme layer.
 ===================================================================== */
+
+/* TODO: Fix spacing values */
+
+html {
+    font-size: var(--font-size-base);
+}
+
+body {
+    font-family: var(--font-family-body);
+    font-weight: var(--font-weight-body);
+    color: var(--color-black-4);
+    background: var(--color-white);
+    width: 100%;
+    max-width: var(--width-desktop-layout);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-mozilla-headline);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: calc(var(--scale-16) * 1px);
+}
+
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+h3 { font-size: var(--font-size-h3); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
+
+p {
+    margin: 0 0 calc(var(--scale-16) * 1px);
+    line-height: 1.6;
+}
+
+a:link, a:visited {
+    color: var(--color-link-purple);
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+a:visited {
+    color: var(--color-link-purple);
+}
+
+a:hover, a:active, a:focus {
+    text-decoration: none;
+}
+
+img, svg {
+    margin: 0 0 calc(var(--scale-16) * 1px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dim-images-on-dark-mode img {
+    filter: brightness(.8) contrast(1.2);
+  }
+}
+
+hr {
+    border-top: 1px solid var(--color-soft-purple-3);
+    margin: calc(var(--scale-16) * 1px) 0;
+}
+
+/* Remove section border, since it was just used to provide a clean
+visual break between sections in legacy browsers */
+section {
+    border: none;
+}
+
+ul, ol {
+    margin: 0 0 calc(var(--scale-16) * 1px) calc(var(--scale-16) * 1px);
+}
+
+li {
+    margin: 0 0 calc(var(--scale-16) * 1px);
+}
+
+/* Override base button styles with theme variables and relax constraints */
+button, [role="button"] {
+    background: var(--color-vibrant-purple);
+    color: var(--color-white);
+    border-radius: calc(var(--border-radius-md) * 1px);
+    width: auto;
+    height: auto;
+}
+
+button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+    background: var(--color-vibrant-purple);
+    color: var(--color-white);
+}
+
+button:hover, [role="button"]:hover {
+    background: var(--color-link-purple);
+    color: var(--color-white);
+}
+
+/* Use theme color for table borders */
+th, td {
+    border-color: var(--color-black-4);
+}

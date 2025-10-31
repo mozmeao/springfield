@@ -72,8 +72,8 @@ body {
     /* Mozilla Text for body */
     font-family: 'Mozilla Text VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 400;
-    color: #333336; /* Figma Neutrals-Charcoal */
-    background: #f8f6f4; /* Figma Neutrals-Ash */
+    color: #15141a; /* color-black-4 from Figma */
+    background: #fff;
     min-height: 100vh;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -137,21 +137,21 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-    color: #0079d2; /* Figma Blue-Medium-Blue */
+    color: #6132bc; /* color-link-purple from Figma */
     text-decoration: underline;
 }
 
 a:hover, a:active, a:focus {
-    color: #003c6e; /* Figma Blue-Dark-Blue */
+    color: #7543e3; /* color-vibrant-purple from Figma */
 }
 
 a:visited {
-    color: #0360df; /* Figma Blue-Button */
+    color: #6132bc; /* color-link-purple from Figma */
 }
 
 code, pre {
-    background: #333336; /* Figma Neutrals-Charcoal */
-    color: #f8f6f4; /* Figma Neutrals-Ash */
+    background: #f1e7fb; /* color-soft-purple from Figma */
+    color: #7543e3; /* color-vibrant-purple from Figma */
 }
 
 img, picture, video, canvas, svg {
@@ -179,7 +179,7 @@ span > img[role="presentation"] {
 
 hr, section {
     border: none;
-    border-bottom: 1px solid #dedede; /* Figma Neutrals-Grey-3 */
+    border-bottom: 1px solid #e4d7fc; /* color-soft-purple-3 from Figma */
     margin: 16px 0; /* IE 8 fallback */
     margin: 1rem 0;
 }
@@ -197,21 +197,21 @@ button, [role="button"] {
     margin: 0 0 16px;
     margin: 0 0 1rem;
     cursor: pointer;
-    background: #0360df; /* Figma Blue-Button */
-    color: #fff; /* Figma Neutrals-White */
+    background: #7543e3; /* color-vibrant-purple from Figma */
+    color: #fff;
     text-decoration: none;
     border: none;
     border-radius: 8px;
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: #0360df; /* Figma Blue-Button */
-    color: #fff; /* Figma Neutrals-White */
+    background: #7543e3; /* color-vibrant-purple from Figma */
+    color: #fff;
 }
 
 button:hover, [role="button"]:hover {
-    background: #003c6e; /* Figma Blue-Dark-Blue */
-    color: #fff; /* Figma Neutrals-White */
+    background: #6132bc; /* color-link-purple from Figma */
+    color: #fff;
 }
 
 textarea { resize: vertical; }
@@ -237,7 +237,7 @@ table {
 th, td {
     padding: 8px 12px; /* IE 8 fallback */
     padding: 0.5rem 0.75rem;
-    border: 1px solid #333336; /* Figma Neutrals-Charcoal */
+    border: 1px solid #15141a; /* color-black-4 from Figma */
     vertical-align: top;
 }
 
@@ -259,12 +259,4 @@ th, td {
     /* stylelint-disable-next-line property-no-unknown */
     interpolate-size: allow-keywords;
   }
-}
-
-/* Very minimal component styles useful for basic layouts */
-.pill {
-    border-radius: 8px;
-    background: #dedede; /* Figma Neutrals-Grey-3 */
-    padding: 4px 8px;
-    margin: 0 8px 4px 0;
 }
