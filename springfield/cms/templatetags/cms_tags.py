@@ -14,6 +14,10 @@ from bs4 import BeautifulSoup
 from django_jinja import library
 from jinja2 import pass_context
 from wagtail.rich_text import RichText
+from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
+
+from springfield.cms.models.pages import BASE_UTM_PARAMETERS
+from springfield.firefox.templatetags.misc import fxa_button
 
 
 @library.filter
@@ -52,7 +56,10 @@ def add_utm_parameters(context: dict, value: str) -> str:
         # Allow for schemeless URLs like "www.example.com/page"
         elif parsed_url.path:
             host = parsed_url.path.split("/")[0]
-        pattern = re.compile(r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))", re.IGNORECASE)
+        pattern = re.compile(
+            r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))",
+            re.IGNORECASE,
+        )
         if host and host not in ["www.firefox.com", "firefox.com"] and pattern.match(host):
             query_string = parsed_url.query
             query = parse_qs(query_string)
@@ -137,3 +144,49 @@ def read_markdown_file(file_path: str) -> str:
         return f"Error: Markdown file '{file_path}' not found in pattern library"
     except Exception as e:
         return f"Error reading markdown file '{file_path}': {str(e)}"
+
+
+@pass_context
+@library.filter()
+def richtext(context, value: str) -> str:
+    """
+    Replaces Wagtail's `richtext` filter to process the custom <fxa> tag with Firefox Account link.
+    See springfield/cms/wagtail_hooks.py for the <fxa> tag registration.
+    """
+    rich_text = wagtail_richtext(value)
+    text = rich_text.source if isinstance(rich_text, RichText) else str(rich_text)
+    soup = BeautifulSoup(text, "html.parser")
+
+    for fxa_tag in soup.find_all("fxa"):
+        label = fxa_tag.text
+        uid = fxa_tag.get("data-cta-uid", "")
+        utm_parameters = context.get(
+            "utm_parameters",
+            {
+                **BASE_UTM_PARAMETERS,
+                "utm_campaign": label.lower().replace(" ", "_"),
+            },
+        )
+        entrypoint = f"{utm_parameters.get('utm_source', '')}-{utm_parameters.get('utm_campaign', '')}"
+        optional_parameters = {
+            "utm_campaign": utm_parameters.get("utm_campaign", ""),
+        }
+        optional_attributes = {
+            "data-cta-uid": uid,
+            "data-cta-position": "-".join([context.get("block_position", ""), "fxa-link"]),
+            "data-cta-text": context.get("block_text", label),
+        }
+        # Same parameters as used in the fxa_button component, except the button class
+        # (springfield/cms/templates/components/fxa_button.html)
+        fxa_link = fxa_button(
+            ctx=context,
+            entrypoint=entrypoint,
+            button_text=label,
+            is_button_class=False,
+            class_name="fxa-link",
+            optional_parameters=optional_parameters,
+            optional_attributes=optional_attributes,
+        )
+        fxa_tag.replace_with(BeautifulSoup(fxa_link, "html.parser"))
+
+    return mark_safe(str(soup))
