@@ -21,14 +21,32 @@
     transition: all var(--transition-base);
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-card {
+        border: 1px solid var(--neutrals-charcoal);
+    }
+}
+
 .fl-card:hover {
     background: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
     border-color: transparent;
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-card:hover {
+        background: var(--neutrals-white);
+    }
+}
+
 .fl-card.fl-card-fill {
     border: none;
     background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-card.fl-card-fill {
+        background: var(--neutrals-white);
+    }
 }
 
 .fl-card .fl-heading {
@@ -106,6 +124,12 @@
     background: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
     border-radius: calc(var(--scale-16) * 1px);
     z-index: 1;
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-illustration-card-reverse .fl-card-content {
+        background: var(--neutrals-white);
+    }
 }
 
 @media (max-width: 767px) {

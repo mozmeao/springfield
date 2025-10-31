@@ -70,3 +70,12 @@ specific exceptions that can't be handled by the other layers
         width: fit-content
     }
 }
+
+/* Unset button styles on FxA link. The role="button" attr is set by UI Tour JS */
+a[role="button"].fxa-link {
+    display: inline;
+    background: unset;
+    padding: unset;
+    border: unset;
+    margin: unset;
+}

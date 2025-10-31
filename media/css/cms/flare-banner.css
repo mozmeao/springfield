@@ -31,8 +31,14 @@
 
 .fl-banner-outlined {
     border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    background: transparent;
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-banner-outlined {
+        border: 1px solid var(--neutrals-charcoal);
+        color: var(--neutrals-charcoal);
+    }
 }
 
 .fl-banner-filled {

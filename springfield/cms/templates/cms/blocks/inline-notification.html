@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_text = value.message|richtext|remove_tags %}
+
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:inline-notification
     message="{{ value.message|richtext|remove_p_tag }}"

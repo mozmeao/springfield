@@ -730,6 +730,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "taggit",
     "csp",
+    "wagtail_link_block",
     # Local apps
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases

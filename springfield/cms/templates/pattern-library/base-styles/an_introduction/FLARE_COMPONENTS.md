@@ -236,10 +236,17 @@ This custom loader avoids unneeded third party dependencies like `postcss-import
 
 Some common patterns that are useful in this CSS setup:
 
-Use `light-dark` for dark mode support:
+Use `light-dark` for dark mode support, but light mode fallbacks need to be added to support Safari 17.4 and lower:
 
 ```css
-background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+.fl-component {
+  background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+}
+@supports not (color: light-dark(black, white)) {
+    .fl-component {
+        background: var(--neutrals-ash);
+    }
+}
 ```
 
 Add units to unitless tokens using calc and multiplying by 1:

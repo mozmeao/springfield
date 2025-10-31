@@ -12,7 +12,7 @@
     {% set block_position = block_position or "intro" %}
     {% set block_text = value.heading.heading_text|richtext|remove_tags %}
     {% if value.buttons %}
-      <div class="buttons">
+      <div class="fl-buttons">
         {% for button in value.buttons %}
           {% set block_position = block_position + "." + "button-" ~ loop.index %}
           {% include_block button %}
