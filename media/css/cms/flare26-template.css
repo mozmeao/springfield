@@ -10,6 +10,11 @@ Template - Layout styles for header, footer, and page structure
 This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
+body {
+    background: var(--color-purple-world);
+    color: var(--color-white);
+}
+
 /* Header */
 .fl-header {
     position: relative;
@@ -40,20 +45,20 @@ This file contains template-level styles for the Flare 2026 design.
 }
 
 .fl-logo-light {
-    display: block;
+    display: none;
 }
 
 .fl-logo-dark {
-    display: none;
+    display: block;
 }
 
 @media (prefers-color-scheme: dark) {
     .fl-logo-light {
-        display: none;
+        display: block;
     }
 
     .fl-logo-dark {
-        display: block;
+        display: none;
     }
 }
 
@@ -84,7 +89,7 @@ This file contains template-level styles for the Flare 2026 design.
     font-family: var(--font-family-body);
     font-size: var(--font-size-base);
     line-height: 1.4;
-    color: light-dark(var(--color-black-4), var(--color-white));
+    color: var(--color-white);
     text-decoration: none;
     transition: color var(--transition-fast);
 }
@@ -106,6 +111,12 @@ This file contains template-level styles for the Flare 2026 design.
 .fl-main {
     max-width: var(--width-desktop-content);
     margin: 0 auto;
+    background: var(--color-white);
+    color: var(--color-black-1);
+    padding: calc(var(--scale-32) * 1px);
+    border-end-end-radius: var(--border-radius-lg);
+    border-end-start-radius: var(--border-radius-lg);
+    padding-bottom: var(--border-radius-lg);
 }
 
 /* Footer */
