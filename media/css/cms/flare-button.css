@@ -21,15 +21,37 @@
     border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-button {
+        color: var(--neutrals-charcoal);
+        border: 1px solid var(--neutrals-charcoal);
+    }
+}
+
 .fl-button:hover, .fl-button:focus {
     background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     color: light-dark(var(--neutrals-white), var(--neutrals-black));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-button:hover, .fl-button:focus {
+        background: var(--neutrals-charcoal);
+        border-color: var(--neutrals-charcoal);
+        color: var(--neutrals-white);
+    }
+}
+
 .fl-button:active {
     background: light-dark(var(--neutrals-black), var(--neutrals-white));
     color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-button:active {
+        background: var(--neutrals-black);
+        color: var(--neutrals-ash);
+    }
 }
 
 .fl-button.button-secondary {
@@ -43,9 +65,22 @@
     color: var(--neutrals-white);
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-button.button-secondary:hover, .fl-button.button-secondary:focus {
+        background: var(--blue-dark-blue);
+    }
+}
+
 .fl-button.button-secondary:active {
     background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
     color: light-dark(var(--neutrals-white), var(--neutrals-ash));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-button.button-secondary:active {
+        background: var(--blue-medium-blue);
+        color: var(--neutrals-white);
+    }
 }
 
 .fl-button.button-tertiary {
@@ -70,14 +105,34 @@
     color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-button.button-ghost {
+        color: var(--neutrals-grey-8);
+    }
+}
+
 .fl-button.button-ghost:hover {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-button.button-ghost:hover {
+        background: var(--neutrals-grey-8);
+        color: var(--neutrals-white);
+    }
+}
+
 .fl-button.button-ghost:active {
     background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
     color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-button.button-ghost:active {
+        background: var(--neutrals-grey-8);
+        color: var(--neutrals-white);
+    }
 }
 
 .fl-button .fl-icon {

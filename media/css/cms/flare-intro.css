@@ -13,6 +13,12 @@
     margin: 0 auto;
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-intro {
+        background-color: var(--neutrals-ash);
+    }
+}
+
 .fl-intro > * {
     margin: 0 auto;
 }

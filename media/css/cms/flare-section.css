@@ -81,3 +81,9 @@
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
     font-weight: var(--font-weight-semibold);
 }
+
+@supports not (color: light-dark(black, white)) {
+    .fl-section-cta-link {
+        color: var(--neutrals-charcoal);
+    }
+}

@@ -28,6 +28,13 @@ body {
     max-width: var(--widths-viewport-wrapper-screen-2xl);
 }
 
+@supports not (color: light-dark(black, white)) {
+    body {
+        color: var(--neutrals-charcoal);
+        background: var(--neutrals-ash);
+    }
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-family-headline);
     font-weight: var(--font-weight-headline);
@@ -52,8 +59,20 @@ a:link, a:visited {
     transition: color var(--transition-fast);
 }
 
+@supports not (color: light-dark(black, white)) {
+    a:link, a:visited {
+        color: var(--blue-button);
+    }
+}
+
 a:visited {
     color: light-dark(var(--purple-purple), var(--purple-light-purple));
+}
+
+@supports not (color: light-dark(black, white)) {
+    a:visited {
+        color: var(--purple-purple);
+    }
 }
 
 a:hover, a:active, a:focus {

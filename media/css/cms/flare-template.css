@@ -14,6 +14,13 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-black));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-header {
+        border-bottom: 1px solid var(--neutrals-grey-3);
+        background: var(--neutrals-ash);
+    }
+}
+
 .fl-header-inner {
     max-width: 1280px;
     margin: 0 auto;
@@ -76,6 +83,12 @@
     transition: background-size var(--transition-base);
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-hamburger {
+        background-image: linear-gradient(var(--neutrals-grey-8, var(--neutrals-white)), var(--neutrals-grey-8, var(--neutrals-white)));
+    }
+}
+
 .fl-hamburger::before,
 .fl-hamburger::after {
     content: "";
@@ -86,6 +99,13 @@
     background: light-dark(var(--neutrals-grey-8, var(--neutrals-white)), light-dark(var(--neutrals-grey-8, var(--neutrals-white))));
     border-radius: 1px;
     transition: transform var(--transition-base), top var(--transition-base), bottom var(--transition-base);
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-hamburger::before,
+    .fl-hamburger::after {
+        background: var(--neutrals-grey-8, var(--neutrals-white));
+    }
 }
 
 .fl-hamburger::before {
@@ -124,6 +144,12 @@
     font-size: var(--font-size-base);
     color: light-dark(var(--neutrals-grey-8, var(--neutrals-white)), light-dark(var(--neutrals-grey-8, var(--neutrals-white))));
     text-decoration: none;
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-nav-link {
+        color: var(--neutrals-grey-8, var(--neutrals-white));
+    }
 }
 
 .fl-nav-link-active {
@@ -213,6 +239,12 @@
         margin-top: calc(var(--scale-4) * 1px);
     }
 
+    @supports not (color: light-dark(black, white)) {
+        .fl-nav.is-open {
+            background: var(--neutrals-ash);
+        }
+    }
+
     .fl-nav-menu {
         display: flex;
         flex-direction: column;
@@ -242,6 +274,13 @@
     color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-page {
+        background: var(--neutrals-ash);
+        color: var(--neutrals-grey-8);
+    }
+}
+
 .fl-main {
     flex: 1;
     display: flex;
@@ -266,6 +305,12 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-black));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-footer {
+        background: var(--neutrals-ash);
+    }
+}
+
 .fl-footer .fl-button-outline img {
     margin-right: calc(var(--scale-16) * 1px);
 }
@@ -288,6 +333,12 @@
     margin: 0;
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     grid-column: 1;
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-copy {
+        color: var(--neutrals-charcoal);
+    }
 }
 
 .fl-footer-link {
@@ -324,6 +375,12 @@
     border-top: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     ;
     margin: calc(var(--scale-48) * 1px) 0;
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-divider {
+        border-top: 1px solid var(--neutrals-charcoal);
+    }
 }
 
 .fl-footer-bottom {
@@ -392,6 +449,12 @@
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-links a {
+        color: var(--neutrals-charcoal);
+    }
+}
+
 .fl-footer-title {
     font-family: var(--font-family-headline);
     font-size: var(--font-size-h4);
@@ -399,9 +462,21 @@
     margin: 0 0 calc(var(--scale-4) * 1px);
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-title {
+        color: var(--neutrals-charcoal);
+    }
+}
+
 .fl-footer-subtitle {
     margin: 0;
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-subtitle {
+        color: var(--neutrals-charcoal);
+    }
 }
 
 .fl-footer-note {
@@ -410,6 +485,12 @@
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     font-size: var(--font-size-body-xsmall);
     text-align: center;
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-footer-note {
+        color: var(--neutrals-charcoal);
+    }
 }
 
 @media (max-width: 767px) {

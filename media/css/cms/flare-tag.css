@@ -39,14 +39,34 @@
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-blue {
+        background: var(--blue-light-blue);
+        color: var(--neutrals-charcoal);
+    }
+}
+
 .fl-tag.fl-tag-purple {
     background: light-dark(var(--purple-light-purple), var(--purple-purple));
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-purple {
+        background: var(--purple-light-purple);
+        color: var(--neutrals-charcoal);
+    }
+}
+
 .fl-tag.fl-tag-orange {
     background: light-dark(var(--orange-light-orange), var(--orange-medium-orange));
     color: var(--neutrals-charcoal);
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-orange {
+        background: var(--orange-light-orange);
+    }
 }
 
 .fl-tag.fl-tag-yellow {
@@ -59,9 +79,21 @@
     color: var(--neutrals-ash);
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-black {
+        background: var(--neutrals-charcoal);
+    }
+}
+
 .fl-tag.fl-tag-white {
     background: light-dark(var(--neutrals-white), var(--neutrals-ash));
     color: var(--neutrals-charcoal);
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-white {
+        background: var(--neutrals-white);
+    }
 }
 
 .fl-tag.fl-tag-outline {
@@ -69,4 +101,10 @@
     border-width: 1px;
     border-style: solid;
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+}
+
+@supports not (color: light-dark(black, white)) {
+    .fl-tag.fl-tag-outline {
+        color: var(--neutrals-charcoal);
+    }
 }

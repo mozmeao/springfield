@@ -43,6 +43,12 @@
     background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-newsletterform-input {
+        background: var(--neutrals-ash);
+    }
+}
+
 .fl-section-subscribe .fl-section-container {
     gap: calc(var(--scale-20) * 1px);
 }
