@@ -4,9 +4,16 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-/* =====================================================================
-Icons
+.fl-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    vertical-align: middle;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: contain;
+}
 
-This file will contain icon styles.
-For now, this is a blank slate.
-===================================================================== */
+.fl-icon-chevron-down { --icon-src: url('/media/img/firefox/flare/icons/chevron-down.svg'); }
+.fl-icon-close { --icon-src: url('/media/img/firefox/flare/icons/close.svg'); }

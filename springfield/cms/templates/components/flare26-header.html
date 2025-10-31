@@ -4,4 +4,38 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<header class="fl26-header">Header</header>
+<header class="fl-header">
+  <div class="fl-header-inner">
+    <a href="/" class="fl-logo" aria-label="Firefox">
+      <img src="/media/img/logos/firefox/logo-word-hor.svg" class="fl-logo-light" alt="Firefox" width="120" height="40">
+      <img src="/media/img/logos/firefox/logo-word-hor-white.svg" class="fl-logo-dark" alt="Firefox" width="120" height="40">
+    </a>
+
+    <nav class="fl-nav">
+      <ul class="fl-nav-menu">
+        <li class="fl-nav-item">
+          <a href="#" class="fl-nav-link">
+            Browser
+            <include:icon icon_name="chevron-down" extra_class="fl-nav-icon" hidden=true />
+          </a>
+        </li>
+        <li class="fl-nav-item">
+          <a href="#" class="fl-nav-link">
+            Features
+            <include:icon icon_name="chevron-down" extra_class="fl-nav-icon" hidden=true />
+          </a>
+        </li>
+        <li class="fl-nav-item">
+          <a href="#" class="fl-nav-link">
+            Learn
+            <include:icon icon_name="chevron-down" extra_class="fl-nav-icon" hidden=true />
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="fl-header-cta">
+      <a href="#download" class="fl-button fl-button-small fl-button-filled">Get Firefox</a>
+    </div>
+  </div>
+</header>
