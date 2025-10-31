@@ -19,6 +19,12 @@
     overflow: hidden;
 }
 
+@supports not (color: light-dark(black, white)) {
+    .fl-mediacontent-media {
+        background: var(--neutrals-ash);
+    }
+}
+
 .fl-mediacontent-content .heading,
 .fl-mediacontent-content .fl-body,
 .fl-mediacontent-content .fl-superheading {
