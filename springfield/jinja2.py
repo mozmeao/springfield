@@ -1,10 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from includecontents.jinja2 import IncludeContentsExtension
 from jinja2 import Environment
+
+from springfield.cms.templatetags.cms_tags import richtext
 
 
 def custom_environment(**options):
     options["extensions"] = options.get("extensions", []) + [IncludeContentsExtension]
     env = Environment(**options)
+    env.filters["richtext"] = richtext
 
     from django.apps import apps
 

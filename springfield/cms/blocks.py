@@ -17,6 +17,7 @@ HEADING_TEXT_FEATURES = [
     "superscript",
     "subscript",
     "strikethrough",
+    "fxa",
 ]
 
 HEADING_LEVEL_CHOICES = (
