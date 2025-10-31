@@ -58,6 +58,11 @@ other variables that are used throughout the site
     --scale-160: 160;
     --scale-200: 200;
 
+    /* Border radius variables */
+    --border-radius-sm: 38px;
+    --border-radius-md: 50px;
+    --border-radius-lg: 125px;
+
     /* Width and viewport variables */
     --width-desktop-content: 697px;
     --width-desktop-layout: 1440px;
