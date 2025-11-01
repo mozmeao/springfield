@@ -22,63 +22,13 @@
 <h2>{{ ftl('features-translate-what-languages-are-currently') }}</h2>
 <p>{{ ftl('features-translate-the-languages-below-are-what-v2') }}</p>
 
-<ul class="c-lang-list c-translate-lang-list mzp-u-list-styled" data-translate-langs="{{ translate_langs|join(',') }}">
-{% if LANG.startswith('en-') %}
-  <li>Albanian</li>
-  <li>Arabic</li>
-  <li>Bangla</li>
-  <li>Bulgarian</li>
-  <li>Catalan</li>
-  <li>Chinese (Simplified)</li>
-  <li>Croatian</li>
-  <li>Czech</li>
-  <li>Danish</li>
-  <li>Dutch</li>
-  <li>English</li>
-  <li>Estonian</li>
-  <li>Finnish</li>
-  <li>French</li>
-  <li>German</li>
-  <li>Greek</li>
-  <li>Gujarati</li>
-  <li>Hebrew</li>
-  <li>Hindi</li>
-  <li>Hungarian</li>
-  <li>Indonesian</li>
-  <li>Italian</li>
-  <li>Japanese</li>
-  <li>Kannada</li>
-  <li>Korean</li>
-  <li>Latvian</li>
-  <li>Lithuanian</li>
-  <li>Malay</li>
-  <li>Malayalam</li>
-  <li>Persian</li>
-  <li>Polish</li>
-  <li>Portuguese</li>
-  <li>Romanian</li>
-  <li>Russian</li>
-  <li>Serbian</li>
-  <li>Slovak</li>
-  <li>Slovenian</li>
-  <li>Spanish</li>
-  <li>Swedish</li>
-  <li>Tamil</li>
-  <li>Telugu</li>
-  <li>Turkish</li>
-  <li>Ukrainian</li>
-  <li>Vietnamese</li>
-{% else %}
-  {% for lang in context_test -%}
-    {% set name = context_test[lang] %}
-    {% set par = name.find(' (') %}
-    {% if par > 0 %}
-      <li>{{ name[0:par] }}</li>
-    {% else %}
-      <li>{{ name }}</li>
-    {% endif %}
-  {% endfor %}
-{% endif %}
+<ul class="c-lang-list c-translate-lang-list mzp-u-list-styled">
+{%- set display = 'English' if LANG.startswith('en-') else 'native' -%}
+{%- for lang in translate_langs -%}
+  {# Remove regional variants for the listing #}
+  {%- set name = (lang_names[lang][display] if lang_names[lang] else lang).split(' (')[0] %}
+  <li data-lang="{{ lang }}"{% if display == 'native' %} lang="{{ lang }}"{% endif %}>{{ name }}</li>
+{%- endfor %}
 </ul>
 
 <p>{{ ftl('features-translate-and-more-languages-are-in') }}</p>
