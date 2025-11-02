@@ -8,20 +8,41 @@
 
 /**
  * URL paths for inclusion in page-level a11y scans.
- * Pages will be scanned at both desktop and mobile resolutions.
+ * Different set of pages will be scanned at desktop and mobile resolutions.
  */
 const desktopTestURLs = [
     '/en-US/',
+    '/en-US/browsers/desktop/',
+    '/en-US/browsers/desktop/linux/',
+    '/en-US/browsers/enterprise/',
+    '/en-US/browsers/mobile/',
+    '/en-US/browsers/mobile/android/',
+    '/en-US/browsers/mobile/ios/',
+    '/en-US/browsers/mobile/focus/',
+    '/en-US/browsers/mobile/get-app/',
     '/en-US/channel/android/',
     '/en-US/channel/desktop/',
     '/en-US/channel/desktop/developer/',
     '/en-US/download/all/',
-    '/en-US/thanks/',
-    '/en-US/browsers/enterprise/',
+    '/en-US/compare/',
+    '/en-US/compare/opera/',
+    '/en-US/features/',
+    '/en-US/features/sync/',
     '/en-US/firefox/releasenotes/',
-    '/en-US/privacy/websites/cookie-settings/'
+    '/en-US/privacy/websites/cookie-settings/',
+    '/en-US/thanks/'
 ];
 
-const mobileTestURLs = ['/en-US/', '/en-US/channel/android/'];
+const mobileTestURLs = [
+    '/en-US/',
+    '/en-US/browsers/mobile/',
+    '/en-US/browsers/mobile/android/',
+    '/en-US/browsers/mobile/ios/',
+    '/en-US/browsers/mobile/focus/',
+    '/en-US/channel/android/',
+    '/en-US/download/all/',
+    '/en-US/firefox/android/notes/',
+    '/en-US/thanks/'
+];
 
 module.exports = { desktopTestURLs, mobileTestURLs };
