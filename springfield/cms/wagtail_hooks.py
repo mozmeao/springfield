@@ -4,7 +4,6 @@
 
 from uuid import uuid4
 
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -124,7 +123,7 @@ def register_fxa(features):
     features.register_editor_plugin(
         "draftail",
         feature,
-        draftail_features.EntityFeature(control, js=[staticfiles_storage.url("js/wagtailadmin-fxa.js")]),
+        draftail_features.EntityFeature(control, js="js/wagtailadmin-fxa.js"),
     )
 
     db_conversion = {
