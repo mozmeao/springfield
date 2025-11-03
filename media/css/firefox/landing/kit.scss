@@ -143,10 +143,27 @@ main {
     --title-text-color: var(--neutrals-white);
 }
 
+// center the media on mobile
+@media (max-width: 480px) {
+    .fl-banner-brand-bottom-right {
+        width: 100%;
+        right: unset;
+    }
+}
+
 .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .c-animation-button {
     position: absolute;
-    bottom: 30px;
-    right: 80px;
+    bottom: 80px;
+    right: 10px;
+
+    @media (min-width: 768px) {
+        right: 20px;
+    }
+
+    @media (min-width: 1024px) {
+        bottom: 30px;
+        right: 80px;
+    }
 }
 
 // Match with when .fl-banner-content-centered is overridden and layout moves to 2
@@ -184,6 +201,10 @@ main {
     @media (min-width: 1024px) {
         font-size: 8rem; // 128px
     }
+}
+
+.fl-banner-content-centered .fl-banner-content-inner {
+    align-items: center; // ensure c-banner-body is centered within container
 }
 
 .c-banner-subheading {
