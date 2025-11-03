@@ -21,14 +21,14 @@
 
       {% if value.cta %}
         <div class="fl-section-cta-wrap">
-          {% for link in value.cta %}
+          {% for cta in value.cta %}
             <a class="fl-section-cta-link"
-              href="{{ link.url()|add_utm_parameters }}"
-              {% if link.external %}target="_blank" rel="external noopener"{% endif %}
+              href="{{ cta.link.get_url()|add_utm_parameters }}"
+              {% if cta.link.new_window %}target="_blank" rel="external noopener"{% endif %}
               data-cta-position="{{ block_position + ".cta" }}"
-              data-cta-text="{{ block_text + " - " + link.label }}"
-              data-cta-uid="{{ link.analytics_id }}"
-            >{{ link.label }}</a>
+              data-cta-text="{{ block_text + " - " + cta.label }}"
+              data-cta-uid="{{ cta.analytics_id }}"
+            >{{ cta.label }}</a>
           {% endfor %}
         </div>
       {% endif %}
