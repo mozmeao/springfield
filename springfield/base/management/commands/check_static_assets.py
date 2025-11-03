@@ -326,7 +326,7 @@ class Command(BaseCommand):
                 # If we unexpectedly get a redirect on HEAD, follow up with GET to confirm availability.
                 response = session.get(url, timeout=timeout, allow_redirects=False)
 
-            if request_method == "head" and not 200 <= response.status_code < 300:
+            elif request_method == "head" and not 200 <= response.status_code < 300:
                 # Re-check with GET for CDNs that behave differently for HEAD requests.
                 response = session.get(url, timeout=timeout, allow_redirects=False)
 
