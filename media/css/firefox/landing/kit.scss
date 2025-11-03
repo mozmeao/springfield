@@ -46,13 +46,42 @@ main {
     }
 
     h1, h2, p, ol {
-    margin-bottom: 0;
-}
+        margin-bottom: 0;
+    }
+
+    p, ol {
+        line-height: 1.4;
+    }
+
+    .button {
+        line-height: 1;
+    }
 
     img,
     video {
         width: 100%;
         display: block;
+    }
+}
+
+.button {
+    text-decoration: none;
+    /* stylelint-disable-next-line declaration-no-important */
+    color:  var(--neutrals-white);
+    background-color: var(--purple-purple);
+    border-radius: 40px;
+    font-weight: var(--font-weight-semibold);
+    padding: 16px 24px;
+
+    &:hover,
+    &:focus {
+        background-color: var(--purple-light-purple);
+        color: var(--purple-dark-purple)
+    }
+
+    &:active {
+        background-color: var(--purple-dark-purple);
+        color:  var(--neutrals-white);
     }
 }
 
@@ -145,7 +174,7 @@ main {
 
 .fl-banner .heading {
     font-size: 4rem; // 64px
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     line-height: 0.9;
     letter-spacing: -0.6;
     @media (min-width: 768px) {
@@ -159,7 +188,7 @@ main {
 
 .c-banner-subheading {
     font-size: var(--font-size-subheading-1);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     line-height: 1.1;
     margin-bottom: 30px;
 }
@@ -232,6 +261,7 @@ main {
     display: grid;
     gap: 30px;
     justify-items: start;
+    font-size: var(--font-size-body-medium);
 
     ol {
         counter-reset: custom-marker;
@@ -240,6 +270,7 @@ main {
 
         li {
             counter-increment: custom-marker;
+            font-size: var(--font-size-body-xsmall);
 
             &::before {
                 content: counter(custom-marker);
@@ -272,7 +303,7 @@ main {
 
 .c-gallery-card-heading {
     font-size: 1.8125rem; // 29px
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
 }
 
 .c-gallery-card-dark {
@@ -283,25 +314,6 @@ main {
 
 .c-gallery-card-light {
     background-color: var(--purple-light-purple);
-}
-
-.button {
-    text-decoration: none;
-    /* stylelint-disable-next-line declaration-no-important */
-    color:  var(--neutrals-white);
-    background-color: var(--purple-purple);
-    border-radius: 40px;
-
-    &:hover,
-    &:focus {
-        background-color: var(--purple-light-purple);
-        color: var(--purple-dark-purple)
-    }
-
-    &:active {
-        background-color: var(--purple-dark-purple);
-        color:  var(--neutrals-white);
-    }
 }
 
 // Forked from flare styles (cms/flare.css)
@@ -341,6 +353,8 @@ main {
         --font-size-subheading-5: 1rem; /* 16px */
 
         /* Body font size variables */
+        --font-size-body-medium: 1.125rem; /* 18px */
+        --font-size-body-xsmall: 0.875rem; /* 14px */
         --font-size-body-2xsmall: 0.75rem; /* 12px */
 
         /* Util variable */
