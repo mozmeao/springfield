@@ -1,8 +1,8 @@
-APScheduler==3.11.0
+APScheduler==3.11.1
 babis==0.2.4
 basket-client==1.2.0
 bleach[css]==6.1.0
-boto3==1.40.43
+boto3==1.40.64
 chardet==5.2.0
 commonware==0.6.0
 contextlib2==21.6.0
@@ -17,46 +17,46 @@ django-jinja==2.11.0
 django-jsonview==2.0.0
 django-memoize==2.3.1
 django-mozilla-product-details==1.0.3
-django-rq==3.0.1
+django-rq==3.1
 django-rq-email-backend==2.0.0
 django-storages[google]==1.14.4
-django-waffle==4.2.0
+django-waffle==5.0.0
 django-watchman==1.3.0
 Django==5.2.7
 docutils==0.22.2
 envcat==0.1.1
-everett==3.4.0
+everett==3.5.0
 fluent.runtime==0.4.0
 fluent.syntax==0.19.0
 granian==2.3.3
 honcho==2.0.0
 html5lib==1.1
 jinja2==3.1.6  # Moved to top-level dep to control its upgrade, to avoid breaking changes later if glean-parser updates it (keeping for now incase we add Glean back to www.firefox.com)
-jq==1.8.0
+jq==1.10.0
 lxml==5.4.0  # Needed as a top-level dep so that it's available for BeautifulSoup, which doesn't explicitly pull it in
-Markdown==3.8
+Markdown==3.9
 markus[datadog]==5.0.0
 https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz#egg=mdx_outline
 mozilla-django-oidc==4.0.1
 Pillow==11.3.0
 psycopg[c]==3.2.6  # use version with psycopg_c support - also needs libpq-dev in the Docker image; may need it for local dev, too
 PyGithub==2.8.1
-pyOpenSSL==25.1.0
-PyYAML==6.0.2
+pyOpenSSL==25.3.0
+PyYAML==6.0.3
 qrcode==8.2
 querystringsafe-base64==1.1.1  # Pinned to maintain stub attribution signatures https://github.com/mozilla/bedrock/issues/11156
 requests==2.32.5
 rich-text-renderer==0.2.8
 sentry-processor==0.0.1
-sentry-sdk==2.39.0
-supervisor==4.2.5
+sentry-sdk==2.43.0
+supervisor==4.3.0
 timeago==1.0.16
 wagtaildraftsharing==0.3.0
 wagtail-localize-smartling==0.10.3
 wagtail-localize==1.12.2
 Wand==0.6.13  # For animated GIF support
-Wagtail==7.1.1
+Wagtail==7.1.2
 whitenoise==6.11.0
 https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.1/django_pattern_library-1.5.1.tar.gz
 django-includecontents==4.*
-wagtail-link-block
+wagtail-link-block==1.1.7
