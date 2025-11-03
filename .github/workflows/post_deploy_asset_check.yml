@@ -21,9 +21,6 @@ on:
 jobs:
   asset-check:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SETTINGS_MODULE: springfield.settings
-      PYTHONUNBUFFERED: "1"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -31,30 +28,14 @@ jobs:
           ref: ${{ inputs.git_sha }}
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements/prod.txt
-
       - name: Pull release image
         run: docker pull mozmeao/springfield:${{ inputs.git_sha }}
 
-      - name: Extract manifest from release image
-        run: |
-          set -euo pipefail
-          container_id=$(docker create mozmeao/springfield:${{ inputs.git_sha }})
-          trap 'docker rm "$container_id" >/dev/null 2>&1 || true' EXIT
-          mkdir -p extracted-static
-          docker cp "$container_id":/app/static/staticfiles.json extracted-static/staticfiles.json
-
       - name: Verify deployed assets are available
         run: |
-          python manage.py check_static_assets \
-            --origin-host "${{ inputs.origin_hostname }}" \
-            --cdn-host "${{ inputs.cdn_hostname }}" \
-            --manifest-path "extracted-static/staticfiles.json"
+          docker run --rm \
+            mozmeao/springfield:${{ inputs.git_sha }} \
+            python manage.py check_static_assets \
+              --origin-host "${{ inputs.origin_hostname }}" \
+              --cdn-host "${{ inputs.cdn_hostname }}" \
+              --manifest-path static/staticfiles.json
