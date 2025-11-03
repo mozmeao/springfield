@@ -128,7 +128,7 @@ def register_fxa(features):
     features.register_editor_plugin(
         "draftail",
         feature,
-        draftail_features.EntityFeature(control, js=["js/cms/wagtailadmin-fxa.js"]),
+        draftail_features.EntityFeature(control, js=["js/wagtailadmin-fxa.js"]),
     )
 
     db_conversion = {
