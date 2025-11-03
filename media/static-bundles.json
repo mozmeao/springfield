@@ -751,7 +751,7 @@
       "files": [
         "js/cms/wagtailadmin-fxa.js"
       ],
-      "name": "wagtailadmin-fxa"
+      "name": "wagtail-admin"
     }
   ]
 }
