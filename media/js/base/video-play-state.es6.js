@@ -10,7 +10,7 @@ const VIDEO_STATE = 'data-js-video-state';
 
 async function togglePlayState(e) {
     const button = e.currentTarget;
-    const video = button.nextElementSibling; // fragile
+    const video = button.nextElementSibling;
     if (video.paused) {
         try {
             await video.play();
@@ -34,7 +34,7 @@ function init() {
         // remove controls because the button is available
         if (!window.Mozilla.Utils.allowsMotion()) {
             button.setAttribute(VIDEO_STATE, 'paused');
-            button.nextElementSibling.removeAttribute('controls'); // fragile selector
+            button.nextElementSibling.removeAttribute('controls');
         }
         button.addEventListener('click', (e) => togglePlayState(e));
     });
