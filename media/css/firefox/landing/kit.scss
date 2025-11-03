@@ -177,12 +177,11 @@ main {
 
     // card gallery styles
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 16px;
 
-    > * {
-        min-width: 300px;
-        flex: 1;
+    @media (min-width: 1024px) {
+        flex-direction: row;
     }
 }
 
