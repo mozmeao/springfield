@@ -17,7 +17,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.admin.widgets.button import Button
 
-from springfield.base.templatetags.helpers import css_bundle, js_bundle
+from springfield.base.templatetags.helpers import css_bundle
 
 
 @hooks.register("register_admin_menu_item")
@@ -53,11 +53,6 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
-
-
-@hooks.register("insert_global_admin_js")
-def global_admin_js():
-    return js_bundle("wagtail-admin")
 
 
 @hooks.register("construct_page_listing_buttons")
