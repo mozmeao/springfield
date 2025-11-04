@@ -31,7 +31,6 @@ urlpatterns = springfield_i18n_patterns(
     path("", include("springfield.firefox.urls")),
     path("privacy/", include("springfield.privacy.urls")),
     path("", include("springfield.newsletter.urls")),
-    path("_documents/", include(wagtaildocs_urls)),
 )
 
 # Paths that must not have a locale prefix
@@ -41,6 +40,7 @@ urlpatterns += (
     path("healthz/", watchman_views.ping, name="watchman.ping"),
     path("readiness/", watchman_views.status, name="watchman.status"),
     path("healthz-cron/", base_views.cron_health_check),
+    path("_documents/", include(wagtaildocs_urls)),
 )
 
 if settings.DEV:
