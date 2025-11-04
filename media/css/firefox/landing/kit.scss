@@ -151,10 +151,19 @@ main {
     }
 }
 
+// Center for smaller screens
+.fl-banner-brand-bottom-right {
+    @media (max-width: 1023px) {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
 .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .c-animation-button {
     position: absolute;
     bottom: 80px;
     right: 10px;
+    z-index: 1;
 
     @media (min-width: 768px) {
         right: 20px;
