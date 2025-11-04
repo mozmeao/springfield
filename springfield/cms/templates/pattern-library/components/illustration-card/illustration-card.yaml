@@ -1,0 +1,11 @@
+name: "Illustration Card"
+context:
+  image: "https://via.placeholder.com/600x400/6941C6/FFFFFF?text=Illustration"
+  image_after: false
+  expand_link: false
+  heading: "Feature Highlight"
+  body: "This card combines an illustration with text content to showcase features or benefits."
+  buttons:
+    - label: "Learn More"
+      link: "/"
+      theme_class: ""

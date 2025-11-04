@@ -1,0 +1,23 @@
+name: "Sticker Card Variants"
+context:
+  cards:
+    - sticker: "https://via.placeholder.com/200x200/F59E0B/FFFFFF?text=Fox"
+      expand_link: false
+      heading: "With Buttons"
+      body: "This card has action buttons for user interaction."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
+    - sticker: "https://via.placeholder.com/200x200/EC4899/FFFFFF?text=Heart"
+      expand_link: false
+      heading: "No Buttons"
+      body: "This card is informational only, without interactive elements."
+    - sticker: "https://via.placeholder.com/200x200/8B5CF6/FFFFFF?text=Star"
+      expand_link: true
+      heading: "Clickable Card"
+      body: "The entire card area is clickable with expand_link enabled."
+      buttons:
+        - label: "Visit"
+          link: "/"
+          theme_class: ""

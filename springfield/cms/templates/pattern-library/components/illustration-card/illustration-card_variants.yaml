@@ -1,0 +1,33 @@
+name: "Illustration Card Variants"
+context:
+  cards:
+    - note: "Image Before (default)"
+      image: "https://via.placeholder.com/600x400/6941C6/FFFFFF?text=Image+Before"
+      image_after: false
+      expand_link: false
+      heading: "Image First Layout"
+      body: "In this layout, the image appears first (on the left on desktop, above on mobile)."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
+    - note: "Image After (reversed)"
+      image: "https://via.placeholder.com/600x400/EC4899/FFFFFF?text=Image+After"
+      image_after: true
+      expand_link: false
+      heading: "Image Last Layout"
+      body: "With image_after enabled, the image appears after the content (on the right on desktop, below on mobile)."
+      buttons:
+        - label: "Get Started"
+          link: "/"
+          theme_class: ""
+    - note: "Expandable Link Card"
+      image: "https://via.placeholder.com/600x400/F59E0B/FFFFFF?text=Clickable"
+      image_after: false
+      expand_link: true
+      heading: "Entire Card is Clickable"
+      body: "This card has expand_link enabled, making the whole card area clickable."
+      buttons:
+        - label: "Visit"
+          link: "/"
+          theme_class: ""

@@ -1,0 +1,16 @@
+name: "Section"
+context:
+  heading: "Why Choose Firefox"
+  cards:
+    - icon: "shield"
+      heading: "Privacy Protection"
+      body: "Block trackers and protect your privacy automatically."
+    - icon: "heart"
+      heading: "Built for Good"
+      body: "Made by Mozilla, a non-profit fighting for a healthier internet."
+    - icon: "mobile"
+      heading: "Works Everywhere"
+      body: "Sync your browsing across all your devices."
+  cta:
+    - label: "Get Firefox"
+      url: "/"

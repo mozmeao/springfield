@@ -1,0 +1,13 @@
+name: "Cards List"
+context:
+  grid_four: false
+  cards:
+    - icon: "shield"
+      heading: "Privacy First"
+      body: "Your data belongs to you, not advertisers."
+    - icon: "heart"
+      heading: "Built for Good"
+      body: "Made by Mozilla, a non-profit on a mission."
+    - icon: "mobile"
+      heading: "Cross-Platform"
+      body: "Available on all your devices."
