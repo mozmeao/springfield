@@ -141,8 +141,18 @@ $color-charcoal: #333336;
 // * -------------------------------------------------------------------------- */
 // Enterprise Callout Section
 .enterprise-callout {
-    margin-top: -280px;
-    padding: $spacing-2xl;
+    margin-top: -100px;
+    padding: $spacing-xs;
+
+    @media #{$mq-sm} {
+        margin-top: -220px;
+        padding: $spacing-md;
+    }
+
+    @media #{$mq-md} {
+        margin-top: -280px;
+        padding: $spacing-2xl;
+    }
 
     .callout-wrapper {
         background-color: $color-white;
@@ -166,8 +176,16 @@ $color-charcoal: #333336;
 .support-callout {
     background-color: $color-marketing-gray-10;
     border-radius: $border-radius-lg;
-    padding: 80px 200px;
+    padding: $spacing-lg;
     text-align: center;
+
+    @media #{$mq-md} {
+        padding: 80px;
+    }
+
+    @media #{$mq-lg} {
+        padding: 80px 200px;
+    }
 
     .mzp-c-callout-title {
         @include text-title-sm;
