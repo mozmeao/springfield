@@ -16,7 +16,7 @@ context:
       expand_link: false
       heading: "No Buttons"
       body: "This card has no buttons, just an icon, heading, and body text."
-    - icon: "mobile"
+    - icon: "toggle-on"
       expand_link: true
       heading: "Expand Link"
       body: "This card has expand_link enabled, making the entire card clickable."

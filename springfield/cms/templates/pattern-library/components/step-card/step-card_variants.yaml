@@ -1,7 +1,7 @@
 name: "Step Card Variants"
 context:
   cards:
-    - image: "https://via.placeholder.com/600x400/10B981/FFFFFF?text=Step+1"
+    - image: "/media/img/firefox/flare/placeholder.png"
       superheading: "Step 01"
       heading: "Download Firefox"
       body: "Get the latest version of Firefox for your device to get started."
@@ -10,7 +10,7 @@ context:
         - label: "Download"
           link: "/"
           theme_class: ""
-    - image: "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=Step+2"
+    - image: "/media/img/firefox/flare/placeholder.png"
       superheading: "Step 02"
       heading: "Create an Account"
       body: "Sign up for a Firefox Account to sync your data across devices."
@@ -19,7 +19,7 @@ context:
         - label: "Sign Up"
           link: "/"
           theme_class: ""
-    - image: "https://via.placeholder.com/600x400/8B5CF6/FFFFFF?text=Step+3"
+    - image: "/media/img/firefox/flare/placeholder.png"
       superheading: "Step 03"
       heading: "Start Browsing"
       body: "You're all set! Start enjoying a faster, more private browsing experience."

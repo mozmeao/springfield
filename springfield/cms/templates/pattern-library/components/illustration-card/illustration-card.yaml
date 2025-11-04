@@ -1,6 +1,6 @@
 name: "Illustration Card"
 context:
-  image: "https://via.placeholder.com/600x400/6941C6/FFFFFF?text=Illustration"
+  image: "/media/img/firefox/flare/placeholder.png"
   image_after: false
   expand_link: false
   heading: "Feature Highlight"
