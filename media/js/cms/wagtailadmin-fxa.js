@@ -36,7 +36,8 @@ class FXASource extends window.React.Component {
         const entityKey = contentWithEntity.getLastCreatedEntityKey();
 
         const originalText = content
-            .getPlainText()
+            .getBlockForKey(selection.anchorKey)
+            .getText()
             .slice(selection.getStartOffset(), selection.getEndOffset());
 
         const newContent = window.DraftJS.Modifier.replaceText(
