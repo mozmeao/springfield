@@ -24,18 +24,18 @@ class FXASource extends window.React.Component {
 
         const content = editorState.getCurrentContent();
         const selection = editorState.getSelection();
-        let nextState, newContent;
+        let newContent;
 
         const originalText = content
             .getBlockForKey(selection.anchorKey)
             .getText()
             .slice(selection.getStartOffset(), selection.getEndOffset());
 
-        let entityKey = content
+        const currentEntityKey = content
             .getBlockForKey(selection.anchorKey)
             .getEntityAt(selection.getStartOffset());
 
-        if (!entityKey) {
+        if (!currentEntityKey) {
             const contentWithEntity = content.createEntity(
                 entityType.type,
                 'MUTABLE',
@@ -44,14 +44,13 @@ class FXASource extends window.React.Component {
                     url: ''
                 }
             );
-            entityKey = contentWithEntity.getLastCreatedEntityKey();
 
             newContent = window.DraftJS.Modifier.replaceText(
                 content,
                 selection,
                 originalText,
                 null,
-                entityKey
+                contentWithEntity.getLastCreatedEntityKey()
             );
         } else {
             newContent = window.DraftJS.Modifier.replaceText(
@@ -63,7 +62,7 @@ class FXASource extends window.React.Component {
             );
         }
 
-        nextState = window.DraftJS.EditorState.push(
+        const nextState = window.DraftJS.EditorState.push(
             editorState,
             newContent,
             'insert-characters'
