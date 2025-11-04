@@ -27,7 +27,7 @@
               {% if cta.link.new_window %}target="_blank" rel="external noopener"{% endif %}
               data-cta-position="{{ block_position + ".cta" }}"
               data-cta-text="{{ block_text + " - " + cta.label }}"
-              data-cta-uid="{{ cta.analytics_id }}"
+              data-cta-uid="{{ cta.settings.analytics_id }}"
             >{{ cta.label }}</a>
           {% endfor %}
         </div>

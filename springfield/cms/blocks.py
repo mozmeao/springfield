@@ -140,7 +140,6 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
-        form_classname = "compact-form struct-block"
 
 
 # Buttons
@@ -305,6 +304,7 @@ class CTASettings(blocks.StructBlock):
 
 
 class CTABlock(blocks.StructBlock):
+    settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
     link = LinkBlock()
 
