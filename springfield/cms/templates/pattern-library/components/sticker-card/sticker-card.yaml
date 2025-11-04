@@ -1,6 +1,6 @@
 name: "Sticker Card"
 context:
-  sticker: "https://via.placeholder.com/200x200/F59E0B/FFFFFF?text=Sticker"
+  sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
   expand_link: false
   heading: "Fun Feature"
   body: "Sticker cards add a playful visual element with decorative sticker graphics."

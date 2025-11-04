@@ -2,7 +2,7 @@ name: "Illustration Card Variants"
 context:
   cards:
     - note: "Image Before (default)"
-      image: "https://via.placeholder.com/600x400/6941C6/FFFFFF?text=Image+Before"
+      image: "/media/img/firefox/flare/placeholder.png"
       image_after: false
       expand_link: false
       heading: "Image First Layout"
@@ -12,7 +12,7 @@ context:
           link: "/"
           theme_class: ""
     - note: "Image After (reversed)"
-      image: "https://via.placeholder.com/600x400/EC4899/FFFFFF?text=Image+After"
+      image: "/media/img/firefox/flare/placeholder.png"
       image_after: true
       expand_link: false
       heading: "Image Last Layout"
@@ -22,7 +22,7 @@ context:
           link: "/"
           theme_class: ""
     - note: "Expandable Link Card"
-      image: "https://via.placeholder.com/600x400/F59E0B/FFFFFF?text=Clickable"
+      image: "/media/img/firefox/flare/placeholder.png"
       image_after: false
       expand_link: true
       heading: "Entire Card is Clickable"
