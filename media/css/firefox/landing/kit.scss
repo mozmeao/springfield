@@ -293,7 +293,6 @@ main {
 
         li {
             counter-increment: custom-marker;
-            font-size: var(--font-size-body-xsmall);
 
             &::before {
                 content: counter(custom-marker);
