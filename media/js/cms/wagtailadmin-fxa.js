@@ -23,37 +23,51 @@ class FXASource extends window.React.Component {
         const { editorState, entityType, onComplete } = this.props;
 
         const content = editorState.getCurrentContent();
-
-        const contentWithEntity = content.createEntity(
-            entityType.type,
-            'MUTABLE',
-            {
-                uid: uuid4(),
-                url: ''
-            }
-        );
         const selection = editorState.getSelection();
-        const entityKey = contentWithEntity.getLastCreatedEntityKey();
+        let nextState, newContent;
 
         const originalText = content
             .getBlockForKey(selection.anchorKey)
             .getText()
             .slice(selection.getStartOffset(), selection.getEndOffset());
 
-        const newContent = window.DraftJS.Modifier.replaceText(
-            content,
-            selection,
-            originalText,
-            null,
-            entityKey
-        );
+        let entityKey = content
+            .getBlockForKey(selection.anchorKey)
+            .getEntityAt(selection.getStartOffset());
 
-        const nextState = window.DraftJS.EditorState.push(
+        if (!entityKey) {
+            const contentWithEntity = content.createEntity(
+                entityType.type,
+                'MUTABLE',
+                {
+                    uid: uuid4(),
+                    url: ''
+                }
+            );
+            entityKey = contentWithEntity.getLastCreatedEntityKey();
+
+            newContent = window.DraftJS.Modifier.replaceText(
+                content,
+                selection,
+                originalText,
+                null,
+                entityKey
+            );
+        } else {
+            newContent = window.DraftJS.Modifier.replaceText(
+                content,
+                selection,
+                originalText,
+                null,
+                null
+            );
+        }
+
+        nextState = window.DraftJS.EditorState.push(
             editorState,
             newContent,
             'insert-characters'
         );
-
         onComplete(nextState);
     }
 
