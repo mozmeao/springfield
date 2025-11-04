@@ -32,7 +32,7 @@ video[autoplay] {
 main {
     // We need the casing to stay on X-LocaleSpecific
     /* stylelint-disable-next-line value-keyword-case */
-    --title-font-family: 'Mozilla Headline Condensed', fallback, X-LocaleSpecific, sans-serif;
+    --condensed-title-font-family: 'Mozilla Headline Condensed', fallback, X-LocaleSpecific, sans-serif;
     --purple-light-purple: #F1E7F8; // Figma Soft Purple
     --figma-link-purple: #6132BC;
     --figma-black-4: #15141A;
@@ -190,6 +190,7 @@ main {
 }
 
 .fl-banner .heading {
+    font-family: var(--condensed-title-font-family);
     font-size: 4rem; // 64px
     font-weight: var(--font-weight-semibold);
     line-height: 0.9;
@@ -211,7 +212,8 @@ main {
     font-size: var(--font-size-subheading-1);
     font-weight: var(--font-weight-semibold);
     line-height: 1.1;
-    margin-bottom: 30px;
+    margin-top: 10px;
+    margin-bottom: 24px;
 }
 
 .c-banner-body {
