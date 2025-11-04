@@ -117,16 +117,18 @@ def transform_button_list(buttons):
     for button in buttons:
         new_button = {**button}
         value = new_button.get("value", {})
-        new_button["value"]["link"] = {
-            "link_to": "custom_url" if value.get("link") else "page",
-            "page": value.get("page") if value.get("page") else None,
-            "custom_url": value.get("link") if value.get("link") else "",
-            "new_window": value.get("settings", {}).get("external", False),
-            "file": None,
-            "anchor": None,
-            "email": None,
-            "phone": None,
-        }
+        # If it's already in the new format, skip it
+        if not isinstance(value.get("link"), dict):
+            new_button["value"]["link"] = {
+                "link_to": "custom_url" if value.get("link") else "page",
+                "page": value.get("page") if value.get("page") else None,
+                "custom_url": value.get("link") if value.get("link") else "",
+                "new_window": value.get("settings", {}).get("external", False),
+                "file": None,
+                "anchor": None,
+                "email": None,
+                "phone": None,
+            }
         new_buttons.append(new_button)
 
     return new_buttons
@@ -135,12 +137,12 @@ def transform_button_list(buttons):
 def convert_links(apps, schema_editor):
     FreeFormPage = apps.get_model("cms", "FreeFormPage")
     WhatsNewPage = apps.get_model("cms", "WhatsNewPage")
-    for page in WhatsNewPage.objects.filter(content__icontains="banner"):
+    for page in WhatsNewPage.objects.all():
         updated_value = walk_and_transform(list(page.content.raw_data))
         page.content.raw_data = updated_value
         page.save(update_fields=["content"])
 
-    for page in FreeFormPage.objects.filter(content__icontains="banner"):
+    for page in FreeFormPage.objects.all():
         updated_value = walk_and_transform(list(page.content.raw_data))
         page.content.raw_data = updated_value
         page.save(update_fields=["content"])
