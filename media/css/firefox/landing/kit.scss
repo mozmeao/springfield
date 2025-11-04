@@ -235,6 +235,10 @@ main {
 
     @media (min-width: 1024px) {
         flex-direction: row;
+
+        > * {
+            flex-basis: 50%; // make cards take up equal width
+        }
     }
 }
 
