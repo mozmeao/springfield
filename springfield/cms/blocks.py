@@ -304,6 +304,7 @@ class CTASettings(blocks.StructBlock):
 
 
 class CTABlock(blocks.StructBlock):
+    settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
     link = LinkBlock()
 
