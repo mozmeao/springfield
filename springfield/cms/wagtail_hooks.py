@@ -11,7 +11,9 @@ import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
-from wagtail.admin.rich_text.converters.html_to_contentstate import InlineEntityElementHandler
+from wagtail.admin.rich_text.converters.html_to_contentstate import (
+    InlineEntityElementHandler,
+)
 from wagtail.admin.widgets.button import Button
 
 from springfield.base.templatetags.helpers import css_bundle
@@ -113,12 +115,30 @@ def register_fxa(features):
 
     control = {
         "type": type_,
-        "label": "FXA 🔗",
+        "icon": [
+            "M1.136 1024.5H.557V.5h.579zm47.456-276.319c30.256 0 48.092-18.472 48.092-50.002v-136.95h151.282c25.16 0 "
+            "41.085-14.332 41.085-38.219 0-23.568-16.243-37.9-41.085-37.9H96.684V362.173H263.57c26.117 0 43.633-14.968"
+            " 43.633-39.81s-17.198-39.812-43.633-39.812H48.591C18.336 282.551.5 301.024.5 332.554V698.18c0 31.53 17.835"
+            " 50.002 48.092 50.002Zm284.085.637c16.561 0 25.797-5.414 38.537-25.16l66.564-100.006h1.91l67.839 101.598c10.51"
+            " 15.924 19.428 23.568 37.581 23.568 25.161 0 44.27-15.924 44.27-41.085 0-10.191-3.185-19.11-10.191-28.664l-79.304-109.56"
+            " 78.03-104.145c8.917-11.466 12.42-20.702 12.42-32.168 0-23.568-17.516-39.492-43.632-39.492-17.198 0-27.072 "
+            "7.643-39.493 27.071l-62.423 95.228h-1.911l-63.698-95.865c-12.421-19.746-22.294-26.434-41.085-26.434-25.48 "
+            "0-44.588 17.517-44.588 40.766 0 10.829 3.185 20.065 9.873 28.983l79.622 108.604-79.94 107.012c-8.918 11.784-12.422"
+            " 20.702-12.422 31.849 0 22.294 17.517 37.9 42.04 37.9Zm328.527-.637c25.48 0 39.811-12.74 "
+            "48.729-43.314l24.205-71.66h165.933l24.205 72.615c8.599 29.938 22.93 42.36 50.002 42.36 28.027 0 "
+            "48.092-18.792 48.092-45.226 0-9.555-1.592-18.154-6.051-30.575L890.197 330.325c-13.695-37.582-35.989-54.143-73.57-54.143-36.308"
+            " 0-58.92 17.198-72.297 54.461L618.845 672.381c-4.14 11.784-6.37 22.613-6.37 30.575 0 27.708 18.791 45.225 48.73 "
+            "45.225Zm93.954-189.5 59.558-188.227h2.229l60.831 188.227z"
+        ],
         "description": "Firefox Account link",
         "element": "fxa",
     }
 
-    features.register_editor_plugin("draftail", feature, draftail_features.EntityFeature(control, js=["js/wagtailadmin-fxa.js"]))
+    features.register_editor_plugin(
+        "draftail",
+        feature,
+        draftail_features.EntityFeature(control, js=["js/wagtailadmin-fxa.js"]),
+    )
 
     db_conversion = {
         "from_database_format": {tag: FXAEntityElementHandler(type_)},
