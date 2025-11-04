@@ -4,23 +4,36 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// IMPORTANT: use with 'video-prefers-reduced-motion' JS
-
 const VIDEO_STATE = 'data-js-video-state';
 
-async function togglePlayState(e) {
+// adapted from https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play#examples
+async function toggleButton(button, isPlaying) {
+    if (isPlaying) {
+        button.setAttribute(VIDEO_STATE, 'playing');
+    } else {
+        button.setAttribute(VIDEO_STATE, 'paused');
+    }
+}
+
+async function playVideo(video, button) {
+    try {
+        await video.play();
+        toggleButton(button, true);
+    } catch (err) {
+        // make sure button reflects that video is still not playing
+        toggleButton(button, false);
+    }
+}
+
+function handleButtonClick(e) {
     const button = e.currentTarget;
     const video = button.nextElementSibling;
+
     if (video.paused) {
-        try {
-            await video.play();
-            button.setAttribute(VIDEO_STATE, 'playing');
-        } catch (err) {
-            // call sentry?
-        }
+        playVideo(video, button);
     } else {
         video.pause();
-        button.setAttribute(VIDEO_STATE, 'paused');
+        toggleButton(button, false);
     }
 }
 
@@ -31,12 +44,12 @@ function init() {
     );
     playStateButtons.forEach((button) => {
         // when reduced motion pref, initiate as paused
-        // remove controls because the button is available
         if (!window.Mozilla.Utils.allowsMotion()) {
+            const video = button.nextElementSibling;
+            video.pause();
             button.setAttribute(VIDEO_STATE, 'paused');
-            button.nextElementSibling.removeAttribute('controls');
         }
-        button.addEventListener('click', (e) => togglePlayState(e));
+        button.addEventListener('click', (e) => handleButtonClick(e));
     });
 }
 

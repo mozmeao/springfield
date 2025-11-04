@@ -20,14 +20,6 @@
   size-adjust: 77.44%;
 }
 
-// supports js/base/video-prefers-reduced-motion.es6.js
-/* stylelint-disable block-no-empty  */
-@keyframes js-check-autoplay {}
-
-video[autoplay] {
-    animation: js-check-autoplay 0s;
-}
-
 // Kit styles (unlayered to override both flare and m24)
 main {
     // We need the casing to stay on X-LocaleSpecific
