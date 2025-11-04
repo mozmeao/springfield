@@ -467,6 +467,7 @@ SUPPORTED_NONLOCALES = [
     "locales",
     "csrf_403",
     "pattern-library",
+    "_documents",
 ]
 
 # Ensure local debug-only test routes are not locale-prefixed
