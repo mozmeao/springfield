@@ -43,11 +43,10 @@ function init() {
         `button[${VIDEO_STATE}]`
     );
     playStateButtons.forEach((button) => {
-        // when reduced motion pref, initiate as paused
-        if (!window.Mozilla.Utils.allowsMotion()) {
+        // when no reduced motion pref, start playing
+        if (window.Mozilla.Utils.allowsMotion()) {
             const video = button.nextElementSibling;
-            video.pause();
-            button.setAttribute(VIDEO_STATE, 'paused');
+            playVideo(video, button);
         }
         button.addEventListener('click', (e) => handleButtonClick(e));
     });
