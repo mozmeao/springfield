@@ -37,7 +37,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
 
-    {% block header %}
+    {% block flare_header %}
     <include:flare26-header />
     {% endblock %}
 
@@ -49,7 +49,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     </main>
     {% endblock %}
 
-    {% block footer %}
+    {% block flare_footer %}
     <include:flare26-footer />
     {% endblock %}
 
