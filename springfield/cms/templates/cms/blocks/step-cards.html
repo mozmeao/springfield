@@ -4,19 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="fl-section fl-section-mobile fl-card-list">
-  <div class="fl-section-container">
-    <div class="fl-card-list-header">
+<include:step-cards>
+  <content:header>
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}
       {% endwith %}
-    </div>
-
-    <div class="fl-grid fl-illustration-cards-reverse">
+  </content:header>
+  <content:cards>
       {% for card in value.cards %}
         {% set card_index = loop.index0 %}
         {% include_block card %}
       {% endfor %}
-    </div>
-  </div>
-</section>
+  </content:cards>
+</include:step-cards>

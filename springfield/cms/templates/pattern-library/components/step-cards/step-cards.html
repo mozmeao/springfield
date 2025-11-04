@@ -1,0 +1,35 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:step-cards>
+  <content:header>
+    <include:heading
+      heading_text="{{ heading }}"
+      size="1"
+      alignment_class="text-center"
+    />
+  </content:header>
+  <content:cards>
+    {% for card in cards %}
+      <include:step-card expand_link="false">
+        <content:media>
+          <img src="{{ card.image }}" alt="" loading="lazy" />
+        </content:media>
+        <content:heading>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-size-3"
+            heading_text="{{ card.heading }}"
+            superheading_text="{{ card.superheading }}"
+          />
+        </content:heading>
+        <content:body>
+          {{ card.body }}
+        </content:body>
+      </include:step-card>
+    {% endfor %}
+  </content:cards>
+</include:step-cards>
