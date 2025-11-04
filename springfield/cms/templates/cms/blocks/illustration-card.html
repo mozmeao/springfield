@@ -44,7 +44,7 @@
   <div class="fl-card-content">
     {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
     <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-    <div class="fl-body">{{ value.content }}</div>
+    <div class="fl-body">{{ value.content|richtext }}</div>
     {% if value.buttons %}
       <div class="fl-buttons">
         {% if value.buttons %}

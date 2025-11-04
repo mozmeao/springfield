@@ -48,7 +48,7 @@
       <{{ superheading_level }} class="fl-superheading">{{ ftl('block-step-card-step', number="{:02d}".format(card_index)) }}</{{ superheading_level }}>
       <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
     </hgroup>
-    <div class="fl-body">{{ value.content }}</div>
+    <div class="fl-body">{{ value.content|richtext }}</div>
     {% if value.buttons %}
       <div class="fl-buttons">
         {% if value.buttons %}

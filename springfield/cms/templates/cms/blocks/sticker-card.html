@@ -19,7 +19,7 @@
     {% endif %}
   </div>
   <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-  <div class="fl-body fl-body-medium">{{ value.content }}</div>
+  <div class="fl-body fl-body-medium">{{ value.content|richtext }}</div>
   {% if value.buttons %}
     <div class="fl-buttons">
       {% if value.buttons %}
