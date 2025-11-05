@@ -164,6 +164,14 @@ $color-charcoal: #333336;
             @include text-title-sm;
         }
 
+        .mzp-c-callout-desc {
+            text-align: start;
+
+            @media #{$mq-sm} {
+                text-align: center;
+            }
+        }
+
         .callout-cta {
             margin-top: $spacing-xl;
             padding: $spacing-md $spacing-xl;
@@ -191,6 +199,14 @@ $color-charcoal: #333336;
         @include text-title-sm;
     }
 
+    .mzp-c-callout-desc {
+        text-align: start;
+
+        @media #{$mq-sm} {
+            text-align: center;
+        }
+    }
+
     .support-cta {
         @include text-body-md;
         display: inline-block;
@@ -207,13 +223,10 @@ $color-charcoal: #333336;
         position: relative;
         border: 1px solid $color-charcoal;
 
-        &:hover {
+        &:hover,
+        &:active {
             background: $color-charcoal;
             color: $color-white;
-        }
-
-        &:active {
-            transform: translateY(0);
         }
 
         .button-icon {
