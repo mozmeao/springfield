@@ -150,12 +150,18 @@ def read_markdown_file(file_path: str) -> str:
 @library.filter()
 def richtext(context, value: str) -> str:
     """
-    Replaces Wagtail's `richtext` filter to process the custom <fxa> tag with Firefox Account link.
-    See springfield/cms/wagtail_hooks.py for the <fxa> tag registration.
+    Replaces Wagtail's `richtext` filter to:
+        - process the custom <fxa> tag with Firefox Account link.
+        (See springfield/cms/wagtail_hooks.py for the <fxa> tag registration.)
+        - add UTM parameters to external Mozilla links.
     """
     rich_text = wagtail_richtext(value)
     text = rich_text.source if isinstance(rich_text, RichText) else str(rich_text)
     soup = BeautifulSoup(text, "html.parser")
+
+    for link in soup.find_all("a"):
+        href = link.get("href", "")
+        link["href"] = add_utm_parameters(context, href)
 
     for fxa_tag in soup.find_all("fxa"):
         label = fxa_tag.text
