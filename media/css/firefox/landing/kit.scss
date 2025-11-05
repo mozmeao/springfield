@@ -295,22 +295,27 @@ main {
         counter-reset: custom-marker;
         display: grid;
         gap: 10px;
+        padding-left: 34px;
 
         li {
             counter-increment: custom-marker;
+            position: relative;
 
             &::before {
                 content: counter(custom-marker);
-                width: 24px;
-                aspect-ratio: 1 / 1;
-                display: inline-flex;
                 align-items: center;
-                justify-content: center;
+                aspect-ratio: 1 / 1;
                 background-color: var(--purple-purple);
-                color: var(--neutrals-white);
                 border-radius: 50%;
+                color: var(--neutrals-white);
+                display: inline-flex;
                 font-size: var(--font-size-body-2xsmall);
+                justify-content: center;
                 margin-inline-end: 10px;
+                position: absolute;
+                right: 100%;
+                top: 0;
+                width: 24px;
             }
         }
     }
@@ -623,5 +628,3 @@ main {
         mask: var(--icon-src) no-repeat center / 1em 1em;
     }
 }
-
-
