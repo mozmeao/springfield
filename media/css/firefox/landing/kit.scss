@@ -64,7 +64,7 @@ main {
     background: var(--gradient-radial-purple);
     color: var(--neutrals-white);
     border: none;
-    padding: calc(var(--scale-64)*1px) calc(var(--scale-24)*1px);
+    padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
     padding-bottom: 0;
 
 }
@@ -101,21 +101,6 @@ main {
     max-width: 400px;
     margin: auto;
 }
-
-// .kit-banner-brand {
-//     max-height: 90%;
-//     max-width: min(740px,60%);
-// }
-
-// .kit-banner-media {
-//     border-radius: calc(var(--scale-16) * 1px);
-//     min-height: 300px;
-//     overflow: hidden;
-//     background-size: cover;
-//     background-position: center;
-//     background-repeat: no-repeat;
-//     width: 100%;
-// }
 
 .kit-banner-subheading {
     font-size: var(--font-size-subheading-1);
@@ -238,7 +223,7 @@ main {
     }
 }
 
-@media (min-width: 1024px;) {
+@media (min-width: 1024px) {
     .c-animation-button {
         bottom: 30px;
         right: 80px;
