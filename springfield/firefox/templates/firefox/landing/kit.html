@@ -1,0 +1,164 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "base-protocol.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{# Don't forget to set '<title>%s</title>' content when formatting, e.g. per locale from 'icon_title'. #}
+{% set pencil_icon = '<svg role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19"><title>%s</title><g clip-path="url(#a)"><path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"/></g><defs><clipPath id="a"><path d="M0 .462h18v18H0z"/></clipPath></defs></svg>' %}
+
+{% if LANG == 'de' %}
+  {% set icon_title = 'Neuer freund an bord' %}
+  {% set meta_desc = 'Firefox bekommt einen frischen Look und du siehst es zuerst.' %}
+  {% set main_heading = 'Sag Hallo zu Kit' %}
+  {% set main_subheading = 'Neuer freund an bord' %}
+  {% set main_body = 'Firefox bekommt einen frischen Look und du siehst es zuerst. Kit ist unser neues Maskottchen und dein Begleiter durch ein Internet, das privat, offen und wirklich deins ist.' %}
+  {% set card_1_heading = 'Hol dir ein neues Hintergrundbild' %}
+  {% set card_1_list_1 = 'Öffne einen neuen Tab.' %}
+  {% set card_1_list_2 = 'Klicke unten rechts auf das  ' + pencil_icon + '-Symbol.' %}
+  {% set card_1_list_3 = 'Wähle dein neues Firefox-Hintergrundbild aus.' %}
+  {% set card_2_heading = 'Du erhältst Kit-Produkte vor allen anderen.' %}
+  {% set card_2_body = '<p>Neue limitierte Designs, sofort erhältlich.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
+  {% set card_2_cta_na = 'Nordamerika' %}
+  {% set card_2_cta_eu = 'Europa' %}
+{% elif LANG == 'fr' %}
+  {% set icon_title = 'Personnaliser' %}
+  {% set meta_desc = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde' %}
+  {% set main_heading = 'Dites bonjour à Kit' %}
+  {% set main_subheading = 'Nouvelle amitié débloquée' %}
+  {% set main_body = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde. Kit, notre nouvelle mascotte, va accompagner votre navigation au sein d’un internet privé, ouvert et qui vous appartient.' %}
+  {% set card_1_heading = 'Choisissez un nouveau fond d’écran' %}
+  {% set card_1_list_1 = 'Ouvrez un nouvel onglet.' %}
+  {% set card_1_list_2 = 'Cliquez sur l’icône ' + pencil_icon + ' en bas à droite.' %}
+  {% set card_1_list_3 = 'Sélectionnez votre nouveau fond d’écran Firefox.' %}
+  {% set card_2_heading = 'Vous êtes aux premières loges pour les produits Kit' %}
+  {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits:</p>' %}
+  {% set card_2_cta_na = 'Amérique du Nord' %}
+  {% set card_2_cta_eu = 'Europe' %}
+{% else %}
+  {% set icon_title = 'Customize' %}
+  {% set meta_desc = 'The Firefox brand is getting a refresh and you get the first look' %}
+  {% set main_heading = 'Say hi to Kit' %}
+  {% set main_subheading = 'New friend unlocked' %}
+  {% set main_body = 'The Firefox brand is getting a refresh and you get the first look. Kit’s our new mascot and your new companion through an internet that’s private, open and actually yours.' %}
+  {% set card_1_heading = 'Grab a new wallpaper' %}
+  {% set card_1_list_1 = 'Open a new tab.' %}
+  {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
+  {% set card_1_list_3 = 'Select your new Firefox wallpaper.' %}
+  {% set card_2_heading = 'You’re first in line for Kit gear' %}
+  {% set card_2_body = '<p>New limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
+  {% set card_2_cta_na = 'North America' %}
+  {% set card_2_cta_eu = 'Europe' %}
+{% endif %}
+
+{% block page_title %}{{ main_heading }}{% endblock %}
+{% block page_desc %}{{ meta_desc }}{% endblock %}
+
+{% block page_css %}
+  {{ css_bundle('kit') }}
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="fl-banner-container">
+    <div class="fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right fl-banner-brandsize-large " aria-labelledby="fl-banner-heading">
+        <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
+          <div class="media">
+            <button class="button c-animation-button" data-js-video-state="paused">
+              <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <title>{{ ftl('ui-play-animation')}}</title>
+                <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
+              </svg>
+              <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <title>{{ ftl('ui-pause-animation')}}</title>
+                <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
+                <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
+              </svg>
+            </button>
+              <video playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
+                <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
+                <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
+              </video>
+          </div>
+        </div>
+        <div class="fl-banner-layout">
+          <div class="fl-banner-content fl-banner-content-centered">
+              <div class="fl-banner-content-inner">
+                <h1 id="fl-banner-heading" class="heading  heading-size-2">
+                    {{ main_heading }}
+                </h1>
+                <h2 class="c-banner-subheading">{{ main_subheading }}</h2>
+                <div class="c-banner-body subheading  subheading-4">
+                    <p>{{ main_body }}</p>
+                </div>
+              </div>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="c-card-gallery">
+    <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
+      <div class="c-gallery-card-text-container">
+        <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
+        <ol>
+          <li>{{ card_1_list_1 }}</li>
+          <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
+          <li>{{ card_1_list_3 }}</li>
+        </ol>
+      </div>
+      <div class="c-gallery-card-media-container">
+        {{ resp_img(
+            url="img/firefox/kit/browser-dark.png",
+            srcset={
+              "img/firefox/kit/browser-dark-315.png": "315w",
+              "img/firefox/kit/browser-dark-630.png": "630w",
+              "img/firefox/kit/browser-dark-1259.png": "1259w",
+              "img/firefox/kit/browser-dark-1738.png": "1738w",
+            },
+            sizes={
+              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+              "(min-width: 1024px)": "calc(50vw - 156px)",
+              "default": "calc(100vw - 80px)",
+            },
+            optional_attributes={ "l10n": True, "loading": "lazy" })
+        }}
+      </div>
+    </section>
+    <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
+      <div class="c-gallery-card-text-container">
+        <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
+        {{ card_2_body | safe }}
+        <div class="buttons">
+          <a href="https://mozilla-na.myspreadshop.com/introducing+kit?collection=pFGwhvwYfR" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+          <a href="https://mozilla-europe.myspreadshop.ie/introducing+kit?collection=cJvxXDyZTi" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+        </div>
+      </div>
+      <div class="c-gallery-card-media-container">
+        {{ resp_img(
+          url="img/firefox/landing/kit/merch-627.png",
+          srcset={
+            "img/firefox/landing/kit/merch-314.png": "314w",
+            "img/firefox/landing/kit/merch-627.png": "627w",
+            "img/firefox/landing/kit/merch-1254.png": "1254w",
+            "img/firefox/landing/kit/merch-1852.png": "1852w",
+          },
+          sizes={
+              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+              "(min-width: 1024px)": "calc(50vw - 156px)",
+              "default": "calc(100vw - 80px)",
+          },
+          optional_attributes={ "loading": "lazy" }) }}
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('video_play_state') }}
+{% endblock %}
