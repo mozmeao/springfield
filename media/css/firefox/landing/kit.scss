@@ -156,7 +156,16 @@ main {
         max-width: min(740px,60%);
         bottom: 0;
         right: 0;
+    }
+}
 
+@supports (-webkit-backdrop-filter: none) {
+    .kit-banner-still {
+        display: block;
+    }
+
+    .kit-banner-media video {
+        display: none;
     }
 }
 
@@ -227,6 +236,12 @@ main {
     .c-animation-button {
         bottom: 30px;
         right: 80px;
+    }
+}
+
+@supports (-webkit-backdrop-filter: none) {
+    .c-animation-button {
+        display: none;
     }
 }
 
