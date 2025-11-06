@@ -144,10 +144,11 @@ main {
     .kit-banner-content {
         max-width: 100%;
         text-align: left;
+    }
 
-        h2, div {
-            max-width: 400px;
-        }
+    .kit-banner-body {
+        width: 400px;
+        max-width: 43%;
     }
 
     .kit-banner-brand {
