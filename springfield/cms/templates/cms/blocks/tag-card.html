@@ -25,10 +25,10 @@
   </content:body>
   {% if value.buttons %}
     <content:buttons>
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+      {% for button in value.buttons %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
+        {% include_block button %}
+      {% endfor %}
     </content:buttons>
   {% endif %}
 </include:card>
