@@ -8,21 +8,27 @@
 
 
 {% block content %}
-<div class="fl-page">
+<div class="fl-page fl-article-page">
   <main class="fl-main">
-    <header>
-      <include:heading
-        alignment_class="text-center"
-        level="h1"
-        heading_text="{{ page.title }}"
-        subheading_text="{{ page.sub_title }}"
-      />
-    </header>
-    <section class="fl-section">
-      <div class="fl-section-content">
-        {{ page.content|richtext }}
-      </div>
-    </section>
+    <div class="fl-article-body">
+      <header>
+        <include:heading
+            alignment_class="text-center"
+            level="h1"
+            heading_text="{{ page.title }}"
+            subheading_text="{{ page.sub_title }}"
+        />
+      </header>
+      <section class="fl-rich-text">
+      {{ page.content|richtext }}
+      </section>
+    </div>
   </main>
+
+  {% if page.call_to_action %}
+    {% for block in page.call_to_action %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
 </div>
 {% endblock %}

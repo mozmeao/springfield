@@ -10,6 +10,7 @@ from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.blocks import PageChooserBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
+from wagtail.snippets.blocks import SnippetChooserBlock
 
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -125,6 +126,22 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         features=HEADING_TEXT_FEATURES,
         help_text="A short description used on index page.",
     )
+    call_to_action = StreamField(
+        [
+            (
+                "download_firefox",
+                SnippetChooserBlock(
+                    target_model="cms.DownloadFirefoxCallToActionSnippet",
+                    template="cms/snippets/download_firefox_cta.html",
+                    label="Download Firefox Call To Action",
+                ),
+            )
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        max_num=1,
+    )
 
     content = RichTextField(
         blank=True,
@@ -135,6 +152,7 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         FieldPanel("image"),
         FieldPanel("description"),
         FieldPanel("content"),
+        FieldPanel("call_to_action"),
     ]
 
 

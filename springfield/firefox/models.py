@@ -2,50 +2,50 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.db import models
+# from django.db import models
 
-from wagtail.admin.panels import FieldPanel
+# from wagtail.admin.panels import FieldPanel
 
 # from wagtail.fields import StreamField
-from wagtail.models import TranslatableMixin
-from wagtail.snippets.models import register_snippet
+# from wagtail.models import TranslatableMixin
+# from wagtail.snippets.models import register_snippet
 
 # from springfield.cms.models.pages import ArticleDetailPageBase, ArticleIndexPageBase
 # from springfield.firefox.blocks.features import FeaturesVideoBlock
 
 
-class FeaturesCallToActionSnippet(TranslatableMixin):
-    heading = models.CharField(
-        max_length=255,
-    )
+# class FeaturesCallToActionSnippet(TranslatableMixin):
+#     heading = models.CharField(
+#         max_length=255,
+#     )
 
-    desc = models.CharField(
-        max_length=500,
-    )
+#     desc = models.CharField(
+#         max_length=500,
+#     )
 
-    image = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
+#     image = models.ForeignKey(
+#         "cms.SpringfieldImage",
+#         null=True,
+#         blank=True,
+#         on_delete=models.SET_NULL,
+#         related_name="+",
+#     )
 
-    panels = [
-        FieldPanel("heading"),
-        FieldPanel("desc"),
-        FieldPanel("image"),
-    ]
+#     panels = [
+#         FieldPanel("heading"),
+#         FieldPanel("desc"),
+#         FieldPanel("image"),
+#     ]
 
-    class Meta(TranslatableMixin.Meta):
-        verbose_name = "Features Call To Action Snippet"
-        verbose_name_plural = "Features Call To Action Snippets"
+#     class Meta(TranslatableMixin.Meta):
+#         verbose_name = "Features Call To Action Snippet"
+#         verbose_name_plural = "Features Call To Action Snippets"
 
-    def __str__(self):
-        return f"{self.heading} – {self.locale}"
+#     def __str__(self):
+#         return f"{self.heading} – {self.locale}"
 
 
-register_snippet(FeaturesCallToActionSnippet)
+# register_snippet(FeaturesCallToActionSnippet)
 
 
 # class FeaturesIndexPage(ArticleIndexPageBase):
