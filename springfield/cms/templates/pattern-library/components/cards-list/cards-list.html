@@ -9,8 +9,8 @@
 >
   <content:cards>
     {% for card in cards %}
-      <include:icon-card
-        icon="{{ card.icon }}"
+      <include:card
+        icon_name="{{ card.icon_name }}"
         expand_link="false"
       >
         <content:heading>
@@ -23,7 +23,7 @@
         <content:body>
           {{ card.body }}
         </content:body>
-      </include:icon-card>
+      </include:card>
     {% endfor %}
   </content:cards>
 </include:cards-list>

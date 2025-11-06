@@ -11,7 +11,7 @@
     {% set img_dark=image(value.dark_image, 'width-400') %}
   {% endif %}
 
-<include:sticker-card
+<include:card
   expand_link="{{ value.settings.expand_link }}"
 >
   <content:sticker>
@@ -40,4 +40,4 @@
         {% endfor %}
     </content:buttons>
   {% endif %}
-</include:sticker-card>
+</include:card>

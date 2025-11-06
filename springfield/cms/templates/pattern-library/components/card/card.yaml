@@ -1,9 +1,10 @@
-name: "Sticker Card"
+name: "Card"
 context:
+  icon_name: "heart"
   sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
   expand_link: false
   heading: "Fun Feature"
-  body: "Sticker cards add a playful visual element with decorative sticker graphics."
+  body: "Cards can display icons, sticker images, or tags with flexible content."
   buttons:
     - label: "Explore"
       link: "/"

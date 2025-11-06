@@ -4,7 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="fl-card fl-card-fill">
+<article class="fl-card {% if fill %}fl-card-fill{% endif %} {% if expand_link %}fl-card-expand-link{% endif %}">
+  {% if icon_name %}
+    <div class="fl-card-icon">
+      <include:icon icon_name="{{ icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
+    </div>
+  {% endif %}
+  {% if contents.sticker %}
+    {{ contents.sticker }}
+  {% endif %}
   {% if contents.tags %}
     <div>
       {{ contents.tags }}
@@ -14,7 +22,7 @@
     {{ contents.heading }}
   {% endif %}
   {% if contents.body %}
-    <div class="fl-body">{{ contents.body }}</div>
+    <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
   {% endif %}
   {% if contents.buttons %}
     <div class="fl-buttons">

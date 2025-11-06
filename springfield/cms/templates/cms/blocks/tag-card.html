@@ -7,7 +7,7 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:tag-card>
+<include:card fill="true" icon="">
   <content:tags>
     {% for tag in value.tags %}
       {% include_block tag %}
@@ -31,4 +31,4 @@
           {% endfor %}
     </content:buttons>
   {% endif %}
-</include:tag-card>
+</include:card>

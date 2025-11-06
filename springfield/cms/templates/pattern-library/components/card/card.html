@@ -5,17 +5,14 @@
 #}
 
 <div style="max-width: 400px;">
-  <include:tag-card>
-    {% if tags %}
-      <content:tags>
-        {% for tag in tags %}
-          <include:tag
-            text="{{ tag.text }}"
-            color="{{ tag.color }}"
-            corners="{{ tag.corners }}"
-          />
-        {% endfor %}
-      </content:tags>
+  <include:card
+    icon_name="{{ icon_name }}"
+    expand_link="{{ expand_link }}"
+  >
+    {% if sticker %}
+      <content:sticker>
+        <img class="fl-card-sticker" src="{{ sticker }}" alt="" aria-hidden="true" />
+      </content:sticker>
     {% endif %}
     <content:heading>
       <include:heading
@@ -38,5 +35,5 @@
         {% endfor %}
       </content:buttons>
     {% endif %}
-  </include:tag-card>
+  </include:card>
 </div>

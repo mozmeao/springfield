@@ -7,8 +7,8 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:icon-card
-  icon="{{ value.icon }}"
+<include:card
+  icon_name="{{ value.icon }}"
   expand_link="{{ value.settings.expand_link }}"
 >
   <content:heading>
@@ -29,4 +29,4 @@
       {% endfor %}
     </content:buttons>
   {% endif %}
-</include:icon-card>
+</include:card>
