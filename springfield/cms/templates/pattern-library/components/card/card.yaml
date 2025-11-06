@@ -1,6 +1,5 @@
 name: "Card"
 context:
-  icon_name: "heart"
   sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
   expand_link: false
   heading: "Fun Feature"

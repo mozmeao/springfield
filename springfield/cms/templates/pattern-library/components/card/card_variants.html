@@ -12,17 +12,21 @@
       <div>
         {% if card.note %}<p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>{% endif %}
         <include:card
-          icon_name="{{ card.icon_name }}"
           fill="{{ card.fill }}"
           expand_link="{{ card.expand_link }}"
         >
           {% if card.sticker %}
-            <content:sticker>
+            <content:pre_heading>
               <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
-            </content:sticker>
-          {% endif %}
-          {% if card.tags %}
-            <content:tags>
+            </content:pre_heading>
+          {% elif card.icon_name %}
+            <content:pre_heading>
+              <div class="fl-card-icon">
+                <include:icon icon_name="{{ card.icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
+              </div>
+            </content:pre_heading>
+          {% elif card.tags %}
+            <content:pre_heading>
               {% for tag in card.tags %}
                 <include:tag
                   text="{{ tag.text }}"
@@ -30,7 +34,7 @@
                   corners="{{ tag.corners }}"
                 />
               {% endfor %}
-            </content:tags>
+            </content:pre_heading>
           {% endif %}
           <content:heading>
             <include:heading

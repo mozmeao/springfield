@@ -6,13 +6,12 @@
 
 <div style="max-width: 400px;">
   <include:card
-    icon_name="{{ icon_name }}"
     expand_link="{{ expand_link }}"
   >
     {% if sticker %}
-      <content:sticker>
+      <content:pre_heading>
         <img class="fl-card-sticker" src="{{ sticker }}" alt="" aria-hidden="true" />
-      </content:sticker>
+      </content:pre_heading>
     {% endif %}
     <content:heading>
       <include:heading

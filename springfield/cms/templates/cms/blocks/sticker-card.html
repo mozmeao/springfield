@@ -14,14 +14,14 @@
 <include:card
   expand_link="{{ value.settings.expand_link }}"
 >
-  <content:sticker>
-  <div class="light-dark-display">
-    <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
-    {% if img_dark %}
-      <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
-    {% endif %}
-  </div>
-  </content:sticker>
+  <content:pre_heading>
+    <div class="light-dark-display">
+      <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
+      {% if img_dark %}
+        <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
+      {% endif %}
+    </div>
+  </content:pre_heading>
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
@@ -30,7 +30,7 @@
     />
   </content:heading>
   <content:body>
-    {{ value.content }}
+    {{ value.content|richtext }}
   </content:body>
   {% if value.buttons %}
     <content:buttons>
