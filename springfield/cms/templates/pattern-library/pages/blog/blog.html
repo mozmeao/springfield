@@ -29,6 +29,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
           {% if video_url %}
             <include:video
               url="{{ video_url }}"
+              {% if video_poster %}poster="{{ video_poster }}"{% endif %}
+              {% if video_alt %}alt="{{ video_alt }}"{% endif %}
             />
           {% endif %}
         </div>

@@ -6,5 +6,7 @@
 
 <include:video
   url="{{ url }}"
-  alt="{{ alt }}"
+  {% if poster %}poster="{{ poster }}"{% endif %}
+  {% if alt %}alt="{{ alt }}"{% endif %}
+  {% if aspect_ratio %}aspect_ratio="{{ aspect_ratio }}"{% endif %}
 />
