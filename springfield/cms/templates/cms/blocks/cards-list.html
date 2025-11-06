@@ -7,11 +7,9 @@
 <include:cards-list
   grid_four="{{ value.cards|length % 4 == 0 }}"
 >
-  <content:cards>
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}
     {% include_block card %}
   {% endfor %}
-  </content:cards>
 </include:cards-list>

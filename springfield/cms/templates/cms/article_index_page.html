@@ -19,23 +19,56 @@
       />
     </header>
     <section class="fl-section">
-      <div class="fl-section-content">
-        <h2>FEATURED ARTICLES</h2>
-        <ul>
+      <div class="fl-section-container">
+        <include:cards-list grid_four="{{ featured_articles|length % 4 == 0 }}">
           {% for article in featured_articles %}
-            <li>
-              <a href="{{ article.url }}">{{ article.title }}</a>
-            </li>
+            <include:illustration-card expand_link="true">
+              <content:media>
+                {% if article.image %}
+                  {{ srcset_image(
+                      article.image,
+                      "width-{200,400,600,800,1000,1200,1400}",
+                      sizes="
+                        (min-width: 768px) 50vw,
+                        (min-width: 1440px) 680px,
+                        100vw
+                      ",
+                      width=article.image.width,
+                      loading="lazy",
+                    ) }}
+                  {% else %}
+                    <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+                  {% endif %}
+              </content:media>
+              <content:heading>
+                <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+              </content:heading>
+              <content:body>
+                {{ article.description|richtext }}
+              </content:body>
+              <content:buttons>
+                <a href="{{ article.url }}" class="fl-link-expand"></a>
+              </content:buttons>
+            </include:illustration-card>
           {% endfor %}
-        </ul>
-        <h2>ALL ARTICLES</h2>
-        <ul>
+        </include:cards-list>
+
+
+        <include:cards-list grid_four="{{ featured_articles|length % 4 == 0 }}">
           {% for article in list_articles %}
-            <li>
-              <a href="{{ article.url }}">{{ article.title }}</a>
-            </li>
+            <include:card expand_link="true">
+              <content:heading>
+                <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+              </content:heading>
+              <content:body>
+                {{ article.description|richtext }}
+              </content:body>
+              <content:buttons>
+                <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+              </content:buttons>
+            </include:card>
           {% endfor %}
-        </ul>
+        </include:cards-list>
       </div>
     </section>
   </main>
