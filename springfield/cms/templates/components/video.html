@@ -4,8 +4,20 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="media">
-  <video controls aria-label="{{ alt }}">
-    <source src="{{ url }}" />
-  </video>
+<div class="media" {% if aspect_ratio %}style="--aspect-ratio: {{ aspect_ratio }}"{% endif %}>
+  {% if 'youtube.com' in url or 'youtu.be' in url %}
+    {% set embed_url = url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/') %}
+    <iframe
+      src="{{ embed_url }}"
+      title="{{ alt|default('YouTube video') }}"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  {% else %}
+    <video controls aria-label="{{ alt }}">
+      <source src="{{ url }}" />
+    </video>
+  {% endif %}
 </div>

@@ -26,6 +26,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         </div>
         <div class="fl-blog-content">
           <include:rich_text content="{{ read_markdown_file(content_file)|markdown_safe }}" />
+          {% if video_url %}
+            <include:video
+              url="{{ video_url }}"
+            />
+          {% endif %}
         </div>
         <div class="fl-blog-related-articles">
         <include:heading
