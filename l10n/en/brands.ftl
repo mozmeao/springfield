@@ -126,5 +126,5 @@
 -brand-name-youtube = YouTube
 -brand-name-chromebook = Chromebook
 
-## Enterprise program name
+# Enterprise program name
 -brand-name-support-for-organizations = Support for Organizations
