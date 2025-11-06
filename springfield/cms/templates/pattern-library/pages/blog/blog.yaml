@@ -2,6 +2,8 @@ name: "Blog Article Page"
 context:
   content_file: "pages/blog/BLOG_CONTENT.md"
 
+  background_image: "/media/img/firefox/flare/placeholder-scene.png"
+
   hero_image:
     url: "/media/img/firefox/flare/placeholder-scene.png"
     alt: "Placeholder alt text"

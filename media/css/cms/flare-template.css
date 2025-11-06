@@ -246,6 +246,18 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.fl-page-blog .fl-main::before {
+    background: var(--blog-header-image) top no-repeat;
+    background-size: contain;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .fl-content-inner {
