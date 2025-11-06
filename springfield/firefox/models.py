@@ -5,12 +5,13 @@
 from django.db import models
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.fields import StreamField
+
+# from wagtail.fields import StreamField
 from wagtail.models import TranslatableMixin
 from wagtail.snippets.models import register_snippet
 
-from springfield.cms.models.pages import ArticleDetailPageBase, ArticleIndexPageBase
-from springfield.firefox.blocks.features import FeaturesVideoBlock
+# from springfield.cms.models.pages import ArticleDetailPageBase, ArticleIndexPageBase
+# from springfield.firefox.blocks.features import FeaturesVideoBlock
 
 
 class FeaturesCallToActionSnippet(TranslatableMixin):
@@ -47,54 +48,54 @@ class FeaturesCallToActionSnippet(TranslatableMixin):
 register_snippet(FeaturesCallToActionSnippet)
 
 
-class FeaturesIndexPage(ArticleIndexPageBase):
-    subpage_types = ["FeaturesDetailPage"]
-    template = "firefox/features/cms/index.html"
+# class FeaturesIndexPage(ArticleIndexPageBase):
+#     subpage_types = ["FeaturesDetailPage"]
+#     template = "firefox/features/cms/index.html"
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-        article_data = FeaturesDetailPage.objects.filter(locale=self.locale).live().public().order_by("-first_published_at")
+#     def get_context(self, request, *args, **kwargs):
+#         context = super().get_context(request)
+#         article_data = FeaturesDetailPage.objects.filter(locale=self.locale).live().public().order_by("-first_published_at")
 
-        featured_articles = article_data.filter(featured_article=True)
-        list_articles = article_data.filter(featured_article=False)
+#         featured_articles = article_data.filter(featured_article=True)
+#         list_articles = article_data.filter(featured_article=False)
 
-        context["featured_articles"] = featured_articles
-        context["list_articles"] = list_articles
-        context["ftl_files"] = ["firefox/features/index-2023", "firefox/features/shared"]
-        return context
+#         context["featured_articles"] = featured_articles
+#         context["list_articles"] = list_articles
+#         context["ftl_files"] = ["firefox/features/index-2023", "firefox/features/shared"]
+#         return context
 
 
-class FeaturesDetailPage(ArticleDetailPageBase):
-    parent_page_types = ["FeaturesIndexPage"]
-    template = "firefox/features/cms/detail.html"
+# class FeaturesDetailPage(ArticleDetailPageBase):
+#     parent_page_types = ["FeaturesIndexPage"]
+#     template = "firefox/features/cms/detail.html"
 
-    article_media = StreamField(
-        [("video", FeaturesVideoBlock(max_num=1))],
-        blank=True,
-        null=True,
-        collapsed=True,
-    )
+#     article_media = StreamField(
+#         [("video", FeaturesVideoBlock(max_num=1))],
+#         blank=True,
+#         null=True,
+#         collapsed=True,
+#     )
 
-    featured_article = models.BooleanField(
-        default=False,
-        help_text="Check to set as a featured article on the index page.",
-    )
+#     featured_article = models.BooleanField(
+#         default=False,
+#         help_text="Check to set as a featured article on the index page.",
+#     )
 
-    call_to_action_bottom = models.ForeignKey(
-        "firefox.FeaturesCallToActionSnippet",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
+#     call_to_action_bottom = models.ForeignKey(
+#         "firefox.FeaturesCallToActionSnippet",
+#         null=True,
+#         blank=True,
+#         on_delete=models.SET_NULL,
+#         related_name="+",
+#     )
 
-    content_panels = ArticleDetailPageBase.content_panels + [
-        FieldPanel("article_media"),
-        FieldPanel("featured_article"),
-        FieldPanel("call_to_action_bottom"),
-    ]
+#     content_panels = ArticleDetailPageBase.content_panels + [
+#         FieldPanel("article_media"),
+#         FieldPanel("featured_article"),
+#         FieldPanel("call_to_action_bottom"),
+#     ]
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-        context["ftl_files"] = ["firefox/features/index-2023", "firefox/features/shared"]
-        return context
+#     def get_context(self, request, *args, **kwargs):
+#         context = super().get_context(request)
+#         context["ftl_files"] = ["firefox/features/index-2023", "firefox/features/shared"]
+#         return context

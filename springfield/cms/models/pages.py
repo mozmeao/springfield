@@ -7,10 +7,12 @@ from django.db import models
 from django.shortcuts import redirect
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
+from wagtail.blocks import PageChooserBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
+    HEADING_TEXT_FEATURES,
     BannerBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -79,21 +81,38 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     template = "cms/simple_rich_text_page.html"
 
 
-class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
+class ArticleIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.ArticleDetailPage"]
     sub_title = models.CharField(
         max_length=255,
         blank=True,
     )
+    featured_articles = StreamField(
+        [("page", PageChooserBlock(target_model="cms.ArticleDetailPage"))],
+        blank=True,
+        null=True,
+        use_json_field=True,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
+        FieldPanel("featured_articles"),
     ]
 
-    class Meta:
-        abstract = True
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
+
+        featured_articles = [page.value for page in self.featured_articles]
+        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page not in featured_articles]
+
+        context["featured_articles"] = featured_articles
+        context["list_articles"] = list_articles
+        return context
 
 
-class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
+class ArticleDetailPage(AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.ArticleIndexPage"]
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -101,10 +120,9 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
     )
-
-    desc = models.CharField(
-        max_length=500,
+    description = RichTextField(
         blank=True,
+        features=HEADING_TEXT_FEATURES,
         help_text="A short description used on index page.",
     )
 
@@ -115,12 +133,9 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("image"),
-        FieldPanel("desc"),
+        FieldPanel("description"),
         FieldPanel("content"),
     ]
-
-    class Meta:
-        abstract = True
 
 
 def _get_freeform_page_blocks(allow_uitour=False):

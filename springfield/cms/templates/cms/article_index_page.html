@@ -1,0 +1,43 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+    <header>
+      <include:heading
+        alignment_class="text-center"
+        level="h1"
+        heading_text="{{ page.title }}"
+        subheading_text="{{ page.sub_title }}"
+      />
+    </header>
+    <section class="fl-section">
+      <div class="fl-section-content">
+        <h2>FEATURED ARTICLES</h2>
+        <ul>
+          {% for article in featured_articles %}
+            <li>
+              <a href="{{ article.url }}">{{ article.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <h2>ALL ARTICLES</h2>
+        <ul>
+          {% for article in list_articles %}
+            <li>
+              <a href="{{ article.url }}">{{ article.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
