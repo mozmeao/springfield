@@ -67,10 +67,19 @@
 
 {% block content %}
 <main>
-  <div class="fl-banner-container">
-    <div class="fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right fl-banner-brandsize-large " aria-labelledby="fl-banner-heading">
-        <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
-          <div class="media">
+  <div class="kit-banner-container">
+    <div class="kit-banner" aria-labelledby="kit-banner-heading">
+        <div class="kit-banner-content">
+          <h1 id="kit-banner-heading" class="heading heading-size-2">
+              {{ main_heading }}
+          </h1>
+          <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
+          <div class="kit-banner-body subheading">
+              <p>{{ main_body }}</p>
+          </div>
+        </div>
+        <div class="kit-banner-brand" aria-hidden="true">
+          <div class="kit-banner-media">
             <button class="button c-animation-button" data-js-video-state="paused">
               <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <title>{{ ftl('ui-play-animation')}}</title>
@@ -82,23 +91,11 @@
                 <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
               </svg>
             </button>
-              <video playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
-                <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
-                <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
-              </video>
-          </div>
-        </div>
-        <div class="fl-banner-layout">
-          <div class="fl-banner-content fl-banner-content-centered">
-              <div class="fl-banner-content-inner">
-                <h1 id="fl-banner-heading" class="heading  heading-size-2">
-                    {{ main_heading }}
-                </h1>
-                <h2 class="c-banner-subheading">{{ main_subheading }}</h2>
-                <div class="c-banner-body subheading  subheading-4">
-                    <p>{{ main_body }}</p>
-                </div>
-              </div>
+            <video playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
+              <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
+              <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
+            </video>
+            <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden>
           </div>
         </div>
     </div>
