@@ -124,6 +124,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/kit.scss"
+      ],
+      "name": "kit"
+    },
+    {
+      "files": [
         "css/csrf-failure.scss"
       ],
       "name": "csrf-failure"
@@ -667,6 +673,12 @@
         "js/base/datalayer-videoengagement-init.es6.js"
       ],
       "name": "data_videoengagement"
+    },
+    {
+      "files": [
+        "js/base/video-play-state.es6.js"
+      ],
+      "name": "video_play_state"
     },
     {
       "files": [

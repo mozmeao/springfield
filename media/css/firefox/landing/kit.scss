@@ -1,0 +1,630 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+// From https://github.com/mozilla/mozilla-type-family/blob/main/Mozilla%20Headline/Web%20Fonts/Condensed
+@font-face {
+    font-family: 'Mozilla Headline Condensed';
+    src: url('/media/fonts/mozilla-headline/MozillaHeadlineCondensed-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+  font-family: fallback;
+  src: local("Georgia");
+  ascent-override: 94.4%;
+  descent-override: 25.6%;
+  line-gap-override: 0%;
+  size-adjust: 77.44%;
+}
+
+// Kit styles (unlayered to override both flare and m24)
+main {
+    // We need the casing to stay on X-LocaleSpecific
+    /* stylelint-disable-next-line value-keyword-case */
+    --condensed-title-font-family: 'Mozilla Headline Condensed', fallback, X-LocaleSpecific, sans-serif;
+    --purple-light-purple: #F1E7F8; // Figma Soft Purple
+    --figma-link-purple: #6132BC;
+    --figma-black-4: #15141A;
+    display: grid;
+    row-gap: 16px;
+    padding-block: 16px;
+
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    h1, h2, p, ol {
+        margin-bottom: 0;
+    }
+
+    p, ol {
+        line-height: 1.4;
+    }
+
+    .button {
+        line-height: 1;
+    }
+
+    img,
+    video {
+        width: 100%;
+        display: block;
+    }
+}
+
+.button {
+    text-decoration: none;
+    /* stylelint-disable-next-line declaration-no-important */
+    color:  var(--neutrals-white);
+    background-color: var(--purple-purple);
+    border-radius: 40px;
+    font-weight: var(--font-weight-semibold);
+    padding: 16px 24px;
+
+    &:hover,
+    &:focus {
+        background-color: var(--purple-light-purple);
+        color: var(--purple-dark-purple)
+    }
+
+    &:active {
+        background-color: var(--purple-dark-purple);
+        color:  var(--neutrals-white);
+    }
+}
+
+.c-animation-button {
+    background-color: var(--purple-light-purple);
+    color: var(--figma-black-4);
+    box-sizing: content-box;
+    padding: 4px;
+
+    &:hover,
+    &:focus {
+        background-color: var(--figma-link-purple);
+        color: var(--neutrals-white);
+    }
+
+    &:active {
+        background-color: var(--purple-dark-purple);
+        color: var(--neutrals-white);
+    }
+
+    &[data-js-video-state="paused"] {
+        .c-animation-button-play {
+            display: block;
+        }
+
+        .c-animation-button-pause {
+            display: none;
+        }
+    }
+
+    &[data-js-video-state="playing"] {
+        .c-animation-button-play {
+            display: none;
+        }
+
+        .c-animation-button-pause {
+            display: block;
+        }
+    }
+}
+
+.fl-banner-container {
+    padding-block: 0; // page spacing controlled by main
+}
+
+.fl-banner {
+    border-radius: 40px;
+
+    @media (min-width: 768px) {
+        border-radius: 128px;
+    }
+
+    @media (min-width: 1024px) {
+        padding: 120px;
+    }
+}
+
+.fl-banner-filled {
+    --title-text-color: var(--neutrals-white);
+}
+
+// center the media on mobile
+@media (max-width: 480px) {
+    .fl-banner-brand-bottom-right {
+        width: 100%;
+        right: unset;
+    }
+}
+
+// Center for smaller screens
+.fl-banner-brand-bottom-right {
+    @media (max-width: 1023px) {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+.fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .c-animation-button {
+    position: absolute;
+    bottom: 80px;
+    right: 10px;
+    z-index: 1;
+
+    @media (min-width: 768px) {
+        right: 20px;
+    }
+
+    @media (min-width: 1024px) {
+        bottom: 30px;
+        right: 80px;
+    }
+}
+
+// Match with when .fl-banner-content-centered is overridden and layout moves to 2
+@media (min-width: 1024px) {
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: subgrid;
+    }
+
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content-inner {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: subgrid;
+
+        > * {
+            grid-column: 1;
+        }
+    }
+
+    .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .heading {
+        grid-column: 1 / -1;
+    }
+}
+
+.fl-banner .heading {
+    font-family: var(--condensed-title-font-family);
+    font-size: 4rem; // 64px
+    font-weight: var(--font-weight-semibold);
+    line-height: 0.9;
+    letter-spacing: -0.6;
+    @media (min-width: 768px) {
+        font-size: 5rem; // 80px
+    }
+
+    @media (min-width: 1024px) {
+        font-size: 8rem; // 128px
+    }
+}
+
+.fl-banner-content-centered .fl-banner-content-inner {
+    align-items: center; // ensure c-banner-body is centered within container
+}
+
+.c-banner-subheading {
+    font-size: var(--font-size-subheading-1);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.1;
+    margin-top: 10px;
+    margin-bottom: 24px;
+}
+
+.c-banner-body {
+    max-width: 400px;
+}
+
+.c-card-gallery {
+    // match width/padding to fl-banner-container
+    margin-inline: auto;
+    padding-inline: 40px;
+    width: 100%;
+    max-width: calc(var(--widths-viewport-wrapper-screen-2xl) * 1px);
+
+    // card gallery styles
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    @media (min-width: 1024px) {
+        flex-direction: row;
+
+        > * {
+            flex-basis: 50%; // make cards take up equal width
+        }
+    }
+}
+
+// match width/padding to fl-banner-container
+@media (max-width: 767px) {
+    .c-card-gallery {
+        padding-inline: calc(var(--scale-24) * 1px);
+    }
+}
+
+.c-gallery-card {
+    --padding: 32px;
+    border-radius: 40px;
+    padding-block-start: var(--padding);
+    overflow: clip;
+    display: grid;
+    align-items: start;
+    grid-template-columns: [full-width-start] var(--padding) [text-start] 1fr [text-end] var(--padding) [full-width-end];
+    row-gap: 70px;
+
+    @media (min-width: 768px) {
+        --padding: 56px;
+        border-radius: 80px;
+    }
+
+    @media (min-width: 1024px) {
+        --padding: 80px;
+        border-radius: 128px;
+    }
+}
+
+.c-gallery-card-type-1 {
+    .c-gallery-card-media-container {
+        grid-column: text-start / full-width-end;
+        border-top-left-radius: 3%;
+        overflow: clip;
+    }
+}
+
+.c-gallery-card-type-2 {
+    .c-gallery-card-media-container {
+        grid-column: full-width;
+    }
+}
+
+.c-gallery-card-text-container {
+    grid-column: text;
+    display: grid;
+    gap: 24px;
+    justify-items: start;
+    font-size: var(--font-size-body-medium);
+
+    ol {
+        counter-reset: custom-marker;
+        display: grid;
+        gap: 10px;
+        padding-left: 34px;
+
+        li {
+            counter-increment: custom-marker;
+            position: relative;
+
+            &::before {
+                content: counter(custom-marker);
+                align-items: center;
+                aspect-ratio: 1 / 1;
+                background-color: var(--purple-purple);
+                border-radius: 50%;
+                color: var(--neutrals-white);
+                display: inline-flex;
+                font-size: var(--font-size-body-2xsmall);
+                justify-content: center;
+                margin-inline-end: 10px;
+                position: absolute;
+                right: 100%;
+                top: 0;
+                width: 24px;
+            }
+        }
+    }
+
+    svg {
+        border-radius: 2px;
+        background-color: rgba(21, 20, 26, 0.10);
+        padding: 4px;
+        vertical-align: middle;
+        box-sizing: content-box;
+    }
+}
+
+.c-gallery-card-media-container {
+    align-self: end;
+}
+
+.c-gallery-card-heading {
+    font-size: 1.8125rem; // 29px
+    font-weight: var(--font-weight-semibold);
+}
+
+.c-gallery-card-dark {
+    --title-text-color: var(--neutrals-white);
+    background-color: var(--purple-dark-purple);
+    color: var(--neutrals-white);
+}
+
+.c-gallery-card-light {
+    background-color: var(--purple-light-purple);
+}
+
+// Forked from flare styles (cms/flare.css)
+@layer flare {
+    main {
+        /* Color tokens from Figma */
+        --neutrals-white: #fff;
+        --purple-purple: #754fe0;
+        --purple-medium-purple: #d98dfa;
+        --purple-dark-purple: #210340;
+        --purple-light-purple: #dcd2ff;
+
+        /* Gradients from Figma */
+        --gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--purple-purple) 0%, var(--purple-dark-purple) 100%);
+
+        /* Scale variables from Figma */
+        --scale-16: 16;
+        --scale-24: 24;
+        --scale-40: 40;
+        --scale-48: 48;
+        --scale-64: 64;
+        --scale-80: 80;
+        --scale-128: 128;
+        --scale-200: 200;
+
+        /* Grid and spacing variables from Figma */
+        --grids-spacing-interior-spacing-x1-5: 12;
+
+        /* Width and viewport variables from Figma */
+        --widths-viewport-wrapper-screen-2xl: 1440;
+
+        /* Font size variables NOT from Figma */
+        --font-size-base: 16px;
+
+        /* Subheading font size variables */
+        --font-size-subheading-1: 1.5rem; /* 24px */
+        --font-size-subheading-5: 1rem; /* 16px */
+
+        /* Body font size variables */
+        --font-size-body-medium: 1.125rem; /* 18px */
+        --font-size-body-xsmall: 0.875rem; /* 14px */
+        --font-size-body-2xsmall: 0.75rem; /* 12px */
+
+        /* Util variable */
+         --font-weight-semibold: 600;
+
+        /* Transition variables NOT from Figma */
+        --transition-base: 0.2s ease;
+    }
+
+    // Forked from cms/flare-utilities
+    .font-semibold { font-weight: var(--font-weight-semibold); }
+
+    // Forked from cms/flare-banner.css
+    .fl-banner {
+        position: relative;
+        border-radius: calc(var(--scale-16) * 1px);
+        padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
+        overflow: hidden;
+    }
+
+    .fl-banner-container {
+        width: 100%;
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: calc(var(--scale-40) * 1px);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--scale-40) * 1px);
+    }
+
+    .fl-banner .heading, .fl-banner .subheading {
+        margin: 0;
+    }
+
+    .fl-banner .subheading {
+        font-size: var(--font-size-subheading-5);
+    }
+
+    .fl-banner-filled {
+        background: var(--gradient-radial-purple);
+        color: var(--neutrals-white);
+        border: none;
+        position: relative;
+    }
+
+    .fl-banner-filled .heading {
+        color: var(--neutrals-white);
+    }
+
+    .fl-banner-filled .subheading {
+        color: var(--neutrals-white);
+    }
+
+    .fl-banner-media {
+        border-radius: calc(var(--scale-16) * 1px);
+        height: auto;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .fl-banner-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 840px;
+        text-align: left;
+    }
+
+    .fl-banner-content-centered {
+        text-align: center;
+        align-items: center;
+        margin: auto;
+    }
+
+    .fl-banner-content-centered .fl-banner-content-inner {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .fl-banner-content-inner {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--scale-16) * 1px);
+    }
+
+    .fl-banner-brand {
+        position: absolute;
+        z-index: 0;
+        max-width: 400px;
+        max-height: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fl-banner-brand-bottom-right {
+        bottom: 0;
+        right: 0;
+    }
+
+    .fl-banner-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: calc(var(--scale-24) * 1px);
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    @media (max-width: 767px) {
+        .fl-banner-container {
+            padding: calc(var(--scale-24) * 1px);
+        }
+
+        .fl-banner {
+            padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .fl-banner-content {
+            text-align: center;
+            align-items: center;
+        }
+
+        .fl-banner-hasbrand-bottom-left,
+        .fl-banner-hasbrand-bottom-right,
+        .fl-banner-hasbrand-bottom {
+            padding-bottom: calc(var(--scale-200) * 1px);
+        }
+
+        .fl-banner-brand {
+            max-width: 90%;
+            max-width: min(90%, 400px);
+            max-height: calc(var(--scale-200) * 1px);
+        }
+
+        .fl-banner-media {
+            min-height: 200px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .fl-banner-brandsize-large .fl-banner-content-centered {
+            padding-bottom: calc(var(--scale-128) * 1px);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .fl-banner-container {
+            gap: calc(var(--scale-64) * 1px);
+        }
+
+        .fl-banner-brandsize-large .fl-banner-brand {
+            max-width: min(740px, 60%);
+            max-height: 90%;
+        }
+
+        .fl-banner-brandsize-large .fl-banner-layout:not(:has(.fl-banner-media)) {
+            grid-template-columns: 1fr 1fr;
+            gap: calc(var(--scale-48) * 1px);
+        }
+
+        .fl-banner-brandsize-large.fl-banner-hasbrand-right .fl-banner-content,
+        .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-content,
+        .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-content {
+            grid-column: 1;
+            text-align: left;
+            align-items: flex-start;
+        }
+    }
+
+    .button {
+        display: inline-block;
+        padding: 16px 32px;
+        font-family: var(--font-family-button);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-button);
+        line-height: 1.5;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        background: transparent;
+        color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+        border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    }
+
+    .button:hover, .button:focus {
+        background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+        border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+        color: light-dark(var(--neutrals-white), var(--neutrals-black));
+    }
+
+    .button:active {
+        background: light-dark(var(--neutrals-black), var(--neutrals-white));
+        color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+    }
+
+    .button .icon {
+        vertical-align: middle;
+    }
+
+    .button .icon-right {
+        margin-left: 10px;
+    }
+
+    .button .icon-arrow {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-color: currentColor;
+        mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/16px 16px;
+    }
+
+    .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--grids-spacing-interior-spacing-x1-5, 12) * 1px);
+    }
+
+    .icon-arrow-right { --icon-src: url('/media/img/firefox/flare/icons/arrow-right.svg'); }
+
+    .icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        background-color: currentColor;
+        vertical-align: middle;
+        -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+        mask: var(--icon-src) no-repeat center / 1em 1em;
+    }
+}
