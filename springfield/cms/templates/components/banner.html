@@ -25,7 +25,7 @@
 
   <div class="fl-banner-layout">
     {% if contents.media or qr_code %}
-      <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %}" aria-hidden="true">
+      <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
         {% if qr_code %}
           <div class="fl-banner-qr" role="img">{{ contents.qr }}</div>
         {% endif %}

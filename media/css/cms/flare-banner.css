@@ -131,13 +131,20 @@
 .fl-banner-qr {
     grid-area: 1 / 1;
     order: 2;
-    align-self: center;
-    justify-self: center;
+    place-self: center;
     width: 25%;
 }
 
 .fl-banner-qr > * {
     margin: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr {
+    width: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr > * {
+    width: 200px;
 }
 
 .fl-banner-content {

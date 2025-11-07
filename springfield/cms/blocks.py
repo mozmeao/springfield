@@ -131,13 +131,9 @@ FXA_BUTTON_TYPE = "fxa_button"
 
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
-    superheading_text = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES, required=False
-    )
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    subheading_text = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES, required=False
-    )
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
     class Meta:
         icon = "title"
@@ -443,9 +439,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             # help_text="Either an image or embed is required.",
             inline_form=True,
         )
-        dark_image = ImageChooserBlock(
-            required=False, help_text="Optional dark mode image"
-        )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # embed = EmbedBlock(
         #     required=False,
         #     help_text="Either an image or embed is required.",
@@ -509,9 +503,7 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     class _StickerCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(
-            required=False, help_text="Optional dark mode image"
-        )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -598,9 +590,7 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
         image = ImageChooserBlock(inline_form=True)
-        dark_image = ImageChooserBlock(
-            required=False, help_text="Optional dark mode image"
-        )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -629,9 +619,7 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
     class _StepCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(
-            required=False, help_text="Optional dark mode image"
-        )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -727,9 +715,7 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             required=False,
             # help_text="Either enter an image or embed, or leave both blank.",
         )
-        dark_image = ImageChooserBlock(
-            required=False, help_text="Optional dark mode image"
-        )
+        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         # TODO: re-enable the block when this issue with Wagtail Localize is resolved
         # https://github.com/wagtail/wagtail-localize/issues/875
         # embed = EmbedBlock(
@@ -790,9 +776,7 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
             ]
         )
-        cta = blocks.ListBlock(
-            CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action"
-        )
+        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
         class Meta:
             template = "cms/blocks/sections/section.html"
@@ -847,9 +831,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = (
-            "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
-        )
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
