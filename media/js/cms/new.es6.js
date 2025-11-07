@@ -203,6 +203,22 @@
         });
     }
 
+    function applyVideoAspectRatios() {
+        const videoContainers = document.querySelectorAll(
+            '.fl-video[data-aspect-ratio]'
+        );
+
+        videoContainers.forEach(function (container) {
+            const ratio = container.getAttribute('data-aspect-ratio');
+
+            if (!ratio) {
+                return;
+            }
+
+            container.style.aspectRatio = ratio;
+        });
+    }
+
     function initVideoPlayers() {
         const videoButtons = document.querySelectorAll('.js-video-play');
 
@@ -258,12 +274,14 @@
             initNewsletterForm();
             handleNewsletterSubmission();
             initNotificationClose();
+            applyVideoAspectRatios();
             initVideoPlayers();
         });
     } else {
         initNewsletterForm();
         handleNewsletterSubmission();
         initNotificationClose();
+        applyVideoAspectRatios();
         initVideoPlayers();
     }
 })();

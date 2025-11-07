@@ -13,14 +13,14 @@
 }
 
 .media iframe {
-    aspect-ratio: var(--aspect-ratio, 16 / 9);
+    aspect-ratio: 16 / 9;
 }
 
 /* Video component with click-to-play */
 .fl-video {
     position: relative;
     width: 100%;
-    aspect-ratio: var(--aspect-ratio, 16 / 9);
+    aspect-ratio: 16 / 9;
     overflow: hidden;
 }
 

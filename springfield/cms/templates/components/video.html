@@ -6,7 +6,7 @@
 
 {% if 'youtube.com' in url or 'youtu.be' in url %}
   {% set video_id = url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
-  <div class="fl-video" {% if aspect_ratio %}style="--aspect-ratio: {{ aspect_ratio }}"{% endif %}>
+  <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
       class="fl-video-play js-video-play"
       data-video-id="{{ video_id }}"
@@ -27,7 +27,7 @@
     </button>
   </div>
 {% elif 'assets.mozilla.net' in url %}
-  <div class="fl-video" {% if aspect_ratio %}style="--aspect-ratio: {{ aspect_ratio }}"{% endif %}>
+  <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
       class="fl-video-play js-video-play"
       data-video-url="{{ url }}"
