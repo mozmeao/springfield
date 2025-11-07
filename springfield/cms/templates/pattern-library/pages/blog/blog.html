@@ -5,7 +5,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <div class="fl-page fl-page-blog">
-  <main class="fl-main" {% if background_image %}style="--blog-header-image: url({{ background_image }})"{% endif %}>
+  <main class="fl-main">
+    {% if background_image %}
+      <div class="fl-blog-header-bg" aria-hidden="true">
+        <img src="{{ background_image }}" alt="" loading="lazy" decoding="async" />
+      </div>
+    {% endif %}
     <section class="fl-section">
       <div class="fl-section-container">
         <div class="fl-blog-header">

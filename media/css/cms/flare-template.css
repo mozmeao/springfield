@@ -249,16 +249,33 @@
     position: relative;
 }
 
-.fl-page-blog .fl-main::before {
-    background: var(--blog-header-image) top no-repeat;
-    background-size: contain;
-    content: "";
-    display: block;
+.fl-page-blog .fl-main {
+    z-index: 0;
+}
+
+
+.fl-page-blog .fl-blog-header-bg {
     position: absolute;
-    top: 0;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+}
+
+.fl-page-blog .fl-blog-header-bg img {
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    object-position: top center;
 }
+
+.fl-page-blog .fl-section,
+.fl-page-blog .fl-section-container {
+    position: relative;
+    z-index: 1;
+}
+
 
 .fl-content-inner {
     max-width: 1200px;
