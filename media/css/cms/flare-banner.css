@@ -97,6 +97,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background-image: var(--banner-bg-image);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
