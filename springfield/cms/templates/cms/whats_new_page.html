@@ -6,9 +6,7 @@
 
 {% extends "cms/free_form_page.html" %}
 
-{% block pre_content %}
-  <include:inline-notification
-    message="{{ ftl('whatsnew-update-notification') }}"
-    color="purple"
-  />
+
+{% block flare_footer %}
+  {% include 'cms/includes/wnp-footer.html' %}
 {% endblock %}

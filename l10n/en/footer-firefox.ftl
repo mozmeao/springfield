@@ -75,23 +75,3 @@ footer-firefox = { -brand-name-firefox }
 
 footer-powdered-by = Powered by { -brand-name-mozilla }
 footer-putting-people = Putting people before profits since 1998
-
-## New CMS footer
-
-# Variables:
-# $mozilla_link_attrs (attrs) - link to https://www.mozilla.org/
-# $mozilla_foundation_link_attrs (attrs) - link to https://foundation.mozilla.org/
-footer-visit-mozilla = Visit <a {$mozilla_link_attrs}>{ -brand-name-mozilla-corporation }’s</a> not-for-profit parent, the <a {$mozilla_foundation_link_attrs}>{ -brand-name-mozilla-foundation }</a>.
-
-# Variables:
-# $years (string) - license years ©1998–2025
-footer-contributors = Portions of this content are { $years } by individual mozilla.org contributors.
-
-# Variables:
-# $license_attrs (attrs) - link to https://www.mozilla.org/en-US/foundation/licensing/website-content/
-footer-license = Content available under a <a {$license_attrs}>{ -brand-name-creative-commons } license</a>.
-
-footer-firefox-support = { -brand-name-firefox } Support
-footer-privacy-notice = Privacy Notice
-footer-donate = Donate to { -brand-name-mozilla }
-footer-make-good-things = Make good things together
