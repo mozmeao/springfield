@@ -136,6 +136,10 @@
     width: 25%;
 }
 
+.fl-banner-qr > * {
+    margin: auto;
+}
+
 .fl-banner-content {
     display: flex;
     flex-direction: column;
