@@ -154,8 +154,7 @@ def richtext(context, value: str) -> str:
     See springfield/cms/wagtail_hooks.py for the <fxa> tag registration.
     """
     rich_text = wagtail_richtext(value)
-    text = rich_text.source if isinstance(rich_text, RichText) else str(rich_text)
-    soup = BeautifulSoup(text, "html.parser")
+    soup = BeautifulSoup(str(rich_text), "html.parser")
 
     for fxa_tag in soup.find_all("fxa"):
         label = fxa_tag.text
