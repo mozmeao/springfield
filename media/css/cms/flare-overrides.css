@@ -78,4 +78,16 @@ a[role="button"].fxa-link {
     padding: unset;
     border: unset;
     margin: unset;
+    color: light-dark(var(--blue-button), var(--blue-blue));
+    text-decoration: underline;
+}
+
+a[role="button"].fxa-link:visited {
+    color: light-dark(var(--purple-purple), var(--purple-light-purple));
+}
+
+a[role="button"].fxa-link:hover,
+a[role="button"].fxa-link:active,
+a[role="button"].fxa-link:focus {
+    text-decoration: none;
 }
