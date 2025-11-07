@@ -116,33 +116,24 @@
     background-repeat: no-repeat;
 }
 
+.fl-banner-media.has-qr-code {
+    display: grid;
+}
+
 .fl-banner-media img {
     width: 100%;
     height: auto;
     object-fit: cover;
     border-radius: calc(var(--scale-16) * 1px);
-}
-
-.fl-banner-media-qr {
-    background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
-    background-size: contain;
-    align-items: flex-end;
-    padding: 0 calc(var(--scale-24) * 1px);
-    height: 338px;
+    grid-area: 1 / 1;
 }
 
 .fl-banner-qr {
-    color: var(--neutrals-grey-8);
-    border-radius: calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0 0;
-    width: 200px;
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-base);
-    box-shadow: none;
-    padding: 10px 18px 0;
+    grid-area: 1 / 1;
+    order: 2;
+    align-self: center;
+    justify-self: center;
+    width: 25%;
 }
 
 .fl-banner-content {
