@@ -9,6 +9,7 @@ from django.core.management.base import CommandError
 import pytest
 import requests
 
+import springfield.base.management.commands.check_static_assets as asset_command
 from springfield.base.management.commands.check_static_assets import (
     CheckResult,
     Command,
@@ -111,6 +112,8 @@ def test_fetch_asset_head_fallback_to_get(monkeypatch):
         asset="css/app.css",
         method="head",
         timeout=2,
+        retry_count=0,
+        retry_backoff=1,
     )
 
     assert result.status == 200
@@ -133,6 +136,8 @@ def test_fetch_asset_non_success_head_retries_with_get(monkeypatch):
         asset="css/app.css",
         method="head",
         timeout=2,
+        retry_count=0,
+        retry_backoff=1,
     )
 
     assert result.status == 200
@@ -153,11 +158,80 @@ def test_fetch_asset_request_exception(monkeypatch):
         asset="css/app.css",
         method="head",
         timeout=1,
+        retry_count=0,
+        retry_backoff=1,
     )
 
     assert result.status is None
     assert not result.ok
     assert "boom" in result.error
+
+
+def test_fetch_asset_retries_on_timeout(monkeypatch):
+    command = build_command()
+
+    class FlakySession:
+        def __init__(self):
+            self.calls = 0
+
+        def request(self, method, url, timeout, allow_redirects):
+            self.calls += 1
+            if self.calls == 1:
+                raise requests.Timeout("first timeout")
+            return _DummyResponse(200, "OK")
+
+        def get(self, url, timeout, allow_redirects):
+            return _DummyResponse(200, "OK")
+
+    sleep_calls = []
+    monkeypatch.setattr(asset_command.time, "sleep", lambda delay: sleep_calls.append(delay))
+
+    session = FlakySession()
+
+    result = command._fetch_asset(
+        session=session,
+        base_url="https://cdn.example.com",
+        static_prefix="media",
+        asset="css/app.css",
+        method="head",
+        timeout=1,
+        retry_count=2,
+        retry_backoff=1,
+    )
+
+    assert result.status == 200
+    assert result.ok
+    assert sleep_calls == [1]
+
+
+def test_fetch_asset_exhausts_retries(monkeypatch):
+    command = build_command()
+
+    class TimeoutSession:
+        def request(self, method, url, timeout, allow_redirects):
+            raise requests.Timeout("still timing out")
+
+        def get(self, url, timeout, allow_redirects):
+            raise requests.Timeout("still timing out")
+
+    sleep_calls = []
+    monkeypatch.setattr(asset_command.time, "sleep", lambda delay: sleep_calls.append(delay))
+
+    result = command._fetch_asset(
+        session=TimeoutSession(),
+        base_url="https://cdn.example.com",
+        static_prefix="media",
+        asset="css/app.css",
+        method="head",
+        timeout=1,
+        retry_count=2,
+        retry_backoff=1,
+    )
+
+    assert result.status is None
+    assert not result.ok
+    assert "still timing out" in result.error
+    assert sleep_calls == [1, 2]
 
 
 def test_fetch_asset_redirect(monkeypatch):
@@ -173,6 +247,8 @@ def test_fetch_asset_redirect(monkeypatch):
         asset="css/app.css",
         method="get",
         timeout=1,
+        retry_count=0,
+        retry_backoff=1,
     )
 
     assert result.status == 302
@@ -183,7 +259,7 @@ def test_fetch_asset_redirect(monkeypatch):
 def test_check_host_returns_sorted_results(monkeypatch):
     command = build_command()
 
-    def fake_fetch(self, session, base_url, static_prefix, asset, method, timeout):
+    def fake_fetch(self, session, base_url, static_prefix, asset, method, timeout, retry_count, retry_backoff):
         status = 200 if asset.endswith("ok.css") else 404
         return CheckResult(asset_path=asset, url=f"{base_url}/{asset}", status=status, error=None if status == 200 else "Not Found")
 
@@ -196,6 +272,8 @@ def test_check_host_returns_sorted_results(monkeypatch):
         method="head",
         timeout=1,
         max_workers=4,
+        retry_count=0,
+        retry_backoff=1,
     )
 
     assert [result.asset_path for result in results] == ["a.ok.css", "b.css", "c.css"]

@@ -469,7 +469,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 # Cards
 
 
-class StickerCardSettings(blocks.StructBlock):
+class BaseCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -493,7 +493,7 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _StickerCardBlock(blocks.StructBlock):
-        settings = StickerCardSettings()
+        settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -517,6 +517,7 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _TagCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -530,23 +531,8 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
     return _TagCardBlock(*args, **kwargs)
 
 
-class IconCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link}"
-        form_classname = "compact-form struct-block"
-
-
 class IconCardBlock(blocks.StructBlock):
-    settings = IconCardSettings()
+    settings = BaseCardSettings()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -558,12 +544,7 @@ class IconCardBlock(blocks.StructBlock):
         label_format = "Icon Card - {headline}"
 
 
-class IllustrationCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
+class IllustrationCardSettings(BaseCardSettings):
     image_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -604,21 +585,6 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
     return _IllustrationCardBlock(*args, **kwargs)
 
 
-class StepCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link}"
-        form_classname = "compact-form struct-block"
-
-
 def StepCardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardBlock with appropriate button types.
 
@@ -628,7 +594,7 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _StepCardBlock(blocks.StructBlock):
-        settings = StepCardSettings()
+        settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)

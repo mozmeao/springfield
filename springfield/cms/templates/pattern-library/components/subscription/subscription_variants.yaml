@@ -1,0 +1,12 @@
+name: "Subscription Section Variants"
+context:
+  variants:
+    - note: "Newsletter Signup"
+      heading: "Get Firefox News"
+      button_label: "Sign Up"
+    - note: "Updates Subscription"
+      heading: "Stay Up to Date"
+      button_label: "Subscribe Now"
+    - note: "Simple CTA"
+      heading: "Join Our Community"
+      button_label: "Join"

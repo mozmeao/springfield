@@ -5,10 +5,13 @@
 #}
 
 {% set block_text =  value.headline|richtext|remove_tags %}
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<article class="fl-card fl-card-fill fl-illustration-card {% if value.settings.image_after %}fl-illustration-card-reverse{% endif %} {% if value.settings.expand_link %}fl-card-expand-link{% endif %}">
-
-  <div class="fl-card-media">
+<include:illustration-card
+  image_after="{{ value.settings.image_after }}"
+  expand_link="{{ value.settings.expand_link }}"
+>
+  <content:media>
     <div class="light-dark-display">
       {% if value.dark_image %}
         {{ srcset_image(
@@ -39,21 +42,23 @@
           class="display-light",
         ) }}
       </div>
-  </div>
-
-  <div class="fl-card-content">
-    {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-    <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-    <div class="fl-body">{{ value.content|richtext }}</div>
+  </content:media>
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-3"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+    />
+  </content:heading>
+  <content:body>
+    {{ value.content }}
+  </content:body>
     {% if value.buttons %}
-      <div class="fl-buttons">
-        {% if value.buttons %}
+    <content:buttons>
             {% for button in value.buttons %}
               {% set block_position = block_position ~ ".button-" ~ loop.index %}
               {% include_block button %}
             {% endfor %}
-        {% endif %}
-      </div>
+    </content:buttons>
     {% endif %}
-  </div>
-</article>
+</include:illustration-card>

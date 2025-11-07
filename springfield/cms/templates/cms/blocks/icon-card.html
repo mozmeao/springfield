@@ -5,21 +5,32 @@
 #}
 
 {% set block_text =  value.headline|richtext|remove_tags %}
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<div class="fl-card {% if value.settings.expand_link %}fl-card-expand-link{% endif %}">
-  <div class="fl-card-icon">
-    <include:icon icon_name="{{ value.icon }}" extra_class="fl-icon-size-4" hidden="true" />
-  </div>
-  {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-
-  <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-  <div class="fl-body">{{ value.content|richtext }}</div>
+<include:card
+  expand_link="{{ value.settings.expand_link }}"
+>
+  <content:pre_heading>
+    <div class="fl-card-icon">
+      <include:icon icon_name="{{ value.icon }}" extra_class="fl-icon-size-4" hidden="true" />
+    </div>
+  </content:pre_heading>
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-3"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+    />
+  </content:heading>
+  <content:body>
+    {{ value.content|richtext }}
+  </content:body>
   {% if value.button %}
-    <div class="fl-buttons">
+    <content:buttons>
       {% for button in value.button %}
         {% set block_position = block_position ~ ".button-" ~ loop.index %}
         {% include_block button %}
       {% endfor %}
-    </div>
+    </content:buttons>
   {% endif %}
-</div>
+</include:card>

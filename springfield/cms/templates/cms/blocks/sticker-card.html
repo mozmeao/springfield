@@ -6,28 +6,38 @@
 
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
-
-<article class="fl-card {% if value.settings.expand_link %}fl-card-expand-link{% endif %}">
   {% set img=image(value.image, 'width-400') %}
   {% if value.dark_image %}
     {% set img_dark=image(value.dark_image, 'width-400') %}
   {% endif %}
-  <div class="light-dark-display">
-    <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
-    {% if img_dark %}
-      <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
-    {% endif %}
-  </div>
-  <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-  <div class="fl-body fl-body-medium">{{ value.content|richtext }}</div>
+
+<include:card
+  expand_link="{{ value.settings.expand_link }}"
+>
+  <content:pre_heading>
+    <div class="light-dark-display">
+      <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
+      {% if img_dark %}
+        <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
+      {% endif %}
+    </div>
+  </content:pre_heading>
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-3"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+    />
+  </content:heading>
+  <content:body>
+    {{ value.content|richtext }}
+  </content:body>
   {% if value.buttons %}
-    <div class="fl-buttons">
-      {% if value.buttons %}
+    <content:buttons>
         {% for button in value.buttons %}
           {% set block_position = block_position ~ ".button-" ~ loop.index %}
           {% include_block button %}
         {% endfor %}
-      {% endif %}
-    </div>
+    </content:buttons>
   {% endif %}
-</article>
+</include:card>
