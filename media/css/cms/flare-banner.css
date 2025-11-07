@@ -270,8 +270,6 @@
         bottom: 0.5rem;
 }
 
-
-
 @media (max-width: 767px) {
     .fl-banner-container {
         padding: calc(var(--scale-24) * 1px);
@@ -428,6 +426,7 @@
     .fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
         right: 14%;
     }
+
     .fl-brand-image-filled-face .fl-banner-brand img {
         min-width: 300px;
     }
