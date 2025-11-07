@@ -69,12 +69,9 @@
     {% endif %}
 
     {% if value.settings.theme == 'filled-face' %}
-    <p style="color:white">YES</p>
       <content:brand>
         <include:image url="/media/img/firefox/flare/forward-facing-kit.svg" alt="" />
       </content:brand>
-    {% else %}
-    <p style="color:white">Why not? {{ value.settings.theme }}</p>
     {% endif %}
 
     {% if value.settings.theme == 'filled-tail' %}
