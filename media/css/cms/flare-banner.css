@@ -27,6 +27,7 @@
 
 .fl-banner .fl-subheading {
     font-size: var(--font-size-subheading-5);
+    text-wrap: balance;
 }
 
 .fl-banner-outlined {
@@ -242,6 +243,22 @@
     z-index: 2;
 }
 
+.fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: 2%;
+}
+
+.fl-brand-image-filled-face .fl-banner-brand img {
+    min-width: 140px;
+}
+
+
+.fl-brand-image-filled-tail .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: -9%;
+        bottom: 0.5rem;
+}
+
+
+
 @media (max-width: 767px) {
     .fl-banner-container {
         padding: calc(var(--scale-24) * 1px);
@@ -393,5 +410,18 @@
     .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-actions,
     .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-actions {
         justify-content: flex-start;
+    }
+
+    .fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: 14%;
+    }
+    .fl-brand-image-filled-face .fl-banner-brand img {
+        min-width: 300px;
+    }
+
+    .fl-brand-image-filled-tail .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: -9%;
+        bottom: 15%;
+        max-height: 70%;
     }
 }
