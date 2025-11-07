@@ -8,6 +8,7 @@
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
     padding: calc(var(--scale-16) * 1px) calc(var(--scale-32) * 1px);
     font-family: var(--font-family-button);
     font-size: var(--font-size-base);
