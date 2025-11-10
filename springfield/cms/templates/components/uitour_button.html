@@ -4,8 +4,18 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+
 <div class="ui-tour">
-  <button class="fl-button {{ theme_class }}" type="button" {% if disabled %}disabled{% endif %}>
+  <button
+    class="fl-button {{ theme_class }}"
+    type="button"
+    {% if disabled %}disabled{% endif %}
+    {% if analytics_text %}
+      data-cta-position="{{ analytics_position }}"
+      data-cta-text="{{ analytics_text }}"
+      data-cta-uid="{{ analytics_id }}"
+    {% endif %}
+  >
     {% if icon_name and icon_position == "left" %}
       {% set extra_class = "fl-icon-left" %}
       <include:icon

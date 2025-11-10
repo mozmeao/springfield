@@ -4,10 +4,14 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_text = block_text ~ " - " ~ value.label %}
+
 <include:uitour_button
   theme_class="{{ value.theme_class() }}"
   label="{{ value.label }}"
-  disabled=""
   icon_name="{{ value.settings.icon }}"
   icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
 />

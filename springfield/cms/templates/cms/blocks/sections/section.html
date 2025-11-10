@@ -8,30 +8,30 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-  <section class="fl-section">
-    <div class="fl-section-container">
+  <include:section>
+    <content:heading>
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}
       {% endwith %}
-
+    </content:heading>
+    <content:content>
       {% for block in value.content %}
         {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ block.block_type %}
         {% include_block block %}
       {% endfor %}
-
-      {% if value.cta %}
-        <div class="fl-section-cta-wrap">
-          {% for cta in value.cta %}
-            <a class="fl-section-cta-link"
-              href="{{ cta.link.get_url()|add_utm_parameters }}"
-              {% if cta.link.new_window %}target="_blank" rel="external noopener"{% endif %}
-              data-cta-position="{{ block_position + ".cta" }}"
-              data-cta-text="{{ block_text + " - " + cta.label }}"
-              data-cta-uid="{{ cta.settings.analytics_id }}"
-            >{{ cta.label }}</a>
-          {% endfor %}
-        </div>
-      {% endif %}
-    </div>
-  </section>
+    </content:content>
+    {% if value.cta %}
+      <content:cta>
+        {% for cta in value.cta %}
+          <a class="fl-section-cta-link"
+            href="{{ cta.link.get_url()|add_utm_parameters }}"
+            {% if cta.link.new_window %}target="_blank" rel="external noopener"{% endif %}
+            data-cta-position="{{ block_position + ".cta" }}"
+            data-cta-text="{{ block_text + " - " + cta.label }}"
+            data-cta-uid="{{ cta.settings.analytics_id }}"
+          >{{ cta.label }}</a>
+        {% endfor %}
+      </content:cta>
+    {% endif %}
+  </include:section>
 </include:conditional-display>

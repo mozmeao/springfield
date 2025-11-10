@@ -5,10 +5,13 @@
 #}
 
 {% set block_text =  value.headline|richtext|remove_tags %}
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
 
-<article class="fl-card fl-card-fill fl-illustration-card {% if card.settings.expand_link %}fl-card-expand-link{% endif %}">
-
-  <div class="fl-card-media">
+<include:illustration-card
+  expand_link="{{ card.settings.expand_link }}"
+>
+  <content:media>
     <div class="light-dark-display">
       {% if value.dark_image %}
         {{ srcset_image(
@@ -39,25 +42,24 @@
           class="display-light",
         ) }}
     </div>
-  </div>
-
-  <div class="fl-card-content">
-    <hgroup>
-      {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-      {% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
-      <{{ superheading_level }} class="fl-superheading">{{ ftl('block-step-card-step', number="{:02d}".format(card_index)) }}</{{ superheading_level }}>
-      <{{ heading_level }} class="fl-heading fl-heading-size-3">{{ value.headline|richtext|remove_p_tag }}</{{ heading_level }}>
-    </hgroup>
-    <div class="fl-body">{{ value.content }}</div>
+  </content:media>
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-3"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      superheading_text="{{ ftl('block-step-card-step', number='{:02d}'.format(card_index)) }}"
+    />
+  </content:heading>
+  <content:body>
+    {{ value.content }}
+  </content:body>
     {% if value.buttons %}
-      <div class="fl-buttons">
-        {% if value.buttons %}
+    <content:buttons>
           {% for button in value.buttons %}
             {% set block_position = block_position ~ ".button-" ~ loop.index %}
             {% include_block button %}
           {% endfor %}
-        {% endif %}
-      </div>
+    </content:buttons>
     {% endif %}
-  </div>
-</article>
+</include:illustration-card>

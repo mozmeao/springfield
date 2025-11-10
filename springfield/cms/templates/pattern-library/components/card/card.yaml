@@ -1,0 +1,10 @@
+name: "Card"
+context:
+  sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
+  expand_link: false
+  heading: "Fun Feature"
+  body: "Cards can display icons, sticker images, or tags with flexible content."
+  buttons:
+    - label: "Explore"
+      link: "/"
+      theme_class: ""

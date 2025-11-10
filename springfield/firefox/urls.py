@@ -135,6 +135,12 @@ urlpatterns = (
         active_locales=["en-US", "de"],
         ftl_files=["firefox/download/desktop", "firefox/download/home"],
     ),
+    # Issue 684 - Kit Landing page
+    page(
+        "kit/",
+        "firefox/landing/kit.html",
+        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
+    ),
     page(
         "compare/",
         "firefox/browsers/compare/index.html",

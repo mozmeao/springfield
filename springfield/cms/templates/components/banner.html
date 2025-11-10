@@ -7,7 +7,15 @@
 {% if not full_width %}
 <div class="fl-banner-container">
 {% endif %}
-  <div class="fl-banner fl-banner-{{ theme|default('outlined') }} fl-banner-hasbrand-{{ brand_image_position|default('bottom-right') }} {% if brand_image_size %}fl-banner-brandsize-{{ brand_image_size }}{% endif %} {% if media_after %}fl-banner-reverse{% endif %}" aria-labelledby="fl-banner-heading">
+  <div
+    class="
+      fl-banner
+      fl-banner-{{ theme|default('outlined') }}
+      fl-banner-hasbrand-{{ brand_image_position|default('bottom-right') }}
+      {% if brand_image_size %}fl-banner-brandsize-{{ brand_image_size }}{% endif %}
+      {% if media_after %}fl-banner-reverse{% endif %}
+      {% if brand_image %}fl-brand-image-{{ brand_image }}{% endif %}"
+    aria-labelledby="fl-banner-heading">
 
   {% if contents.brand %}
     <div class="fl-banner-brand fl-banner-brand-{{ brand_image_position|default('bottom-right') }}" aria-hidden="true">
@@ -17,12 +25,11 @@
 
   <div class="fl-banner-layout">
     {% if contents.media or qr_code %}
-      <div class="fl-banner-media" aria-hidden="true" {% if media_url and qr_code %} style="background-image: url('{{ media_url }}');" {% endif %}>
+      <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
         {% if qr_code %}
           <div class="fl-banner-qr" role="img">{{ contents.qr }}</div>
-        {% else %}
-          {{ contents.media }}
         {% endif %}
+        {{ contents.media }}
       </div>
     {% endif %}
 

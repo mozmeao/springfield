@@ -4,12 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="fl-section fl-section-subscribe">
-  <div class="fl-section-container">
+<include:subscription>
+  <content:heading>
     {% with alignment_class="text-center" %}
       {% include_block value.heading %}
     {% endwith %}
-
+  </content:heading>
+  <content:form>
     {{ email_newsletter_form(
       template="cms/newsletter_form.html",
       include_country=true,
@@ -17,5 +18,5 @@
       footer=false,
       include_title=false
     ) }}
-  </div>
-</section>
+  </content:form>
+</include:subscription>
