@@ -1,0 +1,97 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+=====================================================================
+Tokens - Theme-agnostic CSS custom properties sourced from Figma
+and related design documentation.
+
+GENERATION PROCESS:
+This file was generated using the Figma MCP tool to export all variables
+from the Figma design file. The MCP tool provides comprehensive access to
+all design tokens that aren't easily visible in Figma's standard UI or
+other Figma plugins (unfortunately).
+
+To update this file in the future, use the MCP tool with a prompt that
+asks the agent to use mcp_Figma_get_variable_defs to get all variables
+from the selected Figma file and update this file. The process is
+non-deterministic so you need to check and adjust the results as needed.
+=====================================================================
+*/
+
+:root {
+    /* Color tokens from Figma */
+    --neutrals-white: #fff;
+    --neutrals-off-white: #fafafa;
+    --neutrals-ash: #f8f6f4;
+    --neutrals-gray-1: #f8f8f8;
+    --neutrals-grey-2: #f2f2f2;
+    --neutrals-grey-3: #dedede;
+    --neutrals-grey-4: #9d9d9d;
+    --neutrals-grey-5: #9d9d9d;
+    --neutrals-grey-6: #7c7c7c;
+    --neutrals-grey-7: #5b5b5b;
+    --neutrals-grey-8: #5B5B5B;
+    --neutrals-charcoal: #333336;
+    --neutrals-off-black: #161616;
+    --neutrals-black: #000;
+    --orange-orange: #ff8a50;
+    --orange-medium-orange: #ffb279;
+    --orange-light-orange: #ffcfa5;
+    --yellow-yellow: #ffea80;
+    --yellow-medium-yellow: #ffd567;
+    --yellow-dark-yellow: #FFBD4F;
+    --green-zilla-green: #00d230;
+    --blue-light-blue: #ccedfe;
+    --blue-blue: #00A6F9;
+    --blue-medium-blue: #0079d3;
+    --blue-dark-blue: #003c6e;
+    --blue-button: #0360df;
+    --purple-purple: #754fe0;
+    --purple-medium-purple: #d98dfa;
+    --purple-dark-purple: #210340;
+    --purple-light-purple: #dcd2ff;
+    --pink-power-pink: #ff97e2;
+
+    /* Gradients from Figma */
+    --gradient-earth-glow: linear-gradient(90deg, var(--blue-blue) 0%, var(--purple-purple) 100%);
+    --gradient-fox-fire: linear-gradient(90deg, var(var(--yellow-yellow)) 0%, var(--orange-orange) 100%);
+    --gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--purple-purple) 0%, var(--purple-dark-purple) 100%);
+
+    /* Scale variables from Figma */
+    --scale-4: 4;
+    --scale-8: 8;
+    --scale-12: 12;
+    --scale-16: 16;
+    --scale-24: 24;
+    --scale-32: 32;
+    --scale-40: 40;
+    --scale-48: 48;
+    --scale-64: 64;
+    --scale-80: 80;
+    --scale-96: 96;
+    --scale-128: 128;
+    --scale-200: 200;
+
+    /* Width and viewport variables from Figma */
+    --widths-viewport-wrapper-screen-2xl: 1440;
+
+    /* Typography from Figma */
+    --font-family-metropolis: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-family-inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500; /* Metropolis only */
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700; /* Inter only */
+
+    /* Other variables from Figma */
+    --border-radius-md: 8px;
+
+    /* Transition variables NOT from Figma */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+}

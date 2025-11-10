@@ -112,7 +112,7 @@ li {
 button, [role="button"] {
     background: var(--blue-button);
     color: var(--neutrals-white);
-    border-radius: calc(var(--border-radius-md) * 1px);
+    border-radius: var(--border-radius-md);
     width: auto;
     height: auto;
 }

@@ -149,7 +149,7 @@
 .fl-notification-content a {
     color: inherit;
     text-decoration: underline;
-    font-weight: var(--font-weight-link);
+    font-weight: var(--font-weight-semibold);
 }
 
 .fl-notification-close {

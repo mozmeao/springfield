@@ -39,6 +39,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 /* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
 
 @import 'flare-base.css' layer(base);
+@import 'flare-tokens.css' layer(theme);
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
 @import 'flare-template.css' layer(template);
