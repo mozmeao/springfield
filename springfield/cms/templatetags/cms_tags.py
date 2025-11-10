@@ -162,6 +162,10 @@ def richtext(context, value: str) -> str:
         href = link.get("href", "")
         link["href"] = add_utm_parameters(context, href)
 
+    for link in soup.find_all("a"):
+        href = link.get("href", "")
+        link["href"] = add_utm_parameters(context, href)
+
     for fxa_tag in soup.find_all("fxa"):
         label = fxa_tag.text
         uid = fxa_tag.get("data-cta-uid", "")
