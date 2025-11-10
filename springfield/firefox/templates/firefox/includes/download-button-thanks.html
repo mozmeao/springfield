@@ -8,16 +8,6 @@
 
 <div id="{{ id }}" class="{% if flare_styles %}fl-fx-download-container{% else %}mzp-c-button-download-container{% endif %} c-button-download-thanks">
 
-  {% set download_link_direct = '/thanks/' %}
-  {% if locale %}
-    {% if locale_in_transition %}
-      {% set transition_url = '/' ~ locale ~ '/download/thanks/' %}
-    {% else %}
-      {% set transition_url = '/' ~ locale ~ '/thanks/' %}
-    {% endif %}
-  {% else %}
-    {% set transition_url = '/thanks/' %}
-  {% endif %}
   <a href="{{ transition_url }}"
      class="download-link c-button-download-thanks-link {% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
      data-direct-link="{{ download_link_direct }}"
