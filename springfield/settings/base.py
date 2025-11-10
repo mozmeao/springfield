@@ -298,6 +298,7 @@ FLUENT_DEFAULT_FILES = [
     "brands",
     "download_button",
     "footer-firefox",
+    "footer-wnp",
     "fxa_form",
     "navigation-firefox",
     "newsletter_form",

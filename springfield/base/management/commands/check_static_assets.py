@@ -24,6 +24,8 @@ import requests
 DEFAULT_TIMEOUT = 10
 # Default concurrency keeps load manageable when probing cold CDN caches or direct origin checks
 DEFAULT_MAX_WORKERS = 8
+DEFAULT_RETRY_COUNT = 2
+DEFAULT_RETRY_BACKOFF = 1.0
 PROGRESS_STEP = 50
 USER_AGENT = "springfield-asset-check/1.0"
 
@@ -83,6 +85,18 @@ class Command(BaseCommand):
             default=[],
             help="Glob pattern(s) of asset paths to skip (match against hashed paths in the manifest).",
         )
+        parser.add_argument(
+            "--retry-count",
+            type=int,
+            default=DEFAULT_RETRY_COUNT,
+            help="Number of retries for transient network errors per asset request (default: %(default)s)",
+        )
+        parser.add_argument(
+            "--retry-backoff",
+            type=float,
+            default=DEFAULT_RETRY_BACKOFF,
+            help="Initial backoff delay in seconds between retries; doubles after each attempt (default: %(default)s)",
+        )
 
     def handle(self, *args, **options):
         origin_host = self._normalize_host(options["origin_host"], "origin-host")
@@ -104,6 +118,18 @@ class Command(BaseCommand):
         max_workers = options.get("max_workers", DEFAULT_MAX_WORKERS)
         if max_workers < 1:
             raise CommandError("--max-workers must be >= 1")
+
+        retry_count = options.get("retry_count")
+        if retry_count is None:
+            retry_count = DEFAULT_RETRY_COUNT
+        if retry_count < 0:
+            raise CommandError("--retry-count must be >= 0")
+
+        retry_backoff = options.get("retry_backoff")
+        if retry_backoff is None:
+            retry_backoff = DEFAULT_RETRY_BACKOFF
+        if retry_backoff <= 0:
+            raise CommandError("--retry-backoff must be > 0")
 
         failures: list[tuple[str, CheckResult]] = []
 
@@ -128,6 +154,8 @@ class Command(BaseCommand):
                 max_workers=max_workers,
                 asset_total=asset_total,
                 progress_step=progress_step,
+                retry_count=retry_count,
+                retry_backoff=retry_backoff,
                 stdout=self.stdout if asset_total else None,
             )
 
@@ -247,6 +275,8 @@ class Command(BaseCommand):
         max_workers: int,
         asset_total: int | None = None,
         progress_step: int | None = None,
+        retry_count: int = 0,
+        retry_backoff: float = 1.0,
         stdout=None,
     ) -> list[CheckResult]:
         session = requests.Session()
@@ -273,6 +303,8 @@ class Command(BaseCommand):
                     asset,
                     method,
                     timeout,
+                    retry_count,
+                    retry_backoff,
                 ): asset
                 for asset in asset_list
             }
@@ -310,40 +342,56 @@ class Command(BaseCommand):
         asset: str,
         method: str,
         timeout: float,
+        retry_count: int,
+        retry_backoff: float,
     ) -> CheckResult:
         url = self._build_url(base_url, static_prefix, asset)
         request_method = method.lower()
+        retryable_exceptions = (requests.Timeout, requests.ConnectionError)
+        delay = retry_backoff
+        last_error: str | None = None
 
-        try:
-            response = session.request(
-                request_method,
-                url,
-                timeout=timeout,
-                allow_redirects=False,
-            )
+        for attempt in range(retry_count + 1):
+            try:
+                response = session.request(
+                    request_method,
+                    url,
+                    timeout=timeout,
+                    allow_redirects=False,
+                )
 
-            if request_method == "head" and response.status_code in (301, 302, 303, 307, 308):
-                # If we unexpectedly get a redirect on HEAD, follow up with GET to confirm availability.
-                response = session.get(url, timeout=timeout, allow_redirects=False)
+                if request_method == "head" and response.status_code in (301, 302, 303, 307, 308):
+                    # If we unexpectedly get a redirect on HEAD, follow up with GET to confirm availability.
+                    response = session.get(url, timeout=timeout, allow_redirects=False)
 
-            elif request_method == "head" and not 200 <= response.status_code < 300:
-                # Re-check with GET for CDNs that behave differently for HEAD requests.
-                response = session.get(url, timeout=timeout, allow_redirects=False)
+                elif request_method == "head" and not 200 <= response.status_code < 300:
+                    # Re-check with GET for CDNs that behave differently for HEAD requests.
+                    response = session.get(url, timeout=timeout, allow_redirects=False)
 
-            status = response.status_code
-            if 200 <= status < 300:
-                error = None
-            elif 300 <= status < 400:
-                location = response.headers.get("Location", "")
-                target = location or "unknown location"
-                error = f"Redirected to {target}"
-            else:
-                error = response.reason or f"HTTP {status}"
-        except requests.RequestException as exc:
-            status = None
-            error = str(exc)
+                status = response.status_code
+                if 200 <= status < 300:
+                    error = None
+                elif 300 <= status < 400:
+                    location = response.headers.get("Location", "")
+                    target = location or "unknown location"
+                    error = f"Redirected to {target}"
+                else:
+                    error = response.reason or f"HTTP {status}"
 
-        return CheckResult(asset_path=asset, url=url, status=status, error=error)
+                return CheckResult(asset_path=asset, url=url, status=status, error=error)
+
+            except requests.RequestException as exc:
+                error = str(exc)
+                should_retry = attempt < retry_count and isinstance(exc, retryable_exceptions)
+                if should_retry:
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+
+                last_error = error
+                break
+
+        return CheckResult(asset_path=asset, url=url, status=None, error=last_error or "Request failed after retries")
 
     def _build_url(self, base_url: str, static_prefix: str, asset: str) -> str:
         base = base_url.rstrip("/") + "/"

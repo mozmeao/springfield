@@ -57,57 +57,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endblock %}
 
       {% block flare_footer %}
-      <footer class="fl-footer">
-          <div class="fl-footer-inner">
-          <div class="fl-footer-top">
-            <p class="fl-footer-copy">
-              {% set mozilla_link_attrs =  'class="fl-footer-link" href="https://www.mozilla.org/"'|safe %}
-              {% set mozilla_foundation_link_attrs = 'class="fl-footer-link" href="https://foundation.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer"'|safe %}
-              {{ ftl('footer-visit-mozilla', mozilla_link_attrs=mozilla_link_attrs, mozilla_foundation_link_attrs=mozilla_foundation_link_attrs) }}
-              <br>
-              {{ ftl('footer-contributors', years='©1998–2025') }}
-              <br>
-              {% set license_attrs = 'class="fl-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/"'|safe %}
-              {{ ftl('footer-license', license_attrs=license_attrs) }}
-            </p>
-            <nav class="fl-footer-links" aria-label="Footer">
-              <ul>
-                <li>
-                  <a class="fl-footer-link" href="https://support.mozilla.org/">{{ ftl('footer-firefox-support')}}
-                    <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 13" width="12" height="12" alt="" aria-hidden="true">
-                      <path d="M6.938.5v1.125h3.141L5.337 6.367l.796.795 4.742-4.742v3.143H12V.5H6.937Z" fill="currentColor"/>
-                      <path d="M7.875 11.375h-6.75v-6.75H4.5V3.5H0v9h9V8H7.875v3.375Z" fill="currentColor"/>
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a class="fl-footer-link" href="https://www.mozilla.org/privacy/websites/">{{ ftl('footer-privacy-notice') }}</a>
-                </li>
-                <li>
-                  <a class="fl-footer-link" href="https://www.mozilla.org/about/legal/terms/firefox/">{{ ftl('footer-terms-of-use') }}</a>
-                </li>
-                <li>
-                  <a class="fl-footer-link" href="/privacy/websites/cookie-settings/">{{ ftl('footer-websites-cookie-policy') }}</a>
-                </li>
-              </ul>
-            </nav>
-            <div class="fl-footer-logo" aria-hidden="true"></div>
-          </div>
-
-          <hr class="fl-footer-divider">
-
-          <div class="fl-footer-bottom">
-            <div class="fl-footer-brand">
-              <h3 class="fl-footer-title">{{ ftl('footer-powdered-by') }}</h3>
-              <p class="fl-footer-subtitle">{{ ftl('footer-putting-people') }}</p>
-            </div>
-            <div class="fl-footer-cta">
-              <a class="fl-button button-outline hidden-ie8" href="https://foundation.mozilla.org/?form=whats-new-product"><img src="/media/img/firefox/flare/icons/heart.svg" width="12" height="12" alt="" aria-hidden="true" />{{ ftl('footer-donate') }}</a>
-              <p class="fl-footer-note">{{ ftl('footer-make-good-things') }}</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {# WIP: the base template ought to have the full site footer, not the WNP footer. #}
+      {% include 'cms/includes/wnp-footer.html' %}
       {% endblock %}
     </div>
 

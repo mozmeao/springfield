@@ -23,6 +23,11 @@ from springfield.cms.fields import StreamField
 
 from .base import AbstractSpringfieldCMSPage
 
+BASE_UTM_PARAMETERS = {
+    "utm_source": "www.firefox.com",
+    "utm_medium": "referral",
+}
+
 
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
@@ -184,8 +189,7 @@ class FreeFormPageMixin:
 
     def get_utm_parameters(self):
         return {
-            "utm_source": "www.firefox.com",
-            "utm_medium": "referral",
+            **BASE_UTM_PARAMETERS,
             "utm_campaign": self.get_utm_campaign(),
         }
 
