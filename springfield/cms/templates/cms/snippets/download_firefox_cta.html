@@ -19,12 +19,14 @@
             <p>{{ value.description|richtext }}</p>
           </content:body>
           <content:buttons>
-            {{ download_firefox_thanks(
-                alt_copy=ftl('download-button-download-firefox'),
-                dom_id='features-footer-download',
-                button_class='mzp-t-product mzp-t-lg',
-                download_location='footer'
-            ) }}
+            <div>
+              {{ download_firefox_thanks(
+                  alt_copy=ftl('download-button-download-firefox'),
+                  dom_id='features-footer-download',
+                  download_location='footer',
+                  flare_styles=True
+              ) }}
+            </div>
           </content:buttons>
           <content:media>
             {{ srcset_image(

@@ -7,7 +7,6 @@ from django.db import models
 from django.shortcuts import redirect
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
-from wagtail.blocks import PageChooserBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -84,28 +83,22 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
 
 class ArticleIndexPage(AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage"]
+
     sub_title = models.CharField(
         max_length=255,
         blank=True,
     )
-    featured_articles = StreamField(
-        [("page", PageChooserBlock(target_model="cms.ArticleDetailPage"))],
-        blank=True,
-        null=True,
-        use_json_field=True,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
-        FieldPanel("featured_articles"),
     ]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
         all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
 
-        featured_articles = [page.value for page in self.featured_articles]
-        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page not in featured_articles]
+        featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
+        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
@@ -114,6 +107,11 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
 
 class ArticleDetailPage(AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleIndexPage"]
+
+    featured = models.BooleanField(
+        default=False,
+        help_text="Check to set as a featured article on the index page.",
+    )
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -125,6 +123,10 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         blank=True,
         features=HEADING_TEXT_FEATURES,
         help_text="A short description used on index page.",
+    )
+    content = RichTextField(
+        blank=True,
+        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
     )
     call_to_action = StreamField(
         [
@@ -143,12 +145,8 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         max_num=1,
     )
 
-    content = RichTextField(
-        blank=True,
-        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
-    )
-
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("featured"),
         FieldPanel("image"),
         FieldPanel("description"),
         FieldPanel("content"),

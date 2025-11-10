@@ -6,9 +6,20 @@
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=download-button-thanks' %}
 
-<div id="{{ id }}" class="mzp-c-button-download-container c-button-download-thanks">
+<div id="{{ id }}" class="{% if flare_styles %}fl-fx-download-container{% else %}mzp-c-button-download-container{% endif %} c-button-download-thanks">
+
+  {% set download_link_direct = '/thanks/' %}
+  {% if locale %}
+    {% if locale_in_transition %}
+      {% set transition_url = '/' ~ locale ~ '/download/thanks/' %}
+    {% else %}
+      {% set transition_url = '/' ~ locale ~ '/thanks/' %}
+    {% endif %}
+  {% else %}
+    {% set transition_url = '/thanks/' %}
+  {% endif %}
   <a href="{{ transition_url }}"
-     class="download-link c-button-download-thanks-link mzp-c-button mzp-t-product {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
+     class="download-link c-button-download-thanks-link {% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
      data-direct-link="{{ download_link_direct }}"
      data-testid="{{ id }}"
      data-cta-text="Download Firefox"
@@ -18,10 +29,17 @@
     {% else %}
       {{ ftl('download-button-download-firefox') }}
     {% endif %}
-    <span class="mzp-c-button-icon-end">
-      <!-- TODO: replace with new protocol-assets version -->
-      <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
-    </span>
+    {% if flare_styles %}
+      <include:icon
+        icon_name="arrow-down"
+        hidden=true
+        extra_class="fl-icon-right" />
+    {% else %}
+      <span class="mzp-c-button-icon-end">
+        <!-- TODO: replace with new protocol-assets version -->
+        <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+      </span>
+    {% endif %}
   </a>
 
   {# ESR download buttons to display on unsupported systems: issue 13317 #}
