@@ -840,10 +840,13 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
 
     class _BannerBlock(blocks.StructBlock):
         settings = BannerSettings()
-        image = ImageChooserBlock(required=False)
+        image = ImageChooserBlock(
+            required=False,
+            help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
+        )
         qr_code = blocks.CharBlock(
             required=False,
-            help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+            help_text="Content to encode in the QR code, e.g., a URL or text. To add a background image, upload an image above.",
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
