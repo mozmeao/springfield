@@ -7,21 +7,21 @@
 .fl-mediacontent {
     display: grid;
     grid-template-columns: 1fr;
-    gap: calc(var(--scale-24) * 1px);
+    gap: calc(var(--token-scale-24) * 1px);
     align-items: center;
     position: relative;
 }
 
 .fl-mediacontent-media {
-    background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
-    border-radius: calc(var(--scale-16) * 1px);
+    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-charcoal));
+    border-radius: calc(var(--token-scale-16) * 1px);
     height: auto;
     overflow: hidden;
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-mediacontent-media {
-        background: var(--neutrals-ash);
+        background: var(--token-neutrals-ash);
     }
 }
 
@@ -32,10 +32,10 @@
 }
 
 .fl-mediacontent-tags {
-    margin-bottom: calc(var(--scale-24) * 1px);
+    margin-bottom: calc(var(--token-scale-24) * 1px);
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--scale-8) * 1px);
+    gap: calc(var(--token-scale-8) * 1px);
 
     .fl-tag {
         margin: 0;
@@ -44,7 +44,7 @@
 
 @media (min-width: 1024px) {
     .fl-mediacontent {
-        gap: calc(var(--scale-48) * 1px);
+        gap: calc(var(--token-scale-48) * 1px);
         grid-template-columns: 1fr 1fr;
     }
 
@@ -65,7 +65,7 @@
     }
 
     .fl-mediacontent-content .fl-buttons {
-        margin-top: calc(var(--scale-24) * 1px);
+        margin-top: calc(var(--token-scale-24) * 1px);
     }
 
     .fl-mediacontent .fl-button {
@@ -79,7 +79,7 @@
     }
 
     .fl-mediacontent {
-        gap: calc(var(--scale-24) * 1px);
+        gap: calc(var(--token-scale-24) * 1px);
     }
 
     .fl-mediacontent-media {
@@ -97,7 +97,7 @@
 }
 
 .fl-mediacontent .fl-subtitle a:focus {
-    outline: 2px solid var(--blue-blue);
+    outline: 2px solid var(--token-blue-blue);
     outline-offset: 2px;
 }
 
@@ -110,22 +110,22 @@
     display: block;
     width: 100%;
     height: auto;
-    border-radius: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-mediacontent-media iframe {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-    border-radius: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
 }
 
 /* Blog page related articles */
 .fl-blog-related-articles {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-24) * 1px);
-    margin-top: calc(var(--scale-64) * 1px);
+    gap: calc(var(--token-scale-24) * 1px);
+    margin-top: calc(var(--token-scale-64) * 1px);
 }
 
 .fl-blog-related-articles .fl-mediacontent {

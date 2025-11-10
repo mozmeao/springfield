@@ -11,55 +11,55 @@ runtime conditions. Design tokens live in flare-tokens.css.
 
 :root {
     /* Functional color variables */
-    --functional-error: var(--orange-orange);
-    --functional-warning: var(--yellow-dark-yellow);
-    --dark-yellow-alert: var(--yellow-dark-yellow);
-    --functional-success: var(--green-zilla-green);
-    --functional-info-buttons: var(--blue-button);
+    --fl-theme-functional-error: var(--token-orange-orange);
+    --fl-theme-functional-warning: var(--token-yellow-dark-yellow);
+    --fl-theme-dark-yellow-alert: var(--token-yellow-dark-yellow);
+    --fl-theme-functional-success: var(--token-green-zilla-green);
+    --fl-theme-functional-info-buttons: var(--token-blue-button);
 
     /* Typography variables */
-    --font-family-headline: var(--font-family-metropolis);
-    --font-weight-headline: var(--font-weight-semibold);
-    --font-family-body: var(--font-family-inter);
-    --font-weight-body: var(--font-weight-regular);
-    --font-family-button: var(--font-family-metropolis);
-    --font-weight-button: var(--font-weight-medium);
+    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
+    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-weight-body: var(--token-font-weight-regular);
+    --fl-theme-font-family-button: var(--token-font-family-metropolis);
+    --fl-theme-font-weight-button: var(--token-font-weight-medium);
 
         /* Font size variables NOT from Figma */
-    --font-size-base: 16px;
-    --font-size-h1: 3rem;
-    --font-size-h2: 2rem;
-    --font-size-h3: 1.5rem;
-    --font-size-h4: 1.125rem;
-    --font-size-h5: 1.125rem;
-    --font-size-h6: 1.125rem;
+    --fl-theme-font-size-base: 16px;
+    --fl-theme-font-size-h1: 3rem;
+    --fl-theme-font-size-h2: 2rem;
+    --fl-theme-font-size-h3: 1.5rem;
+    --fl-theme-font-size-h4: 1.125rem;
+    --fl-theme-font-size-h5: 1.125rem;
+    --fl-theme-font-size-h6: 1.125rem;
 
     /* Subheading font size variables */
-    --font-size-subheading-1: 1.5rem; /* 24px */
-    --font-size-subheading-2: 1.375rem; /* 22px */
-    --font-size-subheading-3: 1.25rem; /* 20px */
-    --font-size-subheading-4: 1.125rem; /* 18px */
-    --font-size-subheading-5: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-1: 1.5rem; /* 24px */
+    --fl-theme-font-size-subheading-2: 1.375rem; /* 22px */
+    --fl-theme-font-size-subheading-3: 1.25rem; /* 20px */
+    --fl-theme-font-size-subheading-4: 1.125rem; /* 18px */
+    --fl-theme-font-size-subheading-5: 1rem; /* 16px */
 
     /* Body font size variables */
-    --font-size-body-large: 1.5rem; /* 24px */
-    --font-size-body-medium: 1.125rem; /* 18px */
-    --font-size-body-small: 1rem; /* 16px */
-    --font-size-body-xsmall: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-large: 1.5rem; /* 24px */
+    --fl-theme-font-size-body-medium: 1.125rem; /* 18px */
+    --fl-theme-font-size-body-small: 1rem; /* 16px */
+    --fl-theme-font-size-body-xsmall: 0.875rem; /* 14px */
 
     /* Other typography variables */
-    --font-size-tag: 0.75rem; /* 12px */
-    --font-size-superheading: 0.75rem; /* 12px */
-    --line-height-base: 1.2;
+    --fl-theme-font-size-tag: 0.75rem; /* 12px */
+    --fl-theme-font-size-superheading: 0.75rem; /* 12px */
+    --fl-theme-line-height-base: 1.2;
 
     /* Grid and spacing variables */
-    --grids-spacing-interior-spacing-x1: 8;
-    --grids-spacing-interior-spacing-x1-5: 12;
+    --fl-theme-grids-spacing-interior-spacing-x1: 8;
+    --fl-theme-grids-spacing-interior-spacing-x1-5: 12;
 
     /* Layout variables */
-    --layout-direction: column;
-    --default-justify-content: center;
-    --default-text-align: center;
+    --fl-theme-layout-direction: column;
+    --fl-theme-default-justify-content: center;
+    --fl-theme-default-text-align: center;
 
     /* Color scheme variables */
     color-scheme: light dark;
@@ -72,8 +72,8 @@ components consume the variables (no per-component media queries) */
 /* Media query for 768px and larger */
 @media (min-width: 768px) {
     :root {
-        --layout-direction: row;
-        --default-justify-content: flex-start;
-        --default-text-align: left;
+        --fl-theme-layout-direction: row;
+        --fl-theme-default-justify-content: flex-start;
+        --fl-theme-default-text-align: left;
     }
 }

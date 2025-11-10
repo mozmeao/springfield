@@ -6,132 +6,132 @@
 
 .fl-button {
     display: inline-block;
-    padding: calc(var(--scale-16) * 1px) calc(var(--scale-32) * 1px);
-    font-family: var(--font-family-button);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-button);
+    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-32) * 1px);
+    font-family: var(--fl-theme-font-family-button);
+    font-size: var(--fl-theme-font-size-base);
+    font-weight: var(--fl-theme-font-weight-button);
     line-height: 1.5;
     text-align: center;
     text-decoration: none;
-    border-radius: calc(var(--scale-8) * 1px);
+    border-radius: calc(var(--token-scale-8) * 1px);
     cursor: pointer;
-    transition: all var(--transition-base);
+    transition: all var(--token-transition-base);
     background: transparent;
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    border: 1px solid light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button {
-        color: var(--neutrals-charcoal);
-        border: 1px solid var(--neutrals-charcoal);
+        color: var(--token-neutrals-charcoal);
+        border: 1px solid var(--token-neutrals-charcoal);
     }
 }
 
 .fl-button:hover, .fl-button:focus {
-    background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    color: light-dark(var(--neutrals-white), var(--neutrals-black));
+    background: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    border-color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    color: light-dark(var(--token-neutrals-white), var(--token-neutrals-black));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button:hover, .fl-button:focus {
-        background: var(--neutrals-charcoal);
-        border-color: var(--neutrals-charcoal);
-        color: var(--neutrals-white);
+        background: var(--token-neutrals-charcoal);
+        border-color: var(--token-neutrals-charcoal);
+        color: var(--token-neutrals-white);
     }
 }
 
 .fl-button:active {
-    background: light-dark(var(--neutrals-black), var(--neutrals-white));
-    color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+    background: light-dark(var(--token-neutrals-black), var(--token-neutrals-white));
+    color: light-dark(var(--token-neutrals-ash), var(--token-neutrals-charcoal));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button:active {
-        background: var(--neutrals-black);
-        color: var(--neutrals-ash);
+        background: var(--token-neutrals-black);
+        color: var(--token-neutrals-ash);
     }
 }
 
 .fl-button.button-secondary {
-    background: var(--functional-info-buttons);
-    color: var(--neutrals-ash);
+    background: var(--fl-theme-functional-info-buttons);
+    color: var(--token-neutrals-ash);
     border-width: 0;
 }
 
 .fl-button.button-secondary:hover, .fl-button.button-secondary:focus {
-    background: light-dark(var(--blue-dark-blue), var(--blue-medium-blue));
-    color: var(--neutrals-white);
+    background: light-dark(var(--token-blue-dark-blue), var(--token-blue-medium-blue));
+    color: var(--token-neutrals-white);
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button.button-secondary:hover, .fl-button.button-secondary:focus {
-        background: var(--blue-dark-blue);
+        background: var(--token-blue-dark-blue);
     }
 }
 
 .fl-button.button-secondary:active {
-    background: light-dark(var(--blue-medium-blue), var(--blue-dark-blue));
-    color: light-dark(var(--neutrals-white), var(--neutrals-ash));
+    background: light-dark(var(--token-blue-medium-blue), var(--token-blue-dark-blue));
+    color: light-dark(var(--token-neutrals-white), var(--token-neutrals-ash));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button.button-secondary:active {
-        background: var(--blue-medium-blue);
-        color: var(--neutrals-white);
+        background: var(--token-blue-medium-blue);
+        color: var(--token-neutrals-white);
     }
 }
 
 .fl-button.button-tertiary {
-    background: var(--purple-purple);
-    color: var(--neutrals-white);
+    background: var(--token-purple-purple);
+    color: var(--token-neutrals-white);
     border-width: 0;
 }
 
 .fl-button.button-tertiary:hover, .fl-button.button-tertiary:focus {
-    background: var(--purple-medium-purple);
-    color: var(--neutrals-white);
+    background: var(--token-purple-medium-purple);
+    color: var(--token-neutrals-white);
 }
 
 .fl-button.button-tertiary:active {
-    background: var(--purple-medium-purple);
-    color: var(--neutrals-white);
+    background: var(--token-purple-medium-purple);
+    color: var(--token-neutrals-white);
 }
 
 .fl-button.button-ghost {
     border-color: transparent;
     background: transparent;
-    color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
+    color: light-dark(var(--token-neutrals-grey-8), var(--token-neutrals-white));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button.button-ghost {
-        color: var(--neutrals-grey-8);
+        color: var(--token-neutrals-grey-8);
     }
 }
 
 .fl-button.button-ghost:hover {
-    background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
-    color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
+    background: light-dark(var(--token-neutrals-grey-8), var(--token-neutrals-white));
+    color: light-dark(var(--token-neutrals-white), var(--token-neutrals-grey-8));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button.button-ghost:hover {
-        background: var(--neutrals-grey-8);
-        color: var(--neutrals-white);
+        background: var(--token-neutrals-grey-8);
+        color: var(--token-neutrals-white);
     }
 }
 
 .fl-button.button-ghost:active {
-    background: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
-    color: light-dark(var(--neutrals-white), var(--neutrals-grey-8));
+    background: light-dark(var(--token-neutrals-grey-8), var(--token-neutrals-white));
+    color: light-dark(var(--token-neutrals-white), var(--token-neutrals-grey-8));
 }
 
 @supports not (color: light-dark(black, white)) {
     .fl-button.button-ghost:active {
-        background: var(--neutrals-grey-8);
-        color: var(--neutrals-white);
+        background: var(--token-neutrals-grey-8);
+        color: var(--token-neutrals-white);
     }
 }
 
@@ -149,10 +149,10 @@
 
 .fl-button .fl-icon-arrow {
     display: inline-block;
-    width: calc(var(--scale-16) * 1px);
-    height: calc(var(--scale-16) * 1px);
+    width: calc(var(--token-scale-16) * 1px);
+    height: calc(var(--token-scale-16) * 1px);
     background-color: currentColor;
-    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/calc(var(--scale-16) * 1px) calc(var(--scale-16) * 1px);
+    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/calc(var(--token-scale-16) * 1px) calc(var(--token-scale-16) * 1px);
 }
 
 .fl-button[disabled] {
@@ -163,7 +163,7 @@
 .fl-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--grids-spacing-interior-spacing-x1-5, 12) * 1px);
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1-5, 12) * 1px);
 }
 
 .fl-buttons.is-horizontal {
@@ -177,7 +177,7 @@
 
 .fl-buttons.is-stacked {
     flex-direction: column;
-    gap: calc(var(--grids-spacing-interior-spacing-x1, 8) * 1px);
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1, 8) * 1px);
 }
 
 .fl-buttons.is-stacked .fl-button {
