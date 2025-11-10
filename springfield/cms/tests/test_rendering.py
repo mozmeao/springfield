@@ -9,9 +9,10 @@
 from django.conf import settings
 
 import pytest
-from wagtail.models import Locale, Page
+from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
+from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 pytestmark = [
     pytest.mark.django_db,
@@ -112,3 +113,93 @@ def test_locales_are_drawn_from_page_translations(minimal_site, rf, serving_meth
     assert '<option lang="en-US" value="en-US" selected>English</option>' in page_content
     assert '<option lang="fr" value="fr">Français</option>' in resp.text
     assert '<option lang="en-GB" value="en-US">English (British) </option>' not in page_content
+
+
+def test_mixed_case_locale_serves_correct_page(client, minimal_site):
+    """
+    Test that pages with mixed-case locale codes (e.g., en-GB) are served correctly.
+
+    This test verifies that the SpringfieldLocale.get_active() implementation
+    properly normalizes lowercase language codes from Django (e.g., 'en-gb') to
+    mixed-case codes (e.g., 'en-GB') so that Wagtail finds the correct locale
+    and serves the correct page translation.
+
+    Without the fix, requesting /en-GB/test-page/ would serve the en-US page
+    (fallback) instead of the en-GB page because Django's translation.get_language()
+    returns lowercase 'en-gb', which doesn't match the Locale record 'en-GB'.
+    """
+    # Create en-GB locale (mixed-case country code).
+    en_gb_locale = LocaleFactory(language_code="en-GB")
+    assert en_gb_locale.language_code == "en-GB"  # Verify mixed-case
+    # Create es-ES locale (mixed-case country code).
+    es_es_locale = LocaleFactory(language_code="es-ES")
+    assert es_es_locale.language_code == "es-ES"  # Verify mixed-case
+
+    # Get the existing en-US page from minimal_site fixture
+    en_us_page = Page.objects.filter(locale__language_code="en-US", slug="test-page").first()
+
+    # If no page exists, create one
+    if en_us_page is None:
+        site = Site.objects.get(is_default_site=True)
+        root_page = site.root_page
+
+        en_us_page = SimpleRichTextPageFactory(
+            title="Test Page",
+            slug="test-page",
+            parent=root_page,
+            content="This is the US English version",
+        )
+
+    en_us_page = en_us_page.specific
+    assert en_us_page is not None
+    assert en_us_page.locale.language_code == "en-US"
+
+    # Create en-GB translation with distinctive content
+    en_gb_page = en_us_page.copy_for_translation(en_gb_locale)
+    en_gb_page.title = "Test Page (British)"
+    en_gb_page.content = "This is the British English version"
+    en_gb_page.save()
+    rev = en_gb_page.save_revision()
+    en_gb_page.publish(rev)
+
+    assert en_gb_page.locale.language_code == "en-GB"
+    assert en_gb_page.id != en_us_page.id
+    assert en_gb_page.title == "Test Page (British)"
+
+    # Make a request to the en-GB URL
+    # This goes through all middleware and Wagtail's routing
+    response = client.get(en_gb_page.url)
+
+    # Verify we got a successful response
+    assert response.status_code == 200
+
+    # Verify that the expected language and content are in the HTML.
+    html_content = response.content.decode()
+    assert 'lang="en-GB"' in html_content, "Expected lang='en-GB' in HTML"
+    assert "Test Page (British)" in html_content, (
+        f"Expected 'Test Page (British)' in response.\n"
+        f"DB page title: {en_gb_page.title}\n"
+        f"URL requested: {en_gb_page.url}\n"
+        f"Response contains: {html_content[:500]}"
+    )
+    assert "This is the British English version" in html_content, "Expected en-GB content in response"
+
+    # Create en-GB translation with distinctive content
+    es_es_page = en_us_page.copy_for_translation(es_es_locale)
+    es_es_page.title = "Página de prueba"
+    es_es_page.content = "Esta es la versión en español"
+    es_es_page.save()
+    rev = es_es_page.save_revision()
+    es_es_page.publish(rev)
+
+    assert es_es_page.locale.language_code == "es-ES"
+
+    # GET the es-ES page.
+    response = client.get(es_es_page.url)
+
+    # Verify that the expected language and content are in the HTML.
+    assert response.status_code == 200
+    html_content = response.content.decode()
+    assert 'lang="es-ES"' in html_content, "Expected lang='es-ES' in HTML"
+    assert "Página de prueba" in html_content, "Expected Spanish title in response"
+    assert "Esta es la versión en español" in html_content, "Expected Spanish content in response"
