@@ -48,8 +48,11 @@ p {
 
 a:link, a:visited {
     color: light-dark(var(--blue-button), var(--blue-blue));
-    text-decoration: underline;
     transition: color var(--transition-fast);
+}
+
+a:link {
+    text-decoration: underline;
 }
 
 a:visited {
