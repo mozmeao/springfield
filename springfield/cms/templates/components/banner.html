@@ -25,12 +25,11 @@
 
   <div class="fl-banner-layout">
     {% if contents.media or qr_code %}
-      <div class="fl-banner-media" aria-hidden="true" {% if media_url and qr_code %} style="background-image: url('{{ media_url }}');" {% endif %}>
+      <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
         {% if qr_code %}
           <div class="fl-banner-qr" role="img">{{ contents.qr }}</div>
-        {% else %}
-          {{ contents.media }}
         {% endif %}
+        {{ contents.media }}
       </div>
     {% endif %}
 
