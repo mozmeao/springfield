@@ -22,8 +22,12 @@ def translation_saved_signal(sender, instance, created, **kwargs):
 
     def check_after_commit():
         source_instance = instance.source.get_source_instance()
-        original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-        create_page_translation_data(original_translation_for_page)
+
+        # Only create/update PageTranslationData if this is a translation for a Page.
+        # Other objects (for example, snippets), do not need PageTranslationData.
+        if isinstance(source_instance, Page):
+            original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
+            create_page_translation_data(original_translation_for_page)
 
     transaction.on_commit(check_after_commit)
 
@@ -40,8 +44,11 @@ def string_translation_saved_signal(sender, instance, created, **kwargs):
     except Exception as e:
         logger.exception(f"Error getting page for StringTranslation: {e}")
 
-    original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-    create_page_translation_data(original_translation_for_page)
+    # Only create/update PageTranslationData if this is a translation for a Page.
+    # Other objects (for example, snippets), do not need PageTranslationData.
+    if isinstance(source_instance, Page):
+        original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
+        create_page_translation_data(original_translation_for_page)
 
 
 @receiver(pre_delete, sender=StringTranslation)
@@ -55,8 +62,11 @@ def string_translation_deleted_signal(sender, instance, **kwargs):
     except Exception as e:
         logger.exception(f"Error getting page for StringTranslation: {e}")
     else:
-        original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-        create_page_translation_data(original_translation_for_page)
+        # Only create/update PageTranslationData if this is a translation for a Page.
+        # Other objects (for example, snippets), do not need PageTranslationData.
+        if isinstance(source_instance, Page):
+            original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
+            create_page_translation_data(original_translation_for_page)
 
 
 @receiver(post_save, sender=TranslationSource)
@@ -67,7 +77,10 @@ def translation_source_saved_signal(sender, instance, created, **kwargs):
     # Use transaction.on_commit to run after all database changes are committed
     def check_after_commit():
         original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-        create_page_translation_data(original_translation_for_page)
+        # Only create/update PageTranslationData if this is a translation for a Page.
+        # Other objects (for example, snippets), do not need PageTranslationData.
+        if isinstance(source_instance, Page):
+            create_page_translation_data(original_translation_for_page)
 
     transaction.on_commit(check_after_commit)
 
