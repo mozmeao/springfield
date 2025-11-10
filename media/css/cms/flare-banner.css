@@ -4,18 +4,23 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* Base styles - Mobile first */
+
 .fl-banner {
     position: relative;
     border-radius: calc(var(--scale-16) * 1px);
-    padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
+    padding: calc(var(--scale-24) * 1px);
     overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .fl-banner-container {
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: calc(var(--scale-40) * 1px);
+    padding: calc(var(--scale-24) * 1px);
     display: flex;
     flex-direction: column;
     gap: calc(var(--scale-40) * 1px);
@@ -104,7 +109,6 @@
 }
 
 .fl-banner-media {
-    border-radius: calc(var(--scale-16) * 1px);
     height: auto;
     display: flex;
     align-items: center;
@@ -119,12 +123,16 @@
     display: grid;
 }
 
+.fl-banner-media.has-qr-code img {
+    aspect-ratio: 1/1;
+}
+
 .fl-banner-media img {
     width: 100%;
     height: auto;
     object-fit: cover;
-    border-radius: calc(var(--scale-16) * 1px);
     grid-area: 1 / 1;
+    border-radius: calc(var(--scale-8) * 1px);
 }
 
 .fl-banner-qr {
@@ -132,12 +140,13 @@
     grid-area: 1 / 1;
     order: 2;
     place-self: center;
-    width: 25%;
+    width: 50%;
 }
 
 .fl-banner-qr svg {
     margin: auto;
     max-height: none;
+    width: 100%;
 }
 
 .fl-banner-media.has-large-qr-code .fl-banner-qr {
@@ -148,14 +157,18 @@
     width: 200px;
 }
 
+.fl-banner-container .fl-heading-group {
+    margin-bottom: 0;
+}
+
 .fl-banner-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
     max-width: 840px;
-    text-align: left;
+    text-align: center;
+    align-items: center;
 }
-
 
 .fl-banner-content-centered {
     text-align: center;
@@ -183,13 +196,17 @@
 .fl-banner-actions {
     margin-top: calc(var(--scale-24) * 1px);
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .fl-banner-brand {
     position: absolute;
     z-index: 0;
-    max-width: 400px;
-    max-height: 50%;
+    max-width: 90%;
+    max-width: min(90%, 400px);
+    max-height: calc(var(--scale-200) * 1px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,6 +275,30 @@
     z-index: 2;
 }
 
+.fl-banner-hasbrand-top-left,
+.fl-banner-hasbrand-top-right,
+.fl-banner-hasbrand-top {
+    padding-top: calc(var(--scale-200) * 1px);
+}
+
+.fl-banner-hasbrand-bottom-left,
+.fl-banner-hasbrand-bottom-right,
+.fl-banner-hasbrand-bottom {
+    padding-bottom: calc(var(--scale-200) * 1px);
+}
+
+.fl-banner-media-qr {
+    background-size: cover;
+}
+
+.fl-section-mobile .fl-banner {
+    padding: calc(var(--scale-24) * 1px);
+}
+
+.fl-section-mobile .fl-banner-media-qr {
+    padding: calc(var(--scale-24) * 1px) calc(var(--scale-24) * 1px) 0;
+}
+
 .fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
         right: 2%;
 }
@@ -268,61 +309,75 @@
 
 
 .fl-brand-image-filled-tail .fl-banner-brand.fl-banner-brand-bottom-right {
-        right: -9%;
-        bottom: 0.5rem;
+    right: -9%;
+    bottom: 0.5rem;
 }
 
-@media (max-width: 767px) {
-    .fl-banner-container {
-        padding: calc(var(--scale-24) * 1px);
+/* Tablet and up (768px+) */
+
+@media (min-width: 768px) {
+    .fl-banner {
+        padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
+        justify-content: initial;
+        align-items: initial;
+        text-align: initial;
     }
 
-    .fl-banner {
-        padding: calc(var(--scale-24) * 1px);
-        justify-content: center;
-        align-items: center;
-        text-align: center;
+    .fl-banner-container {
+        padding: calc(var(--scale-40) * 1px);
     }
 
     .fl-banner-content {
-        text-align: center;
-        align-items: center;
+        text-align: left;
+        align-items: initial;
     }
+
+    .fl-banner-media img {
+        border-radius: calc(var(--scale-16) * 1px);
+    }
+
+    .fl-banner-media.has-qr-code img {
+        aspect-ratio: 16/9;
+    }
+
+    .fl-banner-qr {
+        width: 25%;
+    }
+
 
     .fl-banner-hasbrand-top-left,
     .fl-banner-hasbrand-top-right,
     .fl-banner-hasbrand-top {
-        padding-top: calc(var(--scale-200) * 1px);
+        padding-top: 0;
     }
 
     .fl-banner-hasbrand-bottom-left,
     .fl-banner-hasbrand-bottom-right,
     .fl-banner-hasbrand-bottom {
-        padding-bottom: calc(var(--scale-200) * 1px);
+        padding-bottom: 0;
     }
 
     .fl-banner-brand {
-        max-width: 90%;
-        max-width: min(90%, 400px);
-        max-height: calc(var(--scale-200) * 1px);
+        max-width: 400px;
+        max-height: 50%;
     }
 
     .fl-banner-actions {
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        flex-direction: row;
+        justify-content: initial;
+        align-items: initial;
     }
 
     .fl-banner-media-qr {
-        background-size: cover;
+        background-size: initial;
     }
 
     .fl-section-mobile .fl-banner {
-        padding: calc(var(--scale-24) * 1px);
+        padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
     }
 
     .fl-section-mobile .fl-banner-media-qr {
-        padding: calc(var(--scale-24) * 1px) calc(var(--scale-24) * 1px) 0;
+        padding: initial;
     }
 }
 
@@ -336,13 +391,11 @@
     }
 }
 
+/* Desktop (1024px+) */
+
 @media (min-width: 1024px) {
     .fl-banner-container {
         gap: calc(var(--scale-64) * 1px);
-    }
-
-    .fl-banner-container .fl-heading-group {
-        margin-bottom: 0;
     }
 
     .fl-banner-layout:has(.fl-banner-media) {

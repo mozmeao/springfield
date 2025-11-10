@@ -28,8 +28,8 @@
       <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}">
         {% if qr_code %}
           <div class="fl-banner-qr">
-            <span aria-hidden="true">{{ contents.qr }}</span>
-            <a href="{{ qr_code }}" class="visually-hidden">Visit {{ qr_code }}</a>
+            <span aria-label="{{ ftl('whatsnew-qr-code-alt') }}">{{ contents.qr }}</span>
+            <a href="{{ qr_code }}" class="visually-hidden">{{ qr_code }}</a>
           </div>
 
 
