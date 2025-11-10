@@ -39,9 +39,9 @@ def string_translation_saved_signal(sender, instance, created, **kwargs):
         source_instance = segment.source.get_source_instance()
     except Exception as e:
         logger.exception(f"Error getting page for StringTranslation: {e}")
-
-    original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-    create_page_translation_data(original_translation_for_page)
+    else:
+        original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
+        create_page_translation_data(original_translation_for_page)
 
 
 @receiver(pre_delete, sender=StringTranslation)
