@@ -10,8 +10,8 @@ from django.conf import settings
 from django.test import override_settings
 
 import pytest
-from wagtail.models import Locale, Page, Site
 from wagtail.coreutils import get_content_languages
+from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
