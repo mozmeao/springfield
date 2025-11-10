@@ -106,7 +106,6 @@
 .fl-banner-media {
     border-radius: calc(var(--scale-16) * 1px);
     height: auto;
-    min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -129,21 +128,23 @@
 }
 
 .fl-banner-qr {
+    display: block;
     grid-area: 1 / 1;
     order: 2;
     place-self: center;
     width: 25%;
 }
 
-.fl-banner-qr > * {
+.fl-banner-qr svg {
     margin: auto;
+    max-height: none;
 }
 
 .fl-banner-media.has-large-qr-code .fl-banner-qr {
     width: auto;
 }
 
-.fl-banner-media.has-large-qr-code .fl-banner-qr > * {
+.fl-banner-media.has-large-qr-code .fl-banner-qr svg {
     width: 200px;
 }
 
@@ -277,7 +278,7 @@
     }
 
     .fl-banner {
-        padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
+        padding: calc(var(--scale-24) * 1px);
         justify-content: center;
         align-items: center;
         text-align: center;
@@ -304,10 +305,6 @@
         max-width: 90%;
         max-width: min(90%, 400px);
         max-height: calc(var(--scale-200) * 1px);
-    }
-
-    .fl-banner-media {
-        min-height: 200px;
     }
 
     .fl-banner-actions {
