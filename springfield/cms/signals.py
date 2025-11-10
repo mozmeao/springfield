@@ -32,16 +32,19 @@ def translation_saved_signal(sender, instance, created, **kwargs):
 def string_translation_saved_signal(sender, instance, created, **kwargs):
     """Create/update PageTranslationData when a StringTranslation is saved (created or updated)."""
 
-    # Get the page through the string's segments and translation source
-    # StringTranslation -> StringSegment -> TranslationSource -> Page
-    try:
-        segment = StringSegment.objects.get(context=instance.context, string=instance.translation_of)
-        source_instance = segment.source.get_source_instance()
-    except Exception as e:
-        logger.exception(f"Error getting page for StringTranslation: {e}")
-    else:
-        original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-        create_page_translation_data(original_translation_for_page)
+    def check_after_commit():
+        # Get the page through the string's segments and translation source
+        # StringTranslation -> StringSegment -> TranslationSource -> Page
+        try:
+            segment = StringSegment.objects.get(context=instance.context, string=instance.translation_of)
+            source_instance = segment.source.get_source_instance()
+        except Exception as e:
+            logger.exception(f"Error getting page for StringTranslation: {e}")
+        else:
+            original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
+            create_page_translation_data(original_translation_for_page)
+
+    transaction.on_commit(check_after_commit)
 
 
 @receiver(pre_delete, sender=StringTranslation)
