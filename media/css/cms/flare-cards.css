@@ -15,38 +15,20 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: calc(var(--token-scale-16) * 1px);
-    border: 1px solid light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    border: 1px solid var(--fl-theme-border-color-strong);
     border-radius: calc(var(--token-scale-16) * 1px);
     padding: calc(var(--token-scale-24) * 1px);
     transition: all var(--token-transition-base);
 }
 
-@supports not (color: light-dark(black, white)) {
-    .fl-card {
-        border: 1px solid var(--token-neutrals-charcoal);
-    }
-}
-
 .fl-card:hover {
-    background: light-dark(var(--token-neutrals-white), var(--token-neutrals-grey-8));
+    background: var(--fl-theme-surface-hover);
     border-color: transparent;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-card:hover {
-        background: var(--token-neutrals-white);
-    }
 }
 
 .fl-card.fl-card-fill {
     border: none;
-    background: light-dark(var(--token-neutrals-white), var(--token-neutrals-charcoal));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-card.fl-card-fill {
-        background: var(--token-neutrals-white);
-    }
+    background: var(--fl-theme-surface-elevated);
 }
 
 .fl-card .fl-heading {
@@ -121,15 +103,9 @@
 .fl-illustration-card-reverse .fl-card-content {
     position: relative;
     order: 0;
-    background: light-dark(var(--token-neutrals-white), var(--token-neutrals-charcoal));
+    background: var(--fl-theme-surface-elevated);
     border-radius: calc(var(--token-scale-16) * 1px);
     z-index: 1;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-illustration-card-reverse .fl-card-content {
-        background: var(--token-neutrals-white);
-    }
 }
 
 @media (max-width: 767px) {

@@ -30,15 +30,8 @@
 }
 
 .fl-banner-outlined {
-    border: 1px solid light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-banner-outlined {
-        border: 1px solid var(--token-neutrals-charcoal);
-        color: var(--token-neutrals-charcoal);
-    }
+    border: 1px solid var(--fl-theme-border-color-strong);
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-banner-filled {

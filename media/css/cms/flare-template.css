@@ -10,15 +10,8 @@
 .fl-header {
     position: relative;
     padding: 18px calc(var(--token-scale-40) * 1px);
-    border-bottom: 1px solid light-dark(var(--token-neutrals-grey-3), var(--token-neutrals-grey-8));
-    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-header {
-        border-bottom: 1px solid var(--token-neutrals-grey-3);
-        background: var(--token-neutrals-ash);
-    }
+    border-bottom: 1px solid var(--fl-theme-border-color-subtle);
+    background: var(--fl-theme-surface-page);
 }
 
 .fl-header-inner {
@@ -76,17 +69,11 @@
     justify-content: center;
     cursor: pointer;
     position: relative;
-    background-image: linear-gradient(light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white)), light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white)))));
+    background-image: linear-gradient(var(--fl-theme-navigation-icon), var(--fl-theme-navigation-icon));
     background-repeat: no-repeat;
     background-position: left 8px center;
     background-size: 16px 2px;
     transition: background-size var(--token-transition-base);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-hamburger {
-        background-image: linear-gradient(var(--token-neutrals-grey-8, var(--token-neutrals-white)), var(--token-neutrals-grey-8, var(--token-neutrals-white)));
-    }
 }
 
 .fl-hamburger::before,
@@ -96,16 +83,9 @@
     left: 8px;
     right: 16px;
     height: 2px;
-    background: light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white)), light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white))));
+    background: var(--fl-theme-navigation-icon);
     border-radius: 1px;
     transition: transform var(--token-transition-base), top var(--token-transition-base), bottom var(--token-transition-base);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-hamburger::before,
-    .fl-hamburger::after {
-        background: var(--token-neutrals-grey-8, var(--token-neutrals-white));
-    }
 }
 
 .fl-hamburger::before {
@@ -142,14 +122,8 @@
 .fl-nav-link {
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
-    color: light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white)), light-dark(var(--token-neutrals-grey-8, var(--token-neutrals-white))));
+    color: var(--fl-theme-navigation-link);
     text-decoration: none;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-nav-link {
-        color: var(--token-neutrals-grey-8, var(--token-neutrals-white));
-    }
 }
 
 .fl-nav-link-active {
@@ -233,16 +207,10 @@
         display: block;
         position: fixed;
         inset: 60px 0 0;
-        background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
+        background: var(--fl-theme-surface-page);
         padding: calc(var(--token-scale-40) * 1px) calc(var(--token-scale-40) * 1px) calc(var(--token-scale-64) * 1px);
         z-index: 1000;
         margin-top: calc(var(--token-scale-4) * 1px);
-    }
-
-    @supports not (color: light-dark(black, white)) {
-        .fl-nav.is-open {
-            background: var(--token-neutrals-ash);
-        }
     }
 
     .fl-nav-menu {
@@ -270,15 +238,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
-    color: light-dark(var(--token-neutrals-grey-8), var(--token-neutrals-white));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-page {
-        background: var(--token-neutrals-ash);
-        color: var(--token-neutrals-grey-8);
-    }
+    background: var(--fl-theme-surface-page);
+    color: var(--fl-theme-color-text-muted);
 }
 
 .fl-main {
@@ -302,13 +263,7 @@
 .fl-footer {
     margin-top: auto;
     padding: calc(var(--token-scale-64) * 1px) 0;
-    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer {
-        background: var(--token-neutrals-ash);
-    }
+    background: var(--fl-theme-surface-page);
 }
 
 .fl-footer .fl-button-outline img {
@@ -331,14 +286,8 @@
 
 .fl-footer-copy {
     margin: 0;
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
     grid-column: 1;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-copy {
-        color: var(--token-neutrals-charcoal);
-    }
 }
 
 .fl-footer-link {
@@ -372,15 +321,9 @@
 
 .fl-footer-divider {
     border: none;
-    border-top: 1px solid light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    border-top: 1px solid var(--fl-theme-border-color-strong);
     ;
     margin: calc(var(--token-scale-48) * 1px) 0;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-divider {
-        border-top: 1px solid var(--token-neutrals-charcoal);
-    }
 }
 
 .fl-footer-bottom {
@@ -446,51 +389,27 @@
 }
 
 .fl-footer-links a {
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-links a {
-        color: var(--token-neutrals-charcoal);
-    }
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-footer-title {
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-h4);
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
     margin: 0 0 calc(var(--token-scale-4) * 1px);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-title {
-        color: var(--token-neutrals-charcoal);
-    }
 }
 
 .fl-footer-subtitle {
     margin: 0;
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-subtitle {
-        color: var(--token-neutrals-charcoal);
-    }
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-footer-note {
     margin: 0;
     margin-top: calc(var(--token-scale-8) * 1px);
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
     font-size: var(--fl-theme-font-size-body-xsmall);
     text-align: center;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-footer-note {
-        color: var(--token-neutrals-charcoal);
-    }
 }
 
 @media (max-width: 767px) {

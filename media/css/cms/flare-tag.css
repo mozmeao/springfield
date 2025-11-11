@@ -35,38 +35,18 @@
 }
 
 .fl-tag.fl-tag-blue {
-    background: light-dark(var(--token-blue-light-blue), var(--token-blue-medium-blue));
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-white));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-blue {
-        background: var(--token-blue-light-blue);
-        color: var(--token-neutrals-charcoal);
-    }
+    background: var(--fl-theme-accent-blue-bg);
+    color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-tag.fl-tag-purple {
-    background: light-dark(var(--token-purple-light-purple), var(--token-purple-purple));
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-white));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-purple {
-        background: var(--token-purple-light-purple);
-        color: var(--token-neutrals-charcoal);
-    }
+    background: var(--fl-theme-accent-purple-bg);
+    color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-tag.fl-tag-orange {
-    background: light-dark(var(--token-orange-light-orange), var(--token-orange-medium-orange));
-    color: var(--token-neutrals-charcoal);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-orange {
-        background: var(--token-orange-light-orange);
-    }
+    background: var(--fl-theme-accent-orange-bg);
+    color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-tag.fl-tag-yellow {
@@ -75,36 +55,18 @@
 }
 
 .fl-tag.fl-tag-black {
-    background: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-black));
+    background: var(--fl-theme-accent-neutral-strong-bg);
     color: var(--token-neutrals-ash);
 }
 
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-black {
-        background: var(--token-neutrals-charcoal);
-    }
-}
-
 .fl-tag.fl-tag-white {
-    background: light-dark(var(--token-neutrals-white), var(--token-neutrals-ash));
+    background: var(--fl-theme-accent-neutral-bg);
     color: var(--token-neutrals-charcoal);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-white {
-        background: var(--token-neutrals-white);
-    }
 }
 
 .fl-tag.fl-tag-outline {
     background: transparent;
     border-width: 1px;
     border-style: solid;
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-tag.fl-tag-outline {
-        color: var(--token-neutrals-charcoal);
-    }
+    color: var(--fl-theme-color-text-primary);
 }

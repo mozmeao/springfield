@@ -22,17 +22,10 @@ html {
 body {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
-    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
+    color: var(--fl-theme-color-text-primary);
+    background: var(--fl-theme-surface-page);
     width: 100%;
     max-width: var(--token-widths-viewport-wrapper-screen-2xl);
-}
-
-@supports not (color: light-dark(black, white)) {
-    body {
-        color: var(--token-neutrals-charcoal);
-        background: var(--token-neutrals-ash);
-    }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -54,25 +47,13 @@ p {
 }
 
 a:link, a:visited {
-    color: light-dark(var(--token-blue-button), var(--token-blue-blue));
+    color: var(--fl-theme-color-link);
     text-decoration: underline;
     transition: color var(--token-transition-fast);
 }
 
-@supports not (color: light-dark(black, white)) {
-    a:link, a:visited {
-        color: var(--token-blue-button);
-    }
-}
-
 a:visited {
-    color: light-dark(var(--token-purple-purple), var(--token-purple-light-purple));
-}
-
-@supports not (color: light-dark(black, white)) {
-    a:visited {
-        color: var(--token-purple-purple);
-    }
+    color: var(--fl-theme-color-link-visited);
 }
 
 a:hover, a:active, a:focus {

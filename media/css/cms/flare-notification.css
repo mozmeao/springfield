@@ -6,8 +6,8 @@
 
 
 :root {
-    --notification-bg: var(--token-blue-light-blue);
-    --notification-color: var(--token-neutrals-charcoal);
+    --notification-bg: var(--fl-theme-accent-blue-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-wrapper {
@@ -62,37 +62,18 @@
 }
 
 .fl-notification-blue {
-    --notification-bg: light-dark(var(--token-blue-light-blue), var(--token-blue-medium-blue));
-    --notification-color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-white));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-blue {
-        --notification-bg: var(--token-blue-light-blue);
-        --notification-color: var(--token-neutrals-charcoal);
-    }
+    --notification-bg: var(--fl-theme-accent-blue-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-purple {
-    --notification-bg: light-dark(var(--token-purple-light-purple), var(--token-purple-purple));
-    --notification-color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-white));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-purple {
-        --notification-bg: var(--token-purple-light-purple);
-        --notification-color: var(--token-neutrals-charcoal);
-    }
+    --notification-bg: var(--fl-theme-accent-purple-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-orange {
-    --notification-bg: light-dark(var(--token-orange-light-orange), var(--token-orange-medium-orange));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-orange {
-        --notification-bg: var(--token-orange-light-orange);
-    }
+    --notification-bg: var(--fl-theme-accent-orange-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-yellow {
@@ -105,25 +86,14 @@
 }
 
 .fl-notification-white {
-    --notification-bg: light-dark(var(--token-neutrals-white), var(--token-neutrals-ash));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-white {
-        --notification-bg: var(--token-neutrals-white);
-    }
+    --notification-bg: var(--fl-theme-accent-neutral-bg);
+    --notification-color: var(--token-neutrals-charcoal);
 }
 
 .fl-notification-outline {
     --notification-bg: transparent;
-    --notification-color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-ash));
+    --notification-color: var(--fl-theme-color-text-primary);
     border: 1px solid var(--notification-color);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-outline {
-        --notification-color: var(--token-neutrals-charcoal);
-    }
 }
 
 .fl-notification-content {
@@ -177,11 +147,5 @@
 }
 
 .fl-notification-outline .fl-notification-icon-inverted {
-    color: light-dark(var(--token-neutrals-white), var(--token-neutrals-charcoal));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-notification-outline .fl-notification-icon-inverted {
-        color: var(--token-neutrals-white);
-    }
+    color: var(--fl-theme-color-text-on-accent-soft);
 }

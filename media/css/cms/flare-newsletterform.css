@@ -40,13 +40,7 @@
     border: 1px solid var(--token-neutrals-grey-3);
     font-size: var(--fl-theme-font-size-base);
     font-family: var(--fl-theme-font-family-body);
-    background: light-dark(var(--token-neutrals-ash), var(--token-neutrals-charcoal));
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-newsletterform-input {
-        background: var(--token-neutrals-ash);
-    }
+    background: var(--fl-theme-surface-panel);
 }
 
 .fl-section-subscribe .fl-section-container {

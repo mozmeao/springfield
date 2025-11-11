@@ -7,16 +7,10 @@
 .fl-intro {
     text-align: center;
     font-family: var(--token-font-family-inter);
-    background-color: light-dark(var(--token-neutrals-ash), var(--token-neutrals-black));
+    background-color: var(--fl-theme-surface-page);
     padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-40) * 1px);
     max-width: 1440px;
     margin: 0 auto;
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-intro {
-        background-color: var(--token-neutrals-ash);
-    }
 }
 
 .fl-intro > * {

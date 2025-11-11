@@ -13,9 +13,59 @@ runtime conditions. Design tokens live in flare-tokens.css.
     /* Functional color variables */
     --fl-theme-functional-error: var(--token-orange-orange);
     --fl-theme-functional-warning: var(--token-yellow-dark-yellow);
-    --fl-theme-dark-yellow-alert: var(--token-yellow-dark-yellow);
     --fl-theme-functional-success: var(--token-green-zilla-green);
     --fl-theme-functional-info-buttons: var(--token-blue-button);
+
+    /* Core text colors */
+    --fl-theme-color-text-primary: var(--token-neutrals-charcoal);
+    --fl-theme-color-text-secondary: var(--token-neutrals-grey-7);
+    --fl-theme-color-text-muted: var(--token-neutrals-grey-8);
+    --fl-theme-color-text-inverse: var(--token-neutrals-white);
+    --fl-theme-color-text-on-accent: var(--token-neutrals-charcoal);
+    --fl-theme-color-text-on-accent-soft: var(--token-neutrals-white);
+    --fl-theme-color-text-body: var(--token-neutrals-black);
+
+    /* Core surface colors */
+    --fl-theme-surface-page: var(--token-neutrals-ash);
+    --fl-theme-surface-panel: var(--token-neutrals-ash);
+    --fl-theme-surface-elevated: var(--token-neutrals-white);
+    --fl-theme-surface-hover: var(--token-neutrals-white);
+    --fl-theme-surface-neutral-strong: var(--token-neutrals-charcoal);
+
+    /* Border colors */
+    --fl-theme-border-color-strong: var(--token-neutrals-charcoal);
+    --fl-theme-border-color-subtle: var(--token-neutrals-grey-3);
+    --fl-theme-border-color-muted: var(--token-neutrals-grey-3);
+
+    /* Link colors */
+    --fl-theme-color-link: var(--token-blue-button);
+    --fl-theme-color-link-visited: var(--token-purple-purple);
+    --fl-theme-color-link-strong: var(--token-blue-blue);
+
+    /* Button palette */
+    --fl-theme-button-primary-hover-text: var(--token-neutrals-white);
+    --fl-theme-button-primary-active-bg: var(--token-neutrals-black);
+    --fl-theme-button-primary-active-text: var(--token-neutrals-ash);
+    --fl-theme-button-secondary-hover-bg: var(--token-blue-dark-blue);
+    --fl-theme-button-secondary-active-bg: var(--token-blue-medium-blue);
+    --fl-theme-button-secondary-active-text: var(--token-neutrals-white);
+    --fl-theme-button-ghost-text: var(--token-neutrals-grey-8);
+    --fl-theme-button-ghost-hover-bg: var(--token-neutrals-grey-8);
+    --fl-theme-button-ghost-hover-text: var(--token-neutrals-white);
+
+    /* Accent backgrounds */
+    --fl-theme-accent-blue-bg: var(--token-blue-light-blue);
+    --fl-theme-accent-purple-bg: var(--token-purple-light-purple);
+    --fl-theme-accent-orange-bg: var(--token-orange-light-orange);
+    --fl-theme-accent-neutral-bg: var(--token-neutrals-white);
+    --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-charcoal);
+
+    /* Template / navigation accents */
+    --fl-theme-navigation-link: var(--token-neutrals-grey-8);
+    --fl-theme-navigation-icon: var(--token-neutrals-grey-8);
+
+    /* Code and syntax surfaces */
+    --fl-theme-code-surface: var(--token-neutrals-grey-3);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-metropolis);
@@ -63,6 +113,61 @@ runtime conditions. Design tokens live in flare-tokens.css.
 
     /* Color scheme variables */
     color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Core text colors */
+        --fl-theme-color-text-primary: var(--token-neutrals-ash);
+        --fl-theme-color-text-secondary: var(--token-neutrals-grey-5);
+        --fl-theme-color-text-muted: var(--token-neutrals-white);
+        --fl-theme-color-text-inverse: var(--token-neutrals-black);
+        --fl-theme-color-text-on-accent: var(--token-neutrals-white);
+        --fl-theme-color-text-on-accent-soft: var(--token-neutrals-ash);
+        --fl-theme-color-text-body: var(--token-neutrals-white);
+
+        /* Core surface colors */
+        --fl-theme-surface-page: var(--token-neutrals-black);
+        --fl-theme-surface-panel: var(--token-neutrals-charcoal);
+        --fl-theme-surface-elevated: var(--token-neutrals-charcoal);
+        --fl-theme-surface-hover: var(--token-neutrals-grey-8);
+        --fl-theme-surface-neutral-strong: var(--token-neutrals-black);
+
+        /* Border colors */
+        --fl-theme-border-color-strong: var(--token-neutrals-ash);
+        --fl-theme-border-color-subtle: var(--token-neutrals-grey-8);
+        --fl-theme-border-color-muted: var(--token-neutrals-grey-6);
+
+        /* Link colors */
+        --fl-theme-color-link: var(--token-blue-blue);
+        --fl-theme-color-link-visited: var(--token-purple-light-purple);
+        --fl-theme-color-link-strong: var(--token-blue-light-blue);
+
+        /* Button palette */
+        --fl-theme-button-primary-hover-text: var(--token-neutrals-black);
+        --fl-theme-button-primary-active-bg: var(--token-neutrals-white);
+        --fl-theme-button-primary-active-text: var(--token-neutrals-charcoal);
+        --fl-theme-button-secondary-hover-bg: var(--token-blue-medium-blue);
+        --fl-theme-button-secondary-active-bg: var(--token-blue-dark-blue);
+        --fl-theme-button-secondary-active-text: var(--token-neutrals-ash);
+        --fl-theme-button-ghost-text: var(--token-neutrals-white);
+        --fl-theme-button-ghost-hover-bg: var(--token-neutrals-white);
+        --fl-theme-button-ghost-hover-text: var(--token-neutrals-grey-8);
+
+        /* Accent backgrounds */
+        --fl-theme-accent-blue-bg: var(--token-blue-medium-blue);
+        --fl-theme-accent-purple-bg: var(--token-purple-purple);
+        --fl-theme-accent-orange-bg: var(--token-orange-medium-orange);
+        --fl-theme-accent-neutral-bg: var(--token-neutrals-ash);
+        --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-black);
+
+        /* Template / navigation accents */
+        --fl-theme-navigation-link: var(--token-neutrals-white);
+        --fl-theme-navigation-icon: var(--token-neutrals-white);
+
+        /* Code and syntax surfaces */
+        --fl-theme-code-surface: var(--token-neutrals-charcoal);
+    }
 }
 
 /* CSS custom properties are not resolved in media queries; so we

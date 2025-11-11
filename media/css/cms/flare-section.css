@@ -78,12 +78,6 @@
 }
 
 .fl-section-cta-link {
-    color: light-dark(var(--token-neutrals-charcoal), var(--token-neutrals-white));
+    color: var(--fl-theme-color-text-on-accent);
     font-weight: var(--token-font-weight-semibold);
-}
-
-@supports not (color: light-dark(black, white)) {
-    .fl-section-cta-link {
-        color: var(--token-neutrals-charcoal);
-    }
 }
