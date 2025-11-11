@@ -20,4 +20,5 @@ footer-license = Content available under a <a {$license_attrs}>{ -brand-name-cre
 footer-firefox-support = { -brand-name-firefox } Support
 footer-privacy-notice = Privacy Notice
 footer-donate = Donate to { -brand-name-mozilla }
+footer-donate-v2 = Donate to { -brand-name-mozilla-foundation }
 footer-make-good-things = Make good things together
