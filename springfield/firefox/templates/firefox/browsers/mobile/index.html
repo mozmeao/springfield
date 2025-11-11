@@ -16,6 +16,13 @@
 {% set _entrypoint = 'www.firefox.com-firefox-mobile' %}
 
 {% block page_title %}{{ ftl('browsers-mobile-firefox-mobile-browsers-put') }}{% endblock %}
+
+{# Issue 13019: Avoid duplicate content for English pages. #}
+{%- block page_title_region -%}
+  {% if LANG == 'en-US' %} (US){%- endif -%}
+  {% if LANG == 'en-GB' %} (UK){%- endif -%}
+{%- endblock -%}
+
 {% block page_desc %}{{ ftl('browsers-mobile-overview-of-all-mobile') }}{% endblock %}
 
 {% block body_class %}{{ super() }} mobile-overview{% endblock %}

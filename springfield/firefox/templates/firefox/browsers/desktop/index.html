@@ -8,13 +8,16 @@
 {% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 
 {# Issue 13019: Avoid duplicate content for English pages. #}
+{%- block page_title_region -%}
+  {% if LANG == 'en-US' %} (US){%- endif -%}
+  {% if LANG == 'en-GB' %} (UK){%- endif -%}
+{%- endblock -%}
+
 {%- block page_title -%}
-  {%- if LANG == 'en-US' -%}
-    Firefox for Desktop — Firefox (US)
-  {%- elif LANG == 'en-GB' -%}
-    Firefox for Desktop  — Firefox (UK)
+  {%- if LANG == 'en-US' or LANG == 'en-GB' -%}
+    Firefox for Desktop available for Windows, Mac and Linux
   {%- else -%}
-    {{ ftl('firefox-browsers-page-title-v2') }} - Firefox
+    {{ ftl('firefox-browsers-page-title-v2') }}
   {%- endif -%}
 {%- endblock -%}
 
