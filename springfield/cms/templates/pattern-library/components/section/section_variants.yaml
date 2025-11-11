@@ -1,0 +1,31 @@
+name: "Section Variants"
+context:
+  with_cta:
+    heading: "Features That Matter"
+    cards:
+      - icon_name: "shield"
+        heading: "Security"
+        body: "Advanced protection for your online safety."
+      - icon_name: "heart"
+        heading: "Non-Profit"
+        body: "Not driven by profit, driven by purpose."
+      - icon_name: "mobile"
+        heading: "Cross-Platform"
+        body: "One account, all your devices."
+    cta:
+      - label: "Learn More"
+        url: "/"
+      - label: "Get Started"
+        url: "/"
+  without_cta:
+    heading: "Simple Information Section"
+    cards:
+      - icon_name: "lock"
+        heading: "Private"
+        body: "Your browsing stays between you and the web."
+      - icon_name: "star"
+        heading: "Fast"
+        body: "Lightning-fast page loads and smooth scrolling."
+      - icon_name: "check"
+        heading: "Reliable"
+        body: "A browser you can trust, built for everyone."

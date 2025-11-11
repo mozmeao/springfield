@@ -4,12 +4,11 @@
 
 from uuid import uuid4
 
-from django.core.exceptions import ValidationError
-
 from wagtail import blocks
 
 # from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail_link_block.blocks import LinkBlock
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -18,6 +17,7 @@ HEADING_TEXT_FEATURES = [
     "superscript",
     "subscript",
     "strikethrough",
+    "fxa",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -141,7 +141,6 @@ class HeadingBlock(blocks.StructBlock):
         label = "Heading"
         label_format = "{heading_text}"
         template = "cms/blocks/heading.html"
-        form_classname = "compact-form struct-block"
 
 
 # Buttons
@@ -171,15 +170,6 @@ class BaseButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class ButtonValue(BaseButtonValue):
-    def url(self) -> str:
-        link = self.get("link")
-        page = self.get("page")
-        if page:
-            return page.url
-        return link
-
-
 class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
@@ -203,7 +193,9 @@ class BaseButtonSettings(blocks.StructBlock):
         inline_form=True,
     )
     analytics_id = UUIDBlock(
-        label="Analytics ID", help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.", required=False
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
     )
 
     class Meta:
@@ -214,53 +206,19 @@ class BaseButtonSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ButtonSettings(BaseButtonSettings):
-    external = blocks.BooleanBlock(required=False, default=False, label="External link", inline_form=True)
-
-
-class UITourButtonSettings(BaseButtonSettings):
-    pass
-
-
 class ButtonBlock(blocks.StructBlock):
-    settings = ButtonSettings()
+    settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
-    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
-    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
+    link = LinkBlock()
 
     class Meta:
         template = "cms/blocks/button.html"
         label = "Button"
         label_format = "Button - {label}"
-        value_class = ButtonValue
-
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        if not cleaned_data.get("link") and not cleaned_data.get("page"):
-            raise ValidationError(
-                "Either a link or a page is required.",
-            )
-        if cleaned_data.get("link") and cleaned_data.get("page"):
-            raise ValidationError(
-                "Please provide either a link or a page, not both.",
-            )
-        if cleaned_data.get("page") and cleaned_data.get("settings", {}).get("external"):
-            raise ValidationError(
-                "External link option cannot be selected when a page is chosen.",
-            )
-        return cleaned_data
+        value_class = BaseButtonValue
 
 
-class LinkValue(blocks.StructValue):
-    def url(self) -> str:
-        link = self.get("link")
-        page = self.get("page")
-        if page:
-            return page.url
-        return link
-
-
-class UITourButtonValue(ButtonValue):
+class UITourButtonValue(BaseButtonValue):
     def theme_class(self) -> str:
         """
         Give the button the appropriate CSS class, based on its button_type.
@@ -285,7 +243,7 @@ class UITourButtonValue(ButtonValue):
 
 
 class UITourButtonBlock(blocks.StructBlock):
-    settings = UITourButtonSettings()
+    settings = BaseButtonSettings()
     button_type = blocks.ChoiceBlock(
         default=UITOUR_BUTTON_NEW_TAB,
         choices=UITOUR_BUTTON_CHOICES,
@@ -300,12 +258,8 @@ class UITourButtonBlock(blocks.StructBlock):
         value_class = UITourButtonValue
 
 
-class FAXButtonSettings(BaseButtonSettings):
-    pass
-
-
 class FXAccountButtonBlock(blocks.StructBlock):
-    settings = FAXButtonSettings()
+    settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
 
     class Meta:
@@ -339,31 +293,29 @@ def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **k
     )
 
 
-class LinkBlock(blocks.StructBlock):
-    label = blocks.CharBlock(label="Link Text")
-    link = blocks.CharBlock(required=False, label="Enter a URL or choose a page below")
-    page = blocks.PageChooserBlock(required=False, label="Choose a page or enter a URL above")
-    external = blocks.BooleanBlock(required=False, default=False, label="External link")
+class CTASettings(blocks.StructBlock):
     analytics_id = UUIDBlock(
-        label="Analytics ID", help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.", required=False
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
     )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Analytics ID: {analytics_id}"
+        form_classname = "compact-form struct-block"
+
+
+class CTABlock(blocks.StructBlock):
+    settings = CTASettings()
+    label = blocks.CharBlock(label="Link Text")
+    link = LinkBlock()
 
     class Meta:
         label = "Link"
         label_format = "Link - {label}"
-        value_class = LinkValue
-
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        if not cleaned_data.get("link") and not cleaned_data.get("page"):
-            raise ValidationError(
-                "Either a link or a page is required.",
-            )
-        if cleaned_data.get("link") and cleaned_data.get("page"):
-            raise ValidationError(
-                "Please provide either a link or a page, not both.",
-            )
-        return cleaned_data
 
 
 class TagBlock(blocks.StructBlock):
@@ -500,7 +452,12 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
 
         class Meta:
             label = "Media + Content"
@@ -521,7 +478,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 # Cards
 
 
-class StickerCardSettings(blocks.StructBlock):
+class BaseCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -545,12 +502,17 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _StickerCardBlock(blocks.StructBlock):
-        settings = StickerCardSettings()
+        settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
 
         class Meta:
             label = "Sticker Card"
@@ -569,10 +531,16 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _TagCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
 
         class Meta:
             template = "cms/blocks/tag-card.html"
@@ -582,23 +550,8 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
     return _TagCardBlock(*args, **kwargs)
 
 
-class IconCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link}"
-        form_classname = "compact-form struct-block"
-
-
 class IconCardBlock(blocks.StructBlock):
-    settings = IconCardSettings()
+    settings = BaseCardSettings()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -610,12 +563,7 @@ class IconCardBlock(blocks.StructBlock):
         label_format = "Icon Card - {headline}"
 
 
-class IllustrationCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
+class IllustrationCardSettings(BaseCardSettings):
     image_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -646,7 +594,12 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
 
         class Meta:
             template = "cms/blocks/illustration-card.html"
@@ -654,21 +607,6 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{headline}"
 
     return _IllustrationCardBlock(*args, **kwargs)
-
-
-class StepCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link}"
-        form_classname = "compact-form struct-block"
 
 
 def StepCardBlock(allow_uitour=False, *args, **kwargs):
@@ -680,12 +618,17 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
     """
 
     class _StepCardBlock(blocks.StructBlock):
-        settings = StepCardSettings()
+        settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
 
         class Meta:
             template = "cms/blocks/step-card.html"
@@ -784,7 +727,12 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
         #     help_text="Either enter an image or embed, or leave both blank.",
         # )
         heading = HeadingBlock()
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=2, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
 
         class Meta:
             template = "cms/blocks/sections/intro.html"
@@ -829,7 +777,7 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
             ]
         )
-        cta = blocks.ListBlock(LinkBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
         class Meta:
             template = "cms/blocks/sections/section.html"
@@ -856,9 +804,11 @@ class BannerSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("outlined", "Outlined"),
-            ("filled", "Filled"),
-            ("filled-small", "Filled with Small Brand Image"),
-            ("filled-large", "Filled with Large Brand Image"),
+            ("filled", "Filled, no Kit Image"),
+            ("filled-small", "Filled with Small Curious Kit"),
+            ("filled-large", "Filled with Large Curious Kit"),
+            ("filled-face", "Filled with Sitting Kit"),
+            ("filled-tail", "Filled with Kit Tail"),
         ),
         default="outlined",
         inline_form=True,
@@ -891,13 +841,21 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
 
     class _BannerBlock(blocks.StructBlock):
         settings = BannerSettings()
-        image = ImageChooserBlock(required=False)
+        image = ImageChooserBlock(
+            required=False,
+            help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
+        )
         qr_code = blocks.CharBlock(
             required=False,
-            help_text="Content to encode in the QR code, e.g., a URL or text. If an image is added, it will be used as the QR code background.",
+            help_text="Content to encode in the QR code, e.g., a URL or text. To add a background image, upload an image above.",
         )
         heading = HeadingBlock()
-        buttons = MixedButtonsBlock(button_types=get_button_types(allow_uitour), min_num=0, max_num=1, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
 
         class Meta:
             template = "cms/blocks/sections/banner.html"

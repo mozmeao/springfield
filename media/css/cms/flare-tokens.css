@@ -51,6 +51,8 @@ non-deterministic so you need to check and adjust the results as needed.
     --token-blue-dark-blue: #003c6e;
     --token-blue-button: #0360df;
     --token-purple-purple: #754fe0;
+    --token-purple-gradient-light: #7843F0;
+    --token-purple-gradient-dark: #2B0D4A;
     --token-purple-medium-purple: #d98dfa;
     --token-purple-dark-purple: #210340;
     --token-purple-light-purple: #dcd2ff;
@@ -59,7 +61,7 @@ non-deterministic so you need to check and adjust the results as needed.
     /* Gradients from Figma */
     --token-gradient-earth-glow: linear-gradient(90deg, var(--token-blue-blue) 0%, var(--token-purple-purple) 100%);
     --token-gradient-fox-fire: linear-gradient(90deg, var(--token-yellow-yellow) 0%, var(--token-orange-orange) 100%);
-    --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-purple) 0%, var(--token-purple-dark-purple) 100%);
+    --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-gradient-light) 0%, var(--token-purple-gradient-dark) 100%);
 
     /* Scale variables from Figma */
     --token-scale-2: 2;

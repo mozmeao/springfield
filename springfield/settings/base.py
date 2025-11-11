@@ -298,6 +298,7 @@ FLUENT_DEFAULT_FILES = [
     "brands",
     "download_button",
     "footer-firefox",
+    "footer-wnp",
     "fxa_form",
     "navigation-firefox",
     "newsletter_form",
@@ -467,6 +468,7 @@ SUPPORTED_NONLOCALES = [
     "locales",
     "csrf_403",
     "pattern-library",
+    "_documents",
 ]
 
 # Ensure local debug-only test routes are not locale-prefixed
@@ -730,6 +732,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "taggit",
     "csp",
+    "wagtail_link_block",
     # Local apps
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases

@@ -1,0 +1,4 @@
+name: "Subscription Section"
+context:
+  heading: "Stay Connected with Firefox"
+  button_label: "Subscribe"

@@ -5,7 +5,10 @@
 */
 
 .fl-button {
-    display: inline-block;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-32) * 1px);
     font-family: var(--fl-theme-font-family-button);
     font-size: var(--fl-theme-font-size-base);

@@ -547,6 +547,34 @@ if (typeof window.Mozilla === 'undefined') {
         return data;
     };
 
+    StubAttribution.checkDataAndRequestAuth = function (
+        omitNonEssentialFields = false
+    ) {
+        // get attribution data
+        let data = StubAttribution.getAttributionData(
+            null,
+            omitNonEssentialFields
+        );
+
+        if (
+            data &&
+            StubAttribution.withinAttributionRate() &&
+            StubAttribution.hasValidData(data)
+        ) {
+            // if data is valid and we are in sample rate:
+            // request authentication from stub attribution service
+            StubAttribution.requestAuthentication(data);
+
+            // Send the session ID to GA4
+            if (!omitNonEssentialFields && data.client_id_ga4) {
+                window.dataLayer.push({
+                    event: 'stub_session_set',
+                    id: data.session_id
+                });
+            }
+        }
+    };
+
     StubAttribution.hasValidData = function (data) {
         if (
             typeof data.utm_content === 'string' &&
@@ -652,36 +680,20 @@ if (typeof window.Mozilla === 'undefined') {
         if (StubAttribution.hasCookie()) {
             data = StubAttribution.getCookie();
             StubAttribution.updateBouncerLinks(data);
-
             // As long as the user is not already on the automatic download page,
             // make the XHR request to the stub authentication service.
         } else if (!StubAttribution.isFirefoxDownloadThanks()) {
-            // Wait for GA4 to load and return client IDs
-            StubAttribution.waitForGoogleAnalyticsThen(function () {
-                // get attribution data
-                data = StubAttribution.getAttributionData(
-                    null,
-                    omitNonEssentialFields
-                );
-
-                if (
-                    data &&
-                    StubAttribution.withinAttributionRate() &&
-                    StubAttribution.hasValidData(data)
-                ) {
-                    // if data is valid and we are in sample rate:
-                    // request authentication from stub attribution service
-                    StubAttribution.requestAuthentication(data);
-
-                    // Send the session ID to GA4
-                    if (data.client_id_ga4) {
-                        window.dataLayer.push({
-                            event: 'stub_session_set',
-                            id: data.session_id
-                        });
-                    }
-                }
-            });
+            if (omitNonEssentialFields) {
+                // Skip GA4 wait if we're only doing essential fields
+                StubAttribution.checkDataAndRequestAuth(omitNonEssentialFields);
+            } else {
+                // Wait for GA4 to load and return client IDs
+                StubAttribution.waitForGoogleAnalyticsThen(function () {
+                    StubAttribution.checkDataAndRequestAuth(
+                        omitNonEssentialFields
+                    );
+                });
+            }
         }
     };
 

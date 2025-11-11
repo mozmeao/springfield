@@ -26,6 +26,7 @@
 }
 
 .fl-banner .fl-subheading {
+    text-wrap: balance;
     font-size: var(--fl-theme-font-size-subheading-5);
 }
 
@@ -39,6 +40,19 @@
     color: var(--token-neutrals-white);
     border: none;
     position: relative;
+}
+
+.fl-banner-filled::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/media/img/firefox/flare/noise-filter.svg');
+    background-size: 600px 600px;
+    background-repeat: repeat;
+    opacity: 0.3;
+    mix-blend-mode: normal;
+    pointer-events: none;
+    border-radius: inherit;
 }
 
 .fl-banner-filled .fl-body-text {
@@ -101,10 +115,15 @@
     background-repeat: no-repeat;
 }
 
+.fl-banner-media.has-qr-code {
+    display: grid;
+}
+
 .fl-banner-media img {
     width: 100%;
     height: auto;
     object-fit: cover;
+    grid-area: 1 / 1;
     border-radius: calc(var(--token-scale-16) * 1px);
 }
 
@@ -117,6 +136,21 @@
 }
 
 .fl-banner-qr {
+    grid-area: 1 / 1;
+    order: 2;
+    place-self: center;
+    width: 25%;
+}
+
+.fl-banner-qr > * {
+    margin: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr {
+    width: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr > * {
     color: var(--token-neutrals-grey-8);
     border-radius: calc(var(--token-scale-8) * 1px) calc(var(--token-scale-8) * 1px) 0 0;
     width: 200px;
@@ -238,6 +272,20 @@
     align-items: center;
     position: relative;
     z-index: 2;
+}
+
+.fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: 2%;
+}
+
+.fl-brand-image-filled-face .fl-banner-brand img {
+    min-width: 140px;
+}
+
+
+.fl-brand-image-filled-tail .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: -9%;
+        bottom: 0.5rem;
 }
 
 @media (max-width: 767px) {
@@ -391,5 +439,19 @@
     .fl-banner-brandsize-large.fl-banner-hasbrand-top-right .fl-banner-actions,
     .fl-banner-brandsize-large.fl-banner-hasbrand-bottom-right .fl-banner-actions {
         justify-content: flex-start;
+    }
+
+    .fl-brand-image-filled-face .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: 14%;
+    }
+
+    .fl-brand-image-filled-face .fl-banner-brand img {
+        min-width: 300px;
+    }
+
+    .fl-brand-image-filled-tail .fl-banner-brand.fl-banner-brand-bottom-right {
+        right: -9%;
+        bottom: 15%;
+        max-height: 70%;
     }
 }

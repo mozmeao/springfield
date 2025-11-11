@@ -24,6 +24,7 @@ from wagtail_localize_smartling.models import Job, Project
 
 from springfield.cms.models import PageTranslationData, SimpleRichTextPage
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
+from springfield.firefox.models import FeaturesCallToActionSnippet
 
 pytestmark = [
     pytest.mark.django_db,
@@ -781,3 +782,174 @@ def test_page_saved_signal_skips_raw_save(_mock_on_commit, site_with_en_de_fr_it
     # Saving the en_page creates the PageTranslationData object again.
     en_page.save()
     assert PageTranslationData.objects.filter(source_page=en_page).exists()
+
+
+@patch.object(transaction, "on_commit", side_effect=lambda func: func())
+@patch("springfield.cms.signals.create_page_translation_data")
+def test_snippet_translation_does_not_call_create_page_translation_data(
+    _mock_create_page_translation_data, _mock_on_commit, site_with_en_de_fr_it_homepages
+):
+    """Test that creating a translation for a snippet does NOT call create_page_translation_data."""
+
+    # Get locales
+    en_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    # Create a snippet (non-page object)
+    snippet = FeaturesCallToActionSnippet.objects.create(
+        locale=en_locale,
+        heading="Test Heading",
+        desc="Test Description",
+    )
+
+    # Create a TranslationSource for the snippet
+    translation_source, _ = TranslationSource.get_or_create_from_instance(snippet)
+
+    # Create a Translation for the snippet
+    translation = Translation.objects.create(
+        source=translation_source,
+        target_locale=fr_locale,
+        enabled=True,
+    )
+    translation.save_target(user=None, publish=True)
+
+    # Verify that create_page_translation_data was NOT called
+    _mock_create_page_translation_data.assert_not_called()
+
+
+@patch.object(transaction, "on_commit", side_effect=lambda func: func())
+@patch("springfield.cms.signals.create_page_translation_data")
+def test_snippet_string_translation_does_not_call_create_page_translation_data(
+    _mock_create_page_translation_data, _mock_on_commit, site_with_en_de_fr_it_homepages
+):
+    """Test that creating a StringTranslation for a snippet does NOT call create_page_translation_data."""
+
+    # Get locales
+    en_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    # Create a snippet (non-page object)
+    snippet = FeaturesCallToActionSnippet.objects.create(
+        locale=en_locale,
+        heading="Test Heading",
+        desc="Test Description",
+    )
+
+    # Create a TranslationSource for the snippet
+    translation_source, _ = TranslationSource.get_or_create_from_instance(snippet)
+
+    # Create a Translation for the snippet
+    translation = Translation.objects.create(
+        source=translation_source,
+        target_locale=fr_locale,
+        enabled=True,
+    )
+    translation.save_target(user=None, publish=True)
+
+    # Get a string segment from the translation source
+    string_segment = translation_source.stringsegment_set.first()
+    assert string_segment is not None, "No string segments found for snippet translation"
+
+    # Reset the mock to clear any calls from the translation creation
+    _mock_create_page_translation_data.reset_mock()
+
+    # Create a StringTranslation for the snippet
+    StringTranslation.objects.create(
+        translation_of=string_segment.string,
+        locale=fr_locale,
+        context=string_segment.context,
+        data="Titre français",
+    )
+
+    # Verify that create_page_translation_data was NOT called
+    _mock_create_page_translation_data.assert_not_called()
+
+
+@patch.object(transaction, "on_commit", side_effect=lambda func: func())
+@patch("springfield.cms.signals.create_page_translation_data")
+def test_snippet_string_translation_deletion_does_not_call_create_page_translation_data(
+    _mock_create_page_translation_data, _mock_on_commit, site_with_en_de_fr_it_homepages
+):
+    """Test that deleting a StringTranslation for a snippet does NOT call create_page_translation_data."""
+
+    # Get locales
+    en_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    # Create a snippet (non-page object)
+    snippet = FeaturesCallToActionSnippet.objects.create(
+        locale=en_locale,
+        heading="Test Heading",
+        desc="Test Description",
+    )
+
+    # Create a TranslationSource for the snippet
+    translation_source, _ = TranslationSource.get_or_create_from_instance(snippet)
+
+    # Create a Translation for the snippet
+    translation = Translation.objects.create(
+        source=translation_source,
+        target_locale=fr_locale,
+        enabled=True,
+    )
+    translation.save_target(user=None, publish=True)
+
+    # Get a string segment from the translation source
+    string_segment = translation_source.stringsegment_set.first()
+    assert string_segment is not None, "No string segments found for snippet translation"
+
+    # Create a StringTranslation for the snippet
+    string_translation = StringTranslation.objects.create(
+        translation_of=string_segment.string,
+        locale=fr_locale,
+        context=string_segment.context,
+        data="Titre français",
+    )
+
+    # Reset the mock to clear any calls from the translation creation
+    _mock_create_page_translation_data.reset_mock()
+
+    # Delete the StringTranslation
+    string_translation.delete()
+
+    # Verify that create_page_translation_data was NOT called
+    _mock_create_page_translation_data.assert_not_called()
+
+
+@patch.object(transaction, "on_commit", side_effect=lambda func: func())
+@patch("springfield.cms.signals.create_page_translation_data")
+def test_snippet_translation_source_save_does_not_call_create_page_translation_data(
+    _mock_create_page_translation_data, _mock_on_commit, site_with_en_de_fr_it_homepages
+):
+    """Test that saving a TranslationSource for a snippet does NOT call create_page_translation_data."""
+    # Get locales
+    en_locale = Locale.objects.get(language_code="en-US")
+
+    # Create a snippet (non-page object)
+    snippet = FeaturesCallToActionSnippet.objects.create(
+        locale=en_locale,
+        heading="Test Heading",
+        desc="Test Description",
+    )
+
+    # Reset the mock before creating translation source
+    _mock_create_page_translation_data.reset_mock()
+
+    # Create a TranslationSource for the snippet
+    translation_source, _ = TranslationSource.get_or_create_from_instance(snippet)
+
+    # Verify that create_page_translation_data was NOT called
+    _mock_create_page_translation_data.assert_not_called()
+
+    # Now update the snippet and update the translation source
+    snippet.heading = "Updated Heading"
+    snippet.save()
+
+    # Reset the mock again
+    _mock_create_page_translation_data.reset_mock()
+
+    # Update the translation source - this triggers the signal again
+    translation_source.update_from_db()
+
+    # Verify that create_page_translation_data was NOT called
+    _mock_create_page_translation_data.assert_not_called()

@@ -48,8 +48,11 @@ p {
 
 a:link, a:visited {
     color: var(--fl-theme-color-link);
-    text-decoration: underline;
     transition: color var(--token-transition-fast);
+}
+
+a:link {
+    text-decoration: underline;
 }
 
 a:visited {
