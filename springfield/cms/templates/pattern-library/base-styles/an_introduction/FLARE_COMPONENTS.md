@@ -236,16 +236,34 @@ This custom loader avoids unneeded third party dependencies like `postcss-import
 
 Some common patterns that are useful in this CSS setup:
 
-Use `light-dark` for dark mode support, but light mode fallbacks need to be added to support Safari 17.4 and lower:
+Define semantic CSS custom properties in `flare-theme.css` and use `@media` blocks there to override values for any context you can detect globally (dark mode, reduced motion, viewport size, etc.). Components then consume those variables without needing their own media queries.
 
 ```css
-.fl-component {
-  background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+/* flare-theme.css */
+:root {
+  --fl-component-surface: var(--token-neutrals-ash);
+  --fl-component-text: var(--token-neutrals-charcoal);
+  --fl-component-padding: calc(var(--token-scale-16) * 1px);
 }
-@supports not (color: light-dark(black, white)) {
-    .fl-component {
-        background: var(--neutrals-ash);
-    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fl-component-surface: var(--token-neutrals-charcoal);
+    --fl-component-text: var(--token-neutrals-white);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --fl-component-padding: calc(var(--token-scale-12) * 1px);
+  }
+}
+
+/* component stylesheet */
+.fl-component {
+  background: var(--fl-component-surface);
+  color: var(--fl-component-text);
+  padding: var(--fl-component-padding);
 }
 ```
 
