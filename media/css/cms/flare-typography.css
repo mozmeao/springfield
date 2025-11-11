@@ -113,15 +113,15 @@
     font-size: 0.9em;
     background: var(--fl-theme-code-surface);
     color: var(--fl-theme-color-text-body);
-    padding: calc(var(--scale-2) * 1px) calc(var(--token-scale-4) * 1px);
-    border-radius: calc(var(--border-radius-xs) * 1px);
+    padding: calc(var(--token-scale-2) * 1px) calc(var(--token-scale-4) * 1px);
+    border-radius: calc(var(--token-border-radius-md) * 1px);
 }
 
 .fl-rich-text pre {
     background: var(--fl-theme-code-surface);
     color: var(--fl-theme-color-text-body);
     padding: calc(var(--token-scale-16) * 1px);
-    border-radius: calc(var(--border-radius-sm) * 1px);
+    border-radius: calc(var(--token-border-radius-md) * 1px);
     overflow-x: auto;
     margin: calc(var(--token-scale-16) * 1px) 0;
 }

@@ -58,10 +58,11 @@ non-deterministic so you need to check and adjust the results as needed.
 
     /* Gradients from Figma */
     --token-gradient-earth-glow: linear-gradient(90deg, var(--token-blue-blue) 0%, var(--token-purple-purple) 100%);
-    --token-gradient-fox-fire: linear-gradient(90deg, var(var(--token-yellow-yellow)) 0%, var(--token-orange-orange) 100%);
+    --token-gradient-fox-fire: linear-gradient(90deg, var(--token-yellow-yellow) 0%, var(--token-orange-orange) 100%);
     --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-purple) 0%, var(--token-purple-dark-purple) 100%);
 
     /* Scale variables from Figma */
+    --token-scale-2: 2;
     --token-scale-4: 4;
     --token-scale-8: 8;
     --token-scale-12: 12;

@@ -44,7 +44,7 @@
 }
 
 .fl-section-subscribe .fl-section-container {
-    gap: calc(var(--scale-20) * 1px);
+    gap: calc(var(--token-scale-20) * 1px);
 }
 
 .fl-section-subscribe .body.fl-newsletterform-error,

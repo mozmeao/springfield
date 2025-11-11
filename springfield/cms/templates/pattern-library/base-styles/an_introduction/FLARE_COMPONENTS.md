@@ -59,7 +59,7 @@ Pure CSS only (no preprocessors). Import into [`flare.css`](/springfield/media/c
 .fl-banner {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--scale-16) * 1px);
+  gap: calc(var(--token-scale-16) * 1px);
   background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
@@ -270,7 +270,7 @@ Define semantic CSS custom properties in `flare-theme.css` and use `@media` bloc
 Add units to unitless tokens using calc and multiplying by 1:
 
 ```css
-padding: calc(var(--scale-16) * 1px);
+padding: calc(var(--token-scale-16) * 1px);
 ```
 
 #### Breakpoint Variables
