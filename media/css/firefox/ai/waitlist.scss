@@ -1,0 +1,398 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@use '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+// USAGE NOTE: for fonts 48px and larger
+// From https://github.com/mozilla/mozilla-type-family/blob/main/Mozilla%20Headline/Web%20Fonts/Condensed
+@font-face {
+    font-family: 'Mozilla Headline Condensed';
+    src: url('/media/fonts/mozilla-headline/MozillaHeadlineCondensed-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+  font-family: fallback;
+  src: local("Georgia");
+  ascent-override: 94.4%;
+  descent-override: 25.6%;
+  line-gap-override: 0%;
+  size-adjust: 77.44%;
+}
+
+body {
+    --figma-color-mvp-cream: #FCF5F0;
+    --figma-color-mvp-dark-purple: #210340;
+    --figma-color-mvp-soft-purple: #F1E7F8;
+    --figma-color-mvp-soft-purple-3: #E4D7FC;
+    --figma-color-mvp-link-purple: #6132BC;
+    --figma-color-error: #A5302B;
+
+    // We need the casing to stay on X-LocaleSpecific
+    /* stylelint-disable-next-line value-keyword-case */
+    --condensed-title-font-family: 'Mozilla Headline Condensed', fallback, X-LocaleSpecific, sans-serif;
+    background: linear-gradient(180deg, var(--figma-color-mvp-soft-purple) 0%, var(--figma-color-mvp-cream) 100%);
+
+    @media #{lib.$mq-md} {
+        background: linear-gradient(237deg, var(--figma-color-mvp-soft-purple) 43.75%, #F7EEF4 71.87%, var(--figma-color-mvp-cream) 100%);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+}
+
+.visually-hidden {
+    @include lib.visually-hidden;
+}
+
+// Layout
+#outer-wrapper {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
+
+    > * {
+        width: 100%;
+    }
+}
+
+.c-navigation {
+    margin-inline: auto;
+    margin-block-end: 80px;
+    max-width: lib.$content-max;
+    padding: lib.$spacing-md;
+}
+
+// Split to separate selector rules if you need to adjust for main OR footer
+.c-main,
+.c-footer {
+    --margin: #{lib.$layout-2xs};
+    max-width: lib.$content-max;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: [full-width-start] var(--margin) [content-start] 1fr [content-end] var(--margin) [full-width-end];
+
+    > * {
+        grid-column: content;
+    }
+
+    @media #{lib.$mq-md} {
+        --margin: #{lib.$layout-md};
+    }
+
+    @media #{lib.$mq-xl} {
+        --margin: 135px;
+    }
+}
+
+.c-main {
+    padding-bottom: lib.$layout-md;
+
+    .c-pill {
+        justify-self: center;
+    }
+
+    .c-heading {
+        text-align: center;
+    }
+
+    .c-main-image {
+        grid-column: full-width-start / content-end;
+        margin-top: lib.$layout-md;
+    }
+
+    // display from waitlist-newletter-init.es6.js customSuccessCallback will be grid
+    .waitlist-confirmation {
+        gap: 40px;
+        justify-items: center;
+
+        > * {
+            margin-bottom: 0;
+        }
+    }
+
+    @media #{lib.$mq-sm} {
+        .c-main-image {
+            grid-column: full-width;
+            justify-self: center;
+        }
+    }
+}
+
+.c-footer {
+    padding-block-start: lib.$layout-xs;
+    padding-block-end: 80px;
+
+    @media #{lib.$mq-lg} {
+        padding-block-start: lib.$layout-md;
+        padding-block-end: 104px;
+    }
+}
+
+// split main grid to 2 columns
+@media #{lib.$mq-lg} {
+    .c-main {
+        --figma-max-content-width: 578px;
+        grid-template-columns:
+            [full-width-start] var(--margin)
+            [content-start] minmax(auto, var(--figma-max-content-width))
+            [content-end image-start] auto
+            [image-end]  var(--margin)
+            [full-width-end];
+        padding-bottom: 128px;
+
+        .c-pill {
+            justify-self: start;
+        }
+
+        .c-heading {
+            text-align: unset;
+        }
+
+        .c-main-image {
+            grid-column: image;
+            justify-self: end;
+            margin-top: unset;
+            margin-left: lib.$layout-md;
+        }
+
+        // display from waitlist-newletter-init.es6.js customSuccessCallback will be grid
+        .waitlist-confirmation {
+            grid-column: content-start / image-end;
+            gap: lib.$spacing-2xl;
+        }
+    }
+}
+
+// Text & Form
+.c-main-content {
+    display: grid;
+    gap: lib.$layout-md;
+
+    > * {
+        margin-bottom: 0; // controlled by grid
+    }
+}
+
+.c-body > *:last-child {
+    margin-bottom: 0;
+}
+
+
+.c-pill {
+    background-color: lib.$color-white;
+    border-radius: 100px;
+    color: var(--figma-color-mvp-dark-purple);
+    display: flex;
+    align-items: center;
+    font-family: var(--body-font-family);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: lib.$spacing-xs;
+    width: fit-content;
+
+    > * {
+        padding: lib.$spacing-xs lib.$spacing-sm;
+    }
+}
+
+.c-pill-tag {
+    background: linear-gradient(180deg, var(--figma-color-mvp-soft-purple) 0%, var(--figma-color-mvp-soft-purple-3) 100%);
+    border-radius: 80px;
+    border: 1px solid var(--figma-color-mvp-soft-purple-3);
+    text-transform: uppercase;
+}
+
+.c-heading {
+    font-family: var(--condensed-title-font-family);
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 0.9;
+
+    // possible to do container query?
+    @media #{lib.$mq-xl} {
+        font-size: 5rem;
+    }
+}
+
+.c-input-wrapper {
+    --button-border-radius: 80px;
+
+    // stacked layout
+    margin-bottom: lib.$spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: lib.$spacing-sm;
+    margin-inline: auto;
+
+    > * {
+        flex-grow: 1;
+    }
+
+    &:has(+ .c-waitlist-errors:not(.hidden)) {
+        margin-bottom: lib.$spacing-sm;
+    }
+
+    // Protocol overrides
+    input[type="email"] {
+        margin-bottom: 0;
+        border-color: transparent;
+        padding: 14px lib.$spacing-lg;
+
+        &:focus {
+            box-shadow: none;
+        }
+    }
+
+    // row layout
+    @media #{lib.$mq-md} {
+        flex-direction: row;
+        font-size: 5rem;
+        border-radius: var(--button-border-radius);
+        background-color: lib.$color-white;
+        border: 1px solid var(--figma-color-mvp-soft-purple);
+
+        input[type="email"] {
+            border-top-left-radius: var(--button-border-radius);
+            border-bottom-left-radius: var(--button-border-radius);
+        }
+
+        .c-submit {
+            flex-grow: 0;
+        }
+
+        &:has(+ .c-waitlist-errors:not(.hidden)) {
+            border-color: var(--figma-color-error);
+        }
+    }
+}
+
+.c-submit {
+    // reset
+    border-color: transparent;
+    box-shadow: none;
+    cursor: pointer;
+
+    // component
+    border-radius: var(--button-border-radius);
+    background: var(--figma-color-mvp-link-purple);
+    color: lib.$color-white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: 14px lib.$spacing-lg;
+    min-width: fit-content;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--figma-color-mvp-dark-purple);
+        color:  lib.$color-white;
+    }
+}
+
+.c-submit-loading {
+    display: none;
+}
+
+// show loading indicator while request is sending
+input[type="email"]:disabled + .c-submit {
+    .c-submit-text {
+        opacity: 0; // keep the height stable
+    }
+
+    .c-submit-loading {
+        display: block;
+    }
+}
+
+// Image (placeholder)
+.c-main-image {
+    align-self: center;
+    display: block;
+    max-width: 457px;
+    object-fit: contain;
+}
+
+// Waitlist confirmation
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.waitlist-confirmation {
+    display: none;
+    margin-inline: auto;
+    max-width: lib.$content-md;
+    opacity: 0;
+    text-align: center;
+    animation: fade-in 0.5s forwards;
+}
+
+// Protocol overrides
+
+// Allow for loader styling
+#newsletter-submit {
+    position: relative;
+}
+
+#newsletter-submit .c-submit-loading {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+// Replaced by custom error styles
+.c-waitlist-errors.mzp-c-form-errors {
+    margin-bottom: lib.$spacing-lg;
+    background-color: unset;
+
+    li {
+        margin-bottom: 0;
+        color: var(--figma-color-error);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+}
+
+// Replaced by custom footer styles
+.mzp-c-footer {
+    background-color: transparent;
+}
+
+.mzp-c-footer-secondary {
+    color: var(--figma-color-mvp-dark-purple);
+    line-height: var(--body-line-height);
+}
+
+.mzp-c-footer a:link,
+.mzp-c-footer a:visited
+.mzp-c-footer a:link:hover,
+.mzp-c-footer a:visited:hover,
+.mzp-c-footer a:link:focus,
+.mzp-c-footer a:visited:focus,
+.mzp-c-footer-secondary a:link,
+.mzp-c-footer-secondary a:visited,
+.mzp-c-footer-secondary a:link:hover,
+.mzp-c-footer-secondary a:visited:hover
+.mzp-c-footer-secondary a:link:focus,
+.mzp-c-footer-secondary a:visited:focus {
+    color: var(--figma-color-mvp-dark-purple);
+}
+
+.mzp-c-footer-terms {
+    margin-bottom: 0;
+}
