@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from .snippets import *  # noqa
+from .locale import *  # noqa
 from .pages import *  # noqa
 from .images import *  # noqa
 from .data import *  # noqa

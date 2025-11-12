@@ -19,6 +19,7 @@ from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
     ArticleIndexPageFactory,
     FreeFormPageFactory,
+    LocaleFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPageFactory,
@@ -309,3 +310,57 @@ def test_article_index_and_detail_pages(minimal_site, rf):
         assert f"Article {i + 1}" in title.text
         assert f"Description for Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+
+
+@pytest.mark.parametrize(
+    "django_locale,expected_locale_code",
+    [
+        ("en-gb", "en-GB"),  # Lowercase from Django -> mixed-case
+        ("en-ca", "en-CA"),  # Another mixed-case example
+        ("pt-br", "pt-BR"),  # Another mixed-case example
+        ("de", "de"),  # Simple code stays the same
+        ("fr", "fr"),  # Simple code stays the same
+    ],
+)
+def test_springfield_locale_get_active_normalizes_case(django_locale, expected_locale_code):
+    """
+    Test that SpringfieldLocale.get_active() normalizes Django's lowercase
+    language codes to match Springfield's mixed-case Locale records.
+
+    This is a unit test for the SpringfieldLocale.get_active() method that
+    verifies it properly handles the case mismatch between Django's internal
+    lowercase language codes (e.g., 'en-gb') and Springfield's mixed-case
+    Locale records (e.g., 'en-GB').
+
+    Without this normalization, Wagtail's routing would fail to find the
+    correct Locale and fall back to the default locale.
+    """
+    # Create the Locale record with mixed-case code
+    locale = LocaleFactory(language_code=expected_locale_code)
+    assert locale.language_code == expected_locale_code
+
+    # Mock Django's translation.get_language() to return lowercase
+    with mock.patch("django.utils.translation.get_language", return_value=django_locale):
+        # Call SpringfieldLocale.get_active() (which is patched onto Locale)
+        active_locale = Locale.get_active()
+
+        # Verify it found the correct Locale despite the case mismatch
+        assert active_locale.id == locale.id
+        assert active_locale.language_code == expected_locale_code
+
+
+def test_springfield_locale_get_active_falls_back_to_default():
+    """
+    Test that SpringfieldLocale.get_active() falls back to the default locale
+    when the requested locale doesn't exist.
+    """
+    # Ensure en-US exists as the default
+    default_locale = Locale.objects.get(language_code="en-US")
+
+    # Mock Django returning a locale that doesn't exist
+    with mock.patch("django.utils.translation.get_language", return_value="xx-YY"):
+        active_locale = Locale.get_active()
+
+        # Should fall back to en-US
+        assert active_locale.id == default_locale.id
+        assert active_locale.language_code == "en-US"
