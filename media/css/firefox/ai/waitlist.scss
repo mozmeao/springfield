@@ -92,6 +92,7 @@ body {
 }
 
 .c-main {
+    color: var(--figma-color-mvp-dark-purple);
     padding-bottom: lib.$layout-md;
 
     .c-pill {
@@ -215,7 +216,6 @@ body {
     font-weight: 600;
     line-height: 0.9;
 
-    // possible to do container query?
     @media #{lib.$mq-xl} {
         font-size: 5rem;
     }
@@ -311,6 +311,26 @@ input[type="email"]:disabled + .c-submit {
     .c-submit-loading {
         display: block;
     }
+}
+
+.c-privacy-input {
+    accent-color: var(--figma-color-mvp-link-purple);
+}
+
+.c-privacy-label {
+    display: flex;
+    align-items: center;
+    gap: lib.$spacing-sm;
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    a:link,
+    a:visited,
+    a:link:hover,
+    a:visited:hover {
+        color: var(--figma-color-mvp-dark-purple);
+    }
+
 }
 
 // Image (placeholder)
