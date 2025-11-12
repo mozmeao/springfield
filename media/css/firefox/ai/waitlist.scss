@@ -65,8 +65,9 @@ body {
 .c-navigation {
     margin-inline: auto;
     margin-block-end: 80px;
-    max-width: lib.$content-max;
-    padding: lib.$spacing-md;
+    max-width: calc(#{lib.$content-max} + (#{lib.$spacing-md} * 2));
+    padding-inline: lib.$spacing-md;
+    padding-top: lib.$spacing-md;
 }
 
 // Split to separate selector rules if you need to adjust for main OR footer
