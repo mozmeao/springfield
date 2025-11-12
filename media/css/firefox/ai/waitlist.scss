@@ -96,6 +96,7 @@ body {
     --figma-max-content-width: 640px;
     color: var(--figma-color-mvp-dark-purple);
     padding-bottom: lib.$layout-md;
+    overflow-x: clip; // for gradient behind image
 
     .c-pill {
         justify-self: center;
@@ -112,6 +113,11 @@ body {
     .c-main-image {
         grid-column: full-width-start / content-end;
         margin-top: lib.$layout-md;
+    }
+
+    .c-main-image-asset {
+        position: relative; // NOTE: required at all screen sizes to stack on top of gradient
+        left: -20px; // for mobile to override the spacing embedded in image
     }
 
     // display from waitlist-newletter-init.es6.js customSuccessCallback will be grid
@@ -136,6 +142,10 @@ body {
         .c-main-image {
             grid-column: full-width;
             justify-self: center;
+        }
+
+        .c-main-image-asset {
+            left: unset; // for mobile to override the spacing embedded in image
         }
     }
 }
@@ -350,10 +360,7 @@ input[type="email"]:disabled + .c-submit {
     position: relative;
 }
 
-.c-main-image-asset {
-    position: relative; // stack above the gradient
-}
-
+// NOTE: .c-main-image-asset must be position:relative or some other stackable thing to remain on top of this gradient
 .c-main-image-gradient {
     background: linear-gradient(135deg, rgba(148, 90, 242, 0.40) 35.12%, rgba(243, 126, 73, 0.40) 57.18%, rgba(252, 79, 67, 0.40) 100.66%);
     filter: blur(98px);
