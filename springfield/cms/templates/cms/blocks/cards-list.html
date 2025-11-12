@@ -4,9 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:cards-list
-  grid_four="{{ value.cards|length % 4 == 0 }}"
->
+<include:cards-list length="{{ value.cards|length }}">
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}

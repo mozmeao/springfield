@@ -11,7 +11,7 @@
     {% endwith %}
   </content:heading>
   <content:content>
-    <include:cards-list grid_four="false">
+    <include:cards-list length="{{ value.cards|length }}">
       <content:cards>
         {% for card in value.cards %}
           {% set card_index = loop.index0 %}

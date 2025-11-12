@@ -20,7 +20,7 @@
     </header>
     <section class="fl-section">
       <div class="fl-section-container">
-        <include:cards-list grid_four="{{ featured_articles|length % 4 == 0 }}">
+        <include:cards-list length="{{ featured_articles|length }}">
           {% for article in featured_articles %}
             <include:illustration-card expand_link="true">
               <content:media>
@@ -54,7 +54,7 @@
         </include:cards-list>
 
 
-        <include:cards-list grid_four="{{ featured_articles|length % 4 == 0 }}">
+        <include:cards-list length="{{ list_articles|length }}">
           {% for article in list_articles %}
             <include:card expand_link="true">
               <content:heading>

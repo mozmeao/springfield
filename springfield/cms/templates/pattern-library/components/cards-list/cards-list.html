@@ -4,9 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:cards-list
-  grid_four="{{ grid_four }}"
->
+<include:cards-list length="{{ cards|length }}">
   {% for card in cards %}
     <include:card
       icon_name="{{ card.icon_name }}"

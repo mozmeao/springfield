@@ -10,7 +10,7 @@
   <div style="display: flex; flex-direction: column; gap: 48px;">
     <div>
       <h5>3-Column Grid (default)</h5>
-      <include:cards-list grid_four="false">
+      <include:cards-list length="{{ three_cards|length }}">
         {% for card in three_cards %}
           <include:card
             icon_name="{{ card.icon_name }}"
@@ -33,7 +33,7 @@
 
     <div>
       <h5>4-Column Grid</h5>
-      <include:cards-list grid_four="true">
+      <include:cards-list length="{{ four_cards|length }}">
         {% for card in four_cards %}
           <include:card
             icon_name="{{ card.icon_name }}"
