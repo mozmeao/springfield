@@ -16,7 +16,7 @@
               <ul>
                 <li><a href="{{ firefox_url('desktop', 'sysreq', 'release') }}">{{ ftl('firefox-all-check-the-system-requirements') }}</a></li>
                 <li><a href="{{ firefox_url('desktop', 'notes', 'release') }}">{{ ftl('firefox-all-release-notes') }}</a></li>
-                <li><a href="https://firefox-source-docs.mozilla.org/">{{ ftl('firefox-all-source-code') }}</a></li>
+                <li><a href="https://firefox-source-docs.mozilla.org/{{ params }}">{{ ftl('firefox-all-source-code') }}</a></li>
               </ul>
             </div>
           {% elif product.slug == "desktop-beta" %}
@@ -24,7 +24,7 @@
               <ul>
                 <li><a href="{{ firefox_url('desktop', 'sysreq', 'beta') }}">{{ ftl('firefox-all-check-the-system-requirements') }}</a></li>
                 <li><a href="{{ firefox_url('desktop', 'notes', 'beta') }}">{{ ftl('firefox-all-release-notes') }}</a></li>
-                <li><a href="https://firefox-source-docs.mozilla.org/">{{ ftl('firefox-all-source-code') }}</a></li>
+                <li><a href="https://firefox-source-docs.mozilla.org/{{ params }}">{{ ftl('firefox-all-source-code') }}</a></li>
               </ul>
             </div>
           {% elif product.slug == "desktop-developer" %}
@@ -32,7 +32,7 @@
               <ul>
                 <li><a href="{{ firefox_url('desktop', 'sysreq', 'alpha') }}">{{ ftl('firefox-all-check-the-system-requirements') }}</a></li>
                 <li><a href="{{ firefox_url('desktop', 'notes', 'alpha') }}">{{ ftl('firefox-all-release-notes') }}</a></li>
-                <li><a href="https://firefox-source-docs.mozilla.org/">{{ ftl('firefox-all-source-code') }}</a></li>
+                <li><a href="https://firefox-source-docs.mozilla.org/{{ params }}">{{ ftl('firefox-all-source-code') }}</a></li>
               </ul>
             </div>
           {% elif product.slug == "desktop-nightly" %}
@@ -40,7 +40,7 @@
               <ul>
                 <li><a href="{{ firefox_url('desktop', 'sysreq', 'nightly') }}">{{ ftl('firefox-all-check-the-system-requirements') }}</a></li>
                 <li><a href="{{ firefox_url('desktop', 'notes', 'nightly') }}">{{ ftl('firefox-all-release-notes') }}</a></li>
-                <li><a href="https://firefox-source-docs.mozilla.org/">{{ ftl('firefox-all-source-code') }}</a></li>
+                <li><a href="https://firefox-source-docs.mozilla.org/{{ params }}">{{ ftl('firefox-all-source-code') }}</a></li>
               </ul>
             </div>
           {% elif product.slug == "desktop-esr" %}
@@ -48,7 +48,7 @@
               <ul>
                 <li><a href="{{ firefox_url('desktop', 'sysreq', 'organizations') }}">{{ ftl('firefox-all-check-the-system-requirements') }}</a></li>
                 <li><a href="{{ firefox_url('desktop', 'notes', 'organizations') }}">{{ ftl('firefox-all-release-notes') }}</a></li>
-                <li><a href="https://firefox-source-docs.mozilla.org/">{{ ftl('firefox-all-source-code') }}</a></li>
+                <li><a href="https://firefox-source-docs.mozilla.org/{{ params }}">{{ ftl('firefox-all-source-code') }}</a></li>
               </ul>
             </div>
           {% elif product.slug == "android-beta" %}
@@ -79,8 +79,8 @@
         {% endif %}
         <div class="c-support-links">
           <ul>
-            <li><a href="{{ url('privacy.notices.firefox') }}">{{ ftl('firefox-all-firefox-privacy-notice') }}</a></li>
-            <li><a href="https://support.mozilla.org/products/?utm_source=mozilla.org&utm_medium=referral&utm_campaign=need-help-link">{{ ftl('firefox-all-need-help') }}</a></li>
+            <li><a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">{{ ftl('firefox-all-firefox-privacy-notice') }}</a></li>
+            <li><a href="https://support.mozilla.org/products/{{ params }}&utm_content=need-help-link">{{ ftl('firefox-all-need-help') }}</a></li>
           </ul>
         </div>
       </div>
