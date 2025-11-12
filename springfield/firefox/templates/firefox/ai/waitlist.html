@@ -86,18 +86,17 @@
     </form>
   </div>
 
-  <!-- TODO: confirm image & update alt -->
   <div id="main-image" class="c-main-image">
     <div class="c-main-image-gradient"></div>
     {{ resp_img(
-      url="img/firefox/ai/placeholder.png",
+      url="img/firefox/ai/artwork.png",
       srcset={
-          "img/firefox/ai/placeholder.png": "1018w",
+          "img/firefox/ai/artwork-high-res.png": "2x",
       },
       optional_attributes={
         "width": "1018",
         "height": "864",
-        "alt": "A menu of Firefox options: 'Current mode Classic Firefox', cursor hovers over 'Switch to AI Window', 'Open new private window'",
+        "alt": "A menu of Firefox options: 'Current Window', cursor hovers over 'AI Window', 'Private window'",
         "class": "c-main-image-asset"
       })
     }}
