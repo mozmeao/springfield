@@ -8,7 +8,7 @@
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 {% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
 
-<include:step-card
+<include:illustration-card
   expand_link="{{ card.settings.expand_link }}"
 >
   <content:media>
@@ -61,5 +61,5 @@
             {% include_block button %}
           {% endfor %}
     </content:buttons>
-        {% endif %}
-</include:step-card>
+    {% endif %}
+</include:illustration-card>

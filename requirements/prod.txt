@@ -44,9 +44,9 @@ boto3==1.40.64 \
     --hash=sha256:35ca3dd80dd90d5f4e8ed032440f28790696fdf50f48c0d16a09a75675f9112f \
     --hash=sha256:b92d6961c352f2bb8710c9892557d4b0e11258b70967d4e740e1c97375bcd779
     # via -r requirements/prod.in
-botocore==1.40.64 \
-    --hash=sha256:6902b3dadfba1fbacc9648171bef3942530d8f823ff2bdb0e585a332323f89fc \
-    --hash=sha256:a13af4009f6912eafe32108f6fa584fb26e24375149836c2bcaaaaec9a7a9e58
+botocore==1.40.66 \
+    --hash=sha256:98d5766e17e72110b1d08ab510a8475a6597c59d9560235e2d28ae1a4b043b92 \
+    --hash=sha256:e49a55ad54426c4ea853a59ff9d8243023a90c935782d4c287e9b3424883c3fa
     # via
     #   boto3
     #   s3transfer
@@ -365,9 +365,9 @@ dj-database-url==3.0.1 \
     --hash=sha256:43950018e1eeea486bf11136384aec0fe55b29fe6fd8a44553231b85661d9383 \
     --hash=sha256:8994961efb888fc6bf8c41550870c91f6f7691ca751888ebaa71442b7f84eff8
     # via -r requirements/prod.in
-django==5.2.7 \
-    --hash=sha256:59a13a6515f787dec9d97a0438cd2efac78c8aca1c80025244b0fe507fe0754b \
-    --hash=sha256:e0f6f12e2551b1716a95a63a1366ca91bbcd7be059862c1b18f989b1da356cdd
+django==5.2.8 \
+    --hash=sha256:23254866a5bb9a2cfa6004e8b809ec6246eba4b58a7589bc2772f1bcc8456c7f \
+    --hash=sha256:37e687f7bd73ddf043e2b6b97cfe02fcbb11f2dbb3adccc6a2b18c6daa054d7f
     # via
     #   -r requirements/prod.in
     #   dj-database-url
@@ -550,9 +550,9 @@ google-cloud-core==2.5.0 \
     --hash=sha256:67d977b41ae6c7211ee830c7912e41003ea8194bff15ae7d72fd6f51e57acabc \
     --hash=sha256:7c1b7ef5c92311717bd05301aa1a91ffbc565673d3b0b4163a52d8413a186963
     # via google-cloud-storage
-google-cloud-storage==3.4.1 \
-    --hash=sha256:6f041a297e23a4b485fad8c305a7a6e6831855c208bcbe74d00332a909f82268 \
-    --hash=sha256:972764cc0392aa097be8f49a5354e22eb47c3f62370067fb1571ffff4a1c1189
+google-cloud-storage==3.5.0 \
+    --hash=sha256:10b89e1d1693114b3e0ca921bdd28c5418701fd092e39081bb77e5cee0851ab7 \
+    --hash=sha256:e28fd6ad8764e60dbb9a398a7bc3296e7920c494bc329057d828127e5f9630d3
     # via django-storages
 google-crc32c==1.7.1 \
     --hash=sha256:0f99eaa09a9a7e642a61e06742856eec8b19fc0037832e03f941fe7cf0c8e4db \

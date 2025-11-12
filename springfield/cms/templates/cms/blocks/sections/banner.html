@@ -6,8 +6,8 @@
 
 {% set brand_image_size = '' %}
 {% set brand_image_position = "" %}
-{% if value.settings.theme in ['filled-large', 'filled-small'] %}
-  {% set brand_image_size = 'large' if value.settings.theme == 'filled-large' else 'small' %}
+{% if value.settings.theme in ['filled-large', 'filled-small', 'filled-face', 'filled-tail'] %}
+  {% set brand_image_size = 'large' if value.settings.theme in ['filled-large', 'filled-face', 'filled-tail'] else 'small' %}
   {% set brand_image_position = 'bottom-right' %}
   {% if value.settings.media_after %}
     {% set brand_image_position = 'bottom-left' if value.settings.theme == 'filled-large' else 'bottom' %}
@@ -21,6 +21,7 @@
   <include:banner
     theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
     media_after="{{ value.settings.media_after }}"
+    brand_image="{{ value.settings.theme }}"
     brand_image_position="{{ brand_image_position }}"
     brand_image_size="{{ brand_image_size }}"
     qr_code="{{ value.qr_code }}"
@@ -64,6 +65,18 @@
     {% if value.settings.theme in ['filled-small', 'filled-large'] %}
       <content:brand>
         <include:image url="/media/img/firefox/flare/fox-brand.svg" alt="" />
+      </content:brand>
+    {% endif %}
+
+    {% if value.settings.theme == 'filled-face' %}
+      <content:brand>
+        <include:image url="/media/img/firefox/flare/forward-facing-kit.svg" alt="" />
+      </content:brand>
+    {% endif %}
+
+    {% if value.settings.theme == 'filled-tail' %}
+      <content:brand>
+        <include:image url="/media/img/firefox/flare/kit-tail.png" alt="" />
       </content:brand>
     {% endif %}
 

@@ -3,13 +3,13 @@ context:
   with_cta:
     heading: "Features That Matter"
     cards:
-      - icon: "shield"
+      - icon_name: "shield"
         heading: "Security"
         body: "Advanced protection for your online safety."
-      - icon: "heart"
+      - icon_name: "heart"
         heading: "Non-Profit"
         body: "Not driven by profit, driven by purpose."
-      - icon: "mobile"
+      - icon_name: "mobile"
         heading: "Cross-Platform"
         body: "One account, all your devices."
     cta:
@@ -20,12 +20,12 @@ context:
   without_cta:
     heading: "Simple Information Section"
     cards:
-      - icon: "lock"
+      - icon_name: "lock"
         heading: "Private"
         body: "Your browsing stays between you and the web."
-      - icon: "star"
+      - icon_name: "star"
         heading: "Fast"
         body: "Lightning-fast page loads and smooth scrolling."
-      - icon: "check"
+      - icon_name: "check"
         heading: "Reliable"
         body: "A browser you can trust, built for everyone."

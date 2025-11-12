@@ -124,6 +124,12 @@
     },
     {
       "files": [
+        "css/firefox/landing/kit.scss"
+      ],
+      "name": "kit"
+    },
+    {
+      "files": [
         "css/csrf-failure.scss"
       ],
       "name": "csrf-failure"
@@ -684,6 +690,12 @@
     },
     {
       "files": [
+        "js/base/video-play-state.es6.js"
+      ],
+      "name": "video_play_state"
+    },
+    {
+      "files": [
         "js/firefox/browsers/ios-summarizer.js"
       ],
       "name": "ios_summarizer"
@@ -769,6 +781,12 @@
         "js/cms/ui-tour-buttons.js"
       ],
       "name": "ui-tour-buttons"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-fxa.js"
+      ],
+      "name": "wagtailadmin-fxa"
     }
   ]
 }

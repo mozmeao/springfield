@@ -7,12 +7,12 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:tag-card>
-  <content:tags>
+<include:card fill="true" expand_link="{{ value.settings.expand_link }}">
+  <content:pre_heading>
     {% for tag in value.tags %}
       {% include_block tag %}
     {% endfor %}
-  </content:tags>
+  </content:pre_heading>
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
@@ -21,14 +21,14 @@
     />
   </content:heading>
   <content:body>
-    {{ value.content }}
+    {{ value.content|richtext }}
   </content:body>
   {% if value.buttons %}
     <content:buttons>
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+      {% for button in value.buttons %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
+        {% include_block button %}
+      {% endfor %}
     </content:buttons>
   {% endif %}
-</include:tag-card>
+</include:card>
