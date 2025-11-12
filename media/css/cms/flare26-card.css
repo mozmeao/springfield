@@ -9,5 +9,166 @@ Card - Flare 2026 Design System Cards
 ===================================================================== */
 
 .fl-card {
-    outline: 1px solid red;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: calc(var(--token-scale-24) * 1px);
+    padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-32) * 1px) calc(var(--token-scale-40) * 1px);
+    border-radius: var(--token-border-radius-md);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, var(--token-color-white) 100%);
+    box-shadow: 0 32px 72px rgba(21, 20, 26, 0.16);
+    color: var(--token-color-black-4);
+    text-align: center;
+    min-height: 494px;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
+}
+
+.fl-card:hover {
+    transform: translateY(calc(var(--token-scale-2) * -1px));
+    box-shadow: 0 40px 96px rgba(33, 3, 64, 0.22);
+}
+
+.fl-card > * {
+    width: 100%;
+}
+
+.fl-card > div:has(.fl-card-sticker),
+.fl-card > div:has(.fl-card-icon),
+.fl-card > div:has(.fl-tag) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--token-scale-8) * 1px);
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.fl-card :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
+    order: 0;
+    margin: 0;
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: inherit;
+}
+
+.fl-card > div:has(.fl-card-sticker) {
+    order: 1;
+    margin-top: calc(var(--token-scale-4) * 1px);
+}
+
+.fl-card .fl-superheading {
+    order: -1;
+    display: block;
+    margin: 0 0 calc(var(--token-scale-24) * 1px);
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--token-font-weight-medium);
+    font-size: var(--fl-theme-font-size-body-2xsmall);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--token-color-vibrant-purple);
+}
+
+.fl-card .fl-body {
+    order: 2;
+    margin: 0;
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--token-font-weight-regular);
+    font-size: var(--fl-theme-font-size-body-small);
+    line-height: 1.4;
+    margin-top: 0;
+}
+
+.fl-card .fl-buttons {
+    order: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--token-scale-16) * 1px);
+    flex-wrap: wrap;
+    margin-top: calc(var(--token-scale-16) * 1px);
+}
+
+.fl-card .fl-buttons:empty {
+    display: none;
+}
+
+.fl-card .fl-button {
+    margin: 0;
+}
+
+.fl-card-sticker {
+    width: clamp(124px, 40%, 180px);
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.fl-card > div:has(.fl-card-icon) {
+    color: var(--token-color-vibrant-purple);
+}
+
+.fl-card.fl-card-fill {
+    background: linear-gradient(180deg, rgba(241, 231, 251, 0.64) 0%, var(--token-color-white) 100%);
+}
+
+.fl-card.fl-card-expand-link {
+    cursor: pointer;
+}
+
+.fl-card.fl-card-expand-link a.fl-button,
+.fl-card.fl-card-expand-link button {
+    position: relative;
+    z-index: 1;
+}
+
+.fl-card.fl-card-expand-link a.fl-button::after,
+.fl-card.fl-card-expand-link button::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: "";
+}
+
+.fl-card.fl-card-expand-link:hover :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
+    text-decoration: underline;
+}
+
+.fl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: calc(var(--token-scale-16) * 1px);
+    align-items: stretch;
+}
+
+.fl-grid.fl-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+@media (min-width: 1024px) {
+    .fl-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .fl-grid.fl-grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-card {
+        background: linear-gradient(180deg, rgba(21, 20, 26, 0.72) 0%, rgba(21, 20, 26, 0.9) 100%);
+        box-shadow: 0 32px 64px rgba(0, 0, 0, 0.45);
+        color: var(--token-color-off-white);
+    }
+
+    .fl-card .fl-body {
+        color: inherit;
+    }
 }
