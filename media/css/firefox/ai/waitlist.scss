@@ -235,7 +235,7 @@ body {
         flex-grow: 1;
     }
 
-    &:has(+ .c-waitlist-errors:not(.hidden)) {
+    &:has(+ [aria-live="polite"] .c-waitlist-errors:not(.hidden)) {
         margin-bottom: lib.$spacing-sm;
     }
 
@@ -378,6 +378,7 @@ input[type="email"]:disabled + .c-submit {
 // Replaced by custom error styles
 .c-waitlist-errors.mzp-c-form-errors {
     margin-bottom: lib.$spacing-lg;
+    padding-block: unset;
     background-color: unset;
 
     li {
