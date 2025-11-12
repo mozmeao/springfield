@@ -73,7 +73,7 @@ body {
 .c-main,
 .c-footer {
     --margin: #{lib.$layout-2xs};
-    max-width: lib.$content-max;
+    max-width: calc(#{lib.$content-max} + (var(--margin) * 2));
     margin-inline: auto;
     display: grid;
     grid-template-columns: [full-width-start] var(--margin) [content-start] 1fr [content-end] var(--margin) [full-width-end];
@@ -92,6 +92,7 @@ body {
 }
 
 .c-main {
+    --figma-max-content-width: 640px;
     color: var(--figma-color-mvp-dark-purple);
     padding-bottom: lib.$layout-md;
 
@@ -101,6 +102,10 @@ body {
 
     .c-heading {
         text-align: center;
+    }
+
+    .c-main-content {
+        margin-inline: auto;
     }
 
     .c-main-image {
@@ -119,6 +124,14 @@ body {
     }
 
     @media #{lib.$mq-sm} {
+        .c-pill {
+            justify-self: unset;
+        }
+
+        .c-heading {
+            text-align: unset;
+        }
+
         .c-main-image {
             grid-column: full-width;
             justify-self: center;
@@ -139,7 +152,6 @@ body {
 // split main grid to 2 columns
 @media #{lib.$mq-lg} {
     .c-main {
-        --figma-max-content-width: 578px;
         grid-template-columns:
             [full-width-start] var(--margin)
             [content-start] minmax(auto, var(--figma-max-content-width))
@@ -148,12 +160,8 @@ body {
             [full-width-end];
         padding-bottom: 128px;
 
-        .c-pill {
-            justify-self: start;
-        }
-
-        .c-heading {
-            text-align: unset;
+        .c-main-content {
+            margin-inline: unset;
         }
 
         .c-main-image {
@@ -175,6 +183,7 @@ body {
 .c-main-content {
     display: grid;
     gap: lib.$layout-md;
+    max-width: var(--figma-max-content-width);
 
     > * {
         margin-bottom: 0; // controlled by grid
@@ -339,6 +348,21 @@ input[type="email"]:disabled + .c-submit {
     display: block;
     max-width: 457px;
     object-fit: contain;
+    position: relative;
+}
+
+.c-main-image-asset {
+    position: relative; // stack above the gradient
+}
+
+.c-main-image-gradient {
+    background: linear-gradient(135deg, rgba(148, 90, 242, 0.40) 35.12%, rgba(243, 126, 73, 0.40) 57.18%, rgba(252, 79, 67, 0.40) 100.66%);
+    filter: blur(98px);
+    position: absolute;
+    top: -70px;
+    bottom: -30px;
+    right: 30px;
+    left: 30px;
 }
 
 // Waitlist confirmation
