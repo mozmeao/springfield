@@ -9,6 +9,7 @@ from django.test import override_settings
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, Site
+from wagtail.rich_text import RichText
 
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -245,7 +246,7 @@ def test_freeform_page(minimal_site, rf):
 
 def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
-    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles")
+    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="All the Articles")
     index_page.save()
 
     _relative_url = index_page.relative_url(minimal_site)
@@ -283,6 +284,7 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
         _article_relative_url = article.relative_url(minimal_site)
         assert _article_relative_url == f"/en-US/articles/article-{i}/"
+
         article_request = rf.get(_article_relative_url)
         article_response = article.specific.serve(article_request)
         assert article_response.status_code == 200
@@ -293,6 +295,8 @@ def test_article_index_and_detail_pages(minimal_site, rf):
     page_content = response.content
 
     soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "All the Articles" in soup.find("h1").text
 
     featured_cards = soup.find_all(class_="fl-illustration-card")
     assert len(featured_cards) == 2
@@ -310,6 +314,39 @@ def test_article_index_and_detail_pages(minimal_site, rf):
         assert f"Article {i + 1}" in title.text
         assert f"Description for Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+
+
+def test_article_detail_content(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="Articles")
+    index_page.save()
+
+    article_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Test Article Detail Page",
+        slug="article-detail-page",
+        description="Test Article Description for Index Page",
+        content=RichText(
+            f'<p>This is the content of the test article. With a link to the <a id="{index_page.id}" linktype="page">Index Page</a></p>'
+        ),
+    )
+    article_page.save()
+
+    _relative_url = article_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/article-detail-page/"
+
+    request = rf.get(_relative_url)
+    response = article_page.specific.serve(request)
+    assert response.status_code == 200
+
+    page_content = response.content
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "Test Article Detail Page" in soup.find("h1").text
+    content = soup.find("section", class_="fl-rich-text").find("p")
+    assert "This is the content of the test article. With a link to the Index Page" in content.text
+    link = content.find("a")
+    assert link["href"].endswith(index_page.url)
 
 
 @pytest.mark.parametrize(
