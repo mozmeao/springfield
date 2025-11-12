@@ -16,44 +16,44 @@ theme layer.
 /* TODO: Fix spacing values */
 
 html {
-    font-size: var(--font-size-base);
+    font-size: var(--fl-theme-font-size-base);
 }
 
 body {
-    font-family: var(--font-family-body);
-    font-weight: var(--font-weight-body);
-    color: var(--color-black-4);
-    background: var(--color-white);
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--fl-theme-font-weight-body);
+    color: var(--token-color-black-4);
+    background: var(--token-color-white);
     width: 100%;
-    max-width: var(--width-desktop-layout);
+    max-width: var(--token-width-desktop-layout);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-mozilla-headline);
-    font-weight: var(--font-weight-semibold);
-    margin-bottom: calc(var(--scale-16) * 1px);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--fl-theme-font-weight-headline);
+    margin-bottom: calc(var(--token-scale-16) * 1px);
 }
 
-h1 { font-size: var(--font-size-h1); }
-h2 { font-size: var(--font-size-h2); }
-h3 { font-size: var(--font-size-h3); }
-h4 { font-size: var(--font-size-h4); }
-h5 { font-size: var(--font-size-h5); }
-h6 { font-size: var(--font-size-h6); }
+h1 { font-size: var(--fl-theme-font-size-h1); }
+h2 { font-size: var(--fl-theme-font-size-h2); }
+h3 { font-size: var(--fl-theme-font-size-h3); }
+h4 { font-size: var(--fl-theme-font-size-h4); }
+h5 { font-size: var(--fl-theme-font-size-h5); }
+h6 { font-size: var(--fl-theme-font-size-h6); }
 
 p {
-    margin: 0 0 calc(var(--scale-16) * 1px);
+    margin: 0 0 calc(var(--token-scale-16) * 1px);
     line-height: 1.6;
 }
 
 a:link, a:visited {
-    color: var(--color-link-purple);
+    color: var(--token-color-link-purple);
     text-decoration: underline;
-    transition: color var(--transition-fast);
+    transition: color var(--token-transition-fast);
 }
 
 a:visited {
-    color: var(--color-link-purple);
+    color: var(--token-color-link-purple);
 }
 
 a:hover, a:active, a:focus {
@@ -61,7 +61,7 @@ a:hover, a:active, a:focus {
 }
 
 img, svg {
-    margin: 0 0 calc(var(--scale-16) * 1px);
+    margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -71,8 +71,8 @@ img, svg {
 }
 
 hr {
-    border-top: 1px solid var(--color-soft-purple-3);
-    margin: calc(var(--scale-16) * 1px) 0;
+    border-top: 1px solid var(--token-color-soft-purple-3);
+    margin: calc(var(--token-scale-16) * 1px) 0;
 }
 
 /* Remove section border, since it was just used to provide a clean
@@ -82,33 +82,33 @@ section {
 }
 
 ul, ol {
-    margin: 0 0 calc(var(--scale-16) * 1px) calc(var(--scale-16) * 1px);
+    margin: 0 0 calc(var(--token-scale-16) * 1px) calc(var(--token-scale-16) * 1px);
 }
 
 li {
-    margin: 0 0 calc(var(--scale-16) * 1px);
+    margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
-    background: var(--color-vibrant-purple);
-    color: var(--color-white);
-    border-radius: calc(var(--border-radius-md) * 1px);
+    background: var(--token-color-vibrant-purple);
+    color: var(--token-color-white);
+    border-radius: calc(var(--token-border-radius-md) * 1px);
     width: auto;
     height: auto;
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: var(--color-vibrant-purple);
-    color: var(--color-white);
+    background: var(--token-color-vibrant-purple);
+    color: var(--token-color-white);
 }
 
 button:hover, [role="button"]:hover {
-    background: var(--color-link-purple);
-    color: var(--color-white);
+    background: var(--token-color-link-purple);
+    color: var(--token-color-white);
 }
 
 /* Use theme color for table borders */
 th, td {
-    border-color: var(--color-black-4);
+    border-color: var(--token-color-black-4);
 }

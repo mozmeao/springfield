@@ -12,65 +12,65 @@ Button - Flare 2026 Design System Buttons
 .fl-button {
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--scale-12) * 1px);
-    font-family: var(--font-family-body);
+    gap: calc(var(--token-scale-12) * 1px);
+    font-family: var(--fl-theme-font-family-body);
     font-weight: 600;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-    border-radius: var(--border-radius-lg);
+    transition: background-color var(--token-transition-fast), color var(--token-transition-fast), border-color var(--token-transition-fast);
+    border-radius: var(--token-border-radius-lg);
     white-space: nowrap;
 }
 
 /* Button sizes */
 .fl-button-large {
-    font-size: var(--font-size-body-medium);
-    padding: calc(var(--scale-16) * 1px) calc(var(--scale-32) * 1px);
-    height: calc(var(--scale-56) * 1px);
+    font-size: var(--fl-theme-font-size-body-medium);
+    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-32) * 1px);
+    height: calc(var(--token-scale-56) * 1px);
 }
 
 .fl-button-medium {
-    font-size: var(--font-size-base);
-    padding: calc(var(--scale-12) * 1px) calc(var(--scale-24) * 1px);
-    height: calc(var(--scale-48) * 1px);
+    font-size: var(--fl-theme-font-size-base);
+    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
+    height: calc(var(--token-scale-48) * 1px);
 }
 
 .fl-button-small {
-    font-size: var(--font-size-base);
-    padding: calc(var(--scale-12) * 1px) calc(var(--scale-24) * 1px);
-    height: calc(var(--scale-40) * 1px);
+    font-size: var(--fl-theme-font-size-base);
+    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
+    height: calc(var(--token-scale-40) * 1px);
 }
 
 /* Button fills - Filled */
 .fl-button-filled {
-    background-color: var(--color-vibrant-purple);
-    color: var(--color-white);
+    background-color: var(--token-color-vibrant-purple);
+    color: var(--token-color-white);
 }
 
 .fl-button-filled:hover {
-    background-color: var(--color-link-purple);
+    background-color: var(--token-color-link-purple);
 }
 
 .fl-button-filled:active {
-    background-color: var(--color-mid-purple);
+    background-color: var(--token-color-mid-purple);
 }
 
 /* Button fills - Outline */
 .fl-button-outline {
     background-color: transparent;
-    color: light-dark(var(--color-black-4), var(--color-white));
+    color: light-dark(var(--token-color-black-4), var(--token-color-white));
     border: 2px solid currentColor;
 }
 
 .fl-button-outline:hover {
-    color: var(--color-vibrant-purple);
+    color: var(--token-color-vibrant-purple);
 }
 
 /* Button fills - Text */
 .fl-button-text {
     background-color: transparent;
-    color: light-dark(var(--color-link-purple), var(--color-vibrant-purple));
+    color: light-dark(var(--token-color-link-purple), var(--token-color-vibrant-purple));
     padding-left: 0;
     padding-right: 0;
 }
@@ -88,6 +88,6 @@ Button - Flare 2026 Design System Buttons
 
 /* Button icons */
 .fl-button .fl-icon {
-    width: calc(var(--scale-20) * 1px);
-    height: calc(var(--scale-20) * 1px);
+    width: calc(var(--token-scale-20) * 1px);
+    height: calc(var(--token-scale-20) * 1px);
 }

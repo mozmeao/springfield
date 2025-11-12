@@ -27,6 +27,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 /* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
 
 @import 'flare26-base.css' layer(base);
+@import 'flare26-tokens.css' layer(theme);
 @import 'flare26-theme.css' layer(theme);
 @import 'flare26-defaults.css' layer(defaults);
 @import 'flare26-template.css' layer(template);
@@ -34,6 +35,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-icon.css' layer(components);
 @import 'flare26-button.css' layer(components);
 @import 'flare26-typography.css' layer(components);
+@import 'flare26-card.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);

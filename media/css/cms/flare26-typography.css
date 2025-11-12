@@ -5,25 +5,25 @@
 */
 
 .fl-rich-text a {
-    color: var(--color-link-purple);
+    color: var(--token-color-link-purple);
     text-decoration: underline;
 }
 
 .fl-rich-text code {
     font-family: monospace;
     font-size: 0.9em;
-    background: var(--color-soft-purple);
-    color: var(--color-vibrant-purple);
-    padding: calc(var(--scale-2) * 1px) calc(var(--scale-4) * 1px);
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-vibrant-purple);
+    padding: calc(var(--token-scale-2) * 1px) calc(var(--token-scale-4) * 1px);
 }
 
 .fl-rich-text pre {
-    background: var(--color-soft-purple);
-    color: var(--color-vibrant-purple);
-    padding: calc(var(--scale-24) * 1px);
-    border-radius: var(--border-radius-sm);
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-vibrant-purple);
+    padding: calc(var(--token-scale-24) * 1px);
+    border-radius: var(--token-border-radius-sm);
     overflow-x: auto;
-    margin: calc(var(--scale-16) * 1px) 0;
+    margin: calc(var(--token-scale-16) * 1px) 0;
 }
 
 .fl-rich-text pre code {
@@ -35,36 +35,36 @@
 
 .fl-rich-text ul,
 .fl-rich-text ol {
-    margin: calc(var(--scale-16) * 1px) 0;
-    padding-left: calc(var(--scale-24) * 1px);
+    margin: calc(var(--token-scale-16) * 1px) 0;
+    padding-left: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-rich-text li {
-    margin-bottom: calc(var(--scale-8) * 1px);
+    margin-bottom: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-rich-text blockquote {
-    font-family: var(--font-family-mozilla-headline);
-    font-size: var(--font-size-body-large);
-    border-left: calc(var(--scale-4) * 1px) solid var(--color-vibrant-purple);
-    padding-left: calc(var(--scale-16) * 1px);
-    margin: calc(var(--scale-16) * 1px) 0;
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-body-large);
+    border-left: calc(var(--token-scale-4) * 1px) solid var(--token-color-vibrant-purple);
+    padding-left: calc(var(--token-scale-16) * 1px);
+    margin: calc(var(--token-scale-16) * 1px) 0;
 }
 
 .fl-rich-text cite {
-    color: var(--color-link-purple);
-    font-size: var(--font-size-body-small);
+    color: var(--token-color-link-purple);
+    font-size: var(--fl-theme-font-size-body-small);
 }
 
 .fl-rich-text hr {
     border: 0;
-    border-top: 1px solid var(--color-soft-purple);
-    margin: calc(var(--scale-24) * 1px) 0;
+    border-top: 1px solid var(--token-color-soft-purple);
+    margin: calc(var(--token-scale-24) * 1px) 0;
 }
 
 .fl-rich-text img {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: calc(var(--scale-16) * 1px) 0;
+    margin: calc(var(--token-scale-16) * 1px) 0;
 }

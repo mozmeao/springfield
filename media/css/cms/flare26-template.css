@@ -11,23 +11,23 @@ This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
-    background: var(--color-purple-world);
-    color: var(--color-white);
+    background: var(--token-color-purple-world);
+    color: var(--token-color-white);
 }
 
 /* Header */
 .fl-header {
     position: relative;
-    padding: calc(var(--scale-16) * 1px);
+    padding: calc(var(--token-scale-16) * 1px);
     background: transparent;
 }
 
 .fl-header-inner {
-    max-width: var(--width-desktop-layout);
+    max-width: var(--token-width-desktop-layout);
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: calc(var(--scale-32) * 1px);
+    gap: calc(var(--token-scale-32) * 1px);
 }
 
 /* Logo */
@@ -36,11 +36,11 @@ body {
     align-items: center;
     text-decoration: none;
     flex-shrink: 0;
-    height: calc(var(--scale-40) * 1px);
+    height: calc(var(--token-scale-40) * 1px);
 }
 
 .fl-logo img {
-    height: calc(var(--scale-40) * 1px);
+    height: calc(var(--token-scale-40) * 1px);
     width: auto;
 }
 
@@ -72,7 +72,7 @@ body {
 .fl-nav-menu {
     display: flex;
     align-items: center;
-    gap: calc(var(--scale-32) * 1px);
+    gap: calc(var(--token-scale-32) * 1px);
     list-style: none;
     padding: 0;
     margin: 0 auto;
@@ -85,23 +85,23 @@ body {
 .fl-nav-link {
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--scale-4) * 1px);
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-base);
+    gap: calc(var(--token-scale-4) * 1px);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
     line-height: 1.4;
-    color: var(--color-white);
+    color: var(--token-color-white);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: color var(--token-transition-fast);
 }
 
 .fl-nav-link:hover {
-    color: light-dark(var(--color-link-purple), var(--color-vibrant-purple));
+    color: light-dark(var(--token-color-link-purple), var(--token-color-vibrant-purple));
 }
 
 .fl-nav-icon {
-    font-size: calc(var(--scale-20) * 1px);
-    width: calc(var(--scale-20) * 1px);
-    height: calc(var(--scale-20) * 1px);
+    font-size: calc(var(--token-scale-20) * 1px);
+    width: calc(var(--token-scale-20) * 1px);
+    height: calc(var(--token-scale-20) * 1px);
 }
 
 .fl-header-cta {
@@ -109,26 +109,26 @@ body {
 }
 
 .fl-main {
-    max-width: var(--width-desktop-content);
+    max-width: var(--token-width-desktop-content);
     margin: 0 auto;
-    background: var(--color-white);
-    color: var(--color-black-1);
-    padding: calc(var(--scale-32) * 1px);
-    border-end-end-radius: var(--border-radius-lg);
-    border-end-start-radius: var(--border-radius-lg);
-    padding-bottom: var(--border-radius-lg);
+    background: var(--token-color-white);
+    color: var(--token-color-black-1);
+    padding: calc(var(--token-scale-32) * 1px);
+    border-end-end-radius: var(--token-border-radius-lg);
+    border-end-start-radius: var(--token-border-radius-lg);
+    padding-bottom: var(--token-border-radius-lg);
 }
 
 /* Footer */
 .fl-footer {
     position: relative;
-    padding: calc(var(--scale-80) * 1px) calc(var(--scale-16) * 1px) calc(var(--scale-48) * 1px);
+    padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-16) * 1px) calc(var(--token-scale-48) * 1px);
     background: transparent;
-    color: light-dark(var(--neutrals-black), var(--neutrals-white));
+    color: light-dark(var(--token-color-black-4), var(--token-color-white));
 }
 
 .fl-footer-inner {
-    max-width: var(--width-desktop-layout);
+    max-width: var(--token-width-desktop-layout);
     margin: 0 auto;
 }
 
@@ -136,57 +136,57 @@ body {
 .fl-footer-cta {
     display: flex;
     justify-content: center;
-    margin-bottom: calc(var(--scale-128) * 1px);
+    margin-bottom: calc(var(--token-scale-128) * 1px);
 }
 
 .fl-footer-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: calc(var(--scale-64) * 1px) calc(var(--scale-128) * 1px);
-    background-color: var(--color-vibrant-purple);
-    color: var(--color-white);
-    font-family: var(--font-family-mozilla-headline);
+    padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-128) * 1px);
+    background-color: var(--token-color-vibrant-purple);
+    color: var(--token-color-white);
+    font-family: var(--fl-theme-font-family-headline);
     font-weight: 700;
-    font-size: calc(var(--scale-128) * 1px);
+    font-size: calc(var(--token-scale-128) * 1px);
     line-height: 0.9;
     letter-spacing: -0.005em;
     text-decoration: none;
-    border-radius: calc(var(--scale-200) * 10px);
-    transition: background-color var(--transition-fast);
+    border-radius: calc(var(--token-scale-200) * 10px);
+    transition: background-color var(--token-transition-fast);
 }
 
 .fl-footer-button:hover {
-    background-color: var(--color-link-purple);
+    background-color: var(--token-color-link-purple);
 }
 
 /* Footer Navigation */
 .fl-footer-nav {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: calc(var(--scale-24) * 1px);
-    margin-bottom: calc(var(--scale-80) * 1px);
+    gap: calc(var(--token-scale-24) * 1px);
+    margin-bottom: calc(var(--token-scale-80) * 1px);
 }
 
 .fl-footer-column {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-24) * 1px);
+    gap: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-footer-heading {
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    font-weight: var(--token-font-weight-bold);
     line-height: 1.4;
     margin: 0;
-    color: light-dark(var(--neutrals-black), var(--neutrals-white));
+    color: var(--token-color-white);
 }
 
 .fl-footer-list {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-4) * 1px);
+    gap: calc(var(--token-scale-4) * 1px);
     list-style: none;
     padding: 0;
     margin: 0;
@@ -195,53 +195,52 @@ body {
 .fl-footer-link {
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--scale-8) * 1px);
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-regular);
+    gap: calc(var(--token-scale-8) * 1px);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    font-weight: var(--token-font-weight-regular);
     line-height: 1.4;
-    color: light-dark(var(--neutrals-grey-7), var(--neutrals-white));
+    color: var(--token-color-white);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: color var(--token-transition-fast);
 }
 
 .fl-footer-link:hover {
-    color: light-dark(var(--neutrals-black), var(--neutrals-off-white));
+    color: light-dark(var(--token-color-black-4), var(--token-color-off-white));
 }
 
 .fl-footer-icon {
-    width: calc(var(--scale-12) * 1px);
-    height: calc(var(--scale-12) * 1px);
-    font-size: calc(var(--scale-12) * 1px);
+    width: calc(var(--token-scale-12) * 1px);
+    height: calc(var(--token-scale-12) * 1px);
+    font-size: calc(var(--token-scale-12) * 1px);
 }
 
 /* Footer Legal */
 .fl-footer-legal {
-    padding-top: calc(var(--scale-32) * 1px);
-    border-top: 1px solid light-dark(var(--neutrals-grey-3), var(--neutrals-charcoal));
+    padding-top: calc(var(--token-scale-32) * 1px);
 }
 
 .fl-footer-legal-list {
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--scale-40) * 1px);
+    gap: calc(var(--token-scale-40) * 1px);
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
 .fl-footer-legal-link {
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-tag);
-    font-weight: var(--font-weight-medium);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-tag);
+    font-weight: var(--token-font-weight-medium);
     line-height: 1.2;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: light-dark(var(--neutrals-grey-7), var(--neutrals-white));
+    color: var(--token-color-white);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: color var(--token-transition-fast);
 }
 
 .fl-footer-legal-link:hover {
-    color: light-dark(var(--neutrals-black), var(--neutrals-off-white));
+    color: var(--token-color-off-white);
 }
