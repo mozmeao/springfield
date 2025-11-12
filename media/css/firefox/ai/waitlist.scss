@@ -141,12 +141,10 @@ body {
 }
 
 .c-footer {
-    padding-block-start: lib.$layout-xs;
-    padding-block-end: 80px;
+    padding-block: lib.$layout-xs 80px;
 
     @media #{lib.$mq-lg} {
-        padding-block-start: lib.$layout-md;
-        padding-block-end: 104px;
+        padding-block: lib.$layout-md 104px;
     }
 }
 
