@@ -12,15 +12,14 @@
 {% set pencil_icon = '<svg role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19"><title>%s</title><g clip-path="url(#a)"><path fill="currentColor" d="M16.935 4.622 14 1.672a1.035 1.035 0 0 0-1.46 0L2.135 12.062l-.95 4.1a1.03 1.03 0 0 0 1 1.25q.107.01.215 0l4.145-.95 10.39-10.38a1.035 1.035 0 0 0 0-1.46m-10.89 10.94-3.885.815.885-3.81 7.785-7.755 3 3zM14.5 7.087l-3-3 1.74-1.73 2.95 3z"/></g><defs><clipPath id="a"><path d="M0 .462h18v18H0z"/></clipPath></defs></svg>' %}
 
 {% if LANG == 'de' %}
-  {% set icon_title = 'Neuer Freund an Bord' %}
+  {% set icon_title = 'Anpassen' %}
   {% set meta_desc = 'Firefox bekommt einen frischen Look und du siehst es zuerst.' %}
   {% set main_heading = 'Sag Hallo zu Kit' %}
-  {% set main_subheading = 'Neuer freund an bord' %}
+  {% set main_subheading = 'Neuer Freund an Bord' %}
   {% set main_body = 'Firefox bekommt einen frischen Look und du siehst es zuerst. Kit ist unser neues Maskottchen und dein Begleiter durch ein Internet, das privat, offen und wirklich deins ist.' %}
   {% set card_1_heading = 'Hol dir ein neues Hintergrundbild' %}
-  {% set card_1_date = 'Verfügbar am 11. November.' %}
   {% set card_1_list_1 = 'Öffne einen neuen Tab.' %}
-  {% set card_1_list_2 = 'Klicke unten rechts auf das  ' + pencil_icon + '-Symbol.' %}
+  {% set card_1_list_2 = 'Klicke unten rechts auf das ' + pencil_icon + '-Symbol.' %}
   {% set card_1_list_3 = 'Wähle dein neues Firefox-Hintergrundbild aus.' %}
   {% set card_2_heading = 'Du erhältst Kit-Produkte vor allen anderen.' %}
   {% set card_2_body = '<p>Neue limitierte Designs, sofort erhältlich.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
@@ -33,12 +32,11 @@
   {% set main_subheading = 'Nouvelle amitié débloquée' %}
   {% set main_body = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde. Kit, notre nouvelle mascotte, va accompagner votre navigation au sein d’un internet privé, ouvert et qui vous appartient.' %}
   {% set card_1_heading = 'Choisissez un nouveau fond d’écran' %}
-  {% set card_1_date = 'Disponible le 11 novembre.' %}
   {% set card_1_list_1 = 'Ouvrez un nouvel onglet.' %}
   {% set card_1_list_2 = 'Cliquez sur l’icône ' + pencil_icon + ' en bas à droite.' %}
   {% set card_1_list_3 = 'Sélectionnez votre nouveau fond d’écran Firefox.' %}
   {% set card_2_heading = 'Vous êtes aux premières loges pour les produits Kit' %}
-  {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits:</p>' %}
+  {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits&nbsp;:</p>' %}
   {% set card_2_cta_na = 'Amérique du Nord' %}
   {% set card_2_cta_eu = 'Europe' %}
 {% else %}
@@ -48,7 +46,6 @@
   {% set main_subheading = 'New friend unlocked' %}
   {% set main_body = 'The Firefox brand is getting a refresh and you get the first look. Kit’s our new mascot and your new companion through an internet that’s private, open and actually yours.' %}
   {% set card_1_heading = 'Grab a new wallpaper' %}
-  {% set card_1_date = 'Dropping November 11.' %}
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
   {% set card_1_list_3 = 'Select your new Firefox wallpaper.' %}
@@ -105,7 +102,6 @@
     <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
       <div class="c-gallery-card-text-container">
         <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
-        <p>{{ card_1_date }}</p>
         <ol>
           <li>{{ card_1_list_1 }}</li>
           <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
@@ -114,7 +110,7 @@
       </div>
       <div class="c-gallery-card-media-container">
         {{ resp_img(
-            url="img/firefox/kit/browser-dark.png",
+            url="img/firefox/kit/browser-dark-630.png",
             srcset={
               "img/firefox/kit/browser-dark-315.png": "315w",
               "img/firefox/kit/browser-dark-630.png": "630w",

@@ -153,3 +153,10 @@ locales = [
 [[paths]]
     reference = "en/firefox/more/**/*.ftl"
     l10n = "{locale}/firefox/more/**/*.ftl"
+[[paths]]
+    # footer-wnp should be in en-US, en-GB, fr and de - the latter two are vendor
+    reference = "en/footer-wnp.ftl"
+    l10n = "{locale}/footer-wnp.ftl"
+    locales = [
+        "en-GB",
+    ]

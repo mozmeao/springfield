@@ -758,6 +758,12 @@
         "js/cms/ui-tour-buttons.js"
       ],
       "name": "ui-tour-buttons"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-fxa.js"
+      ],
+      "name": "wagtailadmin-fxa"
     }
   ]
 }
