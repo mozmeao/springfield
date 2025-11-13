@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{# props media_after=False qr_code=None  #}
+
 <div
   class="
     fl-banner
@@ -15,13 +17,15 @@
     {% if contents.media or qr_code %}
       <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
         {% if qr_code %}
-          <div class="fl-banner-qr" role="img">{{ contents.qr }}</div>
+          <div class="fl-banner-qr" role="img">
+            {{ qrcode(qr_code, 12) }}
+          </div>
         {% endif %}
         {{ contents.media }}
       </div>
     {% endif %}
 
-    <div class="fl-banner-content {% if not contents.media and not qr_code %}fl-banner-content-centered{% endif %}">
+    <div class="fl-banner-content {% if not contents.media %}fl-banner-content-centered{% endif %}">
       <div class="fl-banner-content-inner">
         {% if contents.heading %}
           {{ contents.heading }}
@@ -35,5 +39,4 @@
       </div>
     </div>
   </div>
-
 </div>

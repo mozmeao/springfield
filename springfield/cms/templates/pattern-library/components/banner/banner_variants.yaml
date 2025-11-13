@@ -2,28 +2,48 @@ name: "Banner variants"
 context:
   variants:
     - title: "QR Code Banner"
-      theme: "outlined"
       media_after: false
       heading:
         level: "h2"
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-      subheading: "Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go."
+        subheading_text: "Scan the QR code to get Firefox Mobile and browse with calm, focus, and control — wherever you go."
       media:
         url: "/media/img/firefox/flare/qr-background-simple.png"
         alt: "QR background"
       qr_code: "https://mozilla.org/firefox/mobile/"
 
+    - title: "Simple Banner"
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Take Firefox with you"
+        heading_size: "heading-size-2"
+        superheading_text: "Scan to Download"
+        subheading_text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: ""
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: ""
+
     - title: "Banner with Media"
-      theme: "outlined"
       media_after: false
       heading:
         level: "h2"
         heading_text: "Banner with Media"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-      subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+        subheading_text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
@@ -43,10 +63,30 @@ context:
         heading_text: "Banner with Media After"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-      subheading: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+        subheading_text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Banner with Video"
+      media_after: true
+      heading:
+        level: "h2"
+        heading_text: "Banner with Video"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        subheading_text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero."
+      video:
+        url: "https://www.youtube.com/watch?v=F-nFQryDB0s"
+        poster: "/media/img/firefox/flare/placeholder.png"
+        alt: "Example YouTube Video"
       buttons:
         - label: "Learn More"
           link: "/"

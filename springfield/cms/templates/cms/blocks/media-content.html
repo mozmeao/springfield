@@ -44,11 +44,9 @@
   {% if value.video or value.image %}
     <content:media>
       {% if value.video %}
-        {% set poster = image(value.image, "width-800") %}
-        <include:video
-          url="{{ value.video }}"
-          poster="{{ poster.url }}"
-        />
+        {% for block in value.video %}
+          {% include_block block %}
+        {% endfor %}
       {% elif value.image %}
         <div class="light-dark-display">
           {% if value.dark_image %}

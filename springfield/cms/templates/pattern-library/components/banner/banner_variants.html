@@ -5,46 +5,44 @@
 #}
 
 {% for variant in variants %}
-<div style="margin-bottom: 2em;">
-  <h2>{{ variant.title }}</h2>
-  <include:banner
-    media_after="{{ variant.media_after }}"
-    qr_code="{{ variant.qr_code }}"
-    media_url="{{ variant.get('media', {}).get('url', '') }}">
+  <div style="margin-bottom: 2em;">
+    <h2>{{ variant.title }}</h2>
+    <include:banner
+      media_after="{{ variant.media_after }}"
+      qr_code="{{ variant.qr_code }}"
+    >
 
-    <content:heading>
-      <include:heading
-        level="{{ variant.heading.level }}"
-        heading_text="{{ variant.heading.heading_text }}"
-        heading_size="{{ variant.heading.heading_size }}"
-        alignment_class=""
-        superheading_text="{{ variant.heading.superheading_text }}"
-        subheading_text="{{ variant.subheading }}"
-        subheading_size="fl-subheading-4"
-      />
-    </content:heading>
+      <content:heading>
+        <include:heading
+          level="{{ variant.heading.level }}"
+          heading_text="{{ variant.heading.heading_text }}"
+          heading_size="{{ variant.heading.heading_size }}"
+          alignment_class=""
+          superheading_text="{{ variant.heading.superheading_text }}"
+          subheading_text="{{ variant.heading.subheading_text }}"
+          subheading_size="fl-subheading-4"
+        />
+      </content:heading>
 
-    {% if variant.media %}
-      <content:media>
-        <img src="{{ variant.media.url }}" alt="{{ variant.media.alt }}" />
-      </content:media>
-    {% endif %}
+      {% if variant.video %}
+        <content:media>
+          <include:video
+            video_url="{{ variant.video.url }}"
+            poster="{{ variant.video.poster }}"
+            alt="{{ variant.video.alt }}"
+          />
+        </content:media>
+      {% elif variant.media %}
+        <content:media>
+          <img src="{{ variant.media.url }}" alt="{{ variant.media.alt }}" />
+        </content:media>
+      {% endif %}
 
-    {% if variant.qr_code %}
-      <content:qr>
-        {{ qrcode(variant.qr_code, 12) }}
-      </content:qr>
-    {% endif %}
-
-    {% if variant.buttons %}
-      <content:actions>
-        {% if not variant.media and not variant.qr_code and variant.brand_image_size != 'large' %}
-          <include:buttons buttons="{{ variant.buttons }}" center="true" orientation="horizontal" />
-        {% else %}
+      {% if variant.buttons %}
+        <content:actions>
           <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
-        {% endif %}
-      </content:actions>
-    {% endif %}
-  </include:banner>
+        </content:actions>
+      {% endif %}
+    </include:banner>
   </div>
 {% endfor %}

@@ -358,57 +358,19 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class InlineNotificationSettings(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
-    color = blocks.ChoiceBlock(
-        choices=[
-            ("white", "White"),
-            ("black", "Black"),
-            ("blue", "Blue"),
-            ("purple", "Purple"),
-            ("orange", "Orange"),
-            ("yellow", "Yellow"),
-        ],
-        required=False,
-        inline_form=True,
+class VideoBlock(blocks.StructBlock):
+    video_url = blocks.URLBlock(
+        label="Video URL",
+        help_text="Link to a video from YouTube or assets.mozilla.net.",
+        validators=[validate_video_url],
     )
-    inverted = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Inverted colors on icon background",
-    )
-    closable = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Show close button",
-    )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
-        label="Show To",
-        inline_form=True,
-        help_text="Control which users can see this content block",
-    )
+    alt = blocks.CharBlock(label="Alt Text")
+    poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
 
     class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
-        form_classname = "compact-form struct-block"
-
-
-class InlineNotificationBlock(blocks.StructBlock):
-    settings = InlineNotificationSettings()
-    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-
-    class Meta:
-        template = "cms/blocks/inline-notification.html"
-        label = "Inline Notification"
-        label_format = "{message}"
-        form_classname = "compact-form struct-block"
+        label = "Video"
+        label_format = "Video - {video_url}"
+        template = "cms/blocks/video.html"
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -439,15 +401,14 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         image = ImageChooserBlock(
-            help_text="If a video is provided, this image will be shown as a placeholder until the user plays the video.",
-            inline_form=True,
+            required=False,
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        video = blocks.URLBlock(
-            required=False,
-            label="Video URL",
-            help_text="Link to a video from YouTube or assets.mozilla.net.",
-            validators=[validate_video_url],
+        video = blocks.ListBlock(
+            VideoBlock(),
+            min_num=0,
+            max_num=1,
+            default=[],
         )
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -464,6 +425,16 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             label = "Media + Content"
             label_format = "{headline}"
             template = "cms/blocks/media-content.html"
+
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image, not both.")
+            return cleaned_data
 
     return _MediaContentBlock(*args, **kwargs)
 
@@ -679,6 +650,59 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 # Section blocks
 
 
+class InlineNotificationSettings(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("white", "White"),
+            ("black", "Black"),
+            ("blue", "Blue"),
+            ("purple", "Purple"),
+            ("orange", "Orange"),
+            ("yellow", "Yellow"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    inverted = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Inverted colors on icon background",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button",
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class InlineNotificationBlock(blocks.StructBlock):
+    settings = InlineNotificationSettings()
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/inline-notification.html"
+        label = "Inline Notification"
+        label_format = "{message}"
+        form_classname = "compact-form struct-block"
+
+
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),
@@ -707,14 +731,13 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings()
         image = ImageChooserBlock(
             required=False,
-            help_text="If a video is provided, this image will be shown as a placeholder until the user plays the video.",
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        video = blocks.URLBlock(
-            required=False,
-            label="Video URL",
-            help_text="Link to a video from YouTube or assets.mozilla.net.",
-            validators=[validate_video_url],
+        video = blocks.ListBlock(
+            VideoBlock(),
+            min_num=0,
+            max_num=1,
+            default=[],
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
@@ -728,6 +751,16 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/sections/intro.html"
             label = "Intro"
             label_format = "{heading}"
+
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image, not both.")
+            return cleaned_data
 
     return _IntroBlock(*args, **kwargs)
 
@@ -823,15 +856,15 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             required=False,
             help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
         )
-        video = blocks.URLBlock(
-            required=False,
-            label="Video URL",
-            help_text="Link to a video from YouTube or assets.mozilla.net.",
-            validators=[validate_video_url],
-        )
         qr_code = blocks.CharBlock(
             required=False,
             help_text="Content to encode in the QR code, e.g., a URL or text. To add a background image, upload an image above.",
+        )
+        video = blocks.ListBlock(
+            VideoBlock(),
+            min_num=0,
+            max_num=1,
+            default=[],
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
@@ -845,6 +878,16 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/sections/banner.html"
             label = "Banner"
             label_format = "{heading}"
+
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image/QR code, not both.")
+            return cleaned_data
 
     return _BannerBlock(*args, **kwargs)
 

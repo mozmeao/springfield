@@ -12,7 +12,7 @@
   <include:banner
     media_after="{{ value.settings.media_after }}"
     qr_code="{{ value.qr_code }}"
-    media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
+  >
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
@@ -27,34 +27,26 @@
       />
     </content:heading>
 
-    {% if value.image or value.video %}
+    {% if value.image %}
       <content:media>
-        {% if value.video %}
-          {% set poster = image(value.image, "width-800") if value.image else None %}
-          <include:video
-            url="{{ value.video }}"
-            poster="{{ poster.url if poster else None }}"
-          />
-        {% else %}
-          {{ srcset_image(
-              value.image,
-              "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1440px) 680px,
-                100vw
-              ",
-              width=(value.image.width / 2)|round|int,
-              loading="lazy"
-            ) }}
-        {% endif %}
+        {{ srcset_image(
+            value.image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="
+              (min-width: 768px) 50vw,
+              (min-width: 1440px) 680px,
+              100vw
+            ",
+            width=(value.image.width / 2)|round|int,
+            loading="lazy"
+          ) }}
       </content:media>
-    {% endif %}
-
-    {% if value.qr_code %}
-      <content:qr>
-        {{ qrcode(value.qr_code, 12) }}
-      </content:qr>
+    {% elif value.video %}
+      <content:media>
+        {% for block in value.video %}
+          {% include_block block %}
+        {% endfor %}
+      </content:media>
     {% endif %}
 
     {% if value.buttons %}
