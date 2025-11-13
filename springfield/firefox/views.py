@@ -165,6 +165,15 @@ def sign_attribution_codes(codes):
 
 
 @require_safe
+def firefox_ai_waitlist_page(request):
+    template_name = "firefox/ai/waitlist.html"
+    newsletter_id = "smart-window-waitlist"
+    ctx = {"newsletter_id": newsletter_id}
+
+    return l10n_utils.render(request, template_name, ctx)
+
+
+@require_safe
 def firefox_all(request, product_slug=None, platform=None, locale=None):
     ftl_files = "firefox/all"
 
