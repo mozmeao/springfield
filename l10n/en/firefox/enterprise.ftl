@@ -7,7 +7,7 @@
 # Page title
 firefox-enterprise-get-firefox-for-your-enterprise-with = Use { -brand-name-firefox } as your enterprise browser for secure, resilient, and privacy-focused browsing at scale.
 # Meta desc
-firefox-enterprise-get-unmatched-data-protection = Get enterprise-grade protection, flexibility, and open-source transparency with { -brand-name-firefox }. Choose { -brand-name-esr } for long-term stability and regular security updates, or { -brand-name-firefox } for the latest features.
+firefox-enterprise-get-unmatched-data-protection = Get enterprise-grade data protection, security, and open-source transparency with { -brand-name-firefox }. Choose { -brand-name-esr } for long-term stability and regular security updates, or { -brand-name-firefox } for the latest features.
 
 firefox-enterprise-enterprise = { -brand-name-enterprise }
 firefox-enterprise-get-firefox-for-your-enterprise = Use { -brand-name-firefox } as your enterprise browser
