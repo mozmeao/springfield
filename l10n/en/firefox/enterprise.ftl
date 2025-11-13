@@ -12,7 +12,7 @@ firefox-enterprise-get-unmatched-data-protection = Get enterprise-grade data pro
 firefox-enterprise-enterprise = { -brand-name-enterprise }
 firefox-enterprise-get-firefox-for-your-enterprise = Use { -brand-name-firefox } as your enterprise browser
 
-firefox-enterprise-get-the-firefox-extended-support = { -brand-name-firefox } delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in both { -brand-name-firefox } or { firefox-enterprise-firefox-extended-support-release }, organizations get flexibility, control, and data sovereignty in a trusted, open-source browser.
+firefox-enterprise-get-the-firefox-extended-support = { -brand-name-firefox } delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in both { -brand-name-firefox } or { firefox-enterprise-firefox-extended-support-release }, organizations get flexibility, control, and transparency in a trusted, open-source browser.
 
 firefox-enterprise-unmatched-data-protection = Enterprise-grade protection, powered by { -brand-name-firefox }
 
@@ -53,7 +53,7 @@ firefox-enterprise-windows-32-bit = { -brand-name-windows } 32-bit
 firefox-enterprise-download-firefox-esr-or-rapid = Download { -brand-name-firefox } or { -brand-name-firefox-esr } for<br> <a href="{ $firefox_all }">another language or platform.</a>
 
 firefox-enterprise-support-for-organizations = { -brand-name-support-for-organizations }
-firefox-enterprise-early-access-is = Early access is now open for our new support program launching in January 2026. Built for organizations that use { -brand-name-firefox } to ensure security, resilience, and data sovereignty, it provides private, reliable, and custom support for large-scale deployments.
+firefox-enterprise-early-access-is = Early access is now open for our new support program launching in January 2026. Built for organizations that use { -brand-name-firefox } to ensure security, resilience, and flexibility, it provides private, reliable, and custom support for large-scale deployments.
 firefox-enterprise-contact-sales = Contact Sales
 firefox-enterprise-support-for-organizations-documentation = { -brand-name-support-for-organizations } documentation
 firefox-enterprise-support-for-organizations-is = { -brand-name-support-for-organizations } is a dedicated offering for teams who need private issue triage and escalation, defined response times, custom development options, and close collaboration with { -brand-name-mozilla }’s engineering and product teams.
