@@ -17,7 +17,7 @@ firefox-enterprise-get-the-firefox-extended-support = { -brand-name-firefox } de
 firefox-enterprise-unmatched-data-protection = Enterprise-grade protection, powered by { -brand-name-firefox }
 
 # "Enhanced Tracking Protection" is a feature name; it should be capitalized
-firefox-enterprise-the-firefox-browser-is-open = { -brand-name-firefox } combines open-source transparency with advanced security features and frequent updates to help safeguard your organization's data.
+firefox-enterprise-the-firefox-browser-is-open = { -brand-name-firefox } combines open-source transparency with advanced security features and frequent updates to help safeguard your organization’s data.
 
 firefox-enterprise-your-data-stays-your-business = Your browser, your business
 firefox-enterprise-deploy-when-and-how-you-want = Deploy when and how you want
