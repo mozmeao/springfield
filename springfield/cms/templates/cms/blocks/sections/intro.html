@@ -25,43 +25,44 @@
       {{ value.fine_print|richtext|remove_p_tag }}
     </content:fine_print>
   {% endif %}
-  {% if value.image %}
+  {% if value.video or value.image %}
     <content:media>
-      <div class="light-dark-display">
-        {% if value.dark_image %}
+      {% if value.video %}
+        {% set poster = image(value.image, "width-800") if value.image else None %}
+        <include:video
+          url="{{ value.video }}"
+          poster="{{ poster.url if poster else None }}"
+        />
+      {% else %}
+        <div class="light-dark-display">
+          {% if value.dark_image %}
+            {{ srcset_image(
+                value.dark_image,
+                "width-{200,400,600,800,1000,1200,1400}",
+                sizes="
+                  (min-width: 768px) 50vw,
+                  (min-width: 1440px) 680px,
+                  100vw
+                ",
+                width=value.dark_image.width,
+                loading="lazy",
+                class="display-dark",
+              ) }}
+          {% endif %}
           {{ srcset_image(
-              value.dark_image,
+              value.image,
               "width-{200,400,600,800,1000,1200,1400}",
               sizes="
                 (min-width: 768px) 50vw,
                 (min-width: 1440px) 680px,
                 100vw
               ",
-              width=value.dark_image.width,
+              width=value.image.width,
               loading="lazy",
-              class="display-dark",
+              class="display-light",
             ) }}
-        {% endif %}
-        {{ srcset_image(
-            value.image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1440px) 680px,
-              100vw
-            ",
-            width=value.image.width,
-            loading="lazy",
-            class="display-light",
-          ) }}
-      </div>
-    </content:media>
-  {% elif value.embed %}
-    <content:media>
-      {# Jinja interprets the HTML from the embed block as a string #}
-      {% autoescape false %}
-        {% include_block value.embed %}
-      {% endautoescape %}
+        </div>
+      {% endif %}
     </content:media>
   {% endif %}
 </include:intro>

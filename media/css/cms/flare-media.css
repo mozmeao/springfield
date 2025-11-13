@@ -4,19 +4,6 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.media img,
-.media video,
-.media iframe {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--scale-16) * 1px);
-}
-
-.media iframe {
-    aspect-ratio: 16 / 9;
-}
-
 /* Video component with click-to-play */
 .fl-video {
     position: relative;

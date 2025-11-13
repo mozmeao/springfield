@@ -40,19 +40,27 @@
       />
     </content:heading>
 
-    {% if value.image %}
+    {% if value.image or value.video %}
       <content:media>
-        {{ srcset_image(
-            value.image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1440px) 680px,
-              100vw
-            ",
-            width=(value.image.width / 2)|round|int,
-            loading="lazy"
-          ) }}
+        {% if value.video %}
+          {% set poster = image(value.image, "width-800") if value.image else None %}
+          <include:video
+            url="{{ value.video }}"
+            poster="{{ poster.url if poster else None }}"
+          />
+        {% else %}
+          {{ srcset_image(
+              value.image,
+              "width-{200,400,600,800,1000,1200,1400}",
+              sizes="
+                (min-width: 768px) 50vw,
+                (min-width: 1440px) 680px,
+                100vw
+              ",
+              width=(value.image.width / 2)|round|int,
+              loading="lazy"
+            ) }}
+        {% endif %}
       </content:media>
     {% endif %}
 

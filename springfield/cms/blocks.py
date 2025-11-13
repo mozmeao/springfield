@@ -4,9 +4,9 @@
 
 from uuid import uuid4
 
-from wagtail import blocks
+from django.core.exceptions import ValidationError
 
-# from wagtail.embeds.blocks import EmbedBlock
+from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
 
@@ -128,6 +128,12 @@ UITOUR_BUTTON_CHOICES = (
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+
+
+def validate_video_url(value):
+    if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
+        raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
+    return value
 
 
 # Element blocks
@@ -432,22 +438,17 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
-        # TODO: re-enable the embed block and make the image optional
-        # when this issue with Wagtail Localize is resolved
-        # https://github.com/wagtail/wagtail-localize/issues/875
         image = ImageChooserBlock(
-            # required=False,
-            # help_text="Either an image or embed is required.",
+            help_text="If a video is provided, this image will be shown as a placeholder until the user plays the video.",
             inline_form=True,
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        # embed = EmbedBlock(
-        #     required=False,
-        #     help_text="Either an image or embed is required.",
-        #     max_width=800,
-        #     max_height=400,
-        #     inline_form=True,
-        # )
+        video = blocks.URLBlock(
+            required=False,
+            label="Video URL",
+            help_text="Link to a video from YouTube or assets.mozilla.net.",
+            validators=[validate_video_url],
+        )
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
@@ -463,14 +464,6 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             label = "Media + Content"
             label_format = "{headline}"
             template = "cms/blocks/media-content.html"
-
-        # def clean(self, value):
-        #     cleaned_data = super().clean(value)
-        #     if not cleaned_data.get("image") and not cleaned_data.get("embed"):
-        #         raise ValidationError(
-        #             "Either an image or embed is required.",
-        #         )
-        #     return cleaned_data
 
     return _MediaContentBlock(*args, **kwargs)
 
@@ -714,18 +707,15 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings()
         image = ImageChooserBlock(
             required=False,
-            # help_text="Either enter an image or embed, or leave both blank.",
+            help_text="If a video is provided, this image will be shown as a placeholder until the user plays the video.",
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        # TODO: re-enable the block when this issue with Wagtail Localize is resolved
-        # https://github.com/wagtail/wagtail-localize/issues/875
-        # embed = EmbedBlock(
-        #     required=False,
-        #     max_width=800,
-        #     max_height=400,
-        #     inline_form=True,
-        #     help_text="Either enter an image or embed, or leave both blank.",
-        # )
+        video = blocks.URLBlock(
+            required=False,
+            label="Video URL",
+            help_text="Link to a video from YouTube or assets.mozilla.net.",
+            validators=[validate_video_url],
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -844,6 +834,12 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         image = ImageChooserBlock(
             required=False,
             help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
+        )
+        video = blocks.URLBlock(
+            required=False,
+            label="Video URL",
+            help_text="Link to a video from YouTube or assets.mozilla.net.",
+            validators=[validate_video_url],
         )
         qr_code = blocks.CharBlock(
             required=False,
