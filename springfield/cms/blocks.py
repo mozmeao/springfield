@@ -791,18 +791,6 @@ class SubscriptionBlock(blocks.StructBlock):
 
 
 class BannerSettings(blocks.StructBlock):
-    theme = blocks.ChoiceBlock(
-        (
-            ("outlined", "Outlined"),
-            ("filled", "Filled, no Kit Image"),
-            ("filled-small", "Filled with Small Curious Kit"),
-            ("filled-large", "Filled with Large Curious Kit"),
-            ("filled-face", "Filled with Sitting Kit"),
-            ("filled-tail", "Filled with Kit Tail"),
-        ),
-        default="outlined",
-        inline_form=True,
-    )
     media_after = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -859,3 +847,52 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _BannerBlock(*args, **kwargs)
+
+
+class KitBannerSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("filled", "No Kit Image"),
+            ("filled-small", "With Small Curious Kit"),
+            ("filled-large", "With Large Curious Kit"),
+            ("filled-face", "With Sitting Kit"),
+            ("filled-tail", "With Kit Tail"),
+        ),
+        default="filled",
+        inline_form=True,
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Theme: {theme} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+def KitBannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create KitBannerBlock with appropriate button types."""
+
+    class _KitBannerBlock(blocks.StructBlock):
+        settings = KitBannerSettings()
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/kit-banner.html"
+            label = "Kit Banner"
+            label_format = "{heading}"
+
+    return _KitBannerBlock(*args, **kwargs)
