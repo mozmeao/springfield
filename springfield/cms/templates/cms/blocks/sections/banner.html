@@ -4,99 +4,121 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set brand_image_size = '' %}
-{% set brand_image_position = "" %}
-{% if value.settings.theme in ['filled-large', 'filled-small', 'filled-face', 'filled-tail'] %}
-  {% set brand_image_size = 'large' if value.settings.theme in ['filled-large', 'filled-face', 'filled-tail'] else 'small' %}
-  {% set brand_image_position = 'bottom-right' %}
-  {% if value.settings.media_after %}
-    {% set brand_image_position = 'bottom-left' if value.settings.theme == 'filled-large' else 'bottom' %}
-  {% endif %}
-{% endif %}
-
 {% set block_position = block_position or "banner" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-  <include:banner
-    theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
-    media_after="{{ value.settings.media_after }}"
-    brand_image="{{ value.settings.theme }}"
-    brand_image_position="{{ brand_image_position }}"
-    brand_image_size="{{ brand_image_size }}"
-    qr_code="{{ value.qr_code }}"
-    media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
+  {% if "filled" in value.settings.theme %}
+    {% set brand_image_size = 'large' if value.settings.theme in ['filled-large', 'filled-tail'] else 'small' %}
+    <include:kit-banner
+      brand_image_size="{{ brand_image_size }}"
+      centered="{{ value.settings.theme in ['filled', 'filled-face', 'filled-small'] }}"
+    >
 
-    <content:heading>
-      {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-      <include:heading
-        level="{{ heading_level }}"
-        heading_size="fl-heading-size-2"
-        alignment_class=""
-        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
-        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
-        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
-        subheading_size="fl-subheading-4"
-      />
-    </content:heading>
+      <content:heading>
+        {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-2"
+          alignment_class=""
+          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+          subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+          subheading_size="fl-subheading-4"
+        />
+      </content:heading>
 
-    {% if value.image or value.video %}
-      <content:media>
-        {% if value.video %}
-          {% set poster = image(value.image, "width-800") if value.image else None %}
-          <include:video
-            url="{{ value.video }}"
-            poster="{{ poster.url if poster else None }}"
-          />
-        {% else %}
-          {{ srcset_image(
-              value.image,
-              "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1440px) 680px,
-                100vw
-              ",
-              width=(value.image.width / 2)|round|int,
-              loading="lazy"
-            ) }}
-        {% endif %}
-      </content:media>
-    {% endif %}
+      {% if value.settings.theme in ['filled-small', 'filled-large'] %}
+        <content:brand>
+          <include:image url="/media/img/firefox/flare/fox-brand.svg" alt="" />
+        </content:brand>
+      {% elif value.settings.theme == 'filled-face' %}
+        <content:brand>
+          <include:image url="/media/img/firefox/flare/forward-facing-kit.svg" alt="" />
+        </content:brand>
+      {% elif value.settings.theme == 'filled-tail' %}
+        <content:brand>
+          <include:image url="/media/img/firefox/flare/kit-tail.png" alt="" />
+        </content:brand>
+      {% endif %}
 
-    {% if value.qr_code %}
-      <content:qr>
-        {{ qrcode(value.qr_code, 12) }}
-      </content:qr>
-    {% endif %}
+      {% if value.buttons %}
+        <content:actions>
+          <div class="fl-buttons is-horizontal">
+            {% for button in value.buttons %}
+              {% set block_position = block_position ~ ".button-" ~ loop.index %}
+              {% include_block button %}
+            {% endfor %}
+          </div>
+        </content:actions>
+      {% endif %}
+    </include:kit-banner>
 
-    {% if value.settings.theme in ['filled-small', 'filled-large'] %}
-      <content:brand>
-        <include:image url="/media/img/firefox/flare/fox-brand.svg" alt="" />
-      </content:brand>
-    {% endif %}
+  {% else %}
 
-    {% if value.settings.theme == 'filled-face' %}
-      <content:brand>
-        <include:image url="/media/img/firefox/flare/forward-facing-kit.svg" alt="" />
-      </content:brand>
-    {% endif %}
+    <include:banner
+      theme="{{ 'filled' if value.settings.theme.startswith('filled') else 'outlined' }}"
+      media_after="{{ value.settings.media_after }}"
+      brand_image="{{ value.settings.theme }}"
+      brand_image_position="{{ brand_image_position }}"
+      brand_image_size="{{ brand_image_size }}"
+      qr_code="{{ value.qr_code }}"
+      media_url="{% if value.image %}{{ image(value.image, 'width-800').url }}{% endif %}">
 
-    {% if value.settings.theme == 'filled-tail' %}
-      <content:brand>
-        <include:image url="/media/img/firefox/flare/kit-tail.png" alt="" />
-      </content:brand>
-    {% endif %}
+      <content:heading>
+        {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-2"
+          alignment_class=""
+          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+          subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+          subheading_size="fl-subheading-4"
+        />
+      </content:heading>
 
-    {% if value.buttons %}
-      <content:actions>
-        <div class="fl-buttons is-horizontal">
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
-        </div>
-      </content:actions>
-    {% endif %}
-  </include:banner>
+      {% if value.image or value.video %}
+        <content:media>
+          {% if value.video %}
+            {% set poster = image(value.image, "width-800") if value.image else None %}
+            <include:video
+              url="{{ value.video }}"
+              poster="{{ poster.url if poster else None }}"
+            />
+          {% else %}
+            {{ srcset_image(
+                value.image,
+                "width-{200,400,600,800,1000,1200,1400}",
+                sizes="
+                  (min-width: 768px) 50vw,
+                  (min-width: 1440px) 680px,
+                  100vw
+                ",
+                width=(value.image.width / 2)|round|int,
+                loading="lazy"
+              ) }}
+          {% endif %}
+        </content:media>
+      {% endif %}
+
+      {% if value.qr_code %}
+        <content:qr>
+          {{ qrcode(value.qr_code, 12) }}
+        </content:qr>
+      {% endif %}
+
+      {% if value.buttons %}
+        <content:actions>
+          <div class="fl-buttons is-horizontal">
+            {% for button in value.buttons %}
+              {% set block_position = block_position ~ ".button-" ~ loop.index %}
+              {% include_block button %}
+            {% endfor %}
+          </div>
+        </content:actions>
+      {% endif %}
+    </include:banner>
+  {% endif %}
+
 </include:conditional-display>

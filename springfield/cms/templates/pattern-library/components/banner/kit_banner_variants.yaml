@@ -1,0 +1,76 @@
+name: "Kit Banner variants"
+context:
+  variants:
+    - title: "Centered with Small Curious Kit"
+      centered: true
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      brand_image:
+        url: "/media/img/firefox/flare/fox-brand.svg"
+        alt: "Firefox"
+      brand_image_size: "small"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "Large Curious Kit"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      brand_image:
+        url: "/media/img/firefox/flare/fox-brand.svg"
+        alt: "Firefox"
+      brand_image_size: "large"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "Centered with Sitting Kit"
+      centered: true
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      brand_image:
+        url: "/media/img/firefox/flare/forward-facing-kit.svg"
+        alt: "Firefox"
+      brand_image_size: "small"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "Centered with Kit Tail"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      brand_image:
+        url: "/media/img/firefox/flare/kit-tail.png"
+        alt: "Firefox"
+      brand_image_size: "large"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
