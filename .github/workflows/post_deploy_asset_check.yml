@@ -24,13 +24,15 @@ jobs:
   notify-of-checks-start:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            .github/actions/slack
       - name: Notify via Slack that tests are starting
         uses: ./.github/actions/slack
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
           env_name: test
-          fetch-depth: 1
           label: "Static-assets check for [${{ inputs.git_sha }}]"
           message: "Static-assets check started"
           ref: ${{ inputs.branch }}
@@ -61,14 +63,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [asset-check]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            .github/actions/slack
       - name: Notify via Slack of test-run success
         if: ${{ needs.asset-check.result == 'success' }}
         uses: ./.github/actions/slack
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
           env_name: test
-          fetch-depth: 1
           label: "Static-assets checks for [${{ inputs.git_sha }}]"
           message: "Static-assets check completed. Status: success"
           ref: ${{ inputs.branch }}
@@ -80,7 +84,6 @@ jobs:
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
           env_name: test
-          fetch-depth: 1
           label: "Static-assets checks for [${{ inputs.git_sha }}]"
           message: "Static-assets check completed. Status: failure"
           ref: ${{ inputs.branch }}
@@ -91,7 +94,6 @@ jobs:
         uses: ./.github/actions/slack
         with:
           env_name: test
-          fetch-depth: 1
           label: "Static-assets checks for [${{ inputs.git_sha }}]"
           status: "cancelled"
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
