@@ -241,22 +241,31 @@ TrackProductDownload.sendEventFromURL = (downloadURL) => {
 };
 
 /**
- * Sends an event to the data layer
+ * Sends an event to the data layer, including various safeguards against unhandled promise rejections
  * @param {Object} - product details formatted into a product_download event
  */
-TrackProductDownload.sendEvent = (eventObject) => {
+TrackProductDownload.safeSendEventToDataLayer = (eventObject) => {
     // Treating this as the source of mozmeao/springfield#323 and wrapping it in a try/catch
     try {
         const result = window.dataLayer.push(eventObject);
         // Handle if dataLayer.push returns a promise (some GTM configurations do this)
         if (result && typeof result.then === 'function') {
-            result.catch(() => {
+            Promise.resolve(result).catch(() => {
                 // Silently handle promise rejections to prevent unhandled rejection errors
             });
         }
     } catch (error) {
         // Handle synchronous errors
     }
+};
+
+/**
+ * Sends sends the formatted download event to the dataLayer
+ * and then passes it to be re-formatted and sent in old style
+ * @param {Object} - product details formatted into a product_download event
+ */
+TrackProductDownload.sendEvent = (eventObject) => {
+    TrackProductDownload.safeSendEventToDataLayer(eventObject);
     // we wanted to keep the old event name around for a few months to help with the transition
     // now there are a bunch of dashboards built to use it so it gets to live on forever
     TrackProductDownload.sendOldEvent(eventObject);
@@ -274,13 +283,7 @@ TrackProductDownload.sendOldEvent = (eventObject) => {
         // replace event name with old event name
         oldEventObject['event'] = 'product_download';
         // add to dataLayer
-        const result = window.dataLayer.push(oldEventObject);
-        // Handle if dataLayer.push returns a promise (some GTM configurations do this)
-        if (result && typeof result.then === 'function') {
-            result.catch(() => {
-                // Silently handle promise rejections to prevent unhandled rejection errors
-            });
-        }
+        TrackProductDownload.safeSendEventToDataLayer(oldEventObject);
     } catch (error) {
         // Handle synchronous errors (JSON.stringify/parse or dataLayer.push errors)
     }
