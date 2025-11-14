@@ -59,7 +59,7 @@ Pure CSS only (no preprocessors). Import into [`flare.css`](/springfield/media/c
 .fl-banner {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--scale-16) * 1px);
+  gap: calc(var(--token-scale-16) * 1px);
   background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
 }
 
@@ -236,16 +236,41 @@ This custom loader avoids unneeded third party dependencies like `postcss-import
 
 Some common patterns that are useful in this CSS setup:
 
-Use `light-dark` for dark mode support:
+Define semantic CSS custom properties in `flare-theme.css` and use `@media` blocks there to override values for any context you can detect globally (dark mode, reduced motion, viewport size, etc.). Components then consume those variables without needing their own media queries.
 
 ```css
-background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+/* flare-theme.css */
+:root {
+  --fl-component-surface: var(--token-neutrals-ash);
+  --fl-component-text: var(--token-neutrals-charcoal);
+  --fl-component-padding: calc(var(--token-scale-16) * 1px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fl-component-surface: var(--token-neutrals-charcoal);
+    --fl-component-text: var(--token-neutrals-white);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --fl-component-padding: calc(var(--token-scale-12) * 1px);
+  }
+}
+
+/* component stylesheet */
+.fl-component {
+  background: var(--fl-component-surface);
+  color: var(--fl-component-text);
+  padding: var(--fl-component-padding);
+}
 ```
 
 Add units to unitless tokens using calc and multiplying by 1:
 
 ```css
-padding: calc(var(--scale-16) * 1px);
+padding: calc(var(--token-scale-16) * 1px);
 ```
 
 #### Breakpoint Variables

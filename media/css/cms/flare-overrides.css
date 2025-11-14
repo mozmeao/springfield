@@ -13,7 +13,7 @@ specific exceptions that can't be handled by the other layers
 
 
 .fl-footer .button img {
-    margin-right: calc(var(--scale-16) * 1px);
+    margin-right: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-footer-cta .button {
@@ -21,8 +21,8 @@ specific exceptions that can't be handled by the other layers
 }
 
 .fl-section-subscribe .button {
-    color: var(--neutrals-charcoal);
-    border-color: var(--neutrals-charcoal);
+    color: var(--token-neutrals-charcoal);
+    border-color: var(--token-neutrals-charcoal);
 }
 
 .fl-section-subscribe .fl-newsletterform-input,
@@ -31,8 +31,8 @@ specific exceptions that can't be handled by the other layers
 }
 
 .fl-section-subscribe .button:hover {
-    background: var(--neutrals-black);
-    color: var(--neutrals-white);
+    background: var(--token-neutrals-black);
+    color: var(--token-neutrals-white);
 }
 
 .fl-section .button {

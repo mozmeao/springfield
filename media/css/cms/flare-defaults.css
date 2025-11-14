@@ -16,39 +16,39 @@ theme layer.
 /* TODO: Fix spacing values */
 
 html {
-    font-size: var(--font-size-base);
+    font-size: var(--fl-theme-font-size-base);
 }
 
 body {
-    font-family: var(--font-family-body);
-    font-weight: var(--font-weight-body);
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--fl-theme-font-weight-body);
+    color: var(--fl-theme-color-text-primary);
+    background: var(--fl-theme-surface-page);
     width: 100%;
-    max-width: var(--widths-viewport-wrapper-screen-2xl);
+    max-width: var(--token-widths-viewport-wrapper-screen-2xl);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-headline);
-    font-weight: var(--font-weight-headline);
-    margin-bottom: var(--grids-spacing-interior-spacing-x1)rem;
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--fl-theme-font-weight-headline);
+    margin-bottom: var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
 }
 
-h1 { font-size: var(--font-size-h1); }
-h2 { font-size: var(--font-size-h2); }
-h3 { font-size: var(--font-size-h3); }
-h4 { font-size: var(--font-size-h4); }
-h5 { font-size: var(--font-size-h5); }
-h6 { font-size: var(--font-size-h6); }
+h1 { font-size: var(--fl-theme-font-size-h1); }
+h2 { font-size: var(--fl-theme-font-size-h2); }
+h3 { font-size: var(--fl-theme-font-size-h3); }
+h4 { font-size: var(--fl-theme-font-size-h4); }
+h5 { font-size: var(--fl-theme-font-size-h5); }
+h6 { font-size: var(--fl-theme-font-size-h6); }
 
 p {
-    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
     line-height: 1.6;
 }
 
 a:link, a:visited {
-    color: light-dark(var(--blue-button), var(--blue-blue));
-    transition: color var(--transition-fast);
+    color: var(--fl-theme-color-link);
+    transition: color var(--token-transition-fast);
 }
 
 a:link {
@@ -56,7 +56,7 @@ a:link {
 }
 
 a:visited {
-    color: light-dark(var(--purple-purple), var(--purple-light-purple));
+    color: var(--fl-theme-color-link-visited);
 }
 
 a:hover, a:active, a:focus {
@@ -64,7 +64,7 @@ a:hover, a:active, a:focus {
 }
 
 img, svg {
-    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,8 +74,8 @@ img, svg {
 }
 
 hr {
-    border-top: 1px solid var(--neutrals-grey-3);
-    margin: var(--grids-spacing-interior-spacing-x1)rem 0;
+    border-top: 1px solid var(--token-neutrals-grey-3);
+    margin: var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
 }
 
 /* Remove section border, since it was just used to provide a clean
@@ -85,33 +85,33 @@ section {
 }
 
 ul, ol {
-    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem var(--grids-spacing-interior-spacing-x1)rem;
+    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
 }
 
 li {
-    margin: 0 0 var(--grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
 }
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
-    background: var(--blue-button);
-    color: var(--neutrals-white);
-    border-radius: calc(var(--border-radius-md) * 1px);
+    background: var(--token-blue-button);
+    color: var(--token-neutrals-white);
+    border-radius: var(--token-border-radius-md);
     width: auto;
     height: auto;
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: var(--blue-button);
-    color: var(--neutrals-white);
+    background: var(--token-blue-button);
+    color: var(--token-neutrals-white);
 }
 
 button:hover, [role="button"]:hover {
-    background: var(--blue-dark-blue);
-    color: var(--neutrals-white);
+    background: var(--token-blue-dark-blue);
+    color: var(--token-neutrals-white);
 }
 
 /* Use theme color for table borders */
 th, td {
-    border-color: var(--neutrals-charcoal);
+    border-color: var(--token-neutrals-charcoal);
 }
