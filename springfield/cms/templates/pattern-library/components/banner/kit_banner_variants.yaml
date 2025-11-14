@@ -19,6 +19,12 @@ context:
           icon_name: "arrow-right"
           icon_position: "right"
           theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
 
     - title: "Large Curious Kit"
       heading:
@@ -31,6 +37,12 @@ context:
         alt: "Firefox"
       brand_image_size: "large"
       buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
@@ -56,6 +68,12 @@ context:
           icon_name: "arrow-right"
           icon_position: "right"
           theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
 
     - title: "Centered with Kit Tail"
       heading:
@@ -68,6 +86,12 @@ context:
         alt: "Firefox"
       brand_image_size: "large"
       buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false

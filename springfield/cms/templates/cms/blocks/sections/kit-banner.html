@@ -9,7 +9,7 @@
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   {% set brand_image_size = 'large' if value.settings.theme in ['filled-large', 'filled-tail'] else 'small' %}
-  {% set centered = value.settings.theme in ['filled', 'filled-face', 'filled-small'] %}
+  {% set centered = value.settings.theme in ['filled', 'filled-small'] %}
   <include:kit-banner
     brand_image_size="{{ brand_image_size }}"
     centered="{{ centered }}"

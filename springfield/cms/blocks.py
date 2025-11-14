@@ -870,7 +870,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=1,
+            max_num=2,
             required=False,
         )
 
@@ -929,7 +929,7 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=1,
+            max_num=2,
             required=False,
         )
 

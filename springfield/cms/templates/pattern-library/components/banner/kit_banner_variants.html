@@ -32,11 +32,7 @@
 
     {% if variant.buttons %}
       <content:actions>
-        {% if not variant.media and not variant.qr_code and variant.brand_image_size != 'large' %}
-          <include:buttons buttons="{{ variant.buttons }}" center="true" orientation="horizontal" />
-        {% else %}
-          <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
-        {% endif %}
+        <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
       </content:actions>
     {% endif %}
   </include:kit-banner>
