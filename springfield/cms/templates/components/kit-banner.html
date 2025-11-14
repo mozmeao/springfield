@@ -4,24 +4,20 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props brand_image_size="large" centered=False #}
+{# props theme="" #}
+{# TODO: migration to replace 'filled-'' #}
+{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail"] #}
 
 <div class="fl-banner-container">
+  {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
   <div
     class="
       fl-banner fl-banner-filled
-      {% if contents.brand %}fl-banner-hasbrand-bottom-right{% endif %}
-      {% if contents.brand and brand_image_size %}fl-banner-brandsize-{{ brand_image_size }}{% endif %}"
+      {% if theme %}fl-banner-hasbrand fl-banner-hasbrand-{{ theme }}{% endif %}"
     aria-labelledby="fl-banner-heading">
 
-    {% if contents.brand %}
-      <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
-        {{ contents.brand }}
-      </div>
-    {% endif %}
-
     <div class="fl-banner-layout">
-      <div class="fl-banner-content {% if centered %}fl-banner-content-centered{% endif %}">
+      <div class="fl-banner-content">
         <div class="fl-banner-content-inner">
           {% if contents.heading %}
             {{ contents.heading }}

@@ -1,17 +1,33 @@
 name: "Kit Banner variants"
 context:
   variants:
-    - title: "Centered with Small Curious Kit"
-      centered: true
+    - title: "No Kit"
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
-      brand_image:
-        url: "/media/img/firefox/flare/fox-brand.svg"
-        alt: "Firefox"
-      brand_image_size: "small"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "With Small Curious Kit"
+      theme: "filled-small"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -27,15 +43,12 @@ context:
           theme_class: "button-tertiary"
 
     - title: "Large Curious Kit"
+      theme: "filled-large"
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
-      brand_image:
-        url: "/media/img/firefox/flare/fox-brand.svg"
-        alt: "Firefox"
-      brand_image_size: "large"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -50,17 +63,13 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Centered with Sitting Kit"
-      centered: true
+    - title: "With Sitting Kit"
+      theme: "filled-face"
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
-      brand_image:
-        url: "/media/img/firefox/flare/forward-facing-kit.svg"
-        alt: "Firefox"
-      brand_image_size: "small"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -75,16 +84,13 @@ context:
           icon_position: "right"
           theme_class: "button-tertiary"
 
-    - title: "Centered with Kit Tail"
+    - title: "With Kit Tail"
+      theme: "filled-tail"
       heading:
         level: "h2"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-      subheading: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
-      brand_image:
-        url: "/media/img/firefox/flare/kit-tail.png"
-        alt: "Firefox"
-      brand_image_size: "large"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
       buttons:
         - label: "Sneak Peek"
           link: "/"

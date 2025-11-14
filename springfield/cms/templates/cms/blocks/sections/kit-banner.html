@@ -8,12 +8,7 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-  {% set brand_image_size = 'large' if value.settings.theme in ['filled-large', 'filled-tail'] else 'small' %}
-  {% set centered = value.settings.theme in ['filled', 'filled-small'] %}
-  <include:kit-banner
-    brand_image_size="{{ brand_image_size }}"
-    centered="{{ centered }}"
-  >
+  <include:kit-banner theme="{{ value.settings.theme }}">
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
@@ -27,20 +22,6 @@
         subheading_size="fl-subheading-4"
       />
     </content:heading>
-
-    {% set images = {
-      'filled-small': {'url': '/media/img/firefox/flare/fox-brand.svg', 'alt': 'Curious Firefox'},
-      'filled-large': {'url': '/media/img/firefox/flare/fox-brand.svg', 'alt': 'Curious Firefox'},
-      'filled-face': {'url': '/media/img/firefox/flare/forward-facing-kit.svg', 'alt': 'Sitting Firefox'},
-      'filled-tail': {'url': '/media/img/firefox/flare/kit-tail.png', 'alt': 'Firefox Tail'},
-    } %}
-    {% set brand_image = images.get(value.settings.theme) %}
-
-    {% if brand_image %}
-      <content:brand>
-        <include:image url="{{ brand_image.url }}" alt="{{ brand_image.alt }}" />
-      </content:brand>
-    {% endif %}
 
     {% if value.buttons %}
       <content:actions>
