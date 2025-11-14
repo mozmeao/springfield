@@ -49,7 +49,7 @@
         {% if item.video %}
           <content:media>
             <include:video
-              url="{{ item.video.url }}"
+              video_url="{{ item.video.url }}"
               {% if item.video.poster %}poster="{{ item.video.poster }}"{% endif %}
               {% if item.video.alt %}alt="{{ item.video.alt }}"{% endif %}
             />

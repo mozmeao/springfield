@@ -8,11 +8,7 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-
-  <include:banner
-    media_after="{{ value.settings.media_after }}"
-    qr_code="{{ value.qr_code }}"
-  >
+  <include:kit-banner theme="{{ value.settings.theme }}">
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
@@ -27,28 +23,6 @@
       />
     </content:heading>
 
-    {% if value.image %}
-      <content:media>
-        {{ srcset_image(
-            value.image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1440px) 680px,
-              100vw
-            ",
-            width=(value.image.width / 2)|round|int,
-            loading="lazy"
-          ) }}
-      </content:media>
-    {% elif value.video %}
-      <content:media>
-        {% for block in value.video %}
-          {% include_block block %}
-        {% endfor %}
-      </content:media>
-    {% endif %}
-
     {% if value.buttons %}
       <content:actions>
         <div class="fl-buttons is-horizontal">
@@ -59,6 +33,6 @@
         </div>
       </content:actions>
     {% endif %}
-  </include:banner>
+  </include:kit-banner>
 
 </include:conditional-display>

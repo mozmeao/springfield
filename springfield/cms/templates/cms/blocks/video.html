@@ -4,9 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set poster = image(value.poster, "width-800") %}
 <include:video
-  video_url="{{ url }}"
-  {% if poster %}poster="{{ poster }}"{% endif %}
-  {% if alt %}alt="{{ alt }}"{% endif %}
-  {% if aspect_ratio %}aspect_ratio="{{ aspect_ratio }}"{% endif %}
+  video_url="{{ value.video_url }}"
+  alt="{{ value.alt }}"
+  poster="{{ poster.url }}"
 />

@@ -4,29 +4,20 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_after=False qr_code=None  #}
+{# props theme="" #}
+{# TODO: migration to replace 'filled-'' #}
+{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail"] #}
 
 <div class="fl-banner-container">
+  {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
   <div
     class="
-      fl-banner
-      fl-banner-outlined
-      {% if media_after %}fl-banner-reverse{% endif %}"
+      fl-banner fl-banner-filled
+      {% if theme %}fl-banner-hasbrand fl-banner-hasbrand-{{ theme }}{% endif %}"
     aria-labelledby="fl-banner-heading">
 
     <div class="fl-banner-layout">
-      {% if contents.media or qr_code %}
-        <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
-          {% if qr_code %}
-            <div class="fl-banner-qr" role="img">
-              {{ qrcode(qr_code, 12) }}
-            </div>
-          {% endif %}
-          {{ contents.media }}
-        </div>
-      {% endif %}
-
-      <div class="fl-banner-content {% if contents.media or qr_code %}fl-banner-content-left{% endif %}">
+      <div class="fl-banner-content">
         <div class="fl-banner-content-inner">
           {% if contents.heading %}
             {{ contents.heading }}

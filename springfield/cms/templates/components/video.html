@@ -4,8 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% if 'youtube.com' in url or 'youtu.be' in url %}
-  {% set video_id = url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
+{# props video_url="", alt="", poster="", aspect_ratio="" #}
+
+{% if 'youtube.com' in video_url or 'youtu.be' in video_url %}
+  {% set video_id = video_url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
   <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
       class="fl-video-play js-video-play"
@@ -26,11 +28,11 @@
       </span>
     </button>
   </div>
-{% elif 'assets.mozilla.net' in url %}
+{% elif 'assets.mozilla.net' in video_url %}
   <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
       class="fl-video-play js-video-play"
-      data-video-url="{{ url }}"
+      data-video-url="{{ video_url }}"
       data-video-type="cdn"
       {% if poster %}data-video-poster="{{ poster }}"{% endif %}
       aria-label="{{ alt|default('Play video') }}"

@@ -33,7 +33,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
           <include:rich_text content="{{ read_markdown_file(content_file)|markdown_safe }}" />
           {% if video_url %}
             <include:video
-              url="{{ video_url }}"
+              video_url="{{ video_url }}"
               {% if video_poster %}poster="{{ video_poster }}"{% endif %}
               {% if video_alt %}alt="{{ video_alt }}"{% endif %}
             />
