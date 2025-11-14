@@ -1,0 +1,70 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-rich-text a {
+    color: var(--token-color-link-purple);
+    text-decoration: underline;
+}
+
+.fl-rich-text code {
+    font-family: monospace;
+    font-size: 0.9em;
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-vibrant-purple);
+    padding: calc(var(--token-scale-2) * 1px) calc(var(--token-scale-4) * 1px);
+}
+
+.fl-rich-text pre {
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-vibrant-purple);
+    padding: calc(var(--token-scale-24) * 1px);
+    border-radius: var(--token-border-radius-sm);
+    overflow-x: auto;
+    margin: calc(var(--token-scale-16) * 1px) 0;
+}
+
+.fl-rich-text pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+.fl-rich-text ul,
+.fl-rich-text ol {
+    margin: calc(var(--token-scale-16) * 1px) 0;
+    padding-left: calc(var(--token-scale-24) * 1px);
+}
+
+.fl-rich-text li {
+    margin-bottom: calc(var(--token-scale-8) * 1px);
+}
+
+.fl-rich-text blockquote {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-body-large);
+    border-left: calc(var(--token-scale-4) * 1px) solid var(--token-color-vibrant-purple);
+    padding-left: calc(var(--token-scale-16) * 1px);
+    margin: calc(var(--token-scale-16) * 1px) 0;
+}
+
+.fl-rich-text cite {
+    color: var(--token-color-link-purple);
+    font-size: var(--fl-theme-font-size-body-small);
+}
+
+.fl-rich-text hr {
+    border: 0;
+    border-top: 1px solid var(--token-color-soft-purple);
+    margin: calc(var(--token-scale-24) * 1px) 0;
+}
+
+.fl-rich-text img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: calc(var(--token-scale-16) * 1px) 0;
+}
