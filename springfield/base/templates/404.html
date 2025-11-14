@@ -15,7 +15,7 @@
 {% endblock %}
 
 {# 404 pages must not include canonical and hreflang x-default: https://github.com/mozilla/bedrock/issues/5895 #}
-{% block canonical_urls %}{% endblock %}
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
 {% block content %}
   <main class="mzp-l-content message-section">
