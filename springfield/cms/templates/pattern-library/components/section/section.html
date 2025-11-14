@@ -13,26 +13,24 @@
     />
   </content:heading>
   <content:content>
-    <include:cards-list grid_four="false">
-      <content:cards>
-        {% for card in cards %}
-          <include:card
-            icon_name="{{ card.icon_name }}"
-            expand_link="false"
-          >
-            <content:heading>
-              <include:heading
-                level="h3"
-                heading_size="fl-heading-size-3"
-                heading_text="{{ card.heading }}"
-              />
-            </content:heading>
-            <content:body>
-              {{ card.body }}
-            </content:body>
-          </include:card>
-        {% endfor %}
-      </content:cards>
+    <include:cards-list length="{{ cards|length }}">
+      {% for card in cards %}
+        <include:card
+          icon_name="{{ card.icon_name }}"
+          expand_link="false"
+        >
+          <content:heading>
+            <include:heading
+              level="h3"
+              heading_size="fl-heading-size-3"
+              heading_text="{{ card.heading }}"
+            />
+          </content:heading>
+          <content:body>
+            {{ card.body }}
+          </content:body>
+        </include:card>
+      {% endfor %}
     </include:cards-list>
   </content:content>
   {% if cta %}

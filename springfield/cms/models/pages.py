@@ -9,8 +9,10 @@ from django.shortcuts import redirect
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
+from wagtail.snippets.blocks import SnippetChooserBlock
 
 from springfield.cms.blocks import (
+    HEADING_TEXT_FEATURES,
     BannerBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -84,7 +86,9 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     template = "cms/simple_rich_text_page.html"
 
 
-class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
+class ArticleIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.ArticleDetailPage"]
+
     sub_title = models.CharField(
         max_length=255,
         blank=True,
@@ -94,11 +98,25 @@ class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
         FieldPanel("sub_title"),
     ]
 
-    class Meta:
-        abstract = True
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
+
+        featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
+        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]
+
+        context["featured_articles"] = featured_articles
+        context["list_articles"] = list_articles
+        return context
 
 
-class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
+class ArticleDetailPage(AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.ArticleIndexPage"]
+
+    featured = models.BooleanField(
+        default=False,
+        help_text="Check to set as a featured article on the index page.",
+    )
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -106,26 +124,39 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
     )
-
-    desc = models.CharField(
-        max_length=500,
+    description = RichTextField(
         blank=True,
+        features=HEADING_TEXT_FEATURES,
         help_text="A short description used on index page.",
     )
-
     content = RichTextField(
         blank=True,
         features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
     )
+    call_to_action = StreamField(
+        [
+            (
+                "download_firefox",
+                SnippetChooserBlock(
+                    target_model="cms.DownloadFirefoxCallToActionSnippet",
+                    template="cms/snippets/download_firefox_cta.html",
+                    label="Download Firefox Call To Action",
+                ),
+            )
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        max_num=1,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("featured"),
         FieldPanel("image"),
-        FieldPanel("desc"),
+        FieldPanel("description"),
         FieldPanel("content"),
+        FieldPanel("call_to_action"),
     ]
-
-    class Meta:
-        abstract = True
 
 
 def _get_freeform_page_blocks(allow_uitour=False):

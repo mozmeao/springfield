@@ -1,6 +1,5 @@
 name: "Cards List"
 context:
-  grid_four: false
   cards:
     - icon_name: "shield"
       heading: "Privacy First"
