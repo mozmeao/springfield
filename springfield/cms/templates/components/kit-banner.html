@@ -6,30 +6,32 @@
 
 {# props brand_image_size="large" centered=False #}
 
-<div
-  class="
-    fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right
-    {% if brand_image_size %}fl-banner-brandsize-{{ brand_image_size }}{% endif %}"
-  aria-labelledby="fl-banner-heading">
+<div class="fl-banner-container">
+  <div
+    class="
+      fl-banner fl-banner-filled fl-banner-hasbrand-bottom-right
+      {% if brand_image_size %}fl-banner-brandsize-{{ brand_image_size }}{% endif %}"
+    aria-labelledby="fl-banner-heading">
 
-  {% if contents.brand %}
-    <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
-      {{ contents.brand }}
-    </div>
-  {% endif %}
+    {% if contents.brand %}
+      <div class="fl-banner-brand fl-banner-brand-bottom-right" aria-hidden="true">
+        {{ contents.brand }}
+      </div>
+    {% endif %}
 
-  <div class="fl-banner-layout">
-    <div class="fl-banner-content {% if centered %}fl-banner-content-centered{% endif %}">
-      <div class="fl-banner-content-inner">
-        {% if contents.heading %}
-          {{ contents.heading }}
-        {% endif %}
+    <div class="fl-banner-layout">
+      <div class="fl-banner-content {% if centered %}fl-banner-content-centered{% endif %}">
+        <div class="fl-banner-content-inner">
+          {% if contents.heading %}
+            {{ contents.heading }}
+          {% endif %}
 
-        {% if contents.actions %}
-          <div class="fl-banner-actions">
-            {{ contents.actions }}
-          </div>
-        {% endif %}
+          {% if contents.actions %}
+            <div class="fl-banner-actions">
+              {{ contents.actions }}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
