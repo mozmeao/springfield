@@ -38,4 +38,13 @@ Opensourceo extensify mozillan communitous privacious. Tabulous firefoxy browsiu
 
 Firefoxy opensourceo tabulous browsium mozillan. Extensify downloadus communitous privacious developus innovatum secureum webulous.
 
+## Full Width Images
+
+Full width image support Tabulous browsium mozillan downloadus privacious. Developus extensify secureum innovatum webulous communitous firefoxy tabular. Opensourceo browsium extensium downloadus.
+
+![Image Example](/media/img/firefox/flare/placeholder.png)
+
+
+## Full Width YouTube Embed
+
 Firefoxium Developus is a tabulous extensify opensourceo communitous. Browsium mozillan downloadus [Innovatum Extensium](/), a privacious secureum developus webulous tabular communitous. Firefoxy opensourceo [Mozillan Tabulous](/) browsium [Developus Communitous](/).

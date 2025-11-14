@@ -1,4 +1,5 @@
 name: "Video"
 context:
-  url: '/media/img/firefox/flare/placeholder.png'
-  alt: 'Placeholder image'
+  url: "https://www.youtube.com/watch?v=F-nFQryDB0s"
+  poster: "/media/img/firefox/flare/placeholder.png"
+  alt: "Example YouTube Video"

@@ -72,6 +72,7 @@ _csp_frame_src = {
     "www.google-analytics.com",
     "accounts.firefox.com",
     "www.youtube.com",
+    "www.youtube-nocookie.com",
 }
 _csp_img_src = {
     csp.constants.SELF,
