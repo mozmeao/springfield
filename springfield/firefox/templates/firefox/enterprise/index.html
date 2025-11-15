@@ -8,8 +8,8 @@
 
 {% from "macros-protocol.html" import picto, split with context %}
 
-{% block page_title %}{{ ftl('firefox-enterprise-get-firefox-for-your-enterprise-with') }}{% endblock %}
-{% block page_desc %}{{ ftl('firefox-enterprise-get-unmatched-data-protection') }}{% endblock %}
+{% block page_title %}{{ ftl('firefox-enterprise-use-firefox-esr-enterprise-browser') }}{% endblock %}
+{% block page_desc %}{{ ftl('firefox-is-the-open-source-browser-with-enterprise-security') }}{% endblock %}
 
 {% block page_css %}
   {{ css_bundle('protocol-split') }}
@@ -38,9 +38,9 @@
     media_after=True
   ) %}
     <div class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox"></div>
-    <h1 class="mzp-c-split-title">{{ftl('firefox-enterprise-get-firefox-for-your-enterprise')}}</h1>
+    <h1 class="mzp-c-split-title">{{ftl('firefox-enterprise-use-as-your-enterprise-browser')}}</h1>
     <p class="mzp-c-split-desc">
-      {{ ftl('firefox-enterprise-get-the-firefox-extended-support') }}
+      {{ ftl('firefox-enterprise-secure-at-scale') }}
     </p>
     <div class="cta-container">
       <div class="mzp-c-button-download-container">
@@ -72,12 +72,12 @@
 
   <div class="mzp-l-content mzp-t-content-lg">
     <section id="overview" class="enterprise-section">
-      <h2 class="enterprise-section-title">{{ ftl('firefox-enterprise-unmatched-data-protection') }}</h2>
+      <h2 class="enterprise-section-title">{{ ftl('firefox-enterprise-protection-powered-by') }}</h2>
 
       <ul class="mzp-l-columns mzp-t-columns-three">
         {% call picto(
           base_el='li',
-          title=ftl('firefox-enterprise-your-data-stays-your-business'),
+          title=ftl('firefox-enterprise-your-browser-your-business'),
           image=resp_img(
             url='img/firefox/enterprise/icon-data-privacy.svg',
             optional_attributes={
@@ -88,7 +88,7 @@
           ),
           body=True,
         ) %}
-            <p>{{ ftl('firefox-enterprise-the-firefox-browser-is-open') }}</p>
+            <p>{{ ftl('firefox-enterprise-open-source-transparency') }}</p>
         {% endcall %}
 
         {% call picto(
@@ -104,12 +104,12 @@
           ),
           body=True,
         ) %}
-          <p>{{ ftl('firefox-enterprise-with-install-packages-and') }}</p>
+          <p>{{ ftl('firefox-enterprise-install-packages-policies-v2') }}</p>
         {% endcall %}
 
         {% call picto(
           base_el='li',
-          title=ftl('firefox-enterprise-choose-your-release-cadence'),
+          title=ftl('firefox-enterprise-release-cycles'),
           image=resp_img(
             url='img/firefox/enterprise/icon-release.svg',
             optional_attributes={
@@ -120,7 +120,7 @@
           ),
           body=True,
         ) %}
-          <p>{{ ftl('firefox-enterprise-get-rapid-releases-to-make') }}</p>
+          <p>{{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}</p>
         {% endcall %}
       </ul>
     </section>
@@ -177,7 +177,7 @@
           </div>
 
           <div class="enterprise-download-support">
-            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-support') }}</h4>
+            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h4>
             <ul class="mzp-u-list-styled">
               <li><a href="https://support.mozilla.org/kb/deploy-firefox-msi-installers/{{ params }}">{{ ftl('firefox-enterprise-msi-installers') }}</a></li>
               <li><a href="https://support.mozilla.org/kb/legacy-browser-support-extension-windows/{{ params }}">{{ ftl('firefox-enterprise-legacy-browser-support') }}</a></li>
@@ -210,7 +210,7 @@
           </div>
 
           <div class="enterprise-download-support">
-            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-support') }}</h4>
+            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h4>
             <ul class="mzp-u-list-styled">
               <li>{{ ftl('firefox-enterprise-sample-plist-for-configuration', url='https://github.com/mozilla/policy-templates/blob/master/mac/org.mozilla.firefox.plist') }}</li>
               <li><a href="https://support.mozilla.org/kb/deploying-firefox-macos-using-pkg-and-jamf/{{ params }}">{{ ftl('firefox-enterprise-pkg-installer') }}</a></li>
@@ -252,7 +252,7 @@
           </div>
 
           <div class="enterprise-download-support">
-            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-support') }}</h4>
+            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h4>
             <ul class="mzp-u-list-styled">
               <li><a href="https://support.mozilla.org/kb/deploy-firefox-msi-installers/{{ params }}">{{ ftl('firefox-enterprise-msi-installers') }}</a></li>
               <li><a href="https://support.mozilla.org/kb/legacy-browser-support-extension-windows/{{ params }}">{{ ftl('firefox-enterprise-legacy-browser-support') }}</a></li>
@@ -267,7 +267,7 @@
       </div>
 
       <p class="enterprise-languages">
-        {{ ftl('firefox-enterprise-download-firefox-esr-or-rapid', firefox_all=firefox_url('desktop', 'all', 'esr')) }}
+        {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all=firefox_url('desktop', 'all', 'esr')) }}
       </p>
     </section>
 
