@@ -116,7 +116,7 @@ test.describe(
             await downloadButton.click();
 
             const download = await downloadPromise;
-            expect(download.url()).toContain('linux64');
+            expect(download.url()).toContain('linux-x86_64');
 
             // Cancel download
             await download.cancel();
