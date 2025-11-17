@@ -51,12 +51,10 @@
 
     {% if value.buttons %}
       <content:actions>
-        <div class="fl-buttons is-horizontal">
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
-        </div>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
       </content:actions>
     {% endif %}
   </include:banner>

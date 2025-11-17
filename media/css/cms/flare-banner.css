@@ -177,7 +177,7 @@
     gap: calc(var(--scale-16) * 1px);
 }
 
-.fl-banner-actions .fl-buttons {
+.fl-banner .fl-buttons {
     margin-top: calc(var(--scale-24) * 1px);
     display: flex;
     flex-direction: column;
@@ -259,7 +259,7 @@
         background-size: initial;
     }
 
-    .fl-banner-actions .fl-buttons {
+    .fl-banner .fl-buttons {
         flex-direction: row;
     }
 
@@ -267,8 +267,8 @@
         padding-bottom: calc(var(--scale-128) * 1px);
     }
 
-    .fl-banner-hasbrand-large .fl-banner-actions .fl-buttons,
-    .fl-banner-hasbrand-tail .fl-banner-actions .fl-buttons {
+    .fl-banner-hasbrand-large .fl-buttons,
+    .fl-banner-hasbrand-tail .fl-buttons {
         justify-content: left;
     }
 
@@ -333,9 +333,10 @@
     .fl-banner-content.fl-banner-content-left {
         text-align: left;
         align-items: flex-start;
+        margin: unset;
     }
 
-    .fl-banner-content.fl-banner-content-left .fl-banner-actions .fl-buttons {
+    .fl-banner-content.fl-banner-content-left .fl-buttons {
         justify-content: left;
     }
 
@@ -349,7 +350,7 @@
         margin: unset;
     }
 
-    .fl-banner-hasbrand.fl-banner-hasbrand-face .fl-banner-actions .fl-buttons {
+    .fl-banner-hasbrand.fl-banner-hasbrand-face .fl-buttons {
         justify-content: left;
     }
 

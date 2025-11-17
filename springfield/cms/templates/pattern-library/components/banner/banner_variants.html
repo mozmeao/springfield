@@ -40,7 +40,16 @@
 
       {% if variant.buttons %}
         <content:actions>
-          <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
+        {% for button in variant.buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            theme_class="{{ button.theme_class }}"
+            external="{{ button.external }}"
+            icon_name="{{ button.icon_name }}"
+            icon_position="{{ button.icon_position }}"
+          />
+        {% endfor %}
         </content:actions>
       {% endif %}
     </include:banner>
