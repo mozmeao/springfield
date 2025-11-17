@@ -68,6 +68,7 @@ non-determinative so you need to check and adjust the results as needed.
     --gradient-earth-glow: linear-gradient(90deg, var(--blue-blue) 0%, var(--purple-purple) 100%);
     --gradient-fox-fire: linear-gradient(90deg, var(var(--yellow-yellow)) 0%, var(--orange-orange) 100%);
     --gradient-radial-purple: radial-gradient(84% 138% at 50% -18.24%, var(--purple-gradient-light) 0%, var(--purple-gradient-dark) 100%);
+    --noise-bg-texture: url('/media/img/firefox/flare/noise-filter.svg');
 
 
     /* Scale variables from Figma */

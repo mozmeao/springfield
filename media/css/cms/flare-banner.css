@@ -29,7 +29,8 @@
     margin-bottom: 0;
 }
 
-.fl-banner .fl-heading, .fl-banner .fl-subheading {
+.fl-banner .fl-heading,
+.fl-banner .fl-subheading {
     margin: 0;
 }
 
@@ -42,73 +43,6 @@
     border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
     background: transparent;
     color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-}
-
-.fl-banner-filled {
-    background: var(--gradient-radial-purple);
-    color: var(--neutrals-white);
-    border: none;
-    position: relative;
-}
-
-.fl-banner-filled::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('/media/img/firefox/flare/noise-filter.svg');
-    background-size: 600px 600px;
-    background-repeat: repeat;
-    opacity: 0.3;
-    mix-blend-mode: normal;
-    pointer-events: none;
-    border-radius: inherit;
-}
-
-.fl-banner-filled .fl-body-text {
-    color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-heading {
-    color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-subheading {
-    color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-superheading {
-    color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-button:not([class*="button-"]) {
-    color: var(--neutrals-white);
-    border-color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-button:not([class*="button-"]):hover,
-.fl-banner-filled .fl-button:not([class*="button-"]):focus,
-.fl-banner-filled .fl-button:not([class*="button-"]):active {
-    color: var(--purple-dark-purple);
-    background-color: var(--neutrals-ash);
-    border-color: var(--neutrals-charcoal);
-}
-
-.fl-banner-filled .fl-button.button-ghost {
-    color: var(--neutrals-white);
-}
-
-.fl-banner-filled .fl-button.button-ghost:hover,
-.fl-banner-filled .fl-button.button-ghost:focus,
-.fl-banner-filled .fl-button.button-ghost:active {
-    background: var(--neutrals-white);
-    color: var(--purple-dark-purple);
-}
-
-.fl-banner-filled .fl-button.button-secondary:hover,
-.fl-banner-filled .fl-button.button-secondary:focus,
-.fl-banner-filled .fl-button.button-secondary:active {
-    background: var(--blue-medium-blue);
-    color: var(--neutrals-white);
 }
 
 .fl-banner-media {
@@ -195,39 +129,6 @@
     width: 100%;
 }
 
-.fl-banner.fl-banner-hasbrand {
-    padding-bottom: calc(var(--scale-200) * 1px);
-}
-
-.fl-banner.fl-banner-hasbrand::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: min(90%, 400px);
-    height: min(30%, 200px);
-    background-repeat: no-repeat;
-    background-position: bottom right;
-    background-size: contain;
-}
-
-.fl-banner-hasbrand.fl-banner-hasbrand-small::after,
-.fl-banner-hasbrand.fl-banner-hasbrand-large::after {
-    background-image: url('/media/img/firefox/flare/fox-brand.svg');
-}
-
-.fl-banner-hasbrand.fl-banner-hasbrand-face::after {
-    background-image: url('/media/img/firefox/flare/forward-facing-kit.svg');
-    width: 100%;
-    background-position: 50%;
-}
-
-.fl-banner-hasbrand.fl-banner-hasbrand-tail::after {
-    background-image: url('/media/img/firefox/flare/kit-tail.png');
-    right: -15%;
-    bottom: 0.5rem;
-}
-
 
 @media (min-width: 768px) {
     .fl-banner {
@@ -241,12 +142,6 @@
         padding: calc(var(--scale-40) * 1px);
     }
 
-    .fl-banner-hasbrand-large .fl-banner-content,
-    .fl-banner-hasbrand-tail .fl-banner-content {
-        text-align: left;
-        align-items: initial;
-    }
-
     .fl-banner-media img {
         border-radius: calc(var(--scale-16) * 1px);
     }
@@ -257,52 +152,11 @@
 
     .fl-banner-qr {
         background-size: initial;
+        width: 25%;
     }
 
     .fl-banner .fl-buttons {
         flex-direction: row;
-    }
-
-    .fl-banner.fl-banner-hasbrand-small {
-        padding-bottom: calc(var(--scale-128) * 1px);
-    }
-
-    .fl-banner-hasbrand-large .fl-buttons,
-    .fl-banner-hasbrand-tail .fl-buttons {
-        justify-content: left;
-    }
-
-    .fl-banner-filled .fl-banner-content {
-        margin: 0 auto;
-    }
-
-    .fl-banner-filled .fl-banner-content .fl-banner-content-inner {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-small::after {
-        height: 40%;
-        width: 50%;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-large::after {
-        height: 50%;
-        width: 65%;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-face::after {
-        height: 180px;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-tail::after {
-        height: 40%;
-        right: -10%;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-large .fl-banner-content,
-    .fl-banner-hasbrand.fl-banner-hasbrand-tail .fl-banner-content {
-        margin: unset;
     }
 }
 
@@ -338,44 +192,5 @@
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
         justify-content: left;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-tail::after {
-        width: 100%;
-        height: min(50%, 250px);
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-face .fl-banner-content {
-        text-align: left;
-        margin: unset;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-face .fl-buttons {
-        justify-content: left;
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-face::after {
-        height: min(65%, 250px);
-        background-position: 90%;
-    }
-
-}
-
-@media (min-width: 1280px) {
-    .fl-banner-hasbrand.fl-banner-hasbrand {
-        padding-bottom: calc(var(--scale-80) * 1px);
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-small::after {
-        height: min(45%, 200px);
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-large::after {
-        height: min(60%, 230px);
-    }
-
-    .fl-banner-hasbrand.fl-banner-hasbrand-tail::after {
-        height: 70%;
-        right: -6%;
     }
 }

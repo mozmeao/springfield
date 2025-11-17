@@ -53,6 +53,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-mediacontent.css' layer(components);
 @import 'flare-newsletterform.css' layer(components);
 @import 'flare-banner.css' layer(components);
+@import 'flare-kit-banner.css' layer(components);
 @import 'flare-cards.css' layer(components);
 @import 'flare-section.css' layer(components);
 

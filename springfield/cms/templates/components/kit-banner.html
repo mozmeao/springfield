@@ -12,23 +12,20 @@
   {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
   <div
     class="
-      fl-banner fl-banner-filled
-      {% if theme %}fl-banner-hasbrand fl-banner-hasbrand-{{ theme }}{% endif %}"
+      fl-banner fl-banner-kit
+      {% if theme %}fl-banner-kit-{{ theme }}{% endif %}"
     aria-labelledby="fl-banner-heading">
+    <div class="fl-banner-content">
+      <div class="fl-banner-content-inner">
+        {% if contents.heading %}
+          {{ contents.heading }}
+        {% endif %}
 
-    <div class="fl-banner-layout">
-      <div class="fl-banner-content">
-        <div class="fl-banner-content-inner">
-          {% if contents.heading %}
-            {{ contents.heading }}
-          {% endif %}
-
-          {% if contents.actions %}
-            <div class="fl-buttons">
-              {{ contents.actions }}
-            </div>
-          {% endif %}
-        </div>
+        {% if contents.actions %}
+          <div class="fl-buttons">
+            {{ contents.actions }}
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
