@@ -75,9 +75,9 @@
               <p>{{ main_body }}</p>
           </div>
         </div>
-        <div class="kit-banner-brand" aria-hidden="true">
+        <div class="kit-banner-brand">
           <div class="kit-banner-media">
-            <button class="button c-animation-button" data-js-video-state="paused">
+            <button type="button" class="button c-animation-button" data-js-video-state="paused">
               <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <title>{{ ftl('ui-play-animation')}}</title>
                 <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
@@ -88,7 +88,7 @@
                 <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
               </svg>
             </button>
-            <video playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
+            <video aria-labelledby="kit-banner-heading" playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
               <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
               <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
             </video>
