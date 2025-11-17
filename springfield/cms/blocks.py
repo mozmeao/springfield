@@ -10,6 +10,8 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
 
+from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
+
 HEADING_TEXT_FEATURES = [
     "bold",
     "italic",
@@ -801,8 +803,8 @@ class SubscriptionBlock(blocks.StructBlock):
 
 
 class BannerSettings(blocks.StructBlock):
-    theme = blocks.ChoiceBlock(
-        (
+    theme = ThumbnailChoiceBlock(
+        choices=(
             ("outlined", "Outlined"),
             ("filled", "Filled, no Kit Image"),
             ("filled-small", "Filled with Small Curious Kit"),
@@ -810,6 +812,14 @@ class BannerSettings(blocks.StructBlock):
             ("filled-face", "Filled with Sitting Kit"),
             ("filled-tail", "Filled with Kit Tail"),
         ),
+        thumbnails={
+            "outlined": "/media/img/cms/banner-thumbnails/outlined.svg",
+            "filled": "/media/img/cms/banner-thumbnails/filled-no-kit.png",
+            "filled-small": "/media/img/firefox/flare/fox-brand.svg",
+            "filled-large": "/media/img/firefox/flare/fox-brand.svg",
+            "filled-face": "/media/img/firefox/flare/forward-facing-kit.svg",
+            "filled-tail": "/media/img/firefox/flare/kit-tail.png",
+        },
         default="outlined",
         inline_form=True,
     )
