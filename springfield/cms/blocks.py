@@ -358,19 +358,42 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class LightDarkImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    dark_image = ImageChooserBlock(
+        required=False,
+        label="Dark Mode Image",
+        help_text="Optional dark mode image",
+    )
+
+    class Meta:
+        label = "Image"
+        label_format = "Image - {image}"
+        template = "cms/blocks/light-dark-image.html"
+
+
 class VideoBlock(blocks.StructBlock):
     video_url = blocks.URLBlock(
         label="Video URL",
         help_text="Link to a video from YouTube or assets.mozilla.net.",
         validators=[validate_video_url],
     )
-    alt = blocks.CharBlock(label="Alt Text")
+    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
 
     class Meta:
         label = "Video"
         label_format = "Video - {video_url}"
         template = "cms/blocks/video.html"
+
+
+class QRCodeBlock(blocks.StructBlock):
+    data = blocks.URLBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    background = ImageChooserBlock(required=False, help_text="Background image for the QR code")
+
+    class Meta:
+        label = "QR Code"
+        label_format = "QR Code - {data}"
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -852,19 +875,15 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
 
     class _BannerBlock(blocks.StructBlock):
         settings = BannerSettings()
-        image = ImageChooserBlock(
+        media = blocks.StreamBlock(
+            [
+                ("image", LightDarkImageBlock()),
+                ("video", VideoBlock()),
+                ("qr_code", QRCodeBlock()),
+            ],
+            label="Media",
             required=False,
-            help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
-        )
-        qr_code = blocks.CharBlock(
-            required=False,
-            help_text="Content to encode in the QR code, e.g., a URL or text. To add a background image, upload an image above.",
-        )
-        video = blocks.ListBlock(
-            VideoBlock(),
-            min_num=0,
             max_num=1,
-            default=[],
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
