@@ -320,6 +320,24 @@ body {
     display: none;
 }
 
+@keyframes pulse {
+    93.75%,
+    100% {opacity:.2}
+}
+
+.c-submit-loading circle {
+    animation: pulse .8s linear infinite;
+    animation-delay:-.8s
+}
+
+.c-submit-loading circle:nth-child(2) {
+    animation-delay:-.65s
+}
+
+.c-submit-loading circle:nth-child(3) {
+    animation-delay:-.5s
+}
+
 // show loading indicator while request is sending
 input[type="email"]:disabled + .c-submit {
     .c-submit-text {
