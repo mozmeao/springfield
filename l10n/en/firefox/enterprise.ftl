@@ -12,7 +12,7 @@ firefox-is-the-open-source-browser-with-enterprise-security = { -brand-name-fire
 firefox-enterprise-brand-name = { -brand-name-enterprise }
 firefox-enterprise-use-as-your-enterprise-browser = Use { -brand-name-firefox } as your enterprise browser
 
-firefox-enterprise-secure-at-scale = { -brand-name-firefox } delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in both { -brand-name-firefox } or { firefox-enterprise-firefox-extended-support-release }, organizations get flexibility, control, and transparency in a trusted, open-source browser.
+firefox-enterprise-secure-at-scale = { -brand-name-firefox } delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in both { -brand-name-firefox } or { -brand-name-firefox-extended-support-release } ({ -brand-name-esr }), organizations get flexibility, control, and transparency in a trusted, open-source browser.
 firefox-enterprise-protection-powered-by = Enterprise-grade protection, powered by { -brand-name-firefox }
 
 firefox-enterprise-open-source-transparency = { -brand-name-firefox } combines open-source transparency with advanced security features and frequent updates to help safeguard your organization’s data.
