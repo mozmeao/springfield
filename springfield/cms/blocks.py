@@ -389,7 +389,7 @@ class VideoBlock(blocks.StructBlock):
 
 class QRCodeBlock(blocks.StructBlock):
     data = blocks.URLBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
-    background = ImageChooserBlock(required=False, help_text="Background image for the QR code")
+    background = ImageChooserBlock(required=False, help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. This image will be cropped to a square on mobile.")
 
     class Meta:
         label = "QR Code"
