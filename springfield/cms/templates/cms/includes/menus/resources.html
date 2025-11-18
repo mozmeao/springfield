@@ -1,17 +1,17 @@
 {# This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at https://mozilla.org/MPL/2.0/. #} {% set params =
-'?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources'
-%}
+one at https://mozilla.org/MPL/2.0/. #}
+{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
 
 <li class="fl-menu-category">
-  <span
+  <a
+    href="#"
     class="fl-menu-title"
     aria-haspopup="true"
     aria-controls="fl-menu-panel-resources"
   >
     <h2>{{ ftl('navigation-resources') }}</h2>
-  </span>
+  </a>
   <div class="fl-menu-panel" id="fl-menu-panel-resources">
     <div class="fl-menu-panel-content">
       <div class="fl-menu-panel-content-column">
