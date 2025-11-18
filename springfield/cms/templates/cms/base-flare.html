@@ -40,11 +40,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
 
     {% block flare_header %}
-    <header class="fl-header">
-      <div class="fl-header-inner">
-        <h2 class="fl-logo-fx">{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h2>
-      </div>
-    </header>
+      {% include 'cms/includes/navigation.html' %}
     {% endblock %}
 
     <div id="outer-wrapper">
@@ -68,6 +64,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('firefox-cms-new') }}
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('fxa') }}
+    {{ js_bundle('flare-navigation') }}
     {% endblock %}
   </body>
 
