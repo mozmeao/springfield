@@ -97,4 +97,5 @@ non-deterministic so you need to check and adjust the results as needed.
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;
     --token-transition-base: 0.2s ease;
+    --token-transition-bezier: cubic-bezier(0.5, 0, 0, 1);
 }

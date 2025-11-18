@@ -48,6 +48,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-tag.css' layer(components);
 @import 'flare-typography.css' layer(components);
 @import 'flare-intro.css' layer(components);
+@import 'flare-navigation.css' layer(components);
 @import 'flare-notification.css' layer(components);
 @import 'flare-mediacontent.css' layer(components);
 @import 'flare-newsletterform.css' layer(components);
