@@ -1,0 +1,3 @@
+name: "Wagtail Block"
+context:
+        file: "docs/org/org_cms_md.md"
