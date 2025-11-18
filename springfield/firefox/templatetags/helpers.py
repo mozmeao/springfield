@@ -11,11 +11,7 @@ from markupsafe import Markup
 
 from lib.l10n_utils import get_locale
 from springfield.base.urlresolvers import reverse
-from springfield.firefox.firefox_details import (
-    firefox_android,
-    firefox_desktop,
-    firefox_ios,
-)
+from springfield.firefox.firefox_details import firefox_android, firefox_desktop, firefox_ios
 
 
 def desktop_builds(
@@ -183,7 +179,9 @@ def download_firefox(
 
 @library.global_function
 @jinja2.pass_context
-def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button_class=None, locale_in_transition=False, download_location=None):
+def download_firefox_thanks(
+    ctx, dom_id=None, locale=None, alt_copy=None, button_class=None, locale_in_transition=False, download_location=None, flare_styles=False
+):
     """Output a simple "download firefox" button that only points to /thanks/
 
     :param ctx: context from calling template.
@@ -222,6 +220,7 @@ def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button
         "button_class": button_class,
         "download_location": download_location,
         "fluent_l10n": ctx["fluent_l10n"],
+        "flare_styles": flare_styles,
     }
 
     html = render_to_string("firefox/includes/download-button-thanks.html", data, request=ctx["request"])
