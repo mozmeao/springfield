@@ -78,12 +78,12 @@ a[role="button"].fxa-link {
     padding: unset;
     border: unset;
     margin: unset;
-    color: light-dark(var(--blue-button), var(--blue-blue));
+    color: var(--theme-color-link);
     text-decoration: underline;
 }
 
 a[role="button"].fxa-link:visited {
-    color: light-dark(var(--purple-purple), var(--purple-light-purple));
+    color: var(--theme-color-link-visited);
 }
 
 a[role="button"].fxa-link:hover,

@@ -60,7 +60,7 @@ Pure CSS only (no preprocessors). Import into [`flare.css`](/springfield/media/c
   display: flex;
   flex-direction: column;
   gap: calc(var(--token-scale-16) * 1px);
-  background: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+  background: var(--fl-theme-surface-page);
 }
 
 @media (min-width: 768px) {
@@ -160,7 +160,7 @@ Provides a minimal, accessible, and branded experience with basic typography and
 
 ### `flare` Bundle (Modern CSS)
 
-Uses CSS `@layer` for explicit cascade control with modern CSS features (custom properties, `light-dark()`, etc.)
+Uses CSS `@layer` for explicit cascade control with modern CSS features (custom properties, etc.)
 
 #### CSS Layers
 
