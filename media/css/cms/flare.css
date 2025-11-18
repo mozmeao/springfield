@@ -22,10 +22,9 @@ Safari 15.6 doesn't support several modern CSS features, notably:
 - Nested CSS rules
 - Color functions like light-dark()
 
-For color functions, we can use the following fallback pattern:
-
-background: white;
-background: light-dark(white, black);
+To add Safari-specific fallbacks, define semantic CSS custom properties
+in flare-theme.css and override them with media queries in
+flare-theme.css that target feature support.
 
 Nested CSS lacks basic support until Safari 16.5+ and lacks full support
 until 17.2, so we can't rely on it.
@@ -39,6 +38,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 /* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
 
 @import 'flare-base.css' layer(base);
+@import 'flare-tokens.css' layer(theme);
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
 @import 'flare-template.css' layer(template);
