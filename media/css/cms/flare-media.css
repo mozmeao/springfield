@@ -1,0 +1,76 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+
+/* Video component with click-to-play */
+.fl-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.fl-video-play {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fl-video-play:hover .fl-video-play-icon {
+    transform: scale(1.1);
+}
+
+.fl-video-play:focus {
+    outline: 2px solid var(--blue-blue);
+    outline-offset: 2px;
+}
+
+.fl-video-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fl-video-play-icon {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.fl-video iframe,
+.fl-video video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.fl-video-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--scale-24) * 1px);
+    text-align: center;
+    min-height: 200px;
+}
+
+.fl-video-error p {
+    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    margin: 0;
+}

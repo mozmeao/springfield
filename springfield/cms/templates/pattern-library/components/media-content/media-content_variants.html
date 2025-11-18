@@ -46,7 +46,15 @@
             <include:buttons buttons="{{ item.buttons }}" />
           </content:buttons>
         {% endif %}
-        {% if item.media %}
+        {% if item.video %}
+          <content:media>
+            <include:video
+              video_url="{{ item.video.url }}"
+              {% if item.video.poster %}poster="{{ item.video.poster }}"{% endif %}
+              {% if item.video.alt %}alt="{{ item.video.alt }}"{% endif %}
+            />
+          </content:media>
+        {% elif item.media %}
           <content:media>
             <include:image url="{{ item.media.url }}" alt="{{ item.media.alt }}" />
           </content:media>

@@ -10,6 +10,7 @@
     background-color: var(--fl-theme-surface-page);
     padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-40) * 1px);
     max-width: 1440px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -69,7 +70,10 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
+}
 
+.fl-intro-media .fl-video {
+    border-radius: calc(var(--scale-16) * 1px);
 }
 
 .intro-media img {
