@@ -175,10 +175,38 @@ centralize breakpoints once and flip CSS variables inside.
 components consume the variables (no per-component media queries) */
 
 /* Media query for 768px and larger */
-@media (min-width: 768px) {
+@media (--viewport-tablet-portrait-up) {
     :root {
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;
         --fl-theme-default-text-align: left;
+    }
+}
+
+html {
+    border: 5px solid purple;
+}
+
+@media (--viewport-tablet-portrait-up) {
+    html {
+        border: 5px solid red;
+    }
+}
+
+@media (--viewport-tablet-landscape-up) {
+    html {
+        border: 5px solid blue;
+    }
+}
+
+@media (--viewport-desktop-up) {
+    html {
+        border: 5px solid green;
+    }
+}
+
+@media (--viewport-big-desktop-up) {
+    html {
+        border: 5px solid yellow;
     }
 }

@@ -288,7 +288,7 @@
         bottom: 0.5rem;
 }
 
-@media (max-width: 767px) {
+@media (--viewport-phone-only) {
     .fl-banner-container {
         padding: calc(var(--token-scale-24) * 1px);
     }
@@ -346,7 +346,7 @@
     }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (--viewport-tablet-only) {
     .fl-banner-brandsize-small .fl-banner-content-centered {
         padding-bottom: calc(var(--token-scale-96) * 1px);
     }
@@ -356,7 +356,7 @@
     }
 }
 
-@media (min-width: 1024px) {
+@media (--viewport-tablet-landscape-up) {
     .fl-banner-container {
         gap: calc(var(--token-scale-64) * 1px);
     }

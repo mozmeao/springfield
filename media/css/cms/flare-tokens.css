@@ -98,3 +98,48 @@ non-deterministic so you need to check and adjust the results as needed.
     --token-transition-fast: 0.15s ease;
     --token-transition-base: 0.2s ease;
 }
+
+/* These @custom-media breakpoints set the following boundaries:
+
++--------------------------------+
+| Phones                         |
+|                                |
+| === 600px boundary ============|
+|                                |
+| Tablets in portrait            |
+|                                |
+| === 900px boundary ============|
+|                                |
+| Tablets in landscape           |
+|                                |
+| === 1200px boundary ===========|
+|                                |
+| Laptops and desktops           |
+|                                |
+| === 1800px boundary ===========|
+|                                |
+| Big monitors                   |
++--------------------------------+
+
+Prefer --viewport-*-up queries for mobile-first design.
+
+Start with base styles (no media query), then add styles for larger
+viewports using --viewport-*-up media queries.
+
+Use --viewport-*-only queries sparingly when you need to target a
+specific device size range.
+
+There are no --viewport-*-down queries to encourage mobile-first design.
+*/
+
+/* stylelint-disable at-rule-no-unknown */
+@custom-media --viewport-tablet-portrait-up (min-width: 600px);
+@custom-media --viewport-tablet-landscape-up (min-width: 900px);
+@custom-media --viewport-desktop-up (min-width: 1200px);
+@custom-media --viewport-big-desktop-up (min-width: 1800px);
+
+@custom-media --viewport-phone-only (max-width: 599px);
+@custom-media --viewport-tablet-portrait-only (min-width: 600px) and (max-width: 899px);
+@custom-media --viewport-tablet-landscape-only (min-width: 900px) and (max-width: 1199px);
+@custom-media --viewport-tablet-only (min-width: 600px) and (max-width: 1199px);
+@custom-media --viewport-desktop-only (min-width: 1200px) and (max-width: 1799px);
