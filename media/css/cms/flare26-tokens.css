@@ -28,6 +28,23 @@ Static values extracted from Figma that do not change based on context.
     --token-color-light-world-cream: #fcf5f0; /* aka cream */
     --token-color-icon: #5b5b66;
 
+    /* Brand colors from firefox_color.zip (not from Figma) */
+    --token-color-dark-purple-12: rgb(25, 15, 46);
+    --token-color-purple-10: rgb(59, 9, 118);
+    --token-color-light-purple-7: rgb(157, 74, 255);
+    --token-color-soft-purple-1: rgb(241, 231, 248);
+    --token-color-soft-magenta-alt: rgb(252, 223, 245); /* Not the same as --token-color-soft-magenta */
+    --token-color-cream: rgb(251, 245, 241);
+    --token-color-purple-11: rgb(46, 9, 87);
+    --token-color-purple-9: rgb(107, 0, 213);
+    --token-color-purple-8: rgb(97, 50, 188); /* Same as --token-color-link-purple */
+    --token-color-light-purple-6: rgb(145, 104, 233);
+    --token-color-light-purple-5: rgb(173, 141, 240);
+    --token-color-light-purple-4: rgb(200, 178, 246);
+    --token-color-soft-purple-2: rgb(235, 223, 250);
+    --token-color-grey-1: rgb(249, 249, 251); /* Same as --token-color-off-white */
+    --token-color-grey-2: rgb(232, 232, 232);
+
     /* Gradients from Figma */
     --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
     --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
