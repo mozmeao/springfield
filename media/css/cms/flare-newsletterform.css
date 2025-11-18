@@ -132,9 +132,15 @@
     border-color: var(--token-neutrals-charcoal);
 }
 
-.fl-section-subscribe .fl-button:hover {
+.fl-section-subscribe .fl-button:hover,
+.fl-section-subscribe .fl-button:focus {
     background: var(--token-neutrals-black);
     color: var(--token-neutrals-white);
+}
+
+.fl-section-subscribe .fl-button:active {
+    background: var(--fl-theme-button-primary-active-bg);
+    color: var(--fl-theme-button-primary-active-text);
 }
 
 .fl-section-subscribe .fl-newsletterform-error-list {
