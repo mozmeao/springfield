@@ -85,6 +85,17 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     # in the format `<app_label>/<model_name_in_snake_case>.html`
     template = "cms/simple_rich_text_page.html"
 
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
+
 
 class ArticleIndexPage(AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage"]
@@ -100,6 +111,8 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
+        context["utm_parameters"] = self.get_utm_parameters()
+
         all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
 
         featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
@@ -108,6 +121,12 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
         return context
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
 
 
 class ArticleDetailPage(AbstractSpringfieldCMSPage):
@@ -157,6 +176,17 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         FieldPanel("content"),
         FieldPanel("call_to_action"),
     ]
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
 
 
 def _get_freeform_page_blocks(allow_uitour=False):
