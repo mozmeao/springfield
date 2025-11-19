@@ -49,7 +49,7 @@ redirectpatterns = (
     redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
-    # https://github.com/mozilla/bedrock/issues/14172
+    # issue 765, https://github.com/mozilla/bedrock/issues/14172
     redirect(r"^(qr|browsers/mobile/app)/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
     # issue 222
     redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", permanent=True),
