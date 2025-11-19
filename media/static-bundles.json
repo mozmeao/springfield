@@ -407,6 +407,12 @@
     },
     {
       "files": [
+        "css/firefox/welcome/fundraiser.scss"
+      ],
+      "name": "welcome_fundraiser"
+    },
+    {
+      "files": [
         "css/firefox/whatsnew/nightly/evergreen.scss"
       ],
       "name": "whatsnew_nightly"
