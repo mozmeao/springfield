@@ -6,8 +6,8 @@
 
 .fl-banner {
     position: relative;
-    border-radius: calc(var(--scale-16) * 1px);
-    padding: calc(var(--scale-24) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
+    padding: calc(var(--token-scale-24) * 1px);
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -19,10 +19,10 @@
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: calc(var(--scale-24) * 1px);
+    padding: calc(var(--token-scale-24) * 1px);
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-40) * 1px);
+    gap: calc(var(--token-scale-40) * 1px);
 }
 
 .fl-banner-container .fl-heading-group {
@@ -35,18 +35,17 @@
 }
 
 .fl-banner .fl-subheading {
-    font-size: var(--font-size-subheading-5);
     text-wrap: balance;
+    font-size: var(--fl-theme-font-size-subheading-5);
 }
 
 .fl-banner-outlined {
-    border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    background: transparent;
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border: 1px solid var(--fl-theme-border-color-strong);
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-banner-media {
-    border-radius: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
     height: auto;
     display: flex;
     align-items: center;
@@ -70,8 +69,16 @@
     width: 100%;
     height: auto;
     object-fit: cover;
-    border-radius: calc(var(--scale-8) * 1px);
+    border-radius: calc(var(--token-scale-8) * 1px);
     grid-area: 1 / 1;
+}
+
+.fl-banner-media-qr {
+    background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
+    background-size: contain;
+    align-items: flex-end;
+    padding: 0 calc(var(--token-scale-24) * 1px);
+    height: 338px;
 }
 
 .fl-banner-qr {
@@ -94,6 +101,14 @@
 
 .fl-banner-media.has-large-qr-code .fl-banner-qr svg {
     width: 200px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    box-shadow: none;
+    padding: 10px 18px 0;
 }
 
 .fl-banner-content {
@@ -108,11 +123,11 @@
 .fl-banner-content-inner {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-16) * 1px);
+    gap: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-banner .fl-buttons {
-    margin-top: calc(var(--scale-24) * 1px);
+    margin-top: calc(var(--token-scale-24) * 1px);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -122,7 +137,7 @@
 .fl-banner-layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: calc(var(--scale-24) * 1px);
+    gap: calc(var(--token-scale-24) * 1px);
     align-items: center;
     position: relative;
     z-index: 2;
@@ -132,18 +147,18 @@
 
 @media (min-width: 768px) {
     .fl-banner {
-        padding: calc(var(--scale-80) * 1px) calc(var(--scale-48) * 1px);
+        padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-48) * 1px);
         justify-content: initial;
         align-items: initial;
         text-align: initial;
     }
 
     .fl-banner-container {
-        padding: calc(var(--scale-40) * 1px);
+        padding: calc(var(--token-scale-40) * 1px);
     }
 
     .fl-banner-media img {
-        border-radius: calc(var(--scale-16) * 1px);
+        border-radius: calc(var(--token-scale-16) * 1px);
     }
 
     .fl-banner-media.has-qr-code img {
@@ -162,11 +177,11 @@
 
 @media (min-width: 1024px) {
     .fl-banner-container {
-        gap: calc(var(--scale-64) * 1px);
+        gap: calc(var(--token-scale-64) * 1px);
     }
 
     .fl-banner-layout:has(.fl-banner-media) {
-        gap: calc(var(--scale-48) * 1px);
+        gap: calc(var(--token-scale-48) * 1px);
         grid-template-columns: 1fr 1fr;
     }
 

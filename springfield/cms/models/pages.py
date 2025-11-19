@@ -84,6 +84,17 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     # in the format `<app_label>/<model_name_in_snake_case>.html`
     template = "cms/simple_rich_text_page.html"
 
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
+
 
 class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
     sub_title = models.CharField(
@@ -97,6 +108,17 @@ class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
 
     class Meta:
         abstract = True
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
 
 
 class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
@@ -127,6 +149,17 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
 
     class Meta:
         abstract = True
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.slug,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
 
 
 def _get_freeform_page_blocks(allow_uitour=False):

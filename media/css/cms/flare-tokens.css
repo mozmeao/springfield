@@ -1,0 +1,101 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+=====================================================================
+Tokens - Theme-agnostic CSS custom properties sourced from Figma
+and related design documentation.
+
+GENERATION PROCESS:
+This file was generated using the Figma MCP tool to export all variables
+from the Figma design file. The MCP tool provides comprehensive access to
+all design tokens that aren't easily visible in Figma's standard UI or
+other Figma plugins (unfortunately).
+
+To update this file in the future, use the MCP tool with a prompt that
+asks the agent to use mcp_Figma_get_variable_defs to get all variables
+from the selected Figma file and update this file. The process is
+non-deterministic so you need to check and adjust the results as needed.
+=====================================================================
+*/
+
+:root {
+    /* Color tokens from Figma */
+    --token-neutrals-white: #fff;
+    --token-neutrals-off-white: #fafafa;
+    --token-neutrals-ash: #f8f6f4;
+    --token-neutrals-gray-1: #f8f8f8;
+    --token-neutrals-grey-2: #f2f2f2;
+    --token-neutrals-grey-3: #dedede;
+    --token-neutrals-grey-4: #9d9d9d;
+    --token-neutrals-grey-5: #9d9d9d;
+    --token-neutrals-grey-6: #7c7c7c;
+    --token-neutrals-grey-7: #5b5b5b;
+    --token-neutrals-grey-8: #5B5B5B;
+    --token-neutrals-charcoal: #333336;
+    --token-neutrals-off-black: #161616;
+    --token-neutrals-black: #000;
+    --token-orange-orange: #ff8a50;
+    --token-orange-medium-orange: #ffb279;
+    --token-orange-light-orange: #ffcfa5;
+    --token-yellow-yellow: #ffea80;
+    --token-yellow-medium-yellow: #ffd567;
+    --token-yellow-dark-yellow: #FFBD4F;
+    --token-green-zilla-green: #00d230;
+    --token-blue-light-blue: #ccedfe;
+    --token-blue-blue: #00A6F9;
+    --token-blue-medium-blue: #0079d3;
+    --token-blue-dark-blue: #003c6e;
+    --token-blue-button: #0360df;
+    --token-purple-purple: #754fe0;
+    --token-purple-gradient-light: #7843F0;
+    --token-purple-gradient-dark: #2B0D4A;
+    --token-purple-medium-purple: #d98dfa;
+    --token-purple-dark-purple: #210340;
+    --token-purple-light-purple: #dcd2ff;
+    --token-pink-power-pink: #ff97e2;
+
+    /* Gradients from Figma */
+    --token-gradient-earth-glow: linear-gradient(90deg, var(--token-blue-blue) 0%, var(--token-purple-purple) 100%);
+    --token-gradient-fox-fire: linear-gradient(90deg, var(--token-yellow-yellow) 0%, var(--token-orange-orange) 100%);
+    --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-gradient-light) 0%, var(--token-purple-gradient-dark) 100%);
+    --token-noise-bg-texture: url('/media/img/firefox/flare/noise-filter.svg');
+
+    /* Scale variables from Figma */
+    --token-scale-2: 2;
+    --token-scale-4: 4;
+    --token-scale-8: 8;
+    --token-scale-12: 12;
+    --token-scale-16: 16;
+    --token-scale-24: 24;
+    --token-scale-32: 32;
+    --token-scale-40: 40;
+    --token-scale-48: 48;
+    --token-scale-64: 64;
+    --token-scale-80: 80;
+    --token-scale-96: 96;
+    --token-scale-128: 128;
+    --token-scale-200: 200;
+
+    /* Width and viewport variables from Figma */
+    --token-widths-viewport-wrapper-screen-2xl: 1440;
+
+    /* Typography from Figma */
+    --token-font-family-metropolis: 'Metropolis', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-inter: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-text: 'Mozilla Text VF BETA', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-weight-regular: 400;
+    --token-font-weight-medium: 500; /* Metropolis only */
+    --token-font-weight-semibold: 600;
+    --token-font-weight-bold: 700; /* Inter only */
+
+    /* Other variables from Figma */
+    --token-border-radius-md: 8px;
+
+    /* Transition variables NOT from Figma */
+    --token-transition-fast: 0.15s ease;
+    --token-transition-base: 0.2s ease;
+}
