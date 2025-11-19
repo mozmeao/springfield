@@ -1,5 +1,5 @@
 .fl-article-page .fl-main {
-    padding-top: calc(var(--scale-48) * 1px);
+    padding-top: calc(var(--token-scale-48) * 1px);
     position: relative;
 
 }
@@ -19,8 +19,8 @@
 
 
 .fl-article-body {
-    background-color: var(--neutrals-white);
-    padding: calc(var(--scale-48) * 1px);
+    background-color: var(--fl-theme-surface-elevated);
+    padding: calc(var(--token-scale-48) * 1px);
     max-width: 700px;
     min-height: 350px;
     margin: 0 auto;
@@ -36,7 +36,7 @@
 
 @media (min-width: 1024px) {
     .fl-article-page .fl-main {
-       padding-top: calc(var(--scale-96) * 1px);
+       padding-top: calc(var(--token-scale-96) * 1px);
     }
 
     .fl-article-page .fl-main::before {
