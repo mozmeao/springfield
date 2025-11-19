@@ -34,8 +34,8 @@ def validate_param_value(param: str | None) -> str | None:
 
 
 def mobile_app(request, *args, **kwargs):
-    product = request.GET.get("product")
-    campaign = request.GET.get("campaign")
+    product = request.GET.get("product") or request.GET.get("p")
+    campaign = request.GET.get("campaign") or request.GET.get("c")
 
     if product not in {"firefox", "focus", "klar"}:
         product = "firefox"
