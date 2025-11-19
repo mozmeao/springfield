@@ -2,11 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.template.loader import render_to_string
+
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import srcset_image
+from wagtail.models import Page
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
     get_icon_card_variants,
@@ -28,6 +33,7 @@ from springfield.cms.fixtures.media_content_fixtures import (
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.firefox.templatetags.misc import fxa_button
 
 pytestmark = [
     pytest.mark.django_db,
@@ -58,15 +64,39 @@ def assert_button_attributes(
     and passed down to the button.
     """
     label = button_data["value"]["label"]
-    link = button_data["value"]["link"]["custom_url"]
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
     icon_position = settings["icon_position"]
     analytics_id = settings["analytics_id"]
 
-    assert label in button_element.get_text()
+    external = False
+    if button_data["value"]["link"]["link_to"] == "custom_url":
+        link = button_data["value"]["link"]["custom_url"]
+        external = button_data["value"]["link"]["new_window"]
+    elif button_data["value"]["link"]["link_to"] == "page":
+        page_id = button_data["value"]["link"]["page"]
+        page = Page.objects.get(id=page_id).specific
+        link = page.get_url(context["request"])
+        external = button_data["value"]["link"]["new_window"]
+    elif button_data["value"]["link"]["link_to"] == "file":
+        document_id = button_data["value"]["link"]["file"]
+        document = Document.objects.get(id=document_id)
+        link = document.url
+    elif button_data["value"]["link"]["link_to"] == "email":
+        email = button_data["value"]["link"]["email"]
+        link = f"mailto:{email}"
+    elif button_data["value"]["link"]["link_to"] == "phone":
+        phone = button_data["value"]["link"]["phone"]
+        link = f"tel:{phone}"
+
     assert button_element["href"] == add_utm_parameters(context, link)
+
+    if external:
+        assert button_element["target"] == "_blank"
+        assert set(button_element["rel"]) == {"external", "noopener"}
+
+    assert label in button_element.get_text()
     if theme:
         assert f"button-{theme}" in button_element["class"]
     if icon:
@@ -692,3 +722,72 @@ def test_step_card_block(index_page, placeholder_images, rf):
                 image=dark_image,
                 is_dark=True,
             )
+
+
+def test_buttons(index_page, rf):
+    test_page = get_buttons_test_page()
+    button_variants = get_button_variants(full=True)
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    main = soup.find("main", class_="fl-main")
+    button_elements = main.find_all("a", class_="fl-button")
+    tested_buttons = [
+        button_variants["external_mozilla"],
+        button_variants["external_mozilla_new_tab"],
+        button_variants["external_other"],
+        button_variants["external_other_new_tab"],
+        button_variants["page"],
+        button_variants["page_new_tab"],
+        button_variants["fxa"],
+        button_variants["document"],
+        button_variants["email"],
+        button_variants["phone"],
+    ]
+
+    for index, button_element in enumerate(button_elements):
+        button_data = tested_buttons[index]
+        if button_data["type"] == "button":
+            assert_button_attributes(
+                button_element=button_element,
+                button_data=button_data,
+                context=context,
+            )
+        elif button_data["type"] == "fxa_button":
+            utm_parameters = context["utm_parameters"]
+            entrypoint = f"{utm_parameters['utm_source']}-{utm_parameters['utm_campaign']}"
+            icon = button_data["value"]["settings"]["icon"]
+            icon_position = button_data["value"]["settings"]["icon_position"]
+            inner_html = None
+            if icon:
+                icon_context = {
+                    "extra_class": f"fl-icon-{icon_position}",
+                    "icon_name": icon,
+                    "hidden": True,
+                }
+                icon_html = render_to_string("components/icon.html", icon_context)
+                inner_html = f"{icon_html}{button_data['value']['label']}"
+            rendered_fxa_button = fxa_button(
+                ctx=context,
+                entrypoint=entrypoint,
+                button_text=button_data["value"]["label"],
+                optional_parameters={
+                    "utm_campaign": utm_parameters["utm_campaign"],
+                },
+                optional_attributes={
+                    "data-cta-text": "Mozilla Account Button - Log in to Mozilla Account",
+                    "data-cta-position": "block-4-intro.button-1",
+                    "data-cta-uid": button_data["value"]["settings"]["analytics_id"],
+                },
+                class_name=f"fl-button button-{button_data['value']['settings']['theme']}",
+                inner_html=inner_html,
+            )
+            fxa_button_soup = BeautifulSoup(rendered_fxa_button, "html.parser").find("a")
+            assert button_element.prettify() == fxa_button_soup.prettify()

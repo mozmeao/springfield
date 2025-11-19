@@ -5,6 +5,7 @@
 from django.core.management.base import BaseCommand
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_icon_cards_test_page,
     get_illustration_cards_test_page,
@@ -54,5 +55,8 @@ class Command(BaseCommand):
 
         tag_cards_page = get_tag_cards_test_page()
         self.stdout.write(self.style.SUCCESS(f"Tag Cards test page loaded: {tag_cards_page.slug}"))
+
+        buttons_page = get_buttons_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Buttons test page loaded: {buttons_page.slug}"))
 
         self.stdout.write(self.style.SUCCESS("Successfully loaded page fixtures."))

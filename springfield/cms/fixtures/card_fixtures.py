@@ -391,7 +391,7 @@ def get_tag_cards_test_page() -> FreeFormPage:
     get_placeholder_images()
     index_page = get_test_index_page()
 
-    page = FreeFormPage.objects.filter(slug="test-cards-page").first()
+    page = FreeFormPage.objects.filter(slug="test-tag-cards-page").first()
     if not page:
         page = FreeFormPage(
             slug="test-tag-cards-page",

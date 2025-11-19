@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 
 from PIL import Image
+from wagtail.documents.models import Document
 from wagtail.models import Site
 
 from springfield.cms.models import SpringfieldImage, StructuralPage
@@ -54,3 +55,14 @@ def get_test_index_page():
         root_page.add_child(instance=index_page)
         index_page.save_revision().publish()
     return index_page
+
+
+def get_test_document():
+    document, _ = Document.objects.get_or_create(
+        id=settings.PLACEHOLDER_DOCUMENT_ID,
+        defaults={
+            "title": "Placeholder Document for Testing",
+            "file": ContentFile(b"Test document content", "placeholder_document.txt"),
+        },
+    )
+    return document
