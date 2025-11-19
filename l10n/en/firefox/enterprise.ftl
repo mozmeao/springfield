@@ -6,8 +6,8 @@
 
 # Page title
 firefox-enterprise-use-firefox-esr-enterprise-browser = Use { -brand-name-firefox } or { -brand-name-esr } as your enterprise browser for security at scale
-# Meta desc
-firefox-is-the-open-source-browser-with-enterprise-security = { -brand-name-firefox } is the open-source browser with enterprise-grade security, privacy, and flexibility. Use { -brand-name-firefox } for the latest features or { -brand-name-esr } for long-term stability.
+# Page description
+firefox-enterprise-open-source-browser-with-enterprise-security = { -brand-name-firefox } is the open-source browser with enterprise-grade security, privacy, and flexibility. Use { -brand-name-firefox } for the latest features or { -brand-name-esr } for long-term stability.
 
 firefox-enterprise-brand-name = { -brand-name-enterprise }
 firefox-enterprise-use-as-your-enterprise-browser = Use { -brand-name-firefox } as your enterprise browser
@@ -19,7 +19,7 @@ firefox-enterprise-open-source-transparency = { -brand-name-firefox } combines o
 
 firefox-enterprise-your-browser-your-business = Your browser, your business
 firefox-enterprise-deploy-when-and-how-you-want = Deploy when and how you want
-firefox-enterprise-install-packages-policies = With install packages and a wide expansion of group policies and features, deployment is faster and more flexible than ever — and a breeze in { -brand-name-windows } and { -brand-name-mac } environments.
+firefox-enterprise-install-packages-policies = With install packages and a wide expansion of group policies and features, deployment is faster and more flexible than ever — and a breeze for Windows, Linux, and macOS environments.
 firefox-enterprise-release-cycles = Release cycles that fit your organization
 firefox-enterprise-choose-firefox-for-features-esr-stability = Choose { -brand-name-firefox } for the latest features and stable releases every four weeks, or { -brand-name-firefox-esr } for long-term stability, regular security updates, and annual major releases.
 firefox-enterprise-enterprise-downloads = { -brand-name-enterprise } downloads
