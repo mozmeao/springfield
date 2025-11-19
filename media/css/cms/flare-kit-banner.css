@@ -7,7 +7,7 @@
 .fl-banner-kit {
     --kit-img: none; /* These are added with a utility class below. */
     --kit-banner-padding-bottom: 24px;
-    --kit-img-size: min(90%, 400px) min(30%, 200px);
+    --kit-img-size: min(90%, 400px) max(20%, 120px);
     --kit-banner-padding-right: 24px;
     --kit-img-position: bottom center;
     background-image: var(--kit-img), var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
