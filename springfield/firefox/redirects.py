@@ -50,7 +50,7 @@ redirectpatterns = (
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172
-    redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
+    redirect(r"^(qr|browsers/mobile/app)/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
     # issue 222
     redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", permanent=True),
     redirect(r"^desktop/?$", "firefox.browsers.desktop.index", permanent=False),
