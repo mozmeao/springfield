@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-def get_button_variants():
+def get_button_variants() -> dict[str, dict]:
     return {
         "primary": {
             "type": "button",
@@ -97,4 +97,27 @@ def get_button_variants():
             },
             "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
         },
+    }
+
+
+def get_cta_variants() -> dict[str, dict]:
+    return {
+        "basic": {
+            "type": "item",
+            "value": {
+                "settings": {"analytics_id": "6cbbc05e-d7ad-4929-befc-410e1e26e776"},
+                "label": "Call To Action",
+                "link": {
+                    "link_to": "custom_url",
+                    "page": None,
+                    "file": None,
+                    "custom_url": "https://mozilla.org",
+                    "anchor": "",
+                    "email": "",
+                    "phone": "",
+                    "new_window": False,
+                },
+            },
+            "id": "4fd0adda-42ba-4ade-b63c-0208226696a4",
+        }
     }

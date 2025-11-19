@@ -6,12 +6,12 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
-from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.button_fixtures import get_button_variants, get_cta_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.models import FreeFormPage
 
 
-def get_sticker_card_variants():
+def get_sticker_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -75,7 +75,7 @@ def get_sticker_card_variants():
     ]
 
 
-def get_icon_card_variants():
+def get_icon_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -125,7 +125,7 @@ def get_icon_card_variants():
     ]
 
 
-def get_tag_card_variants():
+def get_tag_card_variants() -> list[dict]:
     buttons = get_button_variants()
     tags = list(get_tag_variants().values())
     return [
@@ -178,7 +178,7 @@ def get_tag_card_variants():
     ]
 
 
-def get_illustration_card_variants():
+def get_illustration_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -232,7 +232,7 @@ def get_illustration_card_variants():
     ]
 
 
-def get_step_card_variants():
+def get_step_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -287,27 +287,8 @@ def get_step_card_variants():
     ]
 
 
-def get_cards_list_variants(cards, heading_1=None, heading_2=None):
-    cta = [
-        {
-            "type": "item",
-            "value": {
-                "settings": {"analytics_id": "501178d1-37b3-4d6c-a125-f7a8f6731dbf"},
-                "label": "Call To Action",
-                "link": {
-                    "link_to": "custom_url",
-                    "page": None,
-                    "file": None,
-                    "custom_url": "https://mozilla.org",
-                    "anchor": "",
-                    "email": "",
-                    "phone": "",
-                    "new_window": False,
-                },
-            },
-            "id": "3bdfcc90-12e0-4951-8211-13d7b4db8d1f",
-        }
-    ]
+def get_cards_list_variants(cards, heading_1=None, heading_2=None) -> list[dict]:
+    ctas = get_cta_variants()
     heading_1 = heading_1 or "Cards List with 3 columns layout"
     heading_2 = heading_2 or "Cards List with 4 columns layout"
     return [
@@ -327,7 +308,7 @@ def get_cards_list_variants(cards, heading_1=None, heading_2=None):
                         "id": "93ce98fc-2116-429b-afad-ca279675d766",
                     }
                 ],
-                "cta": cta,
+                "cta": [ctas["basic"]],
             },
             "id": "edde0a67-fec2-4967-8eb1-e64b693f2402",
         },
@@ -348,59 +329,125 @@ def get_cards_list_variants(cards, heading_1=None, heading_2=None):
                         "id": "76a544ed-823a-46fb-a61d-ccbea55cff80",
                     }
                 ],
-                "cta": cta,
+                "cta": [ctas["basic"]],
             },
             "id": "d65e4a61-8ecc-4c3e-a6c7-8609996bb414",
         },
     ]
 
 
-def get_step_cards_list_variants(cards, heading_1=None, heading_2=None):
+def get_step_cards_list_variants(cards, heading_1=None, heading_2=None) -> list[dict]:
     card_lists = [*get_cards_list_variants(cards, heading_1, heading_2)]
     card_lists[0]["value"]["content"][0]["type"] = "step_cards"
     card_lists[1]["value"]["content"][0]["type"] = "step_cards"
     return card_lists
 
 
-def get_cards_test_page():
+def get_sticker_cards_test_page() -> FreeFormPage:
+    get_placeholder_images()
+    index_page = get_test_index_page()
+
+    page = FreeFormPage.objects.filter(slug="test-sticker-cards-page").first()
+    if not page:
+        page = FreeFormPage(
+            slug="test-sticker-cards-page",
+            title="Test Sticker Cards Page",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = get_cards_list_variants(
+        cards=get_sticker_card_variants(),
+        heading_1="Cards List with Sticker Cards",
+        heading_2="Cards List with Sticker Cards - 4 columns",
+    )
+    page.save_revision().publish()
+
+    return page
+
+
+def get_icon_cards_test_page() -> FreeFormPage:
+    get_placeholder_images()
+    index_page = get_test_index_page()
+
+    page = FreeFormPage.objects.filter(slug="test-icon-cards-page").first()
+    if not page:
+        page = FreeFormPage(
+            slug="test-icon-cards-page",
+            title="Test Icon Cards Page",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = get_cards_list_variants(
+        cards=get_icon_card_variants(),
+        heading_1="Cards List with Icon Cards",
+        heading_2="Cards List with Icon Cards - 4 columns",
+    )
+    page.save_revision().publish()
+
+    return page
+
+
+def get_tag_cards_test_page() -> FreeFormPage:
     get_placeholder_images()
     index_page = get_test_index_page()
 
     page = FreeFormPage.objects.filter(slug="test-cards-page").first()
     if not page:
         page = FreeFormPage(
-            slug="test-cards-page",
-            title="Test Cards Page",
+            slug="test-tag-cards-page",
+            title="Test Tag Cards Page",
         )
         index_page.add_child(instance=page)
 
-    page.content = [
-        *get_cards_list_variants(
-            cards=get_sticker_card_variants(),
-            heading_1="Cards List with Sticker Cards",
-            heading_2="Cards List with Sticker Cards - 4 columns",
-        ),
-        *get_cards_list_variants(
-            cards=get_icon_card_variants(),
-            heading_1="Cards List with Icon Cards",
-            heading_2="Cards List with Icon Cards - 4 columns",
-        ),
-        *get_cards_list_variants(
-            cards=get_tag_card_variants(),
-            heading_1="Cards List with Tag Cards",
-            heading_2="Cards List with Tag Cards - 4 columns",
-        ),
-        *get_cards_list_variants(
-            cards=get_illustration_card_variants(),
-            heading_1="Cards List with Illustration Cards",
-            heading_2="Cards List with Illustration Cards - 4 columns",
-        ),
-        *get_step_cards_list_variants(
-            cards=get_step_card_variants(),
-            heading_1="Step Cards List with 3 columns layout",
-            heading_2="Step Cards List with 4 columns layout",
-        ),
-    ]
+    page.content = get_cards_list_variants(
+        cards=get_tag_card_variants(),
+        heading_1="Cards List with Tag Cards",
+        heading_2="Cards List with Tag Cards - 4 columns",
+    )
+    page.save_revision().publish()
+
+    return page
+
+
+def get_illustration_cards_test_page() -> FreeFormPage:
+    get_placeholder_images()
+    index_page = get_test_index_page()
+
+    page = FreeFormPage.objects.filter(slug="test-illustration-cards-page").first()
+    if not page:
+        page = FreeFormPage(
+            slug="test-illustration-cards-page",
+            title="Test Illustration Cards Page",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = get_cards_list_variants(
+        cards=get_illustration_card_variants(),
+        heading_1="Cards List with Illustration Cards",
+        heading_2="Cards List with Illustration Cards - 4 columns",
+    )
+    page.save_revision().publish()
+
+    return page
+
+
+def get_step_cards_test_page() -> FreeFormPage:
+    get_placeholder_images()
+    index_page = get_test_index_page()
+
+    page = FreeFormPage.objects.filter(slug="test-step-cards-page").first()
+    if not page:
+        page = FreeFormPage(
+            slug="test-step-cards-page",
+            title="Test Step Cards Page",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = get_step_cards_list_variants(
+        cards=get_step_card_variants(),
+        heading_1="Step Cards List with 3 columns layout",
+        heading_2="Step Cards List with 4 columns layout",
+    )
     page.save_revision().publish()
 
     return page

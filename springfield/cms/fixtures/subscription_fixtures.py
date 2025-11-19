@@ -6,9 +6,9 @@ from springfield.cms.fixtures.base_fixtures import get_test_index_page
 from springfield.cms.models import FreeFormPage
 
 
-def get_subscription_variants():
-    return {
-        "basic": {
+def get_subscription_variants() -> list[dict]:
+    return [
+        {
             "type": "subscription",
             "value": {
                 "heading": {
@@ -20,7 +20,7 @@ def get_subscription_variants():
             },
             "id": "f24b5d7d-5cba-4202-9c30-9a2ee8e9dada",
         }
-    }
+    ]
 
 
 def get_subscription_test_page():
@@ -34,6 +34,6 @@ def get_subscription_test_page():
         )
         index_page.add_child(instance=page)
 
-    page.content = list(get_subscription_variants().values())
+    page.content = get_subscription_variants()
     page.save_revision().publish()
     return page
