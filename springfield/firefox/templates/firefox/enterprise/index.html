@@ -267,7 +267,7 @@
       </div>
 
       <p class="enterprise-languages">
-        {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all=firefox_url('desktop', 'all', 'esr')) }}
+        {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all = 'href="' ~ firefox_url('desktop', 'all', 'esr') ~ '"') }}
       </p>
     </section>
 
