@@ -97,7 +97,7 @@ test.describe(
             browserName
         }) => {
             const downloadButton = page.locator(
-                '#download-button-desktop-release-linux'
+                '#download-button-desktop-release-linux-64'
             );
             const repoLink = page.locator('.c-linux-debian a');
 
