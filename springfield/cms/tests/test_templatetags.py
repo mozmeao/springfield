@@ -8,6 +8,7 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
+from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
     remove_p_tag,
@@ -83,14 +84,17 @@ def test_add_utm_parameters(url, expected_url):
     assert add_utm_parameters(context, url) == expected_url
 
 
-def test_richtext_preserves_original_wagtail_richtext_content():
-    value = """
+@pytest.mark.django_db
+def test_richtext_preserves_original_wagtail_richtext_content(minimal_site):
+    page = SimpleRichTextPage.objects.last()
+    value = f"""
     <h2>Header</h2>
     <p>This is a <strong>bold</strong> paragraph with <a href="https://example.com">a link</a>.</p>
     <ul>
         <li>First item</li>
         <li>Second item</li>
     </ul>
+    <p>This is a paragraph with a <a linktype="page" id="{page.id}">link to a page</a>.</p>
     """
     assert BeautifulSoup(richtext(context={}, value=value), "html.parser") == BeautifulSoup(wagtail_richtext(value), "html.parser")
 
