@@ -429,6 +429,12 @@
         "css/firefox/data.scss"
       ],
       "name": "data_protection"
+    },
+    {
+      "files": [
+        "css/firefox/ai/waitlist.scss"
+      ],
+      "name": "firefox_waitlist"
     }
   ],
   "js": [
@@ -765,6 +771,12 @@
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
+    },
+    {
+      "files": [
+        "js/firefox/ai/waitlist-newsletter-init.es6.js"
+      ],
+      "name": "waitlist_newsletter"
     }
   ]
 }

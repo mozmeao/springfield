@@ -6,24 +6,24 @@
 
 
 :root {
-    --notification-bg: light-dark(var(--blue-light-blue), var(--blue-light-blue));
-    --notification-color: var(--neutrals-charcoal);
+    --notification-bg: var(--fl-theme-accent-blue-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: calc(var(--scale-16) * 1px) 0 0;
+    padding: calc(var(--token-scale-16) * 1px) 0 0;
 
     /* Negative margin used to reduce the top spacing on the next block */
-    margin-bottom: calc(var(--scale-24) * -1px);
+    margin-bottom: calc(var(--token-scale-24) * -1px);
     z-index: 10;
 }
 
 .fl-notification {
-    margin: calc(var(--scale-8) * 1px) 0;
-    border-radius: calc(var(--scale-8) * 1px);
+    margin: calc(var(--token-scale-8) * 1px) 0;
+    border-radius: calc(var(--token-scale-8) * 1px);
     border: none;
     color: var(--notification-color);
     display: flex;
@@ -31,8 +31,8 @@
     min-height: 48px;
     overflow: hidden;
     position: relative;
-    margin-left: calc(var(--scale-16) * 1px);
-    margin-right: calc(var(--scale-16) * 1px);
+    margin-left: calc(var(--token-scale-16) * 1px);
+    margin-right: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-notification-icon-section {
@@ -62,35 +62,37 @@
 }
 
 .fl-notification-blue {
-    --notification-bg: light-dark(var(--blue-light-blue), var(--blue-medium-blue));
-    --notification-color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
+    --notification-bg: var(--fl-theme-accent-blue-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-purple {
-    --notification-bg: light-dark(var(--purple-light-purple), var(--purple-purple));
-    --notification-color: light-dark(var(--neutrals-charcoal), var(--neutrals-white));
+    --notification-bg: var(--fl-theme-accent-purple-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-orange {
-    --notification-bg: light-dark(var(--orange-light-orange), var(--orange-medium-orange));
+    --notification-bg: var(--fl-theme-accent-orange-bg);
+    --notification-color: var(--fl-theme-color-text-on-accent);
 }
 
 .fl-notification-yellow {
-    --notification-bg: var(--yellow-yellow);
+    --notification-bg: var(--token-yellow-yellow);
 }
 
 .fl-notification-black {
-    --notification-bg: var(--neutrals-charcoal);
-    --notification-color: var(--neutrals-white);
+    --notification-bg: var(--token-neutrals-charcoal);
+    --notification-color: var(--token-neutrals-white);
 }
 
 .fl-notification-white {
-    --notification-bg: light-dark(var(--neutrals-white), var(--neutrals-ash));
+    --notification-bg: var(--fl-theme-accent-neutral-bg);
+    --notification-color: var(--token-neutrals-charcoal);
 }
 
 .fl-notification-outline {
     --notification-bg: transparent;
-    --notification-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    --notification-color: var(--fl-theme-color-text-primary);
     border: 1px solid var(--notification-color);
 }
 
@@ -98,18 +100,18 @@
     display: flex;
     align-items: center;
     flex: 1;
-    gap: calc(var(--scale-16) * 1px);
-    padding: calc(var(--scale-16) * 1px) calc(var(--scale-24) * 1px);
+    gap: calc(var(--token-scale-16) * 1px);
+    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     position: relative;
     background: var(--notification-bg);
-    border-radius: 0 calc(var(--scale-8) * 1px) calc(var(--scale-8) * 1px) 0;
+    border-radius: 0 calc(var(--token-scale-8) * 1px) calc(var(--token-scale-8) * 1px) 0;
 }
 
 .fl-notification-content .fl-notification-message {
     display: block;
     margin: 0;
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-body-xsmall);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-xsmall);
     line-height: 1.2;
     flex: 1;
 }
@@ -117,7 +119,7 @@
 .fl-notification-content a {
     color: inherit;
     text-decoration: underline;
-    font-weight: var(--font-weight-link);
+    font-weight: var(--token-font-weight-semibold);
 }
 
 .fl-notification-close {
@@ -128,7 +130,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: calc(var(--scale-4) * 1px);
+    border-radius: calc(var(--token-scale-4) * 1px);
     color: currentColor;
     opacity: 0.7;
     transition: opacity 0.2s ease;
@@ -145,5 +147,5 @@
 }
 
 .fl-notification-outline .fl-notification-icon-inverted {
-    color: light-dark(var(--neutrals-white), var(--neutrals-charcoal));
+    color: var(--fl-theme-color-text-on-accent-soft);
 }
