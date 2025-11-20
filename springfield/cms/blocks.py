@@ -177,6 +177,20 @@ class UUIDBlock(blocks.CharBlock):
         return super().clean(value) or str(uuid4())
 
 
+def get_icon_choices():
+    """
+    Get the icon choices for a ThumbnailChoiceBlock.
+    """
+    return [(icon_choice[0], icon_choice[1]) for icon_choice in ICON_CHOICES]
+
+
+def get_icon_thumbnails():
+    """
+    Get the icon thumbnails for a ThumbnailChoiceBlock.
+    """
+    return {icon_choice[0]: f"/media/img/firefox/flare/icons/{icon_choice[0]}.svg" for icon_choice in ICON_CHOICES}
+
+
 class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
@@ -187,7 +201,13 @@ class BaseButtonSettings(blocks.StructBlock):
         required=False,
         inline_form=True,
     )
-    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    icon = ThumbnailChoiceBlock(
+        choices=get_icon_choices,
+        thumbnails=get_icon_thumbnails,
+        default="outlined",
+        inline_form=True,
+    )
+
     icon_position = blocks.ChoiceBlock(
         choices=(("left", "Left"), ("right", "Right")),
         default="right",
