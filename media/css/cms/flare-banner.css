@@ -44,6 +44,14 @@
     color: var(--fl-theme-color-text-primary);
 }
 
+.fl-banner-purple {
+    background-image: var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
+    background-size: 600px 600px, cover;
+    background-position: center, center;
+    background-repeat: repeat, no-repeat;
+    color: var(--token-neutrals-white);
+}
+
 .fl-banner-media {
     border-radius: calc(var(--token-scale-16) * 1px);
     height: auto;
@@ -142,6 +150,37 @@
     position: relative;
     z-index: 2;
     width: 100%;
+}
+
+.fl-banner-purple .fl-button:not([class*="button-"]) {
+    color: var(--token-neutrals-white);
+    border-color: var(--token-neutrals-white);
+}
+
+.fl-banner-purple .fl-button:not([class*="button-"]):hover,
+.fl-banner-purple .fl-button:not([class*="button-"]):focus,
+.fl-banner-purple .fl-button:not([class*="button-"]):active {
+    color: var(--token-purple-dark-purple);
+    background-color: var(--token-neutrals-ash);
+    border-color: var(--token-neutrals-charcoal);
+}
+
+.fl-banner-purple .fl-button.button-ghost {
+    color: var(--token-neutrals-white);
+}
+
+.fl-banner-purple .fl-button.button-ghost:hover,
+.fl-banner-purple .fl-button.button-ghost:focus,
+.fl-banner-purple .fl-button.button-ghost:active {
+    background: var(--token-neutrals-white);
+    color: var(--token-purple-dark-purple);
+}
+
+.fl-banner-purple .fl-button.button-secondary:hover,
+.fl-banner-purple .fl-button.button-secondary:focus,
+.fl-banner-purple .fl-button.button-secondary:active {
+    background: var(--token-blue-medium-blue);
+    color: var(--token-neutrals-white);
 }
 
 

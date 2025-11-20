@@ -54,38 +54,6 @@
     --kit-banner-padding-bottom: 210px;
 }
 
-
-.fl-banner-kit .fl-button:not([class*="button-"]) {
-    color: var(--token-neutrals-white);
-    border-color: var(--token-neutrals-white);
-}
-
-.fl-banner-kit .fl-button:not([class*="button-"]):hover,
-.fl-banner-kit .fl-button:not([class*="button-"]):focus,
-.fl-banner-kit .fl-button:not([class*="button-"]):active {
-    color: var(--token-purple-dark-purple);
-    background-color: var(--token-neutrals-ash);
-    border-color: var(--token-neutrals-charcoal);
-}
-
-.fl-banner-kit .fl-button.button-ghost {
-    color: var(--token-neutrals-white);
-}
-
-.fl-banner-kit .fl-button.button-ghost:hover,
-.fl-banner-kit .fl-button.button-ghost:focus,
-.fl-banner-kit .fl-button.button-ghost:active {
-    background: var(--token-neutrals-white);
-    color: var(--token-purple-dark-purple);
-}
-
-.fl-banner-kit .fl-button.button-secondary:hover,
-.fl-banner-kit .fl-button.button-secondary:focus,
-.fl-banner-kit .fl-button.button-secondary:active {
-    background: var(--token-blue-medium-blue);
-    color: var(--token-neutrals-white);
-}
-
 @media (min-width: 768px) {
     .fl-banner-kit {
         --kit-banner-padding-right: 48px;
