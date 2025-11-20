@@ -44,6 +44,13 @@
     </div>
   </content:media>
   <content:heading>
+    {% if value.tags %}
+      <div>
+        {% for tag in value.tags %}
+          {% include_block tag %}
+        {% endfor %}
+      </div>
+    {% endif %}
     <include:heading
       level="{{ heading_level }}"
       heading_size="fl-heading-size-3"
@@ -56,10 +63,10 @@
   </content:body>
     {% if value.buttons %}
     <content:buttons>
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+      {% for button in value.buttons %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
+        {% include_block button %}
+      {% endfor %}
     </content:buttons>
     {% endif %}
 </include:illustration-card>

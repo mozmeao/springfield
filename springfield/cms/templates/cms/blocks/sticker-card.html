@@ -11,9 +11,7 @@
     {% set img_dark=image(value.dark_image, 'width-400') %}
   {% endif %}
 
-<include:card
-  expand_link="{{ value.settings.expand_link }}"
->
+<include:card expand_link="{{ value.settings.expand_link }}">
   <content:pre_heading>
     <div class="light-dark-display">
       <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
@@ -23,6 +21,13 @@
     </div>
   </content:pre_heading>
   <content:heading>
+    {% if value.tags %}
+      <div>
+        {% for tag in value.tags %}
+          {% include_block tag %}
+        {% endfor %}
+      </div>
+    {% endif %}
     <include:heading
       level="{{ heading_level }}"
       heading_size="fl-heading-size-3"

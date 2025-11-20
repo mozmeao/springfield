@@ -7,11 +7,11 @@ from django.core.management.base import BaseCommand
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
+    get_filled_cards_test_page,
     get_icon_cards_test_page,
     get_illustration_cards_test_page,
     get_step_cards_test_page,
     get_sticker_cards_test_page,
-    get_tag_cards_test_page,
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
@@ -53,8 +53,8 @@ class Command(BaseCommand):
         sticker_cards_page = get_sticker_cards_test_page()
         self.stdout.write(self.style.SUCCESS(f"Sticker Cards test page loaded: {sticker_cards_page.slug}"))
 
-        tag_cards_page = get_tag_cards_test_page()
-        self.stdout.write(self.style.SUCCESS(f"Tag Cards test page loaded: {tag_cards_page.slug}"))
+        filled_cards_page = get_filled_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Filled Cards test page loaded: {filled_cards_page.slug}"))
 
         buttons_page = get_buttons_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons test page loaded: {buttons_page.slug}"))
