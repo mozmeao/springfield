@@ -5,6 +5,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
 /* -------------------------------------------------------------------------- */
+
 /* Footer Base */
 
 .fl-footer {
@@ -30,6 +31,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Primary Section */
 
 .fl-footer-inner {
@@ -50,6 +52,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Footer Sections */
 
 .fl-footer-sections-list {
@@ -66,8 +69,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     .fl-footer-sections-list {
         border-bottom: transparent;
         border-color: transparent;
-        column-gap: calc(var(--token-scale-24) * 1px);
-        row-gap: calc(var(--token-scale-24) * 1px);
+        gap: calc(var(--token-scale-24) * 1px);
         display: grid;
         grid-template-areas:
             'download download'
@@ -89,8 +91,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     .fl-footer-sections-list .fl-footer-section-download {
         border-bottom: 1px solid var(--fl-theme-color-text-secondary);
-        column-gap: calc(var(--token-scale-24) * 1px);
-        row-gap: calc(var(--token-scale-16) * 1px);
+        gap: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
         display: grid;
         grid-column-end: -1;
         grid-column-start: 1;
@@ -189,6 +190,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Footer Headings */
 
 .fl-footer-heading {
@@ -264,6 +266,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Footer Lists */
 
 .fl-footer-list {
@@ -322,6 +325,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Footer Logo */
 
 .fl-footer-logo {
@@ -374,6 +378,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* Secondary Section */
 
 .fl-footer-secondary {
@@ -452,6 +457,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 /* -------------------------------------------------------------------------- */
+
 /* More Section (Branding + Language) */
 
 .fl-footer-more {
