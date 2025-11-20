@@ -25,18 +25,9 @@
     max-width: 600px;
 }
 
-.fl-banner-kit .fl-body-text {
-    color: var(--token-neutrals-white);
-}
-
-.fl-banner-kit .fl-heading {
-    color: var(--token-neutrals-white);
-}
-
-.fl-banner-kit .fl-subheading {
-    color: var(--token-neutrals-white);
-}
-
+.fl-banner-kit .fl-body-text,
+.fl-banner-kit .fl-heading,
+.fl-banner-kit .fl-subheading,
 .fl-banner-kit .fl-superheading {
     color: var(--token-neutrals-white);
 }

@@ -73,6 +73,14 @@
     grid-area: 1 / 1;
 }
 
+.fl-banner-media-qr {
+    background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
+    background-size: contain;
+    align-items: flex-end;
+    padding: 0 calc(var(--token-scale-24) * 1px);
+    height: 338px;
+}
+
 .fl-banner-qr {
     display: block;
     grid-area: 1 / 1;
