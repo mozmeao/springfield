@@ -128,7 +128,7 @@
 
 .fl-nav a[href^='http']::after {
     content: '';
-    background-color: var(--token-neutrals-black);
+    background-color: var(--fl-theme-color-text-body);
     background-repeat: no-repeat;
     background-size: contain;
     mask-image: url('/media/img/icons/external.svg');
@@ -146,7 +146,7 @@
 
 .fl-nav-link,
 .fl-nav-link :visited {
-    color: var(--token-neutrals-black);
+    color: var(--fl-theme-color-text-body);
 }
 
 .fl-header .download-link,
@@ -162,7 +162,7 @@
     left: 0;
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     border-top: 2px solid var(--fl-theme-border-color-subtle);
-    background: var(--token-neutrals-white);
+    background: var(--fl-theme-color-text-body);
 }
 
 .fl-nav-mobile-download-link .download-link {
@@ -178,7 +178,7 @@
 .fl-menu-title,
 .fl-menu-title h2,
 .fl-menu-subtitle {
-    color: var(--token-neutrals-black);
+    color: var(--fl-theme-color-text-body);
     text-decoration: none;
     font-size: 1.125rem;
     margin-bottom: calc(var(--token-scale-8) * 1px);
@@ -193,7 +193,7 @@
 .fl-menu-category h2::after {
     display: none;
     content: '';
-    background-color: var(--token-neutrals-black);
+    background-color: var(--fl-theme-color-text-body);
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -245,7 +245,7 @@
 .fl-menu-panel-content {
     max-width: 1440px;
     padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-24) * 1px);
-    background-color: var(--token-neutrals-grey-3);
+    background-color: var(--fl-theme-surface-panel);
 }
 
 .fl-menu-panel-content ul {
@@ -262,34 +262,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .fl-menu-title,
-    .fl-menu-title h2,
-    .fl-menu-subtitle,
-    .fl-nav-link,
-    .fl-nav-link :visited {
-        color: var(--token-neutrals-white);
-    }
-
     .fl-logo-fx {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-
-    .fl-nav a[href^='http']::after,
-    .fl-menu-category h2::after {
-        background-color: var(--token-neutrals-white);
-    }
-
-    .fl-menu-category-link a,
-    .fl-menu-category-link a:visited {
-        color: var(--token-neutrals-black);
-    }
-
-    .fl-menu-panel-content {
-        background-color: var(--token-neutrals-charcoal);
-    }
-
-    .fl-nav-mobile-download-link {
-        background: var(--token-neutrals-black);
     }
 
     .fl-hamburger.is-open {
