@@ -186,7 +186,7 @@
     width: 100%;
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     border-top: 2px solid var(--fl-theme-border-color-subtle);
-    background: var(--fl-theme-color-text-body);
+    background: var(--fl-theme-surface-page);
 }
 
 .fl-nav-mobile-download-link .download-link {
@@ -308,7 +308,6 @@
         height: calc(100vh - var(--navigation-menu-mobile-height));
         margin-top: var(--navigation-menu-mobile-height);
         padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-128) * 1px);
-        inset: 60px 0 0;
         display: block;
         background: var(--fl-theme-surface-page);
         overflow: hidden auto;
