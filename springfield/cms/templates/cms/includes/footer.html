@@ -1,0 +1,120 @@
+
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer' %}
+
+<footer class="fl-footer">
+  <div class="fl-footer-inner">
+    <div class="fl-footer-sections-list">
+      <section class="fl-footer-section fl-footer-section-download" aria-label="{{ ftl('footer-download') }}">
+        <h2 class="fl-footer-heading fl-footer-heading-download">
+          {{ ftl('footer-download') }}
+        </h2>
+        <div class="fl-footer-section-platforms">
+          {# Download link should be locale neutral see bedrock issue 7982 #}
+          <h3 class="fl-footer-subheading"><a href="/thanks/" data-link-type="Desktop" data-download-os="Desktop" data-download-version="standard" data-link-position="footer" data-link-text="Download Firefox">{{ ftl('footer-download-auto') }}</a></h3>
+          <ul class="fl-footer-list fl-footer-list-download">
+            <li><a href="{{ url('firefox.browsers.desktop.windows') }}" data-link-position="footer" data-link-text="Windows">{{ ftl('footer-windows') }}</a></li>
+            <li><a href="{{ url('firefox.browsers.desktop.mac') }}" data-link-position="footer" data-link-text="Mac">{{ ftl('footer-mac') }}</a></li>
+            <li><a href="{{ url('firefox.browsers.mobile.ios') }}" data-link-position="footer" data-link-text="iOS">{{ ftl('footer-ios') }}</a></li>
+            <li><a href="{{ url('firefox.browsers.mobile.android') }}" data-link-position="footer" data-link-text="Android">{{ ftl('footer-android') }}</a></li>
+            <li><a href="{{ url('firefox.browsers.desktop.linux') }}" data-link-position="footer" data-link-text="Linux">{{ ftl('footer-linux') }}</a></li>
+            <li><a href="{{ url('firefox.all') }}" data-link-position="footer" data-link-text="Custom Download">{{ ftl('footer-custom-download') }}</a></li>
+          </ul>
+        </div>
+        <div class="fl-footer-section-latest">
+          <h3 class="fl-footer-subheading">{{ ftl('footer-latest') }}</h3>
+          <ul class="fl-footer-list">
+            <li><a href="{{ url('firefox.channel.desktop') }}#nightly" data-link-position="footer" data-link-text="Nightly">{{ ftl('footer-nightly') }}</a></li>
+            <li><a href="{{ url('firefox.channel.desktop') }}#beta" data-link-position="footer" data-link-text="Beta">{{ ftl('footer-beta') }}</a></li>
+          </ul>
+        </div>
+        <div class="fl-footer-section-business">
+          <h3 class="fl-footer-subheading">{{ ftl('footer-business') }}</h3>
+          <ul class="fl-footer-list">
+            <li><a href="{{ url('firefox.enterprise.index') }}" data-link-position="footer" data-link-text="Enterprise">{{ ftl('footer-enterprise') }}</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="fl-footer-section fl-footer-section-community" aria-label="{{ ftl('footer-community') }}">
+        <h2 class="fl-footer-heading">
+          {{ ftl('footer-community') }}
+        </h2>
+        <ul class="fl-footer-list">
+          <li><a href="https://connect.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Connect">{{ ftl('footer-connect') }}</a></li>
+          <li><a href="https://www.mozilla.org/contribute/{{params}}" data-link-position="footer" data-link-text="Contribute">{{ ftl('footer-contribute') }}</a></li>
+          <li><a href="{{ url('firefox.developer.index') }}" data-link-position="footer" data-link-text="Developer">{{ ftl('footer-developer') }}</a></li>
+        </ul>
+      </section>
+
+      <section class="fl-footer-section fl-footer-section-resources" aria-label="{{ ftl('footer-resources') }}">
+        <h2 class="fl-footer-heading">
+          {{ ftl('footer-resources') }}
+        </h2>
+        <ul class="fl-footer-list">
+          <li><a href="{{ url('firefox.browsers.compare.index') }}" data-link-position="footer" data-link-text="Compare">{{ ftl('footer-compare') }}</a></li>
+          <li><a href="{{ url('firefox.notes') }}" data-link-position="footer" data-link-text="Release Notes">{{ ftl('footer-release-notes') }}</a></li>
+          <li><a href="{{ url('firefox.more.index') }}" data-link-position="footer" data-link-text="Learn">{{ ftl('footer-learn') }}</a></li>
+          <li><a href="https://support.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Support">{{ ftl('footer-support') }}</a></li>
+          <li><a href="https://addons.mozilla.org/firefox/{{params}}" data-link-position="footer" data-link-text="Add ons">{{ ftl('footer-addons') }}</a></li>
+          <li><a href="https://community.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Community">{{ ftl('footer-community') }}</a></li>
+          <li><a href="https://blog.mozilla.org/en/category/firefox/{{params}}" data-link-position="footer" data-link-text="Blog">{{ ftl('footer-blog') }}</a></li>
+        </ul>
+      </section>
+
+      <section class="fl-footer-section fl-footer-section-follow" aria-label="{{ ftl('footer-follow') }}">
+        <h2 class="fl-footer-heading">
+          {{ ftl('footer-follow-us') }}
+        </h2>
+        <ul class="fl-footer-list">
+          <li><a class="instagram" href="https://www.instagram.com/firefox/" data-link-position="footer" data-link-text="Instagram">{{ ftl('footer-instagram') }}<span></span></a></li>
+          <li><a class="youtube" href="https://www.youtube.com/user/firefoxchannel" data-link-position="footer" data-link-text="YouTube">{{ ftl('footer-youtube') }}<span></span></a></li>
+          <li><a class="tiktok" href="https://www.tiktok.com/@firefox" data-link-position="footer" data-link-text="TikTok">{{ ftl('footer-tiktok') }}<span></span></a></li>
+          <li><a class="bluesky" href="https://bsky.app/profile/firefox.com" data-link-position="footer" data-link-text="Bluesky" translate="no">Bluesky<span></span></a></li>
+          <li><a class="podcast" href="https://www.youtube.com/@firefox/podcasts" data-link-position="footer" data-link-text="Podcast" translate="no">Podcast<span></span></a></li>
+        </ul>
+      </section>
+    </div>
+    <div class="fl-footer-logo" aria-hidden>
+      <a href="{{ url('firefox') }}" data-link-position="footer" data-link-text="Firefox">{{ ftl('footer-firefox') }}</a>
+    </div>
+    <hr class="fl-footer-divider">
+  </div>
+  <div class="fl-footer-secondary">
+    <div class="fl-footer-legal">
+      <ul class="fl-footer-terms">
+        {% if LANG == "de" %}
+          {# Legal requirement in Germany see bedrock issue #14240 #}
+          <li><a href="https://www.mozilla.org/de/about/legal/impressum/" data-link-position="footer" data-link-text="Impressum">Impressum</a></li>
+        {% endif %}
+        <li><a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ params }}" data-link-position="footer" data-link-text="Privacy">{{ ftl('footer-websites-privacy-notice') }}</a></li>
+        <li><a href="https://www.mozilla.org/about/legal/terms/firefox/{{ params }}" data-link-position="footer" data-link-text="Terms of Use">{{ ftl('footer-terms-of-use') }}</a></li>
+        <li>
+          {# Link to /privacy/websites/cookie-settings/ is a legal requirement and should not be removed. It must be present on every page (bedrock Issue 14213). #}
+          <a href="{{ url('privacy.cookie-settings') }}" data-link-position="footer" data-link-text="Cookies">{{ ftl('footer-websites-cookie-policy', fallback='footer-websites-cookies') }}</a>
+        </li>
+        <li><a href="https://www.mozilla.org/{{ LANG }}/about/governance/policies/participation/{{ params }}" data-link-position="footer" data-link-text="Community Participation Guidelines">{{ ftl('footer-community-participation-guidelines') }}</a></li>
+        <li><a href="https://www.mozilla.org/foundation/trademarks/policy/{{ params }}" data-link-position="footer" data-link-text="Logo Trademark Licensing">{{ ftl('footer-logo-trademark-licensing') }}</a></li>
+      </ul>
+    </div>
+
+    <div class="fl-footer-bottom">
+      <div class="fl-footer-brand">
+        <h3 class="fl-footer-title">{{ ftl('footer-powdered-by') }}</h3>
+        <p class="fl-footer-subtitle">{{ ftl('footer-putting-people') }}</p>
+      </div>
+      <div class="fl-footer-cta">
+        <a class="fl-button button-outline hidden-ie8" href="https://foundation.mozilla.org/?form=whats-new-product">
+          <img src="/media/img/firefox/flare/icons/heart.svg" width="12" height="12" alt="" aria-hidden="true">
+          {{ ftl('footer-donate-v2', fallback='footer-donate') }}
+        </a>
+        <p class="fl-footer-note">{{ ftl('footer-make-good-things') }}</p>
+      </div>
+    </div>
+  </div>
+</footer>
