@@ -115,6 +115,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
     display: block;
 }
+
 /* Styles used by Download Firefox Button messages */
 
 .fl-fx-download-container {
