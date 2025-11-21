@@ -45,11 +45,18 @@
 }
 
 .fl-banner-purple {
+    --fl-theme-color-text-primary: var(--token-neutrals-white);
+    --fl-theme-color-link: var(--token-blue-light-blue);
+    --fl-theme-color-link-visited: var(--token-purple-light-purple);
+    --fl-theme-color-link-strong: var(--token-blue-light-blue);
     background-image: var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
     background-size: 600px 600px, cover;
     background-position: center, center;
     background-repeat: repeat, no-repeat;
-    color: var(--token-neutrals-white);
+}
+
+.fl-banner-purple .fl-superheading {
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-banner-media {

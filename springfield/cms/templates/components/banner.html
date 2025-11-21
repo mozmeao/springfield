@@ -4,13 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_after=False qr_code=None  #}
+{# props theme="outlined" media_after=False qr_code=None  #}
 
 <div class="fl-banner-container">
   <div
     class="
       fl-banner
-      fl-banner-outlined
+      fl-banner-{{ theme }}
       {% if media_after %}fl-banner-reverse{% endif %}"
     aria-labelledby="fl-banner-heading">
 

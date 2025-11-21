@@ -4,9 +4,10 @@ context:
     - title: "No Kit"
       heading:
         level: "h2"
+        superheading_text: "Scan to Download"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -25,9 +26,10 @@ context:
       theme: "filled-small"
       heading:
         level: "h2"
+        superheading_text: "Scan to Download"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -46,9 +48,10 @@ context:
       theme: "filled-large"
       heading:
         level: "h2"
+        superheading_text: "Scan to Download"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -67,9 +70,10 @@ context:
       theme: "filled-face"
       heading:
         level: "h2"
+        superheading_text: "Scan to Download"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       buttons:
         - label: "Sneak Peek"
           link: "/"
@@ -88,9 +92,10 @@ context:
       theme: "filled-tail"
       heading:
         level: "h2"
+        superheading_text: "Scan to Download"
         heading_text: "Psst... we’ve got a new look coming soon 👀"
         heading_size: "heading-size-2"
-        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       buttons:
         - label: "Sneak Peek"
           link: "/"
