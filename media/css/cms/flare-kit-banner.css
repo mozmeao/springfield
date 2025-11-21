@@ -48,7 +48,7 @@
 }
 
 .fl-banner-kit-tail {
-    --kit-img: url('/media/img/firefox/flare/kit-tail.png');
+    --kit-img: url('/media/img/firefox/flare/kit-tail.svg');
     --kit-img-size: auto 200px;
     --kit-img-position: bottom -4px right -60px;
     --kit-banner-padding-bottom: 210px;
