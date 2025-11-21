@@ -109,21 +109,39 @@
         </ol>
       </div>
       <div class="c-gallery-card-media-container">
-        {{ resp_img(
+        {{ picture(
             url="img/firefox/kit/browser-dark-630.png",
-            srcset={
-              "img/firefox/kit/browser-dark-315.png": "315w",
-              "img/firefox/kit/browser-dark-630.png": "630w",
-              "img/firefox/kit/browser-dark-1259.png": "1259w",
-              "img/firefox/kit/browser-dark-1738.png": "1738w",
-            },
-            sizes={
-              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-              "(min-width: 1024px)": "calc(50vw - 156px)",
-              "default": "calc(100vw - 80px)",
-            },
-            optional_attributes={ "l10n": True, "loading": "lazy" })
-        }}
+            sources=[
+              {
+                'media': '(min-width: 688px)',
+                'srcset': {
+                  "img/firefox/kit/browser-dark-315.png": "315w",
+                  "img/firefox/kit/browser-dark-630.png": "630w",
+                  "img/firefox/kit/browser-dark-1259.png": "1259w",
+                  "img/firefox/kit/browser-dark-1738.png": "1738w",
+                },
+                'sizes': {
+                  "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                  "(min-width: 1024px)": "calc(50vw - 156px)",
+                  "default": "calc(100vw - 80px)",
+                },
+              },
+              {
+                'media': '(max-width: 687px)',
+                'srcset': {
+                  "img/firefox/kit/browser-mobile-310.png": "310w",
+                  "img/firefox/kit/browser-mobile-620.png": "620w",
+                },
+                'sizes': {
+                  "default": "calc(100vw - 80px)",
+                },
+              }
+            ],
+            optional_attributes={
+              "l10n": True,
+              "loading": "lazy"
+            }
+          )}}
       </div>
     </section>
     <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
