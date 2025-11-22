@@ -182,14 +182,11 @@
 @media (--viewport-desktop-up) {
     .fl-banner-kit-tail {
         --kit-img-position: bottom -4px right -90px;
+        --kit-banner-padding-right: 600px;
     }
 
     .fl-banner-kit-large,
     .fl-banner-kit-face {
         --kit-banner-padding-right: 400px;
-    }
-
-    .fl-banner-kit-tail {
-        --kit-banner-padding-right: 600px;
     }
 }
