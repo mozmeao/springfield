@@ -541,17 +541,32 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
     return _TagCardBlock(*args, **kwargs)
 
 
-class IconCardBlock(blocks.StructBlock):
-    settings = BaseCardSettings()
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    button = blocks.ListBlock(ButtonBlock(), max_num=1, min_num=0, default=[])
+def IconCardBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IconCardBlock with appropriate button types.
 
-    class Meta:
-        template = "cms/blocks/icon-card.html"
-        label = "Icon Card"
-        label_format = "Icon Card - {headline}"
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IconCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/icon-card.html"
+            label = "Icon Card"
+            label_format = "Icon Card - {headline}"
+
+    return _IconCardBlock(*args, **kwargs)
 
 
 class IllustrationCardSettings(BaseCardSettings):
@@ -642,7 +657,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
             [
                 ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
                 ("tag_card", TagCardBlock(allow_uitour=allow_uitour)),
-                ("icon_card", IconCardBlock()),
+                ("icon_card", IconCardBlock(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCardBlock(allow_uitour=allow_uitour)),
             ]
         )
