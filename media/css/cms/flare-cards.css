@@ -108,13 +108,13 @@
     z-index: 1;
 }
 
-@media (max-width: 767px) {
+@media (--viewport-xs) {
     .fl-card {
         padding: calc(var(--token-scale-24) * 1px);
     }
 }
 
-@media (min-width: 1024px) {
+@media (--viewport-md-up) {
     .fl-card .button {
         width: fit-content
     }
