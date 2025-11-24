@@ -67,7 +67,7 @@
    ================================================ */
 
 .fl-hamburger {
-    width: 40px;
+    width: 32px;
     height: 32px;
     display: inline-flex;
     align-items: center;
@@ -89,7 +89,7 @@
     content: "";
     position: absolute;
     left: 12px;
-    right: 12px;
+    right: 4px;
     height: 2px;
     background: var(--fl-theme-navigation-icon);
     border-radius: 1px;
@@ -334,8 +334,14 @@
     }
 
     .fl-hamburger.is-open {
-        width: 40px;
-        background: transparent url('/media/img/cms/close.svg') center center no-repeat;
+        width: 16px;
+        height: 16px;
+        padding: 0;
+        margin-right: calc(var(--token-scale-4) * 1px);
+        background-color: var(--fl-theme-color-text-body);
+        background-repeat: no-repeat;
+        background-size: contain;
+        mask-image: url('/media/img/firefox/flare/icons/close.svg');
         text-indent: -9999px;
         white-space: nowrap;
         overflow: hidden;
@@ -438,16 +444,5 @@
 @media (prefers-color-scheme: dark) {
     .fl-logo-fx {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-
-    .fl-hamburger.is-open {
-        background: transparent url('/media/img/cms/close-white.svg') center center no-repeat;
-    }
-}
-
-/* Mobile dark mode override */
-@media (max-width: 767px) and (prefers-color-scheme: dark) {
-    .fl-hamburger.is-open {
-        background: transparent url('/media/img/cms/close-white.svg') center center no-repeat;
     }
 }
