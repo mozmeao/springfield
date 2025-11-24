@@ -36,7 +36,7 @@
     }
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-mediacontent {
         gap: calc(var(--token-scale-48) * 1px);
         grid-template-columns: 1fr 1fr;
@@ -67,7 +67,7 @@
     }
 }
 
-@media (--viewport-xsmall) {
+@media (--viewport-xs) {
     .fl-mediacontent-content .fl-button {
         width: 100%;
     }

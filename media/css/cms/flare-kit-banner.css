@@ -54,7 +54,7 @@
     --kit-banner-padding-bottom: 210px;
 }
 
-@media (--viewport-small-up) {
+@media (--viewport-sm-up) {
     .fl-banner-kit {
         --kit-banner-padding-right: 48px;
         --kit-banner-padding-bottom: 80px;
@@ -106,7 +106,7 @@
 
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-face,
@@ -147,7 +147,7 @@
     }
 }
 
-@media (--viewport-large-up) {
+@media (--viewport-lg-up) {
     .fl-banner-kit-tail {
         --kit-img-position: bottom -4px right -90px;
         --kit-banner-padding-right: 600px;

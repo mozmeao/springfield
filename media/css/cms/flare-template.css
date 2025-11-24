@@ -44,7 +44,7 @@
     display: none;
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-logo-fx {
         margin: 0;
     }
@@ -370,7 +370,7 @@
     width: 100%;
 }
 
-@media (--viewport-small-up) {
+@media (--viewport-sm-up) {
     .fl-grid,
     .fl-grid-4 {
         gap: calc(var(--token-scale-24) * 1px);
@@ -390,7 +390,7 @@
     }
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -441,7 +441,7 @@
     text-align: center;
 }
 
-@media (--viewport-xsmall) {
+@media (--viewport-xs) {
     .fl-main {
         padding: 0;
     }

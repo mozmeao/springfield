@@ -24,7 +24,7 @@
     padding-top: calc(var(--token-scale-40) * 1px);
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-section-container {
         gap: calc(var(--token-scale-64) * 1px);
     }
@@ -38,7 +38,7 @@
     }
 }
 
-@media (--viewport-xsmall) {
+@media (--viewport-xs) {
     .fl-section {
         margin-bottom: 0;
     }
@@ -70,7 +70,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (--viewport-large-up) {
+@media (--viewport-lg-up) {
     .fl-section-mobile .fl-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr))
     }

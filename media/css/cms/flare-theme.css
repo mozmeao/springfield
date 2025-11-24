@@ -175,7 +175,7 @@ centralize breakpoints once and flip CSS variables inside.
 components consume the variables (no per-component media queries) */
 
 /* Media query for 768px and larger */
-@media (--viewport-small-up) {
+@media (--viewport-sm-up) {
     :root {
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;

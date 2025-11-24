@@ -191,7 +191,7 @@
 }
 
 
-@media (--viewport-small-up) {
+@media (--viewport-sm-up) {
     .fl-banner {
         padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-48) * 1px);
         justify-content: initial;
@@ -221,7 +221,7 @@
     }
 }
 
-@media (--viewport-medium-up) {
+@media (--viewport-md-up) {
     .fl-banner-container {
         gap: calc(var(--token-scale-64) * 1px);
     }

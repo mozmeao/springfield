@@ -120,13 +120,13 @@ There are no --viewport-*-down queries to encourage mobile-first design.
 */
 
 /* stylelint-disable at-rule-no-unknown */
-@custom-media --viewport-small-up (min-width: 600px);
-@custom-media --viewport-medium-up (min-width: 900px);
-@custom-media --viewport-large-up (min-width: 1200px);
-@custom-media --viewport-xlarge-up (min-width: 1800px);
+@custom-media --viewport-sm-up (min-width: 600px);
+@custom-media --viewport-md-up (min-width: 900px);
+@custom-media --viewport-lg-up (min-width: 1200px);
+@custom-media --viewport-xl-up (min-width: 1800px);
 
-@custom-media --viewport-xsmall (max-width: 599px);
-@custom-media --viewport-small (min-width: 600px) and (max-width: 899px);
-@custom-media --viewport-medium (min-width: 900px) and (max-width: 1199px);
-@custom-media --viewport-large (min-width: 1200px) and (max-width: 1799px);
-@custom-media --viewport-xlarge (min-width: 1800px);
+@custom-media --viewport-xs (max-width: 599px);
+@custom-media --viewport-sm (min-width: 600px) and (max-width: 899px);
+@custom-media --viewport-md (min-width: 900px) and (max-width: 1199px);
+@custom-media --viewport-lg (min-width: 1200px) and (max-width: 1799px);
+@custom-media --viewport-xl (min-width: 1800px);
