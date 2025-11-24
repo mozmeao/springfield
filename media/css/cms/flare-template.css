@@ -474,3 +474,69 @@
     }
 
 }
+
+/* Styles used by Download Firefox Button messages */
+
+.fl-fx-download-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--scale-16) * 1px);
+}
+
+/* Hide the unsupported message by default */
+.fx-unsupported-message {
+    display: none;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.fx-unsupported-message p {
+    margin-bottom: 8px;
+}
+
+/* Show the Windows unsupported message if on Windows with unsupported version for Firefox */
+.windows.fx-unsupported .fx-unsupported-message.win {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Windows system */
+.windows.fx-unsupported .c-button-download-thanks-link {
+    display: none;
+}
+
+/* stylelint-disable selector-class-pattern */
+
+/* Hide the Windows 64 download link if in a Windows 32 system where Firefox is unsupported */
+
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win64 {
+    display: none;
+}
+
+/* Show the Windows 32 download link if in a Windows 32 system where Firefox is unsupported */
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win {
+    display: inline-block;
+}
+
+/* Hide the Windows 32 download link if in a Windows 64 system where Firefox is unsupported */
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win {
+    display: none;
+}
+
+/* Show the Windows 64 download link if in a Windows 64 system where Firefox is unsupported */
+
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win64 {
+    display: inline-block;
+}
+
+/* stylelint-enable selector-class-pattern */
+
+/* Show the Mac unsupported message if on Mac with unsupported version for Firefox */
+.osx.fx-unsupported .fx-unsupported-message.mac {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Mac system */
+.osx.fx-unsupported .c-button-download-thanks-link {
+    display: none;
+}
