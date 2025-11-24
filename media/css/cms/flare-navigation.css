@@ -168,9 +168,9 @@
    Download Links
    ================================================ */
 
-.fl-header .download-link,
+.fl-header .fl-fx-download-container,
 .fl-header .mzp-c-button-download-privacy-link {
-    display: none;
+    display: none !important; /* overrides flare utilities */
     margin: 0;
 }
 
@@ -178,7 +178,11 @@
     padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
     border-radius: calc(var(--token-scale-4) * 1px);
     font-weight: var(--token-font-weight-bold);
-    font-family: var(--token-font-family-mozilla-text-protocol);
+    display: block;
+}
+
+.fl-header .download-link:hover {
+    text-decoration: none;
 }
 
 .fl-nav-mobile-download-link {
@@ -191,7 +195,11 @@
     background: var(--fl-theme-surface-page);
 }
 
-.fl-nav-mobile-download-link .download-link {
+.fl-nav-mobile-download-link .fl-fx-download-container {
+    display: block !important; /* overrides flare utilities */
+}
+
+.fl-nav-mobile-download-link .download-button {
     display: block;
     width: 100%;
     padding: calc(var(--token-scale-12) * 1px);
@@ -350,12 +358,12 @@
         padding: 0;
     }
 
-    .fl-logo-fx, .fl-header .download-link {
+    .fl-logo-fx {
         margin: calc(var(--token-scale-8) * 1px) 0;
     }
 
-    .fl-header .download-link {
-        display: block;
+    .fl-header .fl-fx-download-container {
+        display: block !important; /* overrides flare utilities */
     }
 
     .fl-header-inner {
