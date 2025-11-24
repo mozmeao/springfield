@@ -105,11 +105,11 @@ Note that the device type in parentheses is only for intuitive reference,
 but not a guarantee since there is a wide range of devices with each
 viewport size and users may resize their browsers to different sizes.
 
-xsmall: < 600px (phones)
-small: 600px - 899px (tablets in portrait)
-medium: 900px - 1199px (tablets in landscape)
-large: 1200px - 1799px (laptops and desktops)
-xlarge: > 1799px (big monitors)
+xs: < 600px (phones)
+sm: 600px - 899px (tablets in portrait)
+md: 900px - 1199px (tablets in landscape)
+lg: 1200px - 1799px (laptops and desktops)
+xl: > 1799px (big monitors)
 
 Start with base styles (no media query) for mobile first design, then
 add styles for larger viewports using --viewport-*-up media queries.
