@@ -7,15 +7,30 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:illustration-card
-  image_after="{{ value.settings.image_after }}"
-  expand_link="{{ value.settings.expand_link }}"
->
-  <content:media>
-    <div class="light-dark-display">
-      {% if value.dark_image %}
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:illustration-card
+    image_after="{{ value.settings.image_after }}"
+    expand_link="{{ value.settings.expand_link }}"
+  >
+    <content:media>
+      <div class="light-dark-display">
+        {% if value.dark_image %}
+          {{ srcset_image(
+              value.dark_image,
+              "width-{200,400,600,800,1000,1200,1400}",
+              sizes="
+                (min-width: 768px) 50vw,
+                (min-width: 1024px) 30vw,
+                (min-width: 1440px) 500px,
+                100vw
+              ",
+              width=value.dark_image.width,
+              loading="lazy",
+              class="display-dark",
+            ) }}
+        {% endif %}
         {{ srcset_image(
-            value.dark_image,
+            value.image,
             "width-{200,400,600,800,1000,1200,1400}",
             sizes="
               (min-width: 768px) 50vw,
@@ -23,49 +38,36 @@
               (min-width: 1440px) 500px,
               100vw
             ",
-            width=value.dark_image.width,
+            width=value.image.width,
             loading="lazy",
-            class="display-dark",
+            class="display-light",
           ) }}
+        </div>
+    </content:media>
+    <content:heading>
+      {% if value.tags %}
+        <div>
+          {% for tag in value.tags %}
+            {% include_block tag %}
+          {% endfor %}
+        </div>
       {% endif %}
-      {{ srcset_image(
-          value.image,
-          "width-{200,400,600,800,1000,1200,1400}",
-          sizes="
-            (min-width: 768px) 50vw,
-            (min-width: 1024px) 30vw,
-            (min-width: 1440px) 500px,
-            100vw
-          ",
-          width=value.image.width,
-          loading="lazy",
-          class="display-light",
-        ) }}
-      </div>
-  </content:media>
-  <content:heading>
-    {% if value.tags %}
-      <div>
-        {% for tag in value.tags %}
-          {% include_block tag %}
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ value.content }}
+    </content:body>
+      {% if value.buttons %}
+      <content:buttons>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
         {% endfor %}
-      </div>
-    {% endif %}
-    <include:heading
-      level="{{ heading_level }}"
-      heading_size="fl-heading-size-3"
-      heading_text="{{ value.headline|richtext|remove_p_tag }}"
-    />
-  </content:heading>
-  <content:body>
-    {{ value.content }}
-  </content:body>
-    {% if value.buttons %}
-    <content:buttons>
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
-    </content:buttons>
-    {% endif %}
-</include:illustration-card>
+      </content:buttons>
+      {% endif %}
+  </include:illustration-card>
+</include:conditional-display>

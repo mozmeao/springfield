@@ -319,14 +319,6 @@
     .fl-banner-media-qr {
         background-size: cover;
     }
-
-    .fl-section-mobile .fl-banner {
-        padding: calc(var(--scale-24) * 1px);
-    }
-
-    .fl-section-mobile .fl-banner-media-qr {
-        padding: calc(var(--scale-24) * 1px) calc(var(--scale-24) * 1px) 0;
-    }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {

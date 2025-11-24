@@ -11,38 +11,40 @@
     {% set img_dark=image(value.dark_image, 'width-400') %}
   {% endif %}
 
-<include:card expand_link="{{ value.settings.expand_link }}">
-  <content:pre_heading>
-    <div class="light-dark-display">
-      <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
-      {% if img_dark %}
-        <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
-      {% endif %}
-    </div>
-  </content:pre_heading>
-  <content:heading>
-    {% if value.tags %}
-      <div>
-        {% for tag in value.tags %}
-          {% include_block tag %}
-        {% endfor %}
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:card expand_link="{{ value.settings.expand_link }}">
+    <content:pre_heading>
+      <div class="light-dark-display">
+        <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
+        {% if img_dark %}
+          <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
+        {% endif %}
       </div>
+    </content:pre_heading>
+    <content:heading>
+      {% if value.tags %}
+        <div>
+          {% for tag in value.tags %}
+            {% include_block tag %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ value.content|richtext }}
+    </content:body>
+    {% if value.buttons %}
+      <content:buttons>
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+      </content:buttons>
     {% endif %}
-    <include:heading
-      level="{{ heading_level }}"
-      heading_size="fl-heading-size-3"
-      heading_text="{{ value.headline|richtext|remove_p_tag }}"
-    />
-  </content:heading>
-  <content:body>
-    {{ value.content|richtext }}
-  </content:body>
-  {% if value.buttons %}
-    <content:buttons>
-        {% for button in value.buttons %}
-          {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-    </content:buttons>
-  {% endif %}
-</include:card>
+  </include:card>
+</include:conditional-display>

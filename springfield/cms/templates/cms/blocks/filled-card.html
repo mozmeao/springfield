@@ -7,28 +7,30 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:card fill="true" expand_link="{{ value.settings.expand_link }}">
-  <content:heading>
-    <div>
-      {% for tag in value.tags %}
-        {% include_block tag %}
-      {% endfor %}
-    </div>
-    <include:heading
-      level="{{ heading_level }}"
-      heading_size="fl-heading-size-3"
-      heading_text="{{ value.headline|richtext|remove_p_tag }}"
-    />
-  </content:heading>
-  <content:body>
-    {{ value.content|richtext }}
-  </content:body>
-  {% if value.buttons %}
-    <content:buttons>
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
-    </content:buttons>
-  {% endif %}
-</include:card>
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:card fill="true" expand_link="{{ value.settings.expand_link }}">
+    <content:heading>
+      <div>
+        {% for tag in value.tags %}
+          {% include_block tag %}
+        {% endfor %}
+      </div>
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ value.content|richtext }}
+    </content:body>
+    {% if value.buttons %}
+      <content:buttons>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      </content:buttons>
+    {% endif %}
+  </include:card>
+</include:conditional-display>

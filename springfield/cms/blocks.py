@@ -484,12 +484,19 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link}"
+        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 

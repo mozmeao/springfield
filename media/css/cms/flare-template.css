@@ -254,12 +254,6 @@
     padding: 0 calc(var(--scale-24) * 1px);
 }
 
-.fl-grid {
-    display: grid;
-    gap: calc(var(--scale-32) * 1px);
-    grid-template-columns: 1fr;
-}
-
 .fl-footer {
     margin-top: auto;
     padding: calc(var(--scale-64) * 1px) 0;
@@ -342,12 +336,6 @@
 }
 
 @media (min-width: 768px) {
-    .fl-grid,
-    .fl-grid-4 {
-        gap: calc(var(--scale-24) * 1px);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .fl-footer {
         padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px)
     }
@@ -362,14 +350,6 @@
 }
 
 @media (min-width: 1024px) {
-    .fl-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .fl-grid.fl-grid-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
     .fl-footer-inner {
         padding: 0 calc(var(--scale-40) * 1px)
     }

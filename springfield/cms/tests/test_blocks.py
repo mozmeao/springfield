@@ -491,7 +491,7 @@ def test_icon_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -553,7 +553,7 @@ def test_filled_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -621,7 +621,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -694,7 +694,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
