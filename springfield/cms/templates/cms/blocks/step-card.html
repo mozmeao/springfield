@@ -23,7 +23,7 @@
               (min-width: 1440px) 500px,
               100vw
             ",
-            width=(value.dark_image.width / 2)|round|int,
+            width=value.dark_image.width,
             loading="lazy",
             class="display-dark",
           ) }}
@@ -37,7 +37,7 @@
             (min-width: 1440px) 500px,
             100vw
           ",
-          width=(value.image.width / 2)|round|int,
+          width=value.image.width,
           loading="lazy",
           class="display-light",
         ) }}

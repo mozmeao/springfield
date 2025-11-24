@@ -25,9 +25,9 @@
   <content:body>
     {{ value.content|richtext }}
   </content:body>
-  {% if value.button %}
+  {% if value.buttons %}
     <content:buttons>
-      {% for button in value.button %}
+      {% for button in value.buttons %}
         {% set block_position = block_position ~ ".button-" ~ loop.index %}
         {% include_block button %}
       {% endfor %}
