@@ -9,7 +9,7 @@
    ================================================ */
 
 :root {
-    --navigation-menu-height: 60px;
+    --fl-navigation-menu-height: 60px;
 }
 
 /* ================================================
@@ -311,8 +311,8 @@
         top: 0;
         right: 0;
         width: 100%;
-        height: calc(100vh - var(--navigation-menu-height));
-        margin-top: var(--navigation-menu-height);
+        height: calc(100vh - var(--fl-navigation-menu-height));
+        margin-top: var(--fl-navigation-menu-height);
         padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-128) * 1px);
         display: block;
         background: var(--fl-theme-surface-page);
@@ -406,7 +406,7 @@
     .fl-menu-category:focus-within .fl-menu-panel {
         display: block;
         position: absolute;
-        top: var(--navigation-menu-height);
+        top: var(--fl-navigation-menu-height);
         border: 2px solid var(--fl-theme-border-color-subtle);
     }
 
