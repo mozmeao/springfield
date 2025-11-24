@@ -10,7 +10,7 @@
 
 :root {
     --navigation-menu-mobile-height: 62px;
-    --navigation-menu-height: 72px;
+    --navigation-menu-height: 64px;
 }
 
 /* ================================================
@@ -154,7 +154,7 @@
 }
 
 .fl-nav-link {
-    font-family: var(--fl-theme-font-family-body);
+    font-family: var(--token-font-family-mozilla-text-protocol);
     font-size: var(--fl-theme-font-size-base);
     color: var(--fl-theme-navigation-link);
     text-decoration: none;
@@ -177,6 +177,9 @@
 
 .fl-header .download-link {
     padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
+    border-radius: calc(var(--token-scale-4) * 1px);
+    font-weight: var(--token-font-weight-bold);
+    font-family: var(--token-font-family-mozilla-text-protocol);
 }
 
 .fl-nav-mobile-download-link {
@@ -203,7 +206,8 @@
 .fl-menu-title h2,
 .fl-menu-subtitle {
     color: var(--fl-theme-color-text-body);
-    font-family: var(--token-font-family-metropolis);
+    font-family: var(--token-font-family-mozilla-headline);
+    font-weight: var(--token-font-weight-regular);
     font-size: 1.125rem;
     margin-bottom: calc(var(--token-scale-8) * 1px);
     text-decoration: none;
@@ -352,6 +356,10 @@
         padding: 0;
     }
 
+    .fl-logo-fx, .fl-header .download-link {
+        margin: calc(var(--token-scale-8) * 1px) 0;
+    }
+
     .fl-header .download-link {
         display: block;
     }
@@ -379,7 +387,7 @@
 
     .fl-menu-category {
         margin: 0;
-        padding: calc(var(--token-scale-24) * 1px) 0;
+        padding: calc(var(--token-scale-16) * 1px + 2px) 0;
         cursor: pointer;
     }
 
