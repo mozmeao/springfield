@@ -19,9 +19,9 @@
 
 .fl-page-blog .fl-section-container {
     max-width: 700px;
-    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    background: var(--fl-theme-surface-page);
     position: relative;
-    padding-top: calc(var(--scale-40) * 1px);
+    padding-top: calc(var(--token-scale-40) * 1px);
 }
 
 @media (min-width: 1024px) {

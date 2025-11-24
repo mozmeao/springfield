@@ -73,7 +73,7 @@
 }
 
 .fl-intro-media .fl-video {
-    border-radius: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
 }
 
 .intro-media img {
