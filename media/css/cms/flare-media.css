@@ -31,7 +31,7 @@
 }
 
 .fl-video-play:focus {
-    outline: 2px solid var(--blue-blue);
+    outline: 2px solid var(--token-blue-blue);
     outline-offset: 2px;
 }
 
@@ -65,12 +65,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: calc(var(--scale-24) * 1px);
+    padding: calc(var(--token-scale-24) * 1px);
     text-align: center;
     min-height: 200px;
 }
 
 .fl-video-error p {
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
     margin: 0;
 }
