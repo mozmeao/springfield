@@ -27,6 +27,7 @@ from springfield.cms.fixtures.card_fixtures import (
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page, get_kit_banner_variants
 from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
@@ -904,3 +905,50 @@ def test_banner_block(index_page, placeholder_images, rf):
                 assert media_element.find("div", class_="fl-banner-qr").find("svg")
                 if media_value.get("background"):
                     assert media_element.find("img")
+
+
+def test_kit_banner_block(index_page, rf):
+    banners = get_kit_banner_variants()
+    test_page = get_kit_banner_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Kit Banner blocks
+    banner_elements = soup.find_all("div", class_="fl-banner-kit")
+    assert len(banner_elements) == len(banners)
+
+    for index, banner in enumerate(banners):
+        banner_element = banner_elements[index]
+
+        settings = banner["value"]["settings"]
+        theme = settings["theme"].replace("filled-", "").replace("filled", "")
+        if theme:
+            assert f"fl-banner-kit-{theme}" in banner_element["class"]
+
+        # Heading
+        heading_block = banner["value"]["heading"]
+        assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=index)
+
+        heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+        # Buttons
+        buttons = banner["value"]["buttons"]
+        button_elements = banner_element.find_all("a", class_="fl-button")
+        for button_index, button in enumerate(buttons):
+            button_element = button_elements[button_index]
+            cta_position = f"block-{index + 1}-kit_banner.button-{button_index + 1}"
+            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            assert_button_attributes(
+                button_element=button_element,
+                button_data=button,
+                context=context,
+                cta_position=cta_position,
+                cta_text=cta_text,
+            )
