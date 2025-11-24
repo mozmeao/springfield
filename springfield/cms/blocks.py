@@ -427,15 +427,14 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
-        image = ImageChooserBlock(
+        media = blocks.StreamBlock(
+            [
+                ("image", LightDarkImageBlock()),
+                ("video", VideoBlock()),
+            ],
+            label="Media",
             required=False,
-        )
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        video = blocks.ListBlock(
-            VideoBlock(),
-            min_num=0,
             max_num=1,
-            default=[],
         )
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -771,15 +770,14 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
     class _IntroBlock(blocks.StructBlock):
         settings = IntroBlockSettings()
-        image = ImageChooserBlock(
+        media = blocks.StreamBlock(
+            [
+                ("image", LightDarkImageBlock()),
+                ("video", VideoBlock()),
+            ],
+            label="Media",
             required=False,
-        )
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        video = blocks.ListBlock(
-            VideoBlock(),
-            min_num=0,
             max_num=1,
-            default=[],
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
