@@ -1,0 +1,445 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* ================================================
+   CSS Variables
+   ================================================ */
+
+:root {
+    --navigation-menu-height: 60px;
+}
+
+/* ================================================
+   Header Base Styles
+   ================================================ */
+
+.fl-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 18px calc(var(--token-scale-40) * 1px);
+    border-bottom: 2px solid var(--fl-theme-border-color-subtle);
+    background: var(--fl-theme-surface-page);
+}
+
+.fl-header a {
+    text-decoration: none;
+}
+
+.fl-header a:hover {
+    text-decoration: underline;
+}
+
+.fl-header ul {
+    list-style: none;
+}
+
+.fl-header-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ================================================
+   Logo
+   ================================================ */
+
+.fl-logo-fx {
+    width: 120px;
+    height: 40px;
+    margin: 0;
+    text-indent: -9999px;
+    overflow: hidden;
+    white-space: nowrap;
+    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
+    background-size: 120px 40px;
+    text-decoration: none;
+    z-index: 1;
+}
+
+/* ================================================
+   Hamburger Menu
+   ================================================ */
+
+.fl-hamburger {
+    width: 40px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: transparent;
+    background-image: linear-gradient(var(--fl-theme-navigation-icon), var(--fl-theme-navigation-icon));
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 16px 2px;
+    border: none;
+    border-radius: calc(var(--token-scale-4) * 1px);
+    cursor: pointer;
+    transition: background-size var(--token-transition-base);
+}
+
+.fl-hamburger::before,
+.fl-hamburger::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--fl-theme-navigation-icon);
+    border-radius: 1px;
+    transition: transform var(--token-transition-base), top var(--token-transition-base), bottom var(--token-transition-base);
+}
+
+.fl-hamburger::before {
+    top: 9px;
+}
+
+.fl-hamburger::after {
+    bottom: 9px;
+}
+
+.fl-hamburger[aria-expanded="true"] {
+    background-size: 0 0;
+}
+
+.fl-hamburger[aria-expanded="true"]::before {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.fl-hamburger[aria-expanded="true"]::after {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ================================================
+   Navigation
+   ================================================ */
+
+.fl-nav {
+    display: none;
+    flex-grow: 1;
+    background: var(--fl-theme-surface-page);
+}
+
+.fl-nav a[href^='http']::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: calc(var(--token-scale-8) * 1px);
+    background-color: var(--fl-theme-color-text-body);
+    background-repeat: no-repeat;
+    background-size: contain;
+    mask-image: url('/media/img/icons/external.svg');
+    vertical-align: baseline;
+}
+
+.fl-nav-menu {
+    display: flex;
+    flex-direction: column;
+    justify-items: start;
+    gap: calc(var(--token-scale-32) * 1px);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fl-nav-link {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-base);
+    color: var(--fl-theme-navigation-link);
+    text-decoration: none;
+}
+
+.fl-nav-link,
+.fl-nav-link :visited {
+    color: var(--fl-theme-color-text-body);
+}
+
+/* ================================================
+   Download Links
+   ================================================ */
+
+.fl-header .download-link,
+.fl-header .mzp-c-button-download-privacy-link {
+    display: none;
+    margin: 0;
+}
+
+.fl-header .download-link {
+    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
+    border-radius: calc(var(--token-scale-4) * 1px);
+    font-weight: var(--token-font-weight-bold);
+    font-family: var(--token-font-family-mozilla-text-protocol);
+}
+
+.fl-nav-mobile-download-link {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
+    border-top: 2px solid var(--fl-theme-border-color-subtle);
+    background: var(--fl-theme-surface-page);
+}
+
+.fl-nav-mobile-download-link .download-link {
+    display: block;
+    width: 100%;
+    padding: calc(var(--token-scale-12) * 1px);
+}
+
+/* ================================================
+   Menu Panel Styles
+   ================================================ */
+
+.fl-menu-title,
+.fl-menu-title h2,
+.fl-menu-subtitle {
+    color: var(--fl-theme-color-text-body);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-regular);
+    font-size: 1.125rem;
+    margin-bottom: calc(var(--token-scale-8) * 1px);
+    text-decoration: none;
+}
+
+.fl-menu-category h2::after {
+    content: '';
+    display: none;
+    width: 24px;
+    height: 24px;
+    background-color: var(--fl-theme-color-text-body);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    mask-image: url('/media/img/cms/caret.svg');
+    vertical-align: top;
+    transform: scale(0.8);
+    transform-origin: center;
+    transition: transform 0.1s ease;
+}
+
+.fl-menu-category:hover h2::after,
+.fl-menu-category:focus-within h2::after {
+    transform: rotate(180deg) scale(0.8);
+}
+
+.fl-menu-category-link a {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    color: var(--token-neutrals-black);
+}
+
+.fl-menu-category-link a:link,
+.fl-menu-category-link a:visited {
+    display: flex;
+    justify-content: space-between;
+    margin: calc(var(--token-scale-8) * 1px) 0 0;
+    padding: calc(var(--token-scale-8) * 1px);
+    background: var(--token-orange-light-orange);
+    font-weight: 600;
+    position: relative;
+}
+
+.fl-menu-category-link a:hover,
+.fl-menu-category-link a:focus {
+    background: var(--token-orange-medium-orange);
+}
+
+.fl-menu-category-link svg {
+    width: auto;
+    height: 0.8em;
+    position: relative;
+    transition-duration: var(--token-transition-fast);
+    transition-timing-function: var(--token-transition-bezier);
+}
+
+.fl-menu-panel-content {
+    max-width: 1440px;
+    padding: calc(var(--token-scale-24) * 1px);
+    background-color: var(--fl-theme-surface-panel);
+}
+
+.fl-menu-panel-content ul {
+    margin-bottom: calc(var(--token-scale-16) * 1px);
+}
+
+.fl-menu-panel-content li {
+    margin-bottom: calc(var(--token-scale-8) * 1px);
+}
+
+.fl-menu-panel-content ul:last-child,
+.fl-menu-panel-content li:last-child {
+    margin-bottom: 0;
+}
+
+/* ================================================
+   Media Queries - Mobile (max-width: 767px)
+   ================================================ */
+
+@media (max-width: 767px) {
+    .fl-header {
+        padding: calc(var(--token-scale-8) * 1px) calc(var(--token-scale-24) * 1px);
+    }
+
+    .fl-nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--token-scale-40) * 1px);
+    }
+
+    .fl-nav.is-open {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: calc(100vh - var(--navigation-menu-height));
+        margin-top: var(--navigation-menu-height);
+        padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-128) * 1px);
+        display: block;
+        background: var(--fl-theme-surface-page);
+        overflow: hidden auto;
+        z-index: 1000;
+    }
+
+    .fl-menu-panel-content-column {
+        padding-top: calc(var(--token-scale-24) * 1px);
+    }
+
+    .fl-menu-panel-content-column:first-child {
+        padding-top: 0;
+    }
+
+    .fl-hamburger {
+        display: inline-flex;
+        margin: 0;
+    }
+
+    .fl-hamburger.is-open {
+        width: 40px;
+        background: transparent url('/media/img/cms/close.svg') center center no-repeat;
+        text-indent: -9999px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: left;
+        direction: ltr;
+    }
+
+    .fl-hamburger.is-open::before,
+    .fl-hamburger.is-open::after {
+        content: none;
+    }
+}
+
+/* ================================================
+   Media Queries - Desktop (min-width: 768px)
+   ================================================ */
+
+@media (min-width: 768px) {
+    .fl-header {
+        padding: 0;
+    }
+
+    .fl-logo-fx, .fl-header .download-link {
+        margin: calc(var(--token-scale-8) * 1px) 0;
+    }
+
+    .fl-header .download-link {
+        display: block;
+    }
+
+    .fl-header-inner {
+        padding: 0 calc(var(--token-scale-40) * 1px);
+    }
+
+    .fl-nav-mobile-download-link,
+    .fl-hamburger,
+    .fl-menu-panel {
+        display: none;
+    }
+
+    .fl-nav {
+        position: static;
+        display: flex;
+        justify-content: center;
+        flex-grow: 1;
+    }
+
+    .fl-nav-menu {
+        flex-direction: row;
+    }
+
+    .fl-menu-category {
+        margin: 0;
+        padding: calc(var(--token-scale-16) * 1px + 2px) 0;
+        cursor: pointer;
+    }
+
+    .fl-menu-category h2::after {
+        display: inline-block;
+    }
+
+    .fl-menu-title h2 {
+        margin: 0;
+        padding: 0 calc(var(--token-scale-32) * 1px);
+    }
+
+    .fl-menu-category:hover .fl-menu-panel,
+    .fl-menu-category:focus-within .fl-menu-panel {
+        display: block;
+        position: absolute;
+        top: var(--navigation-menu-height);
+        border: 2px solid var(--fl-theme-border-color-subtle);
+    }
+
+    .fl-menu-category:hover #fl-menu-panel-features,
+    .fl-menu-category:focus-within #fl-menu-panel-features {
+        min-width: 350px;
+    }
+
+    .fl-menu-panel-content {
+        display: flex;
+        background-color: var(--fl-theme-surface-page);
+    }
+
+    .fl-menu-panel-content-column {
+        width: 100%;
+        min-width: max-content;
+        margin-right: calc(var(--token-scale-32) * 1px);
+    }
+
+    .fl-menu-panel-content-column:last-child {
+        margin-right: 0;
+    }
+}
+
+/* ================================================
+   Media Queries - Dark Mode
+   ================================================ */
+
+@media (prefers-color-scheme: dark) {
+    .fl-logo-fx {
+        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    }
+
+    .fl-hamburger.is-open {
+        background: transparent url('/media/img/cms/close-white.svg') center center no-repeat;
+    }
+}
+
+/* Mobile dark mode override */
+@media (max-width: 767px) and (prefers-color-scheme: dark) {
+    .fl-hamburger.is-open {
+        background: transparent url('/media/img/cms/close-white.svg') center center no-repeat;
+    }
+}
