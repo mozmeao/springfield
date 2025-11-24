@@ -170,6 +170,7 @@
 
 .fl-header .fl-fx-download-container,
 .fl-header .mzp-c-button-download-privacy-link {
+    /* stylelint-disable-next-line declaration-no-important */
     display: none !important; /* overrides flare utilities */
     margin: 0;
 }
@@ -196,6 +197,7 @@
 }
 
 .fl-nav-mobile-download-link .fl-fx-download-container {
+    /* stylelint-disable-next-line declaration-no-important */
     display: block !important; /* overrides flare utilities */
 }
 
@@ -369,6 +371,7 @@
     }
 
     .fl-header .fl-fx-download-container {
+        /* stylelint-disable-next-line declaration-no-important */
         display: block !important; /* overrides flare utilities */
     }
 
