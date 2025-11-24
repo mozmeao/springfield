@@ -115,6 +115,12 @@ runtime conditions. Design tokens live in flare-tokens.css.
     color-scheme: light dark;
 }
 
+.whats-new-page {
+    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-button: var(--token-font-family-metropolis);
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         /* Core text colors */
