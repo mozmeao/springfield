@@ -49,7 +49,7 @@ specific exceptions that can't be handled by the other layers
     order: 3;
 }
 
-@media (--viewport-phone-only) {
+@media (--viewport-xsmall) {
     .fl-mediacontent-content .button {
         width: 100%;
     }
@@ -59,13 +59,13 @@ specific exceptions that can't be handled by the other layers
     }
 }
 
-@media (--viewport-tablet-portrait-up) {
+@media (--viewport-small-up) {
     .fl-footer-cta .button {
         width: unset;
     }
 }
 
-@media (--viewport-tablet-landscape-up) {
+@media (--viewport-medium-up) {
     .fl-mediacontent .button {
         width: fit-content
     }

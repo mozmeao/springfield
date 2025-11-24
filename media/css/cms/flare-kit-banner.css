@@ -86,7 +86,7 @@
     color: var(--token-neutrals-white);
 }
 
-@media (--viewport-tablet-portrait-up) {
+@media (--viewport-small-up) {
     .fl-banner-kit {
         --kit-banner-padding-right: 48px;
         --kit-banner-padding-bottom: 80px;
@@ -138,7 +138,7 @@
 
 }
 
-@media (--viewport-tablet-landscape-up) {
+@media (--viewport-medium-up) {
     .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-face,
@@ -179,7 +179,7 @@
     }
 }
 
-@media (--viewport-desktop-up) {
+@media (--viewport-large-up) {
     .fl-banner-kit-tail {
         --kit-img-position: bottom -4px right -90px;
         --kit-banner-padding-right: 600px;

@@ -24,7 +24,7 @@
     padding-top: calc(var(--scale-40) * 1px);
 }
 
-@media (--viewport-tablet-landscape-up) {
+@media (--viewport-medium-up) {
     .fl-section-container {
         gap: calc(var(--token-scale-64) * 1px);
     }
@@ -38,7 +38,7 @@
     }
 }
 
-@media (--viewport-phone-only) {
+@media (--viewport-xsmall) {
     .fl-section {
         margin-bottom: 0;
     }
@@ -70,7 +70,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr))
 }
 
-@media (--viewport-desktop-up) {
+@media (--viewport-large-up) {
     .fl-section-mobile .fl-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr))
     }

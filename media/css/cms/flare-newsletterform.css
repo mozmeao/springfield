@@ -157,7 +157,7 @@
     color: var(--token-neutrals-charcoal);
 }
 
-@media (--viewport-phone-only) {
+@media (--viewport-xsmall) {
     .fl-section-subscribe {
         order: 6
     }
