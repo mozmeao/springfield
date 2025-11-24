@@ -5,7 +5,7 @@
 */
 
 .fl-heading, .fl-heading-group, .fl-rich-text h1, .fl-rich-text h2, .fl-rich-text h3, .fl-rich-text h4, .fl-rich-text h5, .fl-rich-text h6 {
-    font-family: var(--token-font-family-metropolis);
+    font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-primary);
@@ -29,7 +29,7 @@
 }
 
 .fl-superheading {
-    font-family: var(--token-font-family-inter);
+    font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-superheading);
     font-weight: var(--token-font-weight-semibold);
     line-height: var(--fl-theme-line-height-base);
@@ -53,7 +53,7 @@
 }
 
 .fl-subheading {
-    font-family: var(--token-font-family-metropolis);
+    font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-subheading-1);
     font-weight: var(--token-font-weight-medium);
     line-height: var(--fl-theme-line-height-base);
@@ -68,7 +68,7 @@
 .fl-subheading-5 { font-size: var(--fl-theme-font-size-subheading-5); }
 
 .fl-body, .fl-rich-text {
-    font-family: var(--token-font-family-inter);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     font-weight: var(--token-font-weight-regular);
     line-height: var(--fl-theme-line-height-base);
@@ -135,7 +135,7 @@
 
 .fl-rich-text ul,
 .fl-rich-text ol {
-    font-family: var(--token-font-family-inter);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-body);
@@ -148,7 +148,7 @@
 }
 
 .fl-rich-text blockquote {
-    font-family: var(--token-font-family-inter);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-secondary);
