@@ -99,3 +99,34 @@ non-deterministic so you need to check and adjust the results as needed.
     --token-transition-fast: 0.15s ease;
     --token-transition-base: 0.2s ease;
 }
+
+/* These @custom-media breakpoints set the following viewport sizes.
+Note that the device type in parentheses is only for intuitive reference,
+but not a guarantee since there is a wide range of devices with each
+viewport size and users may resize their browsers to different sizes.
+
+xsmall: < 600px (phones)
+small: 600px - 899px (tablets in portrait)
+medium: 900px - 1199px (tablets in landscape)
+large: 1200px - 1799px (laptops and desktops)
+xlarge: > 1799px (big monitors)
+
+Start with base styles (no media query) for mobile first design, then
+add styles for larger viewports using --viewport-*-up media queries.
+
+Use --viewport-* queries sparingly, to target a specific viewport size.
+
+There are no --viewport-*-down queries to encourage mobile-first design.
+*/
+
+/* stylelint-disable at-rule-no-unknown */
+@custom-media --viewport-small-up (min-width: 600px);
+@custom-media --viewport-medium-up (min-width: 900px);
+@custom-media --viewport-large-up (min-width: 1200px);
+@custom-media --viewport-xlarge-up (min-width: 1800px);
+
+@custom-media --viewport-xsmall (max-width: 599px);
+@custom-media --viewport-small (min-width: 600px) and (max-width: 899px);
+@custom-media --viewport-medium (min-width: 900px) and (max-width: 1199px);
+@custom-media --viewport-large (min-width: 1200px) and (max-width: 1799px);
+@custom-media --viewport-xlarge (min-width: 1800px);

@@ -44,7 +44,7 @@
     display: none;
 }
 
-@media (min-width: 1025px) {
+@media (--viewport-medium-up) {
     .fl-logo-fx {
         margin: 0;
     }
@@ -370,7 +370,7 @@
     width: 100%;
 }
 
-@media (min-width: 768px) {
+@media (--viewport-small-up) {
     .fl-grid,
     .fl-grid-4 {
         gap: calc(var(--token-scale-24) * 1px);
@@ -390,7 +390,7 @@
     }
 }
 
-@media (min-width: 1024px) {
+@media (--viewport-medium-up) {
     .fl-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -441,7 +441,7 @@
     text-align: center;
 }
 
-@media (max-width: 767px) {
+@media (--viewport-xsmall) {
     .fl-main {
         padding: 0;
     }
