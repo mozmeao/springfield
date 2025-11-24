@@ -10,6 +10,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const postcssCustomMedia = require('postcss-custom-media');
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
@@ -89,6 +90,14 @@ module.exports = {
                         options: {
                             url: false,
                             import: false
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [postcssCustomMedia()]
+                            }
                         }
                     },
                     {

@@ -1,0 +1,106 @@
+name: "Kit Banner variants"
+context:
+  variants:
+    - title: "No Kit"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "With Small Curious Kit"
+      theme: "filled-small"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "Large Curious Kit"
+      theme: "filled-large"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "With Sitting Kit"
+      theme: "filled-face"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+
+    - title: "With Kit Tail"
+      theme: "filled-tail"
+      heading:
+        level: "h2"
+        heading_text: "Psst... we’ve got a new look coming soon 👀"
+        heading_size: "heading-size-2"
+        subheading_text: "Lorem ipsom dolor sit amet, curious fox, sneak peekum next brandum in arrivo. Praesent magic vibes, fresh looks, and loyal-user sparkle. 🦊✨"
+      buttons:
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"
+        - label: "Sneak Peek"
+          link: "/"
+          external: false
+          icon_name: "arrow-right"
+          icon_position: "right"
+          theme_class: "button-tertiary"

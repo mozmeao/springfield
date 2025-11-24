@@ -1,0 +1,192 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-banner-kit {
+    --kit-img: none; /* These are added with a utility class below. */
+    --kit-banner-padding-bottom: 24px;
+    --kit-img-size: min(90%, 400px) min(30%, 200px);
+    --kit-banner-padding-right: 24px;
+    --kit-img-position: bottom center;
+    background-image: var(--kit-img), var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
+    background-size: var(--kit-img-size), 600px 600px, cover;
+    background-position: var(--kit-img-position), center, center;
+    background-repeat: no-repeat, repeat, no-repeat;
+    color: var(--token-neutrals-white);
+    border: none;
+    position: relative;
+    padding-right: var(--kit-banner-padding-right);
+    padding-bottom: var(--kit-banner-padding-bottom);
+}
+
+.fl-banner-kit .fl-banner-content {
+    max-width: 600px;
+}
+
+.fl-banner-kit .fl-body-text,
+.fl-banner-kit .fl-heading,
+.fl-banner-kit .fl-subheading,
+.fl-banner-kit .fl-superheading {
+    color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit-small,
+.fl-banner-kit-large,
+.fl-banner-kit-face {
+    --kit-banner-padding-bottom: 160px;
+}
+
+.fl-banner-kit-small,
+.fl-banner-kit-large {
+    --kit-img: url('/media/img/firefox/flare/fox-brand.svg');
+}
+
+.fl-banner-kit-face {
+    --kit-img: url('/media/img/firefox/flare/forward-facing-kit.svg');
+}
+
+.fl-banner-kit-tail {
+    --kit-img: url('/media/img/firefox/flare/kit-tail.png');
+    --kit-img-size: auto 200px;
+    --kit-img-position: bottom -4px right -60px;
+    --kit-banner-padding-bottom: 210px;
+}
+
+
+.fl-banner-kit .fl-button:not([class*="button-"]) {
+    color: var(--token-neutrals-white);
+    border-color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button:not([class*="button-"]):hover,
+.fl-banner-kit .fl-button:not([class*="button-"]):focus,
+.fl-banner-kit .fl-button:not([class*="button-"]):active {
+    color: var(--token-purple-dark-purple);
+    background-color: var(--token-neutrals-ash);
+    border-color: var(--token-neutrals-charcoal);
+}
+
+.fl-banner-kit .fl-button.button-ghost {
+    color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button.button-ghost:hover,
+.fl-banner-kit .fl-button.button-ghost:focus,
+.fl-banner-kit .fl-button.button-ghost:active {
+    background: var(--token-neutrals-white);
+    color: var(--token-purple-dark-purple);
+}
+
+.fl-banner-kit .fl-button.button-secondary:hover,
+.fl-banner-kit .fl-button.button-secondary:focus,
+.fl-banner-kit .fl-button.button-secondary:active {
+    background: var(--token-blue-medium-blue);
+    color: var(--token-neutrals-white);
+}
+
+@media (--viewport-small-up) {
+    .fl-banner-kit {
+        --kit-banner-padding-right: 48px;
+        --kit-banner-padding-bottom: 80px;
+    }
+
+    .fl-banner-kit-large .fl-banner-content,
+    .fl-banner-kit-tail .fl-banner-content {
+        text-align: left;
+        align-items: initial;
+        margin-left: 0;
+    }
+
+
+    .fl-banner.fl-banner-kit-small {
+        padding-bottom: calc(var(--token-scale-128) * 1px);
+    }
+
+    .fl-banner-kit-large .fl-buttons,
+    .fl-banner-kit-tail .fl-buttons {
+        justify-content: left;
+    }
+
+    .fl-banner-kit-small,
+    .fl-banner-kit-large,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-bottom: 200px;
+        --kit-img-position: bottom right;
+    }
+
+    .fl-banner-kit-small {
+        --kit-img-size: 40% auto;
+    }
+
+    .fl-banner-kit-large {
+        --kit-img-size: 55% auto;
+        --kit-img-position: bottom right -10%;
+        --kit-banner-padding-bottom: 140px;
+    }
+
+    .fl-banner-kit-face {
+        --kit-banner-padding-bottom: 180px;
+    }
+
+    .fl-banner-kit-tail {
+        --kit-img-size: auto 260px;
+        --kit-img-position: bottom -4px right -90px;
+    }
+
+
+}
+
+@media (--viewport-medium-up) {
+    .fl-banner-kit-small,
+    .fl-banner-kit-large,
+    .fl-banner-kit-face,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-bottom: 80px;
+    }
+
+
+    .fl-banner-kit-face .fl-banner-content {
+        text-align: left;
+        margin: unset;
+    }
+
+    .fl-banner-kit-face .fl-buttons {
+        justify-content: left;
+    }
+
+    .fl-banner-kit-large,
+    .fl-banner-kit-face,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-right: 300px;
+    }
+
+    .fl-banner-kit-face {
+        --kit-img-size: 280px auto;
+        --kit-img-position: bottom right 18%;
+    }
+
+    .fl-banner-kit-tail {
+        --kit-img-size: auto 380px;
+        --kit-img-position: bottom -4px right -290px;
+    }
+
+    .fl-banner-kit-large .fl-banner-content,
+    .fl-banner-kit-face .fl-banner-content,
+    .fl-banner-kit-tail .fl-banner-content {
+        margin: 0 auto;
+    }
+}
+
+@media (--viewport-large-up) {
+    .fl-banner-kit-tail {
+        --kit-img-position: bottom -4px right -90px;
+        --kit-banner-padding-right: 600px;
+    }
+
+    .fl-banner-kit-large,
+    .fl-banner-kit-face {
+        --kit-banner-padding-right: 400px;
+    }
+}
