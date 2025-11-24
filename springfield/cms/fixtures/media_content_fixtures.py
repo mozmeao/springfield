@@ -8,12 +8,14 @@ from django.conf import settings
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants, get_cta_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
+from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage
 
 
 def get_media_content_variants() -> list[dict]:
     tags = list(get_tag_variants().values())
     buttons = get_button_variants()
+    videos = get_video_variants()
     return [
         {
             "type": "media_content",
@@ -52,14 +54,32 @@ def get_media_content_variants() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": None,
+                "dark_image": None,
+                "video": [{**videos["youtube"], "type": "item"}],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">More tag and button variations</p>',
+                "headline": '<p data-block-key="4h9nd">Video + Content</p>',
                 "tags": tags[6:9],
-                "content": '<p data-block-key="4fkrh">More tag variations and some <b>richtext</b> formatting examples.</p>',
+                "content": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
                 "buttons": [
                     buttons["tertiary"],
+                ],
+            },
+            "id": "6e56b431-f30f-43c9-8fed-3b74f50873f2",
+        },
+        {
+            "type": "media_content",
+            "value": {
+                "settings": {"media_after": True},
+                "image": None,
+                "dark_image": None,
+                "video": [{**videos["cdn"], "type": "item"}],
+                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
+                "headline": '<p data-block-key="4h9nd">Video + Content Before</p>',
+                "tags": tags[9:12],
+                "content": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                "buttons": [
+                    buttons["ghost"],
                 ],
             },
             "id": "6e56b431-f30f-43c9-8fed-3b74f50873f2",

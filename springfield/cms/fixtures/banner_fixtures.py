@@ -5,11 +5,13 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage
 
 
 def get_banner_variants():
     buttons = get_button_variants()
+    videos = get_video_variants()
     return [
         {
             "type": "banner",
@@ -179,17 +181,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {"theme": "outlined", "media_after": False, "show_to": "all"},
-                "media": [
-                    {
-                        "type": "video",
-                        "value": {
-                            "video_url": "https://www.youtube.com/watch?v=F-nFQryDB0s&list=PLFlAJDI87Jg3WeEerUpaKQNaYoDlIwPbG",
-                            "alt": "Describe the video here.",
-                            "poster": settings.PLACEHOLDER_IMAGE_ID,
-                        },
-                        "id": "5d272340-402a-4f4c-9a4f-b4c308207452",
-                    }
-                ],
+                "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with Video</p>',
@@ -204,17 +196,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {"theme": "purple", "media_after": True, "show_to": "all"},
-                "media": [
-                    {
-                        "type": "video",
-                        "value": {
-                            "video_url": "https://www.youtube.com/watch?v=F-nFQryDB0s&list=PLFlAJDI87Jg3WeEerUpaKQNaYoDlIwPbG",
-                            "alt": "Describe the video here.",
-                            "poster": settings.PLACEHOLDER_IMAGE_ID,
-                        },
-                        "id": "5bd338e8-aa03-4a03-8506-68124b4ad724",
-                    }
-                ],
+                "media": [videos["cdn"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with Video</p>',
