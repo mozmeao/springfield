@@ -26,7 +26,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-color-text-body: var(--token-neutrals-black);
 
     /* Core surface colors */
-    --fl-theme-surface-page: var(--token-neutrals-ash);
+    --fl-theme-surface-page: var(--token-neutrals-white);
     --fl-theme-surface-panel: var(--token-neutrals-ash);
     --fl-theme-surface-elevated: var(--token-neutrals-white);
     --fl-theme-surface-hover: var(--token-neutrals-white);
@@ -68,11 +68,11 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-code-surface: var(--token-neutrals-grey-3);
 
     /* Typography variables */
-    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
     --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
-    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
-    --fl-theme-font-family-button: var(--token-font-family-metropolis);
+    --fl-theme-font-family-button: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-button: var(--token-font-weight-medium);
 
         /* Font size variables NOT from Figma */

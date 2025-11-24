@@ -9,8 +9,7 @@
    ================================================ */
 
 :root {
-    --navigation-menu-mobile-height: 62px;
-    --navigation-menu-height: 64px;
+    --navigation-menu-height: 60px;
 }
 
 /* ================================================
@@ -154,7 +153,7 @@
 }
 
 .fl-nav-link {
-    font-family: var(--token-font-family-mozilla-text-protocol);
+    font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-base);
     color: var(--fl-theme-navigation-link);
     text-decoration: none;
@@ -206,16 +205,11 @@
 .fl-menu-title h2,
 .fl-menu-subtitle {
     color: var(--fl-theme-color-text-body);
-    font-family: var(--token-font-family-mozilla-headline);
+    font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-regular);
     font-size: 1.125rem;
     margin-bottom: calc(var(--token-scale-8) * 1px);
     text-decoration: none;
-}
-
-.fl-menu-title,
-.fl-menu-title h2 {
-    font-size: 1.25rem;
 }
 
 .fl-menu-category h2::after {
@@ -295,7 +289,7 @@
 
 @media (max-width: 767px) {
     .fl-header {
-        padding: 10px calc(var(--token-scale-24) * 1px)
+        padding: calc(var(--token-scale-8) * 1px) calc(var(--token-scale-24) * 1px);
     }
 
     .fl-nav-menu {
@@ -309,8 +303,8 @@
         top: 0;
         right: 0;
         width: 100%;
-        height: calc(100vh - var(--navigation-menu-mobile-height));
-        margin-top: var(--navigation-menu-mobile-height);
+        height: calc(100vh - var(--navigation-menu-height));
+        margin-top: var(--navigation-menu-height);
         padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-128) * 1px);
         display: block;
         background: var(--fl-theme-surface-page);
@@ -415,6 +409,7 @@
 
     .fl-menu-panel-content {
         display: flex;
+        background-color: var(--fl-theme-surface-page);
     }
 
     .fl-menu-panel-content-column {
