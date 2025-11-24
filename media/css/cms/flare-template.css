@@ -7,6 +7,12 @@
 /* This file contains the styles the template
 *  (footer, page content, etc.) */
 
+body.fl-modal-open {
+    position: fixed;
+    height: 100vh;
+    overflow-y: hidden;
+}
+
 .fl-page {
     min-height: 100vh;
     display: flex;

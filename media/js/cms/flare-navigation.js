@@ -17,12 +17,12 @@
             elements.forEach(function (el) {
                 el.classList.remove('is-open');
             });
-            document.body.classList.remove('modal-open');
+            document.body.classList.remove('fl-modal-open');
         } else {
             elements.forEach(function (el) {
                 el.classList.add('is-open');
             });
-            document.body.classList.add('modal-open');
+            document.body.classList.add('fl-modal-open');
         }
     });
 })();
