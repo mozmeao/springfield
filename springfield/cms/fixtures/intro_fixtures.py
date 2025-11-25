@@ -6,11 +6,13 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage
 
 
 def get_intro_variants() -> list[dict]:
     buttons = get_button_variants()
+    videos = get_video_variants()
     return [
         {
             "type": "intro",
@@ -63,6 +65,40 @@ def get_intro_variants() -> list[dict]:
                 ],
             },
             "id": "92d2e6a1-6116-4416-a449-e02cda310afb",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "video": [{**videos["youtube"], "type": "item"}],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with YouTube Video</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add a Video instead of the image. '
+                    "Use a YouTube video URL or a link to assets.mozilla.net.</p>",
+                },
+                "buttons": [buttons["ghost"]],
+            },
+            "id": "98b08efa-ddd2-4feb-b070-6a50781fc253",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "before"},
+                "image": None,
+                "dark_image": None,
+                "video": [{**videos["cdn"], "type": "item"}],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with CDN Video</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add a Video instead of the image. '
+                    "Use a YouTube video URL or a link to assets.mozilla.net.</p>",
+                },
+                "buttons": [buttons["primary"]],
+            },
+            "id": "98856064-26db-45eb-862f-e0e87a9c9736",
         },
     ]
 

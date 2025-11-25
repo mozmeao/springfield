@@ -41,13 +41,12 @@
     </content:buttons>
   {% endif %}
 
-  {% if value.embed or value.image %}
+  {% if value.video or value.image %}
     <content:media>
-      {% if value.embed %}
-        {# Jinja interprets the HTML from the embed block as a string #}
-        {% autoescape false %}
-          {% include_block value.embed %}
-        {% endautoescape %}
+      {% if value.video %}
+        {% for block in value.video %}
+          {% include_block block %}
+        {% endfor %}
       {% elif value.image %}
         <div class="light-dark-display">
           {% if value.dark_image %}

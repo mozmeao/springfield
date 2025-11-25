@@ -4,9 +4,9 @@
 
 from uuid import uuid4
 
-from wagtail import blocks
+from django.core.exceptions import ValidationError
 
-# from wagtail.embeds.blocks import EmbedBlock
+from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
 
@@ -128,6 +128,12 @@ UITOUR_BUTTON_CHOICES = (
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+
+
+def validate_video_url(value):
+    if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
+        raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
+    return value
 
 
 # Element blocks
@@ -352,57 +358,46 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class InlineNotificationSettings(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
-    color = blocks.ChoiceBlock(
-        choices=[
-            ("white", "White"),
-            ("black", "Black"),
-            ("blue", "Blue"),
-            ("purple", "Purple"),
-            ("orange", "Orange"),
-            ("yellow", "Yellow"),
-        ],
+class LightDarkImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    dark_image = ImageChooserBlock(
         required=False,
-        inline_form=True,
-    )
-    inverted = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Inverted colors on icon background",
-    )
-    closable = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Show close button",
-    )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
-        label="Show To",
-        inline_form=True,
-        help_text="Control which users can see this content block",
+        label="Dark Mode Image",
+        help_text="Optional dark mode image",
     )
 
     class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
-        form_classname = "compact-form struct-block"
+        label = "Image"
+        label_format = "Image - {image}"
+        template = "cms/blocks/light-dark-image.html"
 
 
-class InlineNotificationBlock(blocks.StructBlock):
-    settings = InlineNotificationSettings()
-    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+class VideoBlock(blocks.StructBlock):
+    video_url = blocks.URLBlock(
+        label="Video URL",
+        help_text="Link to a video from YouTube or assets.mozilla.net.",
+        validators=[validate_video_url],
+    )
+    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
+    poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
 
     class Meta:
-        template = "cms/blocks/inline-notification.html"
-        label = "Inline Notification"
-        label_format = "{message}"
-        form_classname = "compact-form struct-block"
+        label = "Video"
+        label_format = "Video - {video_url}"
+        template = "cms/blocks/video.html"
+
+
+class QRCodeBlock(blocks.StructBlock):
+    data = blocks.URLBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    background = ImageChooserBlock(
+        required=False,
+        help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. "
+        "This image will be cropped to a square on mobile.",
+    )
+
+    class Meta:
+        label = "QR Code"
+        label_format = "QR Code - {data}"
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -432,22 +427,16 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
-        # TODO: re-enable the embed block and make the image optional
-        # when this issue with Wagtail Localize is resolved
-        # https://github.com/wagtail/wagtail-localize/issues/875
         image = ImageChooserBlock(
-            # required=False,
-            # help_text="Either an image or embed is required.",
-            inline_form=True,
+            required=False,
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        # embed = EmbedBlock(
-        #     required=False,
-        #     help_text="Either an image or embed is required.",
-        #     max_width=800,
-        #     max_height=400,
-        #     inline_form=True,
-        # )
+        video = blocks.ListBlock(
+            VideoBlock(),
+            min_num=0,
+            max_num=1,
+            default=[],
+        )
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
@@ -464,13 +453,15 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{headline}"
             template = "cms/blocks/media-content.html"
 
-        # def clean(self, value):
-        #     cleaned_data = super().clean(value)
-        #     if not cleaned_data.get("image") and not cleaned_data.get("embed"):
-        #         raise ValidationError(
-        #             "Either an image or embed is required.",
-        #         )
-        #     return cleaned_data
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image, not both.")
+            return cleaned_data
 
     return _MediaContentBlock(*args, **kwargs)
 
@@ -701,6 +692,59 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 # Section blocks
 
 
+class InlineNotificationSettings(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("white", "White"),
+            ("black", "Black"),
+            ("blue", "Blue"),
+            ("purple", "Purple"),
+            ("orange", "Orange"),
+            ("yellow", "Yellow"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    inverted = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Inverted colors on icon background",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button",
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class InlineNotificationBlock(blocks.StructBlock):
+    settings = InlineNotificationSettings()
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/inline-notification.html"
+        label = "Inline Notification"
+        label_format = "{message}"
+        form_classname = "compact-form struct-block"
+
+
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),
@@ -729,18 +773,14 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings()
         image = ImageChooserBlock(
             required=False,
-            # help_text="Either enter an image or embed, or leave both blank.",
         )
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        # TODO: re-enable the block when this issue with Wagtail Localize is resolved
-        # https://github.com/wagtail/wagtail-localize/issues/875
-        # embed = EmbedBlock(
-        #     required=False,
-        #     max_width=800,
-        #     max_height=400,
-        #     inline_form=True,
-        #     help_text="Either enter an image or embed, or leave both blank.",
-        # )
+        video = blocks.ListBlock(
+            VideoBlock(),
+            min_num=0,
+            max_num=1,
+            default=[],
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -753,6 +793,16 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/sections/intro.html"
             label = "Intro"
             label_format = "{heading}"
+
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image, not both.")
+            return cleaned_data
 
     return _IntroBlock(*args, **kwargs)
 
@@ -819,11 +869,7 @@ class BannerSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
             ("outlined", "Outlined"),
-            ("filled", "Filled, no Kit Image"),
-            ("filled-small", "Filled with Small Curious Kit"),
-            ("filled-large", "Filled with Large Curious Kit"),
-            ("filled-face", "Filled with Sitting Kit"),
-            ("filled-tail", "Filled with Kit Tail"),
+            ("purple", "Purple"),
         ),
         default="outlined",
         inline_form=True,
@@ -856,19 +902,21 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
 
     class _BannerBlock(blocks.StructBlock):
         settings = BannerSettings()
-        image = ImageChooserBlock(
+        media = blocks.StreamBlock(
+            [
+                ("image", LightDarkImageBlock()),
+                ("video", VideoBlock()),
+                ("qr_code", QRCodeBlock()),
+            ],
+            label="Media",
             required=False,
-            help_text="To use as a QR Code background, this image should be 1200x675, expecting a 300px square directly in the center",
-        )
-        qr_code = blocks.CharBlock(
-            required=False,
-            help_text="Content to encode in the QR code, e.g., a URL or text. To add a background image, upload an image above.",
+            max_num=1,
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=1,
+            max_num=2,
             required=False,
         )
 
@@ -877,4 +925,63 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             label = "Banner"
             label_format = "{heading}"
 
+        def clean(self, value):
+            cleaned_data = super().clean(value)
+            image = cleaned_data.get("image")
+            qr_code = cleaned_data.get("qr_code")
+            video = cleaned_data.get("video")
+
+            if video and (qr_code or image):
+                raise ValidationError("Please, either provide a video or an image/QR code, not both.")
+            return cleaned_data
+
     return _BannerBlock(*args, **kwargs)
+
+
+class KitBannerSettings(blocks.StructBlock):
+    theme = blocks.ChoiceBlock(
+        (
+            ("filled", "No Kit Image"),
+            ("filled-small", "With Small Curious Kit"),
+            ("filled-large", "With Large Curious Kit"),
+            ("filled-face", "With Sitting Kit"),
+            ("filled-tail", "With Kit Tail"),
+        ),
+        default="filled",
+        inline_form=True,
+    )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Theme: {theme} - Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+def KitBannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create KitBannerBlock with appropriate button types."""
+
+    class _KitBannerBlock(blocks.StructBlock):
+        settings = KitBannerSettings()
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/kit-banner.html"
+            label = "Kit Banner"
+            label_format = "{heading}"
+
+    return _KitBannerBlock(*args, **kwargs)

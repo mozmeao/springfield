@@ -203,15 +203,85 @@
         });
     }
 
+    function applyVideoAspectRatios() {
+        const videoContainers = document.querySelectorAll(
+            '.fl-video[data-aspect-ratio]'
+        );
+
+        videoContainers.forEach(function (container) {
+            const ratio = container.getAttribute('data-aspect-ratio');
+
+            if (!ratio) {
+                return;
+            }
+
+            container.style.aspectRatio = ratio;
+        });
+    }
+
+    function initVideoPlayers() {
+        const videoButtons = document.querySelectorAll('.js-video-play');
+
+        videoButtons.forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const videoType = button.getAttribute('data-video-type');
+                const container = button.closest('.fl-video');
+
+                if (!container) return;
+
+                if (videoType === 'youtube') {
+                    const videoId = button.getAttribute('data-video-id');
+
+                    if (!videoId) return;
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+                    iframe.title = button.getAttribute('aria-label') || 'Video';
+                    iframe.allowFullscreen = true;
+                    button.remove();
+                    container.appendChild(iframe);
+                } else if (videoType === 'cdn') {
+                    const videoUrl = button.getAttribute('data-video-url');
+                    const posterUrl = button.getAttribute('data-video-poster');
+
+                    if (!videoUrl) return;
+
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.autoplay = true;
+
+                    if (posterUrl) {
+                        video.poster = posterUrl;
+                    }
+
+                    const source = document.createElement('source');
+                    source.src = videoUrl;
+                    source.type = 'video/webm';
+
+                    video.appendChild(source);
+
+                    button.remove();
+                    container.appendChild(video);
+                }
+            });
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
             handleNewsletterSubmission();
             initNotificationClose();
+            applyVideoAspectRatios();
+            initVideoPlayers();
         });
     } else {
         initNewsletterForm();
         handleNewsletterSubmission();
         initNotificationClose();
+        applyVideoAspectRatios();
+        initVideoPlayers();
     }
 })();
