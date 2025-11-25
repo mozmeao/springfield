@@ -7,7 +7,7 @@
 
 .fl-card-grid {
     display: grid;
-    gap: calc(var(--scale-32) * 1px);
+    gap: calc(var(--token-scale-32) * 1px);
     grid-template-columns: 1fr;
 }
 
@@ -132,7 +132,7 @@
 
 @media (min-width: 768px) {
     .fl-card-grid {
-        gap: calc(var(--scale-24) * 1px);
+        gap: calc(var(--token-scale-24) * 1px);
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
