@@ -1456,3 +1456,8 @@ if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bo
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
     SUPPORTED_NONLOCALES.append("silk")
     SILKY_PYTHON_PROFILER = config("SILKY_PYTHON_PROFILER", default="False", parser=bool)
+
+# CMS page and block testing
+PLACEHOLDER_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1000", parser=int)
+PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", parser=int)
+PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)

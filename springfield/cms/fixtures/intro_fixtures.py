@@ -1,0 +1,84 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from django.conf import settings
+
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.models import FreeFormPage
+
+
+def get_intro_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Simple Intro with text and button</p>',
+                    "subheading_text": '<p data-block-key="png3s">When no image is provided, the Intro component gets a centralized layout.</p>',
+                },
+                "buttons": [
+                    buttons["primary"],
+                ],
+            },
+            "id": "a95b0d6d-861a-4a93-826b-f5db992e766e",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with image</p>',
+                    "subheading_text": '<p data-block-key="png3s">Switch your browser to Dark Mode to see the alternative image.</p>',
+                },
+                "buttons": [
+                    buttons["secondary"],
+                ],
+            },
+            "id": "6e8994ca-1437-4f97-80e0-7e82d40e64d9",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "before"},
+                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with image before</p>',
+                    "subheading_text": '<p data-block-key="png3s">Change the Intro layout in the settings field to position '
+                    "the image before the content.</p>",
+                },
+                "buttons": [
+                    buttons["tertiary"],
+                ],
+            },
+            "id": "92d2e6a1-6116-4416-a449-e02cda310afb",
+        },
+    ]
+
+
+def get_intro_test_page():
+    get_placeholder_images()
+    index_page = get_test_index_page()
+
+    page = FreeFormPage.objects.filter(slug="test-intro-page").first()
+    if not page:
+        page = FreeFormPage(
+            slug="test-intro-page",
+            title="Test Intro Page",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = get_intro_variants()
+    page.save_revision().publish()
+    return page
