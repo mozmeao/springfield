@@ -9,6 +9,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Base */
 
 .fl-footer {
+    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-headline: var(--token-font-family-inter);
     background-color: var(--fl-theme-surface-page);
     color: var(--fl-theme-color-text-body);
     margin: 0;
