@@ -57,8 +57,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 centralize breakpoints once and flip CSS variables inside.
 components consume the variables (no per-component media queries) */
 
-/* Media query for 768px and larger */
-@media (min-width: 768px) {
+@media (--viewport-sm-up) {
     :root {
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;

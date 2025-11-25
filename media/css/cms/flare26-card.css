@@ -151,7 +151,7 @@ Card - Flare 2026 Design System Cards
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-@media (min-width: 1024px) {
+@media (--viewport-md-up) {
     .fl-grid {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
