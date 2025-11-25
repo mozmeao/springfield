@@ -17,9 +17,9 @@ Card - Flare 2026 Design System Cards
     gap: calc(var(--token-scale-24) * 1px);
     padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-32) * 1px) calc(var(--token-scale-40) * 1px);
     border-radius: var(--token-border-radius-md);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, var(--token-color-white) 100%);
-    box-shadow: 0 32px 72px rgba(21, 20, 26, 0.16);
-    color: var(--token-color-black-4);
+    background: var(--fl-theme-surface-card-gradient);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text-card);
     text-align: center;
     min-height: 494px;
     overflow: hidden;
@@ -115,7 +115,7 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card.fl-card-fill {
-    background: linear-gradient(180deg, rgba(241, 231, 251, 0.64) 0%, var(--token-color-white) 100%);
+    background: var(--token-gradient-soft-purple);
 }
 
 .fl-card.fl-card-expand-link {
@@ -162,12 +162,6 @@ Card - Flare 2026 Design System Cards
 }
 
 @media (prefers-color-scheme: dark) {
-    .fl-card {
-        background: linear-gradient(180deg, rgba(21, 20, 26, 0.72) 0%, rgba(21, 20, 26, 0.9) 100%);
-        box-shadow: 0 32px 64px rgba(0, 0, 0, 0.45);
-        color: var(--token-color-off-white);
-    }
-
     .fl-card .fl-body {
         color: inherit;
     }

@@ -50,6 +50,13 @@ Static values extracted from Figma that do not change based on context.
     --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
     --token-gradient-privacy: linear-gradient(90deg, #ae49ec 0%, #210340 100%);
 
+    /* Light and dark gradients */
+    --token-gradient-light: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, var(--token-color-white) 100%);
+    --token-gradient-dark: linear-gradient(180deg, rgba(21, 20, 26, 0.72) 0%, rgba(21, 20, 26, 0.9) 100%);
+
+    /* Soft purple gradient */
+    --token-gradient-soft-purple: linear-gradient(180deg, rgba(241, 231, 251, 0.64) 0%, var(--token-color-white) 100%);
+
     /* Radial purple gradient */
     --token-gradient-radial-purple: radial-gradient(
         74.06% 118.24% at 50% -18.24%,

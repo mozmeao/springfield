@@ -11,6 +11,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 ===================================================================== */
 
 :root {
+    /* Text colors */
+    --fl-theme-color-text-card: var(--token-color-black-4);
+
+    /* Surface colors */
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
     --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
@@ -49,8 +55,24 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-justify-content: center;
     --fl-theme-default-text-align: center;
 
+    /* Shadows */
+    --fl-theme-shadow-card: 0 32px 72px rgba(21, 20, 26, 0.16);
+
     /* Dark mode support */
     color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Text colors */
+        --fl-theme-color-text-card: var(--token-color-white);
+
+        /* Surface colors */
+        --fl-theme-surface-card-gradient: var(--token-gradient-dark);
+
+        /* Shadows */
+        --fl-theme-shadow-card: 0 32px 64px rgba(0, 0, 0, 0.45);
+    }
 }
 
 /* CSS custom properties are not resolved in media queries; so we
