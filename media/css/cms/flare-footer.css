@@ -25,6 +25,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     font-weight: normal;
     text-decoration: none;
 }
+
 .fl-footer a:hover:not(.fl-button),
 .fl-footer a:focus:not(.fl-button),
 .fl-footer a:active:not(.fl-button) {
