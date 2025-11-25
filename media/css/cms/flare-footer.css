@@ -25,7 +25,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     font-weight: normal;
     text-decoration: none;
 }
-
 .fl-footer a:hover:not(.fl-button),
 .fl-footer a:focus:not(.fl-button),
 .fl-footer a:active:not(.fl-button) {
@@ -37,7 +36,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Primary Section */
 
 .fl-footer-inner {
-    max-width: 1440px;
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px);
     padding-bottom: 0;
@@ -305,7 +304,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* external link icon */
 .fl-footer-section a[href^='http']::after {
     content: '';
-    background-color: var(--token-neutrals-black);
+    background-color: var(--fl-theme-color-text-body);
     background-repeat: no-repeat;
     background-size: contain;
     mask-image: url('/media/img/icons/external.svg');
@@ -318,12 +317,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .is-closed[aria-hidden='true'] {
     display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fl-footer-section a[href^='http']::after {
-        background-color: var(--token-neutrals-white);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -384,7 +377,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Secondary Section */
 
 .fl-footer-secondary {
-    max-width: 1440px;
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     position: relative;
     color: var(--fl-theme-color-text-secondary);
