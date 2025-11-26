@@ -42,8 +42,8 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
 @import 'flare-template.css' layer(template);
+@import 'flare-footer.css' layer(template);
 
-@import 'flare-footer.css' layer(components);
 @import 'flare-icon.css' layer(components);
 @import 'flare-button.css' layer(components);
 @import 'flare-tag.css' layer(components);
