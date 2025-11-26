@@ -11,11 +11,6 @@
     grid-template-columns: 1fr;
 }
 
-
-.fl-card-grid > div[class=""] {
-    display: contents;
-}
-
 .fl-card-grid .conditional-display .fl-card {
     height: 100%;
 }
