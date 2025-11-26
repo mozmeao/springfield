@@ -38,7 +38,7 @@
 }
 
 .fl-header-inner {
-    max-width: var(--token-widths-viewport-wrapper-screen-2xl);
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -273,7 +273,7 @@
 }
 
 .fl-menu-panel-content {
-    max-width: var(--token-widths-viewport-wrapper-screen-2xl);
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     padding: calc(var(--token-scale-24) * 1px);
     background-color: var(--fl-theme-surface-panel);
 }
