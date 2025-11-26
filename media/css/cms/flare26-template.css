@@ -11,7 +11,7 @@ This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
-    background: var(--token-color-purple-world);
+    background: var(--token-color-dark-purple);
     color: var(--token-color-white);
 }
 
@@ -95,7 +95,7 @@ body {
 }
 
 .fl-nav-link:hover {
-    color: light-dark(var(--token-color-link-purple), var(--token-color-vibrant-purple));
+    color: light-dark(var(--token-color-link-purple), var(--token-color-light-purple));
 }
 
 .fl-nav-icon {
@@ -144,7 +144,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-128) * 1px);
-    background-color: var(--token-color-vibrant-purple);
+    background-color: var(--token-color-light-purple);
     color: var(--token-color-white);
     font-family: var(--fl-theme-font-family-headline);
     font-weight: 700;
@@ -206,7 +206,7 @@ body {
 }
 
 .fl-footer-link:hover {
-    color: light-dark(var(--token-color-black-4), var(--token-color-off-white));
+    color: light-dark(var(--token-color-black-4), var(--token-color-grey-1));
 }
 
 .fl-footer-icon {
@@ -242,5 +242,5 @@ body {
 }
 
 .fl-footer-legal-link:hover {
-    color: var(--token-color-off-white);
+    color: var(--token-color-grey-1);
 }

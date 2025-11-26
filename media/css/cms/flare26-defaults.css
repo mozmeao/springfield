@@ -71,7 +71,7 @@ img, svg {
 }
 
 hr {
-    border-top: 1px solid var(--token-color-soft-purple-3);
+    border-top: 1px solid var(--token-color-soft-purple);
     margin: calc(var(--token-scale-16) * 1px) 0;
 }
 
@@ -91,7 +91,7 @@ li {
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
-    background: var(--token-color-vibrant-purple);
+    background: var(--token-color-light-purple);
     color: var(--token-color-white);
     border-radius: calc(var(--token-border-radius-md) * 1px);
     width: auto;
@@ -99,7 +99,7 @@ button, [role="button"] {
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: var(--token-color-vibrant-purple);
+    background: var(--token-color-light-purple);
     color: var(--token-color-white);
 }
 

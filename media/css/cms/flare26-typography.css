@@ -13,13 +13,13 @@
     font-family: monospace;
     font-size: 0.9em;
     background: var(--token-color-soft-purple);
-    color: var(--token-color-vibrant-purple);
+    color: var(--token-color-light-purple);
     padding: calc(var(--token-scale-2) * 1px) calc(var(--token-scale-4) * 1px);
 }
 
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
-    color: var(--token-color-vibrant-purple);
+    color: var(--token-color-light-purple);
     padding: calc(var(--token-scale-24) * 1px);
     border-radius: var(--token-border-radius-sm);
     overflow-x: auto;
@@ -46,7 +46,7 @@
 .fl-rich-text blockquote {
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-body-large);
-    border-left: calc(var(--token-scale-4) * 1px) solid var(--token-color-vibrant-purple);
+    border-left: calc(var(--token-scale-4) * 1px) solid var(--token-color-light-purple);
     padding-left: calc(var(--token-scale-16) * 1px);
     margin: calc(var(--token-scale-16) * 1px) 0;
 }

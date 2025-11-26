@@ -71,7 +71,7 @@ Card - Flare 2026 Design System Cards
     font-size: var(--fl-theme-font-size-body-2xsmall);
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: var(--token-color-vibrant-purple);
+    color: var(--token-color-light-purple);
 }
 
 .fl-card .fl-body {
@@ -111,7 +111,7 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card > div:has(.fl-card-icon) {
-    color: var(--token-color-vibrant-purple);
+    color: var(--token-color-light-purple);
 }
 
 .fl-card.fl-card-fill {
