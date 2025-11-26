@@ -17,6 +17,8 @@
    ================================================ */
 
 .fl-header {
+    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
+    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -153,7 +155,7 @@
 }
 
 .fl-nav-link {
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     color: var(--fl-theme-navigation-link);
     text-decoration: none;

@@ -61,6 +61,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-charcoal);
 
     /* Template / navigation accents */
+    --fl-theme-navigation-bg: var(--token-neutrals-white);
     --fl-theme-navigation-link: var(--token-neutrals-grey-8);
     --fl-theme-navigation-icon: var(--token-neutrals-grey-8);
 
@@ -75,7 +76,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-font-family-button: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-button: var(--token-font-weight-medium);
 
-        /* Font size variables NOT from Figma */
+    /* Font size variables NOT from Figma */
     --fl-theme-font-size-base: 16px;
     --fl-theme-font-size-h1: 3rem;
     --fl-theme-font-size-h2: 2rem;
@@ -168,6 +169,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
         --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-black);
 
         /* Template / navigation accents */
+        --fl-theme-navigation-bg: var(--token-neutrals-black);
         --fl-theme-navigation-link: var(--token-neutrals-white);
         --fl-theme-navigation-icon: var(--token-neutrals-white);
 
