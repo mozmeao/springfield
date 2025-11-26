@@ -14,9 +14,9 @@ Card - Flare 2026 Design System Cards
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    gap: calc(var(--token-scale-24) * 1px);
-    padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-32) * 1px) calc(var(--token-scale-40) * 1px);
-    border-radius: var(--token-border-radius-md);
+    gap: var(--token-spacing-xl);
+    padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
+    border-radius: var(--token-border-radius-lg);
     background: var(--fl-theme-surface-card-gradient);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
@@ -28,7 +28,7 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card:hover {
-    transform: translateY(calc(var(--token-scale-2) * -1px));
+    transform: translateY(-2px);
     box-shadow: 0 40px 96px rgba(33, 3, 64, 0.22);
 }
 
@@ -42,7 +42,7 @@ Card - Flare 2026 Design System Cards
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: calc(var(--token-scale-8) * 1px);
+    gap: var(--token-spacing-sm);
     flex: 1 1 auto;
     width: 100%;
 }
@@ -59,13 +59,13 @@ Card - Flare 2026 Design System Cards
 
 .fl-card > div:has(.fl-card-sticker) {
     order: 1;
-    margin-top: calc(var(--token-scale-4) * 1px);
+    margin-top: var(--token-spacing-xs);
 }
 
 .fl-card .fl-superheading {
     order: -1;
     display: block;
-    margin: 0 0 calc(var(--token-scale-24) * 1px);
+    margin: 0 0 var(--token-spacing-xl);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-medium);
     font-size: var(--fl-theme-font-size-body-2xsmall);
@@ -89,9 +89,9 @@ Card - Flare 2026 Design System Cards
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: calc(var(--token-scale-16) * 1px);
+    gap: var(--token-spacing-lg);
     flex-wrap: wrap;
-    margin-top: calc(var(--token-scale-16) * 1px);
+    margin-top: var(--token-spacing-lg);
 }
 
 .fl-card .fl-buttons:empty {
@@ -143,7 +143,7 @@ Card - Flare 2026 Design System Cards
 .fl-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: calc(var(--token-scale-16) * 1px);
+    gap: var(--token-spacing-lg);
     align-items: stretch;
 }
 

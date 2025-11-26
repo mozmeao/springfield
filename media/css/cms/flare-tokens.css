@@ -93,7 +93,7 @@ non-deterministic so you need to check and adjust the results as needed.
     --token-font-weight-bold: 700; /* Inter only */
 
     /* Other variables from Figma */
-    --token-border-radius-md: 8px;
+    --token-border-radius-lg: 8px;
 
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;

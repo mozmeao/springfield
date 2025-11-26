@@ -46,32 +46,28 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-dark-purple) 100%
     );
 
-    /* Unitless scale variables from Figma */
-    --token-scale-0: 0;
-    --token-scale-2: 2;
-    --token-scale-4: 4;
-    --token-scale-8: 8;
-    --token-scale-12: 12;
-    --token-scale-16: 16;
-    --token-scale-18: 18;
-    --token-scale-20: 20;
-    --token-scale-24: 24;
-    --token-scale-32: 32;
-    --token-scale-40: 40;
-    --token-scale-48: 48;
-    --token-scale-56: 56;
-    --token-scale-64: 64;
-    --token-scale-80: 80;
-    --token-scale-104: 104;
-    --token-scale-128: 128;
-    --token-scale-148: 148;
-    --token-scale-160: 160;
-    --token-scale-200: 200;
+    /* Spacing variables */
+    --token-spacing-2xs: 2px;
+    --token-spacing-xs: 4px;
+    --token-spacing-sm: 8px;
+    --token-spacing-md: 12px;
+    --token-spacing-lg: 16px;
+    --token-spacing-xl: 24px;
+    --token-spacing-2xl: 32px;
+    --token-spacing-3xl: 40px;
+
+    /* Layout variables */
+    --token-layout-xs: 48px;
+    --token-layout-sm: 64px;
+    --token-layout-md: 80px;
+    --token-layout-lg: 128px;
+    --token-layout-xl: 160px;
+    --token-layout-2xl: 200px;
 
     /* Border radius variables */
-    --token-border-radius-sm: 38px;
-    --token-border-radius-md: 50px;
-    --token-border-radius-lg: 125px;
+    --token-border-radius-md: 38px;
+    --token-border-radius-lg: 50px;
+    --token-border-radius-xl: 125px;
 
     /* Width and viewport variables */
     --token-width-desktop-content: 697px;

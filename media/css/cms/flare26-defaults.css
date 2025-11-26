@@ -31,7 +31,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--fl-theme-font-weight-headline);
-    margin-bottom: calc(var(--token-scale-16) * 1px);
+    margin-bottom: var(--token-spacing-lg);
 }
 
 h1 { font-size: var(--fl-theme-font-size-h1); }
@@ -42,7 +42,7 @@ h5 { font-size: var(--fl-theme-font-size-h5); }
 h6 { font-size: var(--fl-theme-font-size-h6); }
 
 p {
-    margin: 0 0 calc(var(--token-scale-16) * 1px);
+    margin: 0 0 var(--token-spacing-lg);
     line-height: 1.6;
 }
 
@@ -61,7 +61,7 @@ a:hover, a:active, a:focus {
 }
 
 img, svg {
-    margin: 0 0 calc(var(--token-scale-16) * 1px);
+    margin: 0 0 var(--token-spacing-lg);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,7 +72,7 @@ img, svg {
 
 hr {
     border-top: 1px solid var(--token-color-soft-purple);
-    margin: calc(var(--token-scale-16) * 1px) 0;
+    margin: var(--token-spacing-lg) 0;
 }
 
 /* Remove section border, since it was just used to provide a clean
@@ -82,18 +82,18 @@ section {
 }
 
 ul, ol {
-    margin: 0 0 calc(var(--token-scale-16) * 1px) calc(var(--token-scale-16) * 1px);
+    margin: 0 0 var(--token-spacing-lg) var(--token-spacing-lg);
 }
 
 li {
-    margin: 0 0 calc(var(--token-scale-16) * 1px);
+    margin: 0 0 var(--token-spacing-lg);
 }
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
     background: var(--token-color-light-purple);
     color: var(--token-color-white);
-    border-radius: calc(var(--token-border-radius-md) * 1px);
+    border-radius: var(--token-border-radius-lg);
     width: auto;
     height: auto;
 }

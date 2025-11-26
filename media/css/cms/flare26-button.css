@@ -12,34 +12,34 @@ Button - Flare 2026 Design System Buttons
 .fl-button {
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--token-scale-12) * 1px);
+    gap: var(--token-spacing-md);
     font-family: var(--fl-theme-font-family-body);
     font-weight: 600;
     text-decoration: none;
     border: none;
     cursor: pointer;
     transition: background-color var(--token-transition-fast), color var(--token-transition-fast), border-color var(--token-transition-fast);
-    border-radius: var(--token-border-radius-lg);
+    border-radius: var(--token-border-radius-xl);
     white-space: nowrap;
 }
 
 /* Button sizes */
 .fl-button-large {
     font-size: var(--fl-theme-font-size-body-medium);
-    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-32) * 1px);
-    height: calc(var(--token-scale-56) * 1px);
+    padding: var(--token-spacing-lg) var(--token-spacing-2xl);
+    height: var(--token-layout-sm);
 }
 
 .fl-button-medium {
     font-size: var(--fl-theme-font-size-base);
-    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
-    height: calc(var(--token-scale-48) * 1px);
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    height: var(--token-layout-xs);
 }
 
 .fl-button-small {
     font-size: var(--fl-theme-font-size-base);
-    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
-    height: calc(var(--token-scale-40) * 1px);
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    height: var(--token-spacing-3xl);
 }
 
 /* Button fills - Filled */
@@ -88,6 +88,6 @@ Button - Flare 2026 Design System Buttons
 
 /* Button icons */
 .fl-button .fl-icon {
-    width: calc(var(--token-scale-20) * 1px);
-    height: calc(var(--token-scale-20) * 1px);
+    width: var(--token-spacing-lg);
+    height: var(--token-spacing-lg);
 }
