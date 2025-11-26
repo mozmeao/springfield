@@ -9,7 +9,7 @@
    ================================================ */
 
 :root {
-    --fl-navigation-menu-height: 60px;
+    --fl-navigation-menu-height: 58px;
 }
 
 /* ================================================
@@ -361,6 +361,7 @@
 
 @media (min-width: 768px) {
     .fl-header {
+        --fl-navigation-menu-height: 60px;
         padding: 0;
     }
 
