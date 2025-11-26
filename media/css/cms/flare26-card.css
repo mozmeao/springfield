@@ -19,7 +19,7 @@ Card - Flare 2026 Design System Cards
     border-radius: var(--token-border-radius-md);
     background: var(--fl-theme-surface-card-gradient);
     box-shadow: var(--fl-theme-shadow-card);
-    color: var(--fl-theme-color-text-card);
+    color: var(--fl-theme-color-text);
     text-align: center;
     min-height: 494px;
     overflow: hidden;

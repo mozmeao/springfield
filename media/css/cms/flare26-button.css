@@ -59,7 +59,7 @@ Button - Flare 2026 Design System Buttons
 /* Button fills - Outline */
 .fl-button-outline {
     background-color: transparent;
-    color: light-dark(var(--token-color-black-4), var(--token-color-white));
+    color: var(--fl-theme-color-text);
     border: 2px solid currentColor;
 }
 
@@ -70,7 +70,7 @@ Button - Flare 2026 Design System Buttons
 /* Button fills - Text */
 .fl-button-text {
     background-color: transparent;
-    color: light-dark(var(--token-color-link-purple), var(--token-color-light-purple));
+    color: var(--fl-theme-button-primary);
     padding-left: 0;
     padding-right: 0;
 }

@@ -95,7 +95,7 @@ body {
 }
 
 .fl-nav-link:hover {
-    color: light-dark(var(--token-color-link-purple), var(--token-color-light-purple));
+    color: var(--fl-theme-color-link-hover);
 }
 
 .fl-nav-icon {
@@ -124,7 +124,7 @@ body {
     position: relative;
     padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-16) * 1px) calc(var(--token-scale-48) * 1px);
     background: transparent;
-    color: light-dark(var(--token-color-black-4), var(--token-color-white));
+    color: var(--fl-theme-color-text);
 }
 
 .fl-footer-inner {
@@ -206,7 +206,7 @@ body {
 }
 
 .fl-footer-link:hover {
-    color: light-dark(var(--token-color-black-4), var(--token-color-grey-1));
+    color: var(--fl-theme-color-link-alt-hover);
 }
 
 .fl-footer-icon {
