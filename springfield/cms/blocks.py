@@ -324,6 +324,15 @@ class CTABlock(blocks.StructBlock):
         label_format = "Link - {label}"
 
 
+class TagButtonBlock(ButtonBlock):
+    tag = blocks.CharBlock()
+
+    class Meta:
+        template = "cms/blocks/tag-button.html"
+        label = "Tag Button"
+        label_format = "Tag Button - {label}"
+
+
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
@@ -985,3 +994,22 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _KitBannerBlock(*args, **kwargs)
+
+
+# Homepage
+
+
+class HomeIntroBlock(blocks.StructBlock):
+    preheading_button = blocks.ListBlock(TagButtonBlock(), min_num=0, max_num=1, default=[])
+    heading = HeadingBlock()
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+    class Meta:
+        template = "cms/blocks/home-intro.html"
+        label = "Home Intro"
+        label_format = "{heading}"

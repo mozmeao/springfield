@@ -12,6 +12,8 @@ from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
     BannerBlock,
+    CardsListBlock,
+    HomeIntroBlock,
     InlineNotificationBlock,
     IntroBlock,
     KitBannerBlock,
@@ -94,6 +96,26 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
         context = super().get_context(request, *args, **kwargs)
         context["utm_parameters"] = self.get_utm_parameters()
         return context
+
+
+class HomePage(AbstractSpringfieldCMSPage):
+    upper_content = StreamField(
+        [
+            ("intro", HomeIntroBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+        ],
+        use_json_field=True,
+    )
+    lower_content = StreamField([], null=True, blank=True, use_json_field=True)
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    class Meta:
+        verbose_name = "Home Page"
+        verbose_name_plural = "Home Pages"
 
 
 class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
