@@ -19,6 +19,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     padding: 0;
 }
 
+.whats-new-page .fl-footer a:link:not(.fl-button),
+.whats-new-page .fl-footer a:visited:not(.fl-button) {
+    color: var(--fl-theme-color-text-body);
+}
+
 .fl-footer a:link:not(.fl-button),
 .fl-footer a:visited:not(.fl-button) {
     color: var(--token-neutrals-white);
@@ -30,6 +35,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer a:focus:not(.fl-button),
 .fl-footer a:active:not(.fl-button) {
     text-decoration: underline;
+}
+
+.whats-new-page .fl-footer {
+    background-color: var(--fl-theme-surface-page);
+    color: var(--fl-theme-color-text-body);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,6 +113,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             'platforms business';
         grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-bottom: calc(var(--token-scale-32) * 1px);
+    }
+    .whats-new-page .fl-footer-sections-list .fl-footer-section-download {
+        border-bottom: 1px solid var(--fl-theme-color-text-secondary);
     }
 
     .fl-footer-sections-list
@@ -205,6 +218,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     line-height: 1.5;
 }
 
+.whats-new-page .fl-footer-heading {
+    color: var(--fl-theme-color-text-secondary);
+}
+
 @media (min-width: 480px) {
     .fl-footer-heading {
         padding: 0 0 calc(var(--token-scale-8) * 1px);
@@ -224,6 +241,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     font-weight: bold;
     font-size: calc(var(--token-scale-16) * 1px);
     line-height: 1.5;
+}
+
+.whats-new-page .fl-footer-subheading {
+    color: var(--fl-theme-color-text-secondary);
 }
 
 @media (max-width: 479px) {
@@ -316,6 +337,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     margin-left: calc(var(--token-scale-8) * 1px);
 }
 
+.whats-new-page .fl-footer-section a[href^='http']::after {
+    background-color: var(--fl-theme-color-text-body);
+}
+
 .is-closed[aria-hidden='true'] {
     display: none;
 }
@@ -332,6 +357,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer-logo a {
     background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     background-size: contain;
+    background-repeat: no-repeat;
     display: block;
     width: 200px;
     height: 67px;
@@ -345,6 +371,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .whats-new-page .fl-footer-logo {
     width: auto;
+}
+
+.whats-new-page .fl-footer-logo a {
+    background-image: url('/media/img/logos/firefox/logo-word-hor.svg');
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .whats-new-page .fl-footer-logo a {
+        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    }
 }
 
 @media screen and (min-width: 1024px) {
@@ -373,9 +409,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     color: var(--token-neutrals-grey-3);
 }
 
+.whats-new-page .fl-footer-secondary {
+    color: var(--fl-theme-color-text-secondary);
+}
+
 @media (max-width: 1023px) {
     .fl-footer-secondary {
-        padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) 0;
+        padding: calc(var(--token-scale-32) * 1px)
+            calc(var(--token-scale-24) * 1px) 0;
     }
 }
 
@@ -389,6 +430,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer-secondary a:link:not(.fl-button),
 .fl-footer-secondary a:visited:not(.fl-button) {
     color: var(--token-neutrals-grey-4);
+}
+
+.whats-new-page .fl-footer-secondary a:link:not(.fl-button),
+.whats-new-page .fl-footer-secondary a:visited:not(.fl-button) {
+    color: var(--fl-theme-color-text-secondary);
 }
 
 .fl-footer-secondary a:hover,
@@ -427,6 +473,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-decoration: none;
 }
 
+.whats-new-page .fl-footer-terms:not(.fl-button),
+.whats-new-page .fl-footer-terms a:visited:not(.fl-button) {
+    color: var(--fl-theme-color-text-secondary);
+}
+
 .fl-footer-terms a:link:not(.fl-button):hover,
 .fl-footer-terms a:link:not(.fl-button):focus,
 .fl-footer-terms a:visited:not(.fl-button):hover,
@@ -453,6 +504,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media screen and (max-width: 767px) {
     .fl-footer-more {
         border-top: 1px solid var(--token-neutrals-grey-3);
+    }
+
+    .whats-new-page .fl-footer-more {
+        border-color: var(--fl-theme-color-text-secondary);
     }
 }
 
@@ -484,11 +539,19 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     font-weight: bold;
 }
 
+.whats-new-page .fl-footer-branding h2 {
+    color: var(--fl-theme-color-text-body);
+}
+
 .fl-footer-branding p {
     margin: 0;
     font-size: calc(var(--token-scale-16) * 1px);
     color: var(--token-neutrals-white);
     line-height: 1.5;
+}
+
+.whats-new-page .fl-footer-branding p {
+    color: var(--fl-theme-color-text-body);
 }
 
 .fl-footer .fl-button-outline img {
@@ -510,6 +573,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     grid-column: 1;
 }
 
+.whats-new-page .fl-footer-copy {
+    color: var(--fl-theme-color-text-body);
+}
+
 .fl-footer-link {
     color: inherit;
     text-decoration: none;
@@ -522,6 +589,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer-divider {
     border: none;
     border-top: 1px solid var(--token-neutrals-grey-3);
+}
+
+.whats-new-page .fl-footer-divider {
+    border-color: var(--fl-theme-border-color-strong);
 }
 
 .fl-footer-bottom {
@@ -563,6 +634,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     color: var(--token-neutrals-grey-3);
 }
 
+.whats-new-page .fl-footer-links a {
+    color: var(--fl-theme-color-text-primary);
+}
+
 .fl-footer-title {
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-h3);
@@ -570,9 +645,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
+.whats-new-page .fl-footer-title {
+    color: var(--fl-theme-color-text-primary);
+}
+
 .fl-footer-subtitle {
     margin: 0;
     color: var(--token-neutrals-grey-3);
+}
+
+.whats-new-page .fl-footer-subtitle {
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-footer-note {
@@ -583,18 +666,22 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-align: center;
 }
 
+.whats-new-page .fl-footer-note {
+    color: var(--fl-theme-color-text-primary);
+}
+
 @media (max-width: 767px) {
-    .fl-footer .fl-footer-top{
+    .fl-footer .fl-footer-top {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
     }
 
-.fl-footer-copy {
+    .fl-footer-copy {
         margin-bottom: calc(var(--token-scale-16) * 1px);
     }
 
-.fl-footer-links {
+    .fl-footer-links {
         margin-bottom: calc(var(--token-scale-32) * 1px);
     }
 
