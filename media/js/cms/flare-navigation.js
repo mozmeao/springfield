@@ -6,7 +6,8 @@
 
 (function () {
     'use strict';
-    const buttonEl = document.querySelector('.fl-hamburger');
+    // Hamburger menu
+    const buttonEl = document.querySelector('.fl-show-mobile-menu');
 
     buttonEl.addEventListener('click', function (e) {
         e.preventDefault();
@@ -24,5 +25,60 @@
             });
             document.body.classList.add('fl-modal-open');
         }
+    });
+
+    // Menu panels
+
+    const menuCategories = document.querySelectorAll('.fl-menu-category');
+
+    // mouse is being used
+    menuCategories.forEach(function (category) {
+        category.addEventListener('mouseover', function () {
+            category.classList.add('is-active');
+        });
+        category.addEventListener('mouseout', function () {
+            category.classList.remove('is-active');
+        });
+    });
+
+    const menuTitles = document.querySelectorAll('.fl-menu-title');
+
+    // keyboard is being used
+    menuTitles.forEach(function (title) {
+
+        // when leaving the last link of a menu, close all menus
+        const menuLinks = title.closest('.fl-menu-category').querySelectorAll('a');
+        menuLinks[menuLinks.length - 1].addEventListener('keydown', function (event) {
+            if (event.key === 'Tab' && !event.shiftKey) {
+                menuCategories.forEach(function (category) {
+                    category.classList.remove('is-active');
+                });
+            }
+        });
+
+        // when clicking or pressing enter, toggle the menu
+        title.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const menuPanel = event.target.closest('.fl-menu-category');
+
+            if (menuPanel.classList.contains('is-active')) {
+                menuPanel.classList.remove('is-active');
+            } else {
+                menuPanel.classList.add('is-active');
+            }
+        });
+    });
+
+    const menuPanelCloseButtons = document.querySelectorAll(
+        '.fl-menu-close-button'
+    );
+
+    menuPanelCloseButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const menuPanel = event.target.closest('.fl-menu-category');
+            menuPanel.classList.remove('is-active');
+        });
     });
 })();

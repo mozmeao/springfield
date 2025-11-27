@@ -122,6 +122,20 @@
 }
 
 /* ================================================
+   Show Mobile Menu Button
+   ================================================ */
+
+.fl-show-mobile-menu {
+    font-weight: var(--token-font-weight-semibold);
+    text-decoration: underline;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--fl-theme-color-text-body);
+}
+
+/* ================================================
    Navigation
    ================================================ */
 
@@ -243,8 +257,7 @@
     transition: transform 0.1s ease;
 }
 
-.fl-menu-category:hover h2::after,
-.fl-menu-category:focus-within h2::after {
+.fl-menu-category.is-active h2::after {
     transform: rotate(180deg) scale(0.8);
 }
 
@@ -298,6 +311,38 @@
     margin-bottom: 0;
 }
 
+.fl-show-mobile-menu.is-open, .fl-menu-close-button-content {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin-right: calc(var(--token-scale-4) * 1px);
+    background-color: var(--fl-theme-color-text-body);
+    background-repeat: no-repeat;
+    background-size: contain;
+    mask-image: url('/media/img/firefox/flare/icons/close.svg');
+    text-indent: -9999px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: left;
+    direction: ltr;
+    display: inline-block;
+}
+
+.fl-menu-close-button {
+    background: transparent;
+    border-radius: 0;
+    padding: calc(var(--token-scale-2) * 1px);
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+    display: none;
+}
+
+.fl-menu-close-button-content {
+    margin: 0;
+}
+
 /* ================================================
    Media Queries - Mobile (max-width: 767px)
    ================================================ */
@@ -340,22 +385,6 @@
         margin: 0;
     }
 
-    .fl-hamburger.is-open {
-        width: 16px;
-        height: 16px;
-        padding: 0;
-        margin-right: calc(var(--token-scale-4) * 1px);
-        background-color: var(--fl-theme-color-text-body);
-        background-repeat: no-repeat;
-        background-size: contain;
-        mask-image: url('/media/img/firefox/flare/icons/close.svg');
-        text-indent: -9999px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-align: left;
-        direction: ltr;
-    }
-
     .fl-hamburger.is-open::before,
     .fl-hamburger.is-open::after {
         content: none;
@@ -386,6 +415,7 @@
 
     .fl-nav-mobile-download-link,
     .fl-hamburger,
+    .fl-show-mobile-menu,
     .fl-menu-panel {
         display: none;
     }
@@ -407,6 +437,10 @@
         cursor: pointer;
     }
 
+    .fl-menu-close-button {
+        display: block;
+    }
+
     .fl-menu-category h2::after {
         display: inline-block;
     }
@@ -416,16 +450,14 @@
         padding: 0 calc(var(--token-scale-8) * 1px);
     }
 
-    .fl-menu-category:hover .fl-menu-panel,
-    .fl-menu-category:focus-within .fl-menu-panel {
+    .fl-menu-category.is-active .fl-menu-panel {
         display: block;
         position: absolute;
         top: var(--fl-navigation-menu-height);
         border: 2px solid var(--fl-theme-border-color-subtle);
     }
 
-    .fl-menu-category:hover #fl-menu-panel-features,
-    .fl-menu-category:focus-within #fl-menu-panel-features {
+    .fl-menu-category.is-active #fl-menu-panel-features {
         min-width: 350px;
     }
 
