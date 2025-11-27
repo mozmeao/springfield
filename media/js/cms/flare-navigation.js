@@ -45,16 +45,20 @@
 
     // keyboard is being used
     menuTitles.forEach(function (title) {
-
         // when leaving the last link of a menu, close all menus
-        const menuLinks = title.closest('.fl-menu-category').querySelectorAll('a');
-        menuLinks[menuLinks.length - 1].addEventListener('keydown', function (event) {
-            if (event.key === 'Tab' && !event.shiftKey) {
-                menuCategories.forEach(function (category) {
-                    category.classList.remove('is-active');
-                });
+        const menuLinks = title
+            .closest('.fl-menu-category')
+            .querySelectorAll('a');
+        menuLinks[menuLinks.length - 1].addEventListener(
+            'keydown',
+            function (event) {
+                if (event.key === 'Tab' && !event.shiftKey) {
+                    menuCategories.forEach(function (category) {
+                        category.classList.remove('is-active');
+                    });
+                }
             }
-        });
+        );
 
         // when clicking or pressing enter, toggle the menu
         title.addEventListener('click', function (event) {
