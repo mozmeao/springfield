@@ -221,7 +221,7 @@
 .fl-menu-subtitle {
     color: var(--fl-theme-color-text-body);
     font-family: var(--fl-theme-font-family-headline);
-    font-weight: var(--token-font-weight-regular);
+    font-weight: var(--token-font-weight-semibold);
     font-size: 1.125rem;
     margin-bottom: calc(var(--token-scale-8) * 1px);
     text-decoration: none;
@@ -310,7 +310,7 @@
     .fl-nav-menu {
         display: flex;
         flex-direction: column;
-        gap: calc(var(--token-scale-40) * 1px);
+        gap: calc(var(--token-scale-16) * 1px);
     }
 
     .fl-nav.is-open {
@@ -320,7 +320,7 @@
         width: 100%;
         height: calc(100vh - var(--fl-navigation-menu-height));
         margin-top: var(--fl-navigation-menu-height);
-        padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-128) * 1px);
+        padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-16) * 1px) calc(var(--token-scale-128) * 1px);
         display: block;
         background: var(--fl-theme-surface-page);
         overflow: hidden auto;
@@ -368,7 +368,7 @@
 
 @media (min-width: 768px) {
     .fl-header {
-        --fl-navigation-menu-height: 60px;
+        --fl-navigation-menu-height: 56px;
         padding: 0;
     }
 
@@ -403,7 +403,7 @@
 
     .fl-menu-category {
         margin: 0;
-        padding: calc(var(--token-scale-16) * 1px + 2px) 0;
+        padding: calc(var(--token-scale-16) * 1px) 0;
         cursor: pointer;
     }
 
