@@ -177,7 +177,7 @@
 }
 
 .fl-header .download-link {
-    padding: calc(var(--token-scale-12) * 1px) calc(var(--token-scale-24) * 1px);
+    padding: 10px calc(var(--token-scale-24) * 1px);
     border-radius: calc(var(--token-scale-4) * 1px);
     font-weight: var(--token-font-weight-bold);
     display: block;
@@ -185,6 +185,11 @@
 
 .fl-header .download-link:hover {
     text-decoration: none;
+}
+
+.fl-header .fl-icon-download-white {
+    vertical-align: unset;
+    margin-left: 4px;
 }
 
 .fl-nav-mobile-download-link {
@@ -408,7 +413,7 @@
 
     .fl-menu-title h2 {
         margin: 0;
-        padding: 0 calc(var(--token-scale-32) * 1px);
+        padding: 0 calc(var(--token-scale-8) * 1px);
     }
 
     .fl-menu-category:hover .fl-menu-panel,
