@@ -114,6 +114,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-bottom: calc(var(--token-scale-32) * 1px);
     }
+
     .whats-new-page .fl-footer-sections-list .fl-footer-section-download {
         border-bottom: 1px solid var(--fl-theme-color-text-secondary);
     }
