@@ -261,7 +261,7 @@
     justify-content: space-between;
     margin: calc(var(--token-scale-8) * 1px) 0 0;
     padding: calc(var(--token-scale-8) * 1px);
-    background: var(--token-orange-light-orange);
+    background: var(--token-orange-lighter-orange);
     font-weight: 600;
     position: relative;
 }
