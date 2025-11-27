@@ -1,0 +1,96 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-carousel-heading {
+    text-align: center;
+    max-width: 848px;
+    margin: 0 auto;
+}
+
+.fl-carousel-has-kit .fl-carousel-slides {
+    margin-top: 100px;
+    position: relative;
+}
+
+.fl-carousel-has-kit .fl-carousel-slides::before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 200px;
+    height: 100px;
+    top: -100px;
+    left: calc(50% - 100px);
+    background: url("/media/img/firefox/flare/fox-brand.svg");
+    background-size: cover;
+}
+
+.fl-carousel-slides {
+    background: var(--token-gradient-purple);
+    border-radius: var(--token-border-radius-md);
+    padding: var(--token-layout-xs) var(--token-layout-xs) 0;
+}
+
+.fl-carousel-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    counter-reset: items;
+}
+
+.fl-carousel-control-item {
+    display: flex;
+    flex-direction: row;
+    gap: var(--token-spacing-md);
+    align-items: center;
+    justify-content: center;
+}
+
+.fl-carousel-control-item::before {
+    counter-increment: items;
+    content: counter(items, decimal-leading-zero);
+    display: block;
+    width: 36px;
+    height: 36px;
+    background-color: var(--token-color-dark-purple-30);
+    padding: var(--token-spacing-xs);
+    border-radius: 50%;
+    font-weight: var(--token-font-weight-bold);
+    color: var(--token-color-white);
+    text-align: center;
+}
+
+.fl-carousel-control-item.active::before {
+    background-color: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+}
+
+.fl-carousel-image:not(.active) {
+    display: none;
+}
+
+.fl-carousel-images {
+    background-color: var(--token-color-white);
+    border-top-left-radius: var(--token-border-radius-md);
+    border-top-right-radius: var(--token-border-radius-md);
+    padding: var(--token-spacing-lg) var(--token-spacing-lg) 0;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.fl-carousel-image img {
+    margin: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-carousel-control {
+        flex-direction: row;
+        gap: var(--token-spacing-3xl);
+    }
+}

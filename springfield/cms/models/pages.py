@@ -13,6 +13,7 @@ from wagtail.models import Page as WagtailBasePage
 from springfield.cms.blocks import (
     BannerBlock,
     CardsListBlock,
+    HomeCarouselBlock,
     HomeIntroBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -103,6 +104,7 @@ class HomePage(AbstractSpringfieldCMSPage):
         [
             ("intro", HomeIntroBlock()),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
     )

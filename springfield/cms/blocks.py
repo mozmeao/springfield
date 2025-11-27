@@ -1013,3 +1013,18 @@ class HomeIntroBlock(blocks.StructBlock):
         template = "cms/blocks/home-intro.html"
         label = "Home Intro"
         label_format = "{heading}"
+
+
+class HomeCarouselSlide(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    image = ImageChooserBlock()
+
+
+class HomeCarouselBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
+
+    class Meta:
+        template = "cms/blocks/sections/home-carousel.html"
+        label = "Home Carousel"
+        label_format = "{heading}"

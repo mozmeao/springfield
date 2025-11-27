@@ -28,7 +28,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
 
-        /* Font size variables NOT from Figma */
+    /* Font size variables NOT from Figma */
     --fl-theme-font-size-base: 16px;
     --fl-theme-font-size-h1: 3rem; /* 48px */
     --fl-theme-font-size-h2: 2rem; /* 32px */

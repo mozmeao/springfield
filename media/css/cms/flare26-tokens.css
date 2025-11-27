@@ -20,6 +20,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-black-3: rgb(28, 27, 34);
     --token-color-black-4: rgb(21, 20, 26);
     --token-color-dark-purple: rgb(33, 3, 64);
+    --token-color-dark-purple-30: rgba(33, 3, 64, .30);
     --token-color-purple: rgb(58, 15, 110);
     --token-color-link-purple: rgb(97, 50, 188);
     --token-color-light-purple: rgb(117, 67, 227);
@@ -31,6 +32,7 @@ Static values extracted from Figma that do not change based on context.
     --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
     --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
     --token-gradient-privacy: linear-gradient(90deg, #ae49ec 0%, var(--token-color-dark-purple) 100%);
+    --token-gradient-purple: radial-gradient(122.66% 137.66% at 50% 0%, #AE49EC 0%, #210340 100%);
 
     /* Light and dark gradients */
     --token-gradient-light: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, var(--token-color-white) 100%);
