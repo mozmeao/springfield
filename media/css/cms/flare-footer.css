@@ -11,8 +11,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer {
     --fl-theme-font-family-body: var(--token-font-family-inter);
     --fl-theme-font-family-headline: var(--token-font-family-inter);
-    background-color: var(--fl-theme-surface-page);
-    color: var(--fl-theme-color-text-body);
+    background-color: var(--token-neutrals-off-black);
+    color: var(--token-neutrals-white);
     margin: 0;
     margin-top: auto;
     width: 100%;
@@ -21,7 +21,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer a:link:not(.fl-button),
 .fl-footer a:visited:not(.fl-button) {
-    color: var(--fl-theme-color-text-body);
+    color: var(--token-neutrals-white);
     font-weight: normal;
     text-decoration: none;
 }
@@ -92,7 +92,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-sections-list .fl-footer-section-download {
-        border-bottom: 1px solid var(--fl-theme-color-text-secondary);
+        border-bottom: 1px solid var(--token-neutrals-grey-3);
         gap: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
         display: grid;
         grid-column-end: -1;
@@ -197,7 +197,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-heading {
     text-align: left;
-    color: var(--fl-theme-color-text-secondary);
+    color: var(--token-neutrals-grey-3);
     font-weight: bold;
     margin-bottom: calc(var(--token-scale-8) * 1px);
     padding: 0;
@@ -219,7 +219,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* Subheadings */
 .fl-footer-subheading {
-    color: var(--fl-theme-color-text-secondary);
+    color: var(--token-neutrals-grey-3);
     text-align: left;
     font-weight: bold;
     font-size: calc(var(--token-scale-16) * 1px);
@@ -250,7 +250,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-section-download .fl-footer-subheading,
 .fl-footer-section-platforms .fl-footer-subheading {
-    color: var(--fl-theme-color-text-body);
+    color: var(--token-neutrals-white);
 }
 
 .fl-footer-section-download .fl-footer-subheading a:link,
@@ -305,7 +305,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* external link icon */
 .fl-footer-section a[href^='http']::after {
     content: '';
-    background-color: var(--fl-theme-color-text-body);
+    background-color: var(--token-neutrals-white);
     background-repeat: no-repeat;
     background-size: contain;
     mask-image: url('/media/img/icons/external.svg');
@@ -347,7 +347,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-footer-logo a {
-    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
+    background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     background-size: contain;
     background-repeat: no-repeat;
     display: inline-block;
@@ -381,7 +381,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     position: relative;
-    color: var(--fl-theme-color-text-secondary);
+    color: var(--token-neutrals-grey-3);
 }
 
 @media (max-width: 1023px) {
@@ -399,7 +399,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-secondary a:link:not(.fl-button),
 .fl-footer-secondary a:visited:not(.fl-button) {
-    color: var(--fl-theme-color-text-secondary);
+    color: var(--token-neutrals-grey-4);
 }
 
 .fl-footer-secondary a:hover,
@@ -434,7 +434,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-terms:not(.fl-button),
 .fl-footer-terms a:visited:not(.fl-button) {
-    color: var(--fl-theme-color-text-secondary);
+    color: var(--token-neutrals-grey-3);
     text-decoration: none;
 }
 
@@ -463,7 +463,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 @media screen and (max-width: 767px) {
     .fl-footer-more {
-        border-top: 1px solid var(--fl-theme-color-text-secondary);
+        border-top: 1px solid var(--token-neutrals-grey-3);
     }
 }
 
@@ -491,14 +491,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     font-size: calc(var(--token-scale-24) * 1px);
     line-height: 1.3;
     padding-top: 0;
-    color: var(--fl-theme-color-text-body);
+    color: var(--token-neutrals-white);
     font-weight: bold;
 }
 
 .fl-footer-branding p {
     margin: 0;
     font-size: calc(var(--token-scale-16) * 1px);
-    color: var(--fl-theme-color-text-body);
+    color: var(--token-neutrals-white);
     line-height: 1.5;
 }
 
@@ -517,7 +517,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-copy {
     margin: 0;
-    color: var(--fl-theme-color-text-primary);
+    color: var(--token-neutrals-grey-3);
     grid-column: 1;
 }
 
@@ -530,15 +530,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-decoration: underline;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fl-footer-logo a {
-        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-}
-
 .fl-footer-divider {
     border: none;
-    border-top: 1px solid var(--fl-theme-border-color-strong);
+    border-top: 1px solid var(--token-neutrals-grey-3);
 }
 
 .fl-footer-bottom {
@@ -577,25 +571,25 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-footer-links a {
-    color: var(--fl-theme-color-text-primary);
+    color: var(--token-neutrals-grey-3);
 }
 
 .fl-footer-title {
     font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-h4);
-    color: var(--fl-theme-color-text-primary);
-    margin: 0 0 calc(var(--token-scale-4) * 1px);
+    font-size: var(--fl-theme-font-size-h3);
+    color: #bfbfc9;
+    margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
 .fl-footer-subtitle {
     margin: 0;
-    color: var(--fl-theme-color-text-primary);
+    color: var(--token-neutrals-grey-3);
 }
 
 .fl-footer-note {
     margin: 0;
     margin-top: calc(var(--token-scale-8) * 1px);
-    color: var(--fl-theme-color-text-primary);
+    color: var(--token-neutrals-grey-3);
     font-size: var(--fl-theme-font-size-body-xsmall);
     text-align: center;
 }
