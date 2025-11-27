@@ -343,6 +343,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     white-space: nowrap;
 }
 
+.whats-new-page .fl-footer-logo {
+    width: auto;
+}
+
 @media screen and (min-width: 1024px) {
     .fl-footer-logo {
         bottom: 0;
