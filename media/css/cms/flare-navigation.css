@@ -24,7 +24,7 @@
     z-index: 100;
     padding: 18px calc(var(--token-scale-40) * 1px);
     border-bottom: 2px solid var(--fl-theme-border-color-subtle);
-    background: var(--fl-theme-surface-page);
+    background: var(--fl-theme-navigation-bg);
 }
 
 .fl-header a {
@@ -142,7 +142,7 @@
 .fl-nav {
     display: none;
     flex-grow: 1;
-    background: var(--fl-theme-surface-page);
+    background: var(--fl-theme-navigation-bg);
 }
 
 .fl-nav a[href^='http']::after {
@@ -213,7 +213,7 @@
     width: 100%;
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     border-top: 2px solid var(--fl-theme-border-color-subtle);
-    background: var(--fl-theme-surface-page);
+    background: var(--fl-theme-navigation-bg);
 }
 
 .fl-nav-mobile-download-link .fl-fx-download-container {
@@ -367,7 +367,7 @@
         margin-top: var(--fl-navigation-menu-height);
         padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-16) * 1px) calc(var(--token-scale-128) * 1px);
         display: block;
-        background: var(--fl-theme-surface-page);
+        background: var(--fl-theme-navigation-bg);
         overflow: hidden auto;
         z-index: 1000;
     }
@@ -463,7 +463,7 @@
 
     .fl-menu-panel-content {
         display: flex;
-        background-color: var(--fl-theme-surface-page);
+        background-color: var(--fl-theme-navigation-bg);
     }
 
     .fl-menu-panel-content-column {
