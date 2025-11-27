@@ -326,47 +326,32 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-logo {
     text-align: center;
-    margin-bottom: calc(var(--token-scale-40) * 1px);
-}
-
-@media (min-width: 1024px) {
-    .fl-footer-logo {
-        bottom: 0;
-        position: absolute;
-        text-align: end;
-        right: 0;
-    }
-
-    .fl-footer-inner .fl-footer-logo {
-        right: calc(var(--token-scale-40) * 1px);
-    }
-
-    .fl-footer-top .fl-footer-logo {
-        right: 0;
-    }
+    margin-bottom: calc(var(--token-scale-64) * 1px);
 }
 
 .fl-footer-logo a {
     background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     background-size: contain;
-    background-repeat: no-repeat;
-    display: inline-block;
-    width: calc(var(--token-scale-200) * 1px);
+    display: block;
+    width: 200px;
     height: 68px;
-    text-indent: -9999px;
-    overflow: hidden;
+    margin: 0 auto;
     direction: ltr;
+    overflow: hidden;
+    text-align: left;
+    text-indent: -9999px;
     white-space: nowrap;
 }
 
-@media (max-width: 1023px) {
-    .fl-footer-logo a {
-        margin: 0 auto;
-        text-align: left;
-    }
-}
-
 @media screen and (min-width: 1024px) {
+    .fl-footer-logo {
+        bottom: 0;
+        position: absolute;
+        text-align: end;
+        right: 0;
+        width: calc(((100% - 2 * 40px) - 10px) / 4);
+    }
+
     .fl-footer-logo a {
         text-align: start;
         margin: 0;
