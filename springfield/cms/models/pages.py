@@ -19,6 +19,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     KitBannerBlock,
     SectionBlock,
+    ShowcaseBlock,
     SubscriptionBlock,
 )
 from springfield.cms.fields import StreamField
@@ -103,12 +104,19 @@ class HomePage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
-            ("cards_list", CardsListBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
     )
-    lower_content = StreamField([], null=True, blank=True, use_json_field=True)
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),

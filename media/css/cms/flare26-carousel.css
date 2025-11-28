@@ -4,14 +4,23 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+.fl-carousel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--token-spacing-2xl);
+}
+
 .fl-carousel-heading {
     text-align: center;
-    max-width: 848px;
-    margin: 0 auto;
+    max-width: var(--token-width-max-content);
+}
+
+.fl-carousel.fl-carousel-has-kit {
+    gap: calc(var(--token-spacing-2xl) + 100px);
 }
 
 .fl-carousel-has-kit .fl-carousel-slides {
-    margin-top: 100px;
     position: relative;
 }
 
@@ -31,6 +40,7 @@
     background: var(--token-gradient-purple);
     border-radius: var(--token-border-radius-md);
     padding: var(--token-layout-xs) var(--token-layout-xs) 0;
+    width: fit-content;
 }
 
 .fl-carousel-control {
@@ -82,6 +92,7 @@
     display: flex;
     justify-content: center;
     align-items: baseline;
+    max-width: var(--token-width-max-content);
 }
 
 .fl-carousel-image img {

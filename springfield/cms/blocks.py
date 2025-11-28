@@ -1028,3 +1028,36 @@ class HomeCarouselBlock(blocks.StructBlock):
         template = "cms/blocks/sections/home-carousel.html"
         label = "Home Carousel"
         label_format = "{heading}"
+
+
+class ShowcaseSettings(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout}"
+        form_classname = "compact-form struct-block"
+
+
+class ShowcaseBlock(blocks.StructBlock):
+    settings = ShowcaseSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    desktop_image = LightDarkImageBlock(label="Desktop Image")
+    mobile_image = LightDarkImageBlock(label="Mobile Image")
+    caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/sections/showcase.html"
+        label = "Showcase"
+        label_format = "{heading}"
