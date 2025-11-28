@@ -103,7 +103,7 @@ class HomePage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
-            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("cards_list", CardsListBlock()),
             ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
