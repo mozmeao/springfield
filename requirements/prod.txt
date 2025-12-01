@@ -1524,7 +1524,7 @@ wagtail-localize-smartling==0.10.3 \
     --hash=sha256:8fad0510319918cc57071d4ef6a07f8ab5a7fa16040b399e6bc084fec1f232ae
     # via -r requirements/prod.in
 wagtail-thumbnail-choice-block @ https://github.com/lincolnloop/wagtail-thumbnail-choice-block/archive/refs/heads/main.tar.gz \
-    --hash=sha256:85e0a3fb7c2ec1606a426e3e70991e65573cc72543ee4a29383cf3803b93b99a
+    --hash=sha256:512ca4075f6dfc3699fbd7e86edadba79e401d4d0cff7e28f367209896c0b2ef
     # via -r requirements/prod.in
 wagtaildraftsharing==0.3.0 \
     --hash=sha256:2e77b46df0b164c089d25ff146e25fa3601e52de7ccaa9226925e6e6357fdeab \
