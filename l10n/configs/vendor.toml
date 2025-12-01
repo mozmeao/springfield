@@ -26,6 +26,14 @@ locales = [
         "fr",
     ]
 
+[[paths]]
+    reference = "en/firefox/data.ftl"
+    l10n = "{locale}/firefox-data.ftl"
+    locales = [
+        "de",
+        "fr",
+    ]
+
 ## Examples:
 
 # [[paths]]
