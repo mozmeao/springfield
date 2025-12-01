@@ -183,6 +183,6 @@ urlpatterns = (
     page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
     # What's New Page (WNP)
     re_path(f"whatsnew/(?P<version>{version_re})", views.WhatsnewView.as_view(), name="firefox.whatsnew"),
-    page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
+    page("user-privacy/", "firefox/data.html", ftl_files="firefox/data", url_name="firefox.user-privacy"),
     path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
 )
