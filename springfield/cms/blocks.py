@@ -324,6 +324,15 @@ class CTABlock(blocks.StructBlock):
         label_format = "Link - {label}"
 
 
+class TagButtonBlock(ButtonBlock):
+    tag = blocks.CharBlock()
+
+    class Meta:
+        template = "cms/blocks/tag-button.html"
+        label = "Tag Button"
+        label_format = "Tag Button - {label}"
+
+
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
     icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
@@ -985,3 +994,70 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _KitBannerBlock(*args, **kwargs)
+
+
+# Homepage
+
+
+class HomeIntroBlock(blocks.StructBlock):
+    preheading_button = blocks.ListBlock(TagButtonBlock(), min_num=0, max_num=1, default=[])
+    heading = HeadingBlock()
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+    class Meta:
+        template = "cms/blocks/home-intro.html"
+        label = "Home Intro"
+        label_format = "{heading}"
+
+
+class HomeCarouselSlide(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    image = ImageChooserBlock()
+
+
+class HomeCarouselBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
+
+    class Meta:
+        template = "cms/blocks/sections/home-carousel.html"
+        label = "Home Carousel"
+        label_format = "{heading}"
+
+
+class ShowcaseSettings(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout}"
+        form_classname = "compact-form struct-block"
+
+
+class ShowcaseBlock(blocks.StructBlock):
+    settings = ShowcaseSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    desktop_image = LightDarkImageBlock(label="Desktop Image")
+    mobile_image = LightDarkImageBlock(label="Mobile Image")
+    caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/sections/showcase.html"
+        label = "Showcase"
+        label_format = "{heading}"

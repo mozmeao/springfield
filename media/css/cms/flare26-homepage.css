@@ -1,0 +1,45 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-home-body {
+    --section-border-radius: var(--token-border-radius-lg);
+    --section-padding: var(--token-spacing-lg);
+    max-width: unset;
+}
+
+.fl-home-body .fl-main {
+    width: 100%;
+    max-width: unset;
+    padding: 0 0 var(--section-border-radius);
+    background: var(--token-color-white);
+    border-bottom-left-radius: var(--section-border-radius);
+    border-bottom-right-radius: var(--section-border-radius);
+}
+
+.fl-home-upper > *,
+.fl-home-lower > * {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.fl-home-upper {
+    padding: var(--section-padding);
+    background: var(--token-color-dark-purple);
+    border-bottom-left-radius: var(--section-border-radius);
+    border-bottom-right-radius: var(--section-border-radius);
+    color: var(--token-color-white);
+}
+
+.fl-home-lower {
+    padding: var(--section-padding);
+    background-color: var(--token-color-white);
+}
+
+@media (--viewport-lg-up) {
+    .fl-home-body {
+        --section-border-radius: var(--token-border-radius-xl);
+    }
+}

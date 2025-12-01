@@ -1,0 +1,90 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-intro {
+    text-align: center;
+    padding: var(--token-spacing-3xl) 0;
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.fl-intro > * {
+    margin: 0 auto;
+}
+
+.fl-intro-content {
+    max-width: 848px;
+}
+
+.fl-intro-content .fl-buttons {
+    justify-content: center;
+}
+
+.fl-intro-content .text {
+    padding: calc(var(--token-scale-24) * 1px) 0 calc(var(--token-scale-64) * 1px);
+}
+
+.fl-intro .fl-heading-group {
+    margin-bottom: calc(var(--token-scale-24) * 1px);
+}
+
+.fl-intro .fl-subheading {
+    margin-top: 0;
+    margin-bottom: calc(var(--token-scale-64) * 1px);
+    font-size: var(--fl-theme-font-size-base);
+}
+
+.fl-home-intro {
+    position: relative;
+    padding-bottom: var(--token-layout-md);
+    max-width: 1440px;
+}
+
+.fl-home-intro::before {
+    content: "";
+    position: absolute;
+    bottom: -100px;
+    left: -200px;
+    width: 500px;
+    height: 300px;
+    background:  url('/media/img/firefox/flare/kit-tail-2.svg');
+    background-position: center;
+    background-size: cover;
+    z-index: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-intro {
+        padding: var(--token-layout-lg);
+    }
+
+    .fl-home-intro::before {
+        width: 800px;
+        height: 500px;
+        left: -300px;
+        bottom: -160px;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-home-intro::before {
+        left: -100px;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-home-intro::before {
+        left: -70px;
+    }
+}
+
+@media (--viewport-xl-up) {
+    .fl-home-intro::before {
+        left: -100px;
+    }
+}
