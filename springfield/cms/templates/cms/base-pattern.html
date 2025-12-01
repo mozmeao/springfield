@@ -7,7 +7,7 @@
 {% extends "cms/base-flare.html" %}
 
 {# Avoid referencing `page` which isn't provided by the pattern library #}
-{% block page_title %}Pattern preview{% endblock %}
+{% block page_title %}{{ pattern_name }} | Pattern preview {% endblock %}
 {% block flare_header %}{% endblock %}
 
 {% block page_css %}

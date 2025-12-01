@@ -89,7 +89,7 @@ if settings.STORAGES["default"]["BACKEND"] == "django.core.files.storage.FileSys
 
 if apps.is_installed("pattern_library"):
     urlpatterns += [
-        path("pattern-library/", include("pattern_library.urls")),
+        path("pattern-library/", include("springfield.cms.pattern_library_urls")),
     ]
 
 # Wagtail is the catch-all route, and it will raise a 404 if needed.
