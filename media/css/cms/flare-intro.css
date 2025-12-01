@@ -19,7 +19,7 @@
 }
 
 .fl-intro-content {
-    max-width: var(--token-width-max-content);
+    max-width: var(--token-width-desktop-content);
 }
 
 .fl-intro-has-media {

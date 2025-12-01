@@ -13,7 +13,7 @@
 
 .fl-carousel-heading {
     text-align: center;
-    max-width: var(--token-width-max-content);
+    max-width: var(--token-width-desktop-content);
 }
 
 .fl-carousel.fl-carousel-has-kit {
@@ -92,7 +92,7 @@
     display: flex;
     justify-content: center;
     align-items: baseline;
-    max-width: var(--token-width-max-content);
+    max-width: var(--token-width-desktop-content);
 }
 
 .fl-carousel-image img {

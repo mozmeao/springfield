@@ -9,7 +9,7 @@
 
 .fl-showcase-heading,
 .fl-showcase-caption {
-    max-width: var(--token-width-max-content);
+    max-width: var(--token-width-desktop-content);
     margin: 0 auto;
     padding: var(--token-spacing-lg);
 }
@@ -48,7 +48,7 @@
 
 @media (--viewport-md-up) {
     .fl-showcase.fl-showcase-default .fl-showcase-image {
-        max-width: var(--token-width-max-content);
+        max-width: var(--token-width-desktop-content);
     }
 
     .fl-showcase.fl-showcase-full .fl-showcase-image {
@@ -58,7 +58,7 @@
 
 @media (--viewport-lg-up) {
     .fl-showcase.fl-showcase-expanded {
-        width: calc(var(--token-width-max-content) + 200px);
+        width: calc(var(--token-width-desktop-content) + 200px);
         max-width: 100%;
     }
 }

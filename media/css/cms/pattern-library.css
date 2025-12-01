@@ -30,3 +30,7 @@
     margin: 0 auto;
     padding: 4rem;
 }
+
+.pl-dash-border {
+    border: 2px dashed green;
+}
