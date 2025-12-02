@@ -7,18 +7,8 @@
 {% set block_position = block_position or "banner" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
-{% set qr_code = null %}
-{% if value.media and value.media[0].block_type == "qr_code" %}
-  {% set qr_code = value.media[0].value.data %}
-{% endif %}
-
 <include:conditional-display condition="{{ value.settings.show_to }}">
-
-  <include:banner
-    theme="{{ value.settings.theme }}"
-    media_after="{{ value.settings.media_after }}"
-    qr_code="{{ qr_code }}"
-  >
+  <include:kit-banner theme="{{ value.settings.theme }}">
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
@@ -33,28 +23,6 @@
       />
     </content:heading>
 
-    {% if value.media %}
-      <content:media>
-        {% for block in value.media %}
-          {% if block.block_type in ["video", "image"] %}
-            {% include_block block %}
-          {% elif block.block_type == "qr_code" and block.value.background %}
-            {{ srcset_image(
-                block.value.background,
-                "width-{200,400,600,800,1000,1200,1400}",
-                sizes="
-                  (min-width: 768px) 50vw,
-                  (min-width: 1440px) 680px,
-                  100vw
-                ",
-                width=block.value.background.width,
-                loading="lazy"
-              ) }}
-          {% endif %}
-        {% endfor %}
-      </content:media>
-    {% endif %}
-
     {% if value.buttons %}
       <content:actions>
         {% for button in value.buttons %}
@@ -63,6 +31,6 @@
         {% endfor %}
       </content:actions>
     {% endif %}
-  </include:banner>
+  </include:kit-banner>
 
 </include:conditional-display>

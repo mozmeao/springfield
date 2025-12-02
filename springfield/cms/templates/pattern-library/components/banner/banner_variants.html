@@ -5,67 +5,54 @@
 #}
 
 {% for variant in variants %}
-<div style="margin-bottom: 2em;">
-  <h2>{{ variant.title }}</h2>
-  <include:banner
-    theme="{{ variant.theme }}"
-    media_after="{{ variant.media_after }}"
-    full_width="{{ variant.full_width }}"
-    brand_image_position="{{ variant.brand_image_position }}"
-    brand_image_size="{{ variant.brand_image_size }}"
-    qr_code="{{ variant.qr_code }}"
-    media_url="{{ variant.get('media', {}).get('url', '') }}">
+  <div style="margin-bottom: 2em;">
+    <h2>{{ variant.title }}</h2>
+    <include:banner
+      theme="{{ variant.theme }}"
+      media_after="{{ variant.media_after }}"
+      qr_code="{{ variant.qr_code }}"
+    >
 
-    <content:heading>
-      <include:heading
-        level="{{ variant.heading.level }}"
-        heading_text="{{ variant.heading.heading_text }}"
-        heading_size="{{ variant.heading.heading_size }}"
-        alignment_class=""
-        superheading_text="{{ variant.heading.superheading_text }}"
-      />
-    </content:heading>
-
-    {% if variant.subheading %}
-      <content:subheading>
-        <include:subheading
-          subheading_text="{{ variant.subheading }}"
-          size="subheading-4"
+      <content:heading>
+        <include:heading
+          level="{{ variant.heading.level }}"
+          heading_text="{{ variant.heading.heading_text }}"
+          heading_size="{{ variant.heading.heading_size }}"
           alignment_class=""
+          superheading_text="{{ variant.heading.superheading_text }}"
+          subheading_text="{{ variant.heading.subheading_text }}"
+          subheading_size="fl-subheading-4"
         />
-      </content:subheading>
-    {% endif %}
+      </content:heading>
 
-    {% if variant.media %}
-      <content:media>
-        <include:image url="{{ variant.media.url }}" alt="{{ variant.media.alt }}" />
-      </content:media>
-    {% endif %}
+      {% if variant.video %}
+        <content:media>
+          <include:video
+            video_url="{{ variant.video.url }}"
+            poster="{{ variant.video.poster }}"
+            alt="{{ variant.video.alt }}"
+          />
+        </content:media>
+      {% elif variant.media %}
+        <content:media>
+          <img src="{{ variant.media.url }}" alt="{{ variant.media.alt }}" />
+        </content:media>
+      {% endif %}
 
-    {% if variant.brand_image %}
-      <content:brand>
-        <include:image url="{{ variant.brand_image.url }}" alt="{{ variant.brand_image.alt }}" />
-      </content:brand>
-    {% endif %}
-
-    {% if variant.qr_code %}
-      <content:qr>
-        <svg width="39.6mm" height="39.6mm" version="1.1" viewBox="0 0 39.6 39.6" xmlns="http://www.w3.org/2000/svg">
-          <rect fill="white" x="0" y="0" width="100%" height="100%"></rect>
-          <path d="M4.8,4.8H6V6H4.8zM6,4.8H7.2V6H6zM7.2,4.8H8.4V6H7.2zM8.4,4.8H9.6V6H8.4zM9.6,4.8H10.8V6H9.6zM10.8,4.8H12V6H10.8zM12,4.8H13.2V6H12zM18,4.8H19.2V6H18zM19.2,4.8H20.4V6H19.2zM21.6,4.8H22.8V6H21.6zM26.4,4.8H27.6V6H26.4zM27.6,4.8H28.8V6H27.6zM28.8,4.8H30V6H28.8zM30,4.8H31.2V6H30zM31.2,4.8H32.4V6H31.2zM32.4,4.8H33.6V6H32.4zM33.6,4.8H34.8V6H33.6zM4.8,6H6V7.2H4.8zM12,6H13.2V7.2H12zM14.4,6H15.6V7.2H14.4zM18,6H19.2V7.2H18zM19.2,6H20.4V7.2H19.2zM20.4,6H21.6V7.2H20.4zM21.6,6H22.8V7.2H21.6zM24,6H25.2V7.2H24zM26.4,6H27.6V7.2H26.4zM33.6,6H34.8V7.2H33.6zM4.8,7.2H6V8.4H4.8zM7.2,7.2H8.4V8.4H7.2zM8.4,7.2H9.6V8.4H8.4zM9.6,7.2H10.8V8.4H9.6zM12,7.2H13.2V8.4H12zM14.4,7.2H15.6V8.4H14.4zM16.8,7.2H18V8.4H16.8zM18,7.2H19.2V8.4H18zM21.6,7.2H22.8V8.4H21.6zM26.4,7.2H27.6V8.4H26.4zM28.8,7.2H30V8.4H28.8zM30,7.2H31.2V8.4H30zM31.2,7.2H32.4V8.4H31.2zM33.6,7.2H34.8V8.4H33.6zM4.8,8.4H6V9.6H4.8zM7.2,8.4H8.4V9.6H7.2zM8.4,8.4H9.6V9.6H8.4zM9.6,8.4H10.8V9.6H9.6zM12,8.4H13.2V9.6H12zM14.4,8.4H15.6V9.6H14.4zM16.8,8.4H18V9.6H16.8zM18,8.4H19.2V9.6H18zM19.2,8.4H20.4V9.6H19.2zM20.4,8.4H21.6V9.6H20.4zM24,8.4H25.2V9.6H24zM26.4,8.4H27.6V9.6H26.4zM28.8,8.4H30V9.6H28.8zM30,8.4H31.2V9.6H30zM31.2,8.4H32.4V9.6H31.2zM33.6,8.4H34.8V9.6H33.6zM4.8,9.6H6V10.8H4.8zM7.2,9.6H8.4V10.8H7.2zM8.4,9.6H9.6V10.8H8.4zM9.6,9.6H10.8V10.8H9.6zM12,9.6H13.2V10.8H12zM15.6,9.6H16.8V10.8H15.6zM16.8,9.6H18V10.8H16.8zM20.4,9.6H21.6V10.8H20.4zM24,9.6H25.2V10.8H24zM26.4,9.6H27.6V10.8H26.4zM28.8,9.6H30V10.8H28.8zM30,9.6H31.2V10.8H30zM31.2,9.6H32.4V10.8H31.2zM33.6,9.6H34.8V10.8H33.6zM4.8,10.8H6V12H4.8zM12,10.8H13.2V12H12zM15.6,10.8H16.8V12H15.6zM21.6,10.8H22.8V12H21.6zM26.4,10.8H27.6V12H26.4zM33.6,10.8H34.8V12H33.6zM4.8,12H6V13.2H4.8zM6,12H7.2V13.2H6zM7.2,12H8.4V13.2H7.2zM8.4,12H9.6V13.2H8.4zM9.6,12H10.8V13.2H9.6zM10.8,12H12V13.2H10.8zM12,12H13.2V13.2H12zM14.4,12H15.6V13.2H14.4zM16.8,12H18V13.2H16.8zM19.2,12H20.4V13.2H19.2zM21.6,12H22.8V13.2H21.6zM24,12H25.2V13.2H24zM26.4,12H27.6V13.2H26.4zM27.6,12H28.8V13.2H27.6zM28.8,12H30V13.2H28.8zM30,12H31.2V13.2H30zM31.2,12H32.4V13.2H31.2zM32.4,12H33.6V13.2H32.4zM33.6,12H34.8V13.2H33.6zM14.4,13.2H15.6V14.4H14.4zM15.6,13.2H16.8V14.4H15.6zM16.8,13.2H18V14.4H16.8zM18,13.2H19.2V14.4H18zM19.2,13.2H20.4V14.4H19.2zM21.6,13.2H22.8V14.4H21.6zM22.8,13.2H24V14.4H22.8zM24,13.2H25.2V14.4H24zM4.8,14.4H6V15.6H4.8zM12,14.4H13.2V15.6H12zM14.4,14.4H15.6V15.6H14.4zM15.6,14.4H16.8V15.6H15.6zM16.8,14.4H18V15.6H16.8zM25.2,14.4H26.4V15.6H25.2zM26.4,14.4H27.6V15.6H26.4zM30,14.4H31.2V15.6H30zM31.2,14.4H32.4V15.6H31.2zM32.4,14.4H33.6V15.6H32.4zM6,15.6H7.2V16.8H6zM7.2,15.6H8.4V16.8H7.2zM8.4,15.6H9.6V16.8H8.4zM9.6,15.6H10.8V16.8H9.6zM13.2,15.6H14.4V16.8H13.2zM14.4,15.6H15.6V16.8H14.4zM15.6,15.6H16.8V16.8H15.6zM18,15.6H19.2V16.8H18zM20.4,15.6H21.6V16.8H20.4zM21.6,15.6H22.8V16.8H21.6zM22.8,15.6H24V16.8H22.8zM24,15.6H25.2V16.8H24zM27.6,15.6H28.8V16.8H27.6zM28.8,15.6H30V16.8H28.8zM30,15.6H31.2V16.8H30zM31.2,15.6H32.4V16.8H31.2zM32.4,15.6H33.6V16.8H32.4zM4.8,16.8H6V18H4.8zM7.2,16.8H8.4V18H7.2zM8.4,16.8H9.6V18H8.4zM12,16.8H13.2V18H12zM14.4,16.8H15.6V18H14.4zM15.6,16.8H16.8V18H15.6zM18,16.8H19.2V18H18zM20.4,16.8H21.6V18H20.4zM21.6,16.8H22.8V18H21.6zM22.8,16.8H24V18H22.8zM28.8,16.8H30V18H28.8zM30,16.8H31.2V18H30zM32.4,16.8H33.6V18H32.4zM33.6,16.8H34.8V18H33.6zM4.8,18H6V19.2H4.8zM6,18H7.2V19.2H6zM9.6,18H10.8V19.2H9.6zM10.8,18H12V19.2H10.8zM14.4,18H15.6V19.2H14.4zM19.2,18H20.4V19.2H19.2zM20.4,18H21.6V19.2H20.4zM25.2,18H26.4V19.2H25.2zM26.4,18H27.6V19.2H26.4zM27.6,18H28.8V19.2H27.6zM30,18H31.2V19.2H30zM33.6,18H34.8V19.2H33.6zM4.8,19.2H6V20.4H4.8zM6,19.2H7.2V20.4H6zM7.2,19.2H8.4V20.4H7.2zM9.6,19.2H10.8V20.4H9.6zM10.8,19.2H12V20.4H10.8zM12,19.2H13.2V20.4H12zM13.2,19.2H14.4V20.4H13.2zM14.4,19.2H15.6V20.4H14.4zM18,19.2H19.2V20.4H18zM19.2,19.2H20.4V20.4H19.2zM20.4,19.2H21.6V20.4H20.4zM26.4,19.2H27.6V20.4H26.4zM27.6,19.2H28.8V20.4H27.6zM33.6,19.2H34.8V20.4H33.6zM4.8,20.4H6V21.6H4.8zM6,20.4H7.2V21.6H6zM7.2,20.4H8.4V21.6H7.2zM8.4,20.4H9.6V21.6H8.4zM9.6,20.4H10.8V21.6H9.6zM14.4,20.4H15.6V21.6H14.4zM15.6,20.4H16.8V21.6H15.6zM22.8,20.4H24V21.6H22.8zM24,20.4H25.2V21.6H24zM25.2,20.4H26.4V21.6H25.2zM27.6,20.4H28.8V21.6H27.6zM32.4,20.4H33.6V21.6H32.4zM4.8,21.6H6V22.8H4.8zM10.8,21.6H12V22.8H10.8zM12,21.6H13.2V22.8H12zM13.2,21.6H14.4V22.8H13.2zM15.6,21.6H16.8V22.8H15.6zM16.8,21.6H18V22.8H16.8zM18,21.6H19.2V22.8H18zM19.2,21.6H20.4V22.8H19.2zM22.8,21.6H24V22.8H22.8zM24,21.6H25.2V22.8H24zM26.4,21.6H27.6V22.8H26.4zM27.6,21.6H28.8V22.8H27.6zM28.8,21.6H30V22.8H28.8zM30,21.6H31.2V22.8H30zM32.4,21.6H33.6V22.8H32.4zM33.6,21.6H34.8V22.8H33.6zM4.8,22.8H6V24H4.8zM9.6,22.8H10.8V24H9.6zM10.8,22.8H12V24H10.8zM13.2,22.8H14.4V24H13.2zM15.6,22.8H16.8V24H15.6zM16.8,22.8H18V24H16.8zM18,22.8H19.2V24H18zM22.8,22.8H24V24H22.8zM27.6,22.8H28.8V24H27.6zM30,22.8H31.2V24H30zM31.2,22.8H32.4V24H31.2zM33.6,22.8H34.8V24H33.6zM4.8,24H6V25.2H4.8zM9.6,24H10.8V25.2H9.6zM12,24H13.2V25.2H12zM13.2,24H14.4V25.2H13.2zM18,24H19.2V25.2H18zM24,24H25.2V25.2H24zM25.2,24H26.4V25.2H25.2zM26.4,24H27.6V25.2H26.4zM27.6,24H28.8V25.2H27.6zM28.8,24H30V25.2H28.8zM31.2,24H32.4V25.2H31.2zM14.4,25.2H15.6V26.4H14.4zM15.6,25.2H16.8V26.4H15.6zM16.8,25.2H18V26.4H16.8zM19.2,25.2H20.4V26.4H19.2zM20.4,25.2H21.6V26.4H20.4zM21.6,25.2H22.8V26.4H21.6zM24,25.2H25.2V26.4H24zM28.8,25.2H30V26.4H28.8zM4.8,26.4H6V27.6H4.8zM6,26.4H7.2V27.6H6zM7.2,26.4H8.4V27.6H7.2zM8.4,26.4H9.6V27.6H8.4zM9.6,26.4H10.8V27.6H9.6zM10.8,26.4H12V27.6H10.8zM12,26.4H13.2V27.6H12zM16.8,26.4H18V27.6H16.8zM18,26.4H19.2V27.6H18zM24,26.4H25.2V27.6H24zM26.4,26.4H27.6V27.6H26.4zM28.8,26.4H30V27.6H28.8zM33.6,26.4H34.8V27.6H33.6zM4.8,27.6H6V28.8H4.8zM12,27.6H13.2V28.8H12zM15.6,27.6H16.8V28.8H15.6zM16.8,27.6H18V28.8H16.8zM19.2,27.6H20.4V28.8H19.2zM20.4,27.6H21.6V28.8H20.4zM22.8,27.6H24V28.8H22.8zM24,27.6H25.2V28.8H24zM28.8,27.6H30V28.8H28.8zM32.4,27.6H33.6V28.8H32.4zM4.8,28.8H6V30H4.8zM7.2,28.8H8.4V30H7.2zM8.4,28.8H9.6V30H8.4zM9.6,28.8H10.8V30H9.6zM12,28.8H13.2V30H12zM15.6,28.8H16.8V30H15.6zM19.2,28.8H20.4V30H19.2zM21.6,28.8H22.8V30H21.6zM22.8,28.8H24V30H22.8zM24,28.8H25.2V30H24zM25.2,28.8H26.4V30H25.2zM26.4,28.8H27.6V30H26.4zM27.6,28.8H28.8V30H27.6zM28.8,28.8H30V30H28.8zM31.2,28.8H32.4V30H31.2zM33.6,28.8H34.8V30H33.6zM4.8,30H6V31.2H4.8zM7.2,30H8.4V31.2H7.2zM8.4,30H9.6V31.2H8.4zM9.6,30H10.8V31.2H9.6zM12,30H13.2V31.2H12zM16.8,30H18V31.2H16.8zM21.6,30H22.8V31.2H21.6zM25.2,30H26.4V31.2H25.2zM26.4,30H27.6V31.2H26.4zM32.4,30H33.6V31.2H32.4zM33.6,30H34.8V31.2H33.6zM4.8,31.2H6V32.4H4.8zM7.2,31.2H8.4V32.4H7.2zM8.4,31.2H9.6V32.4H8.4zM9.6,31.2H10.8V32.4H9.6zM12,31.2H13.2V32.4H12zM15.6,31.2H16.8V32.4H15.6zM16.8,31.2H18V32.4H16.8zM18,31.2H19.2V32.4H18zM19.2,31.2H20.4V32.4H19.2zM30,31.2H31.2V32.4H30zM31.2,31.2H32.4V32.4H31.2zM33.6,31.2H34.8V32.4H33.6zM4.8,32.4H6V33.6H4.8zM12,32.4H13.2V33.6H12zM15.6,32.4H16.8V33.6H15.6zM16.8,32.4H18V33.6H16.8zM18,32.4H19.2V33.6H18zM21.6,32.4H22.8V33.6H21.6zM24,32.4H25.2V33.6H24zM25.2,32.4H26.4V33.6H25.2zM26.4,32.4H27.6V33.6H26.4zM27.6,32.4H28.8V33.6H27.6zM28.8,32.4H30V33.6H28.8zM33.6,32.4H34.8V33.6H33.6zM4.8,33.6H6V34.8H4.8zM6,33.6H7.2V34.8H6zM7.2,33.6H8.4V34.8H7.2zM8.4,33.6H9.6V34.8H8.4zM9.6,33.6H10.8V34.8H9.6zM10.8,33.6H12V34.8H10.8zM12,33.6H13.2V34.8H12zM14.4,33.6H15.6V34.8H14.4zM16.8,33.6H18V34.8H16.8zM20.4,33.6H21.6V34.8H20.4zM21.6,33.6H22.8V34.8H21.6zM24,33.6H25.2V34.8H24zM26.4,33.6H27.6V34.8H26.4zM30,33.6H31.2V34.8H30zM33.6,33.6H34.8V34.8H33.6z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"></path>
-        </svg>
-      </content:qr>
-    {% endif %}
-
-    {% if variant.buttons %}
-      <content:actions>
-        {% if not variant.media and not variant.qr_code and variant.brand_image_size != 'large' %}
-          <include:buttons buttons="{{ variant.buttons }}" center="true" orientation="horizontal" />
-        {% else %}
-          <include:buttons buttons="{{ variant.buttons }}" orientation="horizontal" />
-        {% endif %}
-      </content:actions>
-    {% endif %}
-  </include:banner>
+      {% if variant.buttons %}
+        <content:actions>
+        {% for button in variant.buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            theme_class="{{ button.theme_class }}"
+            external="{{ button.external }}"
+            icon_name="{{ button.icon_name }}"
+            icon_position="{{ button.icon_position }}"
+          />
+        {% endfor %}
+        </content:actions>
+      {% endif %}
+    </include:banner>
   </div>
 {% endfor %}

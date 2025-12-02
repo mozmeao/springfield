@@ -4,8 +4,53 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="media">
-  <video controls aria-label="{{ alt }}">
-    <source src="{{ url }}" />
-  </video>
-</div>
+{# props video_url="", alt="", poster="", aspect_ratio="" #}
+
+{% if 'youtube.com' in video_url or 'youtu.be' in video_url %}
+  {% set video_id = video_url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
+  <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+    <button
+      class="fl-video-play js-video-play"
+      data-video-id="{{ video_id }}"
+      data-video-type="youtube"
+      {% if poster %}data-video-poster="{{ poster }}"{% endif %}
+      aria-label="{{ alt|default('Play video') }}"
+      type="button"
+    >
+      {% if poster %}
+        <img src="{{ poster }}" alt="" class="fl-video-poster" />
+      {% endif %}
+      <span class="fl-video-play-icon" aria-hidden="true">
+        <svg width="68" height="48" viewBox="0 0 68 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#f00"/>
+          <path d="M45 24L27 14v20l18-10z" fill="#fff"/>
+        </svg>
+      </span>
+    </button>
+  </div>
+{% elif 'assets.mozilla.net' in video_url %}
+  <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+    <button
+      class="fl-video-play js-video-play"
+      data-video-url="{{ video_url }}"
+      data-video-type="cdn"
+      {% if poster %}data-video-poster="{{ poster }}"{% endif %}
+      aria-label="{{ alt|default('Play video') }}"
+      type="button"
+    >
+      {% if poster %}
+        <img src="{{ poster }}" alt="" class="fl-video-poster" />
+      {% endif %}
+      <span class="fl-video-play-icon" aria-hidden="true">
+        <svg width="68" height="48" viewBox="0 0 68 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="34" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
+          <path d="M27 16l14 8-14 8V16z" fill="#fff"/>
+        </svg>
+      </span>
+    </button>
+  </div>
+{% else %}
+  <div class="fl-video fl-video-error">
+    <p>Video from this source cannot be embedded. Only YouTube and assets.mozilla.net videos are supported.</p>
+  </div>
+{% endif %}
