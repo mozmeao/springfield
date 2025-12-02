@@ -662,3 +662,36 @@ class TestWhatsNew(TestCase):
         self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
 
     # end release whatsnew tests
+
+    # begin URL routing tests
+
+    def test_whatsnew_legacy_url_pattern(self, render_mock):
+        """Legacy URL pattern should match full version strings like 127.1a, 139.0.1"""
+        test_versions = [
+            "127.1a",
+            "139.0.1",
+            "70.0",
+            "72.0a2",
+            "100.0a1",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    def test_whatsnew_new_url_pattern_three_digits(self, render_mock):
+        """New URL pattern should match exactly 3-digit version strings like 127, 139"""
+        test_versions = [
+            "127",
+            "139",
+            "200",
+            "333",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    # end URL routing tests
