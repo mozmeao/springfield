@@ -31,6 +31,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Font size variables NOT from Figma */
     --fl-theme-font-size-base: 16px;
+    --fl-theme-font-size-banner: 4.625rem; /* 74px */
     --fl-theme-font-size-h1: 3rem; /* 48px */
     --fl-theme-font-size-h2: 2rem; /* 32px */
     --fl-theme-font-size-h3: 1.5rem; /* 24px */
@@ -101,6 +102,7 @@ components consume the variables (no per-component media queries) */
 
 @media (--viewport-md-up) {
     :root {
+        --fl-theme-font-size-banner: 6.25rem; /* 100px */
         --fl-theme-font-size-h1: 5rem; /* 80px */
     }
 }

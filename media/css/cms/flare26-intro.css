@@ -101,6 +101,12 @@
     margin-inline-end: var(--token-spacing-xs);
 }
 
+.fl-home-intro .fl-heading {
+    font-size: var(--fl-theme-font-size-banner);
+    margin-bottom: var(--token-spacing-lg);
+    margin-top: var(--token-spacing-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-intro {
         padding: var(--token-layout-lg);
