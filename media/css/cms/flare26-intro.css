@@ -58,6 +58,14 @@
     z-index: 0;
 }
 
+.fl-home-intro .fl-superheading {
+    background: linear-gradient(180deg, rgba(120, 67, 240, 0.4) 0%, rgba(120, 67, 240, 0.2) 100%);
+    border-radius: var(--token-border-radius-xl);
+    padding: var(--token-spacing-xs) var(--token-spacing-sm);
+    font-weight: var(--token-font-weight-medium);
+    font-size: var(--fl-theme-font-size-tag);
+}
+
 @media (--viewport-sm-up) {
     .fl-intro {
         padding: var(--token-layout-lg);
