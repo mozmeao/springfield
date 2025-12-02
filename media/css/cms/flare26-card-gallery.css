@@ -19,6 +19,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--token-spacing-lg);
+    color: rgb(var(--token-color-black-1));
 }
 
 .fl-card-gallery-card {
@@ -83,11 +84,14 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery-card-image img {
     margin: 0;
+    height: 100%;
+    width: auto;
 }
 
 .fl-card-gallery-main-card .fl-card-gallery-card-image {
     padding-left: var(--card-spacing);
     padding-bottom: var(--card-spacing);
+    height: 60%;
     width: 150%;
 }
 
@@ -170,7 +174,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     .fl-card-gallery-secondary-card .fl-card-gallery-card-image {
         padding-bottom: 0;
         padding-right: 0;
-        width: 120%;
-        max-height: 300px;
+        height: 50%;
+        width: 150%;
     }
 }

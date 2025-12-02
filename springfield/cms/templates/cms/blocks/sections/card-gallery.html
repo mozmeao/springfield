@@ -8,8 +8,6 @@
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
 {% set card_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-
-
 <include:card-gallery>
   <content:heading>
     {% with alignment_class="text-center" %}

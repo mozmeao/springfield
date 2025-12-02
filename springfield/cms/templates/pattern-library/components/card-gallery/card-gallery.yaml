@@ -1,0 +1,40 @@
+name: Card Gallery 2026
+context:
+  heading:
+    heading_text: Card Gallery Heading
+    subheading_text: This is a subheading for the card gallery component.
+  main_card:
+    icon: star
+    headline: Main Card Headline
+    description: This is the description for the main card in the card gallery.
+    buttons:
+      - label: Learn More
+        link: /learn-more/
+        icon_name: arrow-right
+        icon_position: right
+    image:
+      url: /media/img/firefox/flare/placeholder-scene.png
+      alt: Main Card Image
+  secondary_card:
+    icon: heart
+    headline: Secondary Card Headline
+    description: This is the description for the secondary card in the card gallery.
+    buttons:
+      - label: Learn More
+        link: /learn-more/
+        icon_name: arrow-right
+        icon_position: right
+    image:
+      url: /media/img/firefox/flare/placeholder-scene.png
+      alt: Main Card Image
+  callout_card:
+    headline: Secondary Card Headline
+    description: This is the description for the secondary card in the card gallery.
+    buttons:
+      - label: Learn More
+        link: /learn-more/
+        icon_name: arrow-right
+        icon_position: right
+  cta:
+    label: Call to Action
+    link: /products/
