@@ -1,0 +1,176 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Card Gallery - Flare 2026 Design System Card Gallery Component
+===================================================================== */
+
+.fl-card-gallery {
+    --card-spacing: var(--token-spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
+}
+
+.fl-card-gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-card-gallery-card {
+    display: flex;
+    gap: var(--token-spacing-md);
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: var(--token-border-radius-lg);
+    overflow: hidden;
+}
+
+.fl-card-gallery-card.fl-card-gallery-main-card {
+    background-color: rgb(var(--token-color-soft-purple));
+}
+
+.fl-card-gallery-card.fl-card-gallery-secondary-card {
+    background-color: rgb(var(--token-color-soft-yellow));
+}
+
+.fl-card-gallery-card.fl-card-gallery-callout-card {
+    align-items: center;
+    background:
+        url('/media/img/firefox/flare/2026/clouds.svg') center center / cover no-repeat,
+        linear-gradient(180deg, #FFF44F 0%, #FFB84A 100%);
+    text-align: center;
+    border-radius: 93px;
+    max-width: 400px;
+}
+
+.fl-card-gallery-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    padding: var(--token-spacing-xl) var(--token-spacing-3xl) 0;
+}
+
+.fl-card-gallery-card-content .fl-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-card-gallery-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    padding: var(--token-spacing-sm);
+    background-color: rgb(var(--token-color-white));
+    border-radius: 50%;
+}
+
+.fl-card-gallery-icon .fl-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.fl-card-gallery-card-content .fl-body {
+    font-size: 1.125em;
+}
+
+.fl-card-gallery-card-image img {
+    margin: 0;
+}
+
+.fl-card-gallery-main-card .fl-card-gallery-card-image {
+    padding-left: var(--card-spacing);
+    padding-bottom: var(--card-spacing);
+    width: 150%;
+}
+
+.fl-card-gallery-secondary-card .fl-card-gallery-card-image {
+    padding-left: var(--card-spacing);
+    padding-right: var(--card-spacing);
+}
+
+.fl-card-gallery-card.fl-card-gallery-callout-card .fl-card-gallery-card-content {
+    min-height: 200px;
+    justify-content: center;
+    padding-bottom: var(--token-spacing-sm);
+}
+
+@media (--viewport-xs) {
+    .fl-card-gallery-card.fl-card-gallery-callout-card .fl-body,
+    .fl-card-gallery-card.fl-card-gallery-callout-card .fl-buttons {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-card-gallery {
+        --card-spacing: 70px;
+    }
+
+    .fl-card-gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "main secondary"
+            "main callout";
+    }
+
+    .fl-card-gallery-card {
+        border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-card-gallery-card.fl-card-gallery-main-card {
+        grid-area: main;
+    }
+
+    .fl-card-gallery-card.fl-card-gallery-secondary-card {
+        grid-area: secondary;
+    }
+
+    .fl-card-gallery-card.fl-card-gallery-callout-card {
+        grid-area: callout;
+        max-width: max(450px, 80%);
+        border-radius: 250px;
+    }
+
+    .fl-card-gallery-card-content {
+        padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-lg);
+    }
+
+    .fl-card-gallery-main-card .fl-card-gallery-card-content,
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-content {
+        padding: var(--token-spacing-3xl) var(--card-spacing);
+    }
+
+    .fl-card-gallery-callout-card .fl-card-gallery-card-content {
+        max-width: 400px;
+    }
+
+    .fl-card-gallery-card-content .fl-heading {
+        font-size: 2em;
+        flex-direction: row;
+    }
+
+    .fl-card-gallery-main-card .fl-body,
+    .fl-card-gallery-secondary-card .fl-body {
+        font-size: 1.5em;
+    }
+
+    .fl-card-gallery-main-card .fl-card-gallery-card-image {
+        padding-bottom: 0;
+    }
+
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-image {
+        padding-bottom: 0;
+        padding-right: 0;
+        width: 120%;
+        max-height: 300px;
+    }
+}

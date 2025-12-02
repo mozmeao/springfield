@@ -29,7 +29,6 @@
     </section>
 
     <section class="fl-home-lower">
-      {% set ns = namespace(headings=0) %}
       {% for block in page.lower_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
