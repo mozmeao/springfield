@@ -46,7 +46,7 @@
 
 .fl-tag.fl-tag-orange {
     background: var(--fl-theme-accent-orange-bg);
-    color: var(--fl-theme-color-text-on-accent);
+    color: var(--token-neutrals-charcoal);
 }
 
 .fl-tag.fl-tag-yellow {
