@@ -2,7 +2,7 @@
 v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at https://mozilla.org/MPL/2.0/. #}
 
-<header class="fl-header">
+<header class="fl-header {% if noMenu %}fl-header-no-menu{% endif %}">
     <div class="fl-header-inner">
         <a href="/" class="fl-logo-fx" aria-label="Firefox">
             <img
@@ -20,7 +20,7 @@ one at https://mozilla.org/MPL/2.0/. #}
                 height="40"
             />
         </a>
-
+        {% if not noMenu %}
         <nav class="fl-nav">
             <ul class="fl-nav-menu">
                 {% include 'cms/includes/menus/features.html' %}
@@ -32,5 +32,6 @@ one at https://mozilla.org/MPL/2.0/. #}
         </nav>
         {% include 'cms/includes/nav-cta.html' %}
         <button class="fl-show-mobile-menu" type="button">Menu</button>
+        {% endif %}
     </div>
 </header>

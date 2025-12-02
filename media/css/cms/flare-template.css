@@ -50,7 +50,7 @@ body.fl-modal-open {
 }
 
 .fl-footer-inner {
-    max-width: 1380px;
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     color: var(--token-neutrals-grey-5);
     font-size: var(--fl-theme-font-size-body-small);
@@ -92,10 +92,9 @@ body.fl-modal-open {
 }
 
 @media (prefers-color-scheme: dark) {
-    .fl-footer-logo {
+    body:not(.disable-dark-mode) .fl-footer-logo {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     }
-
 }
 
 .fl-footer-divider {

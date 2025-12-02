@@ -27,6 +27,11 @@
     background: var(--fl-theme-navigation-bg);
 }
 
+.fl-header.fl-header-no-menu {
+    border-bottom-width: 1px;
+    position: static;
+}
+
 .fl-header a {
     text-decoration: none;
 }
@@ -166,13 +171,16 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    line-height: 1.2;
 }
 
 .fl-nav-link {
+    display: block;
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     color: var(--fl-theme-navigation-link);
     text-decoration: none;
+    padding: 8px 0;
 }
 
 .fl-nav-link,
@@ -266,6 +274,7 @@
     width: 100%;
     align-items: center;
     color: var(--token-neutrals-black);
+    line-height: 1.2;
 }
 
 .fl-menu-category-link a:link,
@@ -273,7 +282,7 @@
     display: flex;
     justify-content: space-between;
     margin: calc(var(--token-scale-8) * 1px) 0 0;
-    padding: calc(var(--token-scale-8) * 1px);
+    padding: calc(var(--token-scale-16) * 1px);
     background: var(--token-orange-lighter-orange);
     font-weight: 600;
     position: relative;
@@ -294,7 +303,7 @@
 
 .fl-menu-panel-content {
     max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
-    padding: calc(var(--token-scale-24) * 1px);
+    padding: calc(var(--token-scale-48) * 1px) calc(var(--token-scale-24) * 1px) calc(var(--token-scale-32) * 1px);
     background-color: var(--fl-theme-surface-panel);
 }
 
@@ -303,11 +312,10 @@
 }
 
 .fl-menu-panel-content li {
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin: 0;
 }
 
-.fl-menu-panel-content ul:last-child,
-.fl-menu-panel-content li:last-child {
+.fl-menu-panel-content ul:last-child {
     margin-bottom: 0;
 }
 
@@ -317,9 +325,10 @@
     padding: 0;
     margin-right: calc(var(--token-scale-4) * 1px);
     background-color: var(--fl-theme-color-text-body);
-    background-repeat: no-repeat;
-    background-size: contain;
     mask-image: url('/media/img/firefox/flare/icons/close.svg');
+    mask-repeat: no-repeat;
+    mask-size: 12px 12px;
+    mask-position: center;
     text-indent: -9999px;
     white-space: nowrap;
     overflow: hidden;
@@ -401,6 +410,11 @@
         padding: 0;
     }
 
+    .fl-header.fl-header-no-menu {
+        padding-block: 9px;
+    }
+
+
     .fl-logo-fx {
         margin: calc(var(--token-scale-8) * 1px) 0;
     }
@@ -448,17 +462,26 @@
     .fl-menu-title h2 {
         margin: 0;
         padding: 0 calc(var(--token-scale-8) * 1px);
+        font-weight: 400;
     }
 
     .fl-menu-category.is-active .fl-menu-panel {
         display: block;
         position: absolute;
         top: var(--fl-navigation-menu-height);
+        left: 50%;
+        transform: translateX(-50%);
         border: 2px solid var(--fl-theme-border-color-subtle);
+        border-radius: 0 0 8px 8px;
+        overflow: hidden;
+        max-width: 400px;
+        width: 100%;
     }
 
     .fl-menu-category.is-active #fl-menu-panel-features {
-        min-width: 350px;
+        max-width: 344px;
+        transform: none;
+        left: auto;
     }
 
     .fl-menu-panel-content {
@@ -482,7 +505,7 @@
    ================================================ */
 
 @media (prefers-color-scheme: dark) {
-    .fl-logo-fx {
+    body:not(.disable-dark-mode) .fl-logo-fx {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     }
 }

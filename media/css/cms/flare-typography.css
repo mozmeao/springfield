@@ -29,7 +29,7 @@
 }
 
 .fl-superheading {
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-superheading);
     font-weight: var(--token-font-weight-semibold);
     line-height: var(--fl-theme-line-height-base);
@@ -53,7 +53,7 @@
 }
 
 .fl-subheading {
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-subheading-1);
     font-weight: var(--token-font-weight-medium);
     line-height: var(--fl-theme-line-height-base);
