@@ -21,6 +21,19 @@ Button - Flare 2026 Design System Buttons
     transition: background-color var(--token-transition-fast), color var(--token-transition-fast), border-color var(--token-transition-fast);
     border-radius: var(--token-border-radius-xl);
     white-space: nowrap;
+    background-color: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
+    font-size: var(--fl-theme-font-size-base);
+    padding: var(--token-spacing-xl) var(--token-spacing-2xl);
+    height: var(--token-spacing-3xl);
+}
+
+.fl-button:hover {
+    background-color: rgb(var(--token-color-link-purple));
+}
+
+.fl-button:active {
+    background-color: rgb(var(--token-color-purple));
 }
 
 /* Button sizes */
@@ -40,20 +53,6 @@ Button - Flare 2026 Design System Buttons
     font-size: var(--fl-theme-font-size-base);
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     height: var(--token-spacing-3xl);
-}
-
-/* Button fills - Filled */
-.fl-button-filled {
-    background-color: rgb(var(--token-color-light-purple));
-    color: rgb(var(--token-color-white));
-}
-
-.fl-button-filled:hover {
-    background-color: rgb(var(--token-color-link-purple));
-}
-
-.fl-button-filled:active {
-    background-color: rgb(var(--token-color-purple));
 }
 
 /* Button fills - Outline */

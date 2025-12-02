@@ -107,6 +107,10 @@
     margin-top: var(--token-spacing-lg);
 }
 
+.fl-intro-actions {
+    margin-top: var(--token-spacing-2xl);
+}
+
 @media (--viewport-sm-up) {
     .fl-intro {
         padding: var(--token-layout-lg);
