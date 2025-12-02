@@ -96,3 +96,9 @@ components consume the variables (no per-component media queries) */
         --fl-theme-default-text-align: left;
     }
 }
+
+@media (--viewport-md-up) {
+    :root {
+        --fl-theme-font-size-h1: 5rem; /* 80px */
+    }
+}

@@ -17,6 +17,13 @@
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
+.fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 {
+    font-variation-settings:
+        "wght" var(--token-font-weight-semibold),
+        "wdth" var(--token-font-condensed-width);
+    line-height: 0.9;
+}
+
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
     color: var(--token-color-light-purple);

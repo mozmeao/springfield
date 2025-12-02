@@ -18,6 +18,7 @@ Card - Flare 2026 Design System Cards
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
     border-radius: var(--token-border-radius-lg);
     background: var(--fl-theme-surface-card-gradient);
+    backdrop-filter: blur(7.5px);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
     text-align: center;

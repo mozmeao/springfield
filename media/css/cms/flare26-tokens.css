@@ -35,7 +35,8 @@ Static values extracted from Figma that do not change based on context.
     --token-gradient-purple: radial-gradient(122.66% 137.66% at 50% 0%, #AE49EC 0%, #210340 100%);
 
     /* Light and dark gradients */
-    --token-gradient-light: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, var(--token-color-white) 100%);
+    --token-gradient-light: linear-gradient(180deg, rgba(255, 255, 255, 0.90) 0%, var(--token-color-white) 100%);
+
     --token-gradient-dark: linear-gradient(180deg, rgba(21, 20, 26, 0.72) 0%, rgba(21, 20, 26, 0.9) 100%);
 
     /* Soft purple gradient */
@@ -88,6 +89,7 @@ Static values extracted from Figma that do not change based on context.
     --token-font-weight-medium: 500;
     --token-font-weight-semibold: 600;
     --token-font-weight-bold: 700;
+    --token-font-condensed-width: 65; /* used in variable font to build condensed heads at larger sizes */
 
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;
