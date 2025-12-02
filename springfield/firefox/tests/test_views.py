@@ -676,7 +676,7 @@ class TestWhatsNew(TestCase):
         ]
         for version in test_versions:
             with self.subTest(version=version):
-                response = self.client.get(f"/en-US/firefox/whatsnew/{version}/")
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
                 # Check that the request was processed (not 404)
                 assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
 
@@ -690,7 +690,7 @@ class TestWhatsNew(TestCase):
         ]
         for version in test_versions:
             with self.subTest(version=version):
-                response = self.client.get(f"/en-US/firefox/whatsnew/{version}/")
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
                 # Check that the request was processed (not 404)
                 assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
 
