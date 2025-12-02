@@ -364,7 +364,7 @@
     width: 100%;
 }
 
-@media (-viewport-sm-up) {
+@media (--viewport-sm-up) {
     .fl-footer {
         padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-24) * 1px)
     }
