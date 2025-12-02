@@ -679,6 +679,7 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
     "springfield.base.middleware.SpringfieldLocaleMiddleware",  # wraps django.middleware.locale.LocaleMiddleware
