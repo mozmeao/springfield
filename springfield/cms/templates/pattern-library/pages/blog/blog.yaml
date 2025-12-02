@@ -2,6 +2,8 @@ name: "Blog Article Page"
 context:
   content_file: "pages/blog/BLOG_CONTENT.md"
 
+  background_image: "/media/img/firefox/flare/placeholder-scene.png"
+
   hero_image:
     url: "/media/img/firefox/flare/placeholder-scene.png"
     alt: "Placeholder alt text"
@@ -11,6 +13,10 @@ context:
   author: "Mozilla Team"
   author_url: "https://www.mozilla.org"
   published_date: "September 22 2025"
+
+  video_url: "https://www.youtube.com/watch?v=F-nFQryDB0s"
+  video_poster: "/media/img/firefox/flare/placeholder.png"
+  video_alt: "Example YouTube Video"
 
   related_articles:
     - category: "Extensify"

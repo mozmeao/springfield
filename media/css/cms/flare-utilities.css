@@ -35,6 +35,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
+.light-dark-display {
+    display: contents;
+}
+
 .light-dark-display .display-light,
 .light-dark-display .display-dark {
     display: none;

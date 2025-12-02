@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
+
 (function () {
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
@@ -203,15 +205,107 @@
         });
     }
 
+    function applyVideoAspectRatios() {
+        const videoContainers = document.querySelectorAll(
+            '.fl-video[data-aspect-ratio]'
+        );
+
+        videoContainers.forEach(function (container) {
+            const ratio = container.getAttribute('data-aspect-ratio');
+
+            if (!ratio) {
+                return;
+            }
+
+            container.style.aspectRatio = ratio;
+        });
+    }
+
+    function initVideoPlayers() {
+        const videoButtons = document.querySelectorAll('.js-video-play');
+
+        videoButtons.forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const videoType = button.getAttribute('data-video-type');
+                const container = button.closest('.fl-video');
+
+                if (!container) return;
+
+                if (videoType === 'youtube') {
+                    const videoId = button.getAttribute('data-video-id');
+
+                    if (!videoId) return;
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+                    iframe.title = button.getAttribute('aria-label') || 'Video';
+                    iframe.allowFullscreen = true;
+                    button.remove();
+                    container.appendChild(iframe);
+                } else if (videoType === 'cdn') {
+                    const videoUrl = button.getAttribute('data-video-url');
+                    const posterUrl = button.getAttribute('data-video-poster');
+
+                    if (!videoUrl) return;
+
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.autoplay = true;
+
+                    if (posterUrl) {
+                        video.poster = posterUrl;
+                    }
+
+                    const source = document.createElement('source');
+                    source.src = videoUrl;
+                    source.type = 'video/webm';
+
+                    video.appendChild(source);
+
+                    button.remove();
+                    container.appendChild(video);
+
+                    video.addEventListener(
+                        'play',
+                        VideoEngagement.handleStart,
+                        {
+                            once: true
+                        }
+                    );
+
+                    // Floor duration because we don't need precise numbers here
+                    video.addEventListener('loadedmetadata', (e) => {
+                        VideoEngagement.duration = Math.floor(
+                            e.target.duration
+                        );
+                    });
+
+                    // 'timeupdate' will handle both video_progress and video_complete data
+                    // ('ended' not reliable: if 'loop' is true, it will not fire)
+                    video.addEventListener(
+                        'timeupdate',
+                        VideoEngagement.throttledProgress
+                    );
+                }
+            });
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
             handleNewsletterSubmission();
             initNotificationClose();
+            applyVideoAspectRatios();
+            initVideoPlayers();
         });
     } else {
         initNewsletterForm();
         handleNewsletterSubmission();
         initNotificationClose();
+        applyVideoAspectRatios();
+        initVideoPlayers();
     }
 })();
