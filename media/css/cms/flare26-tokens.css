@@ -36,7 +36,6 @@ Static values extracted from Figma that do not change based on context.
 
     /* Light and dark gradients */
     --token-gradient-light: linear-gradient(180deg, rgba(255, 255, 255, 0.90) 0%, var(--token-color-white) 100%);
-
     --token-gradient-dark: linear-gradient(180deg, rgba(21, 20, 26, 0.72) 0%, rgba(21, 20, 26, 0.9) 100%);
 
     /* Soft purple gradient */
@@ -48,6 +47,10 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-light-purple) 0%,
         var(--token-color-dark-purple) 100%
     );
+
+    /* Gold gradient */
+    --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
+
 
     /* Spacing variables */
     --token-spacing-2xs: 2px;
@@ -68,6 +71,7 @@ Static values extracted from Figma that do not change based on context.
     --token-layout-2xl: 200px;
 
     /* Border radius variables */
+    --token-border-radius-xs: 8px;
     --token-border-radius-md: 38px;
     --token-border-radius-lg: 50px;
     --token-border-radius-xl: 125px;
