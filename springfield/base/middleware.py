@@ -12,14 +12,16 @@ the locale codes.
 import base64
 import contextlib
 import inspect
+import logging
 import time
 from email.utils import formatdate
 from functools import wraps
 
 from django.conf import settings
-from django.core.exceptions import MiddlewareNotUsed
+from django.core.exceptions import DisallowedRedirect, MiddlewareNotUsed
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.locale import LocaleMiddleware as DjangoLocaleMiddleware
+from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import trans_real
@@ -36,6 +38,8 @@ from springfield.base.i18n import (
     path_needs_lang_code,
     split_path_and_normalize_language,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SpringfieldLangCodeFixupMiddleware(MiddlewareMixin):
@@ -383,3 +387,19 @@ class HostnameMiddleware:
     def process_response(self, request, response):
         response["X-Backend-Server"] = self.backend_server
         return response
+
+
+class CatchDisallowedRedirect(MiddlewareMixin):
+    def process_exception(self, request, exc):
+        if isinstance(exc, DisallowedRedirect):
+            _full_path = request.get_full_path()
+            if len(_full_path) > 32:
+                _path = _full_path[:32] + "..."
+            else:
+                _path = _full_path
+            logger.warning("Caught and silenced DisallowedRedirect for %s", _path)
+            if locale := getattr(request, "locale", None):
+                dest = f"/{locale}/"
+            else:
+                dest = "/"
+            return redirect(dest)
