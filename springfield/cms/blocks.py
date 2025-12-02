@@ -474,12 +474,19 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link}"
+        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -495,6 +502,7 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
         settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -512,15 +520,15 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
     return _StickerCardBlock(*args, **kwargs)
 
 
-def TagCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create TagCardBlock with appropriate button types.
+def FilledCardBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create FilledCardBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
     """
 
-    class _TagCardBlock(blocks.StructBlock):
+    class _FilledCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -533,11 +541,11 @@ def TagCardBlock(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/tag-card.html"
-            label = "Tag Card"
-            label_format = "Tag Card - {headline}"
+            template = "cms/blocks/filled-card.html"
+            label = "Filled Card"
+            label_format = "Filled Card - {headline}"
 
-    return _TagCardBlock(*args, **kwargs)
+    return _FilledCardBlock(*args, **kwargs)
 
 
 def IconCardBlock(allow_uitour=False, *args, **kwargs):
@@ -551,6 +559,7 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
     class _IconCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -597,6 +606,7 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
         settings = IllustrationCardSettings()
         image = ImageChooserBlock(inline_form=True)
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -626,6 +636,7 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
         settings = BaseCardSettings()
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -655,7 +666,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
-                ("tag_card", TagCardBlock(allow_uitour=allow_uitour)),
+                ("filled_card", FilledCardBlock(allow_uitour=allow_uitour)),
                 ("icon_card", IconCardBlock(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCardBlock(allow_uitour=allow_uitour)),
             ]
