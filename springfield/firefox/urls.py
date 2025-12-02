@@ -183,9 +183,9 @@ urlpatterns = (
     page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
     # START What's New Page (WNP) paths
     # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
-    re_path(f"whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
+    re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
     # 2. New version format, which should be served from the CMS, but falls back to evergreen page
-    re_path(r"whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
+    re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
     page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
     path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
