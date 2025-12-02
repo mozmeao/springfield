@@ -341,7 +341,7 @@
     }
 
     .fl-footer-cta {
-        width: unset;
+        width: auto;
     }
 
     .fl-footer-cta .fl-button {
