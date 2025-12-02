@@ -1,11 +1,19 @@
-{# This Source Code Form is subject to the terms of the Mozilla Public License,
-v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at https://mozilla.org/MPL/2.0/. #} {% if not custom_nav_cta %}
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if not custom_nav_cta %}
 <div
     class="{% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
 >
-    {{ download_firefox_thanks(alt_copy=ftl('navigation-download'),
-    dom_id='nav-download-firefox', button_class='mzp-t-product mzp-t-xl',
-    download_location='nav', flare_styles=True) }}
+    {{
+      download_firefox_thanks(alt_copy=ftl('navigation-download'),
+      dom_id='nav-download-firefox', button_class='mzp-t-product mzp-t-xl',
+      download_location='nav', flare_styles=True)
+    }}
 </div>
-{% else %} {{ custom_nav_cta }} {% endif %}
+{% else %}
+  {{ custom_nav_cta }}
+{% endif %}
