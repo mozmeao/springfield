@@ -22,8 +22,8 @@ html {
 body {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
-    color: var(--token-color-black-4);
-    background: var(--token-color-white);
+    color: rgb(var(--token-color-black-4));
+    background: rgb(var(--token-color-white));
     width: 100%;
     max-width: var(--token-width-desktop-layout);
 }
@@ -47,13 +47,13 @@ p {
 }
 
 a:link, a:visited {
-    color: var(--token-color-link-purple);
+    color: rgb(var(--token-color-link-purple));
     text-decoration: underline;
     transition: color var(--token-transition-fast);
 }
 
 a:visited {
-    color: var(--token-color-link-purple);
+    color: rgb(var(--token-color-link-purple));
 }
 
 a:hover, a:active, a:focus {
@@ -71,7 +71,7 @@ img, svg {
 }
 
 hr {
-    border-top: 1px solid var(--token-color-soft-purple);
+    border-top: 1px solid rgb(var(--token-color-soft-purple));
     margin: var(--token-spacing-lg) 0;
 }
 
@@ -91,24 +91,24 @@ li {
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
-    background: var(--token-color-light-purple);
-    color: var(--token-color-white);
+    background: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
     border-radius: var(--token-border-radius-lg);
     width: auto;
     height: auto;
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: var(--token-color-light-purple);
-    color: var(--token-color-white);
+    background: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
 }
 
 button:hover, [role="button"]:hover {
-    background: var(--token-color-link-purple);
-    color: var(--token-color-white);
+    background: rgb(var(--token-color-link-purple));
+    color: rgb(var(--token-color-white));
 }
 
 /* Use theme color for table borders */
 th, td {
-    border-color: var(--token-color-black-4);
+    border-color: rgb(var(--token-color-black-4));
 }

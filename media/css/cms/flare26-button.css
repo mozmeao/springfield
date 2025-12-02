@@ -44,16 +44,16 @@ Button - Flare 2026 Design System Buttons
 
 /* Button fills - Filled */
 .fl-button-filled {
-    background-color: var(--token-color-light-purple);
-    color: var(--token-color-white);
+    background-color: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
 }
 
 .fl-button-filled:hover {
-    background-color: var(--token-color-link-purple);
+    background-color: rgb(var(--token-color-link-purple));
 }
 
 .fl-button-filled:active {
-    background-color: var(--token-color-purple);
+    background-color: rgb(var(--token-color-purple));
 }
 
 /* Button fills - Outline */
@@ -64,7 +64,7 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-button-outline:hover {
-    color: var(--token-color-light-purple);
+    color: rgb(var(--token-color-light-purple));
 }
 
 /* Button fills - Text */

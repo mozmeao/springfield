@@ -14,7 +14,7 @@
     width: 100%;
     max-width: unset;
     padding: 0 0 var(--section-border-radius);
-    background: var(--token-color-white);
+    background: rgb(var(--token-color-white));
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
 }
@@ -27,15 +27,15 @@
 
 .fl-home-upper {
     padding: var(--section-padding);
-    background: var(--token-color-dark-purple);
+    background: rgb(var(--token-color-dark-purple));
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
-    color: var(--token-color-white);
+    color: rgb(var(--token-color-white));
 }
 
 .fl-home-lower {
     padding: var(--section-padding);
-    background-color: var(--token-color-white);
+    background-color: rgb(var(--token-color-white));
 }
 
 @media (--viewport-lg-up) {

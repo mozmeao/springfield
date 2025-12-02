@@ -67,17 +67,17 @@
     display: block;
     width: 36px;
     height: 36px;
-    background-color: var(--token-color-dark-purple-30);
+    background-color: rgba(var(--token-color-dark-purple-30), 0.3);
     padding: var(--token-spacing-xs);
     border-radius: 50%;
     font-weight: var(--token-font-weight-bold);
-    color: var(--token-color-white);
+    color: rgb(var(--token-color-white));
     text-align: center;
 }
 
 .fl-carousel-control-item.active::before {
-    background-color: var(--token-color-white);
-    color: var(--token-color-dark-purple);
+    background-color: rgb(var(--token-color-white));
+    color: rgb(var(--token-color-dark-purple));
 }
 
 .fl-carousel-image:not(.active) {
@@ -85,7 +85,7 @@
 }
 
 .fl-carousel-images {
-    background-color: var(--token-color-white);
+    background-color: rgb(var(--token-color-white));
     border-top-left-radius: var(--token-border-radius-md);
     border-top-right-radius: var(--token-border-radius-md);
     padding: var(--token-spacing-lg) var(--token-spacing-lg) 0;
