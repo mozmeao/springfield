@@ -686,6 +686,7 @@ class TestWhatsNew(TestCase):
             "127",
             "139",
             "200",
+            "333",
         ]
         for version in test_versions:
             with self.subTest(version=version):
