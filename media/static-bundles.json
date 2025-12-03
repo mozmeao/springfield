@@ -461,7 +461,7 @@
     },
     {
       "files": [
-        "js/cms/flare-navigation.js"
+        "js/cms/flare-navigation.es6.js"
       ],
       "name": "flare-navigation"
     },

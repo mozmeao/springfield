@@ -27,6 +27,19 @@
     background: var(--fl-theme-navigation-bg);
 }
 
+.fl-header.headroom {
+    will-change: transform;
+    transition: transform 200ms linear;
+}
+
+.fl-header.headroom-pinned {
+    transform: translateY(0%);
+}
+
+.fl-header.headroom-unpinned {
+    transform: translateY(-100%);
+}
+
 .fl-header.fl-header-no-menu {
     border-bottom-width: 1px;
     position: static;
