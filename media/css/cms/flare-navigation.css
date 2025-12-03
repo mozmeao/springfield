@@ -238,11 +238,22 @@
 }
 
 .fl-menu-category-link svg {
-    width: auto;
+    left: auto;
+    margin-left: 4px;
+    margin-right: 0;
+    right: 0;
+    transition-property: right;
+    transform: none;
     height: 0.8em;
     position: relative;
-    transition-duration: var(--token-transition-fast);
+    top: 0;
+    transition-duration: 0.3s;
     transition-timing-function: var(--token-transition-bezier);
+    width: auto;
+}
+
+.fl-menu-category-link:hover svg {
+    right: -4px;
 }
 
 .fl-menu-panel-content {
