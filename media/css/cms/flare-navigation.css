@@ -378,6 +378,12 @@
         display: block;
     }
 
+    /* instead of removing it completely, we hide it, so the layout is preserved */
+    .fl-header .hide-cta-on-desktop,
+    .fl-header .hide-nav-download-on-desktop {
+        visibility: hidden;
+    }
+
     .fl-nav-mobile-download-link,
     .fl-hamburger,
     .fl-show-mobile-menu,
