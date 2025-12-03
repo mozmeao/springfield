@@ -22,7 +22,10 @@ from springfield.utils import expand_locale_groups
 from ..urlresolvers import reverse
 
 CSS_TEMPLATE = '<link href="%s" rel="stylesheet" type="text/css">'
-CSS_TEMPLATE_IE = '<link href="%s" rel="stylesheet" type="text/css" media="all and (-ms-high-contrast: none)">'
+CSS_TEMPLATE_IE_LTE_9 = '<!--[if lte IE 9]><link href="%s" rel="stylesheet" type="text/css"><![endif]-->'
+CSS_TEMPLATE_IE_10_11 = (
+    '<!-- IE 10/11 only --><link href="%s" rel="stylesheet" type="text/css" media="all and (-ms-high-contrast: none)"><!-- end IE 10/11 only -->'
+)
 JS_TEMPLATE = '<script src="%s"></script>'
 log = logging.getLogger(__name__)
 
@@ -144,7 +147,7 @@ def css_bundle(name, target_old_ie=False):
 
     Args:
         name: The bundle name as defined in static-bundles.json
-        target_old_ie: If True, adds media="all and (-ms-high-contrast: none)" for IE10/11
+        target_old_ie: If True, adds media="all and (-ms-high-contrast: none)" for conditional display to IE10/11
                   and wraps in conditional comments for IE9 and lower
     """
     path = f"css/{name}.css"
@@ -152,10 +155,10 @@ def css_bundle(name, target_old_ie=False):
 
     if target_old_ie:
         # For IE10/11 with media query
-        ie_link = CSS_TEMPLATE_IE % path
-        # For IE9 and lower with conditional comment
-        ie9_link = f"<!--[if IE]>\n    {CSS_TEMPLATE % path}\n<![endif]-->"
-        return Markup(f"{ie9_link}\n    {ie_link}")
+        ie_10_11_link = CSS_TEMPLATE_IE_10_11 % path
+        # For ≥ IE9 and lower with conditional comment
+        ie_GTE_9_link = CSS_TEMPLATE_IE_LTE_9 % path
+        return Markup(f"{ie_10_11_link}\n    {ie_GTE_9_link}")
     else:
         return Markup(CSS_TEMPLATE % path)
 
