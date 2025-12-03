@@ -42,11 +42,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
     /* Subheading font size variables */
-    --fl-theme-font-size-subheading-1: 1.5rem; /* 24px */
-    --fl-theme-font-size-subheading-2: 1.375rem; /* 22px */
-    --fl-theme-font-size-subheading-3: 1.25rem; /* 20px */
-    --fl-theme-font-size-subheading-4: 1.125rem; /* 18px */
-    --fl-theme-font-size-subheading-5: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-md: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
+    --fl-theme-font-size-subheading-xs: 0.75rem; /* 12px */
 
     /* Body font size variables */
     --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
