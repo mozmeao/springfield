@@ -49,6 +49,12 @@ specific exceptions that can't be handled by the other layers
     order: 3;
 }
 
+.fl-menu-close-button .fl-menu-close-button-content {
+    margin: 0;
+    width: calc(var(--token-scale-12) * 1px);
+    height: calc(var(--token-scale-12) * 1px);
+}
+
 @media (--viewport-xs) {
     .fl-mediacontent-content .button {
         width: 100%;
