@@ -18,6 +18,7 @@ HEADING_TEXT_FEATURES = [
     "subscript",
     "strikethrough",
     "fxa",
+    "fx-logo",
 ]
 
 HEADING_LEVEL_CHOICES = (

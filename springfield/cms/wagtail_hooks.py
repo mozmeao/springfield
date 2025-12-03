@@ -11,9 +11,7 @@ import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
-from wagtail.admin.rich_text.converters.html_to_contentstate import (
-    InlineEntityElementHandler,
-)
+from wagtail.admin.rich_text.converters.html_to_contentstate import InlineEntityElementHandler
 from wagtail.admin.widgets.button import Button
 
 from springfield.base.templatetags.helpers import css_bundle
@@ -152,3 +150,92 @@ def register_fxa(features):
 
     if feature not in features.default_features:
         features.default_features.append(feature)
+
+
+class FXLogoEntityElementHandler(InlineEntityElementHandler):
+    """
+    Database HTML to Draft.js ContentState.
+    Converts the <span class="fl-fx-logo"> tag into an FX-LOGO entity.
+    """
+
+    mutability = "IMMUTABLE"
+
+    def get_attribute_data(self, attrs):
+        """
+        Return a minimal data dict. Returning completely empty dict might cause issues.
+        """
+        return {"logo": True}
+
+
+def fx_logo_entity_decorator(props):
+    """
+    Draft.js ContentState to database HTML.
+    Converts the FX-LOGO entities into a <span class="fl-fx-logo"> tag.
+    The entity will contain a space character as placeholder text.
+    """
+    return DOM.create_element("span", {"class": "fl-fx-logo"}, props["children"])
+
+
+@hooks.register("register_rich_text_features")
+def register_firefox_logo_feature(features):
+    """
+    Registering the `fx-logo` feature, which adds a span with the Firefox logo to the text.
+    Uses an entity approach since it's a standalone inline element without user text content.
+    """
+    feature_name = "fx-logo"
+    type_ = "FX-LOGO"
+
+    control = {
+        "type": type_,
+        "description": "Firefox Logo",
+        "icon": [
+            (
+                "M970.52 343.99C948.95 292.26 905.38 236.46 871.10 218.76C895.48 265.89 912.45 316.51 "
+                "921.32 368.91C921.32 368.91 921.32 369.17 921.41 369.76C865.38 230.33 770.30 174.19 "
+                "692.70 51.77C688.70 45.56 684.77 39.18 681.02 32.80C679.06 29.48 677.27 26.08 675.56 "
+                "22.59C672.32 16.38 669.85 9.83 668.14 3.02C668.14 2.34 667.72 1.75 667.03 1.66C666.70 "
+                "1.58 666.44 1.58 666.10 1.66C666.10 1.66 665.92 1.75 665.84 1.83L665.50 2.00L665.67 "
+                "1.75C541.17 74.48 498.87 209.15 495.04 276.44C445.32 279.84 397.74 298.13 358.60 "
+                "328.93C354.51 325.44 350.24 322.21 345.72 319.23C334.38 279.76 333.96 238.07 344.36 "
+                "198.35C298.65 220.46 257.98 251.77 224.98 290.31H224.72C205.02 265.47 206.47 183.54 "
+                "207.58 166.44C201.78 168.74 196.24 171.72 191.04 175.21C173.73 187.54 157.44 201.41 "
+                "142.60 216.64C125.63 233.82 110.20 252.28 96.30 272.02C64.41 317.10 41.81 367.98 29.78 "
+                "421.83C29.53 422.93 29.36 424.04 29.10 425.06C28.16 429.40 24.84 451.18 24.24 455.94C24.24 "
+                "456.28 24.24 456.62 24.16 457.05C19.81 479.59 17.08 502.47 16.06 525.36C16.06 526.21 "
+                "16.06 527.06 16.06 527.91C16.06 801.07 238.02 1022.51 511.84 1022.43C753.25 1022.43 "
+                "959.61 848.88 1000.46 611.53C1001.31 605.24 1001.99 598.86 1002.67 592.48C1012.90 508.26 "
+                "1001.82 422.85 970.52 343.99ZM399.19 731.06C401.49 732.16 403.71 733.36 406.10 734.46L406.44 "
+                "734.71C403.97 733.53 401.58 732.33 399.19 731.06Z"
+            ),
+        ],
+    }
+
+    # Register the Draftail plugin as an entity feature
+    # Using js parameter to provide custom source for insertion without text selection
+    features.register_editor_plugin(
+        "draftail",
+        feature_name,
+        draftail_features.EntityFeature(
+            control,
+            js=["js/wagtailadmin-fx-logo.js"],
+        ),
+    )
+
+    # Configure the content transform from the DB to the editor and back.
+    db_conversion = {
+        "from_database_format": {
+            "span[class=fl-fx-logo]": FXLogoEntityElementHandler(type_),
+        },
+        "to_database_format": {
+            "entity_decorators": {
+                type_: fx_logo_entity_decorator,
+            }
+        },
+    }
+
+    # Register the content transformation conversion.
+    features.register_converter_rule("contentstate", feature_name, db_conversion)
+
+    # Add the feature to the default features list to make it available
+    # on rich text fields that do not specify an explicit 'features' list
+    features.default_features.append(feature_name)
