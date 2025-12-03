@@ -370,6 +370,7 @@
     .fl-nav-mobile-download-link,
     .fl-hamburger,
     .fl-show-mobile-menu,
+    .fl-show-mobile-menu.is-open,
     .fl-menu-panel {
         display: none;
     }
