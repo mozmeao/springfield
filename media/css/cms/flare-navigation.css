@@ -404,7 +404,7 @@
 
     .fl-menu-category {
         margin: 0;
-        padding: calc(var(--token-scale-16) * 1px) 0;
+        padding: calc(calc(var(--token-scale-16) * 1px) + 1px) 0;
         cursor: pointer;
     }
 
