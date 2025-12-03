@@ -155,7 +155,7 @@
     display: inline-block;
     width: 12px;
     height: 12px;
-    margin-left: calc(var(--token-scale-8) * 1px);
+    margin-left: calc(var(--token-scale-4) * 1px);
     background-color: var(--fl-theme-color-text-body);
     background-repeat: no-repeat;
     background-size: contain;
