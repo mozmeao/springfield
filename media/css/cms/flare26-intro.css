@@ -102,7 +102,7 @@
 }
 
 .fl-home-intro .fl-heading {
-    font-size: var(--fl-theme-font-size-banner);
+    font-size: var(--fl-theme-font-size-heading-4xl);
     margin-bottom: var(--token-spacing-lg);
     margin-top: var(--token-spacing-lg);
 }
