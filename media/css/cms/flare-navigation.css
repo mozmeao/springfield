@@ -234,7 +234,7 @@
 
 .fl-menu-category-link a:hover,
 .fl-menu-category-link a:focus {
-    background: var(--token-orange-medium-orange);
+    background: #FF9456;
 }
 
 .fl-menu-category-link svg {
