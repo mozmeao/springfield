@@ -48,7 +48,7 @@
 .fl-heading h5, h5.fl-heading, .fl-heading-size-5, .fl-rich-text h5 { font-size: var(--fl-theme-font-size-h5); }
 .fl-heading h6, h6.fl-heading, .fl-heading-size-6, .fl-rich-text h6 { font-size: var(--fl-theme-font-size-h6); }
 
-@media (max-width: 400px) {
+@media (--viewport-xs) {
     .fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 { font-size: var(--fl-theme-font-size-h2); }
 }
 
@@ -84,7 +84,7 @@
     margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
-@media (max-width: 767px) {
+@media (--viewport-xs) {
     .fl-body, .fl-rich-text {
         max-width: 60ch;
     }

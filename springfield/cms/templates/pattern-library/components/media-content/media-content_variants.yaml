@@ -73,3 +73,39 @@ context:
       media:
         url: /media/img/firefox/flare/placeholder.png
         alt: Placeholder Image
+
+    - title: Media Content (YouTube Video)
+      media_after: false
+      eyebrow: Eyebrow
+      heading:
+        level: h3
+        heading_text: Media Content with YouTube Video
+      body: This variant shows the media content component rendering a YouTube video instead of an image.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: false
+          icon_name: arrow-right
+          icon_position: right
+      video:
+        url: https://www.youtube.com/watch?v=F-nFQryDB0s
+        poster: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Video
+
+    - title: Media Content (CDN Video)
+      media_after: false
+      eyebrow: Eyebrow
+      heading:
+        level: h3
+        heading_text: Media Content with CDN Video
+      body: This variant shows the media content component rendering a CDN-hosted video from assets.mozilla.net.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: false
+          icon_name: arrow-right
+          icon_position: right
+      video:
+        url: https://assets.mozilla.net/video/red-pandas.webm
+        poster: /media/img/firefox/flare/placeholder.png
+        alt: Example CDN Video
