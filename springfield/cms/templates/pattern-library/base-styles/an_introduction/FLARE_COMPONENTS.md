@@ -43,14 +43,14 @@ Base templates use Jinja2 syntax for markup structure only, no CMS code. They:
 
 ### 2. Component CSS
 
-Pure CSS only (no preprocessors). Import into [`flare.css`](/springfield/media/css/cms/flare.css) using the `components` layer.
+Pure CSS only (no preprocessors). Import into [`flare.css`](/springfield/media/css/flare/flare.css) using the `components` layer.
 
-**Location**: `/media/css/cms/flare-{component-name}.css`
+**Location**: `/media/css/flare/flare-{component-name}.css`
 
 **Conventions**:
 
 - Prefix classes with `fl-{component-name}-`
-- Reference design tokens from [`flare-theme.css`](/springfield/media/css/cms/flare-theme.css)
+- Reference design tokens from [`flare-theme.css`](/springfield/media/css/flare/flare-theme.css)
 - Use `calc(var(--token) * 1px)` for unitless values
 
 **Example** (`flare-banner.css`):

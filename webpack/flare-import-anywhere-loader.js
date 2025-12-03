@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 function readCss(file) {
-    const p = path.resolve(__dirname, '..', 'media', 'css', 'cms', file);
+    const p = path.resolve(__dirname, '..', 'media', 'css', 'flare', file);
     return fs.readFileSync(p, 'utf8');
 }
 
@@ -27,7 +27,7 @@ module.exports = function (source, map) {
             '..',
             'media',
             'css',
-            'cms',
+            'flare',
             file
         );
         this.addDependency(absPath);

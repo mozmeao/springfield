@@ -287,21 +287,21 @@
     },
     {
       "files": [
-        "css/cms/flare.css"
+        "css/flare/flare.css"
       ],
       "name": "flare"
     },
     {
       "files": [
-        "css/cms/flare-base.css",
-        "css/cms/flare-icon.css",
-        "css/cms/flare-utilities.css"
+        "css/flare/flare-base.css",
+        "css/flare/flare-icon.css",
+        "css/flare/flare-utilities.css"
       ],
       "name": "flare_base"
     },
     {
       "files": [
-        "css/cms/flare-utilities.css"
+        "css/flare/flare-utilities.css"
       ],
       "name": "flare_utilities"
     },
