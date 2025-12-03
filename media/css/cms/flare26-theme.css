@@ -39,7 +39,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-md: 2rem; /* 32px */
     --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
-    --fl-theme-font-size-heading-xxs: 1rem; /* 16px */
+    --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
     /* Subheading font size variables */
     --fl-theme-font-size-subheading-1: 1.5rem; /* 24px */
@@ -49,11 +49,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-subheading-5: 1rem; /* 16px */
 
     /* Body font size variables */
-    --fl-theme-font-size-body-large: 1.5rem; /* 24px */
-    --fl-theme-font-size-body-medium: 1.125rem; /* 18px */
-    --fl-theme-font-size-body-small: 1rem; /* 16px */
-    --fl-theme-font-size-body-xsmall: 0.875rem; /* 14px */
-    --fl-theme-font-size-body-2xsmall: 0.75rem; /* 12px */
+    --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+    --fl-theme-font-size-body-md: 1.125rem; /* 18px */
+    --fl-theme-font-size-body-sm: 1rem; /* 16px */
+    --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
     --fl-theme-font-size-tag: 0.75rem; /* 12px */
 
     /* Line height variables NOT from Figma */
@@ -112,6 +112,10 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-md: 3rem; /* 48px */
         --fl-theme-font-size-heading-sm: 2rem; /* 32px */
         --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
-        --fl-theme-font-size-heading-xxs: 1rem; /* 16px */
+        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
+        --fl-theme-font-size-body-lg: 2rem; /* 32px */
+        --fl-theme-font-size-body-md: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-sm: 1.125rem; /* 18px */
+        --fl-theme-font-size-body-xs: 1rem; /* 16px */
     }
 }

@@ -69,7 +69,7 @@ Card - Flare 2026 Design System Cards
     margin: 0 0 var(--token-spacing-xl);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-medium);
-    font-size: var(--fl-theme-font-size-body-2xsmall);
+    font-size: var(--fl-theme-font-size-body-2xs);
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: rgb(var(--token-color-light-purple));
@@ -80,7 +80,7 @@ Card - Flare 2026 Design System Cards
     margin: 0;
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-regular);
-    font-size: var(--fl-theme-font-size-body-small);
+    font-size: var(--fl-theme-font-size-body-sm);
     line-height: 1.4;
     margin-top: 0;
 }

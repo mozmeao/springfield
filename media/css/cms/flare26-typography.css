@@ -52,7 +52,7 @@
 
 .fl-rich-text blockquote {
     font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-body-large);
+    font-size: var(--fl-theme-font-size-body-lg);
     border-left: var(--token-spacing-xs) solid rgb(var(--token-color-light-purple));
     padding-left: var(--token-spacing-lg);
     margin: var(--token-spacing-lg) 0;
@@ -60,7 +60,7 @@
 
 .fl-rich-text cite {
     color: rgb(var(--token-color-link-purple));
-    font-size: var(--fl-theme-font-size-body-small);
+    font-size: var(--fl-theme-font-size-body-sm);
 }
 
 .fl-rich-text hr {
