@@ -1086,12 +1086,6 @@ class CardGalleryCard(blocks.StructBlock):
 class CardGalleryCallout(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
-    buttons = MixedButtonsBlock(
-        button_types=get_button_types(),
-        min_num=0,
-        max_num=1,
-        required=False,
-    )
 
 
 class CardGalleryBlock(blocks.StructBlock):

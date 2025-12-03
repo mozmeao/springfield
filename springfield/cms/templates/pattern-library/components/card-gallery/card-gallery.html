@@ -77,18 +77,6 @@
     <div class="fl-body">
       {{ callout_card.description }}
     </div>
-    {% if callout_card.buttons %}
-      <div class="fl-buttons">
-        {% for button in callout_card.buttons %}
-          <include:button
-            label="{{ button.label }}"
-            link="{{ button.link }}"
-            icon_name="{{ button.icon_name }}"
-            icon_position="{{ button.icon_position }}"
-          />
-        {% endfor %}
-      </div>
-    {% endif %}
   </content:callout_card>
 
   {% if cta %}

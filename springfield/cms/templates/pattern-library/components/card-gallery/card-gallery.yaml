@@ -30,11 +30,6 @@ context:
   callout_card:
     headline: Secondary Card Headline
     description: This is the description for the secondary card in the card gallery.
-    buttons:
-      - label: Learn More
-        link: /learn-more/
-        icon_name: arrow-right
-        icon_position: right
   cta:
     label: Call to Action
     link: /products/

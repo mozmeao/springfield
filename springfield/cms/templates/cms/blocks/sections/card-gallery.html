@@ -85,14 +85,6 @@
     <div class="fl-body">
       {{ value.callout_card.description }}
     </div>
-    {% if value.callout_card.buttons %}
-      <div class="fl-buttons">
-        {% for button in value.callout_card.buttons %}
-          {% set block_position = block_position ~ ".callout-card.button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      </div>
-    {% endif %}
   </content:callout_card>
 
   {% if value.cta %}

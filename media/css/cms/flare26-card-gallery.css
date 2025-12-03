@@ -23,16 +23,15 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 }
 
 .fl-card-gallery-card {
-    display: flex;
+    display: grid;
     gap: var(--token-spacing-md);
-    flex-direction: column;
-    justify-content: space-between;
     border-radius: var(--token-border-radius-lg);
     overflow: hidden;
 }
 
 .fl-card-gallery-card.fl-card-gallery-main-card {
     background-color: rgb(var(--token-color-soft-purple));
+    grid-template-rows: auto 450px;
 }
 
 .fl-card-gallery-card.fl-card-gallery-secondary-card {
@@ -47,6 +46,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     text-align: center;
     border-radius: 93px;
     max-width: 400px;
+    justify-content: center;
 }
 
 .fl-card-gallery-card-content {
@@ -59,6 +59,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 .fl-card-gallery-card-content .fl-heading {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--token-spacing-xl);
 }
 
@@ -91,7 +92,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 .fl-card-gallery-main-card .fl-card-gallery-card-image {
     padding-left: var(--card-spacing);
     padding-bottom: var(--card-spacing);
-    height: 60%;
     width: 150%;
 }
 
@@ -106,18 +106,8 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     padding-bottom: var(--token-spacing-sm);
 }
 
-@media (--viewport-xs) {
-    .fl-card-gallery-card.fl-card-gallery-callout-card .fl-body,
-    .fl-card-gallery-card.fl-card-gallery-callout-card .fl-buttons {
-        display: none;
-    }
-}
-
-@media (--viewport-md-up) {
-    .fl-card-gallery {
-        --card-spacing: 70px;
-    }
-
+/* Using 768px instead of --viewport-sm-up because 600px is too narrow for this layout */
+@media (min-width: 768px) {
     .fl-card-gallery-grid {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
@@ -126,22 +116,20 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
             "main callout";
     }
 
-    .fl-card-gallery-card {
-        border-radius: var(--token-border-radius-xl);
-    }
-
     .fl-card-gallery-card.fl-card-gallery-main-card {
         grid-area: main;
+        grid-template-rows: auto 300px;
     }
 
     .fl-card-gallery-card.fl-card-gallery-secondary-card {
         grid-area: secondary;
+        grid-template-rows: auto 200px;
     }
 
     .fl-card-gallery-card.fl-card-gallery-callout-card {
         grid-area: callout;
         max-width: max(450px, 80%);
-        border-radius: 250px;
+        border-radius: 150px;
     }
 
     .fl-card-gallery-card-content {
@@ -158,9 +146,14 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     }
 
     .fl-card-gallery-card-content .fl-heading {
-        font-size: 2em;
         flex-direction: row;
     }
+
+    .fl-card-gallery-main-card .fl-card-gallery-card-content .fl-heading,
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-content .fl-heading {
+        font-size: 2em;
+    }
+
 
     .fl-card-gallery-main-card .fl-body,
     .fl-card-gallery-secondary-card .fl-body {
@@ -174,7 +167,40 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     .fl-card-gallery-secondary-card .fl-card-gallery-card-image {
         padding-bottom: 0;
         padding-right: 0;
-        height: 50%;
         width: 150%;
+        min-height: 300px;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-card-gallery {
+        --card-spacing: 70px;
+    }
+
+    .fl-card-gallery-card-content .fl-heading {
+        font-size: 2em;
+    }
+
+    .fl-card-gallery-main-card {
+        grid-template-rows: auto 350px;
+    }
+
+    .fl-card-gallery-main-card .fl-card-gallery-card-image,
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-image {
+        min-height: 400px;
+    }
+
+    .fl-card-gallery-secondary-card  {
+        grid-template-rows: auto 300px;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-gallery-card {
+        border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-card-gallery-card.fl-card-gallery-callout-card {
+        border-radius: 250px;
     }
 }
