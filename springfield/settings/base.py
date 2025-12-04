@@ -1289,6 +1289,7 @@ def lazy_wagtail_langs():
         # Smartling-specific ones in the WAGTAIL_LOCALIZE_SMARTLING settings, below
         ("en-US", "English (US)"),
         ("en-GB", "English (Great Britain)"),
+        ("en-CA", "English (Canada)"),
         ("de", "German"),
         ("fr", "French"),
         ("es-ES", "Spanish (Spain)"),
