@@ -55,6 +55,10 @@ specific exceptions that can't be handled by the other layers
     height: calc(var(--token-scale-12) * 1px);
 }
 
+.fl-menu-category .fl-icon-caret-down {
+    display: none;
+}
+
 @media (--viewport-xs) {
     .fl-mediacontent-content .button {
         width: 100%;
@@ -72,6 +76,10 @@ specific exceptions that can't be handled by the other layers
 }
 
 @media (--viewport-md-up) {
+    .fl-menu-category .fl-icon-caret-down {
+        display: inline-block;
+    }
+
     .fl-mediacontent .button {
         width: fit-content
     }
