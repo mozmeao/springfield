@@ -13,7 +13,9 @@ if (headerEl) {
     const headroomInstance = new Headroom(headerEl, {
         classes: {
             pinned: 'headroom-pinned',
-            unpinned: 'headroom-unpinned'
+            unpinned: 'headroom-unpinned',
+            notTop: 'headroom-not-top',
+            notBottom: 'headroom-not-bottom'
         }
     });
     headroomInstance.init();
