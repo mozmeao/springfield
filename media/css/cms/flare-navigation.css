@@ -400,18 +400,19 @@
         display: block;
     }
 
-    /* instead of removing it completely, we hide it, so the layout is preserved */
     .fl-header .hide-cta-on-desktop,
-    .fl-header .hide-nav-download-on-desktop {
-        visibility: hidden;
-    }
-
+    .fl-header .hide-nav-download-on-desktop,
     .fl-nav-mobile-download-link,
     .fl-hamburger,
     .fl-show-mobile-menu,
     .fl-show-mobile-menu.is-open,
     .fl-menu-panel {
         display: none;
+    }
+
+    .fl-header:has(.hide-cta-on-desktop),
+    .fl-header:has(.hide-nav-download-on-desktop) {
+        padding-right: 156px;
     }
 
     .fl-menu-category-link a {
