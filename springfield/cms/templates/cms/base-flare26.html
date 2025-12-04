@@ -50,7 +50,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block flare_footer %}
-    <include:flare26-footer />
+    {% set bottom_cta = get_bottom_cta_snippet() %}
+    <include:flare26-footer>
+      {% if bottom_cta %}
+        <content:cta>
+          <include:bottom-cta-snippet value="{{ bottom_cta }}" />
+        </content:cta>
+      {% endif %}
+    </include:flare26-footer>
     {% endblock %}
 
     {% block site_js %}
