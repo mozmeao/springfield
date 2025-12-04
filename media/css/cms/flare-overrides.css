@@ -70,16 +70,16 @@ specific exceptions that can't be handled by the other layers
 }
 
 @media (--viewport-sm-up) {
+    .fl-menu-category .fl-icon-caret-down {
+        display: inline-block;
+    }
+
     .fl-footer-cta .button {
         width: unset;
     }
 }
 
 @media (--viewport-md-up) {
-    .fl-menu-category .fl-icon-caret-down {
-        display: inline-block;
-    }
-
     .fl-mediacontent .button {
         width: fit-content
     }
