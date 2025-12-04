@@ -1,0 +1,149 @@
+.fl-show-mobile-menu {
+    display: block;
+}
+
+
+.fl-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 80px;
+    padding-top: 20px;
+    position: relative;
+
+}
+
+.fl-nav {
+    display: none;
+}
+
+.fl-nav-menu,
+.fl-menu-panel-content-column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-menu-title h2 {
+    font-size: 22px;
+    margin: 0 0 8px 0;
+}
+
+.fl-menu-subtitle {
+    font-size: 16px;
+    margin: 1.5em 0 .25em;
+}
+
+.fl-icon-caret-down,
+.fl-menu-close-button {
+    display: none;
+}
+
+.fl-nav.is-open {
+    display: flex;
+    gap: 32px;
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 100%;
+    background: white;
+    border: 2px solid #dedede;
+    padding: 32px;
+}
+
+.fl-nav-menu {
+    width: 66%;
+    display: flex;
+    gap: 32px;
+}
+
+.fl-logo-light {
+    max-height: none;
+}
+
+.fl-header-inner .fl-fx-download-container {
+    display: none;
+}
+
+.fl-header-inner .fl-nav.is-open .fl-fx-download-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+
+.download-link {
+    background: #0360df;
+    padding: 8px 20px;
+    border-radius: 4px;
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+.download-link:hover,
+.download-link:focus {
+    background: #003c6e;
+    color: white;
+    text-decoration: none;
+}
+
+.fl-show-mobile-menu {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.fl-show-mobile-menu:hover,
+.fl-show-mobile-menu:focus {
+    color: inherit;
+    text-decoration: none;
+    background: transparent;
+}
+
+.fl-nav-link:link,
+.fl-nav-link:visited,
+.fl-menu-title:link,
+.fl-menu-title:visited {
+    color: #333336;
+    text-decoration: none;
+    background: transparent;
+}
+
+.fl-nav-link:hover,
+.fl-nav-link:active,
+.fl-menu-title:hover,
+.fl-menu-title:active {
+    text-decoration: underline;
+    background: transparent;
+}
+
+.fl-menu-category-link a:link,
+.fl-menu-category-link a:visited {
+    background: #FAF0E6;
+    color: #333336;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.fl-menu-category-link a:hover,
+.fl-menu-category-link a:active {
+    background: #ff9456;
+    color: #333336;
+    text-decoration: none;
+}
+
+
+.fl-footer {
+    border-top: 1px solid #dedede;
+    margin-top: 80px;
+    padding-top: 20px;
+}

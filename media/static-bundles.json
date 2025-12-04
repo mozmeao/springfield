@@ -295,13 +295,15 @@
       "files": [
         "css/cms/flare-base.css",
         "css/cms/flare-icon.css",
+        "css/cms/flare-navigation-legacy-only.css",
         "css/cms/flare-utilities.css"
       ],
       "name": "flare_base"
     },
     {
       "files": [
-        "css/cms/flare-utilities.css"
+        "css/cms/flare-utilities.css",
+        "css/cms/flare-download-button-visibility-utils.css"
       ],
       "name": "flare_utilities"
     },

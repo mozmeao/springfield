@@ -41,7 +41,6 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-tokens.css' layer(theme);
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
-@import 'flare-template.css' layer(template);
 @import 'flare-notification.css' layer(template);
 @import 'flare-navigation.css' layer(template);
 
@@ -60,6 +59,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-section.css' layer(components);
 
 @import 'flare-utilities.css' layer(utilities);
+@import 'flare-template.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
 
 /* Layer order */
@@ -76,4 +76,5 @@ included via a <link> tag in a conditional comment */
     /* Icons and utility classes are useful in the legacy stylesheet as well */
     @import 'flare-icon.css';
     @import 'flare-utilities.css';
+    @import 'flare-download-button-visibility-utils.css';
 }
