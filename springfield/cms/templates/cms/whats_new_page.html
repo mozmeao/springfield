@@ -9,7 +9,7 @@
 {% block body_class %}whats-new-page{% endblock %}
 
 {% block flare_header %}
-  {% with noMenu=True %}
+  {% with no_menu=True, disable_sticky=True %}
     {% include 'cms/includes/navigation.html' %}
   {% endwith %}
 {% endblock %}

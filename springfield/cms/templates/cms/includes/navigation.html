@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<header class="fl-header {% if noMenu %}fl-header-no-menu{% endif %}">
+<header class="fl-header {% if no_menu %}fl-header-no-menu{% endif %} {% if not disable_sticky %}enable-sticky{% endif %}">
     <div class="fl-header-inner">
         <a href="/" class="fl-logo-fx" aria-label="Firefox">
             <img
@@ -22,7 +22,7 @@
                 height="40"
             />
         </a>
-        {% if not noMenu %}
+        {% if not no_menu %}
         <nav class="fl-nav">
             <ul class="fl-nav-menu">
                 {% include 'cms/includes/menus/features.html' %}

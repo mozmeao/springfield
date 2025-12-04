@@ -7,7 +7,7 @@
 // Sticky header
 import Headroom from 'headroom.js';
 
-const headerEl = document.querySelector('.fl-header');
+const headerEl = document.querySelector('.fl-header.enable-sticky');
 
 if (headerEl) {
     const headroomInstance = new Headroom(headerEl, {
