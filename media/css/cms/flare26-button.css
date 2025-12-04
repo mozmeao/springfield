@@ -1,0 +1,108 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Button - Flare 2026 Design System Buttons
+===================================================================== */
+
+/* Base button styles */
+.fl-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--token-spacing-md);
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--token-transition-fast), color var(--token-transition-fast), border-color var(--token-transition-fast);
+    border-radius: var(--token-border-radius-xl);
+    white-space: nowrap;
+    background-color: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
+    font-size: var(--fl-theme-font-size-base);
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+}
+
+.fl-button:hover {
+    background-color: rgb(var(--token-color-link-purple));
+}
+
+.fl-button:active {
+    background-color: rgb(var(--token-color-purple));
+}
+
+/* Button variants - Secondary (outlined) */
+.fl-button.button-secondary {
+    background-color: rgb(var(--token-color-white));
+    color: rgb(var(--token-color-black-4));
+    border: 2px solid rgb(var(--token-color-light-purple));
+}
+
+.fl-button.button-secondary:hover {
+    background-color: rgb(var(--token-color-white));
+    border-color: rgb(var(--token-color-link-purple));
+    color: rgb(var(--token-color-link-purple));
+}
+
+.fl-button.button-secondary:active {
+    background-color: rgb(var(--token-color-white));
+    border-color: rgb(var(--token-color-purple));
+    color: rgb(var(--token-color-purple));
+}
+
+/* Button sizes */
+.fl-button-small {
+    padding: var(--token-spacing-sm) var(--token-spacing-xl);
+}
+
+.fl-button-medium {
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+}
+
+.fl-button-large {
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+}
+
+.fl-button-square {
+    border-radius: var(--token-border-radius-xs);
+}
+
+/* Button fills - Outline */
+.fl-button-outline {
+    background-color: transparent;
+    color: var(--fl-theme-color-text);
+    border: 2px solid currentColor;
+}
+
+.fl-button-outline:hover {
+    color: rgb(var(--token-color-light-purple));
+}
+
+/* Button fills - Text */
+.fl-button-text {
+    background-color: transparent;
+    color: var(--fl-theme-button-primary);
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.fl-button-text:hover {
+    text-decoration: underline;
+}
+
+/* Disabled state */
+.fl-button:disabled,
+.fl-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Button icons */
+.fl-button .fl-icon {
+    width: var(--token-spacing-lg);
+    height: var(--token-spacing-lg);
+}

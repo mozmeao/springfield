@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare.html" %}
+{% extends "cms/base-flare26.html" if switch("flare26-enabled") else "cms/base-flare.html" %}
 
 {% block body_class %}{% endblock %}
 

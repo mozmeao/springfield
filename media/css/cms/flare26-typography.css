@@ -1,0 +1,122 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-rich-text a {
+    color: rgb(var(--token-color-link-purple));
+    text-decoration: underline;
+}
+
+.fl-rich-text code {
+    font-family: monospace;
+    font-size: 0.9em;
+    background: rgb(var(--token-color-soft-purple));
+    color: rgb(var(--token-color-light-purple));
+    padding: var(--token-spacing-2xs) var(--token-spacing-xs);
+}
+
+.fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 {
+    font-variation-settings:
+        "wght" var(--token-font-weight-semibold),
+        "wdth" var(--token-font-condensed-width);
+    line-height: 0.9;
+}
+
+.fl-rich-text pre {
+    background: rgb(var(--token-color-soft-purple));
+    color: rgb(var(--token-color-light-purple));
+    padding: var(--token-spacing-xl);
+    border-radius: var(--token-border-radius-md);
+    overflow-x: auto;
+    margin: var(--token-spacing-lg) 0;
+}
+
+.fl-rich-text pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+.fl-rich-text ul,
+.fl-rich-text ol {
+    margin: var(--token-spacing-lg) 0;
+    padding-left: var(--token-spacing-xl);
+}
+
+.fl-rich-text li {
+    margin-bottom: var(--token-spacing-sm);
+}
+
+.fl-rich-text blockquote {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-body-lg);
+    border-left: var(--token-spacing-xs) solid rgb(var(--token-color-light-purple));
+    padding-left: var(--token-spacing-lg);
+    margin: var(--token-spacing-lg) 0;
+}
+
+.fl-rich-text cite {
+    color: rgb(var(--token-color-link-purple));
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+.fl-rich-text hr {
+    border: 0;
+    border-top: 1px solid rgb(var(--token-color-soft-purple));
+    margin: var(--token-spacing-xl) 0;
+}
+
+.fl-rich-text img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--token-spacing-lg) 0;
+}
+
+/* Heading size classes */
+.fl-heading-3xl { font-size: var(--fl-theme-font-size-heading-3xl); }
+.fl-heading-2xl { font-size: var(--fl-theme-font-size-heading-2xl); }
+.fl-heading-xl { font-size: var(--fl-theme-font-size-heading-xl); }
+.fl-heading-lg { font-size: var(--fl-theme-font-size-heading-lg); }
+.fl-heading-md { font-size: var(--fl-theme-font-size-heading-md); }
+.fl-heading-sm { font-size: var(--fl-theme-font-size-heading-sm); }
+.fl-heading-xs { font-size: var(--fl-theme-font-size-heading-xs); }
+.fl-heading-2xs { font-size: var(--fl-theme-font-size-heading-2xs); }
+
+/* Body size classes */
+.fl-body-lg { font-size: var(--fl-theme-font-size-body-lg); }
+.fl-body-md { font-size: var(--fl-theme-font-size-body-md); }
+.fl-body-sm { font-size: var(--fl-theme-font-size-body-sm); }
+.fl-body-xs { font-size: var(--fl-theme-font-size-body-xs); }
+.fl-body-2xs { font-size: var(--fl-theme-font-size-body-2xs); }
+
+/* Label classes */
+.fl-label {
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1.2;
+}
+
+.fl-label-md { font-size: var(--fl-theme-font-size-subheading-md); }
+.fl-label-sm { font-size: var(--fl-theme-font-size-subheading-sm); }
+.fl-label-xs { font-size: var(--fl-theme-font-size-subheading-xs); }
+
+/* Label all caps class */
+.fl-label-allcaps {
+    text-transform: uppercase;
+}
+
+.fl-label-md.fl-label-allcaps {
+    letter-spacing: 0.16px;
+}
+
+.fl-label-sm.fl-label-allcaps {
+    letter-spacing: 0.28px;
+}
+
+.fl-label-xs.fl-label-allcaps {
+    letter-spacing: 0.24px;
+}

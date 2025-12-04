@@ -1,0 +1,136 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Tokens - Flare 2026 Design System Base Tokens
+
+Static values extracted from Figma that do not change based on context.
+===================================================================== */
+
+:root {
+    /* Systemized Color Tokens from Figma
+    Usage example: rgba(var(--token-color-white), 0.5)
+    The rgb() comments here are just so IDEs highlight the colors
+    */
+    --token-color-white: 255, 255, 255; /* rgb(255, 255, 255) */
+    --token-color-grey-1: 249, 249, 251; /* rgb(249, 249, 251) */
+    --token-color-grey-2: 232, 232, 232; /* rgb(232, 232, 232) */
+    --token-color-black: 0, 0, 0; /* rgb(0, 0, 0) */
+    --token-color-black-1: 66, 65, 77; /* rgb(66, 65, 77) */
+    --token-color-black-2: 35, 34, 43; /* rgb(35, 34, 43) */
+    --token-color-black-3: 28, 27, 34; /* rgb(28, 27, 34) */
+    --token-color-black-4: 21, 20, 26; /* rgb(21, 20, 26) */
+    --token-color-dark-purple: 33, 3, 64; /* rgb(33, 3, 64) */
+    --token-color-purple: 58, 15, 110; /* rgb(58, 15, 110) */
+    --token-color-link-purple: 97, 50, 188; /* rgb(97, 50, 188) */
+    --token-color-light-purple: 117, 67, 227; /* rgb(117, 67, 227) */
+    --token-color-cream: 252, 245, 240; /* rgb(252, 245, 240) */
+    --token-color-soft-purple: 241, 231, 248; /* rgb(241, 231, 248) */
+    --token-color-soft-magenta: 255, 234, 254; /* rgb(255, 234, 254) */
+
+    /* Gradients from Figma */
+    --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
+    --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
+    --token-gradient-privacy: linear-gradient(90deg, #ae49ec 0%, rgb(var(--token-color-dark-purple)) 100%);
+    --token-gradient-purple: radial-gradient(122.66% 137.66% at 50% 0%, #AE49EC 0%, #210340 100%);
+
+    /* Light and dark gradients */
+    --token-gradient-light: linear-gradient(180deg, rgba(var(--token-color-white), 0.90) 0%, rgb(var(--token-color-white)) 100%);
+    --token-gradient-dark: linear-gradient(180deg, rgba(var(--token-color-black-4), 0.72) 0%, rgba(var(--token-color-black-4), 0.9) 100%);
+
+    /* Soft purple gradient */
+    --token-gradient-soft-purple: linear-gradient(180deg, rgba(var(--token-color-soft-purple), 0.64) 0%, rgb(var(--token-color-white)) 100%);
+
+    /* Radial purple gradient */
+    --token-gradient-radial-purple: radial-gradient(
+        74.06% 118.24% at 50% -18.24%,
+        rgb(var(--token-color-light-purple)) 0%,
+        rgb(var(--token-color-dark-purple)) 100%
+    );
+
+    /* Gold gradient */
+    --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
+
+
+    /* Spacing variables */
+    --token-spacing-2xs: 2px;
+    --token-spacing-xs: 4px;
+    --token-spacing-sm: 8px;
+    --token-spacing-md: 12px;
+    --token-spacing-lg: 16px;
+    --token-spacing-xl: 24px;
+    --token-spacing-2xl: 32px;
+    --token-spacing-3xl: 40px;
+
+    /* Layout variables */
+    --token-layout-xs: 48px;
+    --token-layout-sm: 64px;
+    --token-layout-md: 80px;
+    --token-layout-lg: 128px;
+    --token-layout-xl: 160px;
+    --token-layout-2xl: 200px;
+
+    /* Border radius variables */
+    --token-border-radius-xs: 8px;
+    --token-border-radius-md: 38px;
+    --token-border-radius-lg: 50px;
+    --token-border-radius-xl: 125px;
+
+    /* Width and viewport variables */
+    --token-width-desktop-content: 725px;
+    --token-width-desktop-layout: 1440px;
+    --token-width-desktop-wide-banner: 1170px;
+    --token-width-mobile-layout: 393px;
+    --token-width-breakpoint-mobile: 768; /* Lower than this is mobile, higher is tablet or desktop */
+    --token-width-breakpoint-desktop: 1024; /* Greater than this is desktop, lower is tablet or mobile */
+
+    /* Typography and fonts */
+    --token-font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-text: 'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+    /* Font weights */
+    --token-font-weight-regular: 400;
+    --token-font-weight-medium: 500;
+    --token-font-weight-semibold: 600;
+    --token-font-weight-bold: 700;
+    --token-font-condensed-width: 65; /* used in variable font to build condensed heads at larger sizes */
+
+    /* Transition variables NOT from Figma */
+    --token-transition-fast: 0.15s ease;
+    --token-transition-base: 0.2s ease;
+    --token-transition-slow: 0.3s ease;
+}
+
+/* These @custom-media breakpoints set the following viewport sizes.
+Note that the device type in parentheses is only for intuitive reference,
+but not a guarantee since there is a wide range of devices with each
+viewport size and users may resize their browsers to different sizes.
+
+xs: < 600px (phones)
+sm: 600px - 899px (tablets in portrait)
+md: 900px - 1199px (tablets in landscape)
+lg: 1200px - 1799px (laptops and desktops)
+xl: > 1799px (big monitors)
+
+Start with base styles (no media query) for mobile first design, then
+add styles for larger viewports using --viewport-*-up media queries.
+
+Use --viewport-* queries sparingly, to target a specific viewport size.
+
+There are no --viewport-*-down queries to encourage mobile-first design.
+*/
+
+/* stylelint-disable at-rule-no-unknown */
+@custom-media --viewport-sm-up (min-width: 600px);
+@custom-media --viewport-md-up (min-width: 900px);
+@custom-media --viewport-lg-up (min-width: 1200px);
+@custom-media --viewport-xl-up (min-width: 1800px);
+
+@custom-media --viewport-xs (max-width: 599px);
+@custom-media --viewport-sm (min-width: 600px) and (max-width: 899px);
+@custom-media --viewport-md (min-width: 900px) and (max-width: 1199px);
+@custom-media --viewport-lg (min-width: 1200px) and (max-width: 1799px);
+@custom-media --viewport-xl (min-width: 1800px);

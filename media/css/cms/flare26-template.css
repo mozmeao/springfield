@@ -1,0 +1,246 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Template - Layout styles for header, footer, and page structure
+
+This file contains template-level styles for the Flare 2026 design.
+===================================================================== */
+
+body {
+    background: rgb(var(--token-color-dark-purple));
+    color: rgb(var(--token-color-white));
+}
+
+/* Header */
+.fl-header {
+    position: relative;
+    padding: var(--token-spacing-lg);
+    background: transparent;
+}
+
+.fl-header-inner {
+    max-width: var(--token-width-desktop-layout);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--token-spacing-2xl);
+}
+
+/* Logo */
+.fl-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    height: var(--token-spacing-3xl);
+}
+
+.fl-logo img {
+    height: var(--token-spacing-3xl);
+    width: auto;
+}
+
+.fl-logo-light {
+    display: none;
+}
+
+.fl-logo-dark {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-logo-light {
+        display: block;
+    }
+
+    .fl-logo-dark {
+        display: none;
+    }
+}
+
+/* Navigation */
+.fl-nav {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.fl-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--token-spacing-2xl);
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.fl-nav-item {
+    display: flex;
+}
+
+.fl-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--token-spacing-xs);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    line-height: 1.4;
+    color: rgb(var(--token-color-white));
+    text-decoration: none;
+    transition: color var(--token-transition-fast);
+}
+
+.fl-nav-link:hover {
+    color: var(--fl-theme-color-link-hover);
+}
+
+.fl-nav-icon {
+    font-size: var(--token-spacing-lg);
+    width: var(--token-spacing-lg);
+    height: var(--token-spacing-lg);
+}
+
+.fl-header-cta {
+    flex-shrink: 0;
+}
+
+.fl-main {
+    max-width: var(--token-width-desktop-content);
+    margin: 0 auto;
+    background: rgb(var(--token-color-white));
+    color: rgb(var(--token-color-black-1));
+    padding: var(--token-spacing-2xl);
+    border-end-end-radius: var(--token-border-radius-xl);
+    border-end-start-radius: var(--token-border-radius-xl);
+    padding-bottom: var(--token-border-radius-xl);
+}
+
+/* Footer */
+.fl-footer {
+    position: relative;
+    padding: var(--token-layout-md) var(--token-spacing-lg) var(--token-layout-xs);
+    background: transparent;
+    color: var(--fl-theme-color-text);
+}
+
+.fl-footer-inner {
+    max-width: var(--token-width-desktop-layout);
+    margin: 0 auto;
+}
+
+/* Footer CTA */
+.fl-footer-cta {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--token-layout-lg);
+}
+
+.fl-footer-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--token-layout-sm) var(--token-layout-lg);
+    background-color: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: 700;
+    font-size: var(--token-layout-lg);
+    line-height: 0.9;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    border-radius: 2000px;
+    transition: background-color var(--token-transition-fast);
+}
+
+.fl-footer-button:hover {
+    background-color: rgb(var(--token-color-link-purple));
+}
+
+/* Footer Navigation */
+.fl-footer-nav {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--token-spacing-xl);
+    margin-bottom: var(--token-layout-md);
+}
+
+.fl-footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-footer-heading {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    font-weight: var(--token-font-weight-bold);
+    line-height: 1.4;
+    margin: 0;
+    color: rgb(var(--token-color-white));
+}
+
+.fl-footer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xs);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fl-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--token-spacing-sm);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    color: rgb(var(--token-color-white));
+    text-decoration: none;
+    transition: color var(--token-transition-fast);
+}
+
+.fl-footer-link:hover {
+    color: var(--fl-theme-color-link-alt-hover);
+}
+
+.fl-footer-icon {
+    width: var(--token-spacing-md);
+    height: var(--token-spacing-md);
+    font-size: var(--token-spacing-md);
+}
+
+/* Footer Legal */
+.fl-footer-legal {
+    padding-top: var(--token-spacing-2xl);
+}
+
+.fl-footer-legal-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-3xl);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fl-footer-legal-link {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-tag);
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(var(--token-color-white));
+    text-decoration: none;
+    transition: color var(--token-transition-fast);
+}
+
+.fl-footer-legal-link:hover {
+    color: rgb(var(--token-color-grey-1));
+}

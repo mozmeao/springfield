@@ -96,7 +96,7 @@ li {
 button, [role="button"] {
     background: var(--token-blue-button);
     color: var(--token-neutrals-white);
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--token-border-radius-lg);
     width: auto;
     height: auto;
 }
