@@ -35,6 +35,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
+.light-dark-display {
+    display: contents;
+}
+
 .light-dark-display .display-light,
 .light-dark-display .display-dark {
     display: none;
@@ -69,6 +73,11 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .conditional-display {
     display: none;
+}
+
+/* This attempts to allow the conditional-display to act as a passthrough when condition is 'all' */
+.conditional-passthrough {
+    display: contents;
 }
 
 .conditional-display.is-preview {

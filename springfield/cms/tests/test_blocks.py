@@ -10,10 +10,13 @@ from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import srcset_image
 from wagtail.models import Page
 
+from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
+    get_filled_card_variants,
+    get_filled_cards_test_page,
     get_icon_card_variants,
     get_icon_cards_test_page,
     get_illustration_card_variants,
@@ -21,11 +24,10 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_card_variants,
     get_step_cards_list_variants,
     get_step_cards_test_page,
-    get_tag_card_variants,
-    get_tag_cards_test_page,
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page, get_kit_banner_variants
 from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
@@ -234,6 +236,35 @@ def assert_card_attributes(
         )
 
 
+def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
+    """
+    Compares the rendered video element with the expected video data.
+    """
+    video_url = video_data["value"]["video_url"]
+    alt = video_data["value"]["alt"]
+    poster = video_data["value"]["poster"]
+
+    youtube_id = None
+    if "youtube.com" in video_url or "youtu.be" in video_url:
+        youtube_id = video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
+
+    button = video_element.find("button", class_="fl-video-play")
+    assert button and button["aria-label"] == alt
+
+    if youtube_id:
+        assert button["data-video-id"] == youtube_id
+    else:
+        assert "assets.mozilla.net" in video_url
+        assert button["data-video-url"] == video_url
+
+    if poster:
+        image = SpringfieldImage.objects.get(id=poster)
+        image_url = image.get_rendition("width-800").url
+        assert button["data-video-poster"] == image_url
+        img = video_element.find("img", class_="fl-video-poster")
+        assert img and img["src"] == image_url
+
+
 def test_inline_notifications(index_page, rf):
     notifications = get_inline_notification_variants()
     test_page = get_inline_notification_test_page()
@@ -291,17 +322,17 @@ def test_intro_block(index_page, placeholder_images, rf):
     image, dark_image = placeholder_images
 
     for index, intro in enumerate(intros):
-        div = intro_divs[index]
+        intro_element = intro_divs[index]
 
         # Heading
         heading_block = intro["value"]["heading"]
-        assert_section_heading_attributes(section_element=div, heading_data=heading_block, index=index)
+        assert_section_heading_attributes(section_element=intro_element, heading_data=heading_block, index=index)
 
         heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
         # Buttons
         button = intro["value"]["buttons"][0]
-        button_element = div.find("a", class_="fl-button")
+        button_element = intro_element.find("a", class_="fl-button")
         cta_position = f"block-{index + 1}-intro.button-1"
         cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
         assert_button_attributes(
@@ -313,13 +344,17 @@ def test_intro_block(index_page, placeholder_images, rf):
         )
 
         # Media
-        if intro["value"]["image"]:
-            images_element = div.find("div", class_="fl-intro-media")
-            assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+        media_value = intro["value"]["media"] and intro["value"]["media"][0]
+        if media_value:
+            if media_value["type"] == "image":
+                images_element = intro_element.find("div", class_="fl-intro-media")
+                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+                if media_value["value"].get("dark_image"):
+                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
 
-        if intro["value"]["dark_image"]:
-            images_element = div.find("div", class_="fl-intro-media")
-            assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+            if media_value["type"] == "video":
+                video_div = intro_element.find("div", class_="fl-video")
+                assert_video_attributes(video_div, media_value)
 
 
 def test_subscription_block(index_page, rf):
@@ -437,8 +472,16 @@ def test_media_content_block(index_page, placeholder_images, rf):
         media_element = div.find("div", class_="fl-mediacontent-media")
         assert media_element
 
-        assert_light_dark_image_attributes(images_element=media_element, image=image, is_dark=False)
-        assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
+        media_value = media_content["value"]["media"][0]
+        if media_value["type"] == "image":
+            assert_light_dark_image_attributes(images_element=media_element, image=image, is_dark=False)
+            if media_value["value"].get("dark_image"):
+                assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
+
+        elif media_value["type"] == "video":
+            video_div = div.find("div", class_="fl-video")
+            assert_video_attributes(video_div, media_value)
+
         # Tags
         tags = media_content["value"]["tags"]
         tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
@@ -491,7 +534,7 @@ def test_icon_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -510,8 +553,8 @@ def test_icon_card_block(index_page, rf):
             assert icon_element and f"fl-icon-{card['value']['icon']}" in icon_element["class"]
 
 
-def test_tag_card_block(index_page, rf):
-    test_page = get_tag_cards_test_page()
+def test_filled_card_block(index_page, rf):
+    test_page = get_filled_cards_test_page()
 
     # Page renders
     request = rf.get(test_page.get_full_url())
@@ -522,9 +565,9 @@ def test_tag_card_block(index_page, rf):
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
-    section_titles = ["Cards List with Tag Cards", "Cards List with Tag Cards - 4 columns"]
+    section_titles = ["Cards List with Filled Cards", "Cards List with Filled Cards - 4 columns"]
 
-    card_variants = get_tag_card_variants()
+    card_variants = get_filled_card_variants()
     card_lists = get_cards_list_variants(
         card_variants,
         heading_1=section_titles[0],
@@ -553,7 +596,7 @@ def test_tag_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -621,7 +664,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -694,7 +737,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -791,3 +834,120 @@ def test_buttons(index_page, rf):
             )
             fxa_button_soup = BeautifulSoup(rendered_fxa_button, "html.parser").find("a")
             assert button_element.prettify() == fxa_button_soup.prettify()
+
+
+def test_banner_block(index_page, placeholder_images, rf):
+    banners = get_banner_variants()
+    test_page = get_banner_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Banner blocks
+    banner_divs = soup.find_all("div", class_="fl-banner")
+    assert len(banner_divs) == len(banners)
+
+    image, dark_image = placeholder_images
+
+    for index, banner in enumerate(banners):
+        banner_element = banner_divs[index]
+
+        settings = banner["value"]["settings"]
+        assert f"fl-banner-{settings['theme']}" in banner_element["class"]
+        if settings.get("media_after"):
+            assert "fl-banner-reverse" in banner_element["class"]
+
+        # Heading
+        heading_block = banner["value"]["heading"]
+        assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=index)
+
+        heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+        # Buttons
+        buttons = banner["value"]["buttons"]
+        button_elements = banner_element.find_all("a", class_="fl-button")
+        for button_index, button in enumerate(buttons):
+            button_element = button_elements[button_index]
+            cta_position = f"block-{index + 1}-banner.button-{button_index + 1}"
+            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            assert_button_attributes(
+                button_element=button_element,
+                button_data=button,
+                context=context,
+                cta_position=cta_position,
+                cta_text=cta_text,
+            )
+
+        # Media
+        if media := banner["value"]["media"]:
+            media = media[0]
+            media_element = banner_element.find("div", class_="fl-banner-media")
+            assert media_element
+
+            media_value = media["value"]
+            if media["type"] == "image":
+                images_element = media_element.find("div", class_="light-dark-display")
+                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+                if media_value.get("dark_image"):
+                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+            elif media["type"] == "video":
+                video_div = banner_element.find("div", class_="fl-video")
+                assert_video_attributes(video_div, media)
+            elif media["type"] == "qr_code":
+                assert "has-qr-code" in media_element["class"]
+                assert media_element.find("div", class_="fl-banner-qr").find("svg")
+                if media_value.get("background"):
+                    assert media_element.find("img")
+
+
+def test_kit_banner_block(index_page, rf):
+    banners = get_kit_banner_variants()
+    test_page = get_kit_banner_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Kit Banner blocks
+    banner_elements = soup.find_all("div", class_="fl-banner-kit")
+    assert len(banner_elements) == len(banners)
+
+    for index, banner in enumerate(banners):
+        banner_element = banner_elements[index]
+
+        settings = banner["value"]["settings"]
+        theme = settings["theme"].replace("filled-", "").replace("filled", "")
+        if theme:
+            assert f"fl-banner-kit-{theme}" in banner_element["class"]
+
+        # Heading
+        heading_block = banner["value"]["heading"]
+        assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=index)
+
+        heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+        # Buttons
+        buttons = banner["value"]["buttons"]
+        button_elements = banner_element.find_all("a", class_="fl-button")
+        for button_index, button in enumerate(buttons):
+            button_element = button_elements[button_index]
+            cta_position = f"block-{index + 1}-kit_banner.button-{button_index + 1}"
+            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            assert_button_attributes(
+                button_element=button_element,
+                button_data=button,
+                context=context,
+                cta_position=cta_position,
+                cta_text=cta_text,
+            )

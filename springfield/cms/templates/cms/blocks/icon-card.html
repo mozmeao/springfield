@@ -7,30 +7,37 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:card
-  expand_link="{{ value.settings.expand_link }}"
->
-  <content:pre_heading>
-    <div class="fl-card-icon">
-      <include:icon icon_name="{{ value.icon }}" extra_class="fl-icon-size-4" hidden="true" />
-    </div>
-  </content:pre_heading>
-  <content:heading>
-    <include:heading
-      level="{{ heading_level }}"
-      heading_size="fl-heading-size-3"
-      heading_text="{{ value.headline|richtext|remove_p_tag }}"
-    />
-  </content:heading>
-  <content:body>
-    {{ value.content|richtext }}
-  </content:body>
-  {% if value.buttons %}
-    <content:buttons>
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
-    </content:buttons>
-  {% endif %}
-</include:card>
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:card expand_link="{{ value.settings.expand_link }}">
+    <content:pre_heading>
+      <div class="fl-card-icon">
+        <include:icon icon_name="{{ value.icon }}" extra_class="fl-icon-size-4" hidden="true" />
+      </div>
+    </content:pre_heading>
+    <content:heading>
+      {% if value.tags %}
+        <div>
+          {% for tag in value.tags %}
+            {% include_block tag %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ value.content|richtext }}
+    </content:body>
+    {% if value.buttons %}
+      <content:buttons>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      </content:buttons>
+    {% endif %}
+  </include:card>
+</include:conditional-display>

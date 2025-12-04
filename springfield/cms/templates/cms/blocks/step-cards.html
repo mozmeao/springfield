@@ -11,13 +11,11 @@
     {% endwith %}
   </content:heading>
   <content:content>
-    <include:cards-list length="{{ value.cards|length }}">
-      <content:cards>
-        {% for card in value.cards %}
-          {% set card_index = loop.index0 %}
-          {% include_block card %}
-        {% endfor %}
-      </content:cards>
+    <include:cards-list>
+      {% for card in value.cards %}
+        {% set card_index = loop.index0 %}
+        {% include_block card %}
+      {% endfor %}
     </include:cards-list>
   </content:content>
 </include:section>

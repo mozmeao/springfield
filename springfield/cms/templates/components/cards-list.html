@@ -4,8 +4,6 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props length=3 #}
-
-<div class="fl-grid {% if length == 2 %}fl-grid-2{% elif length % 4 == 0 %}fl-grid-4{% endif %}">
+<div class="fl-card-grid">
   {{ contents }}
 </div>

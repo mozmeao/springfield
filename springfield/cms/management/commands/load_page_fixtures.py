@@ -4,17 +4,19 @@
 
 from django.core.management.base import BaseCommand
 
+from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
+    get_filled_cards_test_page,
     get_icon_cards_test_page,
     get_illustration_cards_test_page,
     get_step_cards_test_page,
     get_sticker_cards_test_page,
-    get_tag_cards_test_page,
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 
@@ -53,10 +55,16 @@ class Command(BaseCommand):
         sticker_cards_page = get_sticker_cards_test_page()
         self.stdout.write(self.style.SUCCESS(f"Sticker Cards test page loaded: {sticker_cards_page.slug}"))
 
-        tag_cards_page = get_tag_cards_test_page()
-        self.stdout.write(self.style.SUCCESS(f"Tag Cards test page loaded: {tag_cards_page.slug}"))
+        filled_cards_page = get_filled_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Filled Cards test page loaded: {filled_cards_page.slug}"))
 
         buttons_page = get_buttons_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons test page loaded: {buttons_page.slug}"))
+
+        banner_page = get_banner_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner test page loaded: {banner_page.slug}"))
+
+        kit_banner_page = get_kit_banner_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Banner test page loaded: {kit_banner_page.slug}"))
 
         self.stdout.write(self.style.SUCCESS("Successfully loaded page fixtures."))

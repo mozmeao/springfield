@@ -679,6 +679,7 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
     "springfield.base.middleware.SpringfieldLocaleMiddleware",  # wraps django.middleware.locale.LocaleMiddleware
@@ -1288,6 +1289,7 @@ def lazy_wagtail_langs():
         # Smartling-specific ones in the WAGTAIL_LOCALIZE_SMARTLING settings, below
         ("en-US", "English (US)"),
         ("en-GB", "English (Great Britain)"),
+        ("en-CA", "English (Canada)"),
         ("de", "German"),
         ("fr", "French"),
         ("es-ES", "Spanish (Spain)"),

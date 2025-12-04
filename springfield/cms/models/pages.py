@@ -16,6 +16,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     InlineNotificationBlock,
     IntroBlock,
+    KitBannerBlock,
     SectionBlock,
     SubscriptionBlock,
 )
@@ -206,6 +207,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
         ("section", SectionBlock(allow_uitour=allow_uitour)),
         ("subscription", SubscriptionBlock(group="Banners")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
+        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
     ]
 
 
