@@ -69,6 +69,8 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: block;
 }
 
+/* Conditional display */
+
 .conditional-display {
     display: none;
 }
