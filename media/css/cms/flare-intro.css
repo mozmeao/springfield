@@ -76,7 +76,7 @@
     border-radius: calc(var(--token-scale-16) * 1px);
 }
 
-.intro-media img {
+.fl-intro-media img {
     display: block;
     width: 100%;
     height: auto;

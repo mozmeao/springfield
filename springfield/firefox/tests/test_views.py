@@ -662,3 +662,85 @@ class TestWhatsNew(TestCase):
         self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
 
     # end release whatsnew tests
+
+    # begin URL routing tests
+
+    def test_whatsnew_legacy_url_pattern(self, render_mock):
+        """Legacy URL pattern should match full version strings like 127.1a, 139.0.1"""
+        test_versions = [
+            "127.1a",
+            "139.0.1",
+            "70.0",
+            "72.0a2",
+            "100.0a1",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    def test_whatsnew_new_url_pattern_three_digits(self, render_mock):
+        """New URL pattern should match exactly 3-digit version strings like 127, 139"""
+        test_versions = [
+            "127",
+            "139",
+            "200",
+            "333",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    def test_whatsnew_path_must_start_with_whatsnew(self, render_mock):
+        """Whatsnew URL patterns only match paths starting with whatsnew/"""
+        from springfield.firefox import urls as firefox_urls
+
+        # These paths should NOT match the whatsnew patterns
+        invalid_paths = [
+            "foo/whatsnew/127/",
+            "firefox/whatsnew/139/",
+            "test/whatsnew/70.0/",
+            "a/whatsnew/100.0a1/",
+        ]
+
+        # Get the whatsnew patterns from the urlpatterns
+        whatsnew_patterns = []
+        for pattern in firefox_urls.urlpatterns:
+            if hasattr(pattern, "name") and pattern.name in ["firefox.whatsnew", "firefox.whatsnew_legacy"]:
+                whatsnew_patterns.append(pattern)
+
+        # Verify that none of the invalid paths match the whatsnew patterns
+        for path in invalid_paths:
+            with self.subTest(path=path):
+                for pattern in whatsnew_patterns:
+                    regex = pattern.pattern.regex
+                    match = regex.match(path)
+                    assert match is None, f"Path '{path}' should not match whatsnew pattern {pattern.name} but it did. Pattern: {regex.pattern}"
+
+    def test_whatsnew_valid_paths_resolve_correctly(self, render_mock):
+        """Valid whatsnew URLs that start correctly match whatsnew patterns"""
+        from springfield.firefox import urls as firefox_urls
+
+        # Get the whatsnew patterns from the urlpatterns
+        whatsnew_patterns = {}
+        for pattern in firefox_urls.urlpatterns:
+            if hasattr(pattern, "name") and pattern.name in ["firefox.whatsnew", "firefox.whatsnew_legacy"]:
+                whatsnew_patterns[pattern.name] = pattern.pattern.regex
+
+        # These paths should match the appropriate whatsnew patterns
+        valid_paths = [
+            ("whatsnew/127/", "firefox.whatsnew"),
+            ("whatsnew/139/", "firefox.whatsnew"),
+            ("whatsnew/70.0/", "firefox.whatsnew_legacy"),
+            ("whatsnew/100.0a1/", "firefox.whatsnew_legacy"),
+        ]
+        for path, expected_pattern_name in valid_paths:
+            with self.subTest(path=path):
+                regex = whatsnew_patterns[expected_pattern_name]
+                match = regex.match(path)
+                assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
+
+    # end URL routing tests
