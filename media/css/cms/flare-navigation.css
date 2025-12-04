@@ -349,7 +349,7 @@
         width: 100%;
         height: calc(100vh - var(--fl-navigation-menu-height));
         margin-top: var(--fl-navigation-menu-height);
-        padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-16) * 1px) calc(var(--token-scale-128) * 1px);
+        padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-16) * 1px) 100px;
         display: block;
         background: var(--fl-theme-navigation-bg);
         overflow: hidden auto;
