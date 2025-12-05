@@ -847,6 +847,7 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
+        ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
         ("Components", ["pattern-library/components"]),
         ("Pages", ["pattern-library/pages"]),

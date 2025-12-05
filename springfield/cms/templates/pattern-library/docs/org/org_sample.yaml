@@ -1,0 +1,3 @@
+name: "Sample component"
+context:
+        file: "docs/org/org_sample_md.md"
