@@ -12,16 +12,16 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
 :root {
     /* Text colors */
-    --fl-theme-color-text: rgb(var(--token-color-black-4));
-    --fl-theme-color-text-inverse: rgb(var(--token-color-white));
-    --fl-theme-color-link-hover: rgb(var(--token-color-link-purple));
-    --fl-theme-color-link-alt-hover: rgb(var(--token-color-black-4));
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-color-text-inverse: var(--token-color-white);
+    --fl-theme-color-link-hover: var(--token-color-link-purple);
+    --fl-theme-color-link-alt-hover: var(--token-color-black-4);
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
 
     /* Button palette */
-    --fl-theme-button-primary: rgb(var(--token-color-link-purple));
+    --fl-theme-button-primary: var(--token-color-link-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -29,29 +29,29 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
 
-    /* Font size variables NOT from Figma */
+    /* Font size variables */
     --fl-theme-font-size-base: 16px;
-    --fl-theme-font-size-banner: 4.625rem; /* 74px */
-    --fl-theme-font-size-h1: 3rem; /* 48px */
-    --fl-theme-font-size-h2: 2rem; /* 32px */
-    --fl-theme-font-size-h3: 1.5rem; /* 24px */
-    --fl-theme-font-size-h4: 1.125rem; /* 18px */
-    --fl-theme-font-size-h5: 1.125rem; /* 18px */
-    --fl-theme-font-size-h6: 1.125rem; /* 18px */
+    --fl-theme-font-size-heading-4xl: 4.625rem; /* 74px */
+    --fl-theme-font-size-heading-3xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
+    --fl-theme-font-size-heading-xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+    --fl-theme-font-size-heading-md: 2rem; /* 32px */
+    --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
+    --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+    --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
     /* Subheading font size variables */
-    --fl-theme-font-size-subheading-1: 1.5rem; /* 24px */
-    --fl-theme-font-size-subheading-2: 1.375rem; /* 22px */
-    --fl-theme-font-size-subheading-3: 1.25rem; /* 20px */
-    --fl-theme-font-size-subheading-4: 1.125rem; /* 18px */
-    --fl-theme-font-size-subheading-5: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-md: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
+    --fl-theme-font-size-subheading-xs: 0.75rem; /* 12px */
 
     /* Body font size variables */
-    --fl-theme-font-size-body-large: 1.5rem; /* 24px */
-    --fl-theme-font-size-body-medium: 1.125rem; /* 18px */
-    --fl-theme-font-size-body-small: 1rem; /* 16px */
-    --fl-theme-font-size-body-xsmall: 0.875rem; /* 14px */
-    --fl-theme-font-size-body-2xsmall: 0.75rem; /* 12px */
+    --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+    --fl-theme-font-size-body-md: 1.125rem; /* 18px */
+    --fl-theme-font-size-body-sm: 1rem; /* 16px */
+    --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
     --fl-theme-font-size-tag: 0.75rem; /* 12px */
 
     /* Line height variables NOT from Figma */
@@ -63,7 +63,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-text-align: center;
 
     /* Shadows */
-    --fl-theme-shadow-card: 0 32px 72px rgba(var(--token-color-black-4), 0.16);
+    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
 
     /* Dark mode support */
     color-scheme: light dark;
@@ -72,19 +72,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 @media (prefers-color-scheme: dark) {
     :root {
         /* Text colors */
-        --fl-theme-color-text: rgb(var(--token-color-white));
-        --fl-theme-color-text-inverse: rgb(var(--token-color-black-4));
-        --fl-theme-color-link-hover: rgb(var(--token-color-light-purple));
-        --fl-theme-color-link-alt-hover: rgb(var(--token-color-black-4));
+        --fl-theme-color-text: var(--token-color-white);
+        --fl-theme-color-text-inverse: var(--token-color-black-4);
+        --fl-theme-color-link-hover: var(--token-color-light-purple);
+        --fl-theme-color-link-alt-hover: var(--token-color-black-4);
 
         /* Surface colors */
         --fl-theme-surface-card-gradient: var(--token-gradient-dark);
 
         /* Button palette */
-        --fl-theme-button-primary: rgb(var(--token-color-light-purple));
+        --fl-theme-button-primary: var(--token-color-light-purple);
 
         /* Shadows */
-        --fl-theme-shadow-card: 0 32px 64px rgba(var(--token-color-black), 0.45);
+        --fl-theme-shadow-card: 0 32px 64px var(--token-color-black-45);
     }
 }
 
@@ -102,7 +102,18 @@ components consume the variables (no per-component media queries) */
 
 @media (--viewport-md-up) {
     :root {
-        --fl-theme-font-size-banner: 6.25rem; /* 100px */
-        --fl-theme-font-size-h1: 5rem; /* 80px */
+        --fl-theme-font-size-heading-4xl: 6.25rem; /* 100px */
+        --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
+        --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
+        --fl-theme-font-size-heading-xl: 5rem; /* 80px */
+        --fl-theme-font-size-heading-lg: 4rem; /* 64px */
+        --fl-theme-font-size-heading-md: 3rem; /* 48px */
+        --fl-theme-font-size-heading-sm: 2rem; /* 32px */
+        --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
+        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
+        --fl-theme-font-size-body-lg: 2rem; /* 32px */
+        --fl-theme-font-size-body-md: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-sm: 1.125rem; /* 18px */
+        --fl-theme-font-size-body-xs: 1rem; /* 16px */
     }
 }

@@ -1,0 +1,17 @@
+name: "Home Intro"
+context:
+  heading:
+    level: h1
+    heading_size: fl-heading-size-1
+    heading_text: "This is the internet, on your terms"
+    superheading_text: '<i>New</i> <a href="/en-US/whatsnew/">See the latest</a>'
+    subheading_text: "Fast, customizable and secure, Firefox lets you browse how you like, when you like. We're built by a people-first organization that answers to you — not billionaires."
+    subheading_size: fl-subheading-3
+    alignment_class: ""
+  buttons:
+    - label: "Get Firefox"
+      link: "/en-US/download/"
+      theme_class: ""
+      external: false
+      icon_name: ""
+      icon_position: "right"

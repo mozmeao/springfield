@@ -1,0 +1,77 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+import json
+
+# Wagtail block values data can be of type wagtail.blocks.stream_block.StreamValue.RawDataView
+# which are mutable sequences
+from collections.abc import MutableSequence
+
+from django.db import migrations
+
+
+def walk_and_transform(data):
+    """Recursively walk through the block tree and transform buttons wherever found."""
+    if isinstance(data, dict):
+        # Transform the icon card button field if it exists and is a list
+        if data.get("type") == "tag_card":
+            data["type"] = "filled_card"
+
+        # Recursively transform nested structures
+        for key, value in data.items():
+            if isinstance(value, (dict, list, MutableSequence)):
+                data[key] = walk_and_transform(value)
+
+    elif isinstance(data, (list, MutableSequence)):
+        for i, item in enumerate(data):
+            if isinstance(item, (dict, list, MutableSequence)):
+                data[i] = walk_and_transform(item)
+
+    return data
+
+
+def convert_icon_cards(apps, schema_editor):
+    FreeFormPage = apps.get_model("cms", "FreeFormPage")
+    WhatsNewPage = apps.get_model("cms", "WhatsNewPage")
+    for page in WhatsNewPage.objects.all():
+        published_revision = page.live_revision
+        latest_revision = page.latest_revision
+        page.content.raw_data = walk_and_transform(page.content.raw_data)
+        page.save(update_fields=["content"])
+        if published_revision:
+            content = json.loads(published_revision.content["content"])
+            updated_value = walk_and_transform(content)
+            published_revision.content["content"] = json.dumps(updated_value)
+            published_revision.save(update_fields=["content"])
+        if latest_revision and latest_revision != published_revision:
+            content = json.loads(latest_revision.content["content"])
+            updated_value = walk_and_transform(content)
+            latest_revision.content["content"] = json.dumps(updated_value)
+            latest_revision.save(update_fields=["content"])
+
+    for page in FreeFormPage.objects.all():
+        published_revision = page.live_revision
+        latest_revision = page.latest_revision
+        page.content.raw_data = walk_and_transform(page.content.raw_data)
+        page.save(update_fields=["content"])
+        if published_revision:
+            content = json.loads(published_revision.content["content"])
+            updated_value = walk_and_transform(content)
+            published_revision.content["content"] = json.dumps(updated_value)
+            published_revision.save(update_fields=["content"])
+        if latest_revision and latest_revision != published_revision:
+            content = json.loads(latest_revision.content["content"])
+            updated_value = walk_and_transform(content)
+            latest_revision.content["content"] = json.dumps(updated_value)
+            latest_revision.save(update_fields=["content"])
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("cms", "0023_auto_20251120_0451"),
+    ]
+
+    operations = [
+        migrations.RunPython(convert_icon_cards, migrations.RunPython.noop),
+    ]

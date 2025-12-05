@@ -8,6 +8,16 @@
 Card - Flare 2026 Design System Cards
 ===================================================================== */
 
+.fl-card-grid {
+    display: grid;
+    gap: calc(var(--token-scale-32) * 1px);
+    grid-template-columns: 1fr;
+}
+
+.fl-card-grid .conditional-display .fl-card {
+    height: 100%;
+}
+
 .fl-card {
     position: relative;
     display: flex;
@@ -30,7 +40,7 @@ Card - Flare 2026 Design System Cards
 
 .fl-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 40px 96px rgba(var(--token-color-dark-purple), 0.22);
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
 }
 
 .fl-card > * {
@@ -69,10 +79,10 @@ Card - Flare 2026 Design System Cards
     margin: 0 0 var(--token-spacing-xl);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-medium);
-    font-size: var(--fl-theme-font-size-body-2xsmall);
+    font-size: var(--fl-theme-font-size-body-2xs);
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: rgb(var(--token-color-light-purple));
+    color: var(--token-color-light-purple);
 }
 
 .fl-card .fl-body {
@@ -80,7 +90,7 @@ Card - Flare 2026 Design System Cards
     margin: 0;
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-regular);
-    font-size: var(--fl-theme-font-size-body-small);
+    font-size: var(--fl-theme-font-size-body-sm);
     line-height: 1.4;
     margin-top: 0;
 }
@@ -112,7 +122,7 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card > div:has(.fl-card-icon) {
-    color: rgb(var(--token-color-light-purple));
+    color: var(--token-color-light-purple);
 }
 
 .fl-card.fl-card-fill {
@@ -152,13 +162,16 @@ Card - Flare 2026 Design System Cards
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-@media (--viewport-md-up) {
-    .fl-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+@media (--viewport-sm-up) {
+    .fl-card-grid {
+        gap: var(--token-spacing-xl);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
-    .fl-grid.fl-grid-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+@media (--viewport-md-up) {
+    .fl-card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 }
 

@@ -11,8 +11,8 @@ This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
-    background: rgb(var(--token-color-dark-purple));
-    color: rgb(var(--token-color-white));
+    background: var(--token-color-dark-purple);
+    color: var(--token-color-white);
 }
 
 /* Header */
@@ -89,7 +89,7 @@ body {
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-base);
     line-height: 1.4;
-    color: rgb(var(--token-color-white));
+    color: var(--token-color-white);
     text-decoration: none;
     transition: color var(--token-transition-fast);
 }
@@ -111,8 +111,8 @@ body {
 .fl-main {
     max-width: var(--token-width-desktop-content);
     margin: 0 auto;
-    background: rgb(var(--token-color-white));
-    color: rgb(var(--token-color-black-1));
+    background: var(--token-color-white);
+    color: var(--token-color-black-1);
     padding: var(--token-spacing-2xl);
     border-end-end-radius: var(--token-border-radius-xl);
     border-end-start-radius: var(--token-border-radius-xl);
@@ -144,8 +144,8 @@ body {
     align-items: center;
     justify-content: center;
     padding: var(--token-layout-sm) var(--token-layout-lg);
-    background-color: rgb(var(--token-color-light-purple));
-    color: rgb(var(--token-color-white));
+    background-color: var(--token-color-light-purple);
+    color: var(--token-color-white);
     font-family: var(--fl-theme-font-family-headline);
     font-weight: 700;
     font-size: var(--token-layout-lg);
@@ -157,7 +157,7 @@ body {
 }
 
 .fl-footer-button:hover {
-    background-color: rgb(var(--token-color-link-purple));
+    background-color: var(--token-color-link-purple);
 }
 
 /* Footer Navigation */
@@ -180,7 +180,7 @@ body {
     font-weight: var(--token-font-weight-bold);
     line-height: 1.4;
     margin: 0;
-    color: rgb(var(--token-color-white));
+    color: var(--token-color-white);
 }
 
 .fl-footer-list {
@@ -200,7 +200,7 @@ body {
     font-size: var(--fl-theme-font-size-base);
     font-weight: var(--token-font-weight-regular);
     line-height: 1.4;
-    color: rgb(var(--token-color-white));
+    color: var(--token-color-white);
     text-decoration: none;
     transition: color var(--token-transition-fast);
 }
@@ -236,11 +236,11 @@ body {
     line-height: 1.2;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: rgb(var(--token-color-white));
+    color: var(--token-color-white);
     text-decoration: none;
     transition: color var(--token-transition-fast);
 }
 
 .fl-footer-legal-link:hover {
-    color: rgb(var(--token-color-grey-1));
+    color: var(--token-color-grey-1);
 }
