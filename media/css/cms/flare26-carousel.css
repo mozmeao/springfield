@@ -66,6 +66,7 @@
     min-width: 0;
     width: fit-content;
     max-width: 100%;
+    cursor: pointer;
 }
 
 .fl-carousel-control-item-text {
@@ -85,7 +86,7 @@
     flex-shrink: 0;
     width: 36px;
     height: 36px;
-    background-color: rgba(var(--token-color-dark-purple-30), 0.3);
+    background-color: rgba(var(--token-color-dark-purple), 0.3);
     border-radius: 50%;
     font-weight: var(--token-font-weight-bold);
     color: rgb(var(--token-color-white));
@@ -96,24 +97,40 @@
     color: rgb(var(--token-color-dark-purple));
 }
 
-.fl-carousel-image:not(.active) {
-    display: none;
-}
-
 .fl-carousel-images {
     background-color: rgb(var(--token-color-white));
     border-top-left-radius: var(--token-border-radius-md);
     border-top-right-radius: var(--token-border-radius-md);
-    padding: var(--token-spacing-lg) var(--token-spacing-lg) 0;
+    padding: var(--token-spacing-lg);
     display: flex;
     justify-content: center;
-    align-items: baseline;
+    align-items: center;
     max-width: var(--token-width-desktop-content);
+    width: 100%;
+    aspect-ratio: 2 / 1;
     margin: 0 auto;
+    position: relative;
+}
+
+.fl-carousel-image {
+    position: absolute;
+    inset: var(--token-spacing-lg);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.fl-carousel-image.active {
+    display: flex;
 }
 
 .fl-carousel-image img {
     margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
 }
 
 @media (--viewport-md-up) {

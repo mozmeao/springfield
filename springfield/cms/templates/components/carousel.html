@@ -16,7 +16,7 @@
       <div class="fl-carousel-slides">
         <ol class="fl-carousel-control">
           {% for item in items %}
-            <li class="fl-carousel-control-item {% if loop.first %}active{% endif %}" aria-controls="fl-carousel-img-{{ loop.index }}">
+            <li class="fl-carousel-control-item {% if loop.first %}active{% endif %}" aria-controls="fl-carousel-image-{{ loop.index }}">
               <span class="fl-carousel-control-item-text">{{ item.headline }}</span>
             </li>
           {% endfor %}
