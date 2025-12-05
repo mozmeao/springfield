@@ -5,15 +5,15 @@
 */
 
 .fl-rich-text a {
-    color: rgb(var(--token-color-link-purple));
+    color: var(--token-color-link-purple);
     text-decoration: underline;
 }
 
 .fl-rich-text code {
     font-family: monospace;
     font-size: 0.9em;
-    background: rgb(var(--token-color-soft-purple));
-    color: rgb(var(--token-color-light-purple));
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-light-purple);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
@@ -25,8 +25,8 @@
 }
 
 .fl-rich-text pre {
-    background: rgb(var(--token-color-soft-purple));
-    color: rgb(var(--token-color-light-purple));
+    background: var(--token-color-soft-purple);
+    color: var(--token-color-light-purple);
     padding: var(--token-spacing-xl);
     border-radius: var(--token-border-radius-md);
     overflow-x: auto;
@@ -53,19 +53,19 @@
 .fl-rich-text blockquote {
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-body-lg);
-    border-left: var(--token-spacing-xs) solid rgb(var(--token-color-light-purple));
+    border-left: var(--token-spacing-xs) solid var(--token-color-light-purple);
     padding-left: var(--token-spacing-lg);
     margin: var(--token-spacing-lg) 0;
 }
 
 .fl-rich-text cite {
-    color: rgb(var(--token-color-link-purple));
+    color: var(--token-color-link-purple);
     font-size: var(--fl-theme-font-size-body-sm);
 }
 
 .fl-rich-text hr {
     border: 0;
-    border-top: 1px solid rgb(var(--token-color-soft-purple));
+    border-top: 1px solid var(--token-color-soft-purple);
     margin: var(--token-spacing-xl) 0;
 }
 
