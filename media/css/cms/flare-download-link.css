@@ -1,0 +1,52 @@
+
+/* ================================================
+   Download Links
+   ================================================ */
+
+.fl-header .fl-fx-download-container,
+.fl-header .mzp-c-button-download-privacy-link {
+    display: none;
+    margin: 0;
+}
+
+.fl-header .download-link {
+    padding: 10px calc(var(--token-scale-24) * 1px);
+    border-radius: calc(var(--token-scale-4) * 1px);
+    font-weight: var(--token-font-weight-bold);
+    display: block;
+}
+
+.fl-header .download-link:hover {
+    text-decoration: none;
+}
+
+.fl-header .fl-icon-download-white {
+    vertical-align: unset;
+    margin-left: 4px;
+}
+
+.fl-nav-mobile-download-link {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
+    border-top: 2px solid var(--fl-theme-border-color-subtle);
+    background: var(--fl-theme-navigation-bg);
+}
+
+.fl-nav-mobile-download-link .fl-fx-download-container {
+    display: block;
+}
+
+.fl-nav-mobile-download-link .download-button {
+    display: block;
+    width: 100%;
+    padding: calc(var(--token-scale-12) * 1px);
+}
+
+@media screen and (min-width: 768px){
+    .fl-header .fl-fx-download-container {
+        display: block;
+    }
+}

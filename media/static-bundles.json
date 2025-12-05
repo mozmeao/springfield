@@ -225,7 +225,7 @@
       ],
       "name": "firefox-home"
     },
-        {
+    {
       "files": [
         "css/firefox/home-ie9.scss"
       ],
@@ -458,6 +458,12 @@
         "js/base/mozilla-cookie-helper.js"
       ],
       "name": "site-ie"
+    },
+    {
+      "files": [
+        "js/cms/flare-navigation.es6.js"
+      ],
+      "name": "flare-navigation"
     },
     {
       "files": [
