@@ -80,12 +80,10 @@ $image-path: '/media/protocol/img';
 
     &.t-step-disabled {
         cursor: not-allowed;
-        opacity: 0.5;
 
-
-    [dir='rtl'] & .c-step-icon {
-        transform: rotate(180deg);
-    }
+        [dir='rtl'] & .c-step-icon {
+            transform: rotate(180deg);
+        }
     }
 }
 
