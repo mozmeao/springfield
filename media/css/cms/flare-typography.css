@@ -169,3 +169,17 @@
     display: block;
     margin: calc(var(--token-scale-16) * 1px) 0;
 }
+
+/* These styles need to match the ones from media/js/cms/wagtailadmin-fx-logo.js
+which implements the rich text feature that adds the Firefox Logo to the CMS */
+span.fl-fx-logo {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-image: url('/media/img/logos/firefox/firefox-logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: baseline;
+    margin-inline: 0.1em;
+}
