@@ -18,8 +18,7 @@ def get_intro_variants() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "media": [],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
                     "heading_text": '<p data-block-key="uzief">Simple Intro with text and button</p>',
@@ -35,8 +34,16 @@ def get_intro_variants() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "after"},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
                     "heading_text": '<p data-block-key="uzief">Intro with image</p>',
@@ -52,8 +59,16 @@ def get_intro_variants() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "before"},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
                     "heading_text": '<p data-block-key="uzief">Intro with image before</p>',
@@ -70,9 +85,7 @@ def get_intro_variants() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "video": [{**videos["youtube"], "type": "item"}],
+                "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
                     "heading_text": '<p data-block-key="uzief">Intro with YouTube Video</p>',
@@ -87,9 +100,7 @@ def get_intro_variants() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "before"},
-                "image": None,
-                "dark_image": None,
-                "video": [{**videos["cdn"], "type": "item"}],
+                "media": [videos["cdn"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
                     "heading_text": '<p data-block-key="uzief">Intro with CDN Video</p>',

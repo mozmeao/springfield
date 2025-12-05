@@ -13,6 +13,7 @@ from springfield.cms.models import FreeFormPage
 
 def get_sticker_card_variants() -> list[dict]:
     buttons = get_button_variants()
+    tags = list(get_tag_variants().values())
     return [
         {
             "type": "sticker_card",
@@ -20,6 +21,7 @@ def get_sticker_card_variants() -> list[dict]:
                 "settings": {"expand_link": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[:3],
                 "headline": '<p data-block-key="h5q1p">Sticker Card 1</p>',
                 "content": '<p data-block-key="mkz0c">Sticker cards get images with an optional Dark Mode variant.</p>',
                 "buttons": [
@@ -34,6 +36,7 @@ def get_sticker_card_variants() -> list[dict]:
                 "settings": {"expand_link": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[3:6],
                 "headline": '<p data-block-key="h5q1p">Sticker Card 2</p>',
                 "content": '<p data-block-key="mkz0c">Switch to Dark Mode in your browser settings to see the alternative image.</p>',
                 "buttons": [
@@ -48,6 +51,7 @@ def get_sticker_card_variants() -> list[dict]:
                 "settings": {"expand_link": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[6:9],
                 "headline": '<p data-block-key="h5q1p">Sticker Card 3</p>',
                 "content": '<p data-block-key="mkz0c"><a linktype="page" id="64">Cards</a> <b>content</b> <i>have</i> <sup>rich</sup> <sub>text'
                 '</sub> <s>features</s> <fxa data-cta-uid="563a54cd-4357-4d01-9370-3db3ec506d07">too</fxa>.</p>',
@@ -63,6 +67,7 @@ def get_sticker_card_variants() -> list[dict]:
                 "settings": {"expand_link": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[9:12],
                 "headline": '<p data-block-key="h5q1p">Sticker Card 4</p>',
                 "content": '<p data-block-key="mkz0c">Cards can use all button variants.'
                 "Check the expand link option on the card settings to make the entire card clickable.</p>",
@@ -77,12 +82,14 @@ def get_sticker_card_variants() -> list[dict]:
 
 def get_icon_card_variants() -> list[dict]:
     buttons = get_button_variants()
+    tags = list(get_tag_variants().values())
     return [
         {
             "type": "icon_card",
             "value": {
                 "settings": {"expand_link": False},
                 "icon": "copy",
+                "tags": tags[:3],
                 "headline": '<p data-block-key="ob9zh">Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">Choose one of the Icon options to build the card.</p>',
                 "buttons": [buttons["primary"]],
@@ -94,6 +101,7 @@ def get_icon_card_variants() -> list[dict]:
             "value": {
                 "settings": {"expand_link": True},
                 "icon": "alert",
+                "tags": tags[3:6],
                 "headline": '<p data-block-key="ob9zh">Clickable Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">Check the Expand Link option in the card settings to make the entire card clickable.</p>',
                 "buttons": [buttons["secondary"]],
@@ -105,6 +113,7 @@ def get_icon_card_variants() -> list[dict]:
             "value": {
                 "settings": {"expand_link": True},
                 "icon": "calendar",
+                "tags": tags[6:9],
                 "headline": '<p data-block-key="ob9zh">Another Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">All button options are available here too.</p>',
                 "buttons": [buttons["tertiary"]],
@@ -116,6 +125,7 @@ def get_icon_card_variants() -> list[dict]:
             "value": {
                 "settings": {"expand_link": True},
                 "icon": "blog",
+                "tags": tags[9:12],
                 "headline": '<p data-block-key="ob9zh">Fourth Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">All button options are available here too.</p>',
                 "buttons": [buttons["ghost"]],
@@ -125,12 +135,12 @@ def get_icon_card_variants() -> list[dict]:
     ]
 
 
-def get_tag_card_variants() -> list[dict]:
+def get_filled_card_variants() -> list[dict]:
     buttons = get_button_variants()
     tags = list(get_tag_variants().values())
     return [
         {
-            "type": "tag_card",
+            "type": "filled_card",
             "value": {
                 "settings": {"expand_link": False},
                 "tags": tags[:3],
@@ -141,7 +151,7 @@ def get_tag_card_variants() -> list[dict]:
             "id": "a377ba13-7fd2-42db-a0ce-1f130d3241d7",
         },
         {
-            "type": "tag_card",
+            "type": "filled_card",
             "value": {
                 "settings": {"expand_link": False},
                 "tags": tags[3:6],
@@ -152,7 +162,7 @@ def get_tag_card_variants() -> list[dict]:
             "id": "8edaa9df-c868-4bbf-9d21-ed81346dff90",
         },
         {
-            "type": "tag_card",
+            "type": "filled_card",
             "value": {
                 "settings": {"expand_link": False},
                 "tags": tags[6:9],
@@ -163,7 +173,7 @@ def get_tag_card_variants() -> list[dict]:
             "id": "662a4d32-f61d-45c8-9f89-0b97374eade1",
         },
         {
-            "type": "tag_card",
+            "type": "filled_card",
             "value": {
                 "settings": {"expand_link": False},
                 "tags": tags[9:12],
@@ -180,6 +190,7 @@ def get_tag_card_variants() -> list[dict]:
 
 def get_illustration_card_variants() -> list[dict]:
     buttons = get_button_variants()
+    tags = list(get_tag_variants().values())
     return [
         {
             "type": "illustration_card",
@@ -187,6 +198,7 @@ def get_illustration_card_variants() -> list[dict]:
                 "settings": {"expand_link": False, "image_after": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[:3],
                 "headline": '<p data-block-key="vqw7t">Illustration Card 1</p>',
                 "content": '<p data-block-key="a8oh9">Illustration Cards have an optional Dark Mode image.</p>',
                 "buttons": [buttons["primary"]],
@@ -199,6 +211,7 @@ def get_illustration_card_variants() -> list[dict]:
                 "settings": {"expand_link": False, "image_after": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[3:6],
                 "headline": '<p data-block-key="vqw7t">Illustration Card 2</p>',
                 "content": '<p data-block-key="a8oh9">Switch to Dark Mode on your browser settings to see the alternative image.</p>',
                 "buttons": [buttons["secondary"]],
@@ -211,6 +224,7 @@ def get_illustration_card_variants() -> list[dict]:
                 "settings": {"expand_link": False, "image_after": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[6:9],
                 "headline": '<p data-block-key="vqw7t">Reversed Illustration Card</p>',
                 "content": '<p data-block-key="a8oh9">Check the Image After option on the card settings to invert the card layout.</p>',
                 "buttons": [buttons["tertiary"]],
@@ -223,6 +237,7 @@ def get_illustration_card_variants() -> list[dict]:
                 "settings": {"expand_link": True, "image_after": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[9:12],
                 "headline": '<p data-block-key="vqw7t">Reversed Card with expand link</p>',
                 "content": '<p data-block-key="a8oh9">Check the Expand Link option to make the entire card clickable.</p>',
                 "buttons": [buttons["ghost"]],
@@ -234,6 +249,7 @@ def get_illustration_card_variants() -> list[dict]:
 
 def get_step_card_variants() -> list[dict]:
     buttons = get_button_variants()
+    tags = list(get_tag_variants().values())
     return [
         {
             "type": "item",
@@ -241,6 +257,7 @@ def get_step_card_variants() -> list[dict]:
                 "settings": {"expand_link": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[:3],
                 "headline": '<p data-block-key="1aqle">Step Card 1</p>',
                 "content": '<p data-block-key="flh4o">Step cards are just like illustration cards with the <i>Step XX</i> eyebrow.</p>',
                 "buttons": [buttons["primary"]],
@@ -253,6 +270,7 @@ def get_step_card_variants() -> list[dict]:
                 "settings": {"expand_link": False},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[3:6],
                 "headline": '<p data-block-key="1aqle">Step Card 2</p>',
                 "content": '<p data-block-key="flh4o">They also have Dark Mode image alternatives.</p>',
                 "buttons": [buttons["secondary"]],
@@ -265,6 +283,7 @@ def get_step_card_variants() -> list[dict]:
                 "settings": {"expand_link": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[6:9],
                 "headline": '<p data-block-key="1aqle">Step Card 3</p>',
                 "content": '<p data-block-key="flh4o">Check the <b>expand link</b> '
                 "option on the card settings to make the entire card clickable.</p>",
@@ -278,6 +297,7 @@ def get_step_card_variants() -> list[dict]:
                 "settings": {"expand_link": True},
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "tags": tags[9:12],
                 "headline": '<p data-block-key="1aqle">Step Card 4</p>',
                 "content": '<p data-block-key="flh4o">Step Cards also have all the button variants available.</p>',
                 "buttons": [buttons["ghost"]],
@@ -387,22 +407,22 @@ def get_icon_cards_test_page() -> FreeFormPage:
     return page
 
 
-def get_tag_cards_test_page() -> FreeFormPage:
+def get_filled_cards_test_page() -> FreeFormPage:
     get_placeholder_images()
     index_page = get_test_index_page()
 
-    page = FreeFormPage.objects.filter(slug="test-tag-cards-page").first()
+    page = FreeFormPage.objects.filter(slug="test-filled-cards-page").first()
     if not page:
         page = FreeFormPage(
-            slug="test-tag-cards-page",
-            title="Test Tag Cards Page",
+            slug="test-filled-cards-page",
+            title="Test Filled Cards Page",
         )
         index_page.add_child(instance=page)
 
     page.content = get_cards_list_variants(
-        cards=get_tag_card_variants(),
-        heading_1="Cards List with Tag Cards",
-        heading_2="Cards List with Tag Cards - 4 columns",
+        cards=get_filled_card_variants(),
+        heading_1="Cards List with Filled Cards",
+        heading_2="Cards List with Filled Cards - 4 columns",
     )
     page.save_revision().publish()
 

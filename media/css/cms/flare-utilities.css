@@ -73,6 +73,11 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: none;
 }
 
+/* This attempts to allow the conditional-display to act as a passthrough when condition is 'all' */
+.conditional-passthrough {
+    display: contents;
+}
+
 .conditional-display.is-preview {
     display: block;
     border: red dashed 2px;

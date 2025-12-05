@@ -25,42 +25,11 @@
       {{ value.fine_print|richtext|remove_p_tag }}
     </content:fine_print>
   {% endif %}
-  {% if value.video or value.image %}
+  {% if value.media %}
     <content:media>
-      {% if value.video %}
-        {% for block in value.video %}
-          {% include_block block %}
-        {% endfor %}
-      {% else %}
-        <div class="light-dark-display">
-          {% if value.dark_image %}
-            {{ srcset_image(
-                value.dark_image,
-                "width-{200,400,600,800,1000,1200,1400}",
-                sizes="
-                  (min-width: 768px) 50vw,
-                  (min-width: 1440px) 680px,
-                  100vw
-                ",
-                width=value.dark_image.width,
-                loading="lazy",
-                class="display-dark",
-              ) }}
-          {% endif %}
-          {{ srcset_image(
-              value.image,
-              "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1440px) 680px,
-                100vw
-              ",
-              width=value.image.width,
-              loading="lazy",
-              class="display-light",
-            ) }}
-        </div>
-      {% endif %}
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
     </content:media>
   {% endif %}
 </include:intro>

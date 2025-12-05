@@ -21,8 +21,16 @@ def get_media_content_variants() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Content Before, Media After</p>',
                 "tags": tags[:3],
@@ -38,8 +46,16 @@ def get_media_content_variants() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Content <sup>After</sup>, Media <sub>Before</sub></p>',
                 "tags": tags[3:6],
@@ -54,9 +70,7 @@ def get_media_content_variants() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": False},
-                "image": None,
-                "dark_image": None,
-                "video": [{**videos["youtube"], "type": "item"}],
+                "media": [videos["youtube"]],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Video + Content</p>',
                 "tags": tags[6:9],
@@ -71,9 +85,7 @@ def get_media_content_variants() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": True},
-                "image": None,
-                "dark_image": None,
-                "video": [{**videos["cdn"], "type": "item"}],
+                "media": [videos["cdn"]],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Video + Content Before</p>',
                 "tags": tags[9:12],

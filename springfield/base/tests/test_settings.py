@@ -33,3 +33,8 @@ def test_lang_groups():
 )
 def test_get_media_cdn_hostname(media_url, expected_hostname):
     assert _get_media_cdn_hostname_for_storage_backend(media_url) == expected_hostname
+
+
+def test_catch_disallowed_redirect_middleware_enabled():
+    middleware_path = "springfield.base.middleware.CatchDisallowedRedirect"
+    assert middleware_path in settings.MIDDLEWARE

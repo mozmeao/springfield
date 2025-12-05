@@ -5,6 +5,16 @@ context:
   expand_link: false
   heading: "Feature Highlight"
   body: "This card combines an illustration with text content to showcase features or benefits."
+  tags:
+  - text: "News"
+    color: "blue"
+    corners: "soft"
+  - text: "Update"
+    color: "purple"
+    corners: "soft"
+  - text: "Important"
+    color: "orange"
+    corners: "soft"
   buttons:
     - label: "Learn More"
       link: "/"

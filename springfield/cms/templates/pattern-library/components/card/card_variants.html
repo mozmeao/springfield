@@ -25,18 +25,19 @@
                 <include:icon icon_name="{{ card.icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
               </div>
             </content:pre_heading>
-          {% elif card.tags %}
-            <content:pre_heading>
-              {% for tag in card.tags %}
-                <include:tag
-                  text="{{ tag.text }}"
-                  color="{{ tag.color }}"
-                  corners="{{ tag.corners }}"
-                />
-              {% endfor %}
-            </content:pre_heading>
           {% endif %}
           <content:heading>
+            {% if card.tags %}
+              <div>
+                {% for tag in card.tags %}
+                  <include:tag
+                    text="{{ tag.text }}"
+                    color="{{ tag.color }}"
+                    corners="{{ tag.corners }}"
+                  />
+                {% endfor %}
+              </div>
+            {% endif %}
             <include:heading
               level="h3"
               heading_size="fl-heading-size-3"

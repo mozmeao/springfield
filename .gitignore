@@ -57,3 +57,5 @@ venv
 /custom-media
 /local-credentials/*.json
 AGENTS.md
+CLAUDE.md
+.claude

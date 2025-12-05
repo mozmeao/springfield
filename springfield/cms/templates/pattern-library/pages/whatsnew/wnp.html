@@ -122,7 +122,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             alignment_class="{{ cards_section.heading.alignment_class }}"
           />
 
-          <div class="fl-grid ">
+          <include:cards-list>
             {% for card in cards_section.cards %}
             <article class="fl-card fl-card-expand-link">
               <img class="fl-card-sticker" src="{{ card.sticker }}" data-dark-src="{{ card.sticker }}" alt="" aria-hidden="true" />
@@ -132,7 +132,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
               </div>
             </article>
             {% endfor %}
-          </div>
+          </include:cards-list>
 
         </div>
       </section>
@@ -239,7 +239,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             alignment_class="{{ mobile_section.heading.alignment_class }}"
           />
 
-          <div class="fl-grid fl-grid-4">
+          <div class="fl-card-grid">
             {% for card in mobile_section.cards %}
             <article class="fl-card fl-card-fill">
               <div>

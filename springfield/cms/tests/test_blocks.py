@@ -15,6 +15,8 @@ from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_t
 from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
+    get_filled_card_variants,
+    get_filled_cards_test_page,
     get_icon_card_variants,
     get_icon_cards_test_page,
     get_illustration_card_variants,
@@ -22,8 +24,6 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_card_variants,
     get_step_cards_list_variants,
     get_step_cards_test_page,
-    get_tag_card_variants,
-    get_tag_cards_test_page,
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
@@ -344,13 +344,17 @@ def test_intro_block(index_page, placeholder_images, rf):
         )
 
         # Media
-        if intro["value"]["image"]:
-            images_element = intro_element.find("div", class_="fl-intro-media")
-            assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+        media_value = intro["value"]["media"] and intro["value"]["media"][0]
+        if media_value:
+            if media_value["type"] == "image":
+                images_element = intro_element.find("div", class_="fl-intro-media")
+                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+                if media_value["value"].get("dark_image"):
+                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
 
-        if intro["value"]["dark_image"]:
-            images_element = intro_element.find("div", class_="fl-intro-media")
-            assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+            if media_value["type"] == "video":
+                video_div = intro_element.find("div", class_="fl-video")
+                assert_video_attributes(video_div, media_value)
 
         if video := intro["value"].get("video"):
             video = video[0]
@@ -473,15 +477,15 @@ def test_media_content_block(index_page, placeholder_images, rf):
         media_element = div.find("div", class_="fl-mediacontent-media")
         assert media_element
 
-        if media_content["value"]["image"]:
+        media_value = media_content["value"]["media"][0]
+        if media_value["type"] == "image":
             assert_light_dark_image_attributes(images_element=media_element, image=image, is_dark=False)
-        if media_content["value"]["dark_image"]:
-            assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
+            if media_value["value"].get("dark_image"):
+                assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
 
-        if video := media_content["value"].get("video"):
-            video = video[0]
+        elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
-            assert_video_attributes(video_div, video)
+            assert_video_attributes(video_div, media_value)
 
         # Tags
         tags = media_content["value"]["tags"]
@@ -535,7 +539,7 @@ def test_icon_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -554,8 +558,8 @@ def test_icon_card_block(index_page, rf):
             assert icon_element and f"fl-icon-{card['value']['icon']}" in icon_element["class"]
 
 
-def test_tag_card_block(index_page, rf):
-    test_page = get_tag_cards_test_page()
+def test_filled_card_block(index_page, rf):
+    test_page = get_filled_cards_test_page()
 
     # Page renders
     request = rf.get(test_page.get_full_url())
@@ -566,9 +570,9 @@ def test_tag_card_block(index_page, rf):
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
-    section_titles = ["Cards List with Tag Cards", "Cards List with Tag Cards - 4 columns"]
+    section_titles = ["Cards List with Filled Cards", "Cards List with Filled Cards - 4 columns"]
 
-    card_variants = get_tag_card_variants()
+    card_variants = get_filled_card_variants()
     card_lists = get_cards_list_variants(
         card_variants,
         heading_1=section_titles[0],
@@ -597,7 +601,7 @@ def test_tag_card_block(index_page, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -665,7 +669,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")
@@ -738,7 +742,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
         )
 
         # Cards
-        card_list_div = section_element.find("div", class_="fl-grid")
+        card_list_div = section_element.find("div", class_="fl-card-grid")
         assert card_list_div
 
         card_divs = card_list_div.find_all("article", class_="fl-card")

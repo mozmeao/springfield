@@ -2,11 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
 from contextlib import suppress
 from importlib import reload
 from unittest import mock
 
 from django.conf import settings
+from django.core.exceptions import DisallowedRedirect
 from django.http import HttpRequest, HttpResponse
 from django.test import Client, RequestFactory, TestCase as DjangoTestCase
 from django.test.utils import override_settings
@@ -21,6 +23,7 @@ from pytest_django.asserts import assertTemplateUsed
 
 from springfield.base.middleware import (
     CacheMiddleware,
+    CatchDisallowedRedirect,
     ClacksOverheadMiddleware,
     CSPMiddlewareByPathPrefix,
     HostnameMiddleware,
@@ -506,3 +509,34 @@ class TestHostnameMiddleware(TestCase):
     def test_request(self):
         response = self.client.get("/en-US/")
         self.assertEqual(response["X-Backend-Server"], "foobar.el-dudarino")
+
+
+def test_catch_disallowed_redirect_redirects_to_locale_and_logs_truncated_path(rf, caplog):
+    middleware = CatchDisallowedRedirect(get_response=HttpResponse)
+    request = rf.get("/en-US/" + ("long-path/" * 5) + "?foo=bar")
+    request.locale = "de"
+
+    with caplog.at_level(logging.WARNING):
+        response = middleware.process_exception(request, DisallowedRedirect("too long"))
+
+    assert response.status_code == 302
+    assert response["location"] == "/de/"
+
+    expected_path = request.get_full_path()
+    assert len(expected_path) > 32
+    expected_logged_path = expected_path[:32] + "..."
+    assert caplog.records
+    assert caplog.records[0].message == f"Caught and silenced DisallowedRedirect for {expected_logged_path}"
+
+
+def test_catch_disallowed_redirect_defaults_to_root_and_logs_full_path(rf, caplog):
+    middleware = CatchDisallowedRedirect(get_response=HttpResponse)
+    request = rf.get("/short/")
+
+    with caplog.at_level(logging.WARNING):
+        response = middleware.process_exception(request, DisallowedRedirect("short"))
+
+    assert response.status_code == 302
+    assert response["location"] == "/"
+    assert caplog.records
+    assert caplog.records[0].message == f"Caught and silenced DisallowedRedirect for {request.get_full_path()}"

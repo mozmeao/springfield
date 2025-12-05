@@ -57,11 +57,10 @@
         <button data-testid="newsletter-submit-button" id="newsletter-submit" type="submit" class="c-submit">
           <span class="c-submit-text">Join the waitlist</span>
           <svg class="c-submit-loading" fill="currentColor" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>Sending</title>
-            <style>.s1{animation:s .8s linear infinite;animation-delay:-.8s}.s2{animation-delay:-.65s}.s3{animation-delay:-.5s}@keyframes s{93.75%,100%{opacity:.2}}</style>
-            <circle class="s1" cx="4" cy="12" r="3"/>
-            <circle class="s1 s2" cx="12" cy="12" r="3"/>
-            <circle class="s1 s3" cx="20" cy="12" r="3"/>
+            <title>{{ ftl('newsletter-form-submit-sending') }}</title>
+            <circle cx="4" cy="12" r="3"/>
+            <circle cx="12" cy="12" r="3"/>
+            <circle cx="20" cy="12" r="3"/>
           </svg>
         </button>
       </div>

@@ -8,6 +8,16 @@
 Card - Flare 2026 Design System Cards
 ===================================================================== */
 
+.fl-card-grid {
+    display: grid;
+    gap: calc(var(--token-scale-32) * 1px);
+    grid-template-columns: 1fr;
+}
+
+.fl-card-grid .conditional-display .fl-card {
+    height: 100%;
+}
+
 .fl-card {
     position: relative;
     display: flex;
@@ -152,13 +162,16 @@ Card - Flare 2026 Design System Cards
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-@media (--viewport-md-up) {
-    .fl-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+@media (--viewport-sm-up) {
+    .fl-card-grid {
+        gap: var(--token-spacing-xl);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
-    .fl-grid.fl-grid-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+@media (--viewport-md-up) {
+    .fl-card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 }
 

@@ -7,6 +7,16 @@ context:
       expand_link: false
       heading: "Image First Layout"
       body: "In this layout, the image appears first (on the left on desktop, above on mobile)."
+      tags:
+        - text: "News"
+          color: "blue"
+          corners: "soft"
+        - text: "Update"
+          color: "purple"
+          corners: "soft"
+        - text: "Important"
+          color: "orange"
+          corners: "soft"
       buttons:
         - label: "Learn More"
           link: "/"

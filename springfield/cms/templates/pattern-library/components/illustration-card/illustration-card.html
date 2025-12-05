@@ -13,6 +13,17 @@
       <img src="{{ image }}" alt="" loading="lazy" />
     </content:media>
     <content:heading>
+      {% if tags %}
+        <div>
+          {% for tag in tags %}
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              corners="{{ tag.corners }}"
+            />
+          {% endfor %}
+        </div>
+      {% endif %}
       <include:heading
         level="h3"
         heading_size="fl-heading-size-3"

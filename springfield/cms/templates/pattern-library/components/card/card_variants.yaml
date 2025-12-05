@@ -10,6 +10,16 @@ context:
         - label: "Learn More"
           link: "/"
           theme_class: ""
+      tags:
+        - text: "News"
+          color: "blue"
+          corners: "soft"
+        - text: "Update"
+          color: "purple"
+          corners: "soft"
+        - text: "Important"
+          color: "orange"
+          corners: "soft"
     - note: "Icon Card - No Buttons"
       icon_name: "shield"
       expand_link: false
@@ -29,6 +39,16 @@ context:
       expand_link: false
       heading: "With Buttons"
       body: "Sticker cards use decorative sticker images instead of icons."
+      tags:
+        - text: "News"
+          color: "blue"
+          corners: "soft"
+        - text: "Update"
+          color: "purple"
+          corners: "soft"
+        - text: "Important"
+          color: "orange"
+          corners: "soft"
       buttons:
         - label: "Learn More"
           link: "/"
@@ -43,14 +63,24 @@ context:
       expand_link: true
       heading: "Clickable Card"
       body: "The entire card area is clickable with expand_link enabled."
+      tags:
+        - text: "News"
+          color: "blue"
+          corners: "soft"
+        - text: "Update"
+          color: "purple"
+          corners: "soft"
+        - text: "Important"
+          color: "orange"
+          corners: "soft"
       buttons:
         - label: "Visit"
           link: "/"
           theme_class: ""
-    - note: "Tag Card"
+    - note: "Filled Card"
       fill: true
       heading: "Latest Feature"
-      body: "Tag cards use the fill variant and include categorization tags at the top."
+      body: "Filled cards use the fill variant and include categorization tags at the top."
       tags:
         - text: "New"
           color: "purple"
@@ -59,7 +89,7 @@ context:
         - label: "Read More"
           link: "/"
           theme_class: ""
-    - note: "Tag Card - Multiple Tags"
+    - note: "Filled Card - Multiple Tags"
       fill: true
       heading: "Product Update"
       body: "Cards can have multiple tags for richer categorization."

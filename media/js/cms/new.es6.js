@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
+
 (function () {
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
@@ -264,6 +266,28 @@
 
                     button.remove();
                     container.appendChild(video);
+
+                    video.addEventListener(
+                        'play',
+                        VideoEngagement.handleStart,
+                        {
+                            once: true
+                        }
+                    );
+
+                    // Floor duration because we don't need precise numbers here
+                    video.addEventListener('loadedmetadata', (e) => {
+                        VideoEngagement.duration = Math.floor(
+                            e.target.duration
+                        );
+                    });
+
+                    // 'timeupdate' will handle both video_progress and video_complete data
+                    // ('ended' not reliable: if 'loop' is true, it will not fire)
+                    video.addEventListener(
+                        'timeupdate',
+                        VideoEngagement.throttledProgress
+                    );
                 }
             });
         });
