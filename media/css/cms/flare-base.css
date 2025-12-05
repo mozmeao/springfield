@@ -78,6 +78,87 @@ See https://mozmeao.github.io/platform-docs/browser-support/
     font-display: swap;
 }
 
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Headline';
+    font-style: normal;
+    font-weight: normal;
+    src:
+        url('/media/fonts/mozilla-headline/MozillaHeadline-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Headline';
+    font-style: normal;
+    font-weight: 600;
+    src:
+        url('/media/fonts/mozilla-headline/MozillaHeadline-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: normal;
+    font-weight: normal;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: normal;
+    font-weight: 600;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: italic;
+    font-weight: 600;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-SemiBoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: normal;
+    font-weight: bold;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: italic;
+    font-weight: normal;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Mozilla Text';
+    font-style: italic;
+    font-weight: bold;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: text-fallback;
+    src: local("Helvetica Neue");
+    ascent-override: 84%;
+    descent-override: 36%;
+    line-gap-override: 0%;
+    size-adjust: 98%;
+}
+
 /* Single colon selector for IE 8 compatibility */
 /* stylelint-disable-next-line selector-pseudo-element-colon-notation */
 *, *:before, *:after {
