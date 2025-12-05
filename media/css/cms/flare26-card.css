@@ -1,0 +1,182 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Card - Flare 2026 Design System Cards
+===================================================================== */
+
+.fl-card-grid {
+    display: grid;
+    gap: calc(var(--token-scale-32) * 1px);
+    grid-template-columns: 1fr;
+}
+
+.fl-card-grid .conditional-display .fl-card {
+    height: 100%;
+}
+
+.fl-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--token-spacing-xl);
+    padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
+    border-radius: var(--token-border-radius-lg);
+    background: var(--fl-theme-surface-card-gradient);
+    backdrop-filter: blur(7.5px);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    text-align: center;
+    min-height: 494px;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
+}
+
+.fl-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+}
+
+.fl-card > * {
+    width: 100%;
+}
+
+.fl-card > div:has(.fl-card-sticker),
+.fl-card > div:has(.fl-card-icon),
+.fl-card > div:has(.fl-tag) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--token-spacing-sm);
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.fl-card :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
+    order: 0;
+    margin: 0;
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: inherit;
+}
+
+.fl-card > div:has(.fl-card-sticker) {
+    order: 1;
+    margin-top: var(--token-spacing-xs);
+}
+
+.fl-card .fl-superheading {
+    order: -1;
+    display: block;
+    margin: 0 0 var(--token-spacing-xl);
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--token-font-weight-medium);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--token-color-light-purple);
+}
+
+.fl-card .fl-body {
+    order: 2;
+    margin: 0;
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--token-font-weight-regular);
+    font-size: var(--fl-theme-font-size-body-sm);
+    line-height: 1.4;
+    margin-top: 0;
+}
+
+.fl-card .fl-buttons {
+    order: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--token-spacing-lg);
+    flex-wrap: wrap;
+    margin-top: var(--token-spacing-lg);
+}
+
+.fl-card .fl-buttons:empty {
+    display: none;
+}
+
+.fl-card .fl-button {
+    margin: 0;
+}
+
+.fl-card-sticker {
+    width: clamp(124px, 40%, 180px);
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.fl-card > div:has(.fl-card-icon) {
+    color: var(--token-color-light-purple);
+}
+
+.fl-card.fl-card-fill {
+    background: var(--token-gradient-soft-purple);
+}
+
+.fl-card.fl-card-expand-link {
+    cursor: pointer;
+}
+
+.fl-card.fl-card-expand-link a.fl-button,
+.fl-card.fl-card-expand-link button {
+    position: relative;
+    z-index: 1;
+}
+
+.fl-card.fl-card-expand-link a.fl-button::after,
+.fl-card.fl-card-expand-link button::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: "";
+}
+
+.fl-card.fl-card-expand-link:hover :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
+    text-decoration: underline;
+}
+
+.fl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--token-spacing-lg);
+    align-items: stretch;
+}
+
+.fl-grid.fl-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+@media (--viewport-sm-up) {
+    .fl-card-grid {
+        gap: var(--token-spacing-xl);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-card .fl-body {
+        color: inherit;
+    }
+}

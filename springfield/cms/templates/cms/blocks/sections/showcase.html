@@ -1,0 +1,40 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+{% set subheading_level = 'h' ~ block_level + 1 if block_level else 'h3' %}
+
+<include:showcase layout="{{ value.settings.layout }}">
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+    />
+  </content:heading>
+  <content:desktop_image>
+    {% if value.layout == "default" %}
+      {% set size = "(min-width: 1200px) 750px" %}
+    {% elif value.layout == "full" %}
+      {% set size = "(min-width: 1400px) 1400px" %}
+    {% else %}
+      {% set size = "(min-width: 1200px) 950px" %}
+    {% endif %}
+    {% with sizes = size ~ ", 100vw" %}
+        {% include_block value.desktop_image %}
+    {% endwith %}
+  </content:desktop_image>
+  <content:mobile_image>
+    {% with sizes = "100vw" %}
+      {% include_block value.mobile_image %}
+    {% endwith %}
+  </content:mobile_image>
+  <content:caption>
+    {% if value.caption_title %}
+      <{{ subheading_level}} class="fl-subheading">{{ value.caption_title|richtext|remove_p_tag }}</{{ subheading_level}}>
+    {% endif %}
+    {{ value.caption_description|richtext }}
+  </content:caption>
+</include:showcase>

@@ -8,5 +8,9 @@
 
 
 {% block flare_footer %}
-  {% include 'cms/includes/wnp-footer.html' %}
+  {% if switch("flare26-enabled") %}
+    {% include 'components/flare26-footer.html' %}
+  {% else %}
+    {% include 'cms/includes/wnp-footer.html' %}
+  {% endif %}
 {% endblock %}
