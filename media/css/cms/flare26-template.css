@@ -134,24 +134,42 @@ body {
 
 /* Footer CTA */
 .fl-footer-cta {
+    --kit-size: 100px;
     display: flex;
     justify-content: center;
     margin-bottom: var(--token-layout-lg);
+    position: relative;
+    padding-top: var(--kit-size);
+}
+
+.fl-footer-cta::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--kit-size) * .15);
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--kit-size);
+    height: var(--kit-size);
+    background-image: url('/media/img/firefox/flare/sitting-kit-2.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .fl-footer-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--token-layout-sm) var(--token-layout-lg);
+    padding: var(--token-spacing-2xl) var(--token-layout-xs);
     background-color: rgb(var(--token-color-light-purple));
     color: rgb(var(--token-color-white));
     font-family: var(--fl-theme-font-family-headline);
     font-weight: 700;
-    font-size: var(--token-layout-lg);
+    font-size: 3.5em;
     line-height: 0.9;
     letter-spacing: -0.005em;
     text-decoration: none;
+    text-align: center;
     border-radius: 2000px;
     transition: background-color var(--token-transition-fast);
 }
@@ -243,4 +261,15 @@ body {
 
 .fl-footer-legal-link:hover {
     color: rgb(var(--token-color-grey-1));
+}
+
+@media (--viewport-md-up) {
+    .fl-footer-cta {
+        --kit-size: 180px;
+    }
+
+    .fl-footer-button {
+        font-size: 8em;
+        padding: var(--token-layout-sm) var(--token-layout-lg);
+    }
 }
