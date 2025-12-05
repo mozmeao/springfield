@@ -1,0 +1,43 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-narrow-content">
+  <div class="pl-frame pl-frame--white">
+    {% for level in ["h1", "h2", "h3", "h4", "h5", "h6"] %}
+      {% set text %}
+        This is heading with a <span class="fl-fx-logo"></span>  Firefox Logo
+      {% endset %}
+      <div class="pl-row">
+        <include:heading
+          level="{{ level }}"
+          heading_text="{{ text }}"
+        />
+      </div>
+    {% endfor %}
+    <hr>
+    {% set text %}
+      This is a body text with a <span class="fl-fx-logo"></span>  Firefox Logo
+    {% endset %}
+    {% for size in ["lg", "md", "sm", "xs"] %}
+      <div class="pl-row">
+        <include:body_text text="{{ text }}" size="{{ size }}" />
+      </div>
+    {% endfor %}
+    <hr>
+    {% for size in ["lg", "md", "sm", "xs"] %}
+      {% for caps in [true, false] %}
+        {% set text %}
+          This is a {{ size }} label with a <span class="fl-fx-logo"></span>  Firefox Logo
+        {% endset %}
+        <div class="pl-row">
+          <span class="fl-label fl-label-{{ size }}{% if caps %} fl-label-allcaps{% endif %}">
+            {{ text }}
+          </span>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
