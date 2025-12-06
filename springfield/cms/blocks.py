@@ -146,6 +146,21 @@ class UUIDBlock(blocks.CharBlock):
 ######################################################################
 # Synchronized (not translated) blocks for wagtail-localize.         #
 # These blocks are copied from source to translation, not translated #
+#                                                                    #
+# Note: at this time, there is no way to mark StructBlock fields as  #
+# not translatable. However, there are a couple pull requests that   #
+# attempt to implement this feature in wagtail-localize:             #
+#   https://github.com/wagtail/wagtail-localize/pull/752             #
+#   https://github.com/wagtail/wagtail-localize/pull/882/            #
+# If they are merged and released, we may be able to simplify our    #
+# implementation and not use our Synchronized...Blocks.              #
+# For example, BaseButtonSettings may be able to define              #
+# translatable_blocks (and not use SynchronizedUUIDBlock):           #
+#                                                                    #
+# class BaseButtonSettings(blocks.StructBlock):                      #
+#     ...                                                            #
+#     translatable_blocks = ["theme", "icon", "icon_position"]       #
+#                                                                    #
 ######################################################################
 
 
