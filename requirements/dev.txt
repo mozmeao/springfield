@@ -652,8 +652,8 @@ django-mozilla-product-details==1.0.3 \
     --hash=sha256:1d139ba01f4484f3bb43b72864ce33f249835405449e0dc940217cfa42ce5b46 \
     --hash=sha256:a4aba6a68b296dffe8c1afb95d236cdbd402bd855cd49eef4d8a1a610105fd36
     # via -r requirements/prod.txt
-django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.1/django_pattern_library-1.5.1.tar.gz \
-    --hash=sha256:ba3e40e5e5b39ce67feacddf52692caa3a531ff18409daf47b6b4e7148569c50
+django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.2/django_pattern_library-1.5.2.tar.gz \
+    --hash=sha256:bd2bd69f02b89852cc83cabf12139217d641ee5bb9084f6c2e703164acacb966
     # via -r requirements/prod.txt
 django-permissionedforms==0.1 \
     --hash=sha256:4340bb20c4477fffb13b4cc5cccf9f1b1010b64f79956c291c72d2ad2ed243f8 \
