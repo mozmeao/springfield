@@ -7,8 +7,11 @@
 
 {% set card_heading_level = card_heading_level or "h3" %}
 
-<section class="fl-card-gallery">
-  <div class="fl-section-heading">
+<section class="fl-section">
+  <div class="fl-section-container">
+
+<div class="fl-card-gallery">
+  <div class="fl-heading-group">
     {% if contents.heading %}
       {{ contents.heading }}
     {% endif %}
@@ -43,4 +46,8 @@
       {{ contents.cta }}
     </div>
   {% endif %}
+  </div>
+
+
+</div>
 </section>

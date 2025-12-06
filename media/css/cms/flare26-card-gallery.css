@@ -16,14 +16,13 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     --gallery-main-image-height: 450px;
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-3xl);
+    margin: 0;
 }
 
 .fl-card-gallery-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--token-spacing-lg);
-    color: var(--token-color-black-1);
 }
 
 .fl-card-gallery-card {
