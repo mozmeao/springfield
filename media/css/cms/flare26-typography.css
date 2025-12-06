@@ -17,12 +17,20 @@
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
-.fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 {
+.fl-heading h1,
+h1.fl-heading,
+.fl-heading-size-1,
+.fl-rich-text h1,
+.fl-heading h2,
+h2.fl-heading,
+.fl-heading-size-2,
+.fl-rich-text h2 {
     font-variation-settings:
         "wght" var(--token-font-weight-semibold),
         "wdth" var(--token-font-condensed-width);
     line-height: 0.9;
 }
+
 
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
@@ -79,7 +87,7 @@
 /* Heading size classes */
 .fl-heading-3xl { font-size: var(--fl-theme-font-size-heading-3xl); }
 .fl-heading-2xl { font-size: var(--fl-theme-font-size-heading-2xl); }
-.fl-heading-xl { font-size: var(--fl-theme-font-size-heading-xl); }
+.fl-heading-xl, .fl-heading-size-2 { font-size: var(--fl-theme-font-size-heading-xl); }
 .fl-heading-lg { font-size: var(--fl-theme-font-size-heading-lg); }
 .fl-heading-md { font-size: var(--fl-theme-font-size-heading-md); }
 .fl-heading-sm { font-size: var(--fl-theme-font-size-heading-sm); }

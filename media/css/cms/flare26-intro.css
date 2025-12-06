@@ -6,10 +6,6 @@
 
 .fl-intro {
     text-align: center;
-    padding: var(--token-spacing-3xl) 0;
-    max-width: 1440px;
-    width: 100%;
-    margin: 0 auto;
     position: relative;
 }
 
@@ -41,8 +37,6 @@
 
 .fl-home-intro {
     position: relative;
-    padding-bottom: var(--token-layout-md);
-    max-width: 1440px;
 }
 
 .fl-home-intro::before {
@@ -112,10 +106,6 @@
 }
 
 @media (--viewport-sm-up) {
-    .fl-intro {
-        padding: var(--token-layout-lg);
-    }
-
     .fl-home-intro::before {
         width: 800px;
         height: 500px;
