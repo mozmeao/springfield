@@ -16,11 +16,11 @@
   </content:heading>
 
   <content:main_card>
-    <{{ card_heading_level }} class="fl-heading">
+    <{{ card_heading_level }} class="fl-card-gallery-heading">
       <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.main_card.icon }}" /></span>
       {{ value.main_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>
-    <div class="fl-body">
+    <div class="fl-card-gallery-body">
       {{ value.main_card.description }}
     </div>
     {% if value.main_card.buttons %}
@@ -47,11 +47,11 @@
   </content:main_card_image>
 
   <content:secondary_card>
-    <{{ card_heading_level }} class="fl-heading">
+    <{{ card_heading_level }} class="fl-card-gallery-heading">
       <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.secondary_card.icon }}" /></span>
       {{ value.secondary_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>
-    <div class="fl-body">
+    <div class="fl-card-gallery-body">
       {{ value.secondary_card.description }}
     </div>
     {% if value.secondary_card.buttons %}
@@ -79,10 +79,10 @@
   </content:secondary_card_image>
 
   <content:callout_card>
-    <{{ card_heading_level }} class="fl-heading">
+    <{{ card_heading_level }} class="fl-gallery-callout-card-heading">
       {{ value.callout_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>
-    <div class="fl-body">
+    <div class="fl-card-gallery-body">
       {{ value.callout_card.description }}
     </div>
   </content:callout_card>
