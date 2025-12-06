@@ -136,6 +136,58 @@ def validate_video_url(value):
     return value
 
 
+class UUIDBlock(blocks.CharBlock):
+    def clean(self, value):
+        return super().clean(value) or str(uuid4())
+
+
+######################################################################
+# Synchronized (not translated) blocks for wagtail-localize.         #
+# These blocks are copied from source to translation, not translated #
+######################################################################
+
+
+class SynchronizedMixin:
+    """
+    Mixin for blocks that should be synchronized (copied) rather than translated.
+
+    When a block inherits from this mixin, wagtail-localize will:
+    1. NOT extract translatable segments from the field
+    2. NOT show the field in the translation interface
+    3. NOT count the field in translation progress metrics
+    4. Automatically copy the value from source to translation
+
+    Use this for technical fields like IDs, slugs, analytics identifiers,
+    URLs, anchors, emails, and phone numbers that should remain the same
+    across all language versions of a page.
+
+    Example:
+        class SynchronizedCharBlock(SynchronizedMixin, blocks.CharBlock):
+            pass
+    """
+
+    def get_translatable_segments(self, value):
+        # Don't extract any translatable segments
+        # The value will be copied during translation via copy_synchronised_fields()
+        return []
+
+
+class SynchronizedUUIDBlock(SynchronizedMixin, UUIDBlock):
+    """
+    A UUIDBlock that is copied from source to translation, not translated.
+
+    This combines the auto-generation behavior of UUIDBlock with the
+    synchronization behavior needed for wagtail-localize.
+    """
+
+    pass
+
+
+######################################################################
+# End synchronized (not translated) blocks for wagtail-localize.     #
+######################################################################
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -176,11 +228,6 @@ class BaseButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class UUIDBlock(blocks.CharBlock):
-    def clean(self, value):
-        return super().clean(value) or str(uuid4())
-
-
 class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
@@ -198,7 +245,7 @@ class BaseButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
-    analytics_id = UUIDBlock(
+    analytics_id = SynchronizedUUIDBlock(
         label="Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
@@ -300,7 +347,7 @@ def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **k
 
 
 class CTASettings(blocks.StructBlock):
-    analytics_id = UUIDBlock(
+    analytics_id = SynchronizedUUIDBlock(
         label="Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
