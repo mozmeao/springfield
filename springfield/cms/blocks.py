@@ -5,10 +5,12 @@
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
+from wagtail.admin.forms.choosers import URLOrAbsolutePathValidator
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail_link_block.blocks import LinkBlock
+from wagtail_link_block.blocks import LinkBlock, URLValue
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -136,6 +138,147 @@ def validate_video_url(value):
     return value
 
 
+class UUIDBlock(blocks.CharBlock):
+    def clean(self, value):
+        return super().clean(value) or str(uuid4())
+
+
+######################################################################
+# Synchronized (not translated) blocks for wagtail-localize.         #
+# These blocks are copied from source to translation, not translated #
+#                                                                    #
+# Note: at this time, there is no way to mark StructBlock fields as  #
+# not translatable. However, there are a couple pull requests that   #
+# attempt to implement this feature in wagtail-localize:             #
+#   https://github.com/wagtail/wagtail-localize/pull/752             #
+#   https://github.com/wagtail/wagtail-localize/pull/882/            #
+# If they are merged and released, we may be able to simplify our    #
+# implementation and not use our Synchronized...Blocks.              #
+# For example, BaseButtonSettings may be able to define              #
+# translatable_blocks (and not use SynchronizedUUIDBlock):           #
+#                                                                    #
+# class BaseButtonSettings(blocks.StructBlock):                      #
+#     ...                                                            #
+#     translatable_blocks = ["theme", "icon", "icon_position"]       #
+#                                                                    #
+######################################################################
+
+
+class SynchronizedMixin:
+    """
+    Mixin for blocks that should be synchronized (copied) rather than translated.
+
+    When a block inherits from this mixin, wagtail-localize will:
+    1. NOT extract translatable segments from the field
+    2. NOT show the field in the translation interface
+    3. NOT count the field in translation progress metrics
+    4. Automatically copy the value from source to translation
+
+    Use this for technical fields like IDs, slugs, analytics identifiers,
+    URLs, anchors, emails, and phone numbers that should remain the same
+    across all language versions of a page.
+
+    Example:
+        class SynchronizedCharBlock(SynchronizedMixin, blocks.CharBlock):
+            pass
+    """
+
+    def get_translatable_segments(self, value):
+        # Don't extract any translatable segments
+        # The value will be copied during translation via copy_synchronised_fields()
+        return []
+
+
+class SynchronizedCharBlock(SynchronizedMixin, blocks.CharBlock):
+    """
+    A CharBlock that is copied from source to translation, not translated.
+
+    Use this for fields like IDs, slugs, or other technical identifiers that
+    should remain the same across all language versions of a page.
+    """
+
+    pass
+
+
+class SynchronizedEmailBlock(SynchronizedMixin, blocks.EmailBlock):
+    """
+    An EmailBlock that is copied from source to translation, not translated.
+
+    Use this for email addresses that should remain the same across all
+    language versions of a page.
+    """
+
+    pass
+
+
+class SynchronizedUUIDBlock(SynchronizedMixin, UUIDBlock):
+    """
+    A UUIDBlock that is copied from source to translation, not translated.
+
+    This combines the auto-generation behavior of UUIDBlock with the
+    synchronization behavior needed for wagtail-localize.
+    """
+
+    pass
+
+
+######################################################################
+# End synchronized (not translated) blocks for wagtail-localize.     #
+######################################################################
+
+
+class SynchronizedDestinationLinkBlock(LinkBlock):
+    """
+    A LinkBlock where the link destination is synchronized (not translated).
+
+    This block is designed for buttons and CTAs where:
+    - The button/link LABEL should be translated (handled by parent block)
+    - The link DESTINATION should be copied, not translated
+
+    Behavior by link type:
+    - Page links: Automatically point to the translated version of the target page
+    - Custom URLs: Copied from source (e.g., https://example.com stays the same)
+    - Anchors: Copied from source (e.g., #contact stays the same)
+    - Emails: Copied from source (e.g., support@mozilla.org stays the same)
+    - Phone numbers: Copied from source (e.g., +1-555-1234 stays the same)
+
+    Note: PageChooserBlock is already handled correctly by wagtail-localize and
+    automatically creates RelatedObjectSegments that link to translated pages.
+    """
+
+    # Override location fields with synchronized versions. Note: the only thing
+    # we override is to change CharBlock to SynchronizedCharBlock, and EmailBlock
+    # to SynchronizedEmailBlock.
+    custom_url = SynchronizedCharBlock(
+        max_length=300,
+        required=False,
+        classname="custom_url_link url_field",
+        validators=[URLOrAbsolutePathValidator()],
+        label=_("Custom URL"),
+    )
+    anchor = SynchronizedCharBlock(
+        max_length=300,
+        required=False,
+        classname="anchor_link",
+        label=_("#"),
+    )
+    email = SynchronizedEmailBlock(required=False)
+    phone = SynchronizedCharBlock(
+        max_length=30,
+        required=False,
+        classname="phone_link",
+        label=_("Phone"),
+    )
+
+    class Meta:
+        label = None
+        value_class = URLValue
+        icon = "link"
+        form_classname = "link_block"
+        form_template = "wagtailadmin/block_forms/link_block.html"
+        template = "blocks/link_block.html"
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -176,11 +319,6 @@ class BaseButtonValue(blocks.StructValue):
         return classes.get(self.get("settings", {}).get("theme"), "")
 
 
-class UUIDBlock(blocks.CharBlock):
-    def clean(self, value):
-        return super().clean(value) or str(uuid4())
-
-
 class BaseButtonSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
@@ -198,7 +336,7 @@ class BaseButtonSettings(blocks.StructBlock):
         label="Icon Position",
         inline_form=True,
     )
-    analytics_id = UUIDBlock(
+    analytics_id = SynchronizedUUIDBlock(
         label="Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
@@ -215,7 +353,7 @@ class BaseButtonSettings(blocks.StructBlock):
 class ButtonBlock(blocks.StructBlock):
     settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
-    link = LinkBlock()
+    link = SynchronizedDestinationLinkBlock()
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -300,7 +438,7 @@ def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **k
 
 
 class CTASettings(blocks.StructBlock):
-    analytics_id = UUIDBlock(
+    analytics_id = SynchronizedUUIDBlock(
         label="Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
@@ -317,7 +455,7 @@ class CTASettings(blocks.StructBlock):
 class CTABlock(blocks.StructBlock):
     settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
-    link = LinkBlock()
+    link = SynchronizedDestinationLinkBlock()
 
     class Meta:
         label = "Link"
