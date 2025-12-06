@@ -212,7 +212,7 @@ class SynchronizedUUIDBlock(SynchronizedMixin, UUIDBlock):
 ######################################################################
 
 
-class NonTranslatableLinkBlock(LinkBlock):
+class SynchronizedDestinationLinkBlock(LinkBlock):
     """
     A LinkBlock where the link destination is synchronized (not translated).
 
@@ -338,7 +338,7 @@ class BaseButtonSettings(blocks.StructBlock):
 class ButtonBlock(blocks.StructBlock):
     settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
-    link = NonTranslatableLinkBlock()
+    link = SynchronizedDestinationLinkBlock()
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -440,7 +440,7 @@ class CTASettings(blocks.StructBlock):
 class CTABlock(blocks.StructBlock):
     settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
-    link = NonTranslatableLinkBlock()
+    link = SynchronizedDestinationLinkBlock()
 
     class Meta:
         label = "Link"
