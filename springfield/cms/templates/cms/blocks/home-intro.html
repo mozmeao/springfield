@@ -7,6 +7,8 @@
 {% set block_position = block_position or "home_intro" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
+<section class="fl-section">
+  <div class="fl-section-container">
 <div class="fl-home-intro">
   <include:intro>
     <content:heading>
@@ -24,3 +26,5 @@
     </content:actions>
   </include:intro>
 </div>
+</div>
+</section>

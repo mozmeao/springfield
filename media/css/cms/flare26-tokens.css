@@ -76,6 +76,7 @@ Static values extracted from Figma that do not change based on context.
     --token-spacing-3xl: 40px;
 
     /* Layout variables */
+    --token-layout-3xs: 24px;
     --token-layout-2xs: 32px;
     --token-layout-xs: 48px;
     --token-layout-sm: 64px;
