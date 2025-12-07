@@ -84,12 +84,9 @@
     height: 1em;
     background-color: currentColor;
     vertical-align: middle;
-    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
-    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: url('/media/img/firefox/flare/2026/icons/arrow-forward.svg') no-repeat center / 1em 1em;
     mask-size: contain;
     margin-left: var(--token-spacing-xs);
-
-    --icon-src: url('/media/img/firefox/flare/2026/icons/arrow-forward.svg');
 }
 
 .fl-home-intro .fl-superheading i,
@@ -134,15 +131,3 @@
         --banner-kit-width: 1050px;
     }
 }
-
-/* @media (--viewport-lg-up) {
-    .fl-home-intro::before {
-        left: -70px;
-    }
-}
-
-@media (--viewport-xl-up) {
-    .fl-home-intro::before {
-        left: -100px;
-    }
-} */
