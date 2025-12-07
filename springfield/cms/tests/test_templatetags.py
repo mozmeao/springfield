@@ -48,8 +48,7 @@ def test_remove_tags():
         ),
         (
             "https://example.mozilla.org/page?query=something#hash",
-            "https://example.mozilla.org/page"
-            "?query=%5B%27something%27%5D&utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign#hash",
+            "https://example.mozilla.org/page?query=something&utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign#hash",
         ),
         (
             "https://example.mozillafoundation.org/page",
@@ -70,6 +69,10 @@ def test_remove_tags():
         ("https://www.firefox.com/page", "https://www.firefox.com/page"),
         ("www.firefox.com/page", "www.firefox.com/page"),
         ("firefox.com/page", "firefox.com/page"),
+        (
+            "https://mozillafoundation.org/?form=25-wnp-eoy-en-CA",
+            "https://mozillafoundation.org/?form=25-wnp-eoy-en-CA&utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
     ],
 )
 def test_add_utm_parameters(url, expected_url):
