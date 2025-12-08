@@ -22,41 +22,38 @@ html {
 body {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
-    color: var(--fl-theme-color-text-primary);
-    background: var(--fl-theme-surface-page);
+    color: var(--token-color-black-4);
+    background: var(--token-color-white);
     width: 100%;
-    max-width: var(--token-widths-viewport-wrapper-screen-2xl);
+    max-width: var(--token-width-desktop-layout);
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--fl-theme-font-weight-headline);
-    margin-bottom: var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
+    margin-bottom: var(--token-spacing-lg);
 }
 
-h1 { font-size: var(--fl-theme-font-size-h1); }
-h2 { font-size: var(--fl-theme-font-size-h2); }
-h3 { font-size: var(--fl-theme-font-size-h3); }
-h4 { font-size: var(--fl-theme-font-size-h4); }
-h5 { font-size: var(--fl-theme-font-size-h5); }
-h6 { font-size: var(--fl-theme-font-size-h6); }
+h1 { font-size: var(--fl-theme-font-size-heading-xl); }
+h2 { font-size: var(--fl-theme-font-size-heading-md); }
+h3 { font-size: var(--fl-theme-font-size-heading-sm); }
+h4 { font-size: var(--fl-theme-font-size-heading-xs); }
+h5 { font-size: var(--fl-theme-font-size-heading-xs); }
+h6 { font-size: var(--fl-theme-font-size-heading-xs); }
 
 p {
-    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--token-spacing-lg);
     line-height: 1.6;
 }
 
 a:link, a:visited {
-    color: var(--fl-theme-color-link);
+    color: var(--token-color-link-purple);
+    text-decoration: underline;
     transition: color var(--token-transition-fast);
 }
 
-a:link {
-    text-decoration: underline;
-}
-
 a:visited {
-    color: var(--fl-theme-color-link-visited);
+    color: var(--token-color-link-purple);
 }
 
 a:hover, a:active, a:focus {
@@ -64,7 +61,7 @@ a:hover, a:active, a:focus {
 }
 
 img, svg {
-    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--token-spacing-lg);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,8 +71,8 @@ img, svg {
 }
 
 hr {
-    border-top: 1px solid var(--token-neutrals-grey-3);
-    margin: var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
+    border-top: 1px solid var(--token-color-soft-purple);
+    margin: var(--token-spacing-lg) 0;
 }
 
 /* Remove section border, since it was just used to provide a clean
@@ -85,33 +82,33 @@ section {
 }
 
 ul, ol {
-    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
+    margin: 0 0 var(--token-spacing-lg) var(--token-spacing-lg);
 }
 
 li {
-    margin: 0 0 var(--fl-theme-grids-spacing-interior-spacing-x1)rem 0;
+    margin: 0 0 var(--token-spacing-lg);
 }
 
 /* Override base button styles with theme variables and relax constraints */
 button, [role="button"] {
-    background: var(--token-blue-button);
-    color: var(--token-neutrals-white);
+    background: var(--token-color-light-purple);
+    color: var(--token-color-white);
     border-radius: var(--token-border-radius-lg);
     width: auto;
     height: auto;
 }
 
 button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
-    background: var(--token-blue-button);
-    color: var(--token-neutrals-white);
+    background: var(--token-color-light-purple);
+    color: var(--token-color-white);
 }
 
 button:hover, [role="button"]:hover {
-    background: var(--token-blue-dark-blue);
-    color: var(--token-neutrals-white);
+    background: var(--token-color-link-purple);
+    color: var(--token-color-white);
 }
 
 /* Use theme color for table borders */
 th, td {
-    border-color: var(--token-neutrals-charcoal);
+    border-color: var(--token-color-black-4);
 }
