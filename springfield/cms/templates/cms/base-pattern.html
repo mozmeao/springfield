@@ -8,6 +8,7 @@
 
 {# Avoid referencing `page` which isn't provided by the pattern library #}
 {% block page_title %}Pattern preview{% endblock %}
+{% block body_class %}{% if pattern_template_name and 'homepage/homepage-2026' in pattern_template_name %}fl-home-body{% endif %}{% endblock %}
 {% block flare_header %}{% endblock %}
 
 {% block page_css %}
