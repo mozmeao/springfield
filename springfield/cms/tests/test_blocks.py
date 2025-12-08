@@ -356,6 +356,11 @@ def test_intro_block(index_page, placeholder_images, rf):
                 video_div = intro_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media_value)
 
+        if video := intro["value"].get("video"):
+            video = video[0]
+            video_div = intro_element.find("div", class_="fl-video")
+            assert_video_attributes(video_div, video)
+
 
 def test_subscription_block(index_page, rf):
     subscriptions = get_subscription_variants()
