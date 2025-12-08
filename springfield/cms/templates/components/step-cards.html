@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-section fl-section-mobile fl-card-list">
+  <div class="fl-section-container">
+    {% if contents.header %}
+      <div class="fl-card-list-header">
+        {{ contents.header }}
+      </div>
+    {% endif %}
+
+    <div class="fl-grid fl-illustration-cards-reverse">
+      {% if contents.cards %}
+        {{ contents.cards }}
+      {% endif %}
+    </div>
+  </div>
+</section>

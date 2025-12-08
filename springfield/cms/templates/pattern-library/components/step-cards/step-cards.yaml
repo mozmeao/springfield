@@ -1,0 +1,16 @@
+name: "Step Cards Section"
+context:
+  heading: "Get Started in 3 Easy Steps"
+  cards:
+    - image: "/media/img/firefox/flare/placeholder.png"
+      superheading: "Step 01"
+      heading: "Download"
+      body: "Get Firefox for your platform."
+    - image: "/media/img/firefox/flare/placeholder.png"
+      superheading: "Step 02"
+      heading: "Install"
+      body: "Follow the simple installation process."
+    - image: "/media/img/firefox/flare/placeholder.png"
+      superheading: "Step 03"
+      heading: "Enjoy"
+      body: "Start browsing with Firefox."
