@@ -5,6 +5,43 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    /* eslint-disable-next-line no-console */
-    console.log('flare26.es6.js loaded');
+    initCarousel();
 });
+
+function initCarousel() {
+    const carouselItems = document.querySelectorAll(
+        '.fl-carousel-control-item'
+    );
+
+    carouselItems.forEach((item) => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const targetImageId = item.getAttribute('aria-controls');
+            if (!targetImageId) {
+                return;
+            }
+
+            const targetImage = document.getElementById(targetImageId);
+            if (!targetImage) {
+                return;
+            }
+
+            const allItems = document.querySelectorAll(
+                '.fl-carousel-control-item'
+            );
+            const allImages = document.querySelectorAll('.fl-carousel-image');
+
+            allItems.forEach((controlItem) => {
+                controlItem.classList.remove('active');
+            });
+
+            allImages.forEach((image) => {
+                image.classList.remove('active');
+            });
+
+            item.classList.add('active');
+            targetImage.classList.add('active');
+        });
+    });
+}

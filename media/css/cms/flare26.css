@@ -40,6 +40,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-card.css' layer(components);
 @import 'flare26-section.css' layer(components);
 @import 'flare26-intro.css' layer(components);
+@import 'flare26-carousel.css' layer(components);
 @import 'flare26-showcase.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
