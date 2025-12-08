@@ -1,0 +1,118 @@
+name: "2026 Homepage"
+context:
+  intro:
+    heading:
+      level: h1
+      heading_size: fl-heading-size-1
+      heading_text: "This is the internet, on your terms"
+      superheading_text: '<i>New</i> <a href="/en-US/whatsnew/">See the latest</a>'
+      subheading_text: "Fast, customizable and secure, Firefox lets you browse how you like, when you like. We're built by a people-first organization that answers to you — not billionaires."
+      subheading_size: fl-subheading-3
+      alignment_class: ""
+    buttons:
+      - label: "Get Firefox"
+        link: "/en-US/whatsnew/143/"
+        theme_class: "button-ghost"
+        external: false
+        icon_name: ""
+        icon_position: "right"
+
+  sticker_cards:
+    grid_four: true
+    cards:
+      - sticker: "/media/img/firefox/flare/2026/homepage/sticker1.width-400.png"
+        expand_link: false
+        heading: "Chat with your favorite AI"
+        body: '<p data-block-key="dkwjl">Access AI chatbots directly from the sidebar, no tab-switching required.</p>'
+      - sticker: "/media/img/firefox/flare/2026/homepage/sticker2.width-400.png"
+        expand_link: false
+        heading: "Privacy you can see and control"
+        body: '<p data-block-key="dkwjl">We block trackers automatically and give you control over what you share.</p>'
+      - sticker: "/media/img/firefox/flare/2026/homepage/sticker3.width-400.png"
+        expand_link: false
+        heading: "Work smarter,  not harder"
+        body: '<p data-block-key="dkwjl">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing and more.</p>'
+      - sticker: "/media/img/firefox/flare/2026/homepage/sticker4.width-400.png"
+        expand_link: false
+        heading: "Your browser answers to you"
+        body: '<p data-block-key="dkwjl">Independent from day one. No billionaire overlords. No shareholders demanding your data.</p>'
+
+  carousel:
+    has_kit: true
+    heading:
+      level: h2
+      heading_size: fl-heading-size-2
+      heading_text: "Run free when you switch to Firefox"
+      superheading_text: ""
+      subheading_text: "Switching is fast. We'll import your bookmarks, passwords, autofill data and browsing history — automatically. No re-learning required. No data left behind."
+      subheading_size: fl-subheading-4
+      alignment_class: ""
+    slides:
+      - headline: "Download Firefox"
+        image:
+          url: "/media/img/firefox/flare/2026/homepage/Group_1597882542.width-800.png"
+          alt: "Group 1597882542"
+      - headline: "Select what content you want to bring with you"
+        image:
+          url: "/media/img/firefox/flare/2026/homepage/link-previews.width-800.png"
+          alt: "link-previews"
+      - headline: "Click import"
+        image:
+          url: "/media/img/firefox/flare/2026/homepage/tab-groups.width-800.png"
+          alt: "tab-groups"
+
+  showcase_1:
+    layout: expanded
+    heading:
+      level: h2
+      heading_size: ""
+      heading_text: "Heading"
+      superheading_text: ""
+      subheading_text: ""
+      subheading_size: ""
+      alignment_class: ""
+    desktop_image:
+      url: "/media/img/firefox/flare/2026/homepage/kit-browser-preview.width-200.png"
+      alt: "kit-browser-preview"
+      srcset: "/media/img/firefox/flare/2026/homepage/kit-browser-preview.width-200.png 200w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-400.png 400w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-600.png 600w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-800.png 800w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-1000.png 938w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-1200.png 938w, /media/img/firefox/flare/2026/homepage/kit-browser-preview.width-1400.png 938w"
+      sizes: "{{ sizes }}"
+      width: 938
+      height: 118
+    mobile_image:
+      url: "/media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-200.png"
+      alt: "iPhone- Hybrid Transp"
+      srcset: "/media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-200.png 200w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-400.png 245w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-600.png 245w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-800.png 245w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-1000.png 245w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-1200.png 245w, /media/img/firefox/flare/2026/homepage/iPhone-_Hybrid_Transp.width-1400.png 245w"
+      sizes: "{{ sizes }}"
+      width: 245
+      height: 426
+    caption:
+      title: "Take your tabs, history and passwords wherever you go."
+      description: '<p data-block-key="xhjh5">Sign in once, sync everywhere. Your tabs, bookmarks, passwords and history follow you from desktop to phone to tablet — encrypted and private. Send pages between devices with one tap, or pick up mid-scroll right where you left off.</p>'
+
+  showcase_2:
+    layout: expanded
+    heading:
+      level: h2
+      heading_size: ""
+      heading_text: "Made for 8 billion people.  Not 8 billionaires."
+      superheading_text: ""
+      subheading_text: ""
+      subheading_size: ""
+      alignment_class: ""
+    desktop_image:
+      url: "/media/img/firefox/flare/2026/homepage/Frame_2147225456.width-200.png"
+      alt: "Frame 2147225456"
+      srcset: "/media/img/firefox/flare/2026/homepage/Frame_2147225456.width-200.png 200w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-400.png 400w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-600.png 600w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-800.png 800w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-1000.png 952w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-1200.png 952w, /media/img/firefox/flare/2026/homepage/Frame_2147225456.width-1400.png 952w"
+      sizes: "{{ sizes }}"
+      width: 952
+      height: 101
+    mobile_image:
+      url: "/media/img/firefox/flare/2026/homepage/Phone_Container.width-200.png"
+      alt: "Phone Container"
+      srcset: "/media/img/firefox/flare/2026/homepage/Phone_Container.width-200.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-400.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-600.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-800.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-1000.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-1200.png 171w, /media/img/firefox/flare/2026/homepage/Phone_Container.width-1400.png 171w"
+      sizes: "{{ sizes }}"
+      width: 171
+      height: 368
+    caption:
+      title: ""
+      description: '<p data-block-key="xhjh5">Make Firefox your own, from your language to your layout, and leave big tech behind.</p>'
