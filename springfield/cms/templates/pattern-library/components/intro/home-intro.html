@@ -1,0 +1,50 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-home-intro">
+  <include:intro>
+    <content:heading>
+      {% if preheading_buttons %}
+        {% for button in preheading_buttons %}
+          <include:tag-button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            tag="{{ button.tag }}"
+            theme_class="{{ button.theme_class }}"
+            external="{{ button.external }}"
+            icon_name="{{ button.icon_name }}"
+            icon_position="{{ button.icon_position }}"
+          />
+        {% endfor %}
+      {% endif %}
+      <include:heading
+        level="{{ heading.level }}"
+        heading_size="{{ heading.heading_size }}"
+        heading_text="{{ heading.heading_text }}"
+        superheading_text="{{ heading.superheading_text }}"
+        subheading_text="{{ heading.subheading_text }}"
+        subheading_size="{{ heading.subheading_size }}"
+        alignment_class="{{ heading.alignment_class }}"
+      />
+    </content:heading>
+    <content:actions>
+      {% if buttons %}
+        <div class="fl-buttons">
+          {% for button in buttons %}
+            <include:button
+              label="{{ button.label }}"
+              link="{{ button.link }}"
+              theme_class="{{ button.theme_class }}"
+              external="{{ button.external }}"
+              icon_name="{{ button.icon_name }}"
+              icon_position="{{ button.icon_position }}"
+            />
+          {% endfor %}
+        </div>
+      {% endif %}
+    </content:actions>
+  </include:intro>
+</div>
