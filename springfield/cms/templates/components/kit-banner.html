@@ -1,0 +1,32 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props theme="" #}
+{# TODO: migration to replace 'filled-'' #}
+{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail"] #}
+
+<div class="fl-banner-container">
+  {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
+  <div
+    class="
+      fl-banner fl-banner-kit fl-banner-purple
+      {% if theme %}fl-banner-kit-{{ theme }}{% endif %}"
+    aria-labelledby="fl-banner-heading">
+    <div class="fl-banner-content">
+      <div class="fl-banner-content-inner">
+        {% if contents.heading %}
+          {{ contents.heading }}
+        {% endif %}
+
+        {% if contents.actions %}
+          <div class="fl-buttons">
+            {{ contents.actions }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

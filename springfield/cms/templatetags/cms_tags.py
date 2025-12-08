@@ -64,7 +64,7 @@ def add_utm_parameters(context: dict, value: str) -> str:
             query_string = parsed_url.query
             query = parse_qs(query_string)
             query.update(utm_parameters)
-            new_query_string = urlencode(query)
+            new_query_string = urlencode(query, doseq=True)
             return urlunparse(parsed_url._replace(query=new_query_string))
     return value
 
