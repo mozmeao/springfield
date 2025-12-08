@@ -1,0 +1,9 @@
+name: "Sticker Card 2026"
+context:
+  cards:
+    - note: "Sticker Card"
+      sticker: "/media/img/firefox/flare/privacy-sticker.png"
+      expand_link: false
+      superheading_text: "Privacy"
+      heading: "Privacy that puts you in control."
+      body: "Firefox doesn’t exploit your data and is backed by a people-first foundation."
