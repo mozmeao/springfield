@@ -1,0 +1,11 @@
+name: "Step Card"
+context:
+  image: "/media/img/firefox/flare/placeholder.png"
+  superheading: "Step 01"
+  heading: "First Step"
+  body: "Step cards are used to show sequential processes or instructions with numbered steps."
+  expand_link: false
+  buttons:
+    - label: "Continue"
+      link: "/"
+      theme_class: ""
