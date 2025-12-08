@@ -1,0 +1,64 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<!doctype html>
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}" {% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}" {% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}" {% endif %} {% block html_attrs %}{% endblock %}>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex,follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_meta %}{% endblock %}
+
+    <title>{% block page_title %}{{ page.title if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
+
+    {% block site_css %}
+    {% if settings.FLARECSS_LEGACY_MODE %}
+    {{ css_bundle('flare26_base') }}
+    {% else %}
+    {{ css_bundle('flare26_base', target_old_ie=True) }}
+    {{ css_bundle('flare26') }}
+    {% endif %}
+    {% endblock %}
+
+    {% block page_css %}{% endblock %}
+
+    {# site bundle must load in head before analytics #}
+    {{ js_bundle('site') }}
+    {% block google_analytics %}
+    {% if settings.GTM_CONTAINER_ID %}
+    {{ js_bundle('gtm-snippet') }}
+    {% endif %}
+    {% endblock %}
+  </head>
+
+  <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+
+    {% block flare_header %}
+    <include:flare26-header />
+    {% endblock %}
+
+    {% block content %}
+    <main class="fl26-content">
+      <div class="fl26-content-inner">
+        <h1>{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h1>
+      </div>
+    </main>
+    {% endblock %}
+
+    {% block flare_footer %}
+    <include:flare26-footer />
+    {% endblock %}
+
+    {% block site_js %}
+    {{ js_bundle('lib') }}
+    {{ js_bundle('data') }}
+    {{ js_bundle('firefox-cms-flare26') }}
+    {{ js_bundle('ui-tour-buttons') }}
+    {% endblock %}
+  </body>
+
+</html>
