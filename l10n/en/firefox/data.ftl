@@ -62,7 +62,7 @@ data-more-about-ai-chatbots = More about AI chatbots
 # Advertising section
 
 data-ads-totally-up-to-you = Ads? Totally up to you.
-data-firefox-has-optional = { -brand-name-firefox } has optional ads on the homepage to support { -brand-name-firefox } development and { -brand-name-mozilla }’s mission. You can turn them off if you like (and you're always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in { -brand-name-firefox } use a privacy-first architecture which is designed to prevent advertisers from learning who you are.
+data-firefox-has-optional = { -brand-name-firefox } has optional ads on the homepage to support { -brand-name-firefox } development and { -brand-name-mozilla }’s mission. You can turn them off if you like (and you’re always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in { -brand-name-firefox } use a privacy-first architecture which is designed to prevent advertisers from learning who you are.
 data-and-its-worth = And it’s worth repeating: we never sell your personal data to any advertiser. Want to go further? Go ahead and turn off ads across the web. { -brand-name-firefox } delivers more ad blocker options than any other browser because we support Manifest v2 browser extensions.
 
 # link to https://support.mozilla.org/kb/sponsor-privacy
