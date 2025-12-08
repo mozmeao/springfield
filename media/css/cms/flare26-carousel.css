@@ -1,0 +1,146 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-carousel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--token-spacing-2xl);
+}
+
+.fl-carousel-heading {
+    text-align: center;
+    max-width: var(--token-width-desktop-content);
+}
+
+.fl-carousel.fl-carousel-has-kit {
+    gap: calc(var(--token-spacing-2xl) + 100px);
+}
+
+.fl-carousel-has-kit .fl-carousel-slides {
+    position: relative;
+}
+
+.fl-carousel-has-kit .fl-carousel-slides::before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 200px;
+    height: 100px;
+    top: -100px;
+    left: calc(50% - 100px);
+    background: url("/media/img/firefox/flare/fox-brand.svg");
+    background-size: cover;
+}
+
+.fl-carousel-slides {
+    background: var(--token-gradient-purple);
+    border-radius: var(--token-border-radius-md);
+    padding: var(--token-layout-xs) var(--token-layout-xs) 0;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.fl-carousel-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    counter-reset: items;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 var(--token-spacing-md) 0;
+}
+
+.fl-carousel-control-item {
+    display: flex;
+    flex-direction: row;
+    gap: var(--token-spacing-md);
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: fit-content;
+    max-width: 100%;
+    cursor: pointer;
+}
+
+.fl-carousel-control-item-text {
+    min-width: 0;
+    flex: none;
+    max-width: 200px;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+}
+
+.fl-carousel-control-item::before {
+    counter-increment: items;
+    content: counter(items, decimal-leading-zero);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background-color: var(--token-color-dark-purple-3);
+    border-radius: 50%;
+    font-weight: var(--token-font-weight-bold);
+    color: var(--token-color-white);
+}
+
+.fl-carousel-control-item.active::before {
+    background-color: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+}
+
+.fl-carousel-images {
+    background-color: var(--token-color-white);
+    border-top-left-radius: var(--token-border-radius-md);
+    border-top-right-radius: var(--token-border-radius-md);
+    padding: var(--token-spacing-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: var(--token-width-desktop-content);
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    margin: 0 auto;
+    position: relative;
+}
+
+.fl-carousel-image {
+    position: absolute;
+    inset: var(--token-spacing-lg);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.fl-carousel-image.active {
+    display: flex;
+}
+
+.fl-carousel-image img {
+    margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (--viewport-md-up) {
+    .fl-carousel-control {
+        flex-direction: row;
+        gap: var(--token-spacing-3xl);
+    }
+
+    .fl-carousel-control-item {
+        width: auto;
+        flex: 1 1 0;
+    }
+}
