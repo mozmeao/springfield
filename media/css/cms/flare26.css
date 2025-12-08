@@ -1,0 +1,58 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Flare 2026 CSS entry point that loads all layers and defines layer order
+
+This stylesheet targets evergreen browsers and Safari 15.6+.
+
+Safari 15.6 doesn't support several modern CSS features, notably:
+
+- Nested CSS rules (not supported until Safari 16.5+)
+- Color functions like light-dark() (not supported until Safari 17.5+)
+
+For a full list of unsupported CSS features in Safari 15.6, see:
+
+https://caniuse.com/?compare=safari+15.6&compareCats=CSS
+
+For more information about browser support targets, see:
+
+https://mozmeao.github.io/platform-docs/browser-support/
+
+===================================================================== */
+
+/* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
+
+@import 'flare26-base.css' layer(base);
+@import 'flare26-tokens.css' layer(theme);
+@import 'flare26-theme.css' layer(theme);
+@import 'flare26-defaults.css' layer(defaults);
+@import 'flare26-template.css' layer(template);
+
+@import 'flare26-homepage.css' layer(page);
+
+@import 'flare26-icon.css' layer(components);
+@import 'flare26-typography.css' layer(components);
+@import 'flare26-section.css' layer(components);
+
+@import 'flare26-utilities.css' layer(utilities);
+@import 'flare26-overrides.css' layer(overrides);
+
+/* Layer order */
+@layer base, theme, defaults, template, page, components, utilities, overrides;
+
+/* Fallback for browsers that don't support CSS layers
+IE11 and below don't support @supports, so the base CSS is also
+included via a <link> tag in a conditional comment */
+@supports not (all: revert-layer) {
+    /* Nested @imports are not valid CSS, but these are inlined by
+    a custom webpack loader. */
+    @import 'flare26-base.css';
+
+    /* Icons and utility classes are useful in the legacy stylesheet as well */
+    @import 'flare26-icon.css';
+    @import 'flare26-utilities.css';
+}
