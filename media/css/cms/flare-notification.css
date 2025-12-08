@@ -73,11 +73,12 @@
 
 .fl-notification-orange {
     --notification-bg: var(--fl-theme-accent-orange-bg);
-    --notification-color: var(--fl-theme-color-text-on-accent);
+    --notification-color: var(--token-neutrals-charcoal);
 }
 
 .fl-notification-yellow {
     --notification-bg: var(--token-yellow-yellow);
+    --notification-color: var(--token-neutrals-charcoal);
 }
 
 .fl-notification-black {
