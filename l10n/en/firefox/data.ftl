@@ -51,7 +51,7 @@ data-more-about-total = More about Total Cookie Protection
 # Control Your Data section
 
 data-youre-in-control = You’re in control.
-data-the-best-way = The best way to keep your data safe is to keep it on your device. { -brand-name-firefox } features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in { -brand-name-firefox }, { -brand-name-mozilla } has no access to your chats—they remain between you and the chatbot provider.
+data-the-best-way = The best way to keep your data safe is to keep it on your device. { -brand-name-firefox } features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in { -brand-name-firefox }, { -brand-name-mozilla } has no access to your chats — they remain between you and the chatbot provider.
 
 # link to https://support.mozilla.org/kb/on-device-models
 data-more-about-on-device = More about on-device AI models
