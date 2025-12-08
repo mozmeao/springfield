@@ -221,7 +221,15 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         });
     }
 
+    function loadScript() {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
     function initVideoPlayers() {
+        loadScript();
         const videoButtons = document.querySelectorAll('.js-video-play');
 
         videoButtons.forEach(function (button) {
@@ -236,14 +244,25 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                 if (videoType === 'youtube') {
                     const videoId = button.getAttribute('data-video-id');
 
-                    if (!videoId) return;
+                    if (!videoId || typeof window.YT === 'undefined') return;
 
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
-                    iframe.title = button.getAttribute('aria-label') || 'Video';
-                    iframe.allowFullscreen = true;
-                    button.remove();
-                    container.appendChild(iframe);
+                    new window.YT.Player(button, {
+                        width: 640,
+                        height: 360,
+                        videoId: videoId,
+                        playerVars: {
+                            modestbranding: 1, // hide YouTube logo.
+                            rel: 0, // do not show related videos on end.
+                            cc_load_policy: 1 // show captions.
+                        },
+                        events: {
+                            onReady: onPlayerReady
+                        }
+                    });
+
+                    function onPlayerReady(event) {
+                        event.target.playVideo();
+                    }
                 } else if (videoType === 'cdn') {
                     const videoUrl = button.getAttribute('data-video-url');
                     const posterUrl = button.getAttribute('data-video-poster');
