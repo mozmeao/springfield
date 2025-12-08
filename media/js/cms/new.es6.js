@@ -221,15 +221,62 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         });
     }
 
-    function loadScript() {
+    function loadScript(button) {
         const tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        window.onYouTubeIframeAPIReady = function () {
+            // Play the video only once the API is ready.
+            playVideo(button);
+        };
+    }
+
+    function isScriptLoaded() {
+        return document.querySelector(
+            'script[src="https://www.youtube.com/iframe_api"]'
+        )
+            ? true
+            : false;
+    }
+
+    function initVideoPlayer(button) {
+        // check to see if you youtube API is loaded before trying to play the video.
+        if (!isScriptLoaded()) {
+            loadScript(button);
+        } else {
+            playVideo(button);
+        }
+    }
+
+    function playVideo(videoLink) {
+        // return early if youtube API fails to load or is blocked.
+        if (typeof window.YT === 'undefined') {
+            return;
+        }
+
+        const videoId = videoLink.getAttribute('data-video-id');
+        new window.YT.Player(videoLink, {
+            width: 640,
+            height: 360,
+            videoId: videoId,
+            playerVars: {
+                modestbranding: 1, // hide YouTube logo.
+                rel: 0, // do not show related videos on end.
+                cc_load_policy: 1 // show captions.
+            },
+            events: {
+                onReady: onPlayerReady
+            }
+        });
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
     }
 
     function initVideoPlayers() {
-        loadScript();
         const videoButtons = document.querySelectorAll('.js-video-play');
 
         videoButtons.forEach(function (button) {
@@ -242,27 +289,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                 if (!container) return;
 
                 if (videoType === 'youtube') {
-                    const videoId = button.getAttribute('data-video-id');
-
-                    if (!videoId || typeof window.YT === 'undefined') return;
-
-                    new window.YT.Player(button, {
-                        width: 640,
-                        height: 360,
-                        videoId: videoId,
-                        playerVars: {
-                            modestbranding: 1, // hide YouTube logo.
-                            rel: 0, // do not show related videos on end.
-                            cc_load_policy: 1 // show captions.
-                        },
-                        events: {
-                            onReady: onPlayerReady
-                        }
-                    });
-
-                    function onPlayerReady(event) {
-                        event.target.playVideo();
-                    }
+                    initVideoPlayer(button);
                 } else if (videoType === 'cdn') {
                     const videoUrl = button.getAttribute('data-video-url');
                     const posterUrl = button.getAttribute('data-video-poster');
