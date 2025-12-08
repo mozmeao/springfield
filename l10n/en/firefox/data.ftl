@@ -12,6 +12,8 @@ data-page-title = How { -brand-name-firefox } Protects Your Data
 
 data-page-desc = { -brand-name-firefox } is built with privacy by default. Data is never sold, and users have the most choice to turn off what annoys them.
 
+# Introduction section
+
 data-privacy-and-security = Privacy &amp; Security
 data-how-firefox-protects = How { -brand-name-firefox } Protects Your Data
 data-heres-the-big-picture = Here’s the big picture: { -brand-name-firefox } is built with privacy and protection as the default. We don’t know that much about you. What little we do know, we never sell. And we give you the most choice of anything on the internet to turn off the stuff that annoys you.
@@ -25,7 +27,7 @@ data-control-your-data = Control Your Data
 data-advertising = Advertising
 data-built-different = Built Different
 
-# Privacy Online section
+# Privacy Online section (anchor)
 
 data-your-privacy-always = Your privacy always comes first.
 
@@ -37,7 +39,7 @@ data-for-example-when-you-sync = For example, when you sync your history or book
 # link to https://firefox-source-docs.mozilla.org/contributing/data-collection.html
 data-see-firefoxs-data-collection = See { -brand-name-firefox }’s data collection guidelines
 
-# Tracking Protection section
+# Tracking Protection section (anchor)
 
 data-youre-automatically = You’re automatically protected.
 data-firefoxs-enhanced-tracking-protection = { -brand-name-firefox }’s Enhanced Tracking Protection (ETP) and Total Cookie Protection (TCP) work together to protect you from the tracking tech that follows you from site to site, most often without your knowledge or consent. { -brand-name-firefox } cuts off cross-site tracking right at the source by locking cookies to the site where they were created. So you stay private without needing to change a single setting.
@@ -48,7 +50,7 @@ data-more-about-enhanced = More about Enhanced Tracking Protection
 # link to https://support.mozilla.org/kb/introducing-total-cookie-protection-standard-mode
 data-more-about-total = More about Total Cookie Protection
 
-# Control Your Data section
+# Control Your Data section (anchor)
 
 data-youre-in-control = You’re in control.
 data-the-best-way = The best way to keep your data safe is to keep it on your device. { -brand-name-firefox } features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in { -brand-name-firefox }, { -brand-name-mozilla } has no access to your chats — they remain between you and the chatbot provider.
@@ -59,7 +61,7 @@ data-more-about-on-device = More about on-device AI models
 # link to https://support.mozilla.org/kb/ai-chatbot
 data-more-about-ai-chatbots = More about AI chatbots
 
-# Advertising section
+# Advertising section (anchor)
 
 data-ads-totally-up-to-you = Ads? Totally up to you.
 data-firefox-has-optional = { -brand-name-firefox } has optional ads on the homepage to support { -brand-name-firefox } development and { -brand-name-mozilla }’s mission. You can turn them off if you like (and you’re always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in { -brand-name-firefox } use a privacy-first architecture which is designed to prevent advertisers from learning who you are.
@@ -68,13 +70,15 @@ data-and-its-worth = And it’s worth repeating: we never sell your personal dat
 # link to https://support.mozilla.org/kb/sponsor-privacy
 data-more-about-ads = More about ads and privacy
 
-# Built Different section
+# Built Different section (anchor)
 
 data-privacy-is = Privacy is a team effort
 data-we-build-firefox-together = We build { -brand-name-firefox } together with contributors and software developers around the world in the service of a safe, accessible, and proudly public internet. { -brand-name-firefox } isn’t just a clone of another popular browser – it runs on { -brand-name-gecko }, { -brand-name-mozilla }’s independent and open source browser engine. In addition to giving { -brand-name-firefox } the freedom to do things differently, { -brand-name-gecko } helps advance web standards and influence public policy.
 
 # link to firefox-source-docs.mozilla.org/overview/gecko.html
 data-get-to-know = Get to know { -brand-name-gecko }
+
+# Closing section
 
 data-private-browsing = Private browsing that goes above and beyond.
 data-and-when-it = And when it comes to private browsing, { -brand-name-firefox }’s Private Window mode goes way past most browsers. In addition to making sure everything you do in a Private Window is deleted when you close it, { -brand-name-firefox } blocks tracker scripts and content by default, keeps your unique device identity private with advanced fingerprinting protections, and proactively tells websites not to sell or share your data.
