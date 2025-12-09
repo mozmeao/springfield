@@ -61,6 +61,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-charcoal);
 
     /* Template / navigation accents */
+    --fl-theme-navigation-bg: var(--token-neutrals-white);
     --fl-theme-navigation-link: var(--token-neutrals-grey-8);
     --fl-theme-navigation-icon: var(--token-neutrals-grey-8);
 
@@ -68,14 +69,14 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-code-surface: var(--token-neutrals-grey-3);
 
     /* Typography variables */
-    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
     --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
-    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
-    --fl-theme-font-family-button: var(--token-font-family-metropolis);
+    --fl-theme-font-family-button: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-button: var(--token-font-weight-medium);
 
-        /* Font size variables NOT from Figma */
+    /* Font size variables NOT from Figma */
     --fl-theme-font-size-base: 16px;
     --fl-theme-font-size-h1: 3rem;
     --fl-theme-font-size-h2: 2rem;
@@ -115,8 +116,14 @@ runtime conditions. Design tokens live in flare-tokens.css.
     color-scheme: light dark;
 }
 
+.whats-new-page {
+    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-button: var(--token-font-family-metropolis);
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root body:not(.disable-dark-mode) {
         /* Core text colors */
         --fl-theme-color-text-primary: var(--token-neutrals-ash);
         --fl-theme-color-text-secondary: var(--token-neutrals-grey-5);
@@ -162,6 +169,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
         --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-black);
 
         /* Template / navigation accents */
+        --fl-theme-navigation-bg: var(--token-neutrals-black);
         --fl-theme-navigation-link: var(--token-neutrals-white);
         --fl-theme-navigation-icon: var(--token-neutrals-white);
 
