@@ -44,6 +44,7 @@
     "dotenv-webpack": "^8.1.1",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
+    "focus-trap": "^7.6.6",
     "globals": "^16.5.0",
     "jasmine-browser-runner": "^3.0.0",
     "jasmine-core": "^5.12.1",
