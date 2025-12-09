@@ -49,6 +49,16 @@ specific exceptions that can't be handled by the other layers
     order: 3;
 }
 
+.fl-menu-close-button .fl-menu-close-button-content {
+    margin: 0;
+    width: calc(var(--token-scale-12) * 1px);
+    height: calc(var(--token-scale-12) * 1px);
+}
+
+.fl-menu-category .fl-icon-caret-down {
+    display: none;
+}
+
 @media (--viewport-xs) {
     .fl-mediacontent-content .button {
         width: 100%;
@@ -60,6 +70,10 @@ specific exceptions that can't be handled by the other layers
 }
 
 @media (--viewport-sm-up) {
+    .fl-menu-category .fl-icon-caret-down {
+        display: inline-block;
+    }
+
     .fl-footer-cta .button {
         width: unset;
     }
