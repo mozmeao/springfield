@@ -5,9 +5,8 @@
 @use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($brand-theme: 'firefox', $type-scale: 'standard', $font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
 .c-banner-fx-newsletter {
-    background: #333336 url('/media/img/banners/fx-newsletter/background-grid-mobile.svg') center center no-repeat;
-    background-size: cover;
-    color: $color-white;
+    background-color: #DCD2FF;
+    color: $color-black;
     min-height: 40px;
     padding: $spacing-lg 0;
     width: 100%;
@@ -19,24 +18,23 @@
     .c-banner-title {
         @include text-title-2xs;
         @include bidi(((padding-right, 0, padding-left, $spacing-md), (padding-right, $spacing-md, padding-left, 0)));
-        color: $color-white;
         margin-bottom: .5em;
     }
 
     .c-banner-copy {
-        @include bidi(((padding-left, 80px, padding-right, auto),));
+        @include bidi(((padding-left, 100px, padding-right, auto),));
         position: relative;
 
         &::before {
             @include bidi(((left, 0, right, 0),));
-            background: transparent url('/media/img/banners/fx-newsletter/lock-sticker.svg') center center no-repeat;
+            background: transparent url('/media/img/banners/fx-newsletter/devices-sticker.svg') center center no-repeat;
             background-size: contain;
             content: '';
             display: block;
-            height: 60px;
+            height: 64px;
             position: absolute;
             top: 0;
-            width: 60px;
+            width: 80px;
         }
     }
 
@@ -45,42 +43,25 @@
     }
 
     .c-banner-button {
-        background: $color-yellow-20 linear-gradient(to right,$color-yellow-20, $color-orange-50, $color-yellow-20, $color-yellow-20);
-        background-size: 300% 100%;
-        border: 0;
         border-radius: $border-radius-sm;
         color: $color-black;
         padding: $spacing-sm $spacing-lg;
         transition: all 300ms ease-out;
         white-space: nowrap;
-
-        &:link,
-        &:visited {
-            color: $color-black;
-        }
-
-        &:hover,
-        &:focus,
-        &:active {
-            background-position: 100% 0;
-            border-color: $color-black;
-            box-shadow: $box-shadow-sm;
-            color: $color-black;
-        }
     }
 
     // Close button
     .c-banner-close {
         @include image-replaced;
-        background: transparent url('#{$image-path}/icons/close-white.svg') center center no-repeat;
-        @include background-size(15px 15px);
+        background: transparent url('#{$image-path}/icons/close.svg') center center no-repeat;
+        @include background-size(18px 18px);
         border: none;
         cursor: pointer;
         display: block;
-        height: 21px;
+        height: 24px;
         min-width: 0;
         padding: 0;
-        width: 21px;
+        width: 24px;
         position: absolute;
         top: 8px;
         right: 8px;
@@ -92,7 +73,7 @@
         }
 
         &:focus {
-            outline: 1px dotted $color-white;
+            outline: 1px dotted $color-black;
         }
 
         // hide the 'Close' text
@@ -103,8 +84,6 @@
 
 
     @media #{$mq-md} {
-        background-image: url('/media/img/banners/fx-newsletter/background-grid-desktop.svg');
-
         .c-banner-copy {
             align-items: center;
             display: flex;
