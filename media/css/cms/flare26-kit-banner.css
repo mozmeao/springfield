@@ -56,10 +56,10 @@
 }
 
 .fl-banner-kit-diving-in {
-    --kit-img: url('/media/img/firefox/flare/kit-tail.svg');
-    --kit-banner-padding-bottom: 160px;
-    --kit-img-position: bottom center;
-    --kit-img-size: min(90%, 500px) auto;
+    --kit-img: url('/media/img/firefox/flare/kit-dive.png');
+    --kit-banner-padding-bottom: 280px;
+    --kit-img-position: left var(--token-layout-3xs) bottom var(--token-layout-3xs);
+    --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px) auto;
 }
 
 @media (--viewport-sm-up) {
@@ -123,9 +123,9 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-img-position: bottom center;
-        --kit-img-size: 50% auto;
-        --kit-banner-padding-bottom: 200px;
+        --kit-img-position: left var(--token-layout-2xs) bottom var(--token-layout-md);
+        --kit-img-size: 60% auto;
+        --kit-banner-padding-bottom: 320px;
     }
 
 
@@ -177,9 +177,9 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-banner-padding-bottom: var(--token-layout-lg);
-        --kit-img-size: 400px auto;
-        --kit-img-position: bottom center;
+        --kit-banner-padding-bottom: 420px;
+        --kit-img-size: 550px auto;
+        --kit-img-position: left var(--token-layout-2xs) bottom var(--token-layout-md);
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 
@@ -205,8 +205,9 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-img-size: 500px auto;
-        --kit-img-position: bottom center;
+        --kit-img-size: 686px auto;
+        --kit-img-position: left var(--token-layout-2xs) bottom var(--token-layout-md);
+        --kit-banner-padding-bottom: 480px;
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 }
