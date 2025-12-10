@@ -202,6 +202,7 @@ class BaseButtonSettings(blocks.StructBlock):
         inline_form=True,
     )
     icon = ThumbnailChoiceBlock(
+        required=False,
         choices=get_icon_choices,
         thumbnails=get_icon_thumbnails,
         default="outlined",
@@ -842,6 +843,7 @@ class BannerSettings(blocks.StructBlock):
         },
         default="outlined",
         inline_form=True,
+        required=True,
     )
     media_after = blocks.BooleanBlock(
         required=False,
