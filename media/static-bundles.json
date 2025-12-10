@@ -225,7 +225,7 @@
       ],
       "name": "firefox-home"
     },
-        {
+    {
       "files": [
         "css/firefox/home-ie9.scss"
       ],
@@ -461,9 +461,9 @@
     },
     {
       "files": [
-        "js/cms/flare-lang-switcher.es6.js"
+        "js/cms/flare-navigation.es6.js"
       ],
-      "name": "flare-lang-switcher"
+      "name": "flare-navigation"
     },
     {
       "files": [

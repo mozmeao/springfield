@@ -8,6 +8,13 @@
 
 {% block body_class %}whats-new-page{% endblock %}
 
+{% block flare_header %}
+  {% with no_menu=True, disable_sticky=True %}
+    {% include 'cms/includes/navigation.html' %}
+  {% endwith %}
+{% endblock %}
+
+
 {% block flare_footer %}
   {% include 'cms/includes/wnp-footer.html' %}
 {% endblock %}
