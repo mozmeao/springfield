@@ -14,6 +14,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Text colors */
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-color-text-inverse: var(--token-color-white);
+    --fl-theme-color-banner-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-link-purple);
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);

@@ -10,9 +10,9 @@
     --fl-theme-color-link-visited: var(--token-color-white);
     --fl-theme-color-link-strong: var(--token-color-white);
     --kit-img: none; /* These are added with a utility class below. */
-    --kit-banner-padding-bottom: 24px;
-    --kit-img-size: min(90%, 400px) max(20%, 120px);
-    --kit-banner-padding-right: 24px;
+    --kit-banner-padding-bottom: var(--token-layout-3xs);
+    --kit-img-size: min(90%, 400px) auto;
+    --kit-banner-padding-right: var(--token-layout-3xs);
     --kit-img-position: bottom center;
     background-image: var(--kit-img), var(--token-gradient-purple);
     background-size: var(--kit-img-size), cover;
@@ -20,11 +20,12 @@
     background-repeat: no-repeat, no-repeat;
     border: none;
     position: relative;
-    padding-right: var(--kit-banner-padding-right);
-    padding-bottom: var(--kit-banner-padding-bottom);
+    padding: var(--token-layout-3xs) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-3xs);
 }
 
 .fl-banner-kit .fl-banner-content {
+    width: 100%;
+    min-width: 0;
     max-width: 600px;
 }
 
@@ -54,10 +55,19 @@
     --kit-banner-padding-bottom: 210px;
 }
 
+.fl-banner-kit-diving-in {
+    --kit-img: url('/media/img/firefox/flare/kit-tail.svg');
+    --kit-banner-padding-bottom: 160px;
+    --kit-img-position: bottom center;
+    --kit-img-size: min(90%, 500px) auto;
+}
+
 @media (--viewport-sm-up) {
     .fl-banner-kit {
-        --kit-banner-padding-right: 48px;
-        --kit-banner-padding-bottom: 80px;
+        --kit-img-size: min(90%, 400px) max(20%, 120px);
+        --kit-banner-padding-right: var(--token-layout-md);
+        --kit-banner-padding-bottom: var(--token-layout-md);
+        padding: var(--token-layout-md) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-md);
     }
 
     .fl-banner-kit-large .fl-banner-content,
@@ -65,6 +75,11 @@
         text-align: left;
         align-items: initial;
         margin-left: 0;
+    }
+
+    .fl-banner-kit-diving-in .fl-banner-content {
+        text-align: center;
+        align-items: center;
     }
 
 
@@ -77,15 +92,13 @@
         justify-content: left;
     }
 
-    .fl-banner-kit-small,
-    .fl-banner-kit-large,
-    .fl-banner-kit-tail {
-        --kit-banner-padding-bottom: 200px;
-        --kit-img-position: bottom right;
+    .fl-banner-kit-diving-in .fl-buttons {
+        justify-content: center;
     }
 
     .fl-banner-kit-small {
         --kit-img-size: 40% auto;
+        --kit-img-position: bottom right;
     }
 
     .fl-banner-kit-large {
@@ -101,19 +114,36 @@
     .fl-banner-kit-tail {
         --kit-img-size: auto 260px;
         --kit-img-position: bottom -4px right -90px;
+        --kit-banner-padding-bottom: 200px;
+    }
+
+    .fl-banner-kit-small,
+    .fl-banner-kit-large {
+        --kit-banner-padding-bottom: 200px;
+    }
+
+    .fl-banner-kit-diving-in {
+        --kit-img-position: bottom center;
+        --kit-img-size: 50% auto;
+        --kit-banner-padding-bottom: 200px;
     }
 
 
 }
 
 @media (--viewport-md-up) {
+    .fl-banner-kit {
+        --kit-banner-padding-right: var(--token-layout-lg);
+        --kit-banner-padding-bottom: var(--token-layout-lg);
+        padding: var(--token-layout-lg) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-lg);
+    }
+
     .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-face,
     .fl-banner-kit-tail {
-        --kit-banner-padding-bottom: 80px;
+        --kit-banner-padding-bottom: var(--token-layout-lg);
     }
-
 
     .fl-banner-kit-face .fl-banner-content {
         text-align: left;
@@ -145,6 +175,22 @@
     .fl-banner-kit-tail .fl-banner-content {
         margin: 0 auto;
     }
+
+    .fl-banner-kit-diving-in {
+        --kit-banner-padding-bottom: var(--token-layout-lg);
+        --kit-img-size: 400px auto;
+        --kit-img-position: bottom center;
+        --kit-banner-padding-right: var(--token-layout-lg);
+    }
+
+    .fl-banner-kit-diving-in .fl-banner-content {
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .fl-banner-kit-diving-in .fl-buttons {
+        justify-content: center;
+    }
 }
 
 @media (--viewport-lg-up) {
@@ -156,5 +202,11 @@
     .fl-banner-kit-large,
     .fl-banner-kit-face {
         --kit-banner-padding-right: 400px;
+    }
+
+    .fl-banner-kit-diving-in {
+        --kit-img-size: 500px auto;
+        --kit-img-position: bottom center;
+        --kit-banner-padding-right: var(--token-layout-lg);
     }
 }

@@ -5,10 +5,10 @@
 */
 
 .fl-banner {
-    --fl-theme-color-text-primary: var(--fl-theme-color-text);
+    --fl-theme-color-text-primary: var(--fl-theme-color-banner-text);
     position: relative;
-    border-radius: var(--token-border-radius-xl);
-    padding: var(--token-spacing-xl);
+    border-radius: var(--token-border-radius-md);
+    padding: var(--token-layout-3xs);
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -26,8 +26,11 @@
     gap: var(--token-spacing-3xl);
 }
 
-.fl-banner-container .fl-heading-group {
+.fl-banner .fl-heading-group {
     margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
 }
 
 .fl-banner .fl-heading,
@@ -35,9 +38,15 @@
     margin: 0;
 }
 
+.fl-banner .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xl);
+    line-height: 0.9;
+}
+
 .fl-banner .fl-subheading {
     text-wrap: balance;
-    font-size: var(--fl-theme-font-size-subheading-md);
+    font-size: var(--fl-theme-font-size-body-sm);
+    line-height: 1.4;
 }
 
 .fl-banner-outlined {
@@ -131,6 +140,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: 100%;
+    min-width: 0;
     max-width: 840px;
     text-align: center;
     margin: 0 auto;
@@ -139,15 +150,19 @@
 .fl-banner-content-inner {
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-lg);
+    gap: var(--token-spacing-3xl);
+    width: 100%;
+    min-width: 0;
 }
 
 .fl-banner .fl-buttons {
-    margin-top: var(--token-spacing-xl);
+    margin-top: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    min-width: 0;
 }
 
 .fl-banner-layout {
@@ -194,7 +209,8 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
-        padding: var(--token-layout-md) var(--token-layout-xs);
+        border-radius: var(--token-border-radius-xl);
+        padding: var(--token-layout-md);
         justify-content: initial;
         align-items: initial;
         text-align: initial;
@@ -223,6 +239,10 @@
 }
 
 @media (--viewport-md-up) {
+    .fl-banner {
+        padding: var(--token-layout-lg);
+    }
+
     .fl-banner-container {
         gap: var(--token-layout-sm);
     }
