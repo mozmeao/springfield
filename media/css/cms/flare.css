@@ -43,6 +43,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-defaults.css' layer(defaults);
 @import 'flare-template.css' layer(template);
 @import 'flare-article.css' layer(template);
+@import 'flare-footer.css' layer(template);
 @import 'flare-notification.css' layer(template);
 @import 'flare-navigation.css' layer(template);
 
@@ -59,6 +60,7 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-kit-banner.css' layer(components);
 @import 'flare-cards.css' layer(components);
 @import 'flare-section.css' layer(components);
+@import 'flare-language-switcher.css' layer(components);
 
 @import 'flare-utilities.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
