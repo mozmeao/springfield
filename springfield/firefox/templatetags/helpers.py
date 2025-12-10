@@ -11,11 +11,7 @@ from markupsafe import Markup
 
 from lib.l10n_utils import get_locale
 from springfield.base.urlresolvers import reverse
-from springfield.firefox.firefox_details import (
-    firefox_android,
-    firefox_desktop,
-    firefox_ios,
-)
+from springfield.firefox.firefox_details import firefox_android, firefox_desktop, firefox_ios
 
 
 def desktop_builds(

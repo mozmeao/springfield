@@ -55,11 +55,11 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 @media (prefers-color-scheme: dark) {
-    .light-dark-display .display-light {
+    body:not(.disable-dark-mode) .light-dark-display .display-light {
         display: none;
     }
 
-    .light-dark-display .display-dark {
+    body:not(.disable-dark-mode) .light-dark-display .display-dark {
         display: block;
     }
 }
