@@ -178,6 +178,7 @@ def assert_light_dark_image_attributes(
         **{
             "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
             "width": image.width,
+            "height": image.height,
             "loading": "lazy",
             "class": class_name,
         },
@@ -187,6 +188,7 @@ def assert_light_dark_image_attributes(
     assert img_tag["class"] == image_soup["class"]
     assert img_tag["loading"] == image_soup["loading"]
     assert img_tag["width"] == image_soup["width"]
+    assert img_tag["height"] == image_soup["height"]
     assert img_tag["src"] == image_soup["src"]
 
 
