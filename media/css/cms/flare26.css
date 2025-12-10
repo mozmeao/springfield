@@ -34,7 +34,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 
 @import 'flare26-homepage.css' layer(page);
 
-@import 'flare26-icon.css' layer(components);
+@import 'flare-icon.css' layer(components);
 @import 'flare26-button.css' layer(components);
 @import 'flare26-typography.css' layer(components);
 @import 'flare26-card.css' layer(components);
@@ -58,6 +58,6 @@ included via a <link> tag in a conditional comment */
     @import 'flare26-base.css';
 
     /* Icons and utility classes are useful in the legacy stylesheet as well */
-    @import 'flare26-icon.css';
+    @import 'flare-icon.css';
     @import 'flare26-utilities.css';
 }
