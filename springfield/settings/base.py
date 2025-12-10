@@ -1407,6 +1407,12 @@ WAGTAILIMAGES_EXTENSIONS = [
     "svg",
 ]
 
+WAGTAILIMAGES_FORMAT_CONVERSIONS = {
+    "png": "webp",
+    "jpg": "webp",
+    "jpeg": "webp",
+    "webp": "webp",
+}
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
