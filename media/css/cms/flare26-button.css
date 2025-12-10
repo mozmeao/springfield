@@ -21,37 +21,37 @@ Button - Flare 2026 Design System Buttons
     transition: background-color var(--token-transition-fast), color var(--token-transition-fast), border-color var(--token-transition-fast);
     border-radius: var(--token-border-radius-xl);
     white-space: nowrap;
-    background-color: var(--token-color-light-purple);
-    color: var(--token-color-white);
+    background-color: rgb(var(--token-color-light-purple));
+    color: rgb(var(--token-color-white));
     font-size: var(--fl-theme-font-size-base);
     padding: var(--token-spacing-md) var(--token-spacing-xl);
 }
 
 .fl-button:hover {
-    background-color: var(--token-color-link-purple);
+    background-color: rgb(var(--token-color-link-purple));
 }
 
 .fl-button:active {
-    background-color: var(--token-color-purple);
+    background-color: rgb(var(--token-color-purple));
 }
 
 /* Button variants - Secondary (outlined) */
 .fl-button.button-secondary {
-    background-color: var(--token-color-white);
-    color: var(--token-color-black-4);
-    border: 2px solid var(--token-color-light-purple);
+    background-color: rgb(var(--token-color-white));
+    color: rgb(var(--token-color-black-4));
+    border: 2px solid rgb(var(--token-color-light-purple));
 }
 
 .fl-button.button-secondary:hover {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-link-purple);
-    color: var(--token-color-link-purple);
+    background-color: rgb(var(--token-color-white));
+    border-color: rgb(var(--token-color-link-purple));
+    color: rgb(var(--token-color-link-purple));
 }
 
 .fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-purple);
-    color: var(--token-color-purple);
+    background-color: rgb(var(--token-color-white));
+    border-color: rgb(var(--token-color-purple));
+    color: rgb(var(--token-color-purple));
 }
 
 /* Button sizes */
@@ -79,7 +79,7 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-button-outline:hover {
-    color: var(--token-color-light-purple);
+    color: rgb(var(--token-color-light-purple));
 }
 
 /* Button fills - Text */

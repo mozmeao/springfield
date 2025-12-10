@@ -54,7 +54,7 @@
 }
 
 .fl-home-intro .fl-superheading {
-    background: linear-gradient(180deg, var(--token-color-light-purple-40) 0%, var(--token-color-light-purple-20) 100%);
+    background: linear-gradient(180deg, rgba(var(--token-color-light-purple), 0.4) 0%, rgba(var(--token-color-light-purple), 0.2) 100%);
     border-radius: var(--token-border-radius-xl);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     font-weight: var(--token-font-weight-medium);
@@ -63,15 +63,15 @@
 }
 
 .fl-home-intro .fl-superheading:has(a:hover) {
-    background: linear-gradient(180deg, var(--token-color-light-purple-60) 0%, var(--token-color-light-purple-40) 100%);
+    background: linear-gradient(180deg, rgba(var(--token-color-light-purple), 0.6) 0%, rgba(var(--token-color-light-purple), 0.4) 100%);
 }
 
 .fl-home-intro .fl-superheading a {
-    color: var(--token-color-white);
+    color: rgb(var(--token-color-white));
     text-decoration: none;
 }
 
-.fl-home-intro .fl-superheading a:before {
+.fl-home-intro .fl-superheading a::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -92,7 +92,7 @@
 .fl-home-intro .fl-superheading i,
 .fl-home-intro .fl-superheading em {
     background: var(--token-gradient-gold);
-    color: var(--token-color-black-4);
+    color: rgb(var(--token-color-black-4));
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     border-radius: var(--token-border-radius-xs);
     text-transform: uppercase;

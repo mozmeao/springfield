@@ -13,15 +13,15 @@ Variables which change are prefixed with `--fl-theme`.
 ```css
 :root {
     /* tokens */
-    --token-color-black: #000000;
+    --token-color-black: 0, 0, 0; /* rgb(0, 0, 0) */
 
     /* variables */
-    --fl-theme-color-text-primary: var(--token-color-black);
+    --fl-theme-color-text-primary: rgb(var(--token-color-black));
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --fl-theme-color-text-primary: var(--token-color-white);
+        --fl-theme-color-text-primary: rgb(var(--token-color-white));
     }
 }
 

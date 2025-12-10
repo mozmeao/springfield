@@ -40,7 +40,7 @@ Card - Flare 2026 Design System Cards
 
 .fl-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    box-shadow: 0 40px 96px rgba(var(--token-color-dark-purple), 0.22);
 }
 
 .fl-card > * {
@@ -82,7 +82,7 @@ Card - Flare 2026 Design System Cards
     font-size: var(--fl-theme-font-size-body-2xs);
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: var(--token-color-light-purple);
+    color: rgb(var(--token-color-light-purple));
 }
 
 .fl-card .fl-body {
@@ -122,7 +122,7 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card > div:has(.fl-card-icon) {
-    color: var(--token-color-light-purple);
+    color: rgb(var(--token-color-light-purple));
 }
 
 .fl-card.fl-card-fill {

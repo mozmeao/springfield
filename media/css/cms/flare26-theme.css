@@ -12,16 +12,16 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
 :root {
     /* Text colors */
-    --fl-theme-color-text: var(--token-color-black-4);
-    --fl-theme-color-text-inverse: var(--token-color-white);
-    --fl-theme-color-link-hover: var(--token-color-link-purple);
-    --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+    --fl-theme-color-text: rgb(var(--token-color-black-4));
+    --fl-theme-color-text-inverse: rgb(var(--token-color-white));
+    --fl-theme-color-link-hover: rgb(var(--token-color-link-purple));
+    --fl-theme-color-link-alt-hover: rgb(var(--token-color-black-4));
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
 
     /* Button palette */
-    --fl-theme-button-primary: var(--token-color-link-purple);
+    --fl-theme-button-primary: rgb(var(--token-color-link-purple));
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -53,11 +53,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
     --fl-theme-font-size-tag: 0.75rem; /* 12px */
-
     --fl-theme-label-caps-md: 1rem; /* 16px */
     --fl-theme-label-caps-sm: .875rem; /* 14px */
     --fl-theme-label-caps-xs: .75rem; /* 12px */
-
     --fl-theme-label-md: 1rem; /* 16px */
     --fl-theme-label-sm: .875rem; /* 14px */
     --fl-theme-label-xs: .75rem; /* 12px */
@@ -71,7 +69,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-text-align: center;
 
     /* Shadows */
-    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+    --fl-theme-shadow-card: 0 32px 72px rgba(var(--token-color-black-4), 0.16);
 
     /* Dark mode support */
     color-scheme: light dark;
@@ -85,19 +83,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 @media (prefers-color-scheme: dark) {
     :root {
         /* Text colors */
-        --fl-theme-color-text: var(--token-color-white);
-        --fl-theme-color-text-inverse: var(--token-color-black-4);
-        --fl-theme-color-link-hover: var(--token-color-light-purple);
-        --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+        --fl-theme-color-text: rgb(var(--token-color-white));
+        --fl-theme-color-text-inverse: rgb(var(--token-color-black-4));
+        --fl-theme-color-link-hover: rgb(var(--token-color-light-purple));
+        --fl-theme-color-link-alt-hover: rgb(var(--token-color-black-4));
 
         /* Surface colors */
         --fl-theme-surface-card-gradient: var(--token-gradient-dark);
 
         /* Button palette */
-        --fl-theme-button-primary: var(--token-color-light-purple);
+        --fl-theme-button-primary: rgb(var(--token-color-light-purple));
 
         /* Shadows */
-        --fl-theme-shadow-card: 0 32px 64px var(--token-color-black-45);
+        --fl-theme-shadow-card: 0 32px 64px rgba(var(--token-color-black), 0.45);
     }
 }
 
