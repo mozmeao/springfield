@@ -1,0 +1,160 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-banner-kit {
+    --fl-theme-color-text-primary: var(--token-color-white);
+    --fl-theme-color-link: var(--token-color-white);
+    --fl-theme-color-link-visited: var(--token-color-white);
+    --fl-theme-color-link-strong: var(--token-color-white);
+    --kit-img: none; /* These are added with a utility class below. */
+    --kit-banner-padding-bottom: 24px;
+    --kit-img-size: min(90%, 400px) max(20%, 120px);
+    --kit-banner-padding-right: 24px;
+    --kit-img-position: bottom center;
+    background-image: var(--kit-img), var(--token-gradient-purple);
+    background-size: var(--kit-img-size), cover;
+    background-position: var(--kit-img-position), center;
+    background-repeat: no-repeat, no-repeat;
+    border: none;
+    position: relative;
+    padding-right: var(--kit-banner-padding-right);
+    padding-bottom: var(--kit-banner-padding-bottom);
+}
+
+.fl-banner-kit .fl-banner-content {
+    max-width: 600px;
+}
+
+.fl-banner-kit .fl-superheading {
+    color: var(--fl-theme-color-text-primary);
+}
+
+.fl-banner-kit-small,
+.fl-banner-kit-large,
+.fl-banner-kit-face {
+    --kit-banner-padding-bottom: 160px;
+}
+
+.fl-banner-kit-small,
+.fl-banner-kit-large {
+    --kit-img: url('/media/img/firefox/flare/fox-brand.svg');
+}
+
+.fl-banner-kit-face {
+    --kit-img: url('/media/img/firefox/flare/forward-facing-kit.svg');
+}
+
+.fl-banner-kit-tail {
+    --kit-img: url('/media/img/firefox/flare/kit-tail.svg');
+    --kit-img-size: auto 200px;
+    --kit-img-position: bottom -4px right -60px;
+    --kit-banner-padding-bottom: 210px;
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner-kit {
+        --kit-banner-padding-right: 48px;
+        --kit-banner-padding-bottom: 80px;
+    }
+
+    .fl-banner-kit-large .fl-banner-content,
+    .fl-banner-kit-tail .fl-banner-content {
+        text-align: left;
+        align-items: initial;
+        margin-left: 0;
+    }
+
+
+    .fl-banner.fl-banner-kit-small {
+        padding-bottom: var(--token-layout-lg);
+    }
+
+    .fl-banner-kit-large .fl-buttons,
+    .fl-banner-kit-tail .fl-buttons {
+        justify-content: left;
+    }
+
+    .fl-banner-kit-small,
+    .fl-banner-kit-large,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-bottom: 200px;
+        --kit-img-position: bottom right;
+    }
+
+    .fl-banner-kit-small {
+        --kit-img-size: 40% auto;
+    }
+
+    .fl-banner-kit-large {
+        --kit-img-size: 55% auto;
+        --kit-img-position: bottom right -10%;
+        --kit-banner-padding-bottom: 140px;
+    }
+
+    .fl-banner-kit-face {
+        --kit-banner-padding-bottom: 180px;
+    }
+
+    .fl-banner-kit-tail {
+        --kit-img-size: auto 260px;
+        --kit-img-position: bottom -4px right -90px;
+    }
+
+
+}
+
+@media (--viewport-md-up) {
+    .fl-banner-kit-small,
+    .fl-banner-kit-large,
+    .fl-banner-kit-face,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-bottom: 80px;
+    }
+
+
+    .fl-banner-kit-face .fl-banner-content {
+        text-align: left;
+        margin: unset;
+    }
+
+    .fl-banner-kit-face .fl-buttons {
+        justify-content: left;
+    }
+
+    .fl-banner-kit-large,
+    .fl-banner-kit-face,
+    .fl-banner-kit-tail {
+        --kit-banner-padding-right: 400px;
+    }
+
+    .fl-banner-kit-face {
+        --kit-img-size: 280px auto;
+        --kit-img-position: bottom right 18%;
+    }
+
+    .fl-banner-kit-tail {
+        --kit-img-size: auto 380px;
+        --kit-img-position: bottom -4px right -290px;
+    }
+
+    .fl-banner-kit-large .fl-banner-content,
+    .fl-banner-kit-face .fl-banner-content,
+    .fl-banner-kit-tail .fl-banner-content {
+        margin: 0 auto;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-banner-kit-tail {
+        --kit-img-position: bottom -4px right -90px;
+        --kit-banner-padding-right: 600px;
+    }
+
+    .fl-banner-kit-large,
+    .fl-banner-kit-face {
+        --kit-banner-padding-right: 400px;
+    }
+}

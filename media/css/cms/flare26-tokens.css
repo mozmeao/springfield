@@ -84,7 +84,7 @@ Static values extracted from Figma that do not change based on context.
     --token-layout-xl: 160px;
     --token-layout-2xl: 200px;
 
-    /* Border radius variables */
+    /* bor radius variables */
     --token-border-radius-xs: 8px;
     --token-border-radius-md: 38px;
     --token-border-radius-lg: 50px;
