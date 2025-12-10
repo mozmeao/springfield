@@ -4,41 +4,39 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#  TODO: attrs not passed down #}
-
-<div class="pl-frame pl-frame--white">
-  <div class="pl-row">
-    <h4>Intro variants</h4>
-    <hr/>
-  </div>
-  {% for item in variants %}
-    <div class="pl-row">
-      <h5>{{ item.title }}</h5>
-      <hr/>
-      {% set media_position = item.media_position %}
-      <include:intro media_position="{{ media_position }}">
-        <content:heading>
-          <include:heading
-            superheading_text="{{ item.heading.superheading_text }}"
-            heading_text="{{ item.heading.heading_text }}"
-            subheading_text="{{ item.heading.subheading_text }}"
-            alignment="{{ item.heading.alignment }}"
-            subheading_size="{{ item.heading.subheading_size }}"
+{% for item in variants %}
+  <div style="margin-bottom: 2em;">
+    <h2>{{ item.title }}</h2>
+    {% set media_position = item.media_position %}
+    <include:intro media_position="{{ media_position }}">
+      <content:heading>
+        <include:heading
+          superheading_text="{{ item.heading.superheading_text }}"
+          heading_text="{{ item.heading.heading_text }}"
+          subheading_text="{{ item.heading.subheading_text }}"
+          alignment="{{ item.heading.alignment }}"
+          subheading_size="{{ item.heading.subheading_size }}"
+        />
+      </content:heading>
+      <content:actions>
+        <include:buttons buttons="{{ item.buttons }}" />
+      </content:actions>
+      <content:fine_print>
+        <p>{{ item.fine_print }}</p>
+      </content:fine_print>
+      {% if item.video %}
+        <content:media>
+          <include:video
+            video_url="{{ item.video.url }}"
+            {% if item.video.poster %}poster="{{ item.video.poster }}"{% endif %}
+            {% if item.video.alt %}alt="{{ item.video.alt }}"{% endif %}
           />
-        </content:heading>
-        <content:actions>
-          <include:buttons buttons="{{ item.buttons }}" />
-        </content:actions>
-        <content:fine_print>
-          <p>{{ item.fine_print }}</p>
-        </content:fine_print>
-        {% if item.image %}
-          <content:media>
-            <include:image url="{{ item.image.url }}" alt="{{ item.image.alt }}" />
-          </content:media>
-        {% endif %}
-      </include:intro>
-      <hr>
-    </div>
-  {% endfor %}
-</div>
+        </content:media>
+      {% elif item.image %}
+        <content:media>
+          <include:image url="{{ item.image.url }}" alt="{{ item.image.alt }}" />
+        </content:media>
+      {% endif %}
+    </include:intro>
+  </div>
+{% endfor %}

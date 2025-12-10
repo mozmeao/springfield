@@ -5,288 +5,88 @@
 */
 
 /* This file contains the styles the template
-*  (header, footer, page content, etc.) */
+*  (footer, page content, etc.) */
 
-.fl-header {
-    position: relative;
-    padding: 18px calc(var(--scale-40) * 1px);
-    border-bottom: 1px solid light-dark(var(--neutrals-grey-3), var(--neutrals-grey-8));
-    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
-}
-
-.fl-header-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.fl-logo-fx {
-    text-indent: -9999px;
-    overflow: hidden;
-    white-space: nowrap;
-    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
-    background-size: 120px 40px;
-    width: 120px;
-    height: 40px;
-    margin: 0;
-    text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fl-logo-fx {
-        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-}
-
-.fl-nav {
-    display: none;
-}
-
-@media (min-width: 1025px) {
-    .fl-logo-fx {
-        margin: 0;
-    }
-
-    .fl-nav {
-        display: block
-    }
-
-    .fl-hamburger {
-        display: none
-    }
-}
-
-.fl-hamburger {
-    width: 40px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    border-radius: calc(var(--scale-4) * 1px);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    background-image: linear-gradient(light-dark(var(--neutrals-grey-8, var(--neutrals-white)), light-dark(var(--neutrals-grey-8, var(--neutrals-white)))));
-    background-repeat: no-repeat;
-    background-position: left 8px center;
-    background-size: 16px 2px;
-    transition: background-size var(--transition-base);
-}
-
-.fl-hamburger::before,
-.fl-hamburger::after {
-    content: "";
-    position: absolute;
-    left: 8px;
-    right: 16px;
-    height: 2px;
-    background: light-dark(var(--neutrals-grey-8, var(--neutrals-white)), light-dark(var(--neutrals-grey-8, var(--neutrals-white))));
-    border-radius: 1px;
-    transition: transform var(--transition-base), top var(--transition-base), bottom var(--transition-base);
-}
-
-.fl-hamburger::before {
-    top: 9px;
-}
-
-.fl-hamburger::after {
-    bottom: 9px;
-}
-
-.fl-hamburger[aria-expanded="true"] {
-    background-size: 0 0;
-}
-
-.fl-hamburger[aria-expanded="true"]::before {
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
-}
-
-.fl-hamburger[aria-expanded="true"]::after {
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-50%) rotate(-45deg);
-}
-
-.fl-nav-menu {
-    display: flex;
-    gap: calc(var(--scale-32) * 1px);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.fl-nav-link {
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-base);
-    color: light-dark(var(--neutrals-grey-8, var(--neutrals-white)), light-dark(var(--neutrals-grey-8, var(--neutrals-white))));
-    text-decoration: none;
-}
-
-.fl-nav-link-active {
-    font-weight: 700;
-    cursor: default;
-}
-
-.fl-nav-toggle {
-    position: relative;
-    width: 52px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.fl-nav-toggle span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.fl-nav-toggle::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 44px;
-    height: 24px;
-    border-radius: 999px;
-    background: var(--neutrals-ash);
-    box-shadow: inset 0 0 0 1px var(--neutrals-grey-4);
-    transition: background var(--transition-base);
-}
-
-.fl-nav-toggle::after {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--neutrals-charcoal);
-    box-shadow: none;
-    transform: translateX(0);
-    transition: transform var(--transition-base);
-}
-
-.fl-nav-toggle:focus-visible {
-    outline: 2px solid var(--functional-info-buttons);
-    outline-offset: 2px;
-    border-radius: 999px;
-}
-
-.fl-nav-toggle[aria-pressed="true"]::after {
-    transform: translateX(18px);
-}
-
-.fl-theme-toggle {
-    display: none;
-}
-
-@media (max-width: 1024px) {
-    .fl-nav-toggle {
-        display: none
-    }
-
-    .fl-header {
-        padding: 10px calc(var(--scale-32) * 1px)
-    }
-
-    .fl-nav.is-open {
-        display: block;
-        position: fixed;
-        inset: 60px 0 0;
-        background: light-dark(var(--neutrals-ash), var(--neutrals-black));
-        padding: calc(var(--scale-40) * 1px) calc(var(--scale-40) * 1px) calc(var(--scale-64) * 1px);
-        z-index: 1000;
-        margin-top: calc(var(--scale-4) * 1px);
-    }
-
-    .fl-nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--scale-40) * 1px);
-    }
-
-    .fl-theme-toggle {
-        margin-top: auto;
-        position: fixed;
-        left: calc(var(--scale-40) * 1px);
-        right: calc(var(--scale-40) * 1px);
-        bottom: calc(var(--scale-40) * 1px);
-        display: flex;
-        border: 1px solid var(--neutrals-grey-4);
-        border-radius: 16px;
-        overflow: hidden;
-        background: var(--neutrals-ash);
-        padding: 8px;
-    }
+body.fl-modal-open {
+    position: fixed;
+    height: 100vh;
+    overflow-y: hidden;
 }
 
 .fl-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
-    color: light-dark(var(--neutrals-grey-8), var(--neutrals-white));
+    background: var(--fl-theme-surface-page);
+    color: var(--fl-theme-color-text-muted);
 }
 
 .fl-main {
     flex: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.fl-page-blog .fl-main {
+    z-index: 0;
+}
+
+.fl-page-blog .fl-blog-header-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+}
+
+.fl-page-blog .fl-blog-header-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: top center;
+}
+
+.fl-page-blog .fl-section,
+.fl-page-blog .fl-section-container {
+    position: relative;
+    z-index: 1;
 }
 
 .fl-content-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 calc(var(--scale-24) * 1px);
-}
-
-.fl-grid {
-    display: grid;
-    gap: calc(var(--scale-32) * 1px);
-    grid-template-columns: 1fr;
+    padding: 0 calc(var(--token-scale-24) * 1px);
 }
 
 .fl-footer {
     margin-top: auto;
-    padding: calc(var(--scale-64) * 1px) 0;
-    background: light-dark(var(--neutrals-ash), var(--neutrals-black));
+    padding: calc(var(--token-scale-64) * 1px) 0;
+    background: var(--fl-theme-surface-page);
 }
 
 .fl-footer .fl-button-outline img {
-    margin-right: calc(var(--scale-16) * 1px);
+    margin-right: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-footer-inner {
-    max-width: 1380px;
+    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
-    color: var(--neutrals-grey-5);
-    font-size: var(--font-size-body-small);
+    color: var(--token-neutrals-grey-5);
+    font-size: var(--fl-theme-font-size-body-small);
 }
 
 .fl-footer-top {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: calc(var(--scale-32) * 1px) calc(var(--scale-64) * 1px);
+    gap: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-64) * 1px);
     align-items: start;
 }
 
 .fl-footer-copy {
     margin: 0;
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
     grid-column: 1;
 }
 
@@ -306,31 +106,30 @@
     background-repeat: no-repeat;
     background-position: left center;
     background-size: contain;
-    border-radius: calc(var(--scale-4) * 1px);
+    border-radius: calc(var(--token-scale-4) * 1px);
     grid-column: 2;
     grid-row: 1 / span 2;
     justify-self: end;
 }
 
 @media (prefers-color-scheme: dark) {
-    .fl-footer-logo {
+    body:not(.disable-dark-mode) .fl-footer-logo {
         background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     }
-
 }
 
 .fl-footer-divider {
     border: none;
-    border-top: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    border-top: 1px solid var(--fl-theme-border-color-strong);
     ;
-    margin: calc(var(--scale-48) * 1px) 0;
+    margin: calc(var(--token-scale-48) * 1px) 0;
 }
 
 .fl-footer-bottom {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: calc(var(--scale-32) * 1px);
+    gap: calc(var(--token-scale-32) * 1px);
 }
 
 .fl-footer-cta {
@@ -341,19 +140,13 @@
     width: 100%;
 }
 
-@media (min-width: 768px) {
-    .fl-grid,
-    .fl-grid-4 {
-        gap: calc(var(--scale-24) * 1px);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
+@media (--viewport-sm-up) {
     .fl-footer {
-        padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px)
+        padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-24) * 1px)
     }
 
     .fl-footer-cta {
-        width: unset;
+        width: auto;
     }
 
     .fl-footer-cta .fl-button {
@@ -361,17 +154,9 @@
     }
 }
 
-@media (min-width: 1024px) {
-    .fl-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .fl-grid.fl-grid-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
+@media (--viewport-md-up) {
     .fl-footer-inner {
-        padding: 0 calc(var(--scale-40) * 1px)
+        padding: 0 calc(var(--token-scale-40) * 1px)
     }
 }
 
@@ -385,34 +170,34 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: calc(var(--scale-8) * 1px);
+    gap: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-footer-links a {
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-footer-title {
-    font-family: var(--font-family-headline);
-    font-size: var(--font-size-h4);
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    margin: 0 0 calc(var(--scale-4) * 1px);
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-h4);
+    color: var(--fl-theme-color-text-primary);
+    margin: 0 0 calc(var(--token-scale-4) * 1px);
 }
 
 .fl-footer-subtitle {
     margin: 0;
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+    color: var(--fl-theme-color-text-primary);
 }
 
 .fl-footer-note {
     margin: 0;
-    margin-top: calc(var(--scale-8) * 1px);
-    color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-    font-size: var(--font-size-body-xsmall);
+    margin-top: calc(var(--token-scale-8) * 1px);
+    color: var(--fl-theme-color-text-primary);
+    font-size: var(--fl-theme-font-size-body-xsmall);
     text-align: center;
 }
 
-@media (max-width: 767px) {
+@media (--viewport-xs) {
     .fl-main {
         padding: 0;
     }
@@ -426,21 +211,21 @@
     .fl-footer .fl-footer-logo {
         order: -1;
         align-self: flex-start;
-        margin-bottom: calc(var(--scale-24) * 1px);
+        margin-bottom: calc(var(--token-scale-24) * 1px);
         width: 140px;
         height: 46px;
     }
 
     .fl-footer .fl-footer-copy {
-        margin-bottom: calc(var(--scale-16) * 1px);
+        margin-bottom: calc(var(--token-scale-16) * 1px);
     }
 
     .fl-footer .fl-footer-links {
-        margin-bottom: calc(var(--scale-32) * 1px);
+        margin-bottom: calc(var(--token-scale-32) * 1px);
     }
 
     .fl-footer-inner {
-        padding: 0 calc(var(--scale-24) * 1px);
+        padding: 0 calc(var(--token-scale-24) * 1px);
     }
 
     .fl-footer-top,
@@ -456,17 +241,83 @@
     .fl-footer-logo {
         order: -1;
         align-self: flex-end;
-        margin-bottom: calc(var(--scale-24) * 1px);
+        margin-bottom: calc(var(--token-scale-24) * 1px);
         width: 140px;
         height: 46px;
     }
 
     .fl-footer-copy {
-        margin-bottom: calc(var(--scale-16) * 1px);
+        margin-bottom: calc(var(--token-scale-16) * 1px);
     }
 
     .fl-footer-links {
-        margin-bottom: calc(var(--scale-32) * 1px);
+        margin-bottom: calc(var(--token-scale-32) * 1px);
     }
 
+}
+
+/* Styles used by Download Firefox Button messages */
+
+.fl-fx-download-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--scale-16) * 1px);
+}
+
+/* Hide the unsupported message by default */
+.fx-unsupported-message {
+    display: none;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.fx-unsupported-message p {
+    margin-bottom: 8px;
+}
+
+/* Show the Windows unsupported message if on Windows with unsupported version for Firefox */
+.windows.fx-unsupported .fx-unsupported-message.win {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Windows system */
+.windows.fx-unsupported .c-button-download-thanks-link {
+    display: none;
+}
+
+/* stylelint-disable selector-class-pattern */
+
+/* Hide the Windows 64 download link if in a Windows 32 system where Firefox is unsupported */
+
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win64 {
+    display: none;
+}
+
+/* Show the Windows 32 download link if in a Windows 32 system where Firefox is unsupported */
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win {
+    display: inline-block;
+}
+
+/* Hide the Windows 32 download link if in a Windows 64 system where Firefox is unsupported */
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win {
+    display: none;
+}
+
+/* Show the Windows 64 download link if in a Windows 64 system where Firefox is unsupported */
+
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win64 {
+    display: inline-block;
+}
+
+/* stylelint-enable selector-class-pattern */
+
+/* Show the Mac unsupported message if on Mac with unsupported version for Firefox */
+.osx.fx-unsupported .fx-unsupported-message.mac {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Mac system */
+.osx.fx-unsupported .c-button-download-thanks-link {
+    display: none;
 }

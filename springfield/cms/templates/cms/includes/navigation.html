@@ -1,0 +1,43 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<header class="fl-header {% if no_menu %}fl-header-no-menu{% endif %} {% if not disable_sticky %}enable-sticky{% endif %}">
+    <div class="fl-header-inner">
+        <a href="/" class="fl-logo-fx" aria-label="Firefox">
+            <img
+                src="/media/img/logos/firefox/logo-word-hor.svg"
+                class="fl-logo-light"
+                alt="Firefox"
+                width="120"
+                height="40"
+            />
+            <img
+                src="/media/img/logos/firefox/logo-word-hor-white.svg"
+                class="fl-logo-dark"
+                alt="Firefox"
+                width="120"
+                height="40"
+            />
+        </a>
+        {% if not no_menu %}
+        <nav class="fl-nav">
+            <ul class="fl-nav-menu">
+                {% include 'cms/includes/menus/features.html' %}
+                {% include 'cms/includes/menus/resources.html' %}
+            </ul>
+            <div class="fl-nav-mobile-download-link">
+                {% include 'cms/includes/nav-cta.html' %}
+            </div>
+        </nav>
+        {% include 'cms/includes/nav-cta.html' %}
+        <button class="fl-show-mobile-menu fl-icon-close" type="button">
+          <span class="fl-show-mobile-menu-content">
+          Menu
+          </span>
+        </button>
+        {% endif %}
+    </div>
+</header>

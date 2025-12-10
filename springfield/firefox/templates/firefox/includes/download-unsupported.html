@@ -23,13 +23,33 @@
   <p>{{ ftl('download-button-please-download-esr') }}</p>
   <div class="download-platform-list">
     <p>
-      <a class="mzp-c-button mzp-t-product download-link os_win64 ga-product-download" href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=win64&lang={{ win_download_lang }}" data-download-version="win64" data-cta-text="Download Firefox Extended Support Release 64-bit" data-cta-type="firefox">
+      <a class="{% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} download-link os_win64 ga-product-download"
+         href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=win64&lang={{ win_download_lang }}"
+         data-download-version="win64"
+         data-cta-text="Download Firefox Extended Support Release 64-bit"
+         data-cta-type="firefox">
         {{ ftl('download-firefox-esr-64') }}
+        {% if flare_styles %}
+          <include:icon
+            icon_name="arrow-down"
+            hidden=true
+            extra_class="fl-icon-right" />
+          {% endif %}
       </a>
     </p>
     <p>
-      <a class="mzp-c-button mzp-t-product download-link os_win ga-product-download" href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=win&lang={{ win_download_lang }}" data-download-version="win" data-cta-text="Download Firefox Extended Support Release 32-bit" data-cta-type="firefox">
+      <a class="{% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} download-link os_win ga-product-download"
+         href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=win&lang={{ win_download_lang }}"
+         data-download-version="win"
+         data-cta-text="Download Firefox Extended Support Release 32-bit"
+         data-cta-type="firefox">
         {{ ftl('download-firefox-esr-32') }}
+        {% if flare_styles %}
+          <include:icon
+            icon_name="arrow-down"
+            hidden=true
+            extra_class="fl-icon-right" />
+          {% endif %}
       </a>
     </p>
 
@@ -46,8 +66,14 @@
   <p>{{ ftl('download-button-please-download-esr') }}</p>
 
   <div class="download-platform-list">
-    <a class="mzp-c-button mzp-t-product download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx" data-cta-text="Firefox Extended Support Release MacOS" data-cta-type="firefox">
+    <a class="{% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr115-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx" data-cta-text="Firefox Extended Support Release MacOS" data-cta-type="firefox">
       {{ ftl('download-firefox-esr') }}
+      {% if flare_styles %}
+        <include:icon
+          icon_name="arrow-down"
+          hidden=true
+          extra_class="fl-icon-right" />
+        {% endif %}
     </a>
   </div>
 </div>

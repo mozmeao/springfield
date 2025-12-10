@@ -12,6 +12,7 @@ __pycache__/
 .jshintrc
 .python-version
 .vscode/*
+.zed/*
 *-all.css
 *-all.js
 *-min.css
@@ -57,3 +58,5 @@ venv
 /custom-media
 /local-credentials/*.json
 AGENTS.md
+CLAUDE.md
+.claude

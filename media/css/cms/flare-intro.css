@@ -6,10 +6,11 @@
 
 .fl-intro {
     text-align: center;
-    font-family: var(--font-family-inter);
-    background-color: light-dark(var(--neutrals-ash), var(--neutrals-black));
-    padding: calc(var(--scale-80) * 1px) calc(var(--scale-40) * 1px);
+    font-family: var(--token-font-family-inter);
+    background-color: var(--fl-theme-surface-page);
+    padding: calc(var(--token-scale-80) * 1px) calc(var(--token-scale-40) * 1px);
     max-width: 1440px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -23,9 +24,9 @@
 
 .fl-intro-has-media {
     display: flex;
-    flex-direction: var(--layout-direction);
-    gap: calc(var(--scale-24) * 1px);
-    text-align: var(--default-text-align);
+    flex-direction: var(--fl-theme-layout-direction);
+    gap: calc(var(--token-scale-24) * 1px);
+    text-align: var(--fl-theme-default-text-align);
 }
 
 .fl-intro-has-media > * {
@@ -37,7 +38,7 @@
 }
 
 .fl-intro-has-media .fl-intro-content .fl-buttons {
-    justify-content: var(--default-justify-content);
+    justify-content: var(--fl-theme-default-justify-content);
 }
 
 .fl-intro-media-after .fl-intro-content {
@@ -57,7 +58,7 @@
 }
 
 .fl-intro-content .text {
-    padding: calc(var(--scale-24) * 1px) 0 calc(var(--scale-64) * 1px);
+    padding: calc(var(--token-scale-24) * 1px) 0 calc(var(--token-scale-64) * 1px);
 }
 
 .fl-intro-has-media > .fl-intro-content,
@@ -69,22 +70,25 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-
 }
 
-.intro-media img {
+.fl-intro-media .fl-video {
+    border-radius: calc(var(--token-scale-16) * 1px);
+}
+
+.fl-intro-media img {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: calc(var(--scale-16) * 1px);
+    border-radius: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: calc(var(--scale-24) * 1px);
+    margin-bottom: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-intro .fl-subheading {
     margin-top: 0;
-    margin-bottom: calc(var(--scale-64) * 1px);
-    font-size: var(--font-size-base);
+    margin-bottom: calc(var(--token-scale-64) * 1px);
+    font-size: var(--fl-theme-font-size-base);
 }

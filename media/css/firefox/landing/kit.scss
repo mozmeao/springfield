@@ -419,6 +419,19 @@ main {
 
         /* Transition variables NOT from Figma */
         --transition-base: 0.2s ease;
+
+        /* Theme color variables */
+         --theme-color-button-text: var(--neutrals-charcoal);
+         --theme-color-button-hover-text: var(--neutrals-white);
+         --theme-color-button-active-text: var(--neutrals-ash);
+         --theme-color-button-active-bg: var(--neutrals-black);
+
+        @media (prefers-color-scheme: dark) {
+            --theme-color-button-text: var(--neutrals-ash);
+            --theme-color-button-hover-text: var(--neutrals-black);
+            --theme-color-button-active-text: var(--neutrals-charcoal);
+            --theme-color-button-active-bg: var(--neutrals-white);
+        }
     }
 
     // Forked from cms/flare-utilities
@@ -437,19 +450,19 @@ main {
         cursor: pointer;
         transition: all var(--transition-base);
         background: transparent;
-        color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-        border: 1px solid light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
+        color: var(--theme-color-button-text);
+        border: 1px solid var(--theme-color-button-text);
     }
 
     .button:hover, .button:focus {
-        background: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-        border-color: light-dark(var(--neutrals-charcoal), var(--neutrals-ash));
-        color: light-dark(var(--neutrals-white), var(--neutrals-black));
+        background: var(--theme-color-button-text);
+        border-color: var(--theme-color-button-text);
+        color: var(--theme-color-button-hover-text);
     }
 
     .button:active {
-        background: light-dark(var(--neutrals-black), var(--neutrals-white));
-        color: light-dark(var(--neutrals-ash), var(--neutrals-charcoal));
+        background: var(--theme-color-button-active-bg);
+        color: var(--theme-color-button-active-text);
     }
 
     .button .icon {
