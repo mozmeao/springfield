@@ -22,7 +22,7 @@ Use `:focus-visible` if you are enhancing the focus state.
 
 When tabbing through a webpage focus should move left to right and top to bottom.
 
-Javascript should be written with mindful focus management. For example, after closing a modal the user's focus should be returned to the element that opened it.
+Javascript should be written with mindful keyboard focus management. Flare uses the [focus-trap](https://github.com/focus-trap/focus-trap) library to help with focus positioning for components like modals or navigation menus.
 
 ## Touch screen
 
