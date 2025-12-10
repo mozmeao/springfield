@@ -314,7 +314,7 @@
     {
       "files": [
         "css/cms/flare26-base.css",
-        "css/cms/flare26-icon.css",
+        "css/cms/flare-icon.css",
         "css/cms/flare26-utilities.css"
       ],
       "name": "flare26_base"
