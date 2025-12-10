@@ -68,7 +68,7 @@ img, svg {
 }
 
 @media (prefers-color-scheme: dark) {
-  .dim-images-on-dark-mode img {
+  body:not(.disable-dark-mode) .dim-images-on-dark-mode img {
     filter: brightness(.8) contrast(1.2);
   }
 }

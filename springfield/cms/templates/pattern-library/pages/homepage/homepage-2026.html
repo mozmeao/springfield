@@ -1,0 +1,210 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<style>
+  body.fl-home-body .pl-wrapper,
+  .pl-wrapper:has(.fl-page) {
+    padding: 0 !important;
+  }
+
+  /* Ensure fl-main is full-width for homepage */
+  body.fl-home-body .fl-main,
+  .fl-home-body .fl-main {
+    width: 100% !important;
+    max-width: unset !important;
+    padding: 0 !important;
+    background: var(--token-color-white);
+    border-bottom-left-radius: var(--token-border-radius-lg);
+    border-bottom-right-radius: var(--token-border-radius-lg);
+    overflow: hidden;
+  }
+
+  @media (--viewport-lg-up) {
+    body.fl-home-body .fl-main,
+    .fl-home-body .fl-main {
+      border-bottom-left-radius: var(--token-border-radius-xl);
+      border-bottom-right-radius: var(--token-border-radius-xl);
+    }
+  }
+</style>
+
+<div class="fl-home-body">
+  <include:flare26-header />
+
+  <div class="fl-page">
+    <main class="fl-main">
+    <section class="fl-home-upper">
+
+      {# Intro Section #}
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <div class="fl-home-intro">
+            <include:intro>
+              <content:heading>
+                <include:heading
+                  level="{{ intro.heading.level }}"
+                  heading_size="{{ intro.heading.heading_size }}"
+                  heading_text="{{ intro.heading.heading_text }}"
+                  superheading_text="{{ intro.heading.superheading_text }}"
+                  subheading_text="{{ intro.heading.subheading_text }}"
+                  subheading_size="{{ intro.heading.subheading_size }}"
+                  alignment_class="{{ intro.heading.alignment_class }}"
+                />
+              </content:heading>
+              <content:actions>
+                {% if intro.buttons %}
+                  <div class="fl-buttons">
+                    {% for button in intro.buttons %}
+                      <include:button
+                        label="{{ button.label }}"
+                        link="{{ button.link }}"
+                        theme_class="{{ button.theme_class }}"
+                        external="{{ button.external }}"
+                        icon_name="{{ button.icon_name }}"
+                        icon_position="{{ button.icon_position }}"
+                      />
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </content:actions>
+            </include:intro>
+          </div>
+        </div>
+      </section>
+
+      {# Sticker Cards Section #}
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:cards-list>
+            {% for card in sticker_cards.cards %}
+              <include:card
+                fill="{{ card.fill }}"
+                expand_link="{{ card.expand_link }}"
+              >
+                {% if card.sticker %}
+                  <content:pre_heading>
+                    <div class="light-dark-display">
+                      <img class="fl-card-sticker display-light" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+                    </div>
+                  </content:pre_heading>
+                {% endif %}
+                <content:heading>
+                  <include:heading
+                    level="h3"
+                    heading_size="fl-heading-size-3"
+                    heading_text="{{ card.heading }}"
+                  />
+                </content:heading>
+                <content:body>
+                  {{ card.body }}
+                </content:body>
+              </include:card>
+            {% endfor %}
+          </include:cards-list>
+        </div>
+      </section>
+
+      {# Carousel Section #}
+      {% set carousel_items = [] %}
+      {% for item in carousel.slides %}
+        {% set _ = carousel_items.append({
+          "headline": item.headline,
+          "image": {
+            "url": item.image.url,
+            "alt": item.image.alt,
+          }
+        }) %}
+      {% endfor %}
+      <include:carousel has_kit="true" items="{{ carousel_items }}">
+        <content:heading>
+          <include:heading
+            level="{{ carousel.heading.level }}"
+            heading_size="{{ carousel.heading.heading_size }}"
+            heading_text="{{ carousel.heading.heading_text }}"
+            superheading_text="{{ carousel.heading.superheading_text }}"
+            subheading_text="{{ carousel.heading.subheading_text }}"
+            subheading_size="{{ carousel.heading.subheading_size }}"
+            alignment_class="{{ carousel.heading.alignment_class }}"
+          />
+        </content:heading>
+      </include:carousel>
+
+    </section>
+
+    <section class="fl-home-lower">
+
+      {# Showcase 1 #}
+      <include:showcase layout="{{ showcase_1.layout }}">
+        <content:heading>
+          <include:heading
+            level="{{ showcase_1.heading.level }}"
+            heading_size="{{ showcase_1.heading.heading_size }}"
+            heading_text="{{ showcase_1.heading.heading_text }}"
+            superheading_text="{{ showcase_1.heading.superheading_text }}"
+            subheading_text="{{ showcase_1.heading.subheading_text }}"
+            subheading_size="{{ showcase_1.heading.subheading_size }}"
+            alignment_class="{{ showcase_1.heading.alignment_class }}"
+          />
+        </content:heading>
+        <content:desktop_image>
+          <div class="light-dark-display">
+            <img alt="{{ showcase_1.desktop_image.alt }}" class="display-light" height="{{ showcase_1.desktop_image.height }}" loading="lazy" sizes="{{ showcase_1.desktop_image.sizes }}" src="{{ showcase_1.desktop_image.url }}" srcset="{{ showcase_1.desktop_image.srcset }}" width="{{ showcase_1.desktop_image.width }}">
+          </div>
+        </content:desktop_image>
+        <content:mobile_image>
+          <div class="light-dark-display">
+            <img alt="{{ showcase_1.mobile_image.alt }}" class="display-light" height="{{ showcase_1.mobile_image.height }}" loading="lazy" sizes="{{ showcase_1.mobile_image.sizes }}" src="{{ showcase_1.mobile_image.url }}" srcset="{{ showcase_1.mobile_image.srcset }}" width="{{ showcase_1.mobile_image.width }}">
+          </div>
+        </content:mobile_image>
+        <content:caption>
+          {% if showcase_1.caption.title %}
+            <h3 class="fl-subheading">{{ showcase_1.caption.title }}</h3>
+          {% endif %}
+          {{ showcase_1.caption.description }}
+        </content:caption>
+      </include:showcase>
+
+      {# Showcase 2 #}
+      <include:showcase layout="{{ showcase_2.layout }}">
+        <content:heading>
+          <include:heading
+            level="{{ showcase_2.heading.level }}"
+            heading_size="{{ showcase_2.heading.heading_size }}"
+            heading_text="{{ showcase_2.heading.heading_text }}"
+            superheading_text="{{ showcase_2.heading.superheading_text }}"
+            subheading_text="{{ showcase_2.heading.subheading_text }}"
+            subheading_size="{{ showcase_2.heading.subheading_size }}"
+            alignment_class="{{ showcase_2.heading.alignment_class }}"
+          />
+        </content:heading>
+        <content:desktop_image>
+          <div class="light-dark-display">
+            <img alt="{{ showcase_2.desktop_image.alt }}" class="display-light" height="{{ showcase_2.desktop_image.height }}" loading="lazy" sizes="{{ showcase_2.desktop_image.sizes }}" src="{{ showcase_2.desktop_image.url }}" srcset="{{ showcase_2.desktop_image.srcset }}" width="{{ showcase_2.desktop_image.width }}">
+          </div>
+        </content:desktop_image>
+        <content:mobile_image>
+          <div class="light-dark-display">
+            <img alt="{{ showcase_2.mobile_image.alt }}" class="display-light" height="{{ showcase_2.mobile_image.height }}" loading="lazy" sizes="{{ showcase_2.mobile_image.sizes }}" src="{{ showcase_2.mobile_image.url }}" srcset="{{ showcase_2.mobile_image.srcset }}" width="{{ showcase_2.mobile_image.width }}">
+          </div>
+        </content:mobile_image>
+        <content:caption>
+          {% if showcase_2.caption.title %}
+            <h3 class="fl-subheading">{{ showcase_2.caption.title }}</h3>
+          {% endif %}
+          {{ showcase_2.caption.description }}
+        </content:caption>
+      </include:showcase>
+
+    </section>
+
+    <section class="fl-home-cta">
+    </section>
+
+    </main>
+  </div>
+
+  <include:flare26-footer />
+</div>

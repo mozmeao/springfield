@@ -42,31 +42,39 @@
 .fl-home-intro::before {
     content: "";
     position: absolute;
-    bottom: -100px;
-    left: -200px;
-    width: 500px;
-    height: 300px;
+    bottom: var(--banner-kit-bottom-position, -260px);
+    right: var(--banner-kit-right-position, calc(50% - 120px));
+    width: var(--banner-kit-width, 480px);
+    aspect-ratio: 4/3;
     background:  url('/media/img/firefox/flare/kit-tail-2.svg');
-    background-position: center;
-    background-size: cover;
+    background-position: top right;
+    background-size: contain;
+    background-repeat: no-repeat;
     z-index: 0;
 }
 
 .fl-home-intro .fl-superheading {
-    background: linear-gradient(180deg, var(--token-color-light-purple-4) 0%, var(--token-color-light-purple-2) 100%);
+    background: linear-gradient(180deg, var(--token-color-light-purple-40) 0%, var(--token-color-light-purple-20) 100%);
     border-radius: var(--token-border-radius-xl);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     font-weight: var(--token-font-weight-medium);
     font-size: var(--fl-theme-font-size-tag);
+    position: relative;
 }
 
 .fl-home-intro .fl-superheading:has(a:hover) {
-    background: linear-gradient(180deg, var(--token-color-light-purple-8) 0%, var(--token-color-light-purple-6) 100%);
+    background: linear-gradient(180deg, var(--token-color-light-purple-60) 0%, var(--token-color-light-purple-40) 100%);
 }
 
 .fl-home-intro .fl-superheading a {
-    color: var(--fl-theme-color-text-inverse);
+    color: var(--token-color-white);
     text-decoration: none;
+}
+
+.fl-home-intro .fl-superheading a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
 }
 
 .fl-home-intro .fl-superheading a::after {
@@ -76,12 +84,9 @@
     height: 1em;
     background-color: currentColor;
     vertical-align: middle;
-    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
-    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: url('/media/img/firefox/flare/2026/icons/arrow-forward.svg') no-repeat center / 1em 1em;
     mask-size: contain;
     margin-left: var(--token-spacing-xs);
-
-    --icon-src: url('/media/img/firefox/flare/2026/icons/arrow-forward.svg');
 }
 
 .fl-home-intro .fl-superheading i,
@@ -105,29 +110,24 @@
     margin-top: var(--token-spacing-2xl);
 }
 
+.fl-home-intro .fl-subheading {
+    max-width: 48ch;
+    margin: 0 auto;
+    text-wrap: balance;
+}
+
 @media (--viewport-sm-up) {
-    .fl-home-intro::before {
-        width: 800px;
-        height: 500px;
-        left: -300px;
-        bottom: -160px;
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 154px);
+        --banner-kit-bottom-position: -400px;
+        --banner-kit-width: 800px;
     }
 }
 
 @media (--viewport-md-up) {
-    .fl-home-intro::before {
-        left: -100px;
-    }
-}
-
-@media (--viewport-lg-up) {
-    .fl-home-intro::before {
-        left: -70px;
-    }
-}
-
-@media (--viewport-xl-up) {
-    .fl-home-intro::before {
-        left: -100px;
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 198px);
+        --banner-kit-bottom-position: -530px;
+        --banner-kit-width: 1050px;
     }
 }

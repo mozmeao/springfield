@@ -54,10 +54,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
     --fl-theme-font-size-tag: 0.75rem; /* 12px */
 
+    /* Label font size variables */
     --fl-theme-label-caps-md: 1rem; /* 16px */
     --fl-theme-label-caps-sm: .875rem; /* 14px */
     --fl-theme-label-caps-xs: .75rem; /* 12px */
-
     --fl-theme-label-md: 1rem; /* 16px */
     --fl-theme-label-sm: .875rem; /* 14px */
     --fl-theme-label-xs: .75rem; /* 12px */
