@@ -1,0 +1,24 @@
+name: "Sticker Card 2026 List"
+context:
+  grid_four: true
+  cards:
+    - sticker: "/media/img/firefox/flare/ai-sticker.png"
+      expand_link: false
+      superheading_text: "AI"
+      heading: "Your favorite AI chatbot in your sidebar."
+      body: "Conversations stay between you and your AI."
+    - sticker: "/media/img/firefox/flare/privacy-sticker.png"
+      expand_link: false
+      superheading_text: "Privacy"
+      heading: "Privacy that puts you in control."
+      body: "Firefox doesn’t exploit your data and is backed by a people-first foundation."
+    - sticker: "/media/img/firefox/flare/organization-sticker.png"
+      expand_link: false
+      superheading_text: "Organization"
+      heading: "Get organized. Stay organized."
+      body: "Browse smarter with vertical tabs, tab groups, PDF editing and more."
+    - sticker: "/media/img/firefox/flare/independence-sticker.png"
+      expand_link: false
+      superheading_text: "Independence"
+      heading: "Billionaire-free and open source for 20+ years."
+      body: "Since 2004, Firefox has been the independent choice."

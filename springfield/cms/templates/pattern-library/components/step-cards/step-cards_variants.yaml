@@ -1,0 +1,28 @@
+name: "Step Cards Section Variants"
+context:
+  three_step:
+    heading: "Get Started in 3 Steps"
+    cards:
+      - image: "/media/img/firefox/flare/placeholder.png"
+        superheading: "Step 01"
+        heading: "Download"
+        body: "Get Firefox for your device."
+      - image: "/media/img/firefox/flare/placeholder.png"
+        superheading: "Step 02"
+        heading: "Set Up"
+        body: "Customize your preferences."
+      - image: "/media/img/firefox/flare/placeholder.png"
+        superheading: "Step 03"
+        heading: "Browse"
+        body: "Enjoy a better web."
+  two_step:
+    heading: "Quick Setup"
+    cards:
+      - image: "/media/img/firefox/flare/placeholder.png"
+        superheading: "Step 01"
+        heading: "Sign In"
+        body: "Create or sign in to your Firefox Account."
+      - image: "/media/img/firefox/flare/placeholder.png"
+        superheading: "Step 02"
+        heading: "Sync"
+        body: "Your data syncs across all devices."

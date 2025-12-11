@@ -1,0 +1,26 @@
+name: "Icon Card Variants"
+context:
+  cards:
+    - icon: "heart"
+      expand_link: false
+      heading: "With Buttons"
+      body: "This card includes action buttons below the content."
+      buttons:
+        - label: "Primary Action"
+          link: "/"
+          theme_class: ""
+        - label: "Secondary Action"
+          link: "/"
+          theme_class: "button-secondary"
+    - icon: "shield"
+      expand_link: false
+      heading: "No Buttons"
+      body: "This card has no buttons, just an icon, heading, and body text."
+    - icon: "toggle-on"
+      expand_link: true
+      heading: "Expand Link"
+      body: "This card has expand_link enabled, making the entire card clickable."
+      buttons:
+        - label: "Download"
+          link: "/"
+          theme_class: ""

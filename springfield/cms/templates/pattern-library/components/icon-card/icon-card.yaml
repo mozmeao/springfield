@@ -1,0 +1,10 @@
+name: "Icon Card"
+context:
+  icon: "heart"
+  expand_link: false
+  heading: "Support Mozilla"
+  body: "Help us build a better internet for everyone by supporting Mozilla's mission."
+  buttons:
+    - label: "Learn More"
+      link: "/"
+      theme_class: ""

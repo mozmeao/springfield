@@ -195,3 +195,30 @@ def richtext(context, value: str) -> str:
         fxa_tag.replace_with(BeautifulSoup(fxa_link, "html.parser"))
 
     return mark_safe(str(soup))
+
+
+@pass_context
+@library.global_function
+def get_bottom_cta_snippet(context):
+    """
+    Retrieves the BottomCTASnippet for the current locale.
+    Returns the first available snippet for the locale, or None if not found.
+
+    Usage in templates:
+        {% set bottom_cta = get_bottom_cta_snippet() %}
+        {% if bottom_cta %}
+        <include:bottom-cta-snippet value="{{ bottom_cta }}" />
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import BottomCTASnippet
+
+    locale = None
+    if "page" in context and hasattr(context["page"], "locale"):
+        locale = context["page"].locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        return BottomCTASnippet.objects.filter(locale=locale).first()
+
+    return None

@@ -1,0 +1,67 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Utilities - Helper classes
+
+This layer provides utility classes that can be used to quickly override
+element styles without having to create a new class or add new CSS
+
+This is imported into both the legacy and modern stylesheets so the
+style rules should have any fallbacks needed for IE8+ and Safari 12.1+
+===================================================================== */
+
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    white-space: nowrap;
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+.light-dark-display {
+    display: contents;
+}
+
+.light-dark-display .display-light,
+.light-dark-display .display-dark {
+    display: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .light-dark-display .display-light {
+        display: block;
+    }
+
+    .light-dark-display .display-dark {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .light-dark-display .display-light {
+        display: none;
+    }
+
+    .light-dark-display .display-dark {
+        display: block;
+    }
+}
+
+/* Fallback if no dark variant is set */
+.light-dark-display:not(:has(.display-dark)) .display-light {
+    display: block;
+}
