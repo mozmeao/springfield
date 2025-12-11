@@ -9,6 +9,8 @@
     flex-direction: column;
     align-items: center;
     gap: var(--token-spacing-2xl);
+    --counter-size: 36px;
+    --spinner-width: 6px;
 }
 
 .fl-carousel-heading {
@@ -59,14 +61,12 @@
 
 .fl-carousel-control-item {
     display: flex;
-    flex-direction: row;
-    gap: var(--token-spacing-md);
     align-items: center;
-    justify-content: center;
-    min-width: 0;
-    width: fit-content;
-    max-width: 100%;
+    min-height: calc(var(--counter-size) + 8px);
+    width: 100%;
     cursor: pointer;
+    position: relative;
+    padding-left: calc(var(--counter-size) + (var(--spinner-width) * 2) + var(--token-spacing-md));
 }
 
 .fl-carousel-control-item-text {
@@ -77,24 +77,47 @@
     text-wrap: balance;
 }
 
-.fl-carousel-control-item::before {
+.fl-carousel-control-item::before,
+.fl-carousel-control-item::after {
     counter-increment: items;
     content: counter(items, decimal-leading-zero);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    background-color: var(--token-color-dark-purple-3);
+    width: var(--counter-size);
+    height: var(--counter-size);
+    background-color: var(--token-color-dark-purple-30);
     border-radius: 50%;
     font-weight: var(--token-font-weight-bold);
-    color: var(--token-color-white);
+    color: rgb(var(--token-color-white));
+    position: absolute;
+    top: var(--spinner-width);
+    left: var(--spinner-width);
+    z-index: 1;
+}
+
+.fl-carousel-control-item::after {
+    content: "";
+    background: transparent;
 }
 
 .fl-carousel-control-item.active::before {
     background-color: var(--token-color-white);
     color: var(--token-color-dark-purple);
+}
+
+.fl-carousel-control-item.active::after {
+    content: "";
+    width: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    height: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    background: conic-gradient(
+     rgba(255,255,255,0.6) calc(var(--carousel-progress, 0) * 3.6deg),
+     transparent calc(var(--carousel-progress, 0) * 3.6deg) 360deg
+    ); /* 360deg = 100%. This expects an integer value from 1-100, populated from the JS. */
+    top: 0;
+    left: 0;
+    z-index: 0;;
 }
 
 .fl-carousel-images {
