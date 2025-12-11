@@ -212,7 +212,7 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
-        border-radius: var(--token-border-radius-xl);
+        border-radius: var(--token-border-radius-lg);
         padding: var(--token-layout-md);
         justify-content: initial;
         align-items: initial;
@@ -244,6 +244,7 @@
 @media (--viewport-md-up) {
     .fl-banner {
         padding: var(--token-layout-lg);
+        border-radius: var(--token-border-radius-xl);
     }
 
     .fl-banner-container {
