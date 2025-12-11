@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
+from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -362,6 +363,13 @@ def validate_video_url(value):
     return value
 
 
+class IconChoiceBlock(ThumbnailChoiceBlock):
+    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
+        choices = choices or ICON_CHOICES
+        thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
+        super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -417,7 +425,7 @@ class BaseButtonSettings(blocks.StructBlock):
         required=False,
         inline_form=True,
     )
-    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    icon = IconChoiceBlock(required=False)
     icon_position = blocks.ChoiceBlock(
         choices=(("left", "Left"), ("right", "Right")),
         default="right",
@@ -552,7 +560,7 @@ class CTABlock(blocks.StructBlock):
 
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
+    icon = IconChoiceBlock()
     icon_position = blocks.ChoiceBlock(
         choices=(("before", "Before"), ("after", "After")),
         default="before",
@@ -784,7 +792,7 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _IconCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
-        icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+        icon = IconChoiceBlock(inline_form=True)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -929,7 +937,7 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 
 class InlineNotificationSettings(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    icon = IconChoiceBlock(required=False, inline_form=True)
     color = blocks.ChoiceBlock(
         choices=[
             ("white", "White"),
