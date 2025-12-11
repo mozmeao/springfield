@@ -1,0 +1,36 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_position = block_position or "banner" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:kit-banner theme="{{ 'filled-with-qr' if value.qr_code else 'filled-diving-in' }}" qr_code="{{ value.qr_code }}">
+
+    <content:heading>
+      {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-2"
+        alignment_class=""
+        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+        subheading_size="fl-subheading-4"
+      />
+    </content:heading>
+
+    {% if value.buttons %}
+      <content:actions>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      </content:actions>
+    {% endif %}
+  </include:kit-banner>
+
+</include:conditional-display>
