@@ -1,0 +1,40 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% for variant in variants %}
+<div style="margin-bottom: 2em;">
+  <h2>{{ variant.title }}</h2>
+  <include:kit-banner theme="{{ variant.theme }}" qr_code="{{ variant.qr_code|default(None) }}">
+
+    <content:heading>
+      <include:heading
+        level="{{ variant.heading.level }}"
+        heading_text="{{ variant.heading.heading_text }}"
+        heading_size="{{ variant.heading.heading_size }}"
+        alignment_class=""
+        superheading_text="{{ variant.heading.superheading_text|default('') }}"
+        subheading_text="{{ variant.heading.subheading_text }}"
+        subheading_size="{{ variant.heading.subheading_size }}"
+      />
+    </content:heading>
+
+    {% if variant.buttons %}
+      <content:actions>
+        {% for button in variant.buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            theme_class="{{ button.theme_class }}"
+            external="{{ button.external }}"
+            icon_name="{{ button.icon_name|default('') }}"
+            icon_position="{{ button.icon_position|default('') }}"
+          />
+        {% endfor %}
+      </content:actions>
+    {% endif %}
+  </include:kit-banner>
+  </div>
+{% endfor %}

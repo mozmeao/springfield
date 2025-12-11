@@ -27,6 +27,11 @@ Button - Flare 2026 Design System Buttons
     padding: var(--token-spacing-md) var(--token-spacing-xl);
 }
 
+.fl-banner .fl-button {
+    white-space: normal;
+    text-wrap: balance;
+}
+
 .fl-button:hover {
     background-color: var(--token-color-link-purple);
 }
@@ -37,21 +42,21 @@ Button - Flare 2026 Design System Buttons
 
 /* Button variants - Secondary (outlined) */
 .fl-button.button-secondary {
-    background-color: var(--token-color-white);
-    color: var(--token-color-black-4);
+    background-color: transparent;
+    color: var(--token-color-white);
     border: 2px solid var(--token-color-light-purple);
 }
 
 .fl-button.button-secondary:hover {
-    background-color: var(--token-color-white);
+    background-color: transparent;
     border-color: var(--token-color-link-purple);
-    color: var(--token-color-link-purple);
+    color: var(--token-color-white);
 }
 
 .fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
+    background-color: transparent;
     border-color: var(--token-color-purple);
-    color: var(--token-color-purple);
+    color: var(--token-color-white);
 }
 
 /* Button sizes */

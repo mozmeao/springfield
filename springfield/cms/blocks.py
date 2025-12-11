@@ -1060,3 +1060,42 @@ class ShowcaseBlock(blocks.StructBlock):
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
         label_format = "{heading}"
+
+
+class HomeKitBannerSettings(blocks.StructBlock):
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create KitBannerBlock with appropriate button types."""
+
+    class _HomeKitBannerBlock(blocks.StructBlock):
+        settings = HomeKitBannerSettings()
+        heading = HeadingBlock()
+        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/home-kit-banner.html"
+            label = "Kit Banner"
+            label_format = "{heading}"
+
+    return _HomeKitBannerBlock(*args, **kwargs)
