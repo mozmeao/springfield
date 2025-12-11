@@ -300,6 +300,12 @@ main {
         grid-column: text-start / full-width-end;
         border-top-left-radius: 3%;
         overflow: clip;
+
+        @media (max-width: 687px) {
+            grid-column: text;
+            justify-self: center;
+            border-top-left-radius: 0;
+        }
     }
 }
 
@@ -351,6 +357,22 @@ main {
         padding: 4px;
         vertical-align: middle;
         box-sizing: content-box;
+    }
+
+    .c-gallery-card-list-desktop {
+        display: none;
+
+        @media (min-width: 688px) {
+            display: grid;
+        }
+    }
+
+    .c-gallery-card-list-mobile {
+        display: grid;
+
+        @media (min-width: 688px) {
+            display: none;
+        }
     }
 }
 

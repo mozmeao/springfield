@@ -21,6 +21,9 @@
   {% set card_1_list_1 = 'Öffne einen neuen Tab.' %}
   {% set card_1_list_2 = 'Klicke unten rechts auf das ' + pencil_icon + '-Symbol.' %}
   {% set card_1_list_3 = 'Wähle dein neues Firefox-Hintergrundbild aus.' %}
+  {% set card_1_list_1_mobile = 'Gehe zu Einstellungen' %}
+  {% set card_1_list_2_mobile = 'Tippe auf Startseite' %}
+  {% set card_1_list_3_mobile = 'Tippe auf Hintergrundbild' %}
   {% set card_2_heading = 'Du erhältst Kit-Produkte vor allen anderen.' %}
   {% set card_2_body = '<p>Neue limitierte Designs, sofort erhältlich.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
   {% set card_2_cta_na = 'Nordamerika' %}
@@ -35,6 +38,9 @@
   {% set card_1_list_1 = 'Ouvrez un nouvel onglet.' %}
   {% set card_1_list_2 = 'Cliquez sur l’icône ' + pencil_icon + ' en bas à droite.' %}
   {% set card_1_list_3 = 'Sélectionnez votre nouveau fond d’écran Firefox.' %}
+  {% set card_1_list_1_mobile = 'Aller dans Paramètres' %}
+  {% set card_1_list_2_mobile = 'Cliquer sur Page d’accueil' %}
+  {% set card_1_list_3_mobile = 'Cliquer sur Fond d’écran' %}
   {% set card_2_heading = 'Vous êtes aux premières loges pour les produits Kit' %}
   {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits&nbsp;:</p>' %}
   {% set card_2_cta_na = 'Amérique du Nord' %}
@@ -49,6 +55,9 @@
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
   {% set card_1_list_3 = 'Select your new Firefox wallpaper.' %}
+  {% set card_1_list_1_mobile = 'Go to Settings' %}
+  {% set card_1_list_2_mobile = 'Click Homepage' %}
+  {% set card_1_list_3_mobile = 'Click Wallpaper' %}
   {% set card_2_heading = 'You’re first in line for Kit gear' %}
   {% set card_2_body = '<p>New limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
   {% set card_2_cta_na = 'North America' %}
@@ -102,10 +111,15 @@
     <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
       <div class="c-gallery-card-text-container">
         <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
-        <ol>
+        <ol class="c-gallery-card-list-desktop">
           <li>{{ card_1_list_1 }}</li>
           <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
           <li>{{ card_1_list_3 }}</li>
+        </ol>
+        <ol class="c-gallery-card-list-mobile">
+          <li>{{ card_1_list_1_mobile }}</li>
+          <li>{{ card_1_list_2_mobile }}</li>
+          <li>{{ card_1_list_3_mobile }}</li>
         </ol>
       </div>
       <div class="c-gallery-card-media-container">
