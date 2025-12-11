@@ -468,6 +468,12 @@
     },
     {
       "files": [
+        "js/cms/flare-lang-switcher.es6.js"
+      ],
+      "name": "flare-lang-switcher"
+    },
+    {
+      "files": [
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"
