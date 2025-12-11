@@ -50,6 +50,8 @@ _csp_connect_src = {
     "o1069899.ingest.sentry.io",
     "o1069899.ingest.us.sentry.io",
     FXA_ENDPOINT,  # noqa: F405
+    "telemetry.transcend.io",  # Transcend Consent Management
+    "telemetry.us.transcend.io",  # Transcend Consent Management
 }
 _csp_font_src = {
     csp.constants.SELF,
@@ -100,6 +102,8 @@ _csp_script_src = {
     "tagmanager.google.com",
     "www.youtube.com",
     "s.ytimg.com",
+    "cdn.transcend.io",  # Transcend Consent Management
+    "transcend-cdn.com",  # Transcend Consent Management
 }
 _csp_style_src = {
     csp.constants.SELF,
