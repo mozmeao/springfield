@@ -1304,7 +1304,7 @@ class ShowcaseBlock(blocks.StructBlock):
 
 
 class CardGalleryCard(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
+    icon = IconChoiceBlock()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
