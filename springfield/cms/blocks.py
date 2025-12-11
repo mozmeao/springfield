@@ -19,6 +19,7 @@ HEADING_TEXT_FEATURES = [
     "subscript",
     "strikethrough",
     "fxa",
+    "fx-logo",
 ]
 
 EXPANDED_TEXT_FEATURES = [
