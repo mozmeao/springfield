@@ -16,6 +16,7 @@ from springfield.cms.blocks import (
     CardsListBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
+    HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     KitBannerBlock,
@@ -114,6 +115,7 @@ class HomePage(AbstractSpringfieldCMSPage):
         [
             ("showcase", ShowcaseBlock()),
             ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
         ],
         null=True,
         blank=True,

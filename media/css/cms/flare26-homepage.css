@@ -38,7 +38,7 @@
     gap: var(--fl-section-v-padding);
 }
 
-@media (--viewport-lg-up) {
+@media (--viewport-md-up) {
     .fl-home-body {
         --section-border-radius: var(--token-border-radius-xl);
     }
