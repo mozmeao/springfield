@@ -905,11 +905,7 @@ class BannerSettings(blocks.StructBlock):
         ),
         thumbnails={
             "outlined": "/media/img/cms/banner-thumbnails/outlined.svg",
-            "filled": "/media/img/cms/banner-thumbnails/filled-no-kit.png",
-            "filled-small": "/media/img/firefox/flare/fox-brand.svg",
-            "filled-large": "/media/img/firefox/flare/fox-brand.svg",
-            "filled-face": "/media/img/firefox/flare/forward-facing-kit.svg",
-            "filled-tail": "/media/img/firefox/flare/kit-tail.png",
+            "purple": "/media/img/cms/banner-thumbnails/filled-no-kit.png",
         },
         default="outlined",
         inline_form=True,
