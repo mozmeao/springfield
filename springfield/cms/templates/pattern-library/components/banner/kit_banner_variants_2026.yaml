@@ -7,10 +7,24 @@ context:
         level: "h2"
         heading_text: "Peace of mind?<br>Piece of cake."
         heading_size: "heading-xl"
-        subheading_text: "We block trackers automatically. Update security features seamlessly. Protect your data relentlessly.<br>With Firefox, you don't have to become a privacy expert to browse safely."
+        subheading_text: "We block trackers automatically. Update security features seamlessly. Protect your data relentlessly. With Firefox, you don't have to become a privacy expert to browse safely."
         subheading_size: "fl-subheading-md"
       buttons:
         - label: "Learn more about Firefox privacy"
+          link: "/"
+          external: false
+          theme_class: "button-secondary"
+    - title: "Sync Banner with QR Code"
+      theme: "filled-with-qr"
+      qr_code: "https://www.mozilla.org/firefox/browsers/mobile/"
+      heading:
+        level: "h2"
+        heading_text: "Take your tabs, history and<br>passwords wherever you go"
+        heading_size: "heading-xl"
+        subheading_text: "Your passwords, bookmarks, and preferences sync seamlessly across all your devices, so you can pick up where you left off."
+        subheading_size: "fl-subheading-md"
+      buttons:
+        - label: "Get Firefox for mobile"
           link: "/"
           external: false
           theme_class: "button-secondary"

@@ -41,6 +41,9 @@
 .fl-banner .fl-heading {
     font-size: var(--fl-theme-font-size-heading-xl);
     line-height: 0.9;
+    text-wrap: balance;
+    display: block;
+    width: 100%;
 }
 
 .fl-banner .fl-subheading {

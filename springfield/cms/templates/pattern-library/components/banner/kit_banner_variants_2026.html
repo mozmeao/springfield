@@ -7,7 +7,7 @@
 {% for variant in variants %}
 <div style="margin-bottom: 2em;">
   <h2>{{ variant.title }}</h2>
-  <include:kit-banner theme="{{ variant.theme }}">
+  <include:kit-banner theme="{{ variant.theme }}" qr_code="{{ variant.qr_code|default(None) }}">
 
     <content:heading>
       <include:heading
