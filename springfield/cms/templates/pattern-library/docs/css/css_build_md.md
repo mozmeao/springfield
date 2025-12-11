@@ -6,7 +6,7 @@ Modern and legacy CSS are delivered via two separate bundles which are defined i
 
 ## `flare_base` Bundle (Legacy Fallback)
 
-Provides a minimal, accessible, and branded experience with basic typography and single-column layout. This bundle includes `flare-base.css`, and also `flare-icon.css` and `flare-utilities.css`.
+Provides a minimal, accessible, and branded experience with basic typography and single-column layout. This bundle includes `flare-base.css`, and also `flare26-icon.css` and `flare-utilities.css`.
 
 ## `flare` Bundle (Modern CSS)
 
