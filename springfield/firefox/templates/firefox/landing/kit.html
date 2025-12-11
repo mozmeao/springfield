@@ -21,6 +21,9 @@
   {% set card_1_list_1 = 'Öffne einen neuen Tab.' %}
   {% set card_1_list_2 = 'Klicke unten rechts auf das ' + pencil_icon + '-Symbol.' %}
   {% set card_1_list_3 = 'Wähle dein neues Firefox-Hintergrundbild aus.' %}
+  {% set card_1_list_1_mobile = 'Gehe zu Einstellungen' %}
+  {% set card_1_list_2_mobile = 'Tippe auf Startseite' %}
+  {% set card_1_list_3_mobile = 'Tippe auf Hintergrundbild' %}
   {% set card_2_heading = 'Du erhältst Kit-Produkte vor allen anderen.' %}
   {% set card_2_body = '<p>Neue limitierte Designs, sofort erhältlich.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
   {% set card_2_cta_na = 'Nordamerika' %}
@@ -31,10 +34,13 @@
   {% set main_heading = 'Dites bonjour à Kit' %}
   {% set main_subheading = 'Nouvelle amitié débloquée' %}
   {% set main_body = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde. Kit, notre nouvelle mascotte, va accompagner votre navigation au sein d’un internet privé, ouvert et qui vous appartient.' %}
-  {% set card_1_heading = 'Choisissez un nouveau fond d’écran' %}
+  {% set card_1_heading = 'Choisis un nouveau fond d’écran' %}
   {% set card_1_list_1 = 'Ouvrez un nouvel onglet.' %}
   {% set card_1_list_2 = 'Cliquez sur l’icône ' + pencil_icon + ' en bas à droite.' %}
   {% set card_1_list_3 = 'Sélectionnez votre nouveau fond d’écran Firefox.' %}
+  {% set card_1_list_1_mobile = 'Aller dans Paramètres' %}
+  {% set card_1_list_2_mobile = 'Cliquer sur Page d’accueil' %}
+  {% set card_1_list_3_mobile = 'Cliquer sur Fond d’écran' %}
   {% set card_2_heading = 'Vous êtes aux premières loges pour les produits Kit' %}
   {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits&nbsp;:</p>' %}
   {% set card_2_cta_na = 'Amérique du Nord' %}
@@ -49,6 +55,9 @@
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
   {% set card_1_list_3 = 'Select your new Firefox wallpaper.' %}
+  {% set card_1_list_1_mobile = 'Go to Settings' %}
+  {% set card_1_list_2_mobile = 'Click Homepage' %}
+  {% set card_1_list_3_mobile = 'Click Wallpaper' %}
   {% set card_2_heading = 'You’re first in line for Kit gear' %}
   {% set card_2_body = '<p>New limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
   {% set card_2_cta_na = 'North America' %}
@@ -102,28 +111,62 @@
     <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
       <div class="c-gallery-card-text-container">
         <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
-        <ol>
+        <ol class="c-gallery-card-list-desktop">
           <li>{{ card_1_list_1 }}</li>
           <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
           <li>{{ card_1_list_3 }}</li>
         </ol>
+        <ol class="c-gallery-card-list-mobile">
+          <li>{{ card_1_list_1_mobile }}</li>
+          <li>{{ card_1_list_2_mobile }}</li>
+          <li>{{ card_1_list_3_mobile }}</li>
+        </ol>
       </div>
       <div class="c-gallery-card-media-container">
-        {{ resp_img(
+        <div class="c-gallery-card-media-desktop">
+          {{ picture(
             url="img/firefox/kit/browser-dark-630.png",
-            srcset={
-              "img/firefox/kit/browser-dark-315.png": "315w",
-              "img/firefox/kit/browser-dark-630.png": "630w",
-              "img/firefox/kit/browser-dark-1259.png": "1259w",
-              "img/firefox/kit/browser-dark-1738.png": "1738w",
-            },
-            sizes={
-              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-              "(min-width: 1024px)": "calc(50vw - 156px)",
-              "default": "calc(100vw - 80px)",
-            },
-            optional_attributes={ "l10n": True, "loading": "lazy" })
-        }}
+            sources=[
+              {
+                'srcset': {
+                  "img/firefox/kit/browser-dark-315.png": "315w",
+                  "img/firefox/kit/browser-dark-630.png": "630w",
+                  "img/firefox/kit/browser-dark-1259.png": "1259w",
+                  "img/firefox/kit/browser-dark-1738.png": "1738w",
+                },
+                'sizes': {
+                  "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                  "(min-width: 1024px)": "calc(50vw - 156px)",
+                  "default": "calc(100vw - 80px)",
+                },
+              }
+            ],
+            optional_attributes={
+              "l10n": True,
+              "loading": "lazy"
+            }
+          )}}
+        </div>
+        <div class="c-gallery-card-media-mobile">
+          {{ picture(
+            url="img/firefox/kit/browser-dark-630.png",
+            sources=[
+              {
+                'srcset': {
+                  "img/firefox/kit/browser-mobile-310.png": "310w",
+                  "img/firefox/kit/browser-mobile-620.png": "620w",
+                },
+                'sizes': {
+                  "default": "calc(100vw - 80px)",
+                },
+              }
+            ],
+            optional_attributes={
+              "l10n": True,
+              "loading": "lazy"
+            }
+          )}}
+        </div>
       </div>
     </section>
     <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
