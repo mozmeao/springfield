@@ -123,11 +123,11 @@
         </ol>
       </div>
       <div class="c-gallery-card-media-container">
-        {{ picture(
+        <div class="c-gallery-card-media-desktop">
+          {{ picture(
             url="img/firefox/kit/browser-dark-630.png",
             sources=[
               {
-                'media': '(min-width: 688px)',
                 'srcset': {
                   "img/firefox/kit/browser-dark-315.png": "315w",
                   "img/firefox/kit/browser-dark-630.png": "630w",
@@ -139,7 +139,18 @@
                   "(min-width: 1024px)": "calc(50vw - 156px)",
                   "default": "calc(100vw - 80px)",
                 },
-              },
+              }
+            ],
+            optional_attributes={
+              "l10n": True,
+              "loading": "lazy"
+            }
+          )}}
+        </div>
+        <div class="c-gallery-card-media-mobile">
+          {{ picture(
+            url="img/firefox/kit/browser-dark-630.png",
+            sources=[
               {
                 'media': '(max-width: 687px)',
                 'srcset': {
@@ -156,6 +167,7 @@
               "loading": "lazy"
             }
           )}}
+        </div>
       </div>
     </section>
     <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">

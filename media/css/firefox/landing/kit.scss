@@ -368,14 +368,27 @@ main {
     }
 }
 
+.c-gallery-card-list-desktop {
+    display: block;
+}
+
+.c-gallery-card-media-mobile {
+    display: none;
+}
+
 .ios,
 .android {
-    .c-gallery-card-list-desktop {
+    .c-gallery-card-list-desktop,
+    .c-gallery-card-media-desktop {
         display: none;
     }
 
     .c-gallery-card-list-mobile {
         display: grid;
+    }
+
+    .c-gallery-card-media-mobile {
+        display: block;
     }
 }
 
