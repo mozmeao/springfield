@@ -360,19 +360,22 @@ main {
     }
 
     .c-gallery-card-list-desktop {
-        display: none;
+        display: grid;
+    }
 
-        @media (min-width: 688px) {
-            display: grid;
-        }
+    .c-gallery-card-list-mobile {
+        display: none;
+    }
+}
+
+.ios,
+.android {
+    .c-gallery-card-list-desktop {
+        display: none;
     }
 
     .c-gallery-card-list-mobile {
         display: grid;
-
-        @media (min-width: 688px) {
-            display: none;
-        }
     }
 }
 
