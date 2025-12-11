@@ -1425,8 +1425,8 @@ _allowed_page_models = [
     "cms.FreeFormPage",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
-    "firefox.FeaturesDetailPage",
-    "firefox.FeaturesIndexPage",
+    "cms.ArticleIndexPage",
+    "cms.ArticleDetailPage",
 ]
 
 if DEV is True:

@@ -96,7 +96,7 @@ body.fl-modal-open {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: calc(var(--scale-16) * 1px);
+    gap: calc(var(--token-scale-16) * 1px);
 }
 
 /* Hide the unsupported message by default */

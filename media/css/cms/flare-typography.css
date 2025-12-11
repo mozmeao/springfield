@@ -8,7 +8,7 @@
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
     line-height: var(--fl-theme-line-height-base);
-    color: var(--fl-theme-color-text-primary);
+    color: var(--fl-theme-color-headings-primary);
     margin: calc(var(--token-scale-24) * 1px) 0;
 }
 
@@ -82,6 +82,12 @@
 
 .fl-body p, .fl-rich-text p {
     margin: 0 0 calc(var(--token-scale-16) * 1px);
+}
+
+.fl-article-body .fl-heading {
+    border-bottom: 1px solid var(--fl-theme-border-color-muted);
+    padding-bottom: calc(var(--token-scale-24) * 1px);
+    margin-bottom: calc(var(--token-scale-32) * 1px);
 }
 
 @media (--viewport-xs) {
