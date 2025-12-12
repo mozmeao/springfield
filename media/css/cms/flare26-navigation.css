@@ -318,7 +318,7 @@
 
 @media (min-width: 768px) {
     .fl-header {
-        --fl-navigation-menu-height: 56px;
+        --fl-navigation-menu-height: 68px;
     }
 
     .fl-header.headroom {
@@ -395,7 +395,7 @@
 
     .fl-menu-category {
         margin: 0;
-        padding: var(--token-spacing-lg) 0;
+        padding: var(--token-spacing-xl) 0;
         cursor: pointer;
     }
 
