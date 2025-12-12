@@ -22,6 +22,13 @@ HEADING_TEXT_FEATURES = [
     "fx-logo",
 ]
 
+EXPANDED_TEXT_FEATURES = [
+    *HEADING_TEXT_FEATURES,
+    "blockquote",
+    "ol",
+    "ul",
+]
+
 HEADING_LEVEL_CHOICES = (
     ("h1", "H1"),
     ("h2", "H2"),
@@ -1294,4 +1301,35 @@ class ShowcaseBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
+        label_format = "{heading}"
+
+
+class CardGalleryCard(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=1,
+        required=False,
+    )
+    image = ImageChooserBlock()
+
+
+class CardGalleryCallout(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+
+
+class CardGalleryBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    main_card = CardGalleryCard()
+    secondary_card = CardGalleryCard()
+    callout_card = CardGalleryCallout()
+    cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+    class Meta:
+        template = "cms/blocks/sections/card-gallery.html"
+        label = "Card Gallery"
         label_format = "{heading}"
