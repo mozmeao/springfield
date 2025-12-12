@@ -729,6 +729,7 @@ INSTALLED_APPS = [
     "wagtaildraftsharing",  # has to come before wagtail.admin due to template overriding; also needs wagtail.snippets
     "wagtail.admin",
     "wagtail",
+    "wagtail_thumbnail_choice_block",
     "modelcluster",
     "taggit",
     "csp",
