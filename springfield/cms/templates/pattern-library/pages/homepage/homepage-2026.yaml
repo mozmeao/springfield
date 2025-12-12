@@ -116,3 +116,6 @@ context:
     caption:
       title: ""
       description: '<p data-block-key="xhjh5">Make Firefox your own, from your language to your layout, and leave big tech behind.</p>'
+  pre_footer:
+    label: "Get Firefox"
+    link: "https://firefox.com/thanks"

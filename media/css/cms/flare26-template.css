@@ -132,34 +132,6 @@ body {
     margin: 0 auto;
 }
 
-/* Footer CTA */
-.fl-footer-cta {
-    display: flex;
-    justify-content: center;
-    margin-bottom: var(--token-layout-lg);
-}
-
-.fl-footer-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--token-layout-sm) var(--token-layout-lg);
-    background-color: var(--token-color-light-purple);
-    color: var(--token-color-white);
-    font-family: var(--fl-theme-font-family-headline);
-    font-weight: 700;
-    font-size: var(--token-layout-lg);
-    line-height: 0.9;
-    letter-spacing: -0.005em;
-    text-decoration: none;
-    border-radius: 2000px;
-    transition: background-color var(--token-transition-fast);
-}
-
-.fl-footer-button:hover {
-    background-color: var(--token-color-link-purple);
-}
-
 /* Footer Navigation */
 .fl-footer-nav {
     display: grid;
