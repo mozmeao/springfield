@@ -1,0 +1,91 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:card-gallery>
+  <content:heading>
+    <include:heading
+      level="h2"
+      alignment_class="text-center"
+      heading_text="{{ heading.heading_text }}"
+      subheading_text="{{ heading.subheading_text }}"
+    />
+  </content:heading>
+
+  <content:main_card>
+    <h3 class="fl-heading">
+      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ main_card.icon }}" /></span>
+      {{ main_card.headline }}
+    </h3>
+    <div class="fl-body">
+      {{ main_card.description }}
+    </div>
+    {% if main_card.buttons %}
+      <div class="fl-buttons">
+        {% for button in main_card.buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            icon_name="{{ button.icon_name }}"
+            icon_position="{{ button.icon_position }}"
+          />
+        {% endfor %}
+      </div>
+    {% endif %}
+  </content:main_card>
+
+  <content:main_card_image>
+    <img src="{{ main_card.image.url }}"
+         alt="{{ main_card.image.alt }}"
+         loading="lazy" />
+  </content:main_card_image>
+
+  <content:secondary_card>
+    <h3 class="fl-heading">
+      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ secondary_card.icon }}" /></span>
+      {{ secondary_card.headline }}
+    </h3>
+    <div class="fl-body">
+      {{ secondary_card.description }}
+    </div>
+    {% if secondary_card.buttons %}
+      <div class="fl-buttons">
+        {% for button in secondary_card.buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            icon_name="{{ button.icon_name }}"
+            icon_position="{{ button.icon_position }}"
+          />
+        {% endfor %}
+      </div>
+    {% endif %}
+  </content:secondary_card>
+
+  <content:secondary_card_image>
+    <img src="{{ secondary_card.image.url }}"
+         alt="{{ secondary_card.image.alt }}"
+         loading="lazy" />
+  </content:secondary_card_image>
+
+  <content:callout_card>
+    <h3 class="fl-heading">
+      {{ callout_card.headline }}
+    </h3>
+    <div class="fl-body">
+      {{ callout_card.description }}
+    </div>
+  </content:callout_card>
+
+  {% if cta %}
+    <content:cta>
+      <include:button
+        label="{{ cta.label }}"
+        link="{{ cta.link }}"
+        icon_name="{{ cta.icon_name }}"
+        icon_position="{{ cta.icon_position }}" />
+    </content:cta>
+  {% endif %}
+</include:card-gallery>

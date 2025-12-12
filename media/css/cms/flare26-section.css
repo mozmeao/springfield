@@ -26,3 +26,7 @@
 .fl-heading-group > *:last-child {
     margin-bottom: 0;
 }
+
+.fl-section-cta-wrap {
+    text-align: center;
+}
