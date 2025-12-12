@@ -1,0 +1,57 @@
+
+/* ================================================
+   Download Links
+   ================================================ */
+
+.fl-header .fl-fx-download-container,
+.fl-header .mzp-c-button-download-privacy-link {
+    display: none;
+    margin: 0;
+}
+
+.fl-header .download-link {
+    font-weight: var(--token-font-weight-bold);
+    text-align: center;
+    display: block;
+}
+
+.fl-header .download-link:hover {
+    text-decoration: none;
+}
+
+.fl-header .fl-icon-download-white {
+    vertical-align: unset;
+    margin-left: 4px;
+}
+
+.fl-nav-mobile-download-link {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+    border-top: 1px solid var(--token-color-soft-purple);
+    background: var(--fl-theme-background);
+}
+
+.fl-nav-mobile-download-link .fl-fx-download-container {
+    display: block;
+}
+
+.fl-nav-mobile-download-link .download-button {
+    display: block;
+    width: 100%;
+    padding: var(--token-spacing-md);
+}
+
+@media screen and (min-width: 768px){
+    .fl-header .fl-fx-download-container {
+        display: block;
+    }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .fl-nav-mobile-download-link {
+        border-color: var(--token-color-purple);
+    }
+}
