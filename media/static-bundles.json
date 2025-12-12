@@ -434,6 +434,12 @@
         "css/firefox/ai/waitlist.scss"
       ],
       "name": "firefox_waitlist"
+    },
+    {
+      "files": [
+        "css/firefox/eoy-2025.scss"
+      ],
+      "name": "eoy_2025"
     }
   ],
   "js": [

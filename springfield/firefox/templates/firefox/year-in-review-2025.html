@@ -1,3 +1,9 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
 {% extends "base-protocol.html" %}
 
 {% block page_title %}Firefox 2025 Year in Review{% endblock %}
@@ -5,9 +11,7 @@
 {% block page_image %}/media/img/firefox/year-in-review/og-image.png{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('protocol-emphasis-box') }}
-  {{ css_bundle('firefox-desktop') }}
-  {{ css_bundle('firefox-features-index') }}
+  {{ css_bundle('eoy_2025') }}
 {% endblock %}
 
 {% block body_class %}features-index yir-2025{% endblock %}
@@ -24,63 +28,62 @@
 
 {% block content %}
   <main>
+    <section class="mzp-c-callout">
+        <div class="mzp-l-content">
+            <div class="mzp-c-callout-content">
+                <div class="mzp-t-callout-brand mzp-c-logo mzp-t-logo-xl mzp-t-product-firefox"></div>
+                <h1 class="mzp-c-callout-title mzp-u-title-xl">We don’t keep tabs<br>on what you do.</h1>
+                <div class="mzp-c-callout-desc">
+                    <p>
+                      <strong>Firefox protects your browsing data.</strong> We don’t watch it by default.<br>
+                      It’s who we are. So we don’t have a fun end-of-year recap for you. Sorry 🫶
+                    </p>
 
-    {# HERO – use same pattern as /browsers/desktop and center logo with mzp-l-logo-center #}
-    <header class="c-main-header mzp-l-content mzp-t-content-md mzp-u-centered">
-      <div class="mzp-c-logo mzp-t-logo-lg mzp-t-product-firefox mzp-l-logo-center">
-        <span class="mzp-u-screenreader-only">Firefox</span>
-      </div>
+                    <p>
+                      But you were a part of helping Firefox make the web a better place in 2025.<br>
+                      <strong>Thank you for helping us protect privacy and build the open web.</strong>
+                    </p>
+                    <a
+                      id="set-as-default-button"
+                      class="mzp-c-button mzp-t-product mzp-t-primary mzp-t-xl"
+                      href="{{ url('firefox.default.thanks') }}"
+                      data-cta-text="Make Firefox my default browser"
+                      data-cta-position="primary"
+                      role="button"
+                      aria-label="Make Firefox my default browser"
+                      >
+                      Make Firefox my default browser
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      <h1 class="mzp-u-title-2xl mzp-t-content-xl">
-        We don’t keep tabs<br>on what you do.
-      </h1>
 
-      <p class="mzp-u-title-s">
-        <strong>Firefox protects your browsing data.</strong> We don’t watch it by default.<br>
-        It’s who we are. So we don’t have a fun end-of-year recap for you. Sorry 🫶
-      </p>
-
-      <p class="mzp-u-body">
-        But you were a part of helping Firefox make the web a better place in 2025.<br>
-        <strong>Thank you for helping us protect privacy and build the open web.</strong>
-      </p>
-        <a
-        id="set-as-default-button"
-        class="mzp-c-button mzp-t-product mzp-t-primary"
-        href="{{ url('firefox.default.thanks') }}"
-        data-cta-text="Make Firefox my default browser"
-        data-cta-type="button"
-        data-cta-position="primary"
-        role="button"
-        aria-label="Make Firefox my default browser"
-      >
-        Make Firefox my default browser
-      </a>
-    </header>
 
     {# TITLE + PICTO COMPONENTS IN ONE SECTION #}
-    <section class="mzp-l-content" aria-label="Firefox 2025 highlights">
-      <h2 class="mzp-u-title-lg mzp-u-centered">Firefox 2025 year in review</h2>
+    <section class="mzp-l-content mzp-t-content-xl" aria-label="Firefox 2025 highlights">
+      <h2 class="mzp-c-section-heading">Firefox 2025 year in review</h2>
 
-      <div class="mzp-l-columns mzp-t-columns-three mzp-t-picto-center">
+      <div class="mzp-l-columns mzp-t-columns-three mzp-t-picto">
 
         {# Stat 1 – trackers blocked (shield icon) #}
         <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image" aria-hidden="true">
+          <div class="mzp-c-picto-image">
             <img
               src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Shield.svg"
-              alt=""
+              alt="Shield."
               width="61"
               height="61"
             >
           </div>
 
-          <h3 class="mzp-c-picto-heading">1+ trillion</h3>
+          <h3 class="mzp-c-picto-heading">
+            <div class="mzp-u-title-sm">1+ trillion</div>
+            Trackers blocked
+          </h3>
 
           <div class="mzp-c-picto-body">
-            <p class="mzp-u-title-xs">
-              Trackers blocked
-            </p>
             <p>
               Firefox automatically blocks trackers to stop companies from following you around the web.
             </p>
@@ -94,21 +97,21 @@
 
         {# Stat 2 – users protected (heart icon) #}
         <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image" aria-hidden="true">
+          <div class="mzp-c-picto-image">
             <img
               src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Heart.svg"
-              alt=""
+              alt="Heart."
               width="80"
               height="80"
             >
           </div>
 
-          <h3 class="mzp-c-picto-heading">200+ million</h3>
+          <h3 class="mzp-c-picto-heading">
+            <div class="mzp-u-title-sm">200+ million</div>
+            People protected
+          </h3>
 
           <div class="mzp-c-picto-body">
-            <p class="mzp-u-title-xs">
-              People protected
-            </p>
             <p>
               Our browser is built around you. We've been putting people over profits for over 20 years.
             </p>
@@ -122,21 +125,20 @@
 
         {# Stat 3 – new features (update icon) #}
         <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image" aria-hidden="true">
+          <div class="mzp-c-picto-image">
             <img
               src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Fast.svg"
-              alt=""
+              alt="Lightning."
               width="36"
               height="36"
             >
           </div>
 
-          <h3 class="mzp-c-picto-heading">110</h3>
+          <h3 class="mzp-c-picto-heading">
+            <div class="mzp-u-title-sm">110</div>
+            New features</h3>
 
           <div class="mzp-c-picto-body">
-            <p class="mzp-u-title-xs">
-              New features
-            </p>
             <p>
               You spoke, and we listened. This year we built many ideas submitted by the community,
               with even more on the way.
@@ -153,23 +155,25 @@
     </section>
 
     {# DEFAULT CTA #}
-    <section class="mzp-l-content mzp-u-centered">
-      <h2 class="mzp-u-title-lg">
-        Next year, put your privacy protection on autopilot
-      </h2>
-      <a
-        id="set-as-default-button"
-        class="mzp-c-button mzp-t-product mzp-t-primary"
-        href="{{ url('firefox.default.thanks') }}"
-        data-cta-text="Make Firefox my default browser"
-        data-cta-type="button"
-        data-cta-position="primary"
-        role="button"
-        aria-label="Make Firefox my default browser"
-      >
-        Make Firefox my default browser
-      </a>
+    <section class="mzp-c-callout">
+        <div class="mzp-l-content mzp-t-content-lg">
+            <div class="mzp-c-callout-content">
+                <h2 class="mzp-c-callout-title">Next year, put your privacy protection on autopilot</h2>
+                <div class="mzp-c-callout-desc">
+                    <a
+                      id="set-as-default-button"
+                      class="mzp-c-button mzp-t-product mzp-t-primary"
+                      href="{{ url('firefox.default.thanks') }}"
+                      data-cta-text="Make Firefox my default browser"
+                      data-cta-position="secondary"
+                      role="button"
+                      aria-label="Make Firefox my default browser"
+                    >
+                      Make Firefox my default browser
+                    </a>
+                </div>
+            </div>
+        </div>
     </section>
-
   </main>
 {% endblock %}
