@@ -10,3 +10,19 @@ Overrides - Final layer for overrides and exceptions
 This file will contain override styles that need to take precedence.
 For now, this is a blank slate.
 ===================================================================== */
+
+.fl-menu-close-button .fl-menu-close-button-content {
+    margin: 0;
+    width: var(--token-spacing-md);
+    height: var(--token-spacing-md);
+}
+
+.fl-menu-category .fl-icon-caret-down {
+    display: none;
+}
+
+@media (--viewport-sm-up) {
+    .fl-menu-category .fl-icon-caret-down {
+        display: inline-block;
+    }
+}

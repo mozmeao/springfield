@@ -15,98 +15,13 @@ body {
     color: var(--token-color-white);
 }
 
-/* Header */
-.fl-header {
-    position: relative;
-    padding: var(--token-spacing-lg);
-    background: transparent;
+body.fl-modal-open {
+    position: fixed;
+    height: 100vh;
+    overflow-y: hidden;
 }
 
-.fl-header-inner {
-    max-width: var(--token-width-desktop-layout);
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: var(--token-spacing-2xl);
-}
-
-/* Logo */
-.fl-logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    flex-shrink: 0;
-    height: var(--token-spacing-3xl);
-}
-
-.fl-logo img {
-    height: var(--token-spacing-3xl);
-    width: auto;
-}
-
-.fl-logo-light {
-    display: none;
-}
-
-.fl-logo-dark {
-    display: block;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fl-logo-light {
-        display: block;
-    }
-
-    .fl-logo-dark {
-        display: none;
-    }
-}
-
-/* Navigation */
-.fl-nav {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.fl-nav-menu {
-    display: flex;
-    align-items: center;
-    gap: var(--token-spacing-2xl);
-    list-style: none;
-    padding: 0;
-    margin: 0 auto;
-}
-
-.fl-nav-item {
-    display: flex;
-}
-
-.fl-nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--token-spacing-xs);
-    font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-base);
-    line-height: 1.4;
-    color: var(--token-color-white);
-    text-decoration: none;
-    transition: color var(--token-transition-fast);
-}
-
-.fl-nav-link:hover {
-    color: var(--fl-theme-color-link-hover);
-}
-
-.fl-nav-icon {
-    font-size: var(--token-spacing-lg);
-    width: var(--token-spacing-lg);
-    height: var(--token-spacing-lg);
-}
-
-.fl-header-cta {
-    flex-shrink: 0;
-}
+/* Main */
 
 .fl-main {
     max-width: var(--token-width-desktop-content);
@@ -243,4 +158,74 @@ body {
 
 .fl-footer-legal-link:hover {
     color: var(--token-color-grey-1);
+}
+
+/* Styles used by Download Firefox Button messages */
+
+.fl-fx-download-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--scale-16) * 1px);
+}
+
+/* Hide the unsupported message by default */
+.fx-unsupported-message {
+    display: none;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.fx-unsupported-message p {
+    margin-bottom: 8px;
+}
+
+.fl-header .mzp-c-button-download-privacy-link {
+    display: none;
+}
+
+/* Show the Windows unsupported message if on Windows with unsupported version for Firefox */
+.windows.fx-unsupported .fx-unsupported-message.win {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Windows system */
+.windows.fx-unsupported .c-button-download-thanks-link {
+    display: none;
+}
+
+/* stylelint-disable selector-class-pattern */
+
+/* Hide the Windows 64 download link if in a Windows 32 system where Firefox is unsupported */
+
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win64 {
+    display: none;
+}
+
+/* Show the Windows 32 download link if in a Windows 32 system where Firefox is unsupported */
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win {
+    display: inline-block;
+}
+
+/* Hide the Windows 32 download link if in a Windows 64 system where Firefox is unsupported */
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win {
+    display: none;
+}
+
+/* Show the Windows 64 download link if in a Windows 64 system where Firefox is unsupported */
+
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win64 {
+    display: inline-block;
+}
+
+/* stylelint-enable selector-class-pattern */
+
+/* Show the Mac unsupported message if on Mac with unsupported version for Firefox */
+.osx.fx-unsupported .fx-unsupported-message.mac {
+    display: block;
+}
+
+/* Hide the regular download button if Firefox is unsupported on the Mac system */
+.osx.fx-unsupported .c-button-download-thanks-link {
+    display: none;
 }

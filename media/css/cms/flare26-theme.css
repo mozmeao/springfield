@@ -17,6 +17,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);
 
+    /* Background colors */
+    --fl-theme-background: var(--token-color-white);
+
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
 
@@ -53,11 +56,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
     --fl-theme-font-size-tag: 0.75rem; /* 12px */
-
     --fl-theme-label-caps-md: 1rem; /* 16px */
     --fl-theme-label-caps-sm: .875rem; /* 14px */
     --fl-theme-label-caps-xs: .75rem; /* 12px */
-
     --fl-theme-label-md: 1rem; /* 16px */
     --fl-theme-label-sm: .875rem; /* 14px */
     --fl-theme-label-xs: .75rem; /* 12px */
@@ -89,6 +90,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-color-text-inverse: var(--token-color-black-4);
         --fl-theme-color-link-hover: var(--token-color-light-purple);
         --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+
+        /* Background colors */
+        --fl-theme-background: var(--token-color-dark-purple);
 
         /* Surface colors */
         --fl-theme-surface-card-gradient: var(--token-gradient-dark);

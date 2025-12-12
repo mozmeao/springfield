@@ -16,6 +16,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-white-90: rgba(255, 255, 255, 0.9);
     --token-color-grey-1: rgb(249, 249, 251);
     --token-color-grey-2: rgb(232, 232, 232);
+    --token-color-grey-3: rgb(123, 122, 130);
     --token-color-black: rgb(0, 0, 0);
     --token-color-black-16: rgba(0, 0, 0, 0.16);
     --token-color-black-45: rgba(0, 0, 0, 0.45);
@@ -62,7 +63,6 @@ Static values extracted from Figma that do not change based on context.
 
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
-
 
     /* Spacing variables */
     --token-spacing-2xs: 2px;
