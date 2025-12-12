@@ -17,8 +17,6 @@
    ================================================ */
 
 .fl-header {
-    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
-    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     padding: 18px calc(var(--token-scale-40) * 1px);
     border-bottom: 2px solid var(--fl-theme-border-color-subtle);
     background: var(--fl-theme-navigation-bg);
