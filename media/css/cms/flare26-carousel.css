@@ -9,6 +9,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--token-spacing-2xl);
+
     --counter-size: 36px;
     --spinner-width: 6px;
 }
@@ -79,8 +80,6 @@
 
 .fl-carousel-control-item::before,
 .fl-carousel-control-item::after {
-    counter-increment: items;
-    content: counter(items, decimal-leading-zero);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,6 +94,11 @@
     top: var(--spinner-width);
     left: var(--spinner-width);
     z-index: 1;
+}
+
+.fl-carousel-control-item::before {
+    counter-increment: items;
+    content: counter(items, decimal-leading-zero);
 }
 
 .fl-carousel-control-item::after {
@@ -125,26 +129,68 @@
     border-top-left-radius: var(--token-border-radius-md);
     border-top-right-radius: var(--token-border-radius-md);
     padding: var(--token-spacing-lg);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     max-width: var(--token-width-desktop-content);
     width: 100%;
     aspect-ratio: 2 / 1;
     margin: 0 auto;
     position: relative;
+    overflow: hidden;
 }
 
-.fl-carousel-image {
-    position: absolute;
-    inset: var(--token-spacing-lg);
-    display: none;
+.fl-carousel-viewport {
+    overflow: hidden;
+    position: relative;
+}
+
+.fl-carousel-container {
+    display: flex;
+    height: 100%;
+}
+
+.fl-carousel-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.fl-carousel-image.active {
+.fl-carousel-image {
+    width: 100%;
+    height: 100%;
     display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cross-fade overlay used during slide changes (autoplay + label click). */
+.fl-carousel-fade-overlay {
+    position: absolute;
+    inset: var(--token-spacing-lg);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.fl-carousel-fade-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 400ms ease;
+}
+
+.fl-carousel-fade-layer-from {
+    opacity: 1;
+}
+
+.fl-carousel-fade-overlay.is-active .fl-carousel-fade-layer-from {
+    opacity: 0;
+}
+
+.fl-carousel-fade-overlay.is-active .fl-carousel-fade-layer-to {
+    opacity: 1;
 }
 
 .fl-carousel-image img {
