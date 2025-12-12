@@ -4,9 +4,32 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/free_form_page.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block body_class %}whats-new-page{% endblock %}
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+    {% block pre_content %}
+    {% endblock %}
+
+    {% set ns = namespace(headings=0) %}
+    {% for block in page.content %}
+      {% set block_index = loop.index %}
+      {% set block_type = block.block_type %}
+      {% set block_position = "block-" ~ block_index + "-" + block_type %}
+
+      {% if block.value.heading and block.value.heading.heading_text %}
+        {% set block_level = 1 if ns.headings == 0 else 2 %}
+        {% set ns.headings = ns.headings + 1 %}
+      {% endif %}
+
+      {% include_block block %}
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}
 
 {% block flare_header %}
   {% with no_menu=True, disable_sticky=True %}
@@ -16,9 +39,5 @@
 
 
 {% block flare_footer %}
-  {% if switch("flare26-enabled") %}
-    {% include 'components/flare26-footer.html' %}
-  {% else %}
-    {% include 'cms/includes/wnp-footer.html' %}
-  {% endif %}
+  {% include 'cms/includes/wnp-footer.html' %}
 {% endblock %}
