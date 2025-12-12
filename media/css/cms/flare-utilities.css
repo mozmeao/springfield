@@ -39,17 +39,17 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: contents;
 }
 
-.light-dark-display .display-light,
-.light-dark-display .display-dark {
+body:not(.disable-dark-mode) .light-dark-display .display-light,
+body:not(.disable-dark-mode) .light-dark-display .display-dark {
     display: none;
 }
 
 @media (prefers-color-scheme: light) {
-    .light-dark-display .display-light {
+    body:not(.disable-dark-mode) .light-dark-display .display-light {
         display: block;
     }
 
-    .light-dark-display .display-dark {
+    body:not(.disable-dark-mode) .light-dark-display .display-dark {
         display: none;
     }
 }
@@ -65,7 +65,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 /* Fallback if no dark variant is set */
-.light-dark-display:not(:has(.display-dark)) .display-light {
+body:not(.disable-dark-mode) .light-dark-display:not(:has(.display-dark)) .display-light {
     display: block;
 }
 
