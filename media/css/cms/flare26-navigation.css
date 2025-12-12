@@ -351,7 +351,7 @@
     }
 
     .fl-header-inner {
-        padding: 0 calc(var(--token-scale-40) * 1px);
+        padding: 0 var(--token-scale-40) * 1px);
     }
 
     .fl-logo-fx {
@@ -395,7 +395,7 @@
 
     .fl-menu-category {
         margin: 0;
-        padding: calc(var(--token-spacing-lg) + 1px) 0;
+        padding: var(--token-spacing-lg) 0;
         cursor: pointer;
     }
 
