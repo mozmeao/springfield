@@ -442,6 +442,7 @@
         box-shadow: 0 4px 30px 0 var(--fl-menu-panel-box-shadow-color);
         overflow: hidden;
         max-width: 400px;
+        min-width: 300px;
     }
 
     .fl-menu-category.is-active #fl-menu-panel-features {
