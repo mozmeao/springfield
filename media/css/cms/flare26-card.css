@@ -9,9 +9,28 @@ Card - Flare 2026 Design System Cards
 ===================================================================== */
 
 .fl-card-grid {
-    display: grid;
-    gap: calc(var(--token-scale-32) * 1px);
-    grid-template-columns: 1fr;
+    --fl-card-grid-gap: calc(var(--token-scale-32) * 1px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fl-card-grid-gap);
+    padding: var(--token-layout-3xs);
+    justify-content: center;
+    align-items: stretch;
+}
+
+.fl-card-grid > * {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.fl-card-grid > .conditional-display {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-card-grid > .conditional-display > .fl-card {
+    flex: 1 1 auto;
 }
 
 .fl-card-grid .conditional-display .fl-card {
@@ -26,6 +45,7 @@ Card - Flare 2026 Design System Cards
     justify-content: flex-start;
     gap: var(--token-spacing-xl);
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
+    margin-bottom: var(--token-layout-3xs);
     border-radius: var(--token-border-radius-lg);
     background: var(--fl-theme-surface-card-gradient);
     backdrop-filter: blur(7.5px);
@@ -164,14 +184,22 @@ Card - Flare 2026 Design System Cards
 
 @media (--viewport-sm-up) {
     .fl-card-grid {
-        gap: var(--token-spacing-xl);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        --fl-card-grid-gap: var(--token-spacing-xl);
+        padding: 0;
+    }
+
+    .fl-card {
+        margin-bottom: 0;
+    }
+
+    .fl-card-grid > * {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
     }
 }
 
 @media (--viewport-md-up) {
-    .fl-card-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    .fl-card-grid > * {
+        flex-basis: 300px;
     }
 }
 
