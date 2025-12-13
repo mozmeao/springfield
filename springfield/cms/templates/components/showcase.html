@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props layout="default" #}
+
+<section class="fl-showcase fl-showcase-{{ layout }}">
+  <div class="fl-showcase-heading">
+    {{ contents.heading }}
+  </div>
+  <figure class="fl-showcase-image">
+      <div class="fl-showcase-image-desktop">
+        {{ contents.desktop_image }}
+      </div>
+      <div class="fl-showcase-image-mobile">
+        {{ contents.mobile_image }}
+      </div>
+      <figcaption class="fl-showcase-caption">
+        {{ contents.caption }}
+      </figcaption>
+  </figure>
+</section>

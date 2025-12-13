@@ -1,0 +1,134 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Theme - Flare 2026 Design System Theme Variables
+
+Contextual CSS custom properties that change based on context (e.g. layout direction, viewport size, dark mode, etc).
+===================================================================== */
+
+:root {
+    /* Text colors */
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-color-text-inverse: var(--token-color-white);
+    --fl-theme-color-link-hover: var(--token-color-link-purple);
+    --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+
+    /* Surface colors */
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+
+    /* Button palette */
+    --fl-theme-button-primary: var(--token-color-link-purple);
+
+    /* Typography variables */
+    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
+    --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
+    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
+    --fl-theme-font-weight-body: var(--token-font-weight-regular);
+
+    /* Font size variables */
+    --fl-theme-font-size-base: 16px;
+    --fl-theme-font-size-heading-4xl: 4.625rem; /* 74px */
+    --fl-theme-font-size-heading-3xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
+    --fl-theme-font-size-heading-xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+    --fl-theme-font-size-heading-md: 2rem; /* 32px */
+    --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
+    --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+    --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
+
+    /* Subheading font size variables */
+    --fl-theme-font-size-subheading-md: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
+    --fl-theme-font-size-subheading-xs: 0.75rem; /* 12px */
+
+    /* Body font size variables */
+    --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+    --fl-theme-font-size-body-md: 1.125rem; /* 18px */
+    --fl-theme-font-size-body-sm: 1rem; /* 16px */
+    --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
+    --fl-theme-font-size-tag: 0.75rem; /* 12px */
+
+    /* Label font size variables */
+    --fl-theme-label-caps-md: 1rem; /* 16px */
+    --fl-theme-label-caps-sm: .875rem; /* 14px */
+    --fl-theme-label-caps-xs: .75rem; /* 12px */
+    --fl-theme-label-md: 1rem; /* 16px */
+    --fl-theme-label-sm: .875rem; /* 14px */
+    --fl-theme-label-xs: .75rem; /* 12px */
+
+    /* Line height variables NOT from Figma */
+    --fl-theme-line-height-base: 1.2;
+
+    /* Layout defaults */
+    --fl-theme-layout-direction: column;
+    --fl-theme-default-justify-content: center;
+    --fl-theme-default-text-align: center;
+
+    /* Shadows */
+    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+
+    /* Dark mode support */
+    color-scheme: light dark;
+
+    /* Default space between page sections */
+    --fl-section-v-padding: var(--token-layout-md);
+    --fl-section-h-padding: var(--token-layout-3xs);
+    --fl-section-heading-margin-bottom: var(--token-layout-sm);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Text colors */
+        --fl-theme-color-text: var(--token-color-white);
+        --fl-theme-color-text-inverse: var(--token-color-black-4);
+        --fl-theme-color-link-hover: var(--token-color-light-purple);
+        --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+
+        /* Surface colors */
+        --fl-theme-surface-card-gradient: var(--token-gradient-dark);
+
+        /* Button palette */
+        --fl-theme-button-primary: var(--token-color-light-purple);
+
+        /* Shadows */
+        --fl-theme-shadow-card: 0 32px 64px var(--token-color-black-45);
+    }
+}
+
+/* CSS custom properties are not resolved in media queries; so we
+centralize breakpoints once and flip CSS variables inside.
+components consume the variables (no per-component media queries) */
+
+@media (--viewport-sm-up) {
+    :root {
+        --fl-theme-layout-direction: row;
+        --fl-theme-default-justify-content: flex-start;
+        --fl-theme-default-text-align: left;
+    }
+}
+
+@media (--viewport-md-up) {
+    :root {
+        --fl-theme-font-size-heading-4xl: 6.25rem; /* 100px */
+        --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
+        --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
+        --fl-theme-font-size-heading-xl: 5rem; /* 80px */
+        --fl-theme-font-size-heading-lg: 4rem; /* 64px */
+        --fl-theme-font-size-heading-md: 3rem; /* 48px */
+        --fl-theme-font-size-heading-sm: 2rem; /* 32px */
+        --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
+        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
+        --fl-theme-font-size-body-lg: 2rem; /* 32px */
+        --fl-theme-font-size-body-md: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-sm: 1.125rem; /* 18px */
+        --fl-theme-font-size-body-xs: 1rem; /* 16px */
+        --fl-section-v-padding: var(--token-layout-lg);
+        --fl-section-heading-margin-bottom: var(--token-layout-sm);
+    }
+}

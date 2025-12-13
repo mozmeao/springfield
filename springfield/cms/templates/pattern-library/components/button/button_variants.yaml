@@ -1,59 +1,169 @@
 name: "Button variants"
 context:
-  horizontal:
-    orientation: horizontal
-    buttons:
-      - note: Primary (default) with right icon
-        theme_class: ''
-        label: "Primary Button"
-        link: "/"
-        external: false
-        icon_name: 'arrow-right'
-        icon_position: 'right'
-      - note: Primary (default) with left icon
-        theme_class: ''
-        label: "Primary Button"
-        link: "/"
-        external: false
-        icon_name: 'arrow-left'
-        icon_position: 'left'
-      - note: Primary disabled
-        theme_class: ''
-        label: "Disabled Primary"
-        link: "/"
-        external: false
-        disabled: true
-      - note: Secondary with right icon
-        theme_class: 'button-secondary'
-        label: "Secondary Button"
-        link: "/contact"
-        external: false
-        icon_name: 'arrow-right'
-        icon_position: 'right'
-      - note: Secondary with left icon
-        theme_class: 'button-secondary'
-        label: "Secondary Button"
-        link: "/contact"
-        external: false
-        icon_name: 'arrow-left'
-        icon_position: 'left'
-      - note: Secondary disabled
-        theme_class: 'button-secondary'
-        label: "Disabled Secondary"
-        link: "/contact"
-        external: false
-        disabled: true
-      - note: Ghost button
-        theme_class: 'button-ghost'
-        label: "Ghost Button"
-        link: "/"
-        external: false
-      - note: Disabled Ghost
-        theme_class: 'button-ghost'
-        label: "Disabled Ghost"
-        link: "/"
-        external: false
-        disabled: true
+  main_grid_round:
+    columns:
+      - name: "Primary"
+        buttons:
+          - theme_class: 'fl-button-small'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: ''
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'fl-button-large'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Secondary"
+        buttons:
+          - theme_class: 'button-secondary fl-button-small'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-secondary'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-secondary fl-button-large'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Tertiary"
+        buttons:
+          - theme_class: 'button-tertiary fl-button-small'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-tertiary'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-tertiary fl-button-large'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Ghost"
+        buttons:
+          - theme_class: 'button-ghost fl-button-small'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-ghost'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-ghost fl-button-large'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+  main_grid_square:
+    columns:
+      - name: "Primary"
+        buttons:
+          - theme_class: 'fl-button-small fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'fl-button-large fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Secondary"
+        buttons:
+          - theme_class: 'button-secondary fl-button-small fl-button-square'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-secondary fl-button-square'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-secondary fl-button-large fl-button-square'
+            label: "Button"
+            link: "/contact"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Tertiary"
+        buttons:
+          - theme_class: 'button-tertiary fl-button-small fl-button-square'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-tertiary fl-button-square'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-tertiary fl-button-large fl-button-square'
+            label: "Button"
+            link: "/about"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+      - name: "Ghost"
+        buttons:
+          - theme_class: 'button-ghost fl-button-small fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-ghost fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
+          - theme_class: 'button-ghost fl-button-large fl-button-square'
+            label: "Button"
+            link: "/"
+            external: false
+            icon_name: 'arrow-right'
+            icon_position: 'right'
   stacked:
     orientation: stacked
     buttons:
@@ -63,3 +173,9 @@ context:
       - label: "Secondary Button"
         link: "/contact"
         theme_class: 'button-secondary'
+      - label: "Tertiary Button"
+        link: "/about"
+        theme_class: 'button-tertiary'
+      - label: "Ghost Button"
+        link: "/"
+        theme_class: 'button-ghost'

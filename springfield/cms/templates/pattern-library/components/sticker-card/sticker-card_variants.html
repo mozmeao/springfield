@@ -1,0 +1,42 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Sticker Card Variants</h4>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+    {% for card in cards %}
+      <include:sticker-card
+        expand_link="{{ card.expand_link }}"
+      >
+        <content:sticker>
+          <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+        </content:sticker>
+        <content:heading>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-size-3"
+            heading_text="{{ card.heading }}"
+          />
+        </content:heading>
+        <content:body>
+          {{ card.body }}
+        </content:body>
+        {% if card.buttons %}
+          <content:buttons>
+            {% for button in card.buttons %}
+              <include:button
+                label="{{ button.label }}"
+                link="{{ button.link }}"
+                theme_class="{{ button.theme_class }}"
+              />
+            {% endfor %}
+          </content:buttons>
+        {% endif %}
+      </include:sticker-card>
+    {% endfor %}
+  </div>
+</div>
