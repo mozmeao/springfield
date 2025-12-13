@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{%- set available_languages = get_locale_options(request, translations) -%}
+
+{% if available_languages|length > 1 %}
+  <form id="lang_form" class="fl-language-switcher fl-icon-globe" method="get" action="#">
+    <a class="fl-language-switcher-link" href="{{ url('base.locales') }}">{{ ftl('footer-language') }}</a>
+    <label for="page-language-select">{{ ftl('footer-language') }}</label>
+    <div class="fl-language-switcher-select-wrapper fl-icon-caret-down">
+      <select id="page-language-select" class="fl-language-switcher-select" name="lang" dir="ltr">
+        {% for code, label in available_languages|dictsort -%}
+          {# Don't escape the label as it may include entity references
+          # like "Português (do&nbsp;Brasil)" (Bug 861149) #}
+          <option lang="{{ code }}" value="{{ code }}"{{ code|ifeq(LANG, " selected") }}>{{ label|safe|replace('English (US)', 'English') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">{{ ftl('footer-go') }}</button>
+  </form>
+{% endif %}
