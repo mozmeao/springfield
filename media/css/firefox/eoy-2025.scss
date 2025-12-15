@@ -20,3 +20,17 @@ $image-path: '/media/protocol/img';
 .mzp-c-callout .mzp-l-content .mzp-t-callout-brand {
   margin: 16px auto;
 }
+
+.c-protect {
+    @supports (--css: variable) {
+        padding-bottom: calc(var(--v-grid-xs) * 2 );
+
+        @media #{$mq-md} {
+            padding-bottom: calc(var(--v-grid-md) * 2 );
+        }
+
+        @media #{$mq-xl} {
+            padding-bottom: calc(var(--v-grid-xl) * 2 );
+        }
+    }
+}
