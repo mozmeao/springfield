@@ -44,7 +44,6 @@ beautifulsoup4==4.14.3 \
     --hash=sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86
     # via
     #   -r requirements/prod.txt
-    #   bs4
     #   wagtail
 bleach[css]==6.1.0 \
     --hash=sha256:0a31f1837963c41d46bbf1331b8778e1308ea0791db03cc4e7357b97cf42a8fe \
@@ -58,9 +57,9 @@ boto3==1.42.6 \
     --hash=sha256:11dab889a24f378af6c93afd4aa06d7cace3866cbf02e78c7a77e9a7fb41967a \
     --hash=sha256:69ff5cf6431fe7870da009f23aceabb20d56b4c9852ba9a808eaf6cc30ae02a5
     # via -r requirements/prod.txt
-botocore==1.42.7 \
-    --hash=sha256:92128d56654342f026d5c20a92bf0e8b546be1eb38df2c0efc7433e8bbc39045 \
-    --hash=sha256:cc401b4836eae2a781efa1d1df88b2e92f9245885a6ae1bf9a6b26bc97b3efd2
+botocore==1.42.9 \
+    --hash=sha256:74f69bfd116cc7c8215481284957eecdb48580e071dd50cb8c64356a866abd8c \
+    --hash=sha256:f99ba2ca34e24c4ebec150376c815646970753c032eb84f230874b2975a185a8
     # via
     #   -r requirements/prod.txt
     #   boto3
@@ -73,15 +72,9 @@ braceexpand==0.1.7 \
     --hash=sha256:91332d53de7828103dcae5773fb43bc34950b0c8160e35e0f44c4427a3b85014 \
     --hash=sha256:e6e539bd20eaea53547472ff94f4fb5c3d3bf9d0a89388c4b56663aba765f705
     # via -r requirements/dev.in
-bs4==0.0.2 \
-    --hash=sha256:a48685c58f50fe127722417bae83fe6badf500d54b55f7e39ffe43b798653925 \
-    --hash=sha256:abf8742c0805ef7f662dce4b51cca104cffe52b835238afc169142ab9b3fbccc
-    # via
-    #   -r requirements/prod.txt
-    #   django-pattern-library
-cachetools==6.2.2 \
-    --hash=sha256:6c09c98183bf58560c97b2abfcedcbaf6a896a490f534b031b661d3723b45ace \
-    --hash=sha256:8e6d266b25e539df852251cfd6f990b4bc3a141db73b939058d809ebd2590fc6
+cachetools==6.2.4 \
+    --hash=sha256:69a7a52634fed8b8bf6e24a050fb60bff1c9bd8f6d24572b99c32d4e71e62a51 \
+    --hash=sha256:82c5c05585e70b6ba2d3ae09ea60b79548872185d2f24ae1f2709d37299fd607
     # via
     #   -r requirements/prod.txt
     #   google-auth
@@ -653,8 +646,8 @@ django-mozilla-product-details==1.0.3 \
     --hash=sha256:1d139ba01f4484f3bb43b72864ce33f249835405449e0dc940217cfa42ce5b46 \
     --hash=sha256:a4aba6a68b296dffe8c1afb95d236cdbd402bd855cd49eef4d8a1a610105fd36
     # via -r requirements/prod.txt
-django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.2/django_pattern_library-1.5.2.tar.gz \
-    --hash=sha256:bd2bd69f02b89852cc83cabf12139217d641ee5bb9084f6c2e703164acacb966
+django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz \
+    --hash=sha256:ae56e7a996cb9b7a758127735691ccb87fcb9a4630637b04a6ae776f7f50eef2
     # via -r requirements/prod.txt
 django-permissionedforms==0.1 \
     --hash=sha256:4340bb20c4477fffb13b4cc5cccf9f1b1010b64f79956c291c72d2ad2ed243f8 \
@@ -781,9 +774,9 @@ google-api-core==2.28.1 \
     #   -r requirements/prod.txt
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.43.0 \
-    --hash=sha256:88228eee5fc21b62a1b5fe773ca15e67778cb07dc8363adcb4a8827b52d81483 \
-    --hash=sha256:af628ba6fa493f75c7e9dbe9373d148ca9f4399b5ea29976519e0a3848eddd16
+google-auth==2.44.0 \
+    --hash=sha256:896c8b3652f9d2878c0aa2ddc2818ecd393b8bcbcec5c7fe83e118f4f104745a \
+    --hash=sha256:9d84767412e82942d387a404103859628b53687f832a2a10139075002821f50d
     # via
     #   -r requirements/prod.txt
     #   google-api-core
@@ -2158,9 +2151,9 @@ typing-extensions==4.15.0 \
     #   fluent-syntax
     #   pygithub
     #   wagtail-localize
-tzdata==2025.2 \
-    --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
-    --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
+tzdata==2025.3 \
+    --hash=sha256:06a47e5700f3081aab02b2e513160914ff0694bce9947d6b76ebd6bf57cfc5d1 \
+    --hash=sha256:de39c2ca5dc7b0344f2eba86f49d614019d29f060fc4ebc8a417896a620b56a7
     # via faker
 tzlocal==5.3.1 \
     --hash=sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd \
