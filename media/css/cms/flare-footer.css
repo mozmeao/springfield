@@ -275,16 +275,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     color: var(--token-neutrals-white);
 }
 
-.fl-footer-section-download .fl-footer-subheading a:link,
-.fl-footer-section-download .fl-footer-subheading a:visited,
-.fl-footer-section-platforms .fl-footer-subheading a:link,
-.fl-footer-section-platforms .fl-footer-subheading a:visited,
-.fl-footer-section-download .fl-footer-subheading a:hover,
-.fl-footer-section-download .fl-footer-subheading a:focus,
-.fl-footer-section-download .fl-footer-subheading a:active,
-.fl-footer-section-platforms .fl-footer-subheading a:hover,
-.fl-footer-section-platforms .fl-footer-subheading a:focus,
-.fl-footer-section-platforms .fl-footer-subheading a:active {
+.fl-footer .fl-footer-subheading a:link:not(.fl-button) {
     color: inherit;
     font-weight: inherit;
 }
