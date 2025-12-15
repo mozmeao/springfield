@@ -1,0 +1,12 @@
+name: Body Text Variants 2026
+context:
+  alignments:
+    - left
+    - center
+    - right
+  sizes:
+    - lg
+    - md
+    - sm
+    - xs
+    - 2xs

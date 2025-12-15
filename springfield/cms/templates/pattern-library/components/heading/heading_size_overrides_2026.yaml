@@ -1,0 +1,11 @@
+name: Heading size overrides 2026
+context:
+  sizes:
+    - fl-heading-3xl
+    - fl-heading-2xl
+    - fl-heading-xl
+    - fl-heading-lg
+    - fl-heading-md
+    - fl-heading-sm
+    - fl-heading-xs
+    - fl-heading-2xs

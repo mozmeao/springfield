@@ -1,0 +1,61 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Button variants</h4>
+  <div class="pl-row">
+    <h5>Round Corners</h5>
+    <div class="pl-grid-4">
+      {% for column in main_grid_round.columns %}
+        <div class="pl-column">
+          <h5 class="pl-column-heading">{{ column.name }}</h5>
+          {% for button in column.buttons %}
+            <div class="pl-button-group">
+              <include:button
+                theme_class="{{ button.theme_class }}"
+                label="{{ button.label }}"
+                link="{{ button.link }}"
+                external="{{ button.external }}"
+                icon_name="{{ button.icon_name }}"
+                icon_position="{{ button.icon_position }}"
+                disabled="{{ button.disabled }}"
+              />
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="pl-row">
+    <h5>Square Corners</h5>
+    <div class="pl-grid-4">
+      {% for column in main_grid_square.columns %}
+        <div class="pl-column">
+          <h5 class="pl-column-heading">{{ column.name }}</h5>
+          {% for button in column.buttons %}
+            <div class="pl-button-group">
+              <include:button
+                theme_class="{{ button.theme_class }}"
+                label="{{ button.label }}"
+                link="{{ button.link }}"
+                external="{{ button.external }}"
+                icon_name="{{ button.icon_name }}"
+                icon_position="{{ button.icon_position }}"
+                disabled="{{ button.disabled }}"
+              />
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="pl-row">
+    <h5>Stacked</h5>
+    {% set orientation = stacked.orientation %}
+    {% set buttons = stacked.buttons %}
+    <include:buttons buttons="{{ stacked.buttons }}" orientation="{{ orientation }}"/>
+  </div>
+</div>
