@@ -44,6 +44,8 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-showcase.css' layer(components);
 @import 'flare26-card-gallery.css' layer(components);
 @import 'flare26-pre-footer-cta.css' layer(components);
+@import 'flare26-banner.css' layer(components);
+@import 'flare26-kit-banner.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);
