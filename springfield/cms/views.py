@@ -115,7 +115,11 @@ class TranslationsListView(ListView, BaseListingView):
             pages_with_translations.append(
                 {
                     "page": page,
-                    "translations": [p.to_dict() for p in page.translation_data.all()],
+                    "translations": [
+                        # Put unsynced translations at the end of the queryset.
+                        p.to_dict()
+                        for p in page.translation_data.order_by("-enabled")
+                    ],
                     "edit_url": f"/cms-admin/pages/{page.id}/edit/",
                     "view_url": page.get_url() if hasattr(page, "get_url") else "#",
                 }

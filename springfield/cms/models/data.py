@@ -23,6 +23,7 @@ class PageTranslationData(models.Model):
         related_name="source_translation_data",
     )
     percent_translated = models.IntegerField(default=0)
+    enabled = models.BooleanField(default=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -53,4 +54,5 @@ class PageTranslationData(models.Model):
             "edit_url": self.get_edit_url,
             "view_url": self.get_view_url,
             "percent_translated": self.percent_translated,
+            "enabled": self.enabled,
         }
