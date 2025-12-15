@@ -275,7 +275,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     color: var(--token-neutrals-white);
 }
 
-.fl-footer .fl-footer-subheading a:link:not(.fl-button) {
+.fl-footer-subheading a:link:not(.fl-button) {
     color: inherit;
     font-weight: inherit;
 }
@@ -309,10 +309,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-list li:last-child {
     margin-bottom: 0;
-}
-
-.fl-footer-list.is-closed[aria-hidden='true'] {
-    display: none;
 }
 
 /* external link icon */
