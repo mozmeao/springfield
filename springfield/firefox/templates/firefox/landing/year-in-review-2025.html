@@ -20,7 +20,7 @@
 
 {% block content %}
   <main>
-    <section class="mzp-c-callout">
+    <section class="mzp-c-callout c-intro">
         <div class="mzp-l-content mzp-t-content-md">
             <div class="mzp-c-callout-content">
                 <div class="mzp-t-callout-brand mzp-c-logo mzp-t-logo-xl mzp-t-product-firefox"></div>
@@ -31,22 +31,22 @@
                       So there’s no personalized recap here, just a thank you for choosing a browser that puts people
                       first and treats privacy as a principle, not a perk.
                     </p>
-
-                    <p>
-                      But you were a part of helping Firefox make the web a better place in 2025.
-                      <strong>Thank you for helping us protect privacy and build the open web.</strong>
-                    </p>
-                    <a
-                      id="set-as-default-button"
-                      class="mzp-c-button mzp-t-product mzp-t-primary mzp-t-xl"
-                      href="{{ url('firefox.default.thanks') }}"
-                      data-cta-text="Make Firefox my default browser"
-                      data-cta-position="primary"
-                      role="button"
-                      aria-label="Make Firefox my default browser"
-                      >
-                      Make Firefox my default browser
-                    </a>
+                    <div class="is-firefox-show is-firefox-not-default-show">
+                      <a
+                        id="set-as-default-button"
+                        class="mzp-c-button mzp-t-product mzp-t-primary mzp-t-xl"
+                        href="{{ url('firefox.default.thanks') }}"
+                        data-cta-text="Make Firefox my default browser"
+                        data-cta-position="primary"
+                        role="button"
+                        aria-label="Make Firefox my default browser"
+                        >
+                        Make Firefox my default browser
+                      </a>
+                    </div>
+                    <div class="is-not-firefox-show">
+                      {{ download_firefox_thanks() }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -146,25 +146,34 @@
     </section>
 
     {# DEFAULT CTA #}
-    <section class="mzp-c-callout mzp-t-background-secondary">
+    <section class="mzp-c-callout mzp-t-background-secondary is-firefox-default-hide">
         <div class="mzp-l-content mzp-t-content-lg">
             <div class="mzp-c-callout-content">
                 <h2 class="mzp-c-callout-title">Next year, put your privacy protection on autopilot</h2>
                 <div class="mzp-c-callout-desc">
-                    <a
-                      id="set-as-default-button-end"
-                      class="mzp-c-button mzp-t-product mzp-t-primary"
-                      href="{{ url('firefox.default.thanks') }}"
-                      data-cta-text="Make Firefox my default browser"
-                      data-cta-position="secondary"
-                      role="button"
-                      aria-label="Make Firefox my default browser"
-                    >
-                      Make Firefox my default browser
-                    </a>
+                  <div class="is-firefox-show">
+                      <a
+                        id="set-as-default-button-end"
+                        class="mzp-c-button mzp-t-product mzp-t-primary"
+                        href="{{ url('firefox.default.thanks') }}"
+                        data-cta-text="Make Firefox my default browser"
+                        data-cta-position="secondary"
+                        role="button"
+                        aria-label="Make Firefox my default browser"
+                      >
+                        Make Firefox my default browser
+                      </a>
+                    </div>
+                    <div class="is-not-firefox-show">
+                      {{ download_firefox_thanks() }}
+                    </div>
                 </div>
             </div>
         </div>
     </section>
   </main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('year_in_review') }}
 {% endblock %}

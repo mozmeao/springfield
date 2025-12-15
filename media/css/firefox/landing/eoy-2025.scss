@@ -34,3 +34,35 @@ $image-path: '/media/protocol/img';
         }
     }
 }
+
+.not-firefox .is-not-firefox-show {
+    display: block;
+}
+
+.not-firefox .is-firefox-show {
+    display: none;
+}
+
+.is-firefox .is-not-firefox-show {
+    display: none;
+}
+
+.is-firefox .is-firefox-show {
+    visibility: hidden;
+}
+
+.is-firefox .c-intro .is-firefox-show {
+    margin-bottom: -55px;
+}
+
+.is-firefox .check-finished .is-firefox-show {
+    visibility: visible;
+}
+
+.is-firefox .check-finished.is-firefox-default .is-firefox-show {
+    visibility: hidden;
+}
+
+.is-firefox .is-firefox-default .is-firefox-default-hide {
+    display: none;
+}

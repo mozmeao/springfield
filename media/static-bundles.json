@@ -555,6 +555,12 @@
     },
     {
       "files": [
+        "js/firefox/landing/year-in-review.js"
+      ],
+      "name": "year_in_review"
+    },
+    {
+      "files": [
         "js/base/banners/firefox-app-store-banner.es6.js"
       ],
       "name": "firefox-app-store-banner"
