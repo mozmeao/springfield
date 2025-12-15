@@ -6,6 +6,8 @@
 
 {% extends "base-protocol.html" %}
 
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
 {% block page_title %}Firefox 2025 Year in Review{% endblock %}
 {% block page_desc %}A look back at what your Firefox did this year.{% endblock %}
 {% block page_image %}/media/img/firefox/year-in-review/og-image.png{% endblock %}
@@ -14,17 +16,7 @@
   {{ css_bundle('eoy_2025') }}
 {% endblock %}
 
-{% block body_class %}features-index yir-2025{% endblock %}
-
-{# Make sure this experiment page doesn’t get indexed #}
-{% block extrahead %}
-  {{ super() }}
-  <meta name="robots" content="noindex, nofollow">
-  <meta property="og:title" content="Firefox 2025 Year in Review">
-  <meta property="og:description" content="A look back at what your Firefox did this year.">
-  <meta property="og:image" content="/media/img/firefox/year-in-review/og-image.png">
-  <meta property="og:type" content="website">
-{% endblock %}
+{% block body_class %}yir-2025{% endblock %}
 
 {% block content %}
   <main>
@@ -71,7 +63,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Shield.svg"
+              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Shield.svg"
               alt="Shield."
               width="61"
               height="61"
@@ -99,7 +91,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Heart.svg"
+              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Heart.svg"
               alt="Heart."
               width="80"
               height="80"
@@ -127,7 +119,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\year-in-review\fx_Nothing-Personal_Sticker_Fast.svg"
+              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Fast.svg"
               alt="Lightning."
               width="37"
               height="37"
