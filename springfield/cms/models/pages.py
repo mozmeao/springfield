@@ -15,6 +15,7 @@ from springfield.cms.blocks import (
     CardsListBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
+    HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     KitBannerBlock,
@@ -112,6 +113,7 @@ class HomePage(AbstractSpringfieldCMSPage):
     lower_content = StreamField(
         [
             ("showcase", ShowcaseBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
         ],
         null=True,
         blank=True,
