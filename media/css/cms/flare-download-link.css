@@ -22,13 +22,13 @@
 
 .fl-header .fl-icon-download-white {
     vertical-align: unset;
-    margin-left: 4px;
+    margin-inline-start: 4px;
 }
 
 .fl-nav-mobile-download-link {
     position: fixed;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     width: 100%;
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     border-top: 2px solid var(--fl-theme-border-color-subtle);

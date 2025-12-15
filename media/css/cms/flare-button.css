@@ -88,11 +88,11 @@
 }
 
 .fl-button .fl-icon-left {
-    margin-right: calc(var(--token-scale-10) * 1px);
+    margin-inline-end: calc(var(--token-scale-10) * 1px);
 }
 
 .fl-button .fl-icon-right {
-    margin-left: calc(var(--token-scale-10) * 1px);
+    margin-inline-start: calc(var(--token-scale-10) * 1px);
 }
 
 .fl-button .fl-icon-arrow {
@@ -141,5 +141,5 @@
 }
 
 .fl-buttons .fl-button {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }

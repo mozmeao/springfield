@@ -298,8 +298,8 @@ hr, section {
 button, input, select, textarea {
     font: inherit;
     line-height: inherit;
-    margin-bottom: 16px;
-    margin-bottom: 1rem;
+    margin-block-end: 16px;
+    margin-block-end: 1rem;
 }
 
 button, [role="button"] {

@@ -13,7 +13,7 @@ specific exceptions that can't be handled by the other layers
 
 
 .fl-footer .button img {
-    margin-right: calc(var(--token-scale-16) * 1px);
+    margin-inline-end: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-footer-cta .button {
@@ -36,7 +36,7 @@ specific exceptions that can't be handled by the other layers
 }
 
 .fl-section .button {
-    margin-top: auto;
+    margin-block-start: auto;
     align-self: flex-start;
 }
 

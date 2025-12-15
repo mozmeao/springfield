@@ -103,11 +103,11 @@ body.fl-modal-open {
 .fx-unsupported-message {
     display: none;
     text-align: center;
-    margin-bottom: 8px;
+    margin-block-end: 8px;
 }
 
 .fx-unsupported-message p {
-    margin-bottom: 8px;
+    margin-block-end: 8px;
 }
 
 /* Show the Windows unsupported message if on Windows with unsupported version for Firefox */

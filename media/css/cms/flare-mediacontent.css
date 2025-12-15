@@ -22,11 +22,11 @@
 .fl-mediacontent-content .heading,
 .fl-mediacontent-content .fl-body,
 .fl-mediacontent-content .fl-superheading {
-    text-align: left;
+    text-align: start;
 }
 
 .fl-mediacontent-tags {
-    margin-bottom: calc(var(--token-scale-24) * 1px);
+    margin-block-end: calc(var(--token-scale-24) * 1px);
     display: flex;
     flex-wrap: wrap;
     gap: calc(var(--token-scale-8) * 1px);
@@ -59,7 +59,7 @@
     }
 
     .fl-mediacontent-content .fl-buttons {
-        margin-top: calc(var(--token-scale-24) * 1px);
+        margin-block-start: calc(var(--token-scale-24) * 1px);
     }
 
     .fl-mediacontent .fl-button {
@@ -96,7 +96,7 @@
 }
 
 .fl-mediacontent .fl-button {
-    margin-top: auto;
+    margin-block-start: auto;
     align-self: flex-start;
 }
 
@@ -119,7 +119,7 @@
     display: flex;
     flex-direction: column;
     gap: calc(var(--token-scale-24) * 1px);
-    margin-top: calc(var(--token-scale-64) * 1px);
+    margin-block-start: calc(var(--token-scale-64) * 1px);
 }
 
 .fl-blog-related-articles .fl-mediacontent {

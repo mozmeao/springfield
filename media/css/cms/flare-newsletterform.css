@@ -11,7 +11,7 @@
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
-    margin-top: calc(var(--token-scale-24) * 1px);
+    margin-block-start: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-newsletterform.fl-newsletterform-expanded:not(.hidden) {
@@ -22,7 +22,7 @@
 .fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
 .fl-newsletterform.fl-newsletterform-expanded .fl-button {
     width: 100%;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-newsletterform .fl-newsletterform-input {
@@ -69,7 +69,7 @@
 .fl-section-subscribe .fl-superheading,
 .fl-section-subscribe .fl-subheading {
     color: var(--token-neutrals-charcoal);
-    margin-top: 0;
+    margin-block-start: 0;
 }
 
 .fl-section-subscribe .fl-newsletterform-input {
@@ -108,13 +108,13 @@
 .fl-section-subscribe input[type="checkbox"]:checked::after {
     content: '';
     position: absolute;
-    left: 6px;
+    inset-inline-start: 6px;
     top: 3px;
     width: 5px;
     height: 9px;
     border: 2px solid var(--token-neutrals-white);
     border-top: 0;
-    border-left: 0;
+    border-inline-start: 0;
     transform: rotate(45deg);
 }
 
@@ -178,7 +178,7 @@
     font-size: var(--fl-theme-font-size-base);
     font-weight: var(--token-font-weight-semibold);
     color: var(--token-neutrals-charcoal);
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-newsletterform-consent,
@@ -192,7 +192,7 @@
 
 .fl-newsletterform-field {
     position: relative;
-    margin-bottom: calc(var(--token-scale-16) * 1px);
+    margin-block-end: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-newsletterform-select-arrow {
@@ -201,7 +201,7 @@
     width: 1rem;
     height: 1rem;
     top: calc(50% - 0.5rem);
-    right: calc(var(--token-scale-16) * 1px);
+    inset-inline-end: calc(var(--token-scale-16) * 1px);
     transition: transform var(--token-transition-base);
 }
 
@@ -217,14 +217,14 @@
     width: 100%;
     height: 50px;
     padding: calc(var(--token-scale-8) * 1px) calc(var(--token-scale-16) * 1px);
-    padding-right: 24px;
+    padding-inline-end: 24px;
     border: 1px solid var(--token-neutrals-grey-3);
     border-radius: calc(var(--token-scale-8) * 1px);
     background: var(--token-neutrals-white);
     color: var(--token-neutrals-charcoal);
     font-size: var(--fl-theme-font-size-base);
     font-family: var(--fl-theme-font-family-body);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -270,26 +270,26 @@
     gap: calc(var(--token-scale-8) * 1px);
     cursor: pointer;
     width: 100%;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-newsletterform-checkbox-label input[type="checkbox"] {
     flex-shrink: 0;
     margin: 0;
-    margin-top: 2px;
+    margin-block-start: 2px;
 }
 
 .fl-newsletterform-checkbox-label .fl-newsletterform-checkbox-text {
     flex: 1;
     line-height: 1.4;
     margin: 0;
-    text-align: left;
+    text-align: start;
     min-width: 0;
 }
 
 .fl-newsletterform-success {
     text-align: center;
-    margin-top: calc(var(--token-scale-32) * 1px);
+    margin-block-start: calc(var(--token-scale-32) * 1px);
 }
 
 .fl-newsletterform-success svg {

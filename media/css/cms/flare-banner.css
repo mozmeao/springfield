@@ -26,7 +26,7 @@
 }
 
 .fl-banner-container .fl-heading-group {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-banner .fl-heading,
@@ -142,7 +142,7 @@
 }
 
 .fl-banner .fl-buttons {
-    margin-top: calc(var(--token-scale-24) * 1px);
+    margin-block-start: calc(var(--token-scale-24) * 1px);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -246,12 +246,12 @@
     }
 
     .fl-banner-content.fl-banner-content-left {
-        text-align: left;
+        text-align: start;
         align-items: flex-start;
         margin: unset;
     }
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
-        justify-content: left;
+        justify-content: flex-start;
     }
 }

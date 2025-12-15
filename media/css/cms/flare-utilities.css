@@ -17,9 +17,9 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .font-regular { font-weight: var(--token-font-weight-regular); }
 .font-medium { font-weight: var(--token-font-weight-medium); }
 .font-semibold { font-weight: var(--token-font-weight-semibold); }
-.text-left { text-align: left; }
+.text-left { text-align: start; }
 .text-center { text-align: center; }
-.text-right { text-align: right; }
+.text-right { text-align: end; }
 .hidden { display: none; }
 
 .visually-hidden {
@@ -87,7 +87,7 @@ body:not(.disable-dark-mode) .light-dark-display:not(:has(.display-dark)) .displ
 .conditional-display.is-preview .preview-indicator {
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     background: red;
     color: white;
     font-size: 10px;

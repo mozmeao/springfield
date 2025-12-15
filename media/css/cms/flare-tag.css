@@ -17,8 +17,8 @@
     padding: calc(var(--token-scale-8) * 1px) calc(var(--token-scale-12) * 1px);
     line-height: var(--fl-theme-line-height-base);
     border-radius: calc(var(--token-scale-8) * 1px);
-    margin-bottom: calc(var(--token-scale-16) * 1px);
-    margin-right: calc(var(--token-scale-4) * 1px);
+    margin-block-end: calc(var(--token-scale-16) * 1px);
+    margin-inline-end: calc(var(--token-scale-4) * 1px);
 }
 
 .fl-tag.fl-tag-round {
@@ -27,11 +27,11 @@
 
 
 .fl-tag .fl-icon-left {
-    margin-right: calc(var(--token-scale-4) * 1px);
+    margin-inline-end: calc(var(--token-scale-4) * 1px);
 }
 
 .fl-tag .fl-icon-right {
-    margin-left: calc(var(--token-scale-4) * 1px);
+    margin-inline-start: calc(var(--token-scale-4) * 1px);
 }
 
 .fl-tag.fl-tag-blue {

@@ -17,7 +17,7 @@
 }
 
 .fl-heading:first-child, .fl-heading-group:first-child, .fl-rich-text h1:first-child, .fl-rich-text h2:first-child, .fl-rich-text h3:first-child, .fl-rich-text h4:first-child, .fl-rich-text h5:first-child, .fl-rich-text h6:first-child {
-    margin-top: 0; /* No top margin for the first heading */
+    margin-block-start: 0; /* No top margin for the first heading */
 }
 
 .fl-heading-group .fl-heading {
@@ -25,7 +25,7 @@
 }
 
 .fl-heading-group .fl-heading + .fl-subheading {
-    margin-top: calc(var(--token-scale-24) * 1px);
+    margin-block-start: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-superheading {
@@ -38,7 +38,7 @@
 }
 
 .fl-superheading + .fl-heading {
-    margin-top: calc(var(--token-scale-8) * 1px);
+    margin-block-start: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 { font-size: var(--fl-theme-font-size-h1); }
@@ -140,11 +140,11 @@
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-body);
     margin: calc(var(--token-scale-16) * 1px) 0;
-    padding-left: calc(var(--token-scale-24) * 1px);
+    padding-inline-start: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-rich-text li {
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-rich-text blockquote {
@@ -152,8 +152,8 @@
     font-size: var(--fl-theme-font-size-base);
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-secondary);
-    border-left: calc(var(--token-scale-4) * 1px) solid var(--fl-theme-border-color-muted);
-    padding-left: calc(var(--token-scale-16) * 1px);
+    border-inline-start: calc(var(--token-scale-4) * 1px) solid var(--fl-theme-border-color-muted);
+    padding-inline-start: calc(var(--token-scale-16) * 1px);
     margin: calc(var(--token-scale-16) * 1px) 0;
 }
 

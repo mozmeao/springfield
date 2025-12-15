@@ -10,7 +10,7 @@
  */
 
 .pl-row {
-    margin-bottom: 80px;
+    margin-block-end: 80px;
 }
 
 .pl-frame hr {

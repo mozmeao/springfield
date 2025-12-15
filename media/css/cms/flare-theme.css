@@ -187,6 +187,6 @@ components consume the variables (no per-component media queries) */
     :root {
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;
-        --fl-theme-default-text-align: left;
+        --fl-theme-default-text-align: start;
     }
 }

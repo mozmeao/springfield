@@ -21,7 +21,7 @@
     max-width: 700px;
     background: var(--fl-theme-surface-page);
     position: relative;
-    padding-top: calc(var(--token-scale-40) * 1px);
+    padding-block-start: calc(var(--token-scale-40) * 1px);
 }
 
 @media (--viewport-md-up) {
@@ -30,7 +30,7 @@
     }
 
     .fl-section-container .fl-heading-group {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-section {
@@ -40,7 +40,7 @@
 
 @media (--viewport-xs) {
     .fl-section {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-section-container {

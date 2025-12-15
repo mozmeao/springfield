@@ -31,7 +31,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--fl-theme-font-weight-headline);
-    margin-bottom: var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
+    margin-block-end: var(--fl-theme-grids-spacing-interior-spacing-x1)rem;
 }
 
 h1 { font-size: var(--fl-theme-font-size-h1); }

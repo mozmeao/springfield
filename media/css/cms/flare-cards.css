@@ -16,7 +16,7 @@
 }
 
 .fl-card-list-header {
-    margin-bottom: calc(var(--token-scale-40) * 1px);
+    margin-block-end: calc(var(--token-scale-40) * 1px);
 }
 
 .fl-card {
@@ -47,11 +47,11 @@
 }
 
 .fl-card .fl-body {
-    text-align: left;
+    text-align: start;
 }
 
 .fl-card .fl-buttons {
-    margin-top: auto;
+    margin-block-start: auto;
 }
 
 .fl-card.fl-card-expand-link a.fl-button::after, .fl-card.fl-card-expand-link button::after {
@@ -66,14 +66,14 @@
 }
 
 .fl-card .fl-button {
-    margin-top: auto;
+    margin-block-start: auto;
     align-self: flex-start;
 }
 
 .fl-card-sticker {
     width: auto;
     height: 94px;
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
     align-self: flex-start;
 }
 
@@ -107,7 +107,7 @@
 .fl-illustration-card-reverse .fl-card-media {
     position: relative;
     order: 1;
-    margin-top: calc(var(--token-scale-24) * -1px);
+    margin-block-start: calc(var(--token-scale-24) * -1px);
     z-index: 0;
 }
 

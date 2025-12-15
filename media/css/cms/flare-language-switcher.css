@@ -29,7 +29,7 @@
     height: 18px;
     width: 18px;
     position: absolute;
-    left: 10px;
+    inset-inline-start: 10px;
     top: 10px;
     z-index: 1;
 }
@@ -52,7 +52,7 @@
     color: var(--token-neutrals-gray-3);
     position: absolute;
     top: -1.5em;
-    padding-bottom: 8px;
+    padding-block-end: 8px;
 }
 
 .js .fl-language-switcher-link {
@@ -92,7 +92,7 @@
     height: 14px;
     width: 14px;
     position: absolute;
-    right: 12px;
+    inset-inline-end: 12px;
     top: 12px;
     z-index: 1;
 }
@@ -108,7 +108,7 @@
     font-weight: 600;
     font-size: 1rem;
     padding: 8px calc(1.5em + 16px) 8px 8px;
-    padding-left: 36px; /* space for globe icon */
+    padding-inline-start: 36px; /* space for globe icon */
     max-width: 100%;
     width: 100%;
     margin: 0;
@@ -141,7 +141,7 @@
     background: var(--token-neutrals-off-white);
     color: var(--token-neutrals-off-black);
     border-radius: 4px;
-    margin-top: 8px;
+    margin-block-start: 8px;
     padding: 0 4px;
     font-size: .875rem;
 }
@@ -156,5 +156,5 @@
 }
 
 .no-js .fl-language-switcher-select {
-    padding-left: 0.5rem;
+    padding-inline-start: 0.5rem;
 }

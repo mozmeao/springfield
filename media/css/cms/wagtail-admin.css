@@ -28,7 +28,7 @@
     font-size: 11px;
     color: #666;
     font-weight: normal;
-    margin-top: 4px;
+    margin-block-start: 4px;
     font-family: monospace;
 }
 
@@ -53,10 +53,10 @@
 }
 
 .pl-4em {
-    padding-left: 4em;
+    padding-inline-start: 4em;
 }
 .pb-4 {
-    padding-bottom: 1em;
+    padding-block-end: 1em;
 }
 
 .align-items-end {

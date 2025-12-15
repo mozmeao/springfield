@@ -14,7 +14,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     background-color: var(--token-neutrals-off-black);
     color: var(--token-neutrals-white);
     margin: 0;
-    margin-top: auto;
+    margin-block-start: auto;
     width: 100%;
     padding: 0;
 }
@@ -50,16 +50,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
     margin: 0 auto;
     padding: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-24) * 1px);
-    padding-bottom: 0;
+    padding-block-end: 0;
 }
 
 @media (min-width: 1024px) {
     .fl-footer-inner {
         position: relative;
-        margin-bottom: 0;
+        margin-block-end: 0;
         padding: calc(var(--token-scale-64) * 1px)
             calc(var(--token-scale-40) * 1px);
-        padding-bottom: 0;
+        padding-block-end: 0;
     }
 }
 
@@ -68,18 +68,18 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Sections */
 
 .fl-footer-sections-list {
-    padding-bottom: calc(var(--token-scale-32) * 1px);
+    padding-block-end: calc(var(--token-scale-32) * 1px);
 }
 
 @media (min-width: 480px) {
     .fl-footer-sections-list {
-        padding-bottom: 0;
+        padding-block-end: 0;
     }
 }
 
 @media screen and (max-width: 1023px) {
     .fl-footer-sections-list {
-        border-bottom: transparent;
+        border-block-end: transparent;
         border-color: transparent;
         gap: calc(var(--token-scale-24) * 1px);
         display: grid;
@@ -88,22 +88,22 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             'community resources'
             'follow resources';
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        padding-bottom: calc(var(--token-scale-48) * 1px);
+        padding-block-end: calc(var(--token-scale-48) * 1px);
     }
 
     .fl-footer-sections-list .fl-footer-section {
         width: auto;
         padding: 0;
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-footer-sections-list .fl-footer-list:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-footer-sections-list .fl-footer-section-download {
-        border-bottom: 1px solid var(--token-neutrals-grey-3);
-        gap: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
+        border-block-end: 1px solid var(--token-neutrals-grey-3);
+        gap: calc(var(--token-scale-24) * 1px);
         display: grid;
         grid-column-end: -1;
         grid-column-start: 1;
@@ -112,18 +112,18 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             'platforms latest'
             'platforms business';
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        padding-bottom: calc(var(--token-scale-32) * 1px);
+        padding-block-end: calc(var(--token-scale-32) * 1px);
     }
 
     .whats-new-page .fl-footer-sections-list .fl-footer-section-download {
-        border-bottom: 1px solid var(--fl-theme-color-text-secondary);
+        border-block-end: 1px solid var(--fl-theme-color-text-secondary);
     }
 
     .fl-footer-sections-list
         .fl-footer-section-download
         .fl-footer-heading-download {
         padding: 0;
-        margin-bottom: -8px;
+        margin-block-end: -8px;
         grid-area: download;
         grid-column-end: -1;
         grid-column-start: 1;
@@ -160,13 +160,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-sections-list .fl-footer-section-follow li:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
 @media screen and (min-width: 1024px) {
     .fl-footer-sections-list {
-        padding-bottom: 0;
+        padding-block-end: 0;
         display: flex;
     }
 
@@ -177,20 +177,20 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-section:first-child {
-        padding-left: 0;
-        padding-right: calc(var(--token-scale-24) * 1px);
+        padding-inline-start: 0;
+        padding-inline-end: calc(var(--token-scale-24) * 1px);
     }
 
     .fl-footer-section:last-child {
-        padding-right: 0;
-        padding-left: calc(var(--token-scale-24) * 1px);
+        padding-inline-end: 0;
+        padding-inline-start: calc(var(--token-scale-24) * 1px);
     }
 }
 
 /* Individual Section Styles */
 @media (max-width: 479px) {
     .fl-footer-section {
-        margin-bottom: calc(var(--token-scale-8) * 1px);
+        margin-block-end: calc(var(--token-scale-8) * 1px);
     }
 }
 
@@ -213,7 +213,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-align: start;
     color: var(--token-neutrals-grey-3);
     font-weight: bold;
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
     padding: 0;
     font-size: calc(var(--token-scale-16) * 1px);
     line-height: 1.5;
@@ -226,7 +226,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media (min-width: 480px) {
     .fl-footer-heading {
         padding: 0 0 calc(var(--token-scale-8) * 1px);
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
@@ -250,7 +250,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 @media (max-width: 479px) {
     .fl-footer-subheading {
-        margin-bottom: calc(var(--token-scale-8) * 1px);
+        margin-block-end: calc(var(--token-scale-8) * 1px);
         padding: 0;
     }
 }
@@ -258,14 +258,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media (min-width: 480px) and (max-width: 1023px) {
     .fl-footer-subheading {
         padding: 0 0 calc(var(--token-scale-8) * 1px);
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
 @media (min-width: 1024px) {
     .fl-footer-subheading {
-        margin-top: calc(var(--token-scale-8) * 1px);
-        margin-bottom: calc(var(--token-scale-16) * 1px);
+        margin-block-start: calc(var(--token-scale-8) * 1px);
+        margin-block-end: calc(var(--token-scale-16) * 1px);
         padding: 0;
     }
 }
@@ -285,30 +285,30 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Lists */
 
 .fl-footer-list {
-    margin-top: 0;
+    margin-block-start: 0;
     list-style-type: none;
     padding: 0;
 }
 
 @media (max-width: 1023px) {
     .fl-footer-list {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
 @media (min-width: 1024px) {
     .fl-footer-list {
-        margin-bottom: calc(var(--token-scale-40) * 1px);
+        margin-block-end: calc(var(--token-scale-40) * 1px);
     }
 }
 
 .fl-footer-list li {
     list-style-type: none;
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-footer-list li:last-child {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 /* external link icon */
@@ -322,7 +322,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     height: 12px;
     vertical-align: baseline;
     width: 12px;
-    margin-left: calc(var(--token-scale-8) * 1px);
+    margin-inline-start: calc(var(--token-scale-8) * 1px);
 }
 
 .whats-new-page .fl-footer-section a[href^='http']::after {
@@ -339,7 +339,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-logo {
     text-align: center;
-    margin-bottom: calc(var(--token-scale-64) * 1px);
+    margin-block-end: calc(var(--token-scale-64) * 1px);
 }
 
 .fl-footer-logo a {
@@ -352,7 +352,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     margin: 0 auto;
     direction: ltr;
     overflow: hidden;
-    text-align: left;
+    text-align: start;
     text-indent: -9999px;
     white-space: nowrap;
 }
@@ -376,7 +376,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         bottom: 0;
         position: absolute;
         text-align: end;
-        right: 0;
+        inset-inline-end: 0;
         width: calc(((100% - 2 * 40px) - 10px) / 4);
     }
 
@@ -433,7 +433,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* Legal Links */
 .fl-footer-legal {
-    margin-bottom: calc(var(--token-scale-24) * 1px);
+    margin-block-end: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-footer-terms {
@@ -484,7 +484,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* More Section (Branding + Language) */
 .fl-footer .fl-button-outline img {
-    margin-right: calc(var(--token-scale-16) * 1px);
+    margin-inline-end: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-footer-top {
@@ -589,7 +589,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-note {
     margin: 0;
-    margin-top: calc(var(--token-scale-8) * 1px);
+    margin-block-start: calc(var(--token-scale-8) * 1px);
     color: var(--token-neutrals-grey-3);
     font-size: var(--fl-theme-font-size-body-xsmall);
     text-align: center;
@@ -607,11 +607,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-copy {
-        margin-bottom: calc(var(--token-scale-16) * 1px);
+        margin-block-end: calc(var(--token-scale-16) * 1px);
     }
 
     .fl-footer-links {
-        margin-bottom: calc(var(--token-scale-32) * 1px);
+        margin-block-end: calc(var(--token-scale-32) * 1px);
     }
 
     .fl-footer-bottom {

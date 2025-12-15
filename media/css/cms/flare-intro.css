@@ -84,11 +84,11 @@
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: calc(var(--token-scale-24) * 1px);
+    margin-block-end: calc(var(--token-scale-24) * 1px);
 }
 
 .fl-intro .fl-subheading {
-    margin-top: 0;
-    margin-bottom: calc(var(--token-scale-64) * 1px);
+    margin-block-start: 0;
+    margin-block-end: calc(var(--token-scale-64) * 1px);
     font-size: var(--fl-theme-font-size-base);
 }

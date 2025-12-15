@@ -90,8 +90,8 @@
 .fl-hamburger::after {
     content: "";
     position: absolute;
-    left: 12px;
-    right: 4px;
+    inset-inline-start: 12px;
+    inset-inline-end: 4px;
     height: 2px;
     background: var(--fl-theme-navigation-icon);
     border-radius: 1px;
@@ -150,7 +150,7 @@
     display: inline-block;
     width: 12px;
     height: 12px;
-    margin-left: calc(var(--token-scale-4) * 1px);
+    margin-inline-start: calc(var(--token-scale-4) * 1px);
     background-color: var(--fl-theme-color-text-body);
     background-repeat: no-repeat;
     background-size: contain;
@@ -194,7 +194,7 @@
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
     font-size: 1.125rem;
-    margin-bottom: calc(var(--token-scale-8) * 1px);
+    margin-block-end: calc(var(--token-scale-8) * 1px);
     text-decoration: none;
 }
 
@@ -233,11 +233,11 @@
 }
 
 .fl-menu-category-link svg {
-    left: auto;
-    margin-left: 4px;
-    margin-right: 0;
-    right: 0;
-    transition-property: right;
+    inset-inline-end: auto;
+    margin-inline-start: 4px;
+    margin-inline-end: 0;
+    inset-inline-start: 0;
+    transition-property: inset-inline-end;
     transform: none;
     height: 0.8em;
     position: relative;
@@ -248,7 +248,7 @@
 }
 
 .fl-menu-category-link:hover svg {
-    right: -4px;
+    inset-inline-end: -4px;
 }
 
 .fl-menu-panel-content {
@@ -258,7 +258,7 @@
 }
 
 .fl-menu-panel-content ul {
-    margin-bottom: calc(var(--token-scale-16) * 1px);
+    margin-block-end: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-menu-panel-content li {
@@ -266,7 +266,7 @@
 }
 
 .fl-menu-panel-content ul:last-child {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-show-mobile-menu.is-open, .fl-menu-close-button-content {
@@ -276,7 +276,7 @@
     text-indent: -9999px;
     white-space: nowrap;
     overflow: hidden;
-    text-align: left;
+    text-align: start;
     direction: ltr;
     display: inline-block;
 }
@@ -285,7 +285,7 @@
     width: 16px;
     height: 16px;
     padding: 0;
-    margin-right: calc(var(--token-scale-4) * 1px);
+    margin-inline-end: calc(var(--token-scale-4) * 1px);
     background-color: var(--fl-theme-color-text-body);
     mask-image: var(--icon-src);
     mask-repeat: no-repeat;
@@ -301,7 +301,7 @@
     padding: 0;
     position: absolute;
     top: 16px;
-    right: 16px;
+    inset-inline-end: 16px;
     z-index: 1;
     display: none;
 }
@@ -324,10 +324,10 @@
     .fl-nav.is-open {
         position: fixed;
         top: 0;
-        right: 0;
+        inset-inline-end: 0;
         width: 100%;
         height: calc(100vh - var(--fl-navigation-menu-height));
-        margin-top: var(--fl-navigation-menu-height);
+        margin-block-start: var(--fl-navigation-menu-height);
         padding: calc(var(--token-scale-24) * 1px) calc(var(--token-scale-16) * 1px) 100px;
         display: block;
         background: var(--fl-theme-navigation-bg);
@@ -336,11 +336,11 @@
     }
 
     .fl-menu-panel-content-column {
-        padding-top: calc(var(--token-scale-24) * 1px);
+        padding-block-start: calc(var(--token-scale-24) * 1px);
     }
 
     .fl-menu-panel-content-column:first-child {
-        padding-top: 0;
+        padding-block-start: 0;
     }
 
     .fl-hamburger {
@@ -417,7 +417,7 @@
 
     .fl-header:has(.hide-cta-on-desktop),
     .fl-header:has(.hide-nav-download-on-desktop) {
-        padding-right: 156px;
+        padding-inline-end: 156px;
     }
 
     .fl-menu-category-link a {
@@ -460,7 +460,7 @@
         display: block;
         position: absolute;
         top: var(--fl-navigation-menu-height);
-        left: 50%;
+        inset-inline-start: 50%;
         transform: translateX(-50%);
         border: 2px solid var(--fl-theme-border-color-subtle);
         border-radius: 0 0 8px 8px;
@@ -472,7 +472,7 @@
     .fl-menu-category.is-active #fl-menu-panel-features {
         max-width: 344px;
         transform: none;
-        left: auto;
+        inset-inline-start: auto;
     }
 
     .fl-menu-panel-content {
@@ -484,11 +484,11 @@
     .fl-menu-panel-content-column {
         width: 100%;
         min-width: max-content;
-        margin-right: calc(var(--token-scale-32) * 1px);
+        margin-inline-end: calc(var(--token-scale-32) * 1px);
     }
 
     .fl-menu-panel-content-column:last-child {
-        margin-right: 0;
+        margin-inline-end: 0;
     }
 }
 
