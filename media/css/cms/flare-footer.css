@@ -210,7 +210,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Headings */
 
 .fl-footer-heading {
-    text-align: left;
+    text-align: start;
     color: var(--token-neutrals-grey-3);
     font-weight: bold;
     margin-bottom: calc(var(--token-scale-8) * 1px);
