@@ -10,7 +10,7 @@
 
 {% block page_title %}Firefox 2025 Year in Review{% endblock %}
 {% block page_desc %}A look back at what your Firefox did this year.{% endblock %}
-{% block page_image %}/media/img/firefox/year-in-review/og-image.png{% endblock %}
+{% block page_image %}{{ static('img/firefox/year-in-review/og-image.png') }}{% endblock %}
 
 {% block page_css %}
   {{ css_bundle('eoy_2025') }}
@@ -63,7 +63,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Shield.svg"
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
               alt="Shield."
               width="61"
               height="61"
@@ -91,7 +91,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Heart.svg"
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
               alt="Heart."
               width="80"
               height="80"
@@ -108,7 +108,7 @@
               Our browser is built around you. We've been putting people over profits for over 20 years.
             </p>
             <p>
-              <a href="https://www.firefox.com/en-US/features/private/" class="mzp-c-cta-link">
+              <a href="{{ url('firefox.features.private') }}" class="mzp-c-cta-link">
                 {{ ftl('ui-learn-more') }}
               </a>
             </p>
@@ -119,7 +119,7 @@
         <section class="mzp-c-picto">
           <div class="mzp-c-picto-image">
             <img
-              src="\media\img\firefox\landing\year-in-review\fx_Nothing-Personal_Sticker_Fast.svg"
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
               alt="Lightning."
               width="37"
               height="37"
