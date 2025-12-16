@@ -210,7 +210,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Headings */
 
 .fl-footer-heading {
-    text-align: left;
+    text-align: start;
     color: var(--token-neutrals-grey-3);
     font-weight: bold;
     margin-bottom: calc(var(--token-scale-8) * 1px);
@@ -238,7 +238,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Subheadings */
 .fl-footer-subheading {
     color: var(--token-neutrals-grey-3);
-    text-align: left;
+    text-align: start;
     font-weight: bold;
     font-size: calc(var(--token-scale-16) * 1px);
     line-height: 1.5;
@@ -275,16 +275,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     color: var(--token-neutrals-white);
 }
 
-.fl-footer-section-download .fl-footer-subheading a:link,
-.fl-footer-section-download .fl-footer-subheading a:visited,
-.fl-footer-section-platforms .fl-footer-subheading a:link,
-.fl-footer-section-platforms .fl-footer-subheading a:visited,
-.fl-footer-section-download .fl-footer-subheading a:hover,
-.fl-footer-section-download .fl-footer-subheading a:focus,
-.fl-footer-section-download .fl-footer-subheading a:active,
-.fl-footer-section-platforms .fl-footer-subheading a:hover,
-.fl-footer-section-platforms .fl-footer-subheading a:focus,
-.fl-footer-section-platforms .fl-footer-subheading a:active {
+.fl-footer-subheading a:link:not(.fl-button) {
     color: inherit;
     font-weight: inherit;
 }
@@ -318,10 +309,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-list li:last-child {
     margin-bottom: 0;
-}
-
-.fl-footer-list.is-closed[aria-hidden='true'] {
-    display: none;
 }
 
 /* external link icon */
@@ -496,65 +483,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* -------------------------------------------------------------------------- */
 
 /* More Section (Branding + Language) */
-
-.fl-footer-more {
-    padding-bottom: 0;
-    padding-top: calc(var(--token-scale-48) * 1px);
-}
-
-@media screen and (max-width: 767px) {
-    .fl-footer-more {
-        border-top: 1px solid var(--token-neutrals-grey-3);
-    }
-
-    .whats-new-page .fl-footer-more {
-        border-color: var(--fl-theme-color-text-secondary);
-    }
-}
-
-@media screen and (min-width: 768px) {
-    @supports (display: flex) {
-        .fl-footer-more {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-    }
-}
-
-.fl-footer-branding {
-    margin-bottom: calc(var(--token-scale-32) * 1px);
-}
-
-@media screen and (min-width: 768px) {
-    .fl-footer-branding {
-        margin-bottom: 0;
-    }
-}
-
-.fl-footer-branding h2 {
-    font-size: calc(var(--token-scale-24) * 1px);
-    line-height: 1.3;
-    padding-top: 0;
-    color: var(--token-neutrals-white);
-    font-weight: bold;
-}
-
-.whats-new-page .fl-footer-branding h2 {
-    color: var(--fl-theme-color-text-body);
-}
-
-.fl-footer-branding p {
-    margin: 0;
-    font-size: calc(var(--token-scale-16) * 1px);
-    color: var(--token-neutrals-white);
-    line-height: 1.5;
-}
-
-.whats-new-page .fl-footer-branding p {
-    color: var(--fl-theme-color-text-body);
-}
-
 .fl-footer .fl-button-outline img {
     margin-right: calc(var(--token-scale-16) * 1px);
 }
