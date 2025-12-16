@@ -57,3 +57,31 @@ class WhatsNewPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.WhatsNewPage
+
+
+class FreeFormPageFactory(wagtail_factories.PageFactory):
+    title = "Test FreeFormPage"
+    live = True
+    slug = "freeform-page"
+
+    class Meta:
+        model = models.FreeFormPage
+
+
+class ArticleIndexPageFactory(wagtail_factories.PageFactory):
+    title = "Test Article Index Page"
+    live = True
+    slug = "articles"
+
+    class Meta:
+        model = models.ArticleIndexPage
+
+
+class ArticleDetailPageFactory(wagtail_factories.PageFactory):
+    title = "Test Article Detail Page"
+    live = True
+    slug = "article-detail-page"
+    description = "Test Article Description for Index Page"
+
+    class Meta:
+        model = models.ArticleDetailPage

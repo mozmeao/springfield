@@ -17,6 +17,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-functional-info-buttons: var(--token-blue-button);
 
     /* Core text colors */
+    --fl-theme-color-headings-primary: var(--token-neutrals-black);
     --fl-theme-color-text-primary: var(--token-neutrals-charcoal);
     --fl-theme-color-text-secondary: var(--token-neutrals-grey-7);
     --fl-theme-color-text-muted: var(--token-neutrals-grey-8);

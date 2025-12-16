@@ -69,6 +69,8 @@ body:not(.disable-dark-mode) .light-dark-display:not(:has(.display-dark)) .displ
     display: block;
 }
 
+/* Conditional display */
+
 .conditional-display {
     display: none;
 }
