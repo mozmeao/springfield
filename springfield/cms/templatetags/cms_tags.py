@@ -17,6 +17,7 @@ from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
 from springfield.cms.models.pages import BASE_UTM_PARAMETERS
+from springfield.cms.models.snippets import MenuSnippet
 from springfield.firefox.templatetags.misc import fxa_button
 
 
@@ -195,3 +196,51 @@ def richtext(context, value: str) -> str:
         fxa_tag.replace_with(BeautifulSoup(fxa_link, "html.parser"))
 
     return mark_safe(str(soup))
+
+
+@pass_context
+@library.global_function
+def get_menu_snippet(context):
+    """
+    Fetches the latest published menu snippet for the current locale.
+
+    This function handles:
+    - Draft state: Only returns published (live) snippets
+    - Translations: Returns the snippet in the current locale if available
+
+    Usage in templates:
+        {% set menu = get_menu_snippet() %}
+        {% if menu %}
+            {# render menu #}
+        {% endif %}
+
+    Args:
+        context: The template context (automatically passed with @pass_context)
+
+    Returns:
+        The latest published MenuSnippet instance for the current locale, None otherwise
+    """
+    from wagtail.models import Locale
+
+    # Get the current locale from context
+    request = context.get("request")
+    locale = None
+
+    if request:
+        # Try to get locale from request
+        locale_code = getattr(request, "LANGUAGE_CODE", None)
+        if locale_code:
+            try:
+                locale = Locale.objects.get(language_code=locale_code)
+            except Locale.DoesNotExist:
+                locale = None
+
+    # If no locale from request, get default locale
+    if not locale:
+        locale = Locale.get_default()
+
+    # Query for the latest published menu snippet for the current locale
+    # Filter by locale for translation support and live=True for published only
+    menu = MenuSnippet.objects.filter(locale=locale, live=True).order_by("-last_published_at").first()
+
+    return menu

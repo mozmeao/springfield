@@ -40,6 +40,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}disable-dark-mode{% endblock %}" {% block body_attrs %}{% endblock %}>
 
     {% block flare_header %}
+      {% set menu = get_menu_snippet() %}
       {% include 'cms/includes/navigation.html' %}
     {% endblock %}
 

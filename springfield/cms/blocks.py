@@ -1294,3 +1294,37 @@ class ShowcaseBlock(blocks.StructBlock):
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
         label_format = "{heading}"
+
+
+# Menu
+
+
+class MenuLinkBlock(blocks.StructBlock):
+    label = blocks.CharBlock(label="Link Text")
+    link = LinkBlock()
+    is_button = blocks.BooleanBlock(default=False, required=False, help_text="Display this link as a button")
+
+
+class MenuDropdownColumnBlock(blocks.StructBlock):
+    title = blocks.CharBlock()
+    links = blocks.ListBlock(MenuLinkBlock(), min_num=1)
+
+    class Meta:
+        icon = "folder-open-inverse"
+        label = "Dropdown Column"
+
+
+class MenuItemBlock(blocks.StructBlock):
+    title = blocks.CharBlock()
+    link = LinkBlock()
+    dropdown = blocks.StreamBlock(
+        [("column", MenuDropdownColumnBlock())],
+        min_num=0,
+        max_num=2,
+        label="Dropdown Links",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Menu Item"
+        template = "cms/snippets/menu_item.html"

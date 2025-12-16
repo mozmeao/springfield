@@ -1,0 +1,87 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if value.dropdown %}
+  {% set menu_id = "fl-menu-panel-" ~ index %}
+  <li class="fl-menu-category">
+    <a
+      class="fl-menu-title"
+      href="{{ value.link.get_url()|add_utm_parameters }}"
+      aria-haspopup="true"
+      aria-controls="{{ menu_id }}"
+    >
+      <h2>
+        {{ value.title }}
+        <span class="fl-icon fl-icon-caret-down"></span>
+      </h2>
+    </a>
+    <div class="fl-menu-panel" id="{{ menu_id }}">
+      <button class="fl-menu-close-button">
+        <span class="fl-icon fl-icon-close fl-menu-close-button-content">Close menu</span>
+      </button>
+      <div class="fl-menu-panel-content">
+        {% for column in value.dropdown %}
+          <div class="fl-menu-panel-content-column">
+            <h3 class="fl-menu-subtitle">{{ column.value.title }}</h3>
+            <ul>
+              {% for link in column.value.links %}
+                {% if not link.is_button %}
+                  <li>
+                      <a
+                        class="fl-nav-button"
+                        href="{{ link.link.get_url()|add_utm_parameters }}"
+                        {% if link.link.new_window %}target="_blank" rel="noopener noreferrer"{% endif %}
+                        data-link-text="{{ link.label }}"
+                        data-link-position="topnav - {{ link.label|lower }}"
+                      >
+                        {{ link.label }}
+                      </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+            {% for link in column.value.links %}
+              {% if link.is_button %}
+                <p class="fl-menu-category-link">
+                  <a
+                    href="{{ link.link.get_url()|add_utm_parameters }}"
+                    data-link-text="{{ link.label }}"
+                    data-link-position="topnav - {{ link.label|lower }}"
+                  >
+                    {{ link.label }}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="m7.24 1.36 5.89 5.89H0v1.5h13.13l-5.89 5.89L8.3 15.7 16 8 8.3.3z"
+                      />
+                    </svg>
+                  </a>
+                </p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </li>
+{% else %}
+  <li class="fl-menu-link-item">
+    <a
+      class="fl-nav-link"
+      href="{{ value.link.get_url()|add_utm_parameters }}"
+      {% if value.link.new_window %}target="_blank" rel="noopener noreferrer"{% endif %}
+      data-link-text="{{ value.title }}"
+      data-link-position="topnav - {{ value.title|lower }}"
+    >
+      {{ value.title }}
+    </a>
+  </li>
+{% endif %}

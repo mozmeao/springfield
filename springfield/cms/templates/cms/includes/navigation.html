@@ -25,8 +25,16 @@
         {% if not no_menu %}
         <nav class="fl-nav">
             <ul class="fl-nav-menu">
+              {% if menu %}
+                {% for item in menu.items %}
+                  {% set index = loop.index %}
+                  {% include_block item %}
+                {% endfor %}
+              {% else %}
+                {# Fallback to existing hardcoded menu if no menu is available #}
                 {% include 'cms/includes/menus/features.html' %}
                 {% include 'cms/includes/menus/resources.html' %}
+              {% endif %}
             </ul>
             <div class="fl-nav-mobile-download-link">
                 {% include 'cms/includes/nav-cta.html' %}
