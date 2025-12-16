@@ -219,12 +219,14 @@ class TestCreateTranslationData:
             "locale": "fr",
             "percent_translated": 100,
             "view_url": fr_homepage.url,
+            "enabled": True,
         }
         expected_pt_br_data = {
             "edit_url": f"/cms-admin/pages/{pt_br_homepage.id}/edit/",
             "locale": "pt-BR",
             "percent_translated": 100,
             "view_url": pt_br_homepage.url,
+            "enabled": True,
         }
         assert fr_translation_data.to_dict() == expected_fr_data
         assert pt_br_translation_data.to_dict() == expected_pt_br_data
@@ -353,12 +355,14 @@ class TestCreateTranslationData:
             "locale": "es",
             "percent_translated": 100,
             "view_url": es_child.url,
+            "enabled": True,
         }
         expected_pt_br_data = {
             "edit_url": f"/cms-admin/pages/{pt_br_child.id}/edit/",
             "locale": "pt-BR",
             "percent_translated": 100,
             "view_url": pt_br_child.url,
+            "enabled": True,
         }
         assert es_child_translation_data.to_dict() == expected_es_data
         assert pt_br_child_translation_data.to_dict() == expected_pt_br_data
@@ -397,6 +401,7 @@ class TestCreateTranslationData:
 
         mock_translation_record = Mock()
         mock_translation_record.get_progress.return_value = (10, 7)  # 7 out of 10 segments translated
+        mock_translation_record.enabled = True  # the translation is enabled in wagtail-localize
         mock_translation_get.return_value = mock_translation_record
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
@@ -421,6 +426,7 @@ class TestCreateTranslationData:
 
         mock_translation_record = Mock()
         mock_translation_record.get_progress.return_value = (0, 0)  # No segments
+        mock_translation_record.enabled = True  # the translation is enabled in wagtail-localize
         mock_translation_get.return_value = mock_translation_record
 
         en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
@@ -461,6 +467,7 @@ class TestCreateTranslationData:
         """Test the fallback logic when translation is from another translation."""
         mock_translation_record = Mock()
         mock_translation_record.get_progress.return_value = (8, 6)  # 75% translated
+        mock_translation_record.enabled = True  # the translation is enabled in wagtail-localize
 
         mock_translation_source_get.side_effect = [TranslationSource.DoesNotExist(), Mock(), TranslationSource.DoesNotExist(), Mock()]
         mock_translation_get.side_effect = [
