@@ -113,7 +113,12 @@ _csp_style_src = {
     "cdn.transcend.io",  # Transcend Consent Management
     "transcend-cdn.com",  # Transcend Consent Management
 }
-# # TODO change settings so we don't need unsafes even in dev
+
+# Transcend Consent Management UI uses CSS-in-JS which requires inline styles.
+if TRANSCEND_AIRGAP_URL:  # noqa: F405
+    _csp_style_src.add(csp.constants.UNSAFE_INLINE)
+
+# TODO change settings so we don't need unsafes even in dev
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
 
