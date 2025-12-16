@@ -60,200 +60,34 @@ body.fl-modal-open {
     padding: 0 calc(var(--token-scale-24) * 1px);
 }
 
-.fl-footer {
-    margin-top: auto;
-    padding: calc(var(--token-scale-64) * 1px) 0;
-    background: var(--fl-theme-surface-page);
-}
-
-.fl-footer .fl-button-outline img {
-    margin-right: calc(var(--token-scale-16) * 1px);
-}
-
-.fl-footer-inner {
-    max-width: calc(var(--token-widths-viewport-wrapper-screen-2xl) * 1px);
-    margin: 0 auto;
-    color: var(--token-neutrals-grey-5);
-    font-size: var(--fl-theme-font-size-body-small);
-}
-
-.fl-footer-top {
+.fl-grid {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-64) * 1px);
-    align-items: start;
-}
-
-.fl-footer-copy {
-    margin: 0;
-    color: var(--fl-theme-color-text-primary);
-    grid-column: 1;
-}
-
-.fl-footer-link {
-    color: inherit;
-    text-decoration: none;
-}
-
-.fl-footer-link:hover {
-    text-decoration: underline;
-}
-
-.fl-footer-logo {
-    width: 200px;
-    height: 66px;
-    background-image: url('/media/img/logos/firefox/logo-word-hor.svg');
-    background-repeat: no-repeat;
-    background-position: left center;
-    background-size: contain;
-    border-radius: calc(var(--token-scale-4) * 1px);
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: end;
-}
-
-@media (prefers-color-scheme: dark) {
-    body:not(.disable-dark-mode) .fl-footer-logo {
-        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-}
-
-.fl-footer-divider {
-    border: none;
-    border-top: 1px solid var(--fl-theme-border-color-strong);
-    ;
-    margin: calc(var(--token-scale-48) * 1px) 0;
-}
-
-.fl-footer-bottom {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
     gap: calc(var(--token-scale-32) * 1px);
+    grid-template-columns: 1fr;
 }
 
-.fl-footer-cta {
-    width: 100%;
-}
-
-.fl-footer-cta .fl-button {
-    width: 100%;
-}
-
-@media (--viewport-sm-up) {
-    .fl-footer {
-        padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-24) * 1px)
-    }
-
-    .fl-footer-cta {
-        width: auto;
-    }
-
-    .fl-footer-cta .fl-button {
-        width: unset;
+@media (min-width: 768px) {
+    .fl-grid,
+    .fl-grid-4 {
+        gap: calc(var(--token-scale-24) * 1px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (--viewport-md-up) {
-    .fl-footer-inner {
-        padding: 0 calc(var(--token-scale-40) * 1px)
+@media (min-width: 1024px) {
+    .fl-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-}
 
-.fl-footer-links {
-    grid-column: 1;
-}
-
-.fl-footer-links ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--token-scale-8) * 1px);
-}
-
-.fl-footer-links a {
-    color: var(--fl-theme-color-text-primary);
-}
-
-.fl-footer-title {
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-h4);
-    color: var(--fl-theme-color-text-primary);
-    margin: 0 0 calc(var(--token-scale-4) * 1px);
-}
-
-.fl-footer-subtitle {
-    margin: 0;
-    color: var(--fl-theme-color-text-primary);
-}
-
-.fl-footer-note {
-    margin: 0;
-    margin-top: calc(var(--token-scale-8) * 1px);
-    color: var(--fl-theme-color-text-primary);
-    font-size: var(--fl-theme-font-size-body-xsmall);
-    text-align: center;
+    .fl-grid.fl-grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 @media (--viewport-xs) {
     .fl-main {
         padding: 0;
     }
-
-    .fl-footer .fl-footer-top {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .fl-footer .fl-footer-logo {
-        order: -1;
-        align-self: flex-start;
-        margin-bottom: calc(var(--token-scale-24) * 1px);
-        width: 140px;
-        height: 46px;
-    }
-
-    .fl-footer .fl-footer-copy {
-        margin-bottom: calc(var(--token-scale-16) * 1px);
-    }
-
-    .fl-footer .fl-footer-links {
-        margin-bottom: calc(var(--token-scale-32) * 1px);
-    }
-
-    .fl-footer-inner {
-        padding: 0 calc(var(--token-scale-24) * 1px);
-    }
-
-    .fl-footer-top,
-    .fl-footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .fl-footer-top {
-        display: flex;
-    }
-
-    .fl-footer-logo {
-        order: -1;
-        align-self: flex-end;
-        margin-bottom: calc(var(--token-scale-24) * 1px);
-        width: 140px;
-        height: 46px;
-    }
-
-    .fl-footer-copy {
-        margin-bottom: calc(var(--token-scale-16) * 1px);
-    }
-
-    .fl-footer-links {
-        margin-bottom: calc(var(--token-scale-32) * 1px);
-    }
-
 }
 
 /* Styles used by Download Firefox Button messages */

@@ -81,7 +81,7 @@ def get_translation_stats_for_page(source_page, target_locale):
 
         # Get the actual translation progress using wagtail-localize logic
         total_segments, translated_segments = translation_record.get_progress()
-        percent_translated = int((translated_segments / total_segments * 100)) if total_segments > 0 else 100
+        percent_translated = int(translated_segments / total_segments * 100) if total_segments > 0 else 100
 
         # Return both percent_translated and enabled status
         return (percent_translated, translation_record.enabled)

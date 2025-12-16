@@ -171,6 +171,11 @@ urlpatterns = (
         "firefox/browsers/compare/safari.html",
         ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
     ),
+    page(
+        "landing/year-in-review-2025/",
+        "firefox/landing/year-in-review-2025.html",
+        url_name="firefox.year_in_review_2025",
+    ),
     # bedrock Issue 8641
     page("more/", "firefox/more/index.html", ftl_files=["firefox/more/more", "firefox/more/shared"]),
     page("more/best-browser/", "firefox/more/best-browser.html", ftl_files=["firefox/more/best-browser", "firefox/more/shared"]),
