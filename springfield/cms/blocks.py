@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
+from wagtail_localize.segments import StringSegmentValue
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -136,6 +137,66 @@ def validate_video_url(value):
     return value
 
 
+class TranslationSettingsMixin:
+    """
+    Mixin for StructBlocks that need per-field translation control.
+
+    This mixin implements get_translatable_segments() to respect per-instance
+    translation preferences, allowing users to mark specific fields as not
+    needing translation.
+
+    IMPORTANT: By implementing get_translatable_segments(), we take full control
+    of extraction. Fields NOT returned here will be synchronized (copied) instead.
+
+    Classes using this mixin should define a `TRANSLATION_SYNC_CONTROL_FIELDS` dict that
+    maps field names to their corresponding translation control boolean field names.
+    Example: {"analytics_id": "synchronize_analytics_id"}
+
+    See wagtail-localize documentation:
+    - Segments concept: https://wagtail-localize.org/stable/concept/segments/
+    - Extraction reference: https://wagtail-localize.org/stable/ref/segments/extract/
+    """
+
+    # Subclasses should override this to map field names to their translation control fields
+    TRANSLATION_SYNC_CONTROL_FIELDS = {}
+
+    def get_translatable_segments(self, value):
+        """
+        Extract translatable segments, respecting translation sync control fields.
+
+        For fields that are in the TRANSLATION_SYNC_CONTROL_FIELDS mapping:
+          if their translation sync control field has a value of True,
+            the field be synchronized (auto-copied).
+          if their translation sync control field has a value of False,
+            the field will NOT be extracted here, which will make it independent
+            per locale (they are not copied, so they need to be translated).
+        For example,
+          TRANSLATION_SYNC_CONTROL_FIELDS = {"analytics_id": "synchronize_analytics_id"}
+
+          if synchronize_analytics_id is True, then analytics_id will be synchronized (auto-copied).
+          if synchronize_analytics_id is False, then analytics_id will need to be translated.
+        """
+        if not value:
+            return []
+
+        segments = []
+
+        # Check each field in the translation mapping
+        for field_name, translate_field_name in self.TRANSLATION_SYNC_CONTROL_FIELDS.items():
+            # Get the value of the translation sync control field
+            should_translate = not value.get(translate_field_name)
+
+            # Get the actual field value
+            field_value = value.get(field_name)
+
+            if should_translate and field_value is not None:
+                # Field marked for translation - create a segment for it
+                # even if it's not text, so it shows up in translation UI
+                segments.append(StringSegmentValue(f"{field_name}", str(field_value)))
+
+        return segments
+
+
 # Element blocks
 class HeadingBlock(blocks.StructBlock):
     superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -181,7 +242,10 @@ class UUIDBlock(blocks.CharBlock):
         return super().clean(value) or str(uuid4())
 
 
-class BaseButtonSettings(blocks.StructBlock):
+class BaseButtonSettings(TranslationSettingsMixin, blocks.StructBlock):
+    # Map field names to their translation sync control fields
+    TRANSLATION_SYNC_CONTROL_FIELDS = {"analytics_id": "synchronize_analytics_id"}
+
     theme = blocks.ChoiceBlock(
         (
             ("secondary", "Secondary"),
@@ -202,6 +266,14 @@ class BaseButtonSettings(blocks.StructBlock):
         label="Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
+        inline_form=True,
+    )
+    synchronize_analytics_id = blocks.BooleanBlock(
+        default=True,
+        required=False,
+        label="Copy Analytics ID for translations",
+        help_text="Check if the Analytics ID should be copied (the same) for all translations",
+        inline_form=True,
     )
 
     class Meta:
