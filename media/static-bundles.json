@@ -448,6 +448,12 @@
         "css/firefox/ai/waitlist.scss"
       ],
       "name": "firefox_waitlist"
+    },
+    {
+      "files": [
+        "css/firefox/landing/eoy-2025.scss"
+      ],
+      "name": "eoy_2025"
     }
   ],
   "js": [
@@ -566,6 +572,12 @@
         "js/firefox/default/thanks.js"
       ],
       "name": "firefox-default-thanks"
+    },
+    {
+      "files": [
+        "js/firefox/landing/year-in-review.js"
+      ],
+      "name": "year_in_review"
     },
     {
       "files": [
