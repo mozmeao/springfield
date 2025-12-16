@@ -284,10 +284,25 @@ class BaseButtonSettings(TranslationSettingsMixin, blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class TranslatableLinkBlock(TranslationSettingsMixin, LinkBlock):
+    """LinkBlock with translation synchronization control."""
+
+    # Map field names to their translation sync control fields
+    TRANSLATION_SYNC_CONTROL_FIELDS = {"custom_url": "synchronize_url"}
+
+    synchronize_url = blocks.BooleanBlock(
+        default=True,
+        required=False,
+        label="Copy URL for translations",
+        help_text="Check if the URL should be copied (the same) for all translations",
+        inline_form=True,
+    )
+
+
 class ButtonBlock(blocks.StructBlock):
     settings = BaseButtonSettings()
     label = blocks.CharBlock(label="Button Text")
-    link = LinkBlock()
+    link = TranslatableLinkBlock()
 
     class Meta:
         template = "cms/blocks/button.html"
@@ -389,7 +404,7 @@ class CTASettings(blocks.StructBlock):
 class CTABlock(blocks.StructBlock):
     settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
-    link = LinkBlock()
+    link = TranslatableLinkBlock()
 
     class Meta:
         label = "Link"

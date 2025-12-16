@@ -779,6 +779,12 @@
     },
     {
       "files": [
+        "js/cms/translatable-link-block.js"
+      ],
+      "name": "translatable-link-block"
+    },
+    {
+      "files": [
         "js/firefox/ai/waitlist-newsletter-init.es6.js"
       ],
       "name": "waitlist_newsletter"
