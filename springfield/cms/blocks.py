@@ -269,7 +269,7 @@ class BaseButtonSettings(TranslationSettingsMixin, blocks.StructBlock):
         inline_form=True,
     )
     synchronize_analytics_id = blocks.BooleanBlock(
-        default=True,
+        default=False,
         required=False,
         label="Copy Analytics ID for translations",
         help_text="Check if the Analytics ID should be copied (the same) for all translations",
@@ -291,7 +291,7 @@ class TranslatableLinkBlock(TranslationSettingsMixin, LinkBlock):
     TRANSLATION_SYNC_CONTROL_FIELDS = {"custom_url": "synchronize_url"}
 
     synchronize_url = blocks.BooleanBlock(
-        default=True,
+        default=False,
         required=False,
         label="Copy URL for translations",
         help_text="Check if the URL should be copied (the same) for all translations",
