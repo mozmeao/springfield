@@ -105,7 +105,8 @@
     padding: calc(var(--token-scale-16) * 1px) calc(var(--token-scale-24) * 1px);
     position: relative;
     background: var(--notification-bg);
-    border-radius: 0 calc(var(--token-scale-8) * 1px) calc(var(--token-scale-8) * 1px) 0;
+    border-start-end-radius: calc(var(--token-scale-8) * 1px);
+    border-end-end-radius: calc(var(--token-scale-8) * 1px);
 }
 
 .fl-notification-content .fl-notification-message {

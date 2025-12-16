@@ -463,10 +463,15 @@
         inset-inline-start: 50%;
         transform: translateX(-50%);
         border: 2px solid var(--fl-theme-border-color-subtle);
-        border-radius: 0 0 8px 8px;
+        border-start-end-radius: 8px;
+        border-end-end-radius: 8px;
         overflow: hidden;
         max-width: 400px;
         width: 100%;
+    }
+
+    [dir="rtl"] .fl-menu-category.is-active .fl-menu-panel {
+        transform: translateX(50%);
     }
 
     .fl-menu-category.is-active #fl-menu-panel-features {
