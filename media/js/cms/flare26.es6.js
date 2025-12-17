@@ -200,6 +200,62 @@ function initFlare26Carousels() {
     roots.forEach((rootEl) => initFlare26Carousel(rootEl));
 }
 
+function initFooterCtaEmailValidation() {
+    const forms = document.querySelectorAll('.fl-footer-form');
+    if (!forms.length) {
+        return;
+    }
+
+    const isValidEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    forms.forEach((form) => {
+        const emailInput = form.querySelector('input[type="email"]');
+        const submitButton = form.querySelector('.fl-footer-form-submit');
+        const errorSummary = form.querySelector('.fl-footer-form-errors');
+        const fieldError = form.querySelector('.fl-footer-form-field-error');
+
+        if (!emailInput || !submitButton) {
+            return;
+        }
+
+        const setErrorState = (isError) => {
+            if (isError) {
+                emailInput.setAttribute('aria-invalid', 'true');
+                submitButton.setAttribute('disabled', 'disabled');
+                if (errorSummary) {
+                    errorSummary.classList.remove('hidden');
+                }
+                if (fieldError) {
+                    fieldError.classList.remove('hidden');
+                }
+                return;
+            }
+
+            emailInput.removeAttribute('aria-invalid');
+            submitButton.removeAttribute('disabled');
+            if (errorSummary) {
+                errorSummary.classList.add('hidden');
+            }
+            if (fieldError) {
+                fieldError.classList.add('hidden');
+            }
+        };
+
+        emailInput.addEventListener('blur', () => {
+            const value = (emailInput.value || '').trim();
+            if (value && !isValidEmail(value)) {
+                setErrorState(true);
+                return;
+            }
+
+            setErrorState(false);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initFlare26Carousels();
+    initFooterCtaEmailValidation();
 });
