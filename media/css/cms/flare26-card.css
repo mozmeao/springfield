@@ -193,3 +193,100 @@ Card - Flare 2026 Design System Cards
         min-height: unset;
     }
 }
+
+/* =====================================================================
+Step Cards List - With Kit variant
+===================================================================== */
+
+/*
+ * Scoped styling hook applied to the Cards List wrapper:
+ *   <div class="fl-card-grid fl-step-cards-with-kit">...</div>
+ *
+ */
+
+.fl-card-grid.fl-step-cards-with-kit {
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr;
+    justify-content: center;
+}
+
+.fl-step-cards-with-kit .fl-illustration-card {
+    background: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+    min-height: auto;
+    overflow: visible;
+    gap: var(--token-spacing-xl);
+    text-align: left;
+    position: relative;
+}
+
+.fl-step-cards-with-kit .fl-card-media {
+    background: var(--token-color-cream);
+
+    /* Figma: 240px on desktop, but keep responsive */
+    min-height: calc(var(--token-layout-md) * 3);
+    padding: var(--token-spacing-2xl);
+    border-radius: var(--token-layout-xs);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.fl-step-cards-with-kit .fl-card-media img {
+    width: auto;
+    height: auto;
+    max-height: 96px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.fl-step-cards-with-kit .fl-superheading {
+    position: absolute;
+    top: var(--token-spacing-2xl);
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--token-layout-3xs);
+    height: var(--token-layout-3xs);
+    padding: var(--token-spacing-sm);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--token-layout-3xs);
+    background: var(--token-color-white);
+    margin: 0;
+    font-size: 12px;
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--token-color-black-4);
+    z-index: 2;
+}
+
+.fl-step-cards-with-kit .fl-heading-group {
+    margin: 0;
+}
+
+.fl-step-cards-with-kit .fl-heading {
+    margin: 0;
+    font-size: var(--token-spacing-lg);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: var(--token-color-black-4);
+    text-align: center;
+}
+
+@media (--viewport-md-up) {
+    .fl-card-grid.fl-step-cards-with-kit {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--token-layout-md) * 4)), 1fr));
+    }
+}
