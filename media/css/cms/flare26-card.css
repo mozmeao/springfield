@@ -205,7 +205,7 @@ Step Cards List - With Kit variant
  */
 
 .fl-card-grid.fl-step-cards-with-kit {
-    gap: var(--token-spacing-lg);
+    gap: 146px var(--token-spacing-lg);
     grid-template-columns: 1fr;
     justify-content: center;
 }
@@ -283,6 +283,33 @@ Step Cards List - With Kit variant
     letter-spacing: 0;
     color: var(--token-color-black-4);
     text-align: center;
+}
+
+/* Decorative Kit (Figma): only on the last card */
+.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::before,
+.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::after {
+    content: "";
+    position: absolute;
+    top: -32px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: auto;
+    z-index: 3;
+}
+
+.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::before {
+    left: -20px;
+    width: 68px;
+    height: 110px;
+    background-image: url("/media/img/firefox/flare/fox-tail.png");
+}
+
+.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::after {
+    top: -60px;
+    right: 0;
+    width: 98px;
+    height: 86px;
+    background-image: url("/media/img/firefox/flare/fox-head.png");
 }
 
 @media (--viewport-md-up) {
