@@ -106,3 +106,39 @@ Button - Flare 2026 Design System Buttons
     width: var(--token-spacing-lg);
     height: var(--token-spacing-lg);
 }
+
+.fl-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1-5, 12) * 1px);
+}
+
+.fl-buttons.is-horizontal {
+    flex-direction: row;
+}
+
+.fl-buttons.is-horizontal.is-center {
+    justify-content: center;
+    width: 100%;
+}
+
+.fl-buttons.is-stacked {
+    flex-direction: column;
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1, 8) * 1px);
+}
+
+.fl-buttons.is-stacked .fl-button {
+    width: 100%;
+}
+
+.fl-buttons > * {
+    display: inline-flex;
+}
+
+.fl-buttons.is-stacked > * {
+    width: 100%;
+}
+
+.fl-buttons .fl-button {
+    margin-bottom: 0;
+}

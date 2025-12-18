@@ -294,7 +294,7 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/flare-icon.css",
+        "css/cms/flare26-icon.css",
         "css/cms/flare-utilities.css"
       ],
       "name": "flare_base"
@@ -448,6 +448,12 @@
         "css/firefox/ai/waitlist.scss"
       ],
       "name": "firefox_waitlist"
+    },
+    {
+      "files": [
+        "css/firefox/landing/eoy-2025.scss"
+      ],
+      "name": "eoy_2025"
     }
   ],
   "js": [
@@ -566,6 +572,12 @@
         "js/firefox/default/thanks.js"
       ],
       "name": "firefox-default-thanks"
+    },
+    {
+      "files": [
+        "js/firefox/landing/year-in-review.js"
+      ],
+      "name": "year_in_review"
     },
     {
       "files": [
@@ -799,6 +811,12 @@
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-fx-logo.js"
+      ],
+      "name": "wagtailadmin-fx-logo"
     },
     {
       "files": [

@@ -195,3 +195,30 @@ def richtext(context, value: str) -> str:
         fxa_tag.replace_with(BeautifulSoup(fxa_link, "html.parser"))
 
     return mark_safe(str(soup))
+
+
+@pass_context
+@library.global_function
+def get_pre_footer_cta_snippet(context):
+    """
+    Retrieves the PreFooterCTASnippet for the current locale.
+    Returns the first available snippet for the locale, or None if not found.
+
+    Usage in templates:
+        {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
+        {% if pre_footer_cta %}
+        <include:pre-footer-cta label="{{ pre_footer_cta.label }}" link="{{ pre_footer.link }}" />
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import PreFooterCTASnippet
+
+    locale = None
+    if "page" in context and hasattr(context["page"], "locale"):
+        locale = context["page"].locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        return PreFooterCTASnippet.objects.filter(locale=locale).first()
+
+    return None

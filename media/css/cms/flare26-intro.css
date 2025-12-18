@@ -71,7 +71,7 @@
     text-decoration: none;
 }
 
-.fl-home-intro .fl-superheading a:before {
+.fl-home-intro .fl-superheading a::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -84,7 +84,7 @@
     height: 1em;
     background-color: currentColor;
     vertical-align: middle;
-    mask: url('/media/img/firefox/flare/2026/icons/arrow-forward.svg') no-repeat center / 1em 1em;
+    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat center / 1em 1em;
     mask-size: contain;
     margin-left: var(--token-spacing-xs);
 }

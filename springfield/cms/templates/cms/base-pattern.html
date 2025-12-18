@@ -4,10 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" if switch("flare26-enabled") else "cms/base-flare.html" %}
+{% extends "cms/base-flare26.html" if "2026" in pattern_name else "cms/base-flare.html" %}
 
 {# Avoid referencing `page` which isn't provided by the pattern library #}
-{% block page_title %}Pattern preview{% endblock %}
+{% block page_title %}{{ pattern_name }} | Pattern preview{% endblock %}
 {% block body_class %}{% if pattern_template_name and 'homepage/homepage-2026' in pattern_template_name %}fl-home-body{% endif %}{% endblock %}
 {% block flare_header %}{% endblock %}
 

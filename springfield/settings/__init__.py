@@ -50,6 +50,10 @@ _csp_connect_src = {
     "o1069899.ingest.sentry.io",
     "o1069899.ingest.us.sentry.io",
     FXA_ENDPOINT,  # noqa: F405
+    "telemetry.transcend.io",  # Transcend Consent Management
+    "telemetry.us.transcend.io",  # Transcend Consent Management
+    "cdn.transcend.io",  # Transcend Consent Management
+    "transcend-cdn.com",  # Transcend Consent Management
 }
 _csp_font_src = {
     csp.constants.SELF,
@@ -100,12 +104,21 @@ _csp_script_src = {
     "tagmanager.google.com",
     "www.youtube.com",
     "s.ytimg.com",
+    "cdn.transcend.io",  # Transcend Consent Management
+    "transcend-cdn.com",  # Transcend Consent Management
 }
 _csp_style_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
+    "cdn.transcend.io",  # Transcend Consent Management
+    "transcend-cdn.com",  # Transcend Consent Management
 }
-# # TODO change settings so we don't need unsafes even in dev
+
+# Transcend Consent Management UI uses CSS-in-JS which requires inline styles.
+if TRANSCEND_AIRGAP_URL:  # noqa: F405
+    _csp_style_src.add(csp.constants.UNSAFE_INLINE)
+
+# TODO change settings so we don't need unsafes even in dev
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
 

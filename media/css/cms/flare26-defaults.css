@@ -46,17 +46,18 @@ p {
 }
 
 a:link, a:visited {
-    color: var(--token-color-link-purple);
+    color: var(--fl-theme-color-link);
     text-decoration: underline;
     transition: color var(--token-transition-fast);
 }
 
 a:visited {
-    color: var(--token-color-link-purple);
+    color: var(--fl-theme-color-link);
 }
 
 a:hover, a:active, a:focus {
     text-decoration: none;
+    color: var(--fl-theme-color-link-hover);
 }
 
 img, svg {

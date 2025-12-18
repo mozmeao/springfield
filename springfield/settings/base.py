@@ -729,6 +729,7 @@ INSTALLED_APPS = [
     "wagtaildraftsharing",  # has to come before wagtail.admin due to template overriding; also needs wagtail.snippets
     "wagtail.admin",
     "wagtail",
+    "wagtail_thumbnail_choice_block",
     "modelcluster",
     "taggit",
     "csp",
@@ -1021,6 +1022,9 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
 ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
+
+# Transcend Consent Management - airgap.js script URL
+TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
 STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
