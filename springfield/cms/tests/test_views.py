@@ -133,13 +133,13 @@ def test_translations_list_view_pages_from_different_initial_locales(staff_user,
     # There should be 3 pages in the response (not their translations).
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr}
 
     # Verify the translations in the data are correct.
     for page_data in pages_with_translations:
         translation_urls = [t["view_url"] for t in page_data["translations"]]
         if page_data["page"] == en_page.page_ptr:
-            assert set(translation_urls) == set([de_translation.url, fr_translation.url])
+            assert set(translation_urls) == {de_translation.url, fr_translation.url}
         elif page_data["page"] == de_page.page_ptr:
             assert translation_urls == []
         elif page_data["page"] == fr_page.page_ptr:
@@ -176,7 +176,7 @@ def test_translations_list_view_draft_and_published_pages(staff_user, site_with_
 
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([published_page.page_ptr, draft_page.page_ptr])
+    assert set(pages_in_response) == {published_page.page_ptr, draft_page.page_ptr}
 
 
 @override_settings(
@@ -286,14 +286,14 @@ def test_translations_list_view_original_language_filter(staff_user, site_with_e
     pages_with_translations = response.context["pages_with_translations"]
     # The response should contain only the de_page (not the de_translation of the English page).
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([de_page.page_ptr])
+    assert set(pages_in_response) == {de_page.page_ptr}
 
     # Test: Filter by English
     response = client.get(url, {"original_language": "en-US"})
     pages_with_translations = response.context["pages_with_translations"]
     # The response should contain only the en_page.
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
     # The page data should show the German translation of the en_page.
     page_data = pages_with_translations[0]
     translation_locales = [t["locale"] for t in page_data["translations"]]
@@ -312,7 +312,7 @@ def test_translations_list_view_original_language_filter(staff_user, site_with_e
     response = client.get(url, {"original_language": ""})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr}
 
 
 @override_settings(
@@ -337,7 +337,7 @@ def test_translations_list_view_exists_in_language_filter(staff_user, site_with_
     response = client.get(url, {"exists_in_language": "en-US"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
     # Test: Filter by exists in German
     # The response should contain:
@@ -346,7 +346,7 @@ def test_translations_list_view_exists_in_language_filter(staff_user, site_with_
     response = client.get(url, {"exists_in_language": "de"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([de_page.page_ptr, en_page.page_ptr])
+    assert set(pages_in_response) == {de_page.page_ptr, en_page.page_ptr}
 
     # Test: Filter by exists in Italian
     # The response should contain:
@@ -354,7 +354,7 @@ def test_translations_list_view_exists_in_language_filter(staff_user, site_with_
     response = client.get(url, {"exists_in_language": "it"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([fr_page.page_ptr])
+    assert set(pages_in_response) == {fr_page.page_ptr}
 
     # Test: Filter by exists in French
     # The response should contain:
@@ -363,7 +363,7 @@ def test_translations_list_view_exists_in_language_filter(staff_user, site_with_
     response = client.get(url, {"exists_in_language": "fr"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr, fr_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr, fr_page.page_ptr}
 
     # Test: Filter by invalid language
     # The response should contain no results.
@@ -376,7 +376,7 @@ def test_translations_list_view_exists_in_language_filter(staff_user, site_with_
     response = client.get(url, {"exists_in_language": ""})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr, de_page.page_ptr, fr_page.page_ptr}
 
 
 @override_settings(
@@ -401,7 +401,7 @@ def test_translations_list_view_multiple_filters_together(staff_user, site_with_
     response = client.get(url, {"original_language": "en-US", "exists_in_language": "de"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
     # Test: original_language=de AND exists_in_language=fr
     # The response should contain no results
@@ -415,7 +415,7 @@ def test_translations_list_view_multiple_filters_together(staff_user, site_with_
     response = client.get(url, {"original_language": "fr", "exists_in_language": "fr"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([fr_page.page_ptr])
+    assert set(pages_in_response) == {fr_page.page_ptr}
 
 
 @override_settings(
@@ -458,7 +458,7 @@ def test_translations_list_view_exists_in_all_languages_filter(staff_user, site_
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert len(pages_in_response) == 1
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
 
 @override_settings(
@@ -505,7 +505,7 @@ def test_translations_list_view_exists_in_core_languages_filter(staff_user, site
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
     assert len(pages_in_response) == 1
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
 
 @override_settings(
@@ -525,7 +525,7 @@ def test_translations_list_view_search_by_title(staff_user, site_with_en_de_fr_i
     response = client.get(url, {"search": "German Original"})
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([de_original_page.page_ptr])
+    assert set(pages_in_response) == {de_original_page.page_ptr}
 
     # Searching for "Original" should return all pages matching "Original".
     response = client.get(url, {"search": "Original"})
@@ -533,7 +533,7 @@ def test_translations_list_view_search_by_title(staff_user, site_with_en_de_fr_i
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
     expected_pages = SimpleRichTextPage.objects.filter(title__icontains="Original")
-    assert set(pages_in_response) == set(page.page_ptr for page in expected_pages)
+    assert set(pages_in_response) == {page.page_ptr for page in expected_pages}
 
 
 @override_settings(
@@ -558,7 +558,7 @@ def test_translations_list_view_search_by_slug(staff_user, site_with_en_de_fr_it
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
 
 @override_settings(
@@ -593,14 +593,14 @@ def test_translations_list_view_search_with_filters(staff_user, site_with_en_de_
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr, fr_page.page_ptr, de_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr, fr_page.page_ptr, de_page.page_ptr}
 
     # Searching for "page" and filtering by original language "en-US" returns 1 result.
     response = client.get(url, {"search": "page", "original_language": "en-US"})
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
     # Searching for "page" and filtering by original language "en-US" and translation_key returns 1 result.
     response = client.get(
@@ -610,7 +610,7 @@ def test_translations_list_view_search_with_filters(staff_user, site_with_en_de_
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
 
 @override_settings(
@@ -635,7 +635,7 @@ def test_translations_list_view_search_case_insensitive(staff_user, site_with_en
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
 
 @override_settings(
@@ -665,14 +665,14 @@ def test_translations_list_view_filter_by_translation_key(staff_user, site_with_
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([en_page.page_ptr])
+    assert set(pages_in_response) == {en_page.page_ptr}
 
     # Filtering by de_page's translation_key should return only de_page.
     response = client.get(url, {"translation_key": str(de_page.translation_key)})
     assert response.status_code == 200
     pages_with_translations = response.context["pages_with_translations"]
     pages_in_response = [p["page"] for p in pages_with_translations]
-    assert set(pages_in_response) == set([de_page.page_ptr])
+    assert set(pages_in_response) == {de_page.page_ptr}
 
 
 @override_settings(
