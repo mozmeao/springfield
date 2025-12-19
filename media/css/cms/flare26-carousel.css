@@ -128,7 +128,6 @@
     background-color: var(--token-color-white);
     border-top-left-radius: var(--token-border-radius-md);
     border-top-right-radius: var(--token-border-radius-md);
-    padding: var(--token-spacing-lg);
     max-width: var(--token-width-desktop-content);
     width: 100%;
     aspect-ratio: 2 / 1;
