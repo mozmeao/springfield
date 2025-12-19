@@ -8,26 +8,13 @@
     --kit-size: 100px;
     display: flex;
     justify-content: center;
-    margin-bottom: var(--token-layout-lg);
     position: relative;
-    padding-top: var(--kit-size);
-}
-
-.fl-pre-footer-cta::before {
-    content: '';
-    position: absolute;
-    top: calc(var(--kit-size) * .15);
-    left: 50%;
-    transform: translateX(-50%);
-    width: var(--kit-size);
-    height: var(--kit-size);
-    background-image: url('/media/img/firefox/flare/sitting-kit-2.svg');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+    padding-top: calc(var(--kit-size) + var(--token-layout-md));
+    padding-bottom: var(--token-layout-md);
 }
 
 .fl-pre-footer-cta-button {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -35,14 +22,28 @@
     background-color: var(--token-color-light-purple);
     color: var(--token-color-white);
     font-family: var(--fl-theme-font-family-headline);
-    font-weight: 700;
-    font-size: 3.5em;
+    font-weight: var(--token-font-weight-bold);
+    font-size: var(--fl-theme-font-size-heading-2xl);
     line-height: 0.9;
     letter-spacing: -0.005em;
     text-decoration: none;
     text-align: center;
     border-radius: 2000px;
     transition: background-color var(--token-transition-fast);
+}
+
+.fl-pre-footer-cta-button::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 3.5%);
+    left: 50%;
+    transform: translateX(-66%);
+    width: var(--kit-size);
+    height: var(--kit-size);
+    background-image: url('/media/img/firefox/flare/sitting-kit-2.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .fl-pre-footer-cta-button:hover {
@@ -55,7 +56,6 @@
     }
 
     .fl-pre-footer-cta-button {
-        font-size: 8em;
         padding: var(--token-layout-sm) var(--token-layout-lg);
     }
 }
