@@ -66,7 +66,7 @@ function FXLogo(props) {
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                verticalAlign: 'middle',
+                verticalAlign: 'bottom',
                 color: 'transparent',
                 marginInline: '0.1em'
             }

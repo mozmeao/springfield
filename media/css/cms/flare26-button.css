@@ -42,17 +42,30 @@ Button - Flare 2026 Design System Buttons
     border: 2px solid var(--token-color-light-purple);
 }
 
-.fl-button.button-secondary:hover {
+.fl-button.button-secondary:hover,
+.fl-button.button-secondary:active {
     background-color: var(--token-color-white);
     border-color: var(--token-color-link-purple);
     color: var(--token-color-link-purple);
 }
 
 .fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-purple);
     color: var(--token-color-purple);
 }
+
+.fl-button.button-ghost,
+.fl-button.button-ghost:hover,
+.fl-button.button-ghost:active {
+    background-color: transparent;
+    color: var(--fl-theme-color-text, var(--token-color-black-4));
+    border: 2px solid var(--token-color-light-purple);
+}
+
+.fl-button.button-ghost:hover,
+.fl-button.button-ghost:active {
+    background-color: var(--token-color-black-16);
+}
+
 
 /* Button sizes */
 .fl-button-small {
