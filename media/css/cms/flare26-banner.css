@@ -198,8 +198,8 @@
 .fl-banner-purple .fl-button.button-ghost:hover,
 .fl-banner-purple .fl-button.button-ghost:focus,
 .fl-banner-purple .fl-button.button-ghost:active {
-    background: var(--token-color-white);
-    color: var(--token-color-dark-purple);
+    background-color: var(--token-color-black-16);
+    color: var(--token-color-white);
 }
 
 .fl-banner-purple .fl-button.button-secondary:hover,

@@ -5,6 +5,7 @@
 */
 
 .fl-banner-kit {
+    --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-text-primary: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
     --fl-theme-color-link-visited: var(--token-color-white);
@@ -111,7 +112,7 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-img-position: left calc(50% - 140px) bottom var(--token-layout-md);
+        --kit-img-position: left calc(50% - 155px) bottom var(--token-layout-xs);
         --kit-img-size: min(60%, 450px) auto;
         --kit-banner-padding-bottom: 400px;
     }
@@ -150,7 +151,7 @@
     .fl-banner-kit-diving-in {
         --kit-banner-padding-bottom: 420px;
         --kit-img-size: 550px auto;
-        --kit-img-position: left calc(50% - 200px) bottom var(--token-layout-md);
+        --kit-img-position: left calc(50% - 187px) bottom var(--token-layout-md);
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 
@@ -200,7 +201,7 @@
 @media (--viewport-lg-up) {
     .fl-banner-kit-diving-in {
         --kit-img-size: 686px auto;
-        --kit-img-position: left calc(50% - 225px) bottom var(--token-layout-md);
+        --kit-img-position: left calc(50% - 240px) bottom var(--token-layout-md);
         --kit-banner-padding-bottom: 480px;
         --kit-banner-padding-right: var(--token-layout-lg);
     }
