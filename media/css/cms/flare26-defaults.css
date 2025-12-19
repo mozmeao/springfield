@@ -25,7 +25,6 @@ body {
     color: var(--token-color-black-4);
     background: var(--token-color-white);
     width: 100%;
-    max-width: var(--token-width-desktop-layout);
 }
 
 h1, h2, h3, h4, h5, h6 {
