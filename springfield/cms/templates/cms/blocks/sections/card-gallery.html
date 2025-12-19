@@ -27,6 +27,7 @@
       <div class="fl-buttons">
         {% for button in value.main_card.buttons %}
           {% set block_position = block_position ~ ".main-card.button-" ~ loop.index %}
+          {% set size_class = "fl-button-small" %}
           {% include_block button %}
         {% endfor %}
       </div>
@@ -58,6 +59,7 @@
       <div class="fl-buttons">
         {% for button in value.secondary_card.buttons %}
           {% set block_position = block_position ~ ".secondary-card.button-" ~ loop.index %}
+          {% set size_class = "fl-button-small" %}
           {% include_block button %}
         {% endfor %}
       </div>
@@ -91,6 +93,7 @@
     <content:cta>
       {% for cta in value.cta %}
         {% set block_position = block_position ~ ".cta" %}
+        {% set size_class = "fl-button-small" %}
         {% include_block cta %}
       {% endfor %}
     </content:cta>

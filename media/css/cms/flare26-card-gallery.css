@@ -30,20 +30,25 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     gap: var(--token-spacing-md);
     border-radius: var(--gallery-card-radius);
     overflow: hidden;
-    color: var(--token-color-black-4);
+    color: var(--fl-theme-color-text);
+    background-color: var(--card-bg-color);
+}
+
+.purple-card-theme {
+    --card-bg-color: var(--theme-purple-card-bg-color);
+    --card-bullet-color: var(--theme-purple-card-bullet-color);
+}
+
+.yellow-card-theme {
+    --card-bg-color: var(--theme-yellow-card-bg-color);
 }
 
 .fl-card-gallery-main-card {
-    background-color: var(--token-color-soft-purple);
     grid-template-rows: auto var(--gallery-main-image-height);
 }
 
 .fl-card-gallery-main-card li::marker {
-    color: var(--token-color-light-purple);
-}
-
-.fl-card-gallery-secondary-card {
-    background-color: var(--token-color-soft-yellow);
+    color: var(--card-bullet-color);
 }
 
 .fl-card-gallery-callout-card {
@@ -100,8 +105,9 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 }
 
 .fl-card-gallery-icon .fl-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    color: var(--token-color-black-4);
 }
 
 .fl-card-gallery-body {
@@ -129,6 +135,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 @media (--viewport-md-up) {
     .fl-card-gallery {
         --gallery-card-padding: var(--token-layout-xs);
+        --gallery-card-radius: var(--token-border-radius-xl);
         --gallery-main-image-height: 120px;
         --gallery-secondary-image-height: 120px;
         --gallery-callout-card-padding: var(--token-layout-xs) var(--token-layout-2xs);
@@ -167,7 +174,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 @media (--viewport-lg-up) {
     .fl-card-gallery {
         --gallery-card-padding: var(--token-layout-md);
-        --gallery-card-radius: var(--token-border-radius-xl);
         --gallery-callout-card-padding: var(--token-layout-md) var(--token-layout-2xs);
         --gallery-main-image-height: 430px;
         --gallery-secondary-image-height: 250px;
