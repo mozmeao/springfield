@@ -30,20 +30,25 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     gap: var(--token-spacing-md);
     border-radius: var(--gallery-card-radius);
     overflow: hidden;
-    color: var(--token-color-black-4);
+    color: var(--fl-theme-color-text);
+    background-color: var(--card-bg-color);
+}
+
+.purple-card-theme {
+    --card-bg-color: var(--theme-purple-card-bg-color);
+    --card-bullet-color: var(--theme-purple-card-bullet-color);
+}
+
+.yellow-card-theme {
+    --card-bg-color: var(--theme-yellow-card-bg-color);
 }
 
 .fl-card-gallery-main-card {
-    background-color: var(--token-color-soft-purple);
     grid-template-rows: auto var(--gallery-main-image-height);
 }
 
 .fl-card-gallery-main-card li::marker {
-    color: var(--token-color-light-purple);
-}
-
-.fl-card-gallery-secondary-card {
-    background-color: var(--token-color-soft-yellow);
+    color: var(--card-bullet-color);
 }
 
 .fl-card-gallery-callout-card {
@@ -102,6 +107,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 .fl-card-gallery-icon .fl-icon {
     width: 18px;
     height: 18px;
+    color: var(--token-color-black-4);
 }
 
 .fl-card-gallery-body {
