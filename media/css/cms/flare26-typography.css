@@ -139,6 +139,6 @@ span.fl-fx-logo {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    vertical-align: middle;
+    vertical-align: bottom;
     margin-inline: 0.1em;
 }
