@@ -19,6 +19,14 @@ HEADING_TEXT_FEATURES = [
     "subscript",
     "strikethrough",
     "fxa",
+    "fx-logo",
+]
+
+EXPANDED_TEXT_FEATURES = [
+    *HEADING_TEXT_FEATURES,
+    "blockquote",
+    "ol",
+    "ul",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -1294,3 +1302,73 @@ class ShowcaseBlock(blocks.StructBlock):
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
         label_format = "{heading}"
+
+
+class CardGalleryCard(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=1,
+        required=False,
+    )
+    image = ImageChooserBlock()
+
+
+class CardGalleryCallout(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+
+
+class CardGalleryBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    main_card = CardGalleryCard()
+    secondary_card = CardGalleryCard()
+    callout_card = CardGalleryCallout()
+    cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+    class Meta:
+        template = "cms/blocks/sections/card-gallery.html"
+        label = "Card Gallery"
+        label_format = "{heading}"
+
+
+class HomeKitBannerSettings(blocks.StructBlock):
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create KitBannerBlock with appropriate button types."""
+
+    class _HomeKitBannerBlock(blocks.StructBlock):
+        settings = HomeKitBannerSettings()
+        heading = HeadingBlock()
+        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/home-kit-banner.html"
+            label = "Kit Banner"
+            label_format = "{heading}"
+
+    return _HomeKitBannerBlock(*args, **kwargs)

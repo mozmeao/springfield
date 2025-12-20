@@ -49,8 +49,24 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     </main>
     {% endblock %}
 
+
+    {% block pre_footer %}
+      {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
+      {% if pre_footer_cta %}
+        {% set analytics_text = pre_footer_cta.label %}
+        {% set analytics_position = "pre-footer-cta" %}
+        <include:pre-footer-cta
+          label="{{ pre_footer_cta.label }}"
+          link="{{ pre_footer_cta.link }}"
+          analytics_text="{{ analytics_text }}"
+          analytics_position="{{ analytics_position }}"
+          analytics_id="{{ pre_footer_cta.analytics_id }}"
+        />
+      {% endif %}
+    {% endblock pre_footer %}
+
     {% block flare_footer %}
-    <include:flare26-footer />
+      <include:flare26-footer />
     {% endblock %}
 
     {% block site_js %}
@@ -58,6 +74,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('data') }}
     {{ js_bundle('firefox-cms-flare26') }}
     {{ js_bundle('ui-tour-buttons') }}
+    {{ js_bundle('flare-navigation') }}
     {% endblock %}
   </body>
 

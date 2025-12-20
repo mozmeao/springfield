@@ -78,7 +78,7 @@ def get_translation_percentages_for_page(source_page, target_locale):
 
         # Get the actual translation progress using wagtail-localize logic
         total_segments, translated_segments = translation_record.get_progress()
-        percent_translated = int((translated_segments / total_segments * 100)) if total_segments > 0 else 100
+        percent_translated = int(translated_segments / total_segments * 100) if total_segments > 0 else 100
         return percent_translated
     except (TranslationSource.DoesNotExist, Translation.DoesNotExist, TranslatableObject.DoesNotExist):
         return None

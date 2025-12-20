@@ -16,6 +16,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-white-90: rgba(255, 255, 255, 0.9);
     --token-color-grey-1: rgb(249, 249, 251);
     --token-color-grey-2: rgb(232, 232, 232);
+    --token-color-grey-3: rgb(123, 122, 130);
     --token-color-black: rgb(0, 0, 0);
     --token-color-black-16: rgba(0, 0, 0, 0.16);
     --token-color-black-45: rgba(0, 0, 0, 0.45);
@@ -39,6 +40,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-soft-purple: rgb(241, 231, 248);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
+    --token-color-soft-yellow: rgb(252, 245, 240);
 
     /* Gradients from Figma */
     --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
@@ -63,7 +65,6 @@ Static values extracted from Figma that do not change based on context.
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
 
-
     /* Spacing variables */
     --token-spacing-2xs: 2px;
     --token-spacing-xs: 4px;
@@ -86,9 +87,9 @@ Static values extracted from Figma that do not change based on context.
 
     /* Border radius variables */
     --token-border-radius-xs: 8px;
-    --token-border-radius-md: 38px;
+    --token-border-radius-md: 40px;
     --token-border-radius-lg: 50px;
-    --token-border-radius-xl: 125px;
+    --token-border-radius-xl: 128px;
 
     /* Width and viewport variables */
     --token-width-desktop-content: 725px;

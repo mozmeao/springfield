@@ -171,17 +171,6 @@ Card - Flare 2026 Design System Cards
     text-decoration: underline;
 }
 
-.fl-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: var(--token-spacing-lg);
-    align-items: stretch;
-}
-
-.fl-grid.fl-grid-4 {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
 @media (--viewport-sm-up) {
     .fl-card-grid {
         --fl-card-grid-gap: var(--token-spacing-xl);

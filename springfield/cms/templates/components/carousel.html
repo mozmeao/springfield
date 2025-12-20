@@ -16,19 +16,26 @@
       <div class="fl-carousel-slides">
         <ol class="fl-carousel-control">
           {% for item in items %}
-            <li class="fl-carousel-control-item {% if loop.first %}active{% endif %}" aria-controls="fl-carousel-image-{{ loop.index }}">
+            <li
+              class="fl-carousel-control-item {% if loop.first %}active{% endif %}"
+            >
               <span class="fl-carousel-control-item-text">{{ item.headline }}</span>
             </li>
           {% endfor %}
         </ol>
 
-        <div class="fl-carousel-images">
-          {% for item in items %}
-            <div id="fl-carousel-image-{{ loop.index }}" class="fl-carousel-image {% if loop.first %}active{% endif %}">
-              <img src="{{ item.image.url }}" alt="{{ item.image.alt }}">
-            </div>
-          {% endfor %}
+        <div class="fl-carousel-images fl-carousel-viewport">
+          <div class="fl-carousel-container">
+            {% for item in items %}
+              <div id="fl-carousel-slide-{{ loop.index }}" class="fl-carousel-slide">
+                <div class="fl-carousel-image">
+                  <img src="{{ item.image.url }}" alt="{{ item.image.alt }}">
+                </div>
+              </div>
+            {% endfor %}
+          </div>
         </div>
+      </div>
     </div>
   </div>
 </section>

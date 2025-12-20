@@ -42,17 +42,30 @@ Button - Flare 2026 Design System Buttons
     border: 2px solid var(--token-color-light-purple);
 }
 
-.fl-button.button-secondary:hover {
+.fl-button.button-secondary:hover,
+.fl-button.button-secondary:active {
     background-color: var(--token-color-white);
     border-color: var(--token-color-link-purple);
     color: var(--token-color-link-purple);
 }
 
 .fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-purple);
     color: var(--token-color-purple);
 }
+
+.fl-button.button-ghost,
+.fl-button.button-ghost:hover,
+.fl-button.button-ghost:active {
+    background-color: transparent;
+    color: var(--fl-theme-color-text, var(--token-color-black-4));
+    border: 2px solid var(--token-color-light-purple);
+}
+
+.fl-button.button-ghost:hover,
+.fl-button.button-ghost:active {
+    background-color: var(--token-color-black-16);
+}
+
 
 /* Button sizes */
 .fl-button-small {
@@ -105,4 +118,40 @@ Button - Flare 2026 Design System Buttons
 .fl-button .fl-icon {
     width: var(--token-spacing-lg);
     height: var(--token-spacing-lg);
+}
+
+.fl-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1-5, 12) * 1px);
+}
+
+.fl-buttons.is-horizontal {
+    flex-direction: row;
+}
+
+.fl-buttons.is-horizontal.is-center {
+    justify-content: center;
+    width: 100%;
+}
+
+.fl-buttons.is-stacked {
+    flex-direction: column;
+    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1, 8) * 1px);
+}
+
+.fl-buttons.is-stacked .fl-button {
+    width: 100%;
+}
+
+.fl-buttons > * {
+    display: inline-flex;
+}
+
+.fl-buttons.is-stacked > * {
+    width: 100%;
+}
+
+.fl-buttons .fl-button {
+    margin-bottom: 0;
 }

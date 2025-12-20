@@ -12,9 +12,11 @@ from wagtail.models import Page as WagtailBasePage
 
 from springfield.cms.blocks import (
     BannerBlock,
+    CardGalleryBlock,
     CardsListBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
+    HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     KitBannerBlock,
@@ -112,6 +114,8 @@ class HomePage(AbstractSpringfieldCMSPage):
     lower_content = StreamField(
         [
             ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
         ],
         null=True,
         blank=True,

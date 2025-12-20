@@ -1,14 +1,22 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from django.conf import settings
+
 from pattern_library import register_context_modifier
 
+from lib.l10n_utils import fluent_l10n, get_locale
 
-@register_context_modifier(template="cms/patterns/blocks/button.html")
-def button_turn_keys_that_should_be_callable_into_callables(context, request):
-    """Turn keys that should be callable into callable keys."""
-    # Create a dictionary where the keys are the expected method names, and the
-    # values are the expected callables. For example, if
-    # context["value"]["turn_into_callable__center_class"] is "center", then
-    # dict_of_method_values["center_class"] will be a callable that returns "center".
-    dict_of_method_values = {key[len("turn_into_callable__") :]: lambda value=value: value for key, value in context["value"].items()}
-    # Set the callables into the context.
-    for key, value in dict_of_method_values.items():
-        context["value"][key] = value
+
+@register_context_modifier
+def add_fluent_context(context, request):
+    """Add Fluent localization context to pattern library rendering context
+    for CMS pages.
+    This ensures that Fluent strings render correctly in pattern library
+    previews of CMS pages.
+    """
+    locale = get_locale(request)
+
+    context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
+    return context
