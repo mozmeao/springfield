@@ -35,6 +35,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-homepage.css' layer(page);
 
 @import 'flare26-navigation.css' layer(components);
+@import 'flare26-footer.css' layer(template);
 @import 'flare26-download-link.css' layer(components);
 @import 'flare26-icon.css' layer(components);
 @import 'flare26-button.css' layer(components);
