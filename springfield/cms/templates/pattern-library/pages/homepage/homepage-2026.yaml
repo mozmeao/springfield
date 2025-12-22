@@ -12,7 +12,6 @@ context:
     buttons:
       - label: "Get Firefox"
         link: "/en-US/whatsnew/143/"
-        theme_class: "button-ghost"
         external: false
         icon_name: ""
         icon_position: "right"
