@@ -814,6 +814,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-fx-logo.js"
+      ],
+      "name": "wagtailadmin-fx-logo"
+    },
+    {
+      "files": [
         "js/firefox/ai/waitlist-newsletter-init.es6.js"
       ],
       "name": "waitlist_newsletter"
