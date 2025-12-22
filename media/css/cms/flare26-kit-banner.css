@@ -51,7 +51,7 @@
 }
 
 .fl-banner-kit .fl-banner-content .fl-subheading {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     text-wrap: balance;
 }
@@ -62,7 +62,7 @@
 
 .fl-banner-kit-diving-in {
     --kit-img: url('/media/img/firefox/flare/kit-dive.png');
-    --kit-banner-padding-bottom: 330px;
+    --kit-banner-padding-bottom: 375px;
     --kit-img-position: left -70px bottom var(--token-layout-3xs);
     --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px) auto;
 }
@@ -151,13 +151,17 @@
     .fl-banner-kit-diving-in {
         --kit-banner-padding-bottom: 420px;
         --kit-img-size: 550px auto;
-        --kit-img-position: left calc(50% - 187px) bottom var(--token-layout-md);
+        --kit-img-position: left calc(50% - 192px) bottom var(--token-layout-md);
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 
     .fl-banner-kit-diving-in .fl-banner-content {
         text-align: center;
         margin: 0 auto;
+    }
+
+    .fl-banner-kit .fl-banner-content .fl-subheading {
+        max-width: 600px;
     }
 
     .fl-banner-kit-diving-in .fl-buttons {
