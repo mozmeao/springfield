@@ -9,13 +9,19 @@ Card - Flare 2026 Design System Cards
 ===================================================================== */
 
 .fl-card-grid {
-    display: grid;
-    gap: calc(var(--token-scale-32) * 1px);
-    grid-template-columns: 1fr;
+    --fl-card-grid-gap: var(--token-spacing-lg);
+    --fl-card-sticker-size: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: var(--fl-card-grid-gap);
+    padding-block: var(--token-layout-3xs);
+    container-type: inline-size;
 }
 
-.fl-card-grid .conditional-display .fl-card {
-    height: 100%;
+.fl-card-grid .fl-card {
+    flex: 1 1 auto;
 }
 
 .fl-card {
@@ -26,15 +32,14 @@ Card - Flare 2026 Design System Cards
     justify-content: flex-start;
     gap: var(--token-spacing-xl);
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
+    min-height: 100cqw;
+    height: auto;
     border-radius: var(--token-border-radius-lg);
     background: var(--fl-theme-surface-card-gradient);
     backdrop-filter: blur(7.5px);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
     text-align: center;
-    min-height: 494px;
-    overflow: hidden;
-    isolation: isolate;
     transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
 }
 
@@ -44,7 +49,32 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card > * {
-    width: 100%;
+    order: 10;
+}
+
+.fl-card > :is(
+    h1.fl-heading,
+    h2.fl-heading,
+    h3.fl-heading,
+    h4.fl-heading,
+    h5.fl-heading,
+    h6.fl-heading,
+    .fl-heading-group
+) {
+    order: 0;
+    margin-bottom: 0;
+}
+
+.fl-card > div:has(.fl-card-sticker) {
+    order: 1;
+}
+
+.fl-card > .fl-body {
+    order: 2;
+}
+
+.fl-card > .fl-buttons {
+    order: 3;
 }
 
 .fl-card > div:has(.fl-card-sticker),
@@ -59,7 +89,6 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
-    order: 0;
     margin: 0;
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
@@ -68,13 +97,7 @@ Card - Flare 2026 Design System Cards
     color: inherit;
 }
 
-.fl-card > div:has(.fl-card-sticker) {
-    order: 1;
-    margin-top: var(--token-spacing-xs);
-}
-
 .fl-card .fl-superheading {
-    order: -1;
     display: block;
     margin: 0 0 var(--token-spacing-xl);
     font-family: var(--fl-theme-font-family-body);
@@ -86,17 +109,20 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card .fl-body {
-    order: 2;
     margin: 0;
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-regular);
-    font-size: var(--fl-theme-font-size-body-sm);
+    font-size: var(--fl-theme-font-size-body-xs);
     line-height: 1.4;
     margin-top: 0;
+    text-wrap: balance;
+}
+
+.fl-card .fl-body > *:last-child {
+    margin-bottom: 0;
 }
 
 .fl-card .fl-buttons {
-    order: 3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -114,10 +140,9 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card-sticker {
-    width: clamp(124px, 40%, 180px);
-    max-width: 100%;
-    height: auto;
-    max-height: 100%;
+    width: var(--fl-card-sticker-size, 60px);
+    height: var(--fl-card-sticker-size, 60px);
+    margin: 0;
     object-fit: contain;
 }
 
@@ -153,19 +178,24 @@ Card - Flare 2026 Design System Cards
 
 @media (--viewport-sm-up) {
     .fl-card-grid {
-        gap: var(--token-spacing-xl);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        --fl-card-sticker-size: 120px;
+        --fl-card-grid-gap: var(--token-spacing-xl);
+        flex-flow: row wrap;
+    }
+
+    .fl-card-grid .fl-card {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
+        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
     }
 }
 
-@media (--viewport-md-up) {
+@media (--viewport-lg-up) {
     .fl-card-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        flex-wrap: nowrap;
     }
-}
 
-@media (prefers-color-scheme: dark) {
-    .fl-card .fl-body {
-        color: inherit;
+    .fl-card-grid .fl-card {
+        flex-basis: 100%;
+        min-height: unset;
     }
 }
