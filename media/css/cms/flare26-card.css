@@ -10,6 +10,7 @@ Card - Flare 2026 Design System Cards
 
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-lg);
+    --fl-card-sticker-size: 60px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -45,6 +46,35 @@ Card - Flare 2026 Design System Cards
 .fl-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+}
+
+.fl-card > * {
+    order: 10;
+}
+
+.fl-card > :is(
+    h1.fl-heading,
+    h2.fl-heading,
+    h3.fl-heading,
+    h4.fl-heading,
+    h5.fl-heading,
+    h6.fl-heading,
+    .fl-heading-group
+) {
+    order: 0;
+    margin-bottom: 0;
+}
+
+.fl-card > div:has(.fl-card-sticker) {
+    order: 1;
+}
+
+.fl-card > .fl-body {
+    order: 2;
+}
+
+.fl-card > .fl-buttons {
+    order: 3;
 }
 
 .fl-card > div:has(.fl-card-sticker),
