@@ -21,18 +21,22 @@ context:
     cards:
       - sticker: "/media/img/firefox/flare/2026/homepage/sticker1.width-400.png"
         expand_link: false
+        superheading_text: "AI"
         heading: "Chat with your favorite AI"
         body: '<p data-block-key="dkwjl">Access AI chatbots directly from the sidebar, no tab-switching required.</p>'
       - sticker: "/media/img/firefox/flare/2026/homepage/sticker2.width-400.png"
         expand_link: false
+        superheading_text: "Privacy"
         heading: "Privacy you can see and control"
         body: '<p data-block-key="dkwjl">We block trackers automatically and give you control over what you share.</p>'
       - sticker: "/media/img/firefox/flare/2026/homepage/sticker3.width-400.png"
         expand_link: false
+        superheading_text: "Organization"
         heading: "Work smarter,  not harder"
         body: '<p data-block-key="dkwjl">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing and more.</p>'
       - sticker: "/media/img/firefox/flare/2026/homepage/sticker4.width-400.png"
         expand_link: false
+        superheading_text: "Independence"
         heading: "Your browser answers to you"
         body: '<p data-block-key="dkwjl">Independent from day one. No billionaire overlords. No shareholders demanding your data.</p>'
 

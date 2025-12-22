@@ -15,6 +15,13 @@
   {% if contents.heading %}
     {{ contents.heading }}
   {% endif %}
+
+  {% if contents.sticker %}
+    <div>
+      {{ contents.sticker }}
+    </div>
+  {% endif %}
+
   {% if contents.body %}
     <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
   {% endif %}
