@@ -22,16 +22,16 @@
 }
 
 .fl-intro-content .text {
-    padding: calc(var(--token-scale-24) * 1px) 0 calc(var(--token-scale-64) * 1px);
+    padding: calc(var(--token-layout-3xs) * 1px) 0 calc(var(--token-layout-sm) * 1px);
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: calc(var(--token-scale-24) * 1px);
+    margin-bottom: calc(var(--token-layout-3xs) * 1px);
 }
 
 .fl-intro .fl-subheading {
     margin-top: 0;
-    margin-bottom: calc(var(--token-scale-64) * 1px);
+    margin-bottom: calc(var(--token-layout-sm) * 1px);
     font-size: var(--fl-theme-font-size-base);
 }
 

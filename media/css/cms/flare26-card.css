@@ -10,7 +10,7 @@ Card - Flare 2026 Design System Cards
 
 .fl-card-grid {
     display: grid;
-    gap: calc(var(--token-scale-32) * 1px);
+    gap: calc(var(--token-layout-2xs) * 1px);
     grid-template-columns: 1fr;
 }
 
