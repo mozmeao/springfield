@@ -1,0 +1,18 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+
+{% block pre_footer %}
+  <include:pre-footer-cta
+    link="{{ object.link }}"
+    label="{{ object.label }}"
+    analytics_id="{{ object.analytics_id }}"
+    analytics_text="{{ object.label }}"
+    analytics_position="pre-footer-cta"
+  />
+{% endblock pre_footer %}

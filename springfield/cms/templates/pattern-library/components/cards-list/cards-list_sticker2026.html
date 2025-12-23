@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:cards-list>
+  {% for card in cards %}
+    <include:card
+      fill="{{ card.fill }}"
+      expand_link="{{ card.expand_link }}"
+    >
+      {% if card.sticker %}
+        <content:pre_heading>
+          <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+        </content:pre_heading>
+      {% endif %}
+      <content:heading>
+        <include:heading
+          level="h3"
+          heading_size="fl-heading-size-3"
+          superheading_text="{{ card.superheading_text }}"
+          heading_text="{{ card.heading }}"
+        />
+      </content:heading>
+      <content:body>
+        {{ card.body }}
+      </content:body>
+    </include:card>
+  {% endfor %}
+</include:cards-list>
