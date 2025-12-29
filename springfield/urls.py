@@ -68,6 +68,7 @@ if settings.WAGTAIL_ENABLE_ADMIN:
         path("django-admin/", admin.site.urls),  # needed to show django-rq UI
         path("django-rq/", include("django_rq.urls")),  # task queue management
         path("_internal_draft_preview/", include(wagtaildraftsharing_urls)),  # ONLY available in CMS mode
+        path("intentional-blanks/", include("wagtail_localize_intentional_blanks.urls"))
     )
 
 if settings.ENABLE_DJANGO_SILK:

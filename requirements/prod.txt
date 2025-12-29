@@ -398,6 +398,7 @@ django==5.2.9 \
     #   wagtail
     #   wagtail-link-block
     #   wagtail-localize
+    #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
 django-cors-headers==4.9.0 \
     --hash=sha256:15c7f20727f90044dcee2216a9fd7303741a864865f0c3657e28b7056f61b449 \
@@ -1505,6 +1506,7 @@ wagtail==7.1.2 \
     #   -r requirements/prod.in
     #   wagtail-link-block
     #   wagtail-localize
+    #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
     #   wagtaildraftsharing
 wagtail-link-block==1.1.7 \
@@ -1516,7 +1518,11 @@ wagtail-localize==1.12.2 \
     --hash=sha256:a2006793571ae35d3118f091f25c5072eb501a30911b17d98fad028162b63902
     # via
     #   -r requirements/prod.in
+    #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
+wagtail-localize-intentional-blanks @ https://github.com/lincolnloop/wagtail-localize-intentional-blanks/archive/refs/heads/main.tar.gz \
+    --hash=sha256:d8b40441ca6e4338550dfed8ee6f7ab9cc8efc4a9001251804a710dcc4e9592f
+    # via -r requirements/prod.in
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
     --hash=sha256:8fad0510319918cc57071d4ef6a07f8ab5a7fa16040b399e6bc084fec1f232ae
