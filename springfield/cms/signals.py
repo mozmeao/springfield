@@ -69,7 +69,12 @@ def string_translation_deleted_signal(sender, instance, **kwargs):
         # Other objects (for example, snippets), do not need PageTranslationData.
         if isinstance(source_instance, Page):
             original_translation_for_page = Page.objects.filter(translation_key=source_instance.translation_key).order_by("id").first()
-            create_page_translation_data(original_translation_for_page)
+
+            def check_after_commit():
+                create_page_translation_data(original_translation_for_page)
+
+            # Use transaction.on_commit to run after all database changes are committed
+            transaction.on_commit(check_after_commit)
 
 
 @receiver(post_save, sender=TranslationSource)
