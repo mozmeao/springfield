@@ -140,9 +140,9 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                     } else {
                         // Show error message
                         showNewsletterError(
-                            data.errors || [
-                                'An error occurred. Please try again.'
-                            ]
+                            data.errors || [data.desc] || [
+                                    'An error occurred. Please try again.'
+                                ]
                         );
                     }
                 })
