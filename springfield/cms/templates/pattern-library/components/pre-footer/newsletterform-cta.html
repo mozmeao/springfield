@@ -5,18 +5,9 @@
 #}
 
 <include:newsletter-form>
-  <content:heading>
-    <include:heading
-      level="h2"
-      heading_text="Keep up with all things Firefox"
-      subheading_text="Get how-tos, advice and news to make your Firefox experience work best for you."
-    />
-  </content:heading>
-  {{ email_newsletter_form(
-    template="cms/newsletter_form_2026.html",
-    include_country=true,
-    include_language=true,
-    footer=false,
-    include_title=false
-  ) }}
+  <include:heading
+    level="h2"
+    heading_text="Keep up with all things Firefox"
+    subheading_text="Get how-tos, advice and news to make your Firefox experience work best for you."
+  />
 </include:newsletter-form>

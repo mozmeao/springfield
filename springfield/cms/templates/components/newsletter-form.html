@@ -11,9 +11,14 @@
   </div>
 
   <div class="fl-newsletterform-content">
-    <div>
-      {{ contents.heading }}
-    </div>
     {{ contents }}
+
+    {{ email_newsletter_form(
+      template="cms/newsletter_form_2026.html",
+      include_country=true,
+      include_language=true,
+      footer=false,
+      include_title=false
+    ) }}
   </div>
 </div>

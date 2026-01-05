@@ -132,6 +132,12 @@ class HomePage(AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
+class DownloadPage(AbstractSpringfieldCMSPage):
+    class Meta:
+        verbose_name = "Download Page"
+        verbose_name_plural = "Download Pages"
+
+
 class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
     sub_title = models.CharField(
         max_length=255,

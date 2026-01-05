@@ -4,14 +4,29 @@
 
 from uuid import uuid4
 
+from django.conf import settings
 from django.db import models
 
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField
 from wagtail.models import PreviewableMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
+from wagtail.templatetags.wagtailcore_tags import richtext
+
+from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.cms.blocks import HEADING_TEXT_FEATURES
+from springfield.cms.templatetags.cms_tags import remove_tags
 
 
-class PreFooterCTASnippet(PreviewableMixin, TranslatableMixin):
+class FluentPreviewableMixin(PreviewableMixin):
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        locale = get_locale(request)
+        context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
+        return context
+
+
+class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
     label = models.CharField(max_length=255, default="Get Firefox")
     link = models.URLField(max_length=255, blank=True)
     analytics_id = models.UUIDField(default=uuid4)
@@ -34,3 +49,28 @@ class PreFooterCTASnippet(PreviewableMixin, TranslatableMixin):
 
 
 register_snippet(PreFooterCTASnippet)
+
+
+class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
+    heading = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading = RichTextField(features=HEADING_TEXT_FEATURES)
+    analytics_id = models.UUIDField(default=uuid4)
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("subheading"),
+        FieldPanel("analytics_id"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Pre Footer Call To Action Form"
+        verbose_name_plural = "Pre Footer Call To Action Forms"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pre-footer-cta-form-snippet-preview.html"
+
+
+register_snippet(PreFooterCTAFormSnippet)
