@@ -16,6 +16,18 @@
     font-size: var(--fl-theme-font-size-h1);
 }
 
+.fl-heading a:link,
+.fl-heading a:visited {
+    color: var(--fl-theme-color-headings-primary);
+    text-decoration: none;
+}
+
+.fl-heading a:hover,
+.fl-heading a:active {
+    color: var(--fl-theme-color-headings-primary);
+    text-decoration: underline;
+}
+
 .fl-heading:first-child, .fl-heading-group:first-child, .fl-rich-text h1:first-child, .fl-rich-text h2:first-child, .fl-rich-text h3:first-child, .fl-rich-text h4:first-child, .fl-rich-text h5:first-child, .fl-rich-text h6:first-child {
     margin-top: 0; /* No top margin for the first heading */
 }
