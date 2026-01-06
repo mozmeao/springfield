@@ -1522,7 +1522,7 @@ wagtail-localize==1.12.2 \
     #   wagtail-localize-dashboard
     #   wagtail-localize-smartling
 wagtail-localize-dashboard @ https://github.com/lincolnloop/wagtail-localize-dashboard/archive/refs/heads/main.tar.gz \
-    --hash=sha256:18b9f3cddcbb37b3090ff689f045cdb992ccbaf51ec5dcfed7f9bfa5ce48fe6a
+    --hash=sha256:02ca4559e40d2a03dc81d6aa1e25d3246f78be7286c6582293c3d0806f6c8fb6
     # via -r requirements/prod.in
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
