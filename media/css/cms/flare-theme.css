@@ -27,7 +27,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-color-text-body: var(--token-neutrals-black);
 
     /* Core surface colors */
-    --fl-theme-surface-page: var(--token-neutrals-white);
+    --fl-theme-surface-page: var(--token-neutrals-ash);
     --fl-theme-surface-panel: var(--token-neutrals-ash);
     --fl-theme-surface-elevated: var(--token-neutrals-white);
     --fl-theme-surface-hover: var(--token-neutrals-white);
