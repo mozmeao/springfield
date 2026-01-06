@@ -3,13 +3,63 @@
 from django.db import migrations
 
 
+def migrate_pagetranslationdata_to_translationprogress(apps, schema_editor):
+    """
+    Migrate existing PageTranslationData records to TranslationProgress
+    before dropping the old table.
+    """
+    # Get models (use historical versions from migration state)
+    PageTranslationData = apps.get_model("cms", "PageTranslationData")
+    TranslationProgress = apps.get_model("wagtail_localize_dashboard", "TranslationProgress")
+
+    # Track stats
+    migrated_count = 0
+    skipped_count = 0
+
+    # Migrate all PageTranslationData records
+    for old_record in PageTranslationData.objects.all():
+        try:
+            # Use update_or_create to handle duplicates gracefully
+            TranslationProgress.objects.update_or_create(
+                source_page_id=old_record.source_page_id,
+                translated_page_id=old_record.translated_page_id,
+                defaults={
+                    "percent_translated": old_record.percent_translated,
+                    "last_updated": old_record.last_updated,
+                },
+            )
+            migrated_count += 1
+        except Exception as e:
+            # Log but don't fail - some records might reference deleted pages
+            print(f"Warning: Could not migrate PageTranslationData {old_record.id}: {e}")
+            skipped_count += 1
+
+    print(f"Migrated {migrated_count} PageTranslationData records to TranslationProgress")
+    if skipped_count > 0:
+        print(f"Skipped {skipped_count} records due to errors")
+
+
+def reverse_migration(apps, schema_editor):
+    """
+    Reverse is not possible - we can't recreate PageTranslationData
+    from TranslationProgress because the model has been deleted.
+    """
+    pass
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0027_merge_0024_auto_20251120_1353_0026_auto_20251124_1304"),
-        ("wagtail_localize_dashboard", "0001_initial"),
+        ("wagtail_localize_dashboard", "0001_initial"),  # Ensure TranslationProgress exists
     ]
 
     operations = [
+        # Step 1: Migrate data from PageTranslationData to TranslationProgress
+        migrations.RunPython(
+            migrate_pagetranslationdata_to_translationprogress,
+            reverse_migration,
+        ),
+        # Step 2: Drop the old PageTranslationData table
         migrations.DeleteModel(
             name="PageTranslationData",
         ),
