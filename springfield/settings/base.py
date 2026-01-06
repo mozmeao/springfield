@@ -751,6 +751,7 @@ INSTALLED_APPS = [
     "django_rq",
     "django_rq_email_backend",
     "mozilla_django_oidc",  # needs to be loaded after django.contrib.auth
+    "wagtail_localize_dashboard",
 ]
 
 # Sessions

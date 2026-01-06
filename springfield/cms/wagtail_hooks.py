@@ -14,19 +14,8 @@ from wagtail.admin.menu import MenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
 )
-from wagtail.admin.widgets.button import Button
 
 from springfield.base.templatetags.helpers import css_bundle
-
-
-@hooks.register("register_admin_menu_item")
-def register_pages_list_link():
-    return MenuItem(
-        "Translations List",
-        reverse("cms:translations_list"),
-        icon_name="wagtail-localize-language",
-        order=101,
-    )
 
 
 @hooks.register("register_admin_menu_item")
@@ -52,26 +41,6 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
-
-
-@hooks.register("construct_page_listing_buttons")
-def add_custom_link_button(buttons, page, user, context=None):
-    """
-    Add a custom 'See Translations' button to pages in the explorer.
-
-    Note: since home pages (and the root page) are not visible on the translations
-    list page, we do not show a 'See Translations' link for the home pages (or
-    the root page).
-    """
-    if page.depth > 2:  # Only show the button for descendants of home pages
-        translations_button = Button(
-            label="See Translations",
-            classname="button",
-            attrs={"target": "_blank"},
-            url=f"{reverse('cms:translations_list')}?translation_key={page.translation_key}",
-        )
-        buttons.append(translations_button)
-    return buttons
 
 
 class FXAEntityElementHandler(InlineEntityElementHandler):

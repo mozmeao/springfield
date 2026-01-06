@@ -8,7 +8,6 @@ import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
-from springfield.cms.models import PageTranslationData
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -302,27 +301,12 @@ def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_
     de_translation = en_page.copy_for_translation(de_locale)
     de_translation.title = "German Translation"
     de_translation.save_revision().publish()
-    # Make sure that the PageTranslationData object for the translation exists.
-    PageTranslationData.objects.get_or_create(
-        source_page=en_page,
-        translated_page=de_translation,
-    )
 
     fr_translation = en_page.copy_for_translation(fr_locale)
     fr_translation.title = "French Translation"
     fr_translation.save_revision().publish()
-    # Make sure that the PageTranslationData object for the translation exists.
-    PageTranslationData.objects.get_or_create(
-        source_page=en_page,
-        translated_page=fr_translation,
-    )
 
     # Create Italian translations for the fr_page.
     it_translation = fr_page.copy_for_translation(it_locale)
     it_translation.title = "Italian Translation"
     it_translation.save_revision().publish()
-    # Make sure that the PageTranslationData object for the translation exists.
-    PageTranslationData.objects.get_or_create(
-        source_page=fr_page,
-        translated_page=it_translation,
-    )
