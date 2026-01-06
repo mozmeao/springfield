@@ -296,15 +296,13 @@
         "css/cms/flare-base.css",
         "css/cms/flare-icon.css",
         "css/cms/flare-button.css",
+        "css/cms/flare-download-utils.css",
+        "css/cms/flare-download-link.css",
+        "css/cms/flare-fallback-nav.css",
         "css/cms/flare-utilities.css"
+
       ],
       "name": "flare_base"
-    },
-    {
-      "files": [
-        "css/cms/flare-utilities.css"
-      ],
-      "name": "flare_utilities"
     },
     {
       "files": [

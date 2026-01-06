@@ -10,9 +10,9 @@
 }
 
 .fl-header .download-link {
-    padding: 10px calc(var(--token-scale-24) * 1px);
-    border-radius: calc(var(--token-scale-4) * 1px);
-    font-weight: var(--token-font-weight-bold);
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: bold;
     display: block;
 }
 
