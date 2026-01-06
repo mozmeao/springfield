@@ -1,13 +1,13 @@
-APScheduler==3.11.1
+APScheduler==3.11.2
 babis==0.2.4
 basket-client==1.2.0
 bleach[css]==6.1.0
-boto3==1.42.6
+boto3==1.42.21
 chardet==5.2.0
 commonware==0.6.0
 contextlib2==21.6.0
 dirsync==2.2.6
-dj-database-url==3.0.1
+dj-database-url==3.1.0
 django-cors-headers==4.9.0
 django-crum==0.7.9
 django-csp==4.0
@@ -37,7 +37,7 @@ lxml==5.4.0  # Needed as a top-level dep so that it's available for BeautifulSou
 Markdown==3.9
 markus[datadog]==5.0.0
 https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz#egg=mdx_outline
-mozilla-django-oidc==4.0.1
+mozilla-django-oidc==5.0.2
 Pillow==11.3.0
 psycopg[c]==3.2.6  # use version with psycopg_c support - also needs libpq-dev in the Docker image; may need it for local dev, too
 PyGithub==2.8.1
@@ -48,14 +48,14 @@ querystringsafe-base64==1.1.1  # Pinned to maintain stub attribution signatures 
 requests==2.32.5
 rich-text-renderer==0.2.8
 sentry-processor==0.0.1
-sentry-sdk==2.47.0
+sentry-sdk==2.48.0
 supervisor==4.3.0
 timeago==1.0.16
 wagtaildraftsharing==0.3.0
 wagtail-localize-smartling==0.10.3
 wagtail-localize==1.12.2
 Wand==0.6.13  # For animated GIF support
-Wagtail==7.1.2
+Wagtail==7.2.1
 whitenoise==6.11.0
 https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz
 django-includecontents==4.*

@@ -7,8 +7,12 @@ from uuid import uuid4
 from django.db import models
 
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField
 from wagtail.models import PreviewableMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
+
+from springfield.cms.blocks import HEADING_TEXT_FEATURES
+from springfield.cms.templatetags.cms_tags import remove_tags
 
 
 class PreFooterCTASnippet(PreviewableMixin, TranslatableMixin):
@@ -34,3 +38,35 @@ class PreFooterCTASnippet(PreviewableMixin, TranslatableMixin):
 
 
 register_snippet(PreFooterCTASnippet)
+
+
+class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    description = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("description"),
+        FieldPanel("image"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Download Firefox Call To Action Snippet"
+        verbose_name_plural = "Download Firefox Call To Action Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(self.heading)} – {self.locale}"
+
+
+register_snippet(DownloadFirefoxCallToActionSnippet)

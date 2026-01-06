@@ -6,7 +6,7 @@
 
 {% if not custom_nav_cta %}
 <div
-    class="{% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
+    class="nav-cta-wrap {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
 >
     {{
       download_firefox_thanks(alt_copy='Get Firefox',
