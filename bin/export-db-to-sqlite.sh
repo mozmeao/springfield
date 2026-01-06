@@ -161,9 +161,9 @@ python manage.py dumpdata \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
     cms.SpringfieldImage \
-    firefox.FeaturesCallToActionSnippet \
-    firefox.FeaturesDetailPage \
-    firefox.FeaturesIndexPage \
+    cms.ArticleIndexPage \
+    cms.ArticleDetailPage \
+    cms.DownloadFirefoxCTASnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

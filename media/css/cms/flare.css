@@ -42,6 +42,8 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-theme.css' layer(theme);
 @import 'flare-defaults.css' layer(defaults);
 @import 'flare-template.css' layer(template);
+@import 'flare-download-utils.css' layer(template);
+@import 'flare-article.css' layer(template);
 @import 'flare-footer.css' layer(template);
 @import 'flare-notification.css' layer(template);
 @import 'flare-navigation.css' layer(template);
@@ -78,4 +80,9 @@ included via a <link> tag in a conditional comment */
     /* Icons and utility classes are useful in the legacy stylesheet as well */
     @import 'flare26-icon.css';
     @import 'flare-utilities.css';
+    @import 'flare-button.css';
+
+    @import 'flare-fallback-nav.css';
+    @import 'flare-download-utils.css';
+    @import 'flare-download-link.css';
 }
