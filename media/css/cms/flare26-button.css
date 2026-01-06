@@ -123,7 +123,7 @@ Button - Flare 2026 Design System Buttons
 .fl-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1-5, 12) * 1px);
+    gap: var(--token-spacing-md);
 }
 
 .fl-buttons.is-horizontal {
@@ -137,7 +137,7 @@ Button - Flare 2026 Design System Buttons
 
 .fl-buttons.is-stacked {
     flex-direction: column;
-    gap: calc(var(--fl-theme-grids-spacing-interior-spacing-x1, 8) * 1px);
+    gap: var(--token-spacing-sm);
 }
 
 .fl-buttons.is-stacked .fl-button {
