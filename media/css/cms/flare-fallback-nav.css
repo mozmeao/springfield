@@ -1,0 +1,233 @@
+.fl-section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+
+.fl-card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.fl-logo-light {
+    max-height: none;
+}
+
+.fl-logo-dark,
+.fl-menu-close-button,
+.fl-menu-title .fl-icon,
+.fl-nav-mobile-download-link,
+.fl-footer-logo {
+    display: none;
+}
+
+.fl-menu-title:link,
+.fl-menu-title:visited {
+    color: #333336;
+    text-decoration: none;
+}
+
+.fl-menu-title h2 {
+    font-size: 24px;
+}
+
+.fl-menu-subtitle {
+    font-size: 20px;
+    color: #666669;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.fl-header-inner {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.fl-nav-menu {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.fl-menu-category {
+    width: 44%;
+}
+
+.fl-menu-category + .fl-menu-category {
+    width: 52%;
+}
+
+#fl-menu-panel-resources .fl-menu-panel-content {
+    display: flex;
+    gap: 8px;
+}
+
+#fl-menu-panel-resources .fl-menu-panel-content-column {
+    width: 49%;
+}
+
+.fl-nav {
+    display: none;
+}
+
+.fl-nav.is-open {
+    display: flex;
+    position: absolute;
+    padding: 24px;
+    border: 2px solid #eee;
+    background: #fff;
+    top: 100%;
+    width: 100%;
+}
+
+.fl-menu-category-link a:link,
+.fl-menu-category-link a:visited {
+    background: #FAF0E6;
+    color: #333336;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 8px 16px;
+    gap: 4px;
+
+}
+
+.fl-menu-category-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+.fl-menu-panel-content-column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-nav-link:link,
+.fl-nav-link:visited {
+    color: #333336;
+    text-decoration: none;
+    display: block;
+    padding: 4px 0;
+}
+
+.fl-nav-link:hover,
+.fl-nav-link:focus,
+.fl-nav-link:active {
+    color: #333336;
+    text-decoration: underline;
+}
+
+.fl-show-mobile-menu {
+    background-color: transparent;
+    color: #333336;
+    text-decoration: underline;
+    font-weight: bold;
+    width: 70px;
+    height: 40px;
+    display: flex;
+}
+
+.fl-show-mobile-menu:hover,
+.fl-show-mobile-menu:focus,
+.fl-show-mobile-menu:active {
+    background-color: transparent;
+    text-decoration: none;
+    color: #333336;
+
+}
+
+.fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
+    font-size: 0;
+    line-height: 0;
+    width: 32px;
+    height: 32px;
+    background-image: url('/media/img/firefox/flare/icons/close.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px auto;
+    display: block;
+    margin: auto;
+}
+
+.fl-header .download-link {
+    background: #0360df;
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.fl-header .download-link:hover,
+.fl-header .download-link:focus,
+.fl-header .download-link:active {
+    background-color: #003c6e;
+    color: white;
+}
+
+.nav-cta-wrap {
+    margin-left: auto;
+    margin-right: 16px;
+}
+
+
+
+.fl-footer {
+    margin-top: 72px;
+}
+
+.fl-footer-sections-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.fl-footer-section {
+    flex-basis: calc(25% - 12px);
+    border: 0 none;
+}
+
+.fl-footer-heading {
+    font-size: 20px;
+}
+
+.fl-footer-subheading {
+    font-size: 16px;
+    margin-top: 32px;
+    margin-bottom: 0;
+}
+
+.fl-footer-list {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fl-footer-terms {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.fl-footer-title {
+    margin-bottom: 0;
+}
+
+.fl-footer-subtitle {
+    margin-bottom: 72px;
+    font-size: 14px;
+}

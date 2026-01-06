@@ -17,6 +17,10 @@
     gap: calc(var(--token-scale-40) * 1px);
 }
 
+.fl-section-container.is-narrow {
+   max-width: 1100px;
+}
+
 .fl-page-blog .fl-section-container {
     max-width: 700px;
     background: var(--fl-theme-surface-page);

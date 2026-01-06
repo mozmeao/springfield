@@ -7,30 +7,29 @@
 <div class="pl-frame pl-frame--white">
   {% for cards_list in card_lists %}
     <div style="display: flex; flex-direction: column; gap: 48px;">
-      <div>
-        <h5>{{ cards_list.title }}</h5>
-        <include:cards-list>
-          {% for card in cards_list.cards %}
-            <include:card
-              icon_name="{{ card.icon_name }}"
-              expand_link="false"
-            >
-              <content:pre_heading>
-                <include:icon icon_name="{{ card.icon_name }}"/>
-              </content:pre_heading>
-              <content:heading>
-                <include:heading
-                  level="h3"
-                  heading_size="fl-heading-size-3"
-                  heading_text="{{ card.heading }}"
-                />
-              </content:heading>
-              <content:body>
-                {{ card.body }}
-              </content:body>
-            </include:card>
-          {% endfor %}
-        </include:cards-list>
-      </div>
-    {% endfor %}
+      <h5>{{ cards_list.title }}</h5>
+      <include:cards-list>
+        {% for card in cards_list.cards %}
+          <include:card
+            icon_name="{{ card.icon_name }}"
+            expand_link="false"
+          >
+            <content:pre_heading>
+              <include:icon icon_name="{{ card.icon_name }}"/>
+            </content:pre_heading>
+            <content:heading>
+              <include:heading
+                level="h3"
+                heading_size="fl-heading-size-3"
+                heading_text="{{ card.heading }}"
+              />
+            </content:heading>
+            <content:body>
+              {{ card.body }}
+            </content:body>
+          </include:card>
+        {% endfor %}
+      </include:cards-list>
+    </div>
+  {% endfor %}
 </div>
