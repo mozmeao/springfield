@@ -12,7 +12,7 @@
     {{ srcset_image(
         value.dark_image,
         "width-{200,400,600,800,1000,1200,1400}",
-        sizes="{{ sizes }}",
+        sizes=sizes,
         width=value.dark_image.width,
         loading="lazy",
         class="display-dark",
@@ -21,7 +21,7 @@
   {{ srcset_image(
       value.image,
       "width-{200,400,600,800,1000,1200,1400}",
-      sizes="{{ sizes }}",
+      sizes=sizes,
       width=value.image.width,
       loading="lazy",
       class="display-light",
