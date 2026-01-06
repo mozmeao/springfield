@@ -2226,7 +2226,7 @@ wagtail-localize==1.12.2 \
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
 wagtail-localize-intentional-blanks @ https://github.com/lincolnloop/wagtail-localize-intentional-blanks/archive/refs/heads/main.tar.gz \
-    --hash=sha256:181461b9ae994a1c1e7ae995405123d326cf78c21b2c546e911cd847587268de
+    --hash=sha256:761908f9c85b6fa06f9aa325bf86ccc7a5452785e9c084121a30bc55cd0b995d
     # via -r requirements/prod.txt
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
