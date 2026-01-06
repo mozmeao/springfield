@@ -24,7 +24,6 @@ body.fl-modal-open {
 /* Main */
 
 .fl-main {
-    max-width: var(--token-width-desktop-content);
     margin: 0 auto;
     background: var(--token-color-white);
     color: var(--token-color-black-4);
