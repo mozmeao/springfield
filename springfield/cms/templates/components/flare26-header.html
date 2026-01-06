@@ -24,16 +24,21 @@
                 {% include 'cms/includes/flare26-menus/features.html' %}
                 {% include 'cms/includes/flare26-menus/learn.html' %}
             </ul>
-            <div class="fl-nav-mobile-download-link">
-                {% include 'cms/includes/nav-cta.html' %}
-            </div>
+              <div class="fl-nav-mobile-download-link">
+                  {% include 'cms/includes/nav-cta.html' %}
+              </div>
         </nav>
-        {% include 'cms/includes/nav-cta.html' %}
-        <button class="fl-show-mobile-menu fl-icon-close" type="button">
-          <span class="fl-show-mobile-menu-content">
-          Menu
-          </span>
-        </button>
+        <div class="fl-header-buttons">
+          <div class="fl-header-main-download-button">
+            {% include 'cms/includes/nav-cta.html' %}
+          </div>
+          <button class="fl-show-mobile-menu" type="button">
+            <span class="fl-show-mobile-menu-content">
+              <span class="fl-icon fl-icon-hamburger"></span>
+              <span class="fl-icon fl-icon-close"></span>
+            </span>
+          </button>
+        </div>
         {% endif %}
     </div>
 </header>

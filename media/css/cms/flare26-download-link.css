@@ -3,7 +3,6 @@
    Download Links
    ================================================ */
 
-.fl-header .fl-fx-download-container,
 .fl-header .mzp-c-button-download-privacy-link,
 .fl-header .fx-unsupported-message {
     display: none;
@@ -45,10 +44,23 @@
     padding: var(--token-spacing-md);
 }
 
-@media screen and (min-width: 768px){
-    .fl-header .fl-fx-download-container {
-        display: block;
+@media screen and (max-width: 767px){
+    .fl-header .fl-header-main-download-button .download-link {
+        font-size: 0;
+        padding: var(--token-spacing-lg);
+        border-radius: var(--token-spacing-sm);
     }
+
+    .fl-header .fl-nav.is-open ~ .fl-header-buttons .fl-header-main-download-button {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .fl-header-main-download-button .fl-icon {
+        display: none;
+    }
+
 }
 
 @media screen and (prefers-color-scheme: dark) {

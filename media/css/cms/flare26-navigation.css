@@ -43,6 +43,12 @@
     justify-content: space-between;
 }
 
+.fl-header-buttons {
+    display: flex;
+    gap: var(--token-spacing-sm);
+    justify-content: center;
+}
+
 /* ================================================
    Logo
    ================================================ */
@@ -73,10 +79,10 @@
 .fl-show-mobile-menu {
     font-weight: var(--token-font-weight-semibold);
     text-decoration: underline;
-    height: var(--token-spacing-2xl);
     margin: 0;
-    padding: 0;
-    background: transparent;
+    border-radius: var(--token-spacing-sm);
+    padding: var(--token-spacing-lg);
+    background: var(--token-color-purple);
     color: var(--fl-theme-color-text-body);
 }
 
@@ -225,29 +231,22 @@
     margin-bottom: 0;
 }
 
-.fl-show-mobile-menu.is-open, .fl-menu-close-button-content {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    text-indent: -9999px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-align: left;
-    direction: ltr;
-    display: inline-block;
+.fl-show-mobile-menu-content {
+    display: flex;
+    justify-content: center;
 }
 
-.fl-show-mobile-menu.is-open .fl-show-mobile-menu-content {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    margin-right: var(--token-spacing-xs);
-    background-color: var(--fl-theme-color-text);
-    mask-image: var(--icon-src);
-    mask-repeat: no-repeat;
-    mask-size: 12px 12px;
-    mask-position: center;
-    display: block;
+.fl-show-mobile-menu-content svg {
+    margin: 0;
+}
+
+.fl-show-mobile-menu .fl-icon-close,
+.fl-show-mobile-menu.is-open .fl-icon-hamburger {
+    display: none;
+}
+
+.fl-show-mobile-menu.is-open .fl-icon-close {
+    display: initial;
 }
 
 .fl-menu-close-button {
