@@ -35,7 +35,7 @@
   {# ESR download buttons to display on unsupported systems: issue 13317 #}
   {% include 'firefox/includes/download-unsupported.html' %}
 
-  <small class="mzp-c-button-download-privacy-link">
+  <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
     <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
       {{ ftl('download-button-firefox-privacy-notice') }}
     </a>

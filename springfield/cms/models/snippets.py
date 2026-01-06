@@ -75,3 +75,35 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
 
 
 register_snippet(PreFooterCTAFormSnippet)
+
+
+class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    description = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("description"),
+        FieldPanel("image"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Download Firefox Call To Action Snippet"
+        verbose_name_plural = "Download Firefox Call To Action Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(self.heading)} – {self.locale}"
+
+
+register_snippet(DownloadFirefoxCallToActionSnippet)
