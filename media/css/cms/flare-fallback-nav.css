@@ -3,6 +3,11 @@
     padding-bottom: 48px;
 }
 
+.fl-card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
 .fl-logo-light {
     max-height: none;
 }

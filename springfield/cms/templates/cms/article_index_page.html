@@ -41,14 +41,15 @@
                   {% endif %}
               </content:media>
               <content:heading>
-                <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+                <h3 class="fl-heading fl-heading-size-3">
+                  <a href="{{ article.url }}" class="fl-link-expand">
+                  {{ article.title }}
+                  </a>
+                </h3>
               </content:heading>
               <content:body>
                 {{ article.description|richtext }}
               </content:body>
-              <content:buttons>
-                <a href="{{ article.url }}" class="fl-link-expand"></a>
-              </content:buttons>
             </include:illustration-card>
           {% endfor %}
         </include:cards-list>
