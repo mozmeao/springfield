@@ -44,9 +44,9 @@ boto3==1.42.21 \
     --hash=sha256:1885f252d715a5810bb4e0c5bbebfa8e9018b025febf5be3d58540626e7b43d2 \
     --hash=sha256:9b92943d253bc837323079fe88460e741cb2eb80abaebcb558b2446bdb4049d6
     # via -r requirements/prod.in
-botocore==1.42.21 \
-    --hash=sha256:6b59973a3ba8c3cfd5123f2656fef2339beee9f6483b8bc12bb00c5453ea2c6d \
-    --hash=sha256:db8f99d186156da42feb4fd2098017383d9b155097290cc53da7258f6e652c39
+botocore==1.42.22 \
+    --hash=sha256:635c9213a448885a1cf735f1a950b83adaced0860b8159fc26d1242abc042443 \
+    --hash=sha256:a1dfebcf9dec52a74ad7f28bc6c895e7c43216cac63748eb1216054fb0c3a7fe
     # via
     #   boto3
     #   s3transfer
@@ -1522,7 +1522,7 @@ wagtail-localize==1.12.2 \
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
 wagtail-localize-intentional-blanks @ https://github.com/lincolnloop/wagtail-localize-intentional-blanks/archive/refs/heads/main.tar.gz \
-    --hash=sha256:d8b40441ca6e4338550dfed8ee6f7ab9cc8efc4a9001251804a710dcc4e9592f
+    --hash=sha256:181461b9ae994a1c1e7ae995405123d326cf78c21b2c546e911cd847587268de
     # via -r requirements/prod.in
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
