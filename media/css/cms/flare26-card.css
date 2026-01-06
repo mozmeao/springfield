@@ -32,7 +32,7 @@ Card - Flare 2026 Design System Cards
     background: var(--fl-theme-surface-card-gradient);
     backdrop-filter: blur(7.5px);
     box-shadow: var(--fl-theme-shadow-card);
-    color: var(--fl-theme-color-text);
+    color: var(--token-color-black-4);
     text-align: center;
     transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
 }
@@ -40,10 +40,6 @@ Card - Flare 2026 Design System Cards
 .fl-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
-}
-
-.fl-card > * {
-    order: 10;
 }
 
 .fl-card > :is(
@@ -88,7 +84,6 @@ Card - Flare 2026 Design System Cards
     font-weight: var(--token-font-weight-semibold);
     line-height: 1.05;
     letter-spacing: -0.01em;
-    color: inherit;
 }
 
 .fl-card .fl-superheading {
@@ -205,27 +200,25 @@ Step Cards List - With Kit variant
  */
 
 .fl-card-grid.fl-step-cards-with-kit {
-    gap: 146px var(--token-spacing-lg);
-    grid-template-columns: 1fr;
+    gap: var(--token-layout-lg) var(--token-layout-3xs);
     justify-content: center;
     max-width: var(--token-width-desktop-wide-banner);
     margin: 0 auto;
 }
 
-.fl-step-cards-with-kit .fl-illustration-card {
-    background: none;
-    backdrop-filter: none;
-    box-shadow: none;
-    padding: 0;
-    border-radius: 0;
-    min-height: auto;
-    overflow: visible;
-    gap: var(--token-spacing-xl);
-    text-align: left;
-    position: relative;
+
+.fl-card-grid .fl-step-card {
+    flex: 1 1 auto;
 }
 
-.fl-step-cards-with-kit .fl-card-media {
+.fl-step-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-step-card .fl-card-media {
     background: var(--token-color-cream);
 
     /* Figma: 240px on desktop, but keep responsive */
@@ -237,11 +230,12 @@ Step Cards List - With Kit variant
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: var(--token-spacing-2xl);
     box-sizing: border-box;
     width: 100%;
 }
 
-.fl-step-cards-with-kit .fl-card-media img {
+.fl-step-card .fl-card-media img {
     width: auto;
     height: auto;
     max-height: 96px;
@@ -249,11 +243,7 @@ Step Cards List - With Kit variant
     object-fit: contain;
 }
 
-.fl-step-cards-with-kit .fl-superheading {
-    position: absolute;
-    top: var(--token-spacing-2xl);
-    left: 50%;
-    transform: translateX(-50%);
+.fl-step-card-index {
     width: var(--token-layout-3xs);
     height: var(--token-layout-3xs);
     padding: var(--token-spacing-sm);
@@ -266,30 +256,25 @@ Step Cards List - With Kit variant
     margin: 0;
     font-size: 12px;
     font-weight: var(--token-font-weight-medium);
-    line-height: 1.2;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
     color: var(--token-color-black-4);
-    z-index: 2;
 }
 
-.fl-step-cards-with-kit .fl-heading-group {
+.fl-step-card .fl-heading-group {
     margin: 0;
 }
 
-.fl-step-cards-with-kit .fl-heading {
+.fl-step-card .fl-heading {
     margin: 0;
     font-size: var(--token-spacing-lg);
     font-weight: var(--token-font-weight-semibold);
     line-height: 1.1;
     letter-spacing: 0;
-    color: var(--token-color-black-4);
-    text-align: center;
+    text-wrap: auto;
 }
 
 /* Decorative Kit (Figma): only on the last card */
-.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::before,
-.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::after {
+.fl-step-cards-with-kit .fl-step-card:last-child::before,
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
     content: "";
     position: absolute;
     top: -32px;
@@ -299,14 +284,14 @@ Step Cards List - With Kit variant
     z-index: 3;
 }
 
-.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::before {
+.fl-step-cards-with-kit .fl-step-card:last-child::before {
     left: -20px;
     width: 68px;
     height: 110px;
     background-image: url("/media/img/firefox/flare/fox-tail.png");
 }
 
-.fl-step-cards-with-kit :is(.fl-card, .fl-illustration-card):last-child::after {
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
     top: -60px;
     right: 0;
     width: 98px;
@@ -314,8 +299,16 @@ Step Cards List - With Kit variant
     background-image: url("/media/img/firefox/flare/fox-head.png");
 }
 
-@media (--viewport-md-up) {
-    .fl-card-grid.fl-step-cards-with-kit {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--token-layout-md) * 4)), 1fr));
+@media (--viewport-sm-up) {
+    .fl-card-grid .fl-step-card {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
+        max-width: 50%;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-grid .fl-step-card {
+        flex-basis: 100%;
+        min-height: unset;
     }
 }

@@ -24,18 +24,21 @@
 }
 
 .fl-home-upper {
+    --fl-theme-color-text: var(--token-color-white);
     background: var(--token-color-dark-purple);
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
-    color: var(--token-color-white);
+    color: var(--fl-theme-color-text);
 }
 
 .fl-home-lower {
+    --fl-theme-color-text: var(--token-color-black-4);
     background-color: var(--token-color-white);
     display: flex;
     flex-direction: column;
     padding-top: var(--fl-section-v-padding);
     gap: var(--fl-section-v-padding);
+    color: var(--fl-theme-color-text);
 }
 
 @media (--viewport-md-up) {

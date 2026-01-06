@@ -745,6 +745,7 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -939,6 +940,29 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
             label_format = "Step Cards - {heading}"
 
     return _StepCardListBlock(*args, **kwargs)
+
+
+def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create CardsListBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _CardsListBlock(blocks.StructBlock):
+        cards = blocks.StreamBlock(
+            [
+                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
+            ]
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/cards-list-section.html"
+            label = "Cards List"
+            label_format = "Cards List - {heading}"
+
+    return _CardsListBlock(*args, **kwargs)
 
 
 # Section blocks

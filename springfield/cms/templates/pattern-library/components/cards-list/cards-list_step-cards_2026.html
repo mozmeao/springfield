@@ -19,7 +19,7 @@
 
         <include:cards-list extra_class="fl-step-cards-with-kit">
           {% for card in cards %}
-            <include:illustration-card expand_link="false">
+            <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
               <content:media>
                 <img src="{{ card.image }}" alt="" loading="lazy" />
               </content:media>
@@ -27,14 +27,13 @@
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-size-3"
-                  superheading_text="{{ card.superheading_text }}"
                   heading_text="{{ card.heading }}"
                 />
               </content:heading>
               <content:body>
                 {{ card.body }}
               </content:body>
-            </include:illustration-card>
+            </include:step-card>
           {% endfor %}
         </include:cards-list>
 
@@ -56,7 +55,7 @@
 
         <include:cards-list extra_class="fl-step-cards-with-kit">
           {% for card in cards %}
-            <include:illustration-card expand_link="false">
+            <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
               <content:media>
                 <img src="{{ card.image }}" alt="" loading="lazy" />
               </content:media>
@@ -64,14 +63,13 @@
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-size-3"
-                  superheading_text="{{ card.superheading_text }}"
                   heading_text="{{ card.heading }}"
                 />
               </content:heading>
               <content:body>
                 {{ card.body }}
               </content:body>
-            </include:illustration-card>
+            </include:step-card>
           {% endfor %}
         </include:cards-list>
 

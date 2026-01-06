@@ -24,9 +24,9 @@ body.fl-modal-open {
 /* Main */
 
 .fl-main {
+    --theme-color-text: var(--token-color-black-4);
     margin: 0 auto;
     background: var(--token-color-white);
-    color: var(--token-color-black-4);
     padding: var(--token-spacing-2xl);
     border-end-end-radius: var(--token-border-radius-xl);
     border-end-start-radius: var(--token-border-radius-xl);

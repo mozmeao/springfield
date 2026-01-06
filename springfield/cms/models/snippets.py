@@ -15,7 +15,6 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import HEADING_TEXT_FEATURES
-from springfield.cms.templatetags.cms_tags import remove_tags
 
 
 class FluentPreviewableMixin(PreviewableMixin):
@@ -67,6 +66,8 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
         verbose_name_plural = "Pre Footer Call To Action Forms"
 
     def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):
