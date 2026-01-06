@@ -208,6 +208,8 @@ Step Cards List - With Kit variant
     gap: 146px var(--token-spacing-lg);
     grid-template-columns: 1fr;
     justify-content: center;
+    max-width: var(--token-width-desktop-wide-banner);
+    margin: 0 auto;
 }
 
 .fl-step-cards-with-kit .fl-illustration-card {
