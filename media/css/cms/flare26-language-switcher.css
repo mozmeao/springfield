@@ -1,0 +1,160 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Language switcher component */
+
+.fl-language-switcher {
+    position: relative;
+    color: var(--token-color-white);
+}
+
+.fl-language-switcher:has(.fl-language-switcher-select:hover)::before,
+.fl-language-switcher:has(.fl-language-switcher-select:focus)::before,
+.fl-language-switcher:has(.fl-language-switcher-select:focus-within)::before {
+    background: var(--token-color-dark-purple) var(--icon-src) center center no-repeat;
+    background-size: 18px 18px;
+}
+
+.fl-language-switcher::before {
+    background-color: currentColor;
+    vertical-align: middle;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: 14px;
+    content: "";
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 1;
+}
+
+.fl-language-switcher label {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.fl-language-switcher-link {
+    font-size: 0.875rem;
+    text-decoration: underline;
+    color: var(--token-neutrals-gray-3);
+    position: absolute;
+    top: -1.5em;
+    padding-bottom: 8px;
+}
+
+.js .fl-language-switcher-link {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.fl-language-switcher-link:focus,
+.fl-language-switcher-link:focus-visible {
+    clip: auto;
+    height: auto;
+    overflow: visible;
+    text-indent: 0;
+    width: auto;
+}
+
+.fl-language-switcher-select-wrapper {
+    position: relative;
+    color: var(--token-color-white);
+}
+
+.fl-language-switcher-select-wrapper::after {
+    background-color: currentColor;
+    vertical-align: middle;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: 14px;
+    content: "";
+    display: inline-block;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 1;
+}
+
+.fl-language-switcher-select {
+    appearance: unset;
+    line-height: 1.2;
+    background-color: var(--token-color-dark-purple);
+    color: var(--token-color-white);
+    min-width: calc(var(--token-scale-200) * 1px);
+    border-radius: 0;
+    border: 2px solid var(--token-color-white);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px calc(1.5em + 16px) 8px 8px;
+    padding-left: 36px; /* space for globe icon */
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+@media (min-width: 1024px) {
+    .fl-language-switcher-select {
+        width: 100%;
+    }
+}
+
+.fl-language-switcher-select-wrapper:hover,
+.fl-language-switcher-select-wrapper:focus,
+.fl-language-switcher-select-wrapper:focus-visible,
+.fl-language-switcher-select-wrapper:focus-within {
+    color: var(--token-color-dark-purple);
+}
+
+.fl-language-switcher-select:hover,
+.fl-language-switcher-select:focus,
+.fl-language-switcher-select:focus-visible,
+.fl-language-switcher-select:focus-within {
+    background-color: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+}
+
+/* Show button when JS is disabled */
+.fl-language-switcher button {
+    display: none;
+    background: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+    border-radius: 4px;
+    margin-top: 8px;
+    padding: 0 4px;
+    font-size: .875rem;
+}
+
+.no-js .fl-language-switcher button {
+    display: block;
+}
+
+/* No JS: remove globe icon */
+.no-js .fl-language-switcher::before {
+    content: none;
+}
+
+.no-js .fl-language-switcher-select {
+    padding-left: 0.5rem;
+}
