@@ -14,6 +14,7 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_cards_test_page,
     get_sticker_cards_test_page,
 )
+from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
@@ -30,6 +31,9 @@ class Command(BaseCommand):
 
         index_page = get_test_index_page()
         self.stdout.write(self.style.SUCCESS(f"Test index page loaded: {index_page.slug}"))
+
+        home_page = get_home_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
 
         inline_notification_page = get_inline_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Inline Notification test page loaded: {inline_notification_page.slug}"))
