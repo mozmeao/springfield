@@ -1,0 +1,241 @@
+.fl-section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+
+.fl-card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.fl-logo-fx img {
+    max-height: none;
+}
+
+.fl-logo-dark,
+.fl-menu-close-button,
+.fl-menu-title .fl-icon,
+.fl-nav-mobile-download-link,
+.fl-footer-logo {
+    display: none;
+}
+
+.fl-menu-title:link,
+.fl-menu-title:visited {
+    color: #333336;
+    text-decoration: none;
+}
+
+.fl-menu-title h2 {
+    font-size: 24px;
+}
+
+.fl-menu-subtitle {
+    font-size: 20px;
+    color: #666669;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.fl-header-inner {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.fl-nav-menu {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.fl-menu-category {
+    width: 32%;
+}
+
+.fl-menu-category + .fl-menu-category {
+    width: 40%;
+}
+
+.fl-menu-category + .fl-menu-category + .fl-menu-category {
+    width: 25%;
+}
+
+.fl-nav {
+    display: none;
+}
+
+.fl-nav.is-open {
+    display: flex;
+    position: absolute;
+    padding: 24px;
+    border: 2px solid #eee;
+    background-color: #fff;
+    top: 100%;
+    width: 100%;
+}
+
+.fl-menu-category-link a:link,
+.fl-menu-category-link a:visited {
+    background-color: #FAF0E6;
+    color: #333336;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 8px 16px;
+    gap: 4px;
+
+}
+
+.fl-menu-category-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+.fl-menu-panel-content-column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-nav-link:link,
+.fl-nav-link:visited {
+    color: #333336;
+    text-decoration: none;
+    display: block;
+    padding: 4px 0;
+}
+
+.fl-nav-link:hover,
+.fl-nav-link:focus,
+.fl-nav-link:active {
+    color: #333336;
+    text-decoration: underline;
+}
+
+.fl-show-mobile-menu {
+    background-color: #7543E3;
+    color: white;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fl-show-mobile-menu .fl-icon-close,
+.fl-show-mobile-menu.is-open .fl-icon-hamburger {
+    display: none;
+}
+
+.fl-show-mobile-menu.is-open .fl-icon-close,
+.fl-show-mobile-menu .fl-icon-hamburger {
+    display: block;
+}
+
+
+.fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
+    font-size: 0;
+    line-height: 0;
+    width: 32px;
+    height: 32px;
+    background-image: url('/media/img/firefox/flare/icons/close.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px auto;
+    display: block;
+    margin: auto;
+}
+
+.fl-header .download-link {
+    background-color: #7543E3;
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 40px;
+    text-decoration: none;
+    padding: 8px 12px;
+    display: inline-block;
+
+}
+
+.fl-header .download-link:hover,
+.fl-header .download-link:focus,
+.fl-header .download-link:active,
+.fl-show-mobile-menu:hover,
+.fl-show-mobile-menu:focus,
+.fl-show-mobile-menu:active {
+    background-color: #6132BC;
+    color: white;
+}
+
+.fl-header-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 16px;
+}
+
+
+
+.fl-footer {
+    margin-top: 72px;
+}
+
+.fl-footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.fl-footer-column {
+    flex-basis: calc(25% - 12px);
+    border: 0 none;
+}
+
+.fl-footer-heading {
+    font-size: 16px;
+    margin-top: 32px;
+    margin-bottom: 0;
+}
+
+.fl-footer-list {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fl-footer-legal-list {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.fl-footer-link:link,
+.fl-footer-legal-link:link,
+.fl-footer-link:visited,
+.fl-footer-legal-link:visited {
+    color: #333336;
+    text-decoration: none;
+}
+
+.fl-footer-link:hover,
+.fl-footer-link:focus,
+.fl-footer-legal-link:active {
+    color: #333336;
+    text-decoration: underline;
+}
