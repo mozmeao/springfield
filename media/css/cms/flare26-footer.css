@@ -12,7 +12,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     background-color: var(--token-color-dark-purple);
     color: var(--token-color-white);
     margin: 0;
-    margin-top: auto;
+    margin-block-start: auto;
     width: 100%;
     padding: 0;
 }
@@ -38,7 +38,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     max-width: var(--token-width-desktop-layout);
     margin: 0 auto;
     padding: var(--token-spacing-lg);
-    padding-bottom: 0;
+    padding-block-end: 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,11 +46,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Sections */
 
 .fl-footer-section > * {
-    margin-top: var(--token-spacing-xl);
+    margin-block-start: var(--token-spacing-xl);
 }
 
 .fl-footer-section > *:first-child {
-    margin-top: 0;
+    margin-block-start: 0;
 }
 
 .fl-footer-sections-list {
@@ -67,7 +67,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 @media screen and (max-width: 1023px) {
     .fl-footer-sections-list-mobile {
-        border-bottom: transparent;
+        border-block-end: transparent;
         border-color: transparent;
         gap: var(--token-spacing-xl);
         display: grid;
@@ -75,21 +75,21 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-section {
-        margin-top: var(--token-spacing-xl);
+        margin-block-start: var(--token-spacing-xl);
     }
 
     .fl-footer-sections-list .fl-footer-section {
         width: auto;
         padding: 0;
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-footer-sections-list .fl-footer-list:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 
     .fl-footer-sections-list .fl-footer-section-follow li:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
@@ -109,20 +109,18 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-section:first-child {
-        padding-left: 0;
-        padding-right: var(--token-spacing-xl);
+        padding-inline: 0 var(--token-spacing-xl);
     }
 
     .fl-footer-section:last-child {
-        padding-right: 0;
-        padding-left: var(--token-spacing-xl);
+        padding-inline: var(--token-spacing-xl) 0;
     }
 }
 
 /* Individual Section Styles */
 @media (max-width: 479px) {
     .fl-footer-section {
-        margin-bottom: var(--token-spacing-sm);
+        margin-block-end: var(--token-spacing-sm);
     }
 }
 
@@ -144,7 +142,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer-heading {
     text-align: start;
     font-weight: bold;
-    margin-bottom: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-sm);
     padding: 0;
     font-size: var(--token-spacing-lg);
     line-height: 1.5;
@@ -153,7 +151,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media (min-width: 480px) {
     .fl-footer-heading {
         padding: 0 0 var(--token-spacing-sm);
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
@@ -174,17 +172,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 @media (max-width: 1023px) {
     .fl-footer-list {
-        margin-bottom: 0;
+        margin-block-end: 0;
     }
 }
 
 .fl-footer-list li {
     list-style-type: none;
-    margin-bottom: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-sm);
 }
 
 .fl-footer-list li:last-child {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 /* external link icon */
@@ -198,7 +196,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     height: 12px;
     vertical-align: baseline;
     width: 12px;
-    margin-left: var(--token-spacing-sm);
+    margin-inline-start: var(--token-spacing-sm);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -221,7 +219,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* Legal Links */
 .fl-footer-legal {
-    margin-bottom: var(--token-spacing-xl);
+    margin-block-end: var(--token-spacing-xl);
 }
 
 .fl-footer-terms {
