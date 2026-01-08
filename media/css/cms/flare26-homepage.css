@@ -7,6 +7,7 @@
 .fl-home-body {
     --section-border-radius: var(--token-border-radius-lg);
     max-width: unset;
+    padding: 0;
 }
 
 .fl-home-body .fl-main {

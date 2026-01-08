@@ -91,35 +91,40 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
+
+    /* Navigiation menu variables */
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+    --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-panel-border-color: var(--token-color-soft-purple);
+    --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
+    --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
+    --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
+    --fl-navigation-menu-height: 80px;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        /* Text colors */
-
-        /* --fl-theme-color-text: var(--token-color-white);
-        --fl-theme-color-text-inverse: var(--token-color-black-4);
-        --fl-theme-color-link: var(--token-color-light-purple);
-        --fl-theme-color-link-hover: var(--token-color-light-purple);
-        --fl-theme-color-link-alt-hover: var(--token-color-black-4); */
-
-        /* Background colors */
-
-        /* --fl-theme-background: var(--token-color-dark-purple); */
-
-        /* Surface colors */
-
-        /* --fl-theme-surface-card-gradient: var(--token-gradient-dark); */
-
-        /* Button palette */
-
-        /* --fl-theme-button-primary: var(--token-color-light-purple); */
-
-        /* Shadows */
-
-        /* --fl-theme-shadow-card: 0 32px 64px var(--token-color-black-45); */
-    }
+/* todo: when we build a proper dark mode, copy these up to a :root selector */
+.fl-force-dark-theme {
+    --fl-theme-color-text: var(--token-color-white);
+    --fl-theme-background: var(--token-color-dark-purple);
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    --fl-menu-title-color: var(--token-color-white);
+    --fl-menu-panel-border-color: var(--token-color-link-purple);
+    --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
+    --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
+    --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 }
+
+.fl-force-light-theme {
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-background: var(--token-color-white);
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+    --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-panel-border-color: var(--token-color-soft-purple);
+    --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
+    --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
+    --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
+}
+
 
 /* CSS custom properties are not resolved in media queries; so we
 centralize breakpoints once and flip CSS variables inside.
