@@ -262,10 +262,10 @@
 }
 
 /* ================================================
-   Media Queries - Mobile (max-width: 767px)
+   Media Queries - Mobile (max-width: 899px)
    ================================================ */
 
-@media (max-width: 767px) {
+@media (--viewport-below-md) {
     .fl-header {
         padding: var(--token-spacing-md) var(--token-spacing-xl);
     }
@@ -310,10 +310,10 @@
 }
 
 /* ================================================
-   Media Queries - Desktop (min-width: 768px)
+   Media Queries - Desktop (min-width: 900px)
    ================================================ */
 
-@media (min-width: 768px) {
+@media (--viewport-md-up) {
     .fl-header {
         --fl-navigation-menu-height: 68px;
     }
