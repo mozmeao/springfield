@@ -7,7 +7,7 @@
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
     "@mozilla-protocol/core": "^21.1.0",
-    "@mozmeao/consent-banner": "^1.1.0",
+    "@mozmeao/consent-banner": "^1.1.1",
     "@mozmeao/cookie-helper": "^1.1.0",
     "@mozmeao/dnt-helper": "^1.0.0",
     "@mozmeao/trafficcop": "^3.0.0",
