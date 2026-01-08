@@ -102,8 +102,6 @@
     line-height: 1.2;
     background-color: var(--token-color-dark-purple);
     color: var(--token-color-white);
-    min-width: calc(var(--token-scale-200) * 1px);
-    border-radius: 0;
     border: 2px solid var(--token-color-white);
     font-weight: 600;
     font-size: 1rem;
@@ -112,12 +110,6 @@
     max-width: 100%;
     width: 100%;
     margin: 0;
-}
-
-@media (min-width: 1024px) {
-    .fl-language-switcher-select {
-        width: 100%;
-    }
 }
 
 .fl-language-switcher-select-wrapper:hover,
