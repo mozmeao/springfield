@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% from "firefox/includes/macros.html" import firefox_download_desktop_button_linux with context %}
+
 {% extends "firefox/download/basic/base.html" %}
 
 {# FxA automated tests use this attribute to verify the page #}
@@ -59,15 +61,7 @@
 
       <div class="c-support-install">
         <div class="show-linux">
-          <div class="c-linux-button-group">
-            <!-- <a href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux&lang={{ LANG }}"
-              class="mzp-c-button mzp-t-product">{{ ftl('download-button-linux-32-v2') }}</a> -->
-            <a href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}"
-              class="mzp-c-button mzp-t-product">{{ ftl('download-button-linux-64-v2') }}</a>
-          </div>
-          {% set attrs = 'href="https://support.mozilla.org/kb/install-firefox-linux%s#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
-           data-cta-text="You can set up our APT repository instead"'|safe|format(params) %}
-          <p class="linux-deb-text">{{ ftl('download-button-using-debian', attrs=attrs) }}</p>
+          {{ firefox_download_desktop_button_linux() }}
         </div>
         {# Edge-case platform support messaging #}
         <p class="show-unknown">

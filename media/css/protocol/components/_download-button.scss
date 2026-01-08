@@ -87,6 +87,7 @@ ul.download-list {
 
 .linux .download-button .os_linux,
 .linux .download-button .os_linux64,
+.linux .download-button .os_linux64-aarch64,
 .windows .download-button .os_win,
 .osx .download-button .os_osx,
 .android .download-button .os_android,
@@ -130,6 +131,20 @@ ul.download-list {
 
         .download-link.os_linux64 {
             display: inline-block;
+        }
+
+        .c-linux-debian {
+            margin-top: $spacing-md;
+
+            br {
+                display: none;
+            }
+
+            @media #{$mq-md} {
+                br {
+                    display: inline;
+                }
+            }
         }
     }
 }
