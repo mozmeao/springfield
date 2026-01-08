@@ -151,6 +151,49 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    ftl_files = ["firefox/cms"]
+
+    PLATFORM_CHOICES = (
+        ("windows", "Windows"),
+        ("mac", "macOS"),
+        ("linux", "Linux"),
+        ("android", "Android"),
+        ("ios", "iOS"),
+        ("chromebook", "Chromebook"),
+    )
+
+    platform = models.CharField(
+        default="windows",
+        max_length=50,
+        choices=PLATFORM_CHOICES,
+        help_text="The platform this download page is for (e.g., Windows, macOS, Linux).",
+    )
+    subheading = RichTextField(default="Subheading", features=HEADING_TEXT_FEATURES)
+    featured_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="download_page_featured_images",
+    )
+    content = StreamField(
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("platform"),
+        FieldPanel("subheading"),
+        FieldPanel("featured_image"),
+        FieldPanel("content"),
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["platforms"] = self.PLATFORM_CHOICES
+        return context
+
     class Meta:
         verbose_name = "Download Page"
         verbose_name_plural = "Download Pages"
