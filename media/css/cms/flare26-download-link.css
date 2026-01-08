@@ -45,7 +45,7 @@
     padding: var(--token-spacing-md);
 }
 
-@media screen and (max-width: 767px){
+@media (--viewport-below-md) {
     .fl-header .fl-header-main-download-button .download-link {
         font-size: 0;
         padding: var(--token-spacing-lg);
@@ -57,7 +57,7 @@
     }
 }
 
-@media screen and (min-width: 768px) {
+@media (--viewport-md-up) {
     .fl-header-main-download-button .fl-icon {
         display: none;
     }
