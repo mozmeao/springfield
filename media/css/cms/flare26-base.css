@@ -68,7 +68,8 @@ body {
     width: 700px;
     max-width: 100%;
     margin: 0 auto;
-    padding: 0;
+    padding-left: 20px;
+    padding-right: 20px;
 
     /* Mozilla Text for body */
     font-family: 'Mozilla Text VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
