@@ -126,6 +126,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
 @media (prefers-color-scheme: dark) {
     :root body:not(.disable-dark-mode) {
         /* Core text colors */
+        --fl-theme-color-headings-primary: var(--token-neutrals-white);
         --fl-theme-color-text-primary: var(--token-neutrals-ash);
         --fl-theme-color-text-secondary: var(--token-neutrals-grey-5);
         --fl-theme-color-text-muted: var(--token-neutrals-white);
