@@ -108,6 +108,7 @@
     padding: 8px calc(1.5em + 16px) 8px 8px;
     padding-inline-start: 36px; /* space for globe icon */
     max-width: 100%;
+    min-width: 196px;
     width: 100%;
     margin: 0;
 }
