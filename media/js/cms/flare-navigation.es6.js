@@ -62,6 +62,9 @@ import { createFocusTrap } from 'focus-trap';
     // mouse is being used
     menuCategories.forEach(function (category) {
         category.addEventListener('mouseover', function () {
+            menuCategories.forEach(function (category) {
+                category.classList.remove('is-active');
+            });
             category.classList.add('is-active');
         });
         category.addEventListener('mouseout', function () {
