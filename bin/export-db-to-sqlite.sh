@@ -163,7 +163,7 @@ python manage.py dumpdata \
     cms.SpringfieldImage \
     cms.ArticleIndexPage \
     cms.ArticleDetailPage \
-    cms.DownloadFirefoxCTASnippet \
+    cms.DownloadFirefoxCallToActionSnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

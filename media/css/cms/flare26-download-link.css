@@ -4,7 +4,8 @@
    ================================================ */
 
 .fl-header .mzp-c-button-download-privacy-link,
-.fl-header .fx-unsupported-message {
+.fl-header .fx-unsupported-message,
+.fl-header .fl-privacy-link {
     display: none;
     margin: 0;
 }
