@@ -35,6 +35,7 @@
     background-color: var(--token-color-white);
     display: flex;
     flex-direction: column;
+    padding-top: var(--fl-section-v-padding);
     gap: var(--fl-section-v-padding);
 }
 

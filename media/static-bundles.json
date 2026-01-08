@@ -320,6 +320,10 @@
       "files": [
         "css/cms/flare26-base.css",
         "css/cms/flare26-icon.css",
+        "css/cms/flare26-button.css",
+        "css/cms/flare26-download-utils.css",
+        "css/cms/flare26-download-link.css",
+        "css/cms/flare26-fallback-nav.css",
         "css/cms/flare26-utilities.css"
       ],
       "name": "flare26_base"

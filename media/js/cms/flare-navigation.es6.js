@@ -31,8 +31,9 @@ import { createFocusTrap } from 'focus-trap';
     if (buttonEl && mobileNavEl) {
         buttonEl.addEventListener('click', function (e) {
             e.preventDefault();
-            const mobileNavIsOpen = e.target.classList.contains('is-open');
-            const elements = [e.target, mobileNavEl];
+            const mobileNavIsOpen =
+                e.currentTarget.classList.contains('is-open');
+            const elements = [e.currentTarget, mobileNavEl];
 
             if (mobileNavIsOpen) {
                 elements.forEach(function (el) {

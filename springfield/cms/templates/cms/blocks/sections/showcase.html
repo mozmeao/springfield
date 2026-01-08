@@ -11,6 +11,7 @@
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
+      heading_size="{{ 'fl-heading-size-' ~ block_level if block_level else 'fl-heading-size-2' }}"
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
     />
   </content:heading>
