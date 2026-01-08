@@ -104,7 +104,23 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
         return context
 
 
-class HomePage(AbstractSpringfieldCMSPage):
+class UTMParamsMixin:
+    def get_utm_campaign(self):
+        return self.slug
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.get_utm_campaign(),
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
+
+
+class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
@@ -134,13 +150,13 @@ class HomePage(AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
-class DownloadPage(AbstractSpringfieldCMSPage):
+class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Download Page"
         verbose_name_plural = "Download Pages"
 
 
-class ArticleIndexPage(AbstractSpringfieldCMSPage):
+class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage"]
 
     sub_title = models.CharField(
@@ -154,7 +170,6 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        context["utm_parameters"] = self.get_utm_parameters()
 
         all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
 
@@ -165,14 +180,8 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
         context["list_articles"] = list_articles
         return context
 
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.slug,
-        }
 
-
-class ArticleDetailPage(AbstractSpringfieldCMSPage):
+class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleIndexPage"]
 
     featured = models.BooleanField(
@@ -220,17 +229,6 @@ class ArticleDetailPage(AbstractSpringfieldCMSPage):
         FieldPanel("call_to_action"),
     ]
 
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.slug,
-        }
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context["utm_parameters"] = self.get_utm_parameters()
-        return context
-
 
 def _get_freeform_page_blocks(allow_uitour=False):
     """Factory function to create block list with appropriate button types.
@@ -257,23 +255,7 @@ FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
 
 
-class FreeFormPageMixin:
-    def get_utm_campaign(self):
-        return self.slug
-
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.get_utm_campaign(),
-        }
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context["utm_parameters"] = self.get_utm_parameters()
-        return context
-
-
-class FreeFormPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A flexible page type that allows a variety of content blocks to be added."""
 
     content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
@@ -304,7 +286,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             return redirect("/")
 
 
-class WhatsNewPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
