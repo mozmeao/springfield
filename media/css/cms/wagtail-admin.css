@@ -95,3 +95,8 @@
 .button.btn-danger:hover {
     color: var(--w-color-critical-200);
 }
+
+/* Hide fields in link block when not needed */
+.link-block__hidden {
+    display: none;
+}
