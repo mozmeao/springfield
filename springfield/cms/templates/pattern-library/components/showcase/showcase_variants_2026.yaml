@@ -1,0 +1,68 @@
+name: Showcase Variants 2026
+context:
+  variants:
+    - headline: Default layout  with caption title
+      layout: default
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: Caption title
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Default layout without caption title
+      layout: default
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: ""
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Expanded layout with caption title
+      layout: expanded
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: Caption title
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Expanded layout without caption title
+      layout: expanded
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: ""
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Full layout with caption title
+      layout: full
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: Caption title
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Full layout without caption title
+      layout: full
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: ""
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

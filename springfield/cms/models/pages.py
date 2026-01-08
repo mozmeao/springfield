@@ -9,13 +9,21 @@ from django.shortcuts import redirect
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
+from wagtail.snippets.blocks import SnippetChooserBlock
 
 from springfield.cms.blocks import (
+    HEADING_TEXT_FEATURES,
     BannerBlock,
+    CardGalleryBlock,
+    CardsListBlock,
+    HomeCarouselBlock,
+    HomeIntroBlock,
+    HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     KitBannerBlock,
     SectionBlock,
+    ShowcaseBlock,
     SubscriptionBlock,
 )
 from springfield.cms.fields import StreamField
@@ -96,7 +104,39 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
         return context
 
 
-class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
+class HomePage(AbstractSpringfieldCMSPage):
+    upper_content = StreamField(
+        [
+            ("intro", HomeIntroBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", HomeCarouselBlock()),
+        ],
+        use_json_field=True,
+    )
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    class Meta:
+        verbose_name = "Home Page"
+        verbose_name_plural = "Home Pages"
+
+
+class ArticleIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.ArticleDetailPage"]
+
     sub_title = models.CharField(
         max_length=255,
         blank=True,
@@ -106,8 +146,18 @@ class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
         FieldPanel("sub_title"),
     ]
 
-    class Meta:
-        abstract = True
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        context["utm_parameters"] = self.get_utm_parameters()
+
+        all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
+
+        featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
+        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]
+
+        context["featured_articles"] = featured_articles
+        context["list_articles"] = list_articles
+        return context
 
     def get_utm_parameters(self):
         return {
@@ -115,13 +165,14 @@ class ArticleIndexPageBase(AbstractSpringfieldCMSPage):
             "utm_campaign": self.slug,
         }
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context["utm_parameters"] = self.get_utm_parameters()
-        return context
 
+class ArticleDetailPage(AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.ArticleIndexPage"]
 
-class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
+    featured = models.BooleanField(
+        default=False,
+        help_text="Check to set as a featured article on the index page.",
+    )
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -129,26 +180,39 @@ class ArticleDetailPageBase(AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
     )
-
-    desc = models.CharField(
-        max_length=500,
+    description = RichTextField(
         blank=True,
+        features=HEADING_TEXT_FEATURES,
         help_text="A short description used on index page.",
     )
-
     content = RichTextField(
         blank=True,
         features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
     )
+    call_to_action = StreamField(
+        [
+            (
+                "download_firefox",
+                SnippetChooserBlock(
+                    target_model="cms.DownloadFirefoxCallToActionSnippet",
+                    template="cms/snippets/download_firefox_cta.html",
+                    label="Download Firefox Call To Action",
+                ),
+            )
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        max_num=1,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("featured"),
         FieldPanel("image"),
-        FieldPanel("desc"),
+        FieldPanel("description"),
         FieldPanel("content"),
+        FieldPanel("call_to_action"),
     ]
-
-    class Meta:
-        abstract = True
 
     def get_utm_parameters(self):
         return {

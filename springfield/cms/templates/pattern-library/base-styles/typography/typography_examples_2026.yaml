@@ -1,0 +1,55 @@
+name: "Typography 2026"
+context:
+  headings:
+    - heading_text: 'Heading 3XL'
+      level: 'h1'
+      heading_size: 'fl-heading-3xl'
+    - heading_text: 'Heading 2XL'
+      level: 'h2'
+      heading_size: 'fl-heading-2xl'
+    - heading_text: 'Heading XL'
+      level: 'h3'
+      heading_size: 'fl-heading-xl'
+    - heading_text: 'Heading LG'
+      level: 'h4'
+      heading_size: 'fl-heading-lg'
+    - heading_text: 'Heading MD'
+      level: 'h5'
+      heading_size: 'fl-heading-md'
+    - heading_text: 'Heading SM'
+      level: 'h6'
+      heading_size: 'fl-heading-sm'
+    - heading_text: 'Heading XS'
+      level: 'h6'
+      heading_size: 'fl-heading-xs'
+    - heading_text: 'Heading 2XS'
+      level: 'h6'
+      heading_size: 'fl-heading-2xs'
+  body_texts:
+    - text: 'Body LG - Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam neque neque, egestas et elit vitae, interdum congue neque.'
+      size: 'lg'
+    - text: 'Body MD - Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam neque neque, egestas et elit vitae, interdum congue neque.'
+      size: 'md'
+    - text: 'Body SM - Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam neque neque, egestas et elit vitae, interdum congue neque.'
+      size: 'sm'
+    - text: 'Body XS - Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam neque neque, egestas et elit vitae, interdum congue neque.'
+      size: 'xs'
+  labels:
+    - text: 'Label MD'
+      size: 'md'
+      caps: false
+    - text: 'Label MD Caps'
+      size: 'md'
+      caps: true
+    - text: 'Label SM'
+      size: 'sm'
+      caps: false
+    - text: 'Label SM Caps'
+      size: 'sm'
+      caps: true
+    - text: 'Label XS'
+      size: 'xs'
+      caps: false
+    - text: 'Label XS Caps'
+      size: 'xs'
+      caps: true

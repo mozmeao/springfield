@@ -1,0 +1,77 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+    <header class="fl-article-index-header">
+      <include:heading
+        alignment_class="text-center"
+        level="h1"
+        heading_text="{{ page.title }}"
+        subheading_text="{{ page.sub_title }}"
+      />
+    </header>
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <include:cards-list length="{{ featured_articles|length }}">
+          {% for article in featured_articles %}
+            <include:illustration-card expand_link="true">
+              <content:media>
+                {% if article.image %}
+                  {{ srcset_image(
+                      article.image,
+                      "width-{200,400,600,800,1000,1200,1400}",
+                      sizes="
+                        (min-width: 768px) 50vw,
+                        (min-width: 1440px) 680px,
+                        100vw
+                      ",
+                      width=article.image.width,
+                      loading="lazy",
+                    ) }}
+                  {% else %}
+                    <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+                  {% endif %}
+              </content:media>
+              <content:heading>
+                <h3 class="fl-heading fl-heading-size-3">
+                  <a href="{{ article.url }}" class="fl-link-expand">
+                  {{ article.title }}
+                  </a>
+                </h3>
+              </content:heading>
+              <content:body>
+                {{ article.description|richtext }}
+              </content:body>
+            </include:illustration-card>
+          {% endfor %}
+        </include:cards-list>
+
+
+        <include:cards-list length="{{ list_articles|length }}">
+          {% for article in list_articles %}
+            <include:card expand_link="true">
+              <content:heading>
+                <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+              </content:heading>
+              <content:body>
+                {{ article.description|richtext }}
+              </content:body>
+              <content:buttons>
+                <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+              </content:buttons>
+            </include:card>
+          {% endfor %}
+        </include:cards-list>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+
+{% block content %}
+<div class="fl-page fl-article-page">
+  <main class="fl-main">
+    <div class="fl-article-body">
+      <header>
+        <include:heading
+            level="h1"
+            heading_text="{{ page.title }}"
+            subheading_text="{{ page.sub_title }}"
+        />
+      </header>
+      <section class="fl-rich-text">
+      {{ page.content|richtext }}
+      </section>
+    </div>
+  </main>
+
+  {% if page.call_to_action %}
+    {% for block in page.call_to_action %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

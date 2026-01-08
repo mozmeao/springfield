@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-footer-section fl-footer-section-builds">
+  <div class="fl-footer-section-latest">
+    <h3 class="fl-footer-heading">{{ ftl('footer-latest') }}</h3>
+    <ul class="fl-footer-list">
+      <li><a href="{{ url('firefox.channel.desktop') }}#nightly" data-link-position="footer" data-link-text="Nightly">{{ ftl('footer-nightly') }}</a></li>
+      <li><a href="{{ url('firefox.channel.desktop') }}#beta" data-link-position="footer" data-link-text="Beta">{{ ftl('footer-beta') }}</a></li>
+    </ul>
+  </div>
+  <div class="fl-footer-section-business">
+    <h3 class="fl-footer-heading">{{ ftl('footer-business') }}</h3>
+    <ul class="fl-footer-list">
+      <li><a href="{{ url('firefox.enterprise.index') }}" data-link-position="footer" data-link-text="Enterprise">{{ ftl('footer-enterprise') }}</a></li>
+    </ul>
+  </div>
+</section>

@@ -17,6 +17,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-functional-info-buttons: var(--token-blue-button);
 
     /* Core text colors */
+    --fl-theme-color-headings-primary: var(--token-neutrals-black);
     --fl-theme-color-text-primary: var(--token-neutrals-charcoal);
     --fl-theme-color-text-secondary: var(--token-neutrals-grey-7);
     --fl-theme-color-text-muted: var(--token-neutrals-grey-8);
@@ -26,7 +27,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-color-text-body: var(--token-neutrals-black);
 
     /* Core surface colors */
-    --fl-theme-surface-page: var(--token-neutrals-white);
+    --fl-theme-surface-page: var(--token-neutrals-ash);
     --fl-theme-surface-panel: var(--token-neutrals-ash);
     --fl-theme-surface-elevated: var(--token-neutrals-white);
     --fl-theme-surface-hover: var(--token-neutrals-white);
@@ -125,6 +126,7 @@ runtime conditions. Design tokens live in flare-tokens.css.
 @media (prefers-color-scheme: dark) {
     :root body:not(.disable-dark-mode) {
         /* Core text colors */
+        --fl-theme-color-headings-primary: var(--token-neutrals-white);
         --fl-theme-color-text-primary: var(--token-neutrals-ash);
         --fl-theme-color-text-secondary: var(--token-neutrals-grey-5);
         --fl-theme-color-text-muted: var(--token-neutrals-white);

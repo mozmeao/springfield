@@ -1,0 +1,80 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<li class="fl-menu-category">
+  <a
+    class="fl-menu-title"
+    href="{{ url('firefox.features.index') }}"
+    aria-haspopup="true"
+    aria-controls="fl-menu-panel-features"
+  >
+    <h2>
+      {{ ftl('navigation-features') }}
+      <span class="fl-icon fl-icon-caret-down"></span>
+    </h2>
+  </a>
+  <div class="fl-menu-panel" id="fl-menu-panel-features">
+    <button class="fl-menu-close-button">
+      <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
+    </button>
+    <div class="fl-menu-panel-content">
+      <div class="fl-menu-panel-content-column">
+        <h3 class="fl-menu-subtitle">{{ ftl('navigation-top-features') }}</h3>
+        <ul>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.features.fingerprinting') }}"
+              data-link-text="Fingerprint Blocking"
+              data-link-position="topnav - fingerprinting"
+            >
+              {{ ftl('navigation-fingerprint-blocking') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.features.adblocker') }}"
+              data-link-text="Ad Tracker Blocking"
+              data-link-position="topnav - antitracking"
+            >
+              {{ ftl('navigation-ad-tracker-blocking') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.features.private-browsing') }}"
+              data-link-text="Private Browsing Mode"
+              data-link-position="topnav - privatebrowsing"
+            >
+              {{ ftl('navigation-private-browsing') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.features.password-manager') }}"
+              data-link-text="Free Password Manager"
+              data-link-position="topnav - passwords"
+            >
+              {{ ftl('navigation-password-manager') }}
+            </a>
+          </li>
+        </ul>
+        <div class="fl-menu-category-link">
+          <a
+            href="{{ url('firefox.features.index') }}"
+            data-link-text="View all Firefox Features"
+            data-link-position="topnav - all features"
+          >
+            {{ ftl('navigation-features-all') }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</li>

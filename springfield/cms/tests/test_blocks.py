@@ -178,6 +178,7 @@ def assert_light_dark_image_attributes(
         **{
             "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
             "width": image.width,
+            "height": image.height,
             "loading": "lazy",
             "class": class_name,
         },
@@ -187,6 +188,7 @@ def assert_light_dark_image_attributes(
     assert img_tag["class"] == image_soup["class"]
     assert img_tag["loading"] == image_soup["loading"]
     assert img_tag["width"] == image_soup["width"]
+    assert img_tag["height"] == image_soup["height"]
     assert img_tag["src"] == image_soup["src"]
 
 
@@ -355,6 +357,11 @@ def test_intro_block(index_page, placeholder_images, rf):
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media_value)
+
+        if video := intro["value"].get("video"):
+            video = video[0]
+            video_div = intro_element.find("div", class_="fl-video")
+            assert_video_attributes(video_div, video)
 
 
 def test_subscription_block(index_page, rf):

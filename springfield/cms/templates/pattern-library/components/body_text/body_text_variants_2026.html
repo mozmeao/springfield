@@ -1,0 +1,14 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% for alignment in alignments %}
+  <h2>{{ alignment|capitalize }} Aligned</h2>
+  <hr/>
+  {% for size in sizes %}
+    {% set text = size|capitalize ~ ' text' %}
+    <include:body_text alignment="{{ alignment }}" size="{{ size }}" text="{{ text }}" />
+  {% endfor %}
+{% endfor %}

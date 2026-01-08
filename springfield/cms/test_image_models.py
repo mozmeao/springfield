@@ -7,7 +7,9 @@ from unittest.mock import Mock, patch
 from django.test import TestCase, override_settings
 
 import pytest
+from wagtail.images.forms import get_image_form
 
+from springfield.cms.fields import SanitizingWagtailImageField
 from springfield.cms.models.images import SpringfieldImage, _make_renditions
 
 pytestmark = [pytest.mark.django_db]
@@ -105,3 +107,15 @@ class SpringfieldImageTestCase(TestCase):
         with patch.object(image, "_pre_generate_expected_renditions") as pre_generate_mock:
             image.save()
             pre_generate_mock.assert_called_once_with()
+
+    def test_springfield_image_uses_sanitizing_field(self):
+        """Verify that SpringfieldImage forms use SanitizingWagtailImageField."""
+
+        ImageForm = get_image_form(SpringfieldImage)
+        form = ImageForm()
+
+        # Check that the 'file' field is our custom sanitizing field
+        self.assertIsInstance(
+            form.fields["file"],
+            SanitizingWagtailImageField,
+        )

@@ -18,13 +18,13 @@ from django.utils import timezone
 import polib
 import pytest
 from wagtail.models import Locale, Page
+from wagtail.rich_text import RichText
 from wagtail_localize.models import StringTranslation, Translation, TranslationSource
 from wagtail_localize_smartling.api.types import JobStatus
 from wagtail_localize_smartling.models import Job, Project
 
-from springfield.cms.models import PageTranslationData, SimpleRichTextPage
+from springfield.cms.models import DownloadFirefoxCallToActionSnippet, PageTranslationData, SimpleRichTextPage
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
-from springfield.firefox.models import FeaturesCallToActionSnippet
 
 pytestmark = [
     pytest.mark.django_db,
@@ -796,10 +796,10 @@ def test_snippet_translation_does_not_call_create_page_translation_data(
     fr_locale = Locale.objects.get(language_code="fr")
 
     # Create a snippet (non-page object)
-    snippet = FeaturesCallToActionSnippet.objects.create(
+    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
         locale=en_locale,
-        heading="Test Heading",
-        desc="Test Description",
+        heading=RichText("<p>Test Heading</p>"),
+        description=RichText("<p>Test Description</p>"),
     )
 
     # Create a TranslationSource for the snippet
@@ -829,10 +829,10 @@ def test_snippet_string_translation_does_not_call_create_page_translation_data(
     fr_locale = Locale.objects.get(language_code="fr")
 
     # Create a snippet (non-page object)
-    snippet = FeaturesCallToActionSnippet.objects.create(
+    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
         locale=en_locale,
-        heading="Test Heading",
-        desc="Test Description",
+        heading=RichText("<p>Test Heading</p>"),
+        description=RichText("<p>Test Description</p>"),
     )
 
     # Create a TranslationSource for the snippet
@@ -877,10 +877,10 @@ def test_snippet_string_translation_deletion_does_not_call_create_page_translati
     fr_locale = Locale.objects.get(language_code="fr")
 
     # Create a snippet (non-page object)
-    snippet = FeaturesCallToActionSnippet.objects.create(
+    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
         locale=en_locale,
-        heading="Test Heading",
-        desc="Test Description",
+        heading=RichText("<p>Test Heading</p>"),
+        description=RichText("<p>Test Description</p>"),
     )
 
     # Create a TranslationSource for the snippet
@@ -926,10 +926,10 @@ def test_snippet_translation_source_save_does_not_call_create_page_translation_d
     en_locale = Locale.objects.get(language_code="en-US")
 
     # Create a snippet (non-page object)
-    snippet = FeaturesCallToActionSnippet.objects.create(
+    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
         locale=en_locale,
-        heading="Test Heading",
-        desc="Test Description",
+        heading=RichText("<p>Test Heading</p>"),
+        description=RichText("<p>Test Description</p>"),
     )
 
     # Reset the mock before creating translation source

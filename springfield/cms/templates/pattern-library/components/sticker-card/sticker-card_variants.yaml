@@ -1,0 +1,23 @@
+name: "Sticker Card Variants"
+context:
+  cards:
+    - sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
+      expand_link: false
+      heading: "With Buttons"
+      body: "This card has action buttons for user interaction."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
+    - sticker: "/media/img/firefox/flare/tab-wallpapers-sticker.svg"
+      expand_link: false
+      heading: "No Buttons"
+      body: "This card is informational only, without interactive elements."
+    - sticker: "/media/img/firefox/flare/vertical-tabs-sticker.svg"
+      expand_link: true
+      heading: "Clickable Card"
+      body: "The entire card area is clickable with expand_link enabled."
+      buttons:
+        - label: "Visit"
+          link: "/"
+          theme_class: ""

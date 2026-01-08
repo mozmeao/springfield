@@ -4,9 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="" #}
-{# TODO: migration to replace 'filled-'' #}
-{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail"] #}
+{# props theme="" qr_code=None #}
+{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail", "filled-diving-in", "filled-with-qr"] #}
+{# themes_2026 = ["diving-in", "with-qr"] #}
 
 <div class="fl-banner-container">
   {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
@@ -15,6 +15,11 @@
       fl-banner fl-banner-kit fl-banner-purple
       {% if theme %}fl-banner-kit-{{ theme }}{% endif %}"
     aria-labelledby="fl-banner-heading">
+    {% if qr_code and qr_code.strip() %}
+      <div class="fl-banner-kit-qr" role="img" aria-label="QR Code">
+        {{ qrcode(qr_code, 12) }}
+      </div>
+    {% endif %}
     <div class="fl-banner-content">
       <div class="fl-banner-content-inner">
         {% if contents.heading %}

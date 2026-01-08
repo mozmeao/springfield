@@ -56,7 +56,6 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
-
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
@@ -730,6 +729,7 @@ INSTALLED_APPS = [
     "wagtaildraftsharing",  # has to come before wagtail.admin due to template overriding; also needs wagtail.snippets
     "wagtail.admin",
     "wagtail",
+    "wagtail_thumbnail_choice_block",
     "modelcluster",
     "taggit",
     "csp",
@@ -860,7 +860,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html", "base-flare26.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1410,6 +1410,12 @@ WAGTAILIMAGES_EXTENSIONS = [
     "svg",
 ]
 
+WAGTAILIMAGES_FORMAT_CONVERSIONS = {
+    "png": "webp",
+    "jpg": "webp",
+    "jpeg": "webp",
+    "webp": "webp",
+}
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1428,8 +1434,8 @@ _allowed_page_models = [
     "cms.FreeFormPage",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
-    "firefox.FeaturesDetailPage",
-    "firefox.FeaturesIndexPage",
+    "cms.ArticleIndexPage",
+    "cms.ArticleDetailPage",
 ]
 
 if DEV is True:

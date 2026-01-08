@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-footer-section fl-footer-section-resources" aria-label="{{ ftl('footer-resources') }}">
+  <h2 class="fl-footer-heading">
+    {{ ftl('footer-resources') }}
+  </h2>
+  <ul class="fl-footer-list">
+    <li><a href="{{ url('firefox.browsers.compare.index') }}" data-link-position="footer" data-link-text="Compare">{{ ftl('footer-compare') }}</a></li>
+    <li><a href="{{ url('firefox.notes') }}" data-link-position="footer" data-link-text="Release Notes">{{ ftl('footer-release-notes') }}</a></li>
+    <li><a href="{{ url('firefox.more.index') }}" data-link-position="footer" data-link-text="Learn">{{ ftl('footer-learn') }}</a></li>
+    <li><a href="https://support.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Support">{{ ftl('footer-support') }}</a></li>
+    <li><a href="https://addons.mozilla.org/firefox/{{params}}" data-link-position="footer" data-link-text="Add ons">{{ ftl('footer-addons') }}</a></li>
+    <li><a href="https://community.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Community">{{ ftl('footer-community') }}</a></li>
+    <li><a href="https://blog.mozilla.org/en/category/firefox/{{params}}" data-link-position="footer" data-link-text="Blog">{{ ftl('footer-blog') }}</a></li>
+  </ul>
+</section>

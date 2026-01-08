@@ -1,0 +1,53 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-home-body{% endblock %}
+
+{% block flare_header %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
+
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+
+    <section class="fl-home-upper">
+      {% set ns = namespace(headings=0) %}
+      {% for block in page.upper_content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+
+        {% if block.value.heading and block.value.heading.heading_text %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </section>
+
+    <section class="fl-home-lower">
+      {% for block in page.lower_content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "lower-block-" ~ block_index + "-" + block_type %}
+
+        {% if block.value.heading and block.value.heading.heading_text %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </section>
+  </main>
+</div>
+{% endblock %}

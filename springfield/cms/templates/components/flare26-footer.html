@@ -1,0 +1,56 @@
+
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer' %}
+
+<footer class="fl-footer">
+  <div class="fl-footer-inner">
+    <div class="fl-footer-sections-list fl-footer-sections-list-desktop">
+      {% include 'cms/includes/flare26-footer/download.html' %}
+      {% include 'cms/includes/flare26-footer/builds.html' %}
+      {% include 'cms/includes/flare26-footer/community.html' %}
+      {% include 'cms/includes/flare26-footer/resources.html' %}
+      {% include 'cms/includes/flare26-footer/follow.html' %}
+      {% include 'cms/includes/flare26-footer/lang-switcher.html' %}
+    </div>
+
+    <div class="fl-footer-sections-list fl-footer-sections-list-mobile">
+      <div class="fl-footer-sections-list-column">
+        {% include 'cms/includes/flare26-footer/download.html' %}
+        {% include 'cms/includes/flare26-footer/resources.html' %}
+      </div>
+
+      <div class="fl-footer-sections-list-column">
+        {% include 'cms/includes/flare26-footer/builds.html' %}
+        {% include 'cms/includes/flare26-footer/community.html' %}
+        {% include 'cms/includes/flare26-footer/follow.html' %}
+      </div>
+
+      {% include 'cms/includes/flare26-footer/lang-switcher.html' %}
+    </div>
+
+  </div>
+
+  <div class="fl-footer-secondary">
+    <div class="fl-footer-legal">
+      <ul class="fl-footer-terms">
+        {% if LANG == "de" %}
+          {# Legal requirement in Germany see bedrock issue #14240 #}
+          <li><a href="https://www.mozilla.org/de/about/legal/impressum/" data-link-position="footer" data-link-text="Impressum">Impressum</a></li>
+        {% endif %}
+        <li><a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ params }}" data-link-position="footer" data-link-text="Privacy">{{ ftl('footer-websites-privacy-notice') }}</a></li>
+        <li><a href="https://www.mozilla.org/about/legal/terms/firefox/{{ params }}" data-link-position="footer" data-link-text="Terms of Use">{{ ftl('footer-terms-of-use') }}</a></li>
+        <li>
+          {# Link to /privacy/websites/cookie-settings/ is a legal requirement and should not be removed. It must be present on every page (bedrock Issue 14213). #}
+          <a href="{{ url('privacy.cookie-settings') }}" data-link-position="footer" data-link-text="Cookies">{{ ftl('footer-websites-cookie-policy', fallback='footer-websites-cookies') }}</a>
+        </li>
+        <li><a href="https://www.mozilla.org/{{ LANG }}/about/governance/policies/participation/{{ params }}" data-link-position="footer" data-link-text="Community Participation Guidelines">{{ ftl('footer-community-participation-guidelines') }}</a></li>
+        <li><a href="https://www.mozilla.org/foundation/trademarks/policy/{{ params }}" data-link-position="footer" data-link-text="Logo Trademark Licensing">{{ ftl('footer-logo-trademark-licensing') }}</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
