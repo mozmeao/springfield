@@ -9,9 +9,15 @@ Card - Flare 2026 Design System Cards
 ===================================================================== */
 
 .fl-card-grid {
-    display: grid;
-    gap: calc(var(--token-layout-2xs) * 1px);
-    grid-template-columns: 1fr;
+    --fl-card-grid-gap: var(--token-spacing-lg);
+    --fl-card-sticker-size: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: var(--fl-card-grid-gap);
+    padding-block: var(--token-layout-3xs);
+    container-type: inline-size;
 }
 
 .fl-card-grid .fl-card {
