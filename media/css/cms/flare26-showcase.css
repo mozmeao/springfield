@@ -63,7 +63,7 @@
     }
 
     .fl-showcase.fl-showcase-expanded .fl-showcase-image {
-        margin-inline: calc(-1 * 130px);
+        margin-inline: -130px;
     }
 }
 

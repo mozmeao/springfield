@@ -22,16 +22,16 @@
 }
 
 .fl-intro-content .text {
-    padding: calc(var(--token-layout-3xs) * 1px) 0 calc(var(--token-layout-sm) * 1px);
+    padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: calc(var(--token-layout-3xs) * 1px);
+    margin-bottom: var(--token-layout-3xs);
 }
 
 .fl-intro .fl-subheading {
     margin-top: 0;
-    margin-bottom: calc(var(--token-layout-sm) * 1px);
+    margin-bottom: var(--token-layout-sm);
     font-size: var(--fl-theme-font-size-base);
 }
 
