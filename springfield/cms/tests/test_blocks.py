@@ -24,6 +24,17 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_card_variants,
     get_step_cards_list_variants,
     get_step_cards_test_page,
+    get_sticker_card_variants,
+    get_sticker_cards_test_page,
+)
+from springfield.cms.fixtures.homepage_fixtures import (
+    get_card_gallery,
+    get_cards_list,
+    get_home_carousel,
+    get_home_intro,
+    get_home_test_page,
+    get_kit_banner,
+    get_showcase_variants,
 )
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
@@ -221,6 +232,11 @@ def assert_card_attributes(
 
     assert headline and headline_text in headline.get_text()
     assert content and content_text in content.get_text()
+
+    if eyebrow := card_data["value"].get("eyebrow"):
+        eyebrow_text = BeautifulSoup(eyebrow, "html.parser").get_text()
+        eyebrow_element = card_element.find(class_="fl-superheading")
+        assert eyebrow_element and eyebrow_text in eyebrow_element.get_text()
 
     # TODO: Fix icon card buttons
     buttons = card_data["value"].get("button") or card_data["value"].get("buttons")
@@ -556,6 +572,90 @@ def test_icon_card_block(index_page, rf):
             )
             icon_element = card_element.find("span", class_="fl-icon")
             assert icon_element and f"fl-icon-{card['value']['icon']}" in icon_element["class"]
+
+
+def test_sticker_card_block(index_page, placeholder_images, rf):
+    test_page = get_sticker_cards_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    section_titles = ["Cards List with Sticker Cards", "Cards List with Sticker Cards - 4 columns"]
+
+    card_variants = get_sticker_card_variants()
+    card_lists = get_cards_list_variants(
+        card_variants,
+        heading_1=section_titles[0],
+        heading_2=section_titles[1],
+    )
+
+    # Card Lists
+    section_elements = soup.find_all("section", class_="fl-section")
+    assert len(section_elements) == len(card_lists)
+
+    image, dark_image = placeholder_images
+
+    for list_index, card_list in enumerate(card_lists):
+        section_element = section_elements[list_index]
+        assert section_element
+
+        # Section Heading
+        assert_section_heading_attributes(section_element, card_list["value"]["heading"], list_index)
+
+        # CTA
+        cta_data = card_list["value"]["cta"][0]
+        assert_section_cta_attributes(
+            section_element,
+            cta_data,
+            context,
+            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
+        )
+
+        # Cards
+        card_list_div = section_element.find("div", class_="fl-card-grid")
+        assert card_list_div
+
+        card_divs = card_list_div.find_all("article", class_="fl-card")
+        cards = card_list["value"]["content"][0]["value"]["cards"]
+        assert len(card_divs) == len(cards)
+
+        for card_index, card in enumerate(cards):
+            card_element = card_divs[card_index]
+            assert_card_attributes(
+                card_element=card_element,
+                card_data=card,
+                context=context,
+                cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
+            )
+
+            images_element = card_element.find("div", class_="light-dark-display")
+            assert images_element
+
+            image_element = images_element.find("img", class_="fl-card-sticker display-light")
+            assert image_element
+            rendition = image.get_rendition("width-400")
+            assert image_element["src"] == rendition.url
+            assert image_element["alt"] == ""
+            assert image_element["loading"] == "lazy"
+            assert image_element["width"] == str(rendition.width)
+            assert image_element["height"] == str(rendition.height)
+
+            if card["value"].get("dark_image"):
+                dark_image_element = images_element.find("img", class_="fl-card-sticker display-dark")
+                assert dark_image_element
+                dark_rendition = dark_image.get_rendition("width-400")
+                assert dark_image_element["src"] == dark_rendition.url
+                assert dark_image_element["alt"] == ""
+                assert dark_image_element["loading"] == "lazy"
+                assert dark_image_element["width"] == str(dark_rendition.width)
+                assert dark_image_element["height"] == str(dark_rendition.height)
 
 
 def test_filled_card_block(index_page, rf):
@@ -956,3 +1056,354 @@ def test_kit_banner_block(index_page, rf):
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+
+# Homepage
+
+
+def test_home_intro_block(index_page, rf):
+    home_intro = get_home_intro()
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    intro_div = soup.find("div", class_="fl-home-intro")
+
+    heading_block = home_intro["value"]["heading"]
+    assert_section_heading_attributes(section_element=intro_div, heading_data=heading_block, index=0)
+
+    superheading_element = intro_div.find("span", class_="fl-superheading")
+    superheading_link = superheading_element.find("a")
+    assert superheading_link["href"] == add_utm_parameters(context, "https://mozilla.org")
+
+    heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+    button = home_intro["value"]["buttons"][0]
+    button_element = intro_div.find("a", class_="fl-button")
+    cta_position = "upper-block-1-intro.button-1"
+    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+    assert_button_attributes(
+        button_element=button_element,
+        button_data=button,
+        context=context,
+        cta_position=cta_position,
+        cta_text=cta_text,
+    )
+
+
+def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    cards_list = get_cards_list()
+
+    cards_list_div = soup.find("div", class_="fl-card-grid")
+    assert cards_list_div
+
+    card_elements = cards_list_div.find_all("article", class_="fl-card")
+
+    cards = cards_list["value"]["cards"]
+    assert len(card_elements) == len(cards)
+
+    image, dark_image = placeholder_images
+
+    for index, card in enumerate(cards):
+        card_element = card_elements[index]
+        assert_card_attributes(
+            card_element=card_element,
+            card_data=card,
+            context=context,
+        )
+
+        images_element = card_element.find("div", class_="light-dark-display")
+        assert images_element
+
+        image_element = images_element.find("img", class_="fl-card-sticker display-light")
+        assert image_element
+        rendition = image.get_rendition("width-400")
+        assert image_element["src"] == rendition.url
+        assert image_element["alt"] == ""
+        assert image_element["loading"] == "lazy"
+        assert image_element["width"] == str(rendition.width)
+        assert image_element["height"] == str(rendition.height)
+
+        if card["value"].get("dark_image"):
+            dark_image_element = images_element.find("img", class_="fl-card-sticker display-dark")
+            assert dark_image_element
+            dark_rendition = dark_image.get_rendition("width-400")
+            assert dark_image_element["src"] == dark_rendition.url
+            assert dark_image_element["alt"] == ""
+            assert dark_image_element["loading"] == "lazy"
+            assert dark_image_element["width"] == str(dark_rendition.width)
+            assert dark_image_element["height"] == str(dark_rendition.height)
+
+
+def test_home_carousel_block(index_page, placeholder_images, rf):
+    carousel = get_home_carousel()
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    carousel_div = soup.find("div", class_="fl-carousel")
+    assert carousel_div
+
+    image, _ = placeholder_images
+
+    heading_block = carousel["value"]["heading"]
+    assert_section_heading_attributes(section_element=carousel_div, heading_data=heading_block, index=2)
+
+    slides = carousel["value"]["slides"]
+    slides_element = carousel_div.find("div", class_="fl-carousel-slides")
+
+    assert slides_element
+
+    control_elements = slides_element.find_all("li", class_="fl-carousel-control-item")
+    assert len(control_elements) == len(slides)
+
+    slide_elements = slides_element.find_all("div", class_="fl-carousel-slide")
+    assert len(slide_elements) == len(slides)
+
+    for slide_index, slide in enumerate(slides):
+        control_element = control_elements[slide_index]
+        assert control_element
+        assert control_element.get_text().strip() == BeautifulSoup(slide["value"]["headline"], "html.parser").get_text().strip()
+
+        slide_element = slide_elements[slide_index]
+        assert slide_element
+
+        image_element = slide_element.find("img")
+        assert image_element
+        rendition = image.get_rendition("width-800")
+        assert image_element["src"] == rendition.url
+        assert image_element["alt"] == image.description
+
+
+def test_showcase_block(index_page, placeholder_images, rf):
+    showcase_variants = get_showcase_variants()
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    showcase_sections = soup.find_all("section", class_="fl-showcase")
+    assert len(showcase_sections) == 2
+
+    image, dark_image = placeholder_images
+
+    showcase_with_title = showcase_variants["with_title"]
+    showcase_no_title = showcase_variants["no_title"]
+
+    for index, showcase in enumerate([showcase_with_title, showcase_no_title]):
+        showcase_element = showcase_sections[index]
+
+        assert f"fl-showcase-{showcase['value']['settings']['layout']}" in showcase_element["class"]
+
+        headline_text = BeautifulSoup(showcase["value"]["headline"], "html.parser").get_text().strip()
+        heading_element = showcase_element.find("h2", class_="fl-heading")
+        assert heading_element and heading_element.get_text().strip() == headline_text
+
+        figure = showcase_element.find("figure", class_="fl-showcase-image")
+        assert figure
+
+        desktop_image_element = figure.find("div", class_="fl-showcase-image-desktop").find("div", class_="light-dark-display")
+        assert_light_dark_image_attributes(
+            images_element=desktop_image_element,
+            image=image,
+            is_dark=False,
+        )
+        if showcase["value"].get("dark_image"):
+            assert_light_dark_image_attributes(
+                images_element=desktop_image_element,
+                image=dark_image,
+                is_dark=True,
+            )
+
+        mobile_image_element = figure.find("div", class_="fl-showcase-image-mobile").find("div", class_="light-dark-display")
+        assert_light_dark_image_attributes(
+            images_element=mobile_image_element,
+            image=image,
+            is_dark=False,
+        )
+        if showcase["value"].get("dark_image"):
+            assert_light_dark_image_attributes(
+                images_element=mobile_image_element,
+                image=dark_image,
+                is_dark=True,
+            )
+
+        caption_element = figure.find("figcaption", class_="fl-showcase-caption")
+        assert caption_element
+
+        caption_text = BeautifulSoup(showcase["value"]["caption_description"], "html.parser").get_text().strip()
+        description_element = caption_element.find("p")
+        assert description_element and description_element.get_text().strip() == caption_text
+
+        if showcase["value"]["caption_title"]:
+            caption_title_text = BeautifulSoup(showcase["value"]["caption_title"], "html.parser").get_text().strip()
+            title_element = caption_element.find("h3", class_="fl-subheading")
+            assert title_element and title_element.get_text().strip() == caption_title_text
+
+
+def test_card_gallery_block(index_page, placeholder_images, rf):
+    image, _ = placeholder_images
+    rendered_image = srcset_image(
+        image,
+        "width-{400,600,800,1000,1200}",
+        **{
+            "sizes": "(min-width: 900px) 70vw, 100vw",
+            "width": image.width,
+            "loading": "lazy",
+        },
+    )
+    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+
+    card_gallery = get_card_gallery()
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    gallery_div = soup.find("div", class_="fl-card-gallery")
+    assert gallery_div
+
+    heading = card_gallery["value"]["heading"]
+    assert_section_heading_attributes(section_element=gallery_div, heading_data=heading, index=5)
+
+    main_card = card_gallery["value"]["main_card"]
+    main_card_element = gallery_div.find("div", class_="fl-card-gallery-main-card")
+    assert main_card_element
+
+    icon = main_card["icon"]
+    icon_element = main_card_element.find("span", class_="fl-icon")
+    assert icon_element and f"fl-icon-{icon}" in icon_element["class"]
+
+    headline_text = BeautifulSoup(main_card["headline"], "html.parser").get_text()
+    heading_element = main_card_element.find("h3", class_="fl-card-gallery-heading")
+    assert heading_element and heading_element.get_text().strip() == headline_text.strip()
+
+    description = BeautifulSoup(main_card["description"], "html.parser").prettify()
+    description_element = main_card_element.find("div", class_="fl-card-gallery-body")
+    assert description_element and description_element.find_next().prettify().strip() == description.strip()
+
+    button = main_card["buttons"][0]
+    button_element = main_card_element.find("a", class_="fl-button")
+    cta_position = "lower-block-3-card_gallery.main-card.button-1"
+    cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+    assert_button_attributes(
+        button_element=button_element,
+        button_data=button,
+        context=context,
+        cta_position=cta_position,
+        cta_text=cta_text,
+    )
+
+    image_element = main_card_element.find("img")
+    assert image_element["alt"] == image_soup["alt"]
+    assert image_element["loading"] == image_soup["loading"]
+    assert image_element["width"] == image_soup["width"]
+    assert image_element["src"] == image_soup["src"]
+
+    secondary_card = card_gallery["value"]["secondary_card"]
+    secondary_card_element = gallery_div.find("div", class_="fl-card-gallery-secondary-card")
+    assert secondary_card_element
+
+    icon = secondary_card["icon"]
+    icon_element = secondary_card_element.find("span", class_="fl-icon")
+    assert icon_element and f"fl-icon-{icon}" in icon_element["class"]
+
+    headline_text = BeautifulSoup(secondary_card["headline"], "html.parser").get_text()
+    heading_element = secondary_card_element.find("h3", class_="fl-card-gallery-heading")
+    assert heading_element and heading_element.get_text().strip() == headline_text.strip()
+
+    description = BeautifulSoup(secondary_card["description"], "html.parser").prettify()
+    description_element = secondary_card_element.find("div", class_="fl-card-gallery-body")
+    assert description_element and description_element.find_next().prettify().strip() == description.strip()
+
+    button = secondary_card["buttons"][0]
+    button_element = secondary_card_element.find("a", class_="fl-button")
+    cta_position = "lower-block-3-card_gallery.secondary-card.button-1"
+    cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+    assert_button_attributes(
+        button_element=button_element,
+        button_data=button,
+        context=context,
+        cta_position=cta_position,
+        cta_text=cta_text,
+    )
+
+    image_element = secondary_card_element.find("img")
+    assert image_element["alt"] == image_soup["alt"]
+    assert image_element["loading"] == image_soup["loading"]
+    assert image_element["width"] == image_soup["width"]
+    assert image_element["src"] == image_soup["src"]
+
+    callout_card = card_gallery["value"]["callout_card"]
+    callout_card_element = gallery_div.find("div", class_="fl-card-gallery-callout-card")
+    assert callout_card_element
+
+    headline_text = BeautifulSoup(callout_card["headline"], "html.parser").get_text()
+    heading_element = callout_card_element.find("h3", class_="fl-gallery-callout-card-heading")
+    assert heading_element and heading_element.get_text().strip() == headline_text.strip()
+
+    description = BeautifulSoup(callout_card["description"], "html.parser").prettify()
+    description_element = callout_card_element.find("div", class_="fl-card-gallery-body")
+    assert description_element and description_element.find_next().prettify().strip() == description.strip()
+
+
+def test_home_kit_banner_block(index_page, rf):
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    kit_banner = get_kit_banner()
+
+    banner_element = soup.find("div", class_="fl-banner-kit")
+    assert banner_element
+    assert "fl-banner-kit-diving-in" in banner_element["class"]
+
+    assert_section_heading_attributes(
+        section_element=banner_element,
+        heading_data=kit_banner["value"]["heading"],
+        index=7,
+    )
+
+    heading_text = BeautifulSoup(kit_banner["value"]["heading"]["heading_text"], "html.parser").get_text()
+    button = kit_banner["value"]["buttons"][0]
+    assert_button_attributes(
+        button_element=banner_element.find("a", class_="fl-button"),
+        button_data=button,
+        context=test_page.get_context(request),
+        cta_position="lower-block-4-kit_banner.button-1",
+        cta_text=f"{heading_text} - {button['value']['label'].strip()}",
+    )

@@ -17,7 +17,7 @@ def get_home_intro():
         "value": {
             "heading": {
                 "superheading_text": '<p data-block-key="1khhq"><a href="https://mozilla.org"><i>NEW</i> See the latest</a></p>',
-                "heading_text": '<p data-block-key="yy3vb">This is the internet, on your terms </p>',
+                "heading_text": '<p data-block-key="yy3vb">This is the internet, on your terms</p>',
                 "subheading_text": '<p data-block-key="m6fp1">Fast, customizable and secure, Firefox lets you browse how you like, when you like. '
                 "We're built by a people-first organization that answers to you — not billionaires.  </p>",
             },
@@ -220,6 +220,7 @@ def get_card_gallery():
 
 
 def get_kit_banner():
+    buttons = get_button_variants()
     return {
         "type": "kit_banner",
         "value": {
@@ -232,7 +233,7 @@ def get_kit_banner():
                 "browse safely.</p>",
             },
             "qr_code": "",
-            "buttons": [],
+            "buttons": [buttons["ghost"]],
         },
         "id": "6b5ea914-32d5-4418-870c-73887974102e",
     }
