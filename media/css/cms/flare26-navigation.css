@@ -363,7 +363,7 @@
     }
 
     .fl-header-inner {
-        padding: 0 var(--token-scale-40) * 1px);
+        padding: 0 var(--token-spacing-3xl);
     }
 
     .fl-logo-fx {
