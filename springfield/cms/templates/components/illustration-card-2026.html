@@ -1,0 +1,32 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  2026 version of the Illustration Card. It has a slightly different structure,
+  so the a new template is needed.
+#}
+
+<article class="fl-illustration-card {% if expand_link %}fl-card-expand-link{% endif %}">
+  {% if contents.media %}
+    <div class="fl-card-media">
+      {{ contents.media }}
+    </div>
+  {% endif %}
+
+  <div class="fl-card-content">
+    {% if contents.heading %}
+      {{ contents.heading }}
+    {% endif %}
+    {% if contents.body %}
+      <div class="fl-body">{{ contents.body }}</div>
+    {% endif %}
+    {% if contents.buttons %}
+      <div class="fl-buttons">
+        {{ contents.buttons }}
+      </div>
+    {% endif %}
+  </div>
+</article>

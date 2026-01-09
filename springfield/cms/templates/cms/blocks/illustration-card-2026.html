@@ -1,0 +1,36 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text =  value.headline|richtext|remove_tags %}
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:illustration-card-2026
+    expand_link="{{ value.settings.expand_link }}"
+  >
+    <content:media>
+      {{ value.image }}
+    </content:media>
+    <content:heading>
+      <include:heading
+        level="{{ heading_level }}"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ value.content }}
+    </content:body>
+      {% if value.buttons %}
+      <content:buttons>
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      </content:buttons>
+      {% endif %}
+  </include:illustration-card-2026>
+</include:conditional-display>

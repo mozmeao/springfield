@@ -942,6 +942,35 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IllustrationCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IllustrationCardBlock(blocks.StructBlock):
+        settings = IllustrationCardSettings()
+        image = LightDarkImageBlock()
+        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/illustration-card-2026.html"
+            label = "Illustration Card"
+            label_format = "{headline}"
+
+    return _IllustrationCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -954,6 +983,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
+                ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
             ]
         )
 

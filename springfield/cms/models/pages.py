@@ -177,6 +177,9 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="download_page_featured_images",
     )
     content = StreamField(
+        [
+            ("cards_list", CardsListBlock2026()),
+        ],
         use_json_field=True,
         null=True,
         blank=True,
