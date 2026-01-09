@@ -19,6 +19,10 @@ from springfield.cms.templatetags.cms_tags import remove_tags
 
 
 class FluentPreviewableMixin(PreviewableMixin):
+    """
+    A PreviewableMixin that renders templates with localized Fluent strings.
+    """
+
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)
         locale = get_locale(request)
@@ -27,6 +31,8 @@ class FluentPreviewableMixin(PreviewableMixin):
 
 
 class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
+    """A snippet for the big Get Firefox button at the bottom of pages."""
+
     label = models.CharField(max_length=255, default="Get Firefox")
     link = models.URLField(max_length=255, blank=True)
     analytics_id = models.UUIDField(default=uuid4)
@@ -52,6 +58,8 @@ register_snippet(PreFooterCTASnippet)
 
 
 class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
+    """A snippet for the Newsletter sign-up form at the bottom of pages."""
+
     heading = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading = RichTextField(features=HEADING_TEXT_FEATURES)
     analytics_id = models.UUIDField(default=uuid4)
@@ -77,6 +85,8 @@ register_snippet(PreFooterCTAFormSnippet)
 
 
 class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
+    """A snippet to render an image with a Call to Action for downloading Firefox."""
+
     heading = RichTextField(
         features=HEADING_TEXT_FEATURES,
     )

@@ -38,7 +38,7 @@ Card - Flare 2026 Design System Cards
     background: var(--fl-theme-surface-card-gradient);
     backdrop-filter: blur(7.5px);
     box-shadow: var(--fl-theme-shadow-card);
-    color: var(--fl-theme-color-text);
+    color: var(--token-color-black-4);
     text-align: center;
     transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
 }
@@ -46,10 +46,6 @@ Card - Flare 2026 Design System Cards
 .fl-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
-}
-
-.fl-card > * {
-    order: 10;
 }
 
 .fl-card > :is(
@@ -94,7 +90,6 @@ Card - Flare 2026 Design System Cards
     font-weight: var(--token-font-weight-semibold);
     line-height: 1.05;
     letter-spacing: -0.01em;
-    color: inherit;
 }
 
 .fl-card .fl-superheading {
@@ -195,6 +190,130 @@ Card - Flare 2026 Design System Cards
     }
 
     .fl-card-grid .fl-card {
+        flex-basis: 100%;
+        min-height: unset;
+    }
+}
+
+/* =====================================================================
+Step Cards List - With Kit variant
+===================================================================== */
+
+/*
+ * Scoped styling hook applied to the Cards List wrapper:
+ *   <div class="fl-card-grid fl-step-cards-with-kit">...</div>
+ *
+ */
+
+.fl-card-grid.fl-step-cards-with-kit {
+    gap: var(--token-layout-lg) var(--token-layout-3xs);
+    justify-content: center;
+    max-width: var(--token-width-desktop-wide-banner);
+    margin: 0 auto;
+}
+
+
+.fl-card-grid .fl-step-card {
+    flex: 1 1 auto;
+}
+
+.fl-step-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-step-card .fl-card-media {
+    background: var(--token-color-cream);
+
+    /* Figma: 240px on desktop, but keep responsive */
+    min-height: calc(var(--token-layout-md) * 3);
+    padding: var(--token-spacing-2xl);
+    border-radius: var(--token-layout-xs);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--token-spacing-2xl);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.fl-step-card .fl-card-media img {
+    width: auto;
+    height: auto;
+    max-height: 96px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.fl-step-card-index {
+    width: var(--token-layout-3xs);
+    height: var(--token-layout-3xs);
+    padding: var(--token-spacing-sm);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--token-layout-3xs);
+    background: var(--token-color-white);
+    margin: 0;
+    font-size: 12px;
+    font-weight: var(--token-font-weight-medium);
+    color: var(--token-color-black-4);
+}
+
+.fl-step-card .fl-heading-group {
+    margin: 0;
+}
+
+.fl-step-card .fl-heading {
+    margin: 0;
+    font-size: var(--token-spacing-lg);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-wrap: auto;
+}
+
+/* Decorative Kit (Figma): only on the last card */
+.fl-step-cards-with-kit .fl-step-card:last-child::before,
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    content: "";
+    position: absolute;
+    top: -32px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: auto;
+    z-index: 3;
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::before {
+    left: -20px;
+    width: 68px;
+    height: 110px;
+    background-image: url("/media/img/firefox/flare/fox-tail.png");
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    top: -60px;
+    right: 0;
+    width: 98px;
+    height: 86px;
+    background-image: url("/media/img/firefox/flare/fox-head.png");
+}
+
+@media (--viewport-sm-up) {
+    .fl-card-grid .fl-step-card {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
+        max-width: 50%;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-grid .fl-step-card {
         flex-basis: 100%;
         min-height: unset;
     }

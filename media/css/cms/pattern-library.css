@@ -9,6 +9,11 @@
  * These styles only apply to the Pattern Library and should not affect production components
  */
 
+.pl-frame-white {
+    background: #fff;
+    color: #15141a;
+}
+
 .pl-row {
     margin-bottom: 80px;
 }

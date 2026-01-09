@@ -15,7 +15,7 @@ from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     BannerBlock,
     CardGalleryBlock,
-    CardsListBlock,
+    CardsListBlock2026,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -108,7 +108,7 @@ class HomePage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
-            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("cards_list", CardsListBlock2026()),
             ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
