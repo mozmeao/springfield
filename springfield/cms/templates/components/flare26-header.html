@@ -7,6 +7,8 @@
 <header class="fl-header
   {% if no_menu %}fl-header-no-menu{% endif %}
     {% if not disable_sticky %}enable-sticky{% endif %}
+    {% if theme == 'dark' %}fl-force-dark-theme{% endif %}
+    {% if theme == 'light' %}fl-force-light-theme{% endif %}
 ">
     <div class="fl-header-inner">
         <a href="/" class="fl-logo-fx" aria-label="Firefox">
