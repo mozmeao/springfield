@@ -8,11 +8,15 @@
    Header Base Styles
    ================================================ */
 
+/*
+* If you need to change light/dark mode details,
+* add/change a variable here, then override where needed.
+* This setup is a bit convoluted, but I couldn't find a better solution
+* for supporting both theme overriding using classes (.fl-force-light-header/dark)
+* and preferred-color-scheme fallback, in case a class isn't provided.
+*/
 
 .fl-header {
-    --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-background: var(--token-color-dark-purple);
-    --fl-navigation-menu-height: 80px;
     font-family: var(--fl-theme-font-family-body);
     color: var(--fl-theme-color-text);
     padding: 0 var(--token-spacing-md);
@@ -54,22 +58,18 @@
    ================================================ */
 
 .fl-logo-fx {
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
     width: 120px;
     height: 56px;
     margin: 0;
     text-indent: -9999px;
     overflow: hidden;
     white-space: nowrap;
-    background: var(--fl-logo-url) no-repeat;
+    background-repeat: no-repeat;
+    background-image: var(--fl-logo-url);
     background-size: 120px 40px;
     text-decoration: none;
     z-index: 1;
     background-position: center;
-}
-
-.fl-home-body .fl-logo-fx {
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
 }
 
 /* ================================================
@@ -82,7 +82,7 @@
     margin: 0;
     border-radius: var(--token-spacing-sm);
     padding: var(--token-spacing-lg);
-    background: var(--token-color-purple);
+    background: var(--fl-theme-background);
     color: var(--fl-theme-color-text-body);
 }
 
@@ -170,7 +170,7 @@
 .fl-menu-category-link a {
     width: 100%;
     align-items: center;
-    color: var(--token-neutrals-black);
+    color: var(--fl-theme-color-text-body);
     line-height: 1.2;
     display: flex;
     justify-content: space-between;
@@ -182,13 +182,12 @@
 
 .fl-menu-category-link a:link,
 .fl-menu-category-link a:visited {
-    --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     background: var(--fl-menu-category-link-bg-color);
 }
 
 .fl-menu-category-link a:hover,
 .fl-menu-category-link a:focus {
-    --fl-menu-category-link-bg-color: var(--token-color-soft-purple);
+    background: var(--fl-menu-category-link-hover-bg-color);
 }
 
 .fl-menu-category-link svg {
@@ -210,7 +209,6 @@
 }
 
 .fl-menu-panel {
-    --fl-menu-panel-border-color: transparent;
     background-color: var(--fl-theme-background);
     border: 1px solid var(--fl-menu-panel-border-color);
 }
@@ -347,10 +345,6 @@
         padding-block: 9px;
     }
 
-    .fl-header-inner {
-        padding: 0 var(--token-scale-40) * 1px);
-    }
-
     .fl-logo-fx {
         margin: var(--token-spacing-sm) 0;
     }
@@ -405,12 +399,7 @@
     }
 
     .fl-menu-title {
-        --fl-menu-title-color: var(--token-color-grey-3);
         color: var(--fl-menu-title-color);
-    }
-
-    .fl-home-body .fl-menu-title {
-        --fl-menu-title-color: var(--fl-theme-color-text);
     }
 
     .fl-menu-title h2 {
@@ -428,8 +417,6 @@
     }
 
     .fl-menu-category.is-active .fl-menu-panel {
-        --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
-        --fl-menu-panel-border-color: var(--token-color-soft-purple);
         display: block;
         position: absolute;
         top: var(--fl-navigation-menu-height);
@@ -464,30 +451,5 @@
 
     .fl-menu-panel-content-column:last-child {
         margin-right: 0;
-    }
-}
-
-@media screen and (prefers-color-scheme: dark) {
-    .fl-logo-fx {
-        --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-
-    .fl-menu-title {
-        --fl-menu-title-color: var(--fl-theme-color-text);
-    }
-
-    .fl-menu-category.is-active .fl-menu-panel {
-        --fl-menu-panel-border-color: var(--token-color-purple);
-        --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
-    }
-
-    .fl-menu-category-link a:link,
-    .fl-menu-category-link a:visited {
-        --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
-    }
-
-    .fl-menu-category-link a:hover,
-    .fl-menu-category-link a:focus {
-        --fl-menu-category-link-bg-color: var(--token-color-purple);
     }
 }

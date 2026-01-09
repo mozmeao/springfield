@@ -67,8 +67,10 @@ included via a <link> tag in a conditional comment */
     /* Nested @imports are not valid CSS, but these are inlined by
     a custom webpack loader. */
     @import 'flare26-base.css';
-
-    /* Icons and utility classes are useful in the legacy stylesheet as well */
     @import 'flare26-icon.css';
+    @import 'flare26-button.css';
+    @import 'flare26-download-utils.css';
+    @import 'flare26-download-link.css';
+    @import 'flare26-fallback-nav.css';
     @import 'flare26-utilities.css';
 }
