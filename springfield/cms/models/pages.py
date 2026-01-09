@@ -182,9 +182,9 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             (
                 "banner_snippet",
                 SnippetChooserBlock(
-                    target_model="cms.QRCodeBannerSnippet",
-                    template="cms/snippets/qr-code-banner-snippet.html",
-                    label="QR Code Banner Snippet",
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
                 ),
             ),
         ],

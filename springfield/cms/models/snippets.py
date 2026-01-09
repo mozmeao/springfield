@@ -14,7 +14,7 @@ from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import HEADING_TEXT_FEATURES, ButtonBlock
+from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.templatetags.cms_tags import remove_tags
 
@@ -119,14 +119,15 @@ class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
 register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
-class QRCodeBannerSnippet(FluentPreviewableMixin, TranslatableMixin):
+class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
     """A snippet to render a banner with a QR code."""
 
+    kit_theme = models.BooleanField(default=False, help_text="Use the Kit theme for this banner.")
     heading = RichTextField(
         features=HEADING_TEXT_FEATURES,
     )
     content = RichTextField(
-        features=HEADING_TEXT_FEATURES,
+        features=EXPANDED_TEXT_FEATURES,
     )
     buttons = StreamField(
         [
@@ -136,9 +137,10 @@ class QRCodeBannerSnippet(FluentPreviewableMixin, TranslatableMixin):
         use_json_field=True,
         max_num=2,
     )
-    qr_code = models.CharField()
+    qr_code = models.CharField(blank=True)
 
     panels = [
+        FieldPanel("kit_theme"),
         FieldPanel("heading"),
         FieldPanel("content"),
         FieldPanel("buttons"),
@@ -146,14 +148,14 @@ class QRCodeBannerSnippet(FluentPreviewableMixin, TranslatableMixin):
     ]
 
     class Meta(TranslatableMixin.Meta):
-        verbose_name = "QR Code Banner Snippet"
-        verbose_name_plural = "QR Code Banner Snippets"
+        verbose_name = "Banner Snippet"
+        verbose_name_plural = "Banner Snippets"
 
     def __str__(self):
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):
-        return "cms/snippets/qr-code-banner-snippet-preview.html"
+        return "cms/snippets/banner-snippet-preview.html"
 
 
-register_snippet(QRCodeBannerSnippet)
+register_snippet(BannerSnippet)
