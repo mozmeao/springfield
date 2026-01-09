@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{# Attention! Used both for the 2025 and 2026 designs #}
+
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
   {% set img=image(value.image, 'width-400') %}

@@ -6,7 +6,6 @@
 
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-{% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:illustration-card

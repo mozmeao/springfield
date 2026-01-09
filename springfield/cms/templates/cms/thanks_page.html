@@ -1,0 +1,44 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-home-body{% endblock %}
+
+
+{% block content %}
+  <div class="fl-main">
+    {% set ns = namespace(headings=0) %}
+    {% for block in page.content %}
+      {% set block_index = loop.index %}
+      {% set block_type = block.block_type %}
+      {% set block_position = "block-" ~ block_index + "-" + block_type %}
+
+      {% if block.value.heading and block.value.heading.heading_text %}
+        {% set block_level = 1 if ns.headings == 0 else 2 %}
+        {% set ns.headings = ns.headings + 1 %}
+      {% endif %}
+
+      {% include_block block %}
+    {% endfor %}
+  </div>
+{% endblock content %}
+
+{% block pre_footer %}
+  {% set pre_footer_form = get_pre_footer_cta_form_snippet() %}
+  {% if pre_footer_form %}
+    {% set analytics_text = pre_footer_form.heading|richtext|remove_tags %}
+    {% set analytics_position = "pre-footer-cta-form" %}
+    {% set analytics_id = pre_footer_form.analytics_id %}
+    <include:newsletter-form>
+      <include:heading
+        level="h2"
+        heading_text="{{ pre_footer_form.heading|richtext|remove_p_tag }}"
+        subheading_text="{{ pre_footer_form.subheading|richtext|remove_p_tag }}"
+    />
+    </include:newsletter-form>
+  {% endif %}
+{% endblock pre_footer %}
