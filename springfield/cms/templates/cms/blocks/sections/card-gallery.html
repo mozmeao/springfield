@@ -28,6 +28,7 @@
         {% for button in value.main_card.buttons %}
           {% set block_position = block_position ~ ".main-card.button-" ~ loop.index %}
           {% set size_class = "fl-button-small" %}
+          {% set block_text = value.main_card.headline|richtext|remove_tags %}
           {% include_block button %}
         {% endfor %}
       </div>
@@ -60,6 +61,7 @@
         {% for button in value.secondary_card.buttons %}
           {% set block_position = block_position ~ ".secondary-card.button-" ~ loop.index %}
           {% set size_class = "fl-button-small" %}
+          {% set block_text = value.secondary_card.headline|richtext|remove_tags %}
           {% include_block button %}
         {% endfor %}
       </div>

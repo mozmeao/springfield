@@ -28,7 +28,7 @@ def get_placeholder_images():
         defaults={
             "title": "Placeholder Image for Testing",
             "file": ContentFile(image_buffer.read(), "placeholder_image.png"),
-            "description": "An placeholder image used for testing purposes.",
+            "description": "A placeholder image used for testing purposes.",
         },
     )
     dark_image, _ = SpringfieldImage.objects.get_or_create(

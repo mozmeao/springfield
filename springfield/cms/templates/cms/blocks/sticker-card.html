@@ -31,9 +31,25 @@
 
     <content:sticker>
       <div class="light-dark-display">
-        <img class="fl-card-sticker display-light" src="{{ img.url }}" alt="" aria-hidden="true" />
+        <img
+          class="fl-card-sticker display-light"
+          src="{{ img.url }}"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          width="{{ img.width }}"
+          height="{{ img.height }}"
+          />
         {% if img_dark %}
-          <img class="fl-card-sticker display-dark" src="{{ img_dark.url }}" alt="" aria-hidden="true" />
+          <img
+            class="fl-card-sticker display-dark"
+            src="{{ img_dark.url }}"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            width="{{ img_dark.width }}"
+            height="{{ img_dark.height }}"
+          />
         {% endif %}
       </div>
     </content:sticker>
