@@ -23,6 +23,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     KitBannerBlock,
     SectionBlock,
+    SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
 )
@@ -124,7 +125,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
-            ("cards_list", CardsListBlock2026()),
+            ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
@@ -178,7 +179,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     content = StreamField(
         [
-            ("cards_list", CardsListBlock2026()),
+            ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
             (
                 "banner_snippet",
                 SnippetChooserBlock(
@@ -208,6 +209,28 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Download Page"
         verbose_name_plural = "Download Pages"
+
+
+class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A thank you page displayed after the user downloads Firefox."""
+
+    content = StreamField(
+        [
+            ("section", SectionBlock2026(allow_uitour=False)),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ]
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
+    ]
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

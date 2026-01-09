@@ -942,6 +942,57 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+# 2026 Cards
+
+
+def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create StepCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _StepCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        image = LightDarkImageBlock()
+        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/step-card-2026.html"
+            label = "Step Card"
+            label_format = "{headline}"
+
+    return _StepCardBlock(*args, **kwargs)
+
+
+def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create StepCardListBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _StepCardListBlock(blocks.StructBlock):
+        cards = blocks.ListBlock(StepCardBlock2026(allow_uitour=allow_uitour))
+
+        class Meta:
+            template = "cms/blocks/cards-list.html"
+            label = "Step Cards List"
+            label_format = "Step Cards - {heading}"
+
+    return _StepCardListBlock(*args, **kwargs)
+
+
 def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     """Factory function to create IllustrationCardBlock with appropriate button types.
 
@@ -988,7 +1039,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/sections/cards-list-section.html"
+            template = "cms/blocks/sections/cards-list.html"
             label = "Cards List"
             label_format = "Cards List - {heading}"
 
@@ -1145,6 +1196,33 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
                 ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
                 ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
+            ]
+        )
+        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+        class Meta:
+            template = "cms/blocks/sections/section.html"
+            label = "Section"
+            label_format = "{heading}"
+
+    return _SectionBlock(*args, **kwargs)
+
+
+def SectionBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create SectionBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _SectionBlock(blocks.StructBlock):
+        settings = SectionBlockSettings()
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
             ]
         )
         cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
