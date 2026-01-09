@@ -179,6 +179,14 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content = StreamField(
         [
             ("cards_list", CardsListBlock2026()),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.QRCodeBannerSnippet",
+                    template="cms/snippets/qr-code-banner-snippet.html",
+                    label="QR Code Banner Snippet",
+                ),
+            ),
         ],
         use_json_field=True,
         null=True,

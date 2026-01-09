@@ -14,7 +14,8 @@ from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import HEADING_TEXT_FEATURES
+from springfield.cms.blocks import HEADING_TEXT_FEATURES, ButtonBlock
+from springfield.cms.fields import StreamField
 from springfield.cms.templatetags.cms_tags import remove_tags
 
 
@@ -116,3 +117,43 @@ class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
 
 
 register_snippet(DownloadFirefoxCallToActionSnippet)
+
+
+class QRCodeBannerSnippet(FluentPreviewableMixin, TranslatableMixin):
+    """A snippet to render a banner with a QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    content = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    buttons = StreamField(
+        [
+            ("button", ButtonBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+        max_num=2,
+    )
+    qr_code = models.CharField()
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("buttons"),
+        FieldPanel("qr_code"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "QR Code Banner Snippet"
+        verbose_name_plural = "QR Code Banner Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-banner-snippet-preview.html"
+
+
+register_snippet(QRCodeBannerSnippet)
