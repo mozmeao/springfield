@@ -22,15 +22,18 @@
   {% endif %}
 {% endblock %}
 
-{# Issue 13019: Avoid duplicate content for English pages. #}
 {%- block page_title_full -%}
-  {%- if LANG == 'en-US' -%}
-    Get Firefox for iOS (iPhone and iPad) — Mozilla (US)
-  {%- elif LANG == 'en-GB' -%}
-    Download Firefox for iOS (iPhone and iPad) — Mozilla (UK)
+  {%- if LANG == 'en-US' or LANG == 'en-GB' -%}
+    Get Firefox for iOS (iPhone and iPad) from Mozilla
   {%- else -%}
     {{ ftl('mobile-ios-firefox-browser-ios') }} - Mozilla
   {%- endif -%}
+{%- endblock -%}
+
+{# Issue 13019: Avoid duplicate content for English pages. #}
+{%- block page_title_region -%}
+  {% if LANG == 'en-US' %} (US){%- endif -%}
+  {% if LANG == 'en-GB' %} (UK){%- endif -%}
 {%- endblock -%}
 
 {% block page_desc %}{{ ftl('mobile-ios-see-your-open-tabs') }}{% endblock %}
