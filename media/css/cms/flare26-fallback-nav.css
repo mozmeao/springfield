@@ -3,7 +3,9 @@
     padding-bottom: 48px;
 }
 
-.fl-card {
+.fl-card,
+.fl-card-gallery-card,
+.fl-buttons {
     padding-top: 16px;
     padding-bottom: 16px;
 }
@@ -16,7 +18,8 @@
 .fl-menu-close-button,
 .fl-menu-title .fl-icon,
 .fl-nav-mobile-download-link,
-.fl-footer-logo {
+.fl-footer-logo,
+.fl-carousel-fade-overlay {
     display: none;
 }
 
@@ -83,7 +86,6 @@
 
 .fl-menu-category-link a:link,
 .fl-menu-category-link a:visited {
-    background-color: #FAF0E6;
     color: #333336;
     text-decoration: none;
     display: inline-flex;
@@ -91,12 +93,15 @@
     margin-top: 8px;
     padding: 8px 16px;
     gap: 4px;
-
+    border: 2px solid #7543E3;
+    border-radius: 24px;
 }
 
-.fl-menu-category-link svg {
-    width: 12px;
-    height: 12px;
+.fl-menu-category-link a:hover,
+.fl-menu-category-link a:focus,
+.fl-menu-category-link a:active {
+border-color: #6132BC;
+background-color: transparent;
 }
 
 .fl-menu-panel-content-column ul {
@@ -183,21 +188,52 @@
     gap: 16px;
 }
 
+.fl-home-upper,
+.fl-home-lower {
+    padding: 0;
+    margin: 0;
+    border: 0 none;
+}
 
+
+.fl-footer-sections-list.fl-footer-sections-list-mobile {
+    display: none;
+}
 
 .fl-footer {
     margin-top: 72px;
 }
 
-.fl-footer-nav {
+.fl-footer a:link,
+.fl-footer a:visited {
+    color: #333336;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.fl-footer a:hover,
+.fl-footer a:focus,
+.fl-footer a:active {
+    color: #333336;
+    text-decoration: underline;
+}
+
+.fl-footer-sections-list {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
 }
 
-.fl-footer-column {
-    flex-basis: calc(25% - 12px);
+.fl-footer-section {
+    flex-basis: calc(33% - 12px);
     border: 0 none;
+}
+
+.fl-footer-section.fl-footer-section-lang-select {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
 }
 
 .fl-footer-heading {
@@ -207,14 +243,12 @@
 }
 
 .fl-footer-list {
-    font-size: 14px;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-.fl-footer-legal-list {
-    font-size: 14px;
+.fl-footer-terms {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -225,17 +259,20 @@
     margin-bottom: 32px;
 }
 
-.fl-footer-link:link,
-.fl-footer-legal-link:link,
-.fl-footer-link:visited,
-.fl-footer-legal-link:visited {
-    color: #333336;
-    text-decoration: none;
+.fl-showcase-image-mobile,
+.fl-language-switcher-link {
+    display: none;
 }
 
-.fl-footer-link:hover,
-.fl-footer-link:focus,
-.fl-footer-legal-link:active {
-    color: #333336;
-    text-decoration: underline;
+.fl-language-switcher {
+    padding-top: 32px;
+    display: block;
+}
+
+.fl-language-switcher label {
+ display: block;
+}
+
+.fl-language-switcher button {
+    padding: 4px 8px;
 }

@@ -149,3 +149,4 @@ There are no --viewport-*-down queries to encourage mobile-first design.
 @custom-media --viewport-xl (min-width: 1800px);
 
 @custom-media --viewport-below-md (max-width: 899px);
+@custom-media --viewport-below-lg (max-width: 1199px);
