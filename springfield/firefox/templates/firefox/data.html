@@ -6,10 +6,10 @@
 
 {% extends "base-protocol.html" %}
 
-{% block page_title_full %}How Firefox Protects Your Data{% endblock %}
+{% block page_title_full %}{{ ftl('data-page-title') }}{% endblock %}
 
 {% block page_desc %}
-  Firefox is built with privacy by default. Data is never sold, and users have the most choice to turn off what annoys them.
+  {{ ftl('data-page-desc') }}
 {% endblock %}
 
 {% block body_class %}mzp-t-mozilla format-none{% endblock%}
@@ -28,11 +28,11 @@
       <div class="mzp-c-split-body ">
         <p class="eyebrow">
           <img src="/media/img/data/shield.svg" width="12" height="12" alt="">
-          Privacy &amp; Security
+          {{ ftl('data-privacy-and-security') }}
         </p>
-        <h1 class="mzp-u-title-md">How Firefox Protects Your Data</h1>
-        <p>Here’s the big picture: Firefox is built with privacy and protection as the default. We don’t know that much about you. What little we do know, we never sell. And we give you the most choice of anything on the internet to turn off the stuff that annoys you.</p>
-        <p><strong>Interested in the details? Read on.</strong></p>
+        <h1 class="mzp-u-title-md">{{ ftl('data-how-firefox-protects') }}</h1>
+        <p>{{ ftl('data-heres-the-big-picture') }}</p>
+        <p><strong>{{ ftl('data-interested-in') }}</strong></p>
       </div>
       <div class="mzp-c-split-media ">
         <img class="mzp-c-split-media-asset" src="/media/img/data/settings.svg" width="1440" height="482" alt="">
@@ -48,31 +48,31 @@
           <li>
             <a href="#privacy-online">
               <span class="table-content-icon" aria-hidden="true"></span>
-              Privacy Online
+              {{ ftl('data-privacy-online') }}
             </a>
           </li>
           <li>
             <a href="#tracking-protection">
               <span class="table-content-icon" aria-hidden="true"></span>
-              Tracking Protection
+              {{ ftl('data-tracking-protection') }}
             </a>
           </li>
           <li>
             <a href="#data-control">
               <span class="table-content-icon" aria-hidden="true"></span>
-              Control Your Data
+              {{ ftl('data-control-your-data') }}
             </a>
           </li>
           <li>
             <a href="#advertising">
               <span class="table-content-icon" aria-hidden="true"></span>
-              Advertising
+              {{ ftl('data-advertising') }}
             </a>
           </li>
           <li>
             <a href="#built-different">
               <span class="table-content-icon" aria-hidden="true"></span>
-              Built Different
+              {{ ftl('data-built-different') }}
             </a>
           </li>
         </ul>
@@ -82,45 +82,45 @@
 
         <section id="privacy-online">
           <img src="/media/img/data/password.svg" alt="">
-          <h2>Your privacy always comes first.</h2>
-          <p>Unlike many other browsers where sensitive user data is routinely collected and stored, Firefox is built on the <a href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html{{ params }}#browsing-data" data-link-text="data collection pricile">principle</a> that not even Mozilla should know which websites you visit or what you do there.</p>
-          <p>For example, when you sync your history or bookmarks, Firefox has to send data to Mozilla servers so you can seamlessly access them across devices. The difference is, we use end-to-end encryption before it leaves your device, so even we can’t see what sites you’re visiting.</p>
-          <a href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html{{ params }}"><strong>See Firefox’s data collection guidelines</strong></a>
+          <h2>{{ ftl('data-your-privacy-always') }}</h2>
+          <p>{{ ftl('data-unlike-other-browsers', attrs='href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html%s#browsing-data" data-link-text="data collection pricile"'|safe|format(params)) }}</p>
+          <p>{{ ftl('data-for-example-when-you-sync') }}</p>
+          <a href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html{{ params }}"><strong>{{ ftl('data-see-firefoxs-data-collection') }}</strong></a>
         </section>
 
         <section id="tracking-protection">
           <img src="/media/img/data/shield-and-lock.svg" alt="">
-          <h2>You’re automatically protected.</h2>
-          <p>Firefox’s Enhanced Tracking Protection (ETP) and Total Cookie Protection (TCP) work together to protect you from the tracking tech that follows you from site to site, most often without your knowledge or consent. Firefox cuts off cross-site tracking right at the source by locking cookies to the site where they were created. So you stay private without needing to change a single setting.</p>
+          <h2>{{ ftl('data-youre-automatically') }}</h2>
+          <p>{{ ftl('data-firefoxs-enhanced-tracking-protection') }}</p>
           <div class="c-section-link-wrapper">
-            <a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop/{{ params }}"><strong>More about Enhanced Tracking Protection</strong></a>
-            <a href="https://support.mozilla.org/en-US/kb/introducing-total-cookie-protection-standard-mode/{{ params }}"><strong>More about Total Cookie Protection</strong></a>
+            <a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop/{{ params }}"><strong>{{ ftl('data-more-about-enhanced' )}}</strong></a>
+            <a href="https://support.mozilla.org/en-US/kb/introducing-total-cookie-protection-standard-mode/{{ params }}"><strong>{{ ftl('data-more-about-total') }}</strong></a>
           </div>
         </section>
 
         <section id="data-control">
           <img src="/media/img/data/tabs.svg" alt="">
-          <h2>You’re in control.</h2>
-          <p>The best way to keep your data safe is to keep it on your device. Firefox features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in Firefox, Mozilla has no access to your chats—they remain between you and the chatbot provider.</p>
+          <h2>{{ ftl('data-youre-in-control') }}</h2>
+          <p>{{ ftl('data-the-best-way') }}</p>
           <div class="c-section-link-wrapper">
-            <a href="https://support.mozilla.org/en-US/kb/on-device-models/{{ params }}"><strong>More about on-device AI models</strong></a>
-            <a href="https://support.mozilla.org/en-US/kb/ai-chatbot/{{ params }}"><strong>More about AI chatbots</strong></a>
+            <a href="https://support.mozilla.org/en-US/kb/on-device-models/{{ params }}"><strong>{{ ftl('data-more-about-on-device') }}</strong></a>
+            <a href="https://support.mozilla.org/en-US/kb/ai-chatbot/{{ params }}"><strong>{{ ftl('data-more-about-ai-chatbots') }}</strong></a>
           </div>
         </section>
 
         <section id="advertising">
           <img src="/media/img/data/no-ads.svg" alt="">
-          <h2>Ads? Totally up to you.</h2>
-          <p>Firefox has optional ads on the homepage to support Firefox development and Mozilla’s mission. You can turn them off if you like (and you're always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in Firefox use a privacy-first architecture which is designed to prevent advertisers from learning who you are.</p>
-          <p>And it’s worth repeating: we never sell your personal data to any advertiser. Want to go further? Go ahead and turn off ads across the web. Firefox delivers more ad blocker options than any other browser because we support Manifest v2 browser extensions.</p>
-          <a href="https://support.mozilla.org/en-US/kb/sponsor-privacy/{{ params }}"><strong>More about ads and privacy</strong></a>
+          <h2>{{ ftl('data-ads-totally-up-to-you') }}</h2>
+          <p>{{ ftl('data-firefox-has-optional') }}</p>
+          <p>{{ ftl('data-and-its-worth') }}</p>
+          <a href="https://support.mozilla.org/en-US/kb/sponsor-privacy/{{ params }}"><strong>{{ ftl('data-more-about-ads') }}</strong></a>
         </section>
 
         <section id="built-different">
           <img src="/media/img/data/chat.svg" alt="">
-          <h2>Privacy is a team effort.</h2>
-          <p>We build Firefox together with contributors and software developers around the world in the service of a safe, accessible, and proudly public internet. Firefox isn’t just a clone of another popular browser – it runs on Gecko, Mozilla’s independent and open source browser engine. In addition to giving Firefox the freedom to do things differently, Gecko helps advance web standards and influence public policy.</p>
-          <a href="https://firefox-source-docs.mozilla.org/overview/gecko.html{{ params }}"><strong>Get to know Gecko</strong></a>
+          <h2>{{ ftl('data-privacy-is') }}.</h2>
+          <p>{{ ftl('data-we-build-firefox-together') }}</p>
+          <a href="https://firefox-source-docs.mozilla.org/overview/gecko.html{{ params }}"><strong>{{ ftl('data-get-to-know') }}</strong></a>
         </section>
 
       </div>
@@ -130,8 +130,8 @@
   <section class="mzp-c-split mzp-l-split-reversed">
     <div class="mzp-c-split-container">
       <div class="mzp-c-split-body ">
-        <h2 class="mzp-u-title-md">Private browsing that goes above and beyond.</h2>
-        <p>And when it comes to private browsing, Firefox’s Private Window mode goes way past most browsers. In addition to making sure everything you do in a Private Window is deleted when you close it, Firefox blocks tracker scripts and content by default, keeps your unique device identity private with advanced fingerprinting protections, and proactively tells websites not to sell or share your data.</p>
+        <h2 class="mzp-u-title-md">{{ ftl('data-private-browsing')}}</h2>
+        <p>{{ ftl('data-and-when-it') }}</p>
       </div>
       <div class="mzp-c-split-media ">
         <img class="mzp-c-split-media-asset" src="/media/img/data/private-browsing.svg" width="1440" height="482" alt="">
@@ -142,18 +142,18 @@
   <section class="mzp-c-callout cta-section">
     <div class="mzp-l-content">
       <div class="mzp-c-callout-content">
-        <h2 class="mzp-c-callout-title">Firefox is built to protect you.</h2>
+        <h2 class="mzp-c-callout-title">{{ ftl('data-firefox-is-built') }}</h2>
         <div class="mzp-c-callout-desc">
-          <p>Take control of your data with Firefox today.</p>
+          <p>{{ ftl('data-take-control')}}</p>
         </div>
         <div class="cta-container">
-          {{ download_firefox_thanks(alt_copy="Download Firefox", dom_id='data-protection-download-firefox', button_class='download-cta', download_location='data-protection') }}
+          {{ download_firefox_thanks(dom_id='data-protection-download-firefox', button_class='download-cta', download_location='data-protection') }}
           <button id="privacy-settings" class="button-outline">
             <span class="button-icon button-icon-gear" aria-hidden="true"></span>
-            Manage Your Privacy Settings
+            {{ ftl('data-manage-your') }}
           </button>
           <a class="button-outline" href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
-            Read the Firefox Privacy Notice
+            {{ ftl('data-read-the') }}
             <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
           </a>
         </div>
