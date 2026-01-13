@@ -125,9 +125,6 @@
 }
 
 .fl-carousel-images {
-    background-color: var(--token-color-white);
-    border-top-left-radius: var(--token-border-radius-md);
-    border-top-right-radius: var(--token-border-radius-md);
     max-width: var(--token-width-desktop-content);
     width: 100%;
     aspect-ratio: 2 / 1;
@@ -165,7 +162,7 @@
 /* Cross-fade overlay used during slide changes (autoplay + label click). */
 .fl-carousel-fade-overlay {
     position: absolute;
-    inset: var(--token-spacing-lg);
+    inset: 0;
     z-index: 2;
     pointer-events: none;
 }

@@ -42,9 +42,9 @@
 .fl-home-intro::before {
     content: "";
     position: absolute;
-    bottom: var(--banner-kit-bottom-position, -260px);
-    right: var(--banner-kit-right-position, calc(50% - 120px));
-    width: var(--banner-kit-width, 480px);
+    bottom: var(--banner-kit-bottom-position, -330px);
+    right: var(--banner-kit-right-position, calc(50% - 114px));
+    width: var(--banner-kit-width, 580px);
     aspect-ratio: 4/3;
     background:  url('/media/img/firefox/flare/kit-tail-2.svg');
     background-position: top right;
@@ -119,7 +119,7 @@
 @media (--viewport-sm-up) {
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 154px);
-        --banner-kit-bottom-position: -400px;
+        --banner-kit-bottom-position: -425px;
         --banner-kit-width: 800px;
     }
 }
@@ -127,7 +127,7 @@
 @media (--viewport-md-up) {
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 198px);
-        --banner-kit-bottom-position: -530px;
+        --banner-kit-bottom-position: -570px;
         --banner-kit-width: 1050px;
     }
 }
