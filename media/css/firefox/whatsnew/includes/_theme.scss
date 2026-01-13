@@ -2,11 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-$font-path: '/media/protocol/fonts';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/includes/fonts/inter';
-@import '~@mozilla-protocol/core/protocol/css/includes/fonts/metropolis';
+@use '~@mozilla-protocol/core/protocol/css/includes/fonts/inter';
+@use '~@mozilla-protocol/core/protocol/css/includes/fonts/metropolis';
 
 // Copied as needed from: https://github.com/mozilla/protocol/blob/main/assets/sass/protocol/includes/themes/_firefox.scss
 .mzp-t-firefox {

@@ -4,10 +4,8 @@
 
 @use 'sass:math';
 
-$image-path: '/media/protocol/img';
-
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as *;
 @use '../../m24/vars/color' as m24;
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
 
 @mixin footer-line {
     border-bottom: 1px solid m24.$token-color-mid-gray;
