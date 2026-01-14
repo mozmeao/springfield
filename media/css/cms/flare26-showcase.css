@@ -15,7 +15,7 @@
 
 .fl-showcase-caption {
     text-align: center;
-    font-size: var(--fl-theme-font-size-body-xs);
+    font-size: var(--fl-theme-font-size-body-sm);
 }
 
 .fl-showcase-caption:has(.fl-subheading) {
