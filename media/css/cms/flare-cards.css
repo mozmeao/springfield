@@ -54,7 +54,9 @@
     margin-top: auto;
 }
 
-.fl-card.fl-card-expand-link a.fl-button::after, .fl-card.fl-card-expand-link button::after {
+.fl-card.fl-card-expand-link a.fl-button::after,
+.fl-card.fl-card-expand-link button::after,
+.fl-card.fl-card-expand-link a.fl-link-expand::after {
     position: absolute;
     inset: 0;
     z-index: 1;

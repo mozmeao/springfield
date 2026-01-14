@@ -45,6 +45,7 @@
 }
 
 .fl-banner-purple {
+    --fl-theme-color-headings-primary: var(--token-neutrals-white);
     --fl-theme-color-text-primary: var(--token-neutrals-white);
     --fl-theme-color-link: var(--token-blue-light-blue);
     --fl-theme-color-link-visited: var(--token-purple-light-purple);

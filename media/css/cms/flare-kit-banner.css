@@ -100,7 +100,7 @@
 
     .fl-banner-kit-tail {
         --kit-img-size: auto 260px;
-        --kit-img-position: bottom -4px right -90px;
+        --kit-img-position: bottom 2px right -90px;
     }
 
 
@@ -137,7 +137,7 @@
 
     .fl-banner-kit-tail {
         --kit-img-size: auto 380px;
-        --kit-img-position: bottom -4px right -290px;
+        --kit-img-position: bottom 2px right -290px;
     }
 
     .fl-banner-kit-large .fl-banner-content,
@@ -149,7 +149,7 @@
 
 @media (--viewport-lg-up) {
     .fl-banner-kit-tail {
-        --kit-img-position: bottom -4px right -90px;
+        --kit-img-position: bottom 2px right -90px;
         --kit-banner-padding-right: 600px;
     }
 
