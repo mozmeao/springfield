@@ -4,8 +4,6 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# NOTE: This file uses mzp classes from Mozilla Protocol, even though this page is not using Protocol. The newsletter JS depends on these classes.#}
-
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
 {% if not success %}
@@ -24,7 +22,7 @@
       {% else %}
         {% set placeholder = ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') %}
       {% endif %}
-      <input id="newsletter-email" class="fl-newsletterform-input mzp-js-email-field" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" />
+      <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" />
     </div>
 
     {% if not include_language %}
