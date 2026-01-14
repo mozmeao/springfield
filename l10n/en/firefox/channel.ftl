@@ -27,7 +27,7 @@ firefox-channel-beta-is-an-unstable-testing = { -brand-name-beta } is an unstabl
 firefox-channel-firefox-beta-automatically = { -brand-name-firefox-beta } automatically sends feedback to { -brand-name-mozilla }.
 
 # Variables:
-#   $feedback (url) - link to https://input.mozilla.com/feedback
+#   $feedback (url) - link to https://connect.mozilla.org/
 firefox-channel-give-us-feedback-to-help = <a rel="external" href="{ $feedback }">Give us feedback</a> to help us put the final tweaks on performance and functionality in a stable environment.
 
 firefox-channel-check-out-new-android-features = Check out new { -brand-name-android } features in their earliest stages. Enjoy at your own risk.
