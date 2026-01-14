@@ -101,8 +101,10 @@ ul.download-list {
     display: block !important;
 }
 
-.os_linux64 { /* stylelint-disable-line */
-    margin-bottom: $spacing-md;
+// add spacing between displayed buttons
+.download-list {
+    display: grid;
+    gap: $spacing-md;
 }
 
 // 64-bit UA detection for Firefox Beta on Windows (issue #10194)
@@ -131,6 +133,7 @@ ul.download-list {
 
         .download-link.os_linux64 {
             display: inline-block;
+            margin-bottom: $spacing-sm; // allow spacing between macro Linux buttons
         }
 
         .c-linux-debian {
