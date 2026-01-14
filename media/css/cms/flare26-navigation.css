@@ -8,14 +8,6 @@
    Header Base Styles
    ================================================ */
 
-/*
-* If you need to change light/dark mode details,
-* add/change a variable here, then override where needed.
-* This setup is a bit convoluted, but I couldn't find a better solution
-* for supporting both theme overriding using classes (.fl-force-light-header/dark)
-* and preferred-color-scheme fallback, in case a class isn't provided.
-*/
-
 .fl-header {
     font-family: var(--fl-theme-font-family-body);
     color: var(--fl-theme-color-text);
