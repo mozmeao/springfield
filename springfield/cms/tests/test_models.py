@@ -7,14 +7,24 @@ from unittest import mock
 from django.test import override_settings
 
 import pytest
+from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, Site
+from wagtail.rich_text import RichText
 
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     SimpleRichTextPage,
     StructuralPage,
 )
-from springfield.cms.tests.factories import LocaleFactory, StructuralPageFactory, WhatsNewIndexPageFactory, WhatsNewPageFactory
+from springfield.cms.tests.factories import (
+    ArticleDetailPageFactory,
+    ArticleIndexPageFactory,
+    FreeFormPageFactory,
+    LocaleFactory,
+    StructuralPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPageFactory,
+)
 
 pytestmark = [
     pytest.mark.django_db,
@@ -219,6 +229,124 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     response = pt_br_index_page.specific.serve(pt_br_request)
     assert response.status_code == 302
     assert response.headers["location"].endswith(pt_br_v124_page.url)
+
+
+def test_freeform_page(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    page = FreeFormPageFactory(parent=root_page, slug="freeform-page")
+    page.save()
+
+    _relative_url = page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/freeform-page/"
+
+    request = rf.get(_relative_url)
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_article_index_and_detail_pages(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="All the Articles")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/"
+
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    for i in range(1, 3):
+        featured_page = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Featured Article {i}",
+            slug=f"featured-article-{i}",
+            description=f"Description for Featured Article {i}",
+            featured=True,
+        )
+        featured_page.save()
+
+        _featured_relative_url = featured_page.relative_url(minimal_site)
+        assert _featured_relative_url == f"/en-US/articles/featured-article-{i}/"
+
+        featured_request = rf.get(_featured_relative_url)
+        featured_response = featured_page.specific.serve(featured_request)
+        assert featured_response.status_code == 200
+
+        article = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Article {i}",
+            slug=f"article-{i}",
+            description=f"Description for Article {i}",
+            featured=False,
+        )
+        article.save()
+
+        _article_relative_url = article.relative_url(minimal_site)
+        assert _article_relative_url == f"/en-US/articles/article-{i}/"
+
+        article_request = rf.get(_article_relative_url)
+        article_response = article.specific.serve(article_request)
+        assert article_response.status_code == 200
+
+    index_page.refresh_from_db()
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    page_content = response.content
+
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "All the Articles" in soup.find("h1").text
+
+    featured_cards = soup.find_all(class_="fl-illustration-card")
+    assert len(featured_cards) == 2
+    for i, card in enumerate(featured_cards):
+        title = card.find("h3")
+        assert f"Featured Article {i + 1}" in title.text
+        assert f"Description for Featured Article {i + 1}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+
+    # Skip the first two cards, which are featured articles
+    article_cards = soup.find_all(class_="fl-card")[2:]
+    assert len(article_cards) == 2
+    for i, card in enumerate(article_cards):
+        title = card.find("h3")
+        assert f"Article {i + 1}" in title.text
+        assert f"Description for Article {i + 1}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+
+
+def test_article_detail_content(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="Articles")
+    index_page.save()
+
+    article_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Test Article Detail Page",
+        slug="article-detail-page",
+        description="Test Article Description for Index Page",
+        content=RichText(
+            f'<p>This is the content of the test article. With a link to the <a id="{index_page.id}" linktype="page">Index Page</a></p>'
+        ),
+    )
+    article_page.save()
+
+    _relative_url = article_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/article-detail-page/"
+
+    request = rf.get(_relative_url)
+    response = article_page.specific.serve(request)
+    assert response.status_code == 200
+
+    page_content = response.content
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "Test Article Detail Page" in soup.find("h1").text
+    content = soup.find("section", class_="fl-rich-text").find("p")
+    assert "This is the content of the test article. With a link to the Index Page" in content.text
+    link = content.find("a")
+    assert link["href"].endswith(index_page.url)
 
 
 @pytest.mark.parametrize(
