@@ -53,7 +53,7 @@ def reverse_migration(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0027_merge_0024_auto_20251120_1353_0026_auto_20251124_1304"),
+        ("cms", "0028_articleindexpage_articledetailpage_and_more"),
         ("wagtail_localize_dashboard", "0001_initial"),  # Ensure TranslationProgress exists
     ]
 
