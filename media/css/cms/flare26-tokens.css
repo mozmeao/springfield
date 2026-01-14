@@ -127,10 +127,12 @@ Static values extracted from Figma that do not change based on context.
     --token-width-breakpoint-desktop: 1024; /* Greater than this is desktop, lower is tablet or mobile */
 
     /* Typography and fonts */
-    --token-font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system,
-        'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-    --token-font-family-mozilla-text: 'Mozilla Text VF', -apple-system,
-        'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-headline:
+        'Mozilla Headline VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI',
+        'Roboto', sans-serif;
+    --token-font-family-mozilla-text:
+        'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI',
+        'Roboto', sans-serif;
 
     /* Font weights */
     --token-font-weight-regular: 400;
