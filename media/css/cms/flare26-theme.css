@@ -91,8 +91,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
+    --fl-step-card-bg: var(--token-color-cream);
+    --fl-step-card-index-bg: var(--token-color-white);
 
-    /* Navigiation menu variables */
+    /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
     --fl-menu-title-color: var(--token-color-black-4);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
@@ -104,25 +106,39 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
 .fl-force-dark-theme {
+    /* Main theme */
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-background: var(--token-color-dark-purple);
+
+    /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     --fl-menu-title-color: var(--token-color-white);
     --fl-menu-panel-border-color: var(--token-color-link-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
+
+    /* Step cards */
+    --fl-step-card-bg: var(--token-color-card-purple);
+    --fl-step-card-index-bg: var(--token-color-dark-purple);
 }
 
 .fl-force-light-theme {
+    /* Main theme */
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-background: var(--token-color-white);
+
+    /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
     --fl-menu-title-color: var(--token-color-black-4);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
+
+    /* Step cards */
+    --fl-step-card-bg: var(--token-color-cream);
+    --fl-step-card-index-bg: var(--token-color-white);
 }
 
 

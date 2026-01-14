@@ -4,79 +4,70 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-home-body">
+<div class="fl-section fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+  <include:heading
+    level="h2"
+    heading_size="fl-heading-size-1"
+    heading_text="{{ title }}"
+    alignment_class="text-center"
+  />
+  <include:body_text text="{{ intro }}" alignment="center" size="xs" />
 
-  <div class="fl-main">
-    <div class="fl-home-upper">
-      <div class="fl-section">
-        <include:heading
-          level="h2"
-          heading_size="fl-heading-size-1"
-          heading_text="{{ title }}"
-          alignment_class="text-center"
-        />
-        <include:body_text text="{{ intro }}" alignment="center" size="xs" />
+  <include:cards-list extra_class="fl-step-cards-with-kit">
+    {% for card in cards %}
+      <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
+        <content:media>
+          <img src="{{ card.image }}" alt="" loading="lazy" />
+        </content:media>
+        <content:heading>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-size-3"
+            heading_text="{{ card.heading }}"
+          />
+        </content:heading>
+        <content:body>
+          {{ card.body }}
+        </content:body>
+      </include:step-card>
+    {% endfor %}
+  </include:cards-list>
 
-        <include:cards-list extra_class="fl-step-cards-with-kit">
-          {% for card in cards %}
-            <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
-              <content:media>
-                <img src="{{ card.image }}" alt="" loading="lazy" />
-              </content:media>
-              <content:heading>
-                <include:heading
-                  level="h3"
-                  heading_size="fl-heading-size-3"
-                  heading_text="{{ card.heading }}"
-                />
-              </content:heading>
-              <content:body>
-                {{ card.body }}
-              </content:body>
-            </include:step-card>
-          {% endfor %}
-        </include:cards-list>
+  <p class="fl-body fl-body-sm text-center" style="text-decoration: underline;">
+    {{ footer }}
+  </p>
+</div>
 
-        <p class="fl-body fl-body-sm text-center" style="text-decoration: underline;">
-          {{ footer }}
-        </p>
-      </div>
-    </div>
+<div class="fl-section fl-force-dark-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)"">
+  <include:heading
+    level="h2"
+    heading_size="fl-heading-size-1"
+    heading_text="{{ title }}"
+    alignment_class="text-center"
+  />
+  <include:body_text text="{{ intro }}" alignment="center" size="xs" />
 
-    <div class="fl-home-lower">
-      <div class="fl-section">
-        <include:heading
-          level="h2"
-          heading_size="fl-heading-size-1"
-          heading_text="{{ title }}"
-          alignment_class="text-center"
-        />
-        <include:body_text text="{{ intro }}" alignment="center" size="xs" />
+  <include:cards-list extra_class="fl-step-cards-with-kit">
+    {% for card in cards %}
+      <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
+        <content:media>
+          <img src="{{ card.image }}" alt="" loading="lazy" />
+        </content:media>
+        <content:heading>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-size-3"
+            heading_text="{{ card.heading }}"
+          />
+        </content:heading>
+        <content:body>
+          {{ card.body }}
+        </content:body>
+      </include:step-card>
+    {% endfor %}
+  </include:cards-list>
 
-        <include:cards-list extra_class="fl-step-cards-with-kit">
-          {% for card in cards %}
-            <include:step-card expand_link="{{ card.expand_link }}" step="{{ loop.index }}">
-              <content:media>
-                <img src="{{ card.image }}" alt="" loading="lazy" />
-              </content:media>
-              <content:heading>
-                <include:heading
-                  level="h3"
-                  heading_size="fl-heading-size-3"
-                  heading_text="{{ card.heading }}"
-                />
-              </content:heading>
-              <content:body>
-                {{ card.body }}
-              </content:body>
-            </include:step-card>
-          {% endfor %}
-        </include:cards-list>
-
-        <p class="fl-body fl-body-sm text-center" style="text-decoration: underline;">
-          {{ footer }}
-        </p>
-      </div>
-    </div>
-  </div>
+  <p class="fl-body fl-body-sm text-center" style="text-decoration: underline;">
+    {{ footer }}
+  </p>
 </div>

@@ -225,7 +225,7 @@ Step Cards List - With Kit variant
 }
 
 .fl-step-card .fl-card-media {
-    background: var(--token-color-cream);
+    background: var(--fl-step-card-bg);
 
     /* Figma: 240px on desktop, but keep responsive */
     min-height: calc(var(--token-layout-md) * 3);
@@ -258,11 +258,11 @@ Step Cards List - With Kit variant
     align-items: center;
     justify-content: center;
     border-radius: var(--token-layout-3xs);
-    background: var(--token-color-white);
+    background: var(--fl-step-card-index-bg);
     margin: 0;
     font-size: 12px;
     font-weight: var(--token-font-weight-medium);
-    color: var(--token-color-black-4);
+    color: var(--fl-theme-color-text);
 }
 
 .fl-step-card .fl-heading-group {
