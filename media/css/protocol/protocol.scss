@@ -36,7 +36,7 @@
 @use 'components/sub-navigation';
 
 // Mozilla 2024 brand variables
-@use '../m24/vars/color';
+@use '../m24/vars/color' as m24;
 @use '../m24/vars/text';
 
 // Temporary styling until the newsletter component is updated in Protocol
@@ -88,26 +88,26 @@ template {
 // Mozilla 2024 brand theme
 :root {
     // colors
-    --background-color-tertiary-inverse: #{$m24-color-dark-gray};
-    --background-color-tertiary: #{$m24-color-light-gray};
-    --background-color-secondary-inverse: #{$m24-color-dark-gray};
-    --background-color-secondary: #{$m24-color-light-gray};
-    --background-color-inverse: #{$m24-color-black};
-    --background-color: #{$m24-color-white};
-    --body-text-color-secondary-inverse: #{$m24-color-light-gray};
-    --body-text-color-secondary: #{$m24-color-dark-gray};
-    --body-text-color-inverse: #{$m24-color-white};
-    --body-text-color: #{$m24-color-black};
-    --link-color-hover-inverse: #{$m24-color-light-green};
-    --link-color-hover: #{$m24-color-dark-green};
-    --link-color-inverse: #{$m24-color-white};
-    --link-color-visited-hover-inverse: #{$m24-color-white};
-    --link-color-visited-hover: #{$m24-color-dark-green};
-    --link-color-visited-inverse: #{$m24-color-light-gray};
-    --link-color-visited: #{$m24-color-dark-gray};
-    --link-color: #{$m24-color-black};
-    --title-text-color-inverse: #{$m24-color-white};
-    --title-text-color: #{$m24-color-black};
+    --background-color-tertiary-inverse: #{m24.$m24-color-dark-gray};
+    --background-color-tertiary: #{m24.$m24-color-light-gray};
+    --background-color-secondary-inverse: #{m24.$m24-color-dark-gray};
+    --background-color-secondary: #{m24.$m24-color-light-gray};
+    --background-color-inverse: #{m24.$m24-color-black};
+    --background-color: #{m24.$m24-color-white};
+    --body-text-color-secondary-inverse: #{m24.$m24-color-light-gray};
+    --body-text-color-secondary: #{m24.$m24-color-dark-gray};
+    --body-text-color-inverse: #{m24.$m24-color-white};
+    --body-text-color: #{m24.$m24-color-black};
+    --link-color-hover-inverse: #{m24.$m24-color-light-green};
+    --link-color-hover: #{m24.$m24-color-dark-green};
+    --link-color-inverse: #{m24.$m24-color-white};
+    --link-color-visited-hover-inverse: #{m24.$m24-color-white};
+    --link-color-visited-hover: #{m24.$m24-color-dark-green};
+    --link-color-visited-inverse: #{m24.$m24-color-light-gray};
+    --link-color-visited: #{m24.$m24-color-dark-gray};
+    --link-color: #{m24.$m24-color-black};
+    --title-text-color-inverse: #{m24.$m24-color-white};
+    --title-text-color: #{m24.$m24-color-black};
 }
 
 .mzp-t-dark {

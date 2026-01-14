@@ -2,14 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as *;
 
-@use '~@mozilla-protocol/core/protocol/css/components/forms/form';
+@use '~@mozilla-protocol/core/protocol/css/components/forms/form' as form;
 @use '~@mozilla-protocol/core/protocol/css/components/forms/field';
 @use '~@mozilla-protocol/core/protocol/css/components/forms/button-container';
 
 .send-to-device {
-    color: $form-text;
+    color: form.$form-text;
     max-width: 500px;
     @include clearfix;
 
@@ -18,7 +18,7 @@
     }
 
     .mzp-c-field {
-        padding-bottom: $label-v-spacing;
+        padding-bottom: form.$label-v-spacing;
     }
 
     .mzp-c-button-container {
@@ -81,7 +81,7 @@
 
                     // put in fake form label to push button down height of real form label next to it
                     &::before {
-                        @include field-label;
+                        @include form.field-label;
                         content: '.';
                         visibility: hidden;
                     }

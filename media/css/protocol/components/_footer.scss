@@ -19,7 +19,7 @@
 }
 
 .c-footer-subheading {
-    @extend .mzp-c-footer-heading; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
+    @extend .mzp-c-footer-heading !optional; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
     color: m24.$token-color-mid-gray;
 
     @media screen and (max-width: #{$screen-sm - 1}) {
@@ -220,7 +220,7 @@
 }
 
 .c-footer-logo {
-    @extend .mzp-c-footer-primary-logo; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
+    @extend .mzp-c-footer-primary-logo !optional; /* stylelint-disable-line scss/at-extend-no-missing-placeholder */
     text-align: center;
 
     @media screen and (min-width: #{$screen-lg}) {
