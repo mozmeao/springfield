@@ -134,7 +134,7 @@
     align-items: center;
     justify-content: flex-start;
     font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-base);
+    font-size: var(--fl-theme-font-size-body-sm);
     box-shadow: none;
     padding: 10px 18px 0;
 }

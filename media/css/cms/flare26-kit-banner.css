@@ -21,7 +21,7 @@
     background-repeat: no-repeat, no-repeat;
     border: none;
     position: relative;
-    padding: var(--token-layout-3xs) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-3xs);
+    padding: calc(var(--fl-section-v-padding) * 2) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-3xs);
     color: var(--token-color-white);
 }
 
