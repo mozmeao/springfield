@@ -20,32 +20,55 @@ html {
 }
 
 body {
+    background: var(--token-color-white);
+    color: var(--token-color-black-4);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
-    color: var(--token-color-black-4);
-    background: var(--token-color-white);
     width: 100%;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--fl-theme-font-weight-headline);
     margin-bottom: var(--token-spacing-lg);
 }
 
-h1 { font-size: var(--fl-theme-font-size-heading-xl); }
-h2 { font-size: var(--fl-theme-font-size-heading-md); }
-h3 { font-size: var(--fl-theme-font-size-heading-sm); }
-h4 { font-size: var(--fl-theme-font-size-heading-xs); }
-h5 { font-size: var(--fl-theme-font-size-heading-xs); }
-h6 { font-size: var(--fl-theme-font-size-heading-xs); }
-
-p {
-    margin: 0 0 var(--token-spacing-lg);
-    line-height: 1.6;
+h1 {
+    font-size: var(--fl-theme-font-size-heading-xl);
 }
 
-a:link, a:visited {
+h2 {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
+h3 {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
+h4 {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+h5 {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+h6 {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+p {
+    line-height: 1.6;
+    margin: 0 0 var(--token-spacing-lg);
+}
+
+a:link,
+a:visited {
     color: var(--fl-theme-color-link);
     text-decoration: underline;
     transition: color var(--token-transition-fast);
@@ -55,19 +78,22 @@ a:visited {
     color: var(--fl-theme-color-link);
 }
 
-a:hover, a:active, a:focus {
-    text-decoration: none;
+a:hover,
+a:active,
+a:focus {
     color: var(--fl-theme-color-link-hover);
+    text-decoration: none;
 }
 
-img, svg {
+img,
+svg {
     margin: 0 0 var(--token-spacing-lg);
 }
 
 @media (prefers-color-scheme: dark) {
-  .dim-images-on-dark-mode img {
-    filter: brightness(.8) contrast(1.2);
-  }
+    .dim-images-on-dark-mode img {
+        filter: brightness(0.8) contrast(1.2);
+    }
 }
 
 hr {
@@ -81,7 +107,8 @@ section {
     border: none;
 }
 
-ul, ol {
+ul,
+ol {
     margin: 0 0 var(--token-spacing-lg) var(--token-spacing-lg);
 }
 
@@ -90,25 +117,33 @@ li {
 }
 
 /* Override base button styles with theme variables and relax constraints */
-button, [role="button"] {
+button,
+[role='button'] {
     background: var(--token-color-light-purple);
-    color: var(--token-color-white);
     border-radius: var(--token-border-radius-lg);
-    width: auto;
+    color: var(--token-color-white);
     height: auto;
+    width: auto;
 }
 
-button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+button:active,
+button:focus,
+button:visited,
+[role='button']:active,
+[role='button']:focus,
+[role='button']:visited {
     background: var(--token-color-light-purple);
     color: var(--token-color-white);
 }
 
-button:hover, [role="button"]:hover {
+button:hover,
+[role='button']:hover {
     background: var(--token-color-link-purple);
     color: var(--token-color-white);
 }
 
 /* Use theme color for table borders */
-th, td {
+th,
+td {
     border-color: var(--token-color-black-4);
 }

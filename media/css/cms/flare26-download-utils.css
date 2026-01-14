@@ -1,17 +1,17 @@
 /* Styles used by Download Firefox Button messages */
 
 .fl-fx-download-container {
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 16px;
 }
 
 /* Hide the unsupported message by default */
 .fx-unsupported-message {
     display: none;
-    text-align: center;
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .fx-unsupported-message p {
@@ -48,7 +48,9 @@
 
 /* Show the Windows 64 download link if in a Windows 64 system where Firefox is unsupported */
 
-.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win64 {
+.windows.fx-unsupported.x64
+    .fx-unsupported-message.win
+    .download-link.os_win64 {
     display: inline-block;
 }
 

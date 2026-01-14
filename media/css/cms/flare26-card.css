@@ -11,13 +11,13 @@ Card - Flare 2026 Design System Cards
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-lg);
     --fl-card-sticker-size: 60px;
+    align-items: stretch;
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
     gap: var(--fl-card-grid-gap);
+    justify-content: center;
     padding-block: var(--token-layout-3xs);
-    container-type: inline-size;
 }
 
 .fl-card-grid .fl-card {
@@ -25,40 +25,44 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
     align-items: stretch;
-    justify-content: flex-start;
-    gap: var(--token-spacing-xl);
-    padding: var(--token-spacing-2xl) var(--token-spacing-2xl) var(--token-spacing-3xl);
-    min-height: 100cqw;
-    height: auto;
-    border-radius: var(--token-border-radius-lg);
-    background: var(--fl-theme-surface-card-gradient);
     backdrop-filter: blur(7.5px);
+    background: var(--fl-theme-surface-card-gradient);
+    border-radius: var(--token-border-radius-lg);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--token-color-black-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    height: auto;
+    justify-content: flex-start;
+    min-height: 100cqw;
+    padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
+        var(--token-spacing-3xl);
+    position: relative;
     text-align: center;
-    transition: transform var(--token-transition-base), box-shadow var(--token-transition-base);
+    transition:
+        transform var(--token-transition-base),
+        box-shadow var(--token-transition-base);
 }
 
 .fl-card:hover {
-    transform: translateY(-2px);
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    transform: translateY(-2px);
 }
 
-.fl-card > :is(
-    h1.fl-heading,
-    h2.fl-heading,
-    h3.fl-heading,
-    h4.fl-heading,
-    h5.fl-heading,
-    h6.fl-heading,
-    .fl-heading-group
-) {
-    order: 0;
+.fl-card
+    > :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading,
+        .fl-heading-group
+    ) {
     margin-bottom: 0;
+    order: 0;
 }
 
 .fl-card > div:has(.fl-card-sticker) {
@@ -76,39 +80,47 @@ Card - Flare 2026 Design System Cards
 .fl-card > div:has(.fl-card-sticker),
 .fl-card > div:has(.fl-card-icon),
 .fl-card > div:has(.fl-tag) {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    gap: var(--token-spacing-sm);
+    display: flex;
     flex: 1 1 auto;
+    gap: var(--token-spacing-sm);
+    justify-content: center;
     width: 100%;
 }
 
-.fl-card :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
-    margin: 0;
+.fl-card
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
-    line-height: 1.05;
     letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin: 0;
 }
 
 .fl-card .fl-superheading {
-    display: block;
-    margin: 0 0 var(--token-spacing-xl);
-    font-family: var(--fl-theme-font-family-body);
-    font-weight: var(--token-font-weight-medium);
-    font-size: var(--fl-theme-font-size-body-2xs);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
     color: var(--token-color-light-purple);
+    display: block;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    letter-spacing: 0.02em;
+    margin: 0 0 var(--token-spacing-xl);
+    text-transform: uppercase;
 }
 
 .fl-card .fl-body {
-    margin: 0;
     font-family: var(--fl-theme-font-family-body);
-    font-weight: var(--token-font-weight-regular);
     font-size: var(--fl-theme-font-size-body-xs);
+    font-weight: var(--token-font-weight-regular);
     line-height: 1.4;
+    margin: 0;
     margin-top: 0;
     text-wrap: balance;
 }
@@ -118,11 +130,11 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card .fl-buttons {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    gap: var(--token-spacing-lg);
+    display: flex;
     flex-wrap: wrap;
+    gap: var(--token-spacing-lg);
+    justify-content: center;
     margin-top: var(--token-spacing-lg);
 }
 
@@ -135,10 +147,10 @@ Card - Flare 2026 Design System Cards
 }
 
 .fl-card-sticker {
-    width: var(--fl-card-sticker-size, 60px);
     height: var(--fl-card-sticker-size, 60px);
     margin: 0;
     object-fit: contain;
+    width: var(--fl-card-sticker-size, 60px);
 }
 
 .fl-card > div:has(.fl-card-icon) {
@@ -161,13 +173,21 @@ Card - Flare 2026 Design System Cards
 
 .fl-card.fl-card-expand-link a.fl-button::after,
 .fl-card.fl-card-expand-link button::after {
-    position: absolute;
+    content: '';
     inset: 0;
+    position: absolute;
     z-index: -1;
-    content: "";
 }
 
-.fl-card.fl-card-expand-link:hover :is(h1.fl-heading, h2.fl-heading, h3.fl-heading, h4.fl-heading, h5.fl-heading, h6.fl-heading) {
+.fl-card.fl-card-expand-link:hover
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
     text-decoration: underline;
 }
 
@@ -208,61 +228,60 @@ Step Cards List - With Kit variant
 .fl-card-grid.fl-step-cards-with-kit {
     gap: var(--token-layout-lg) var(--token-layout-3xs);
     justify-content: center;
-    max-width: var(--token-width-desktop-wide-banner);
     margin: 0 auto;
+    max-width: var(--token-width-desktop-wide-banner);
 }
-
 
 .fl-card-grid .fl-step-card {
     flex: 1 1 auto;
 }
 
 .fl-step-card {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-xl);
+    position: relative;
 }
 
 .fl-step-card .fl-card-media {
+    align-items: center;
     background: var(--fl-step-card-bg);
+    border-radius: var(--token-layout-xs);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+    justify-content: center;
 
     /* Figma: 240px on desktop, but keep responsive */
     min-height: calc(var(--token-layout-md) * 3);
-    padding: var(--token-spacing-2xl);
-    border-radius: var(--token-layout-xs);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--token-spacing-2xl);
-    box-sizing: border-box;
+    padding: var(--token-spacing-2xl);
     width: 100%;
 }
 
 .fl-step-card .fl-card-media img {
-    width: auto;
     height: auto;
     max-height: 96px;
     max-width: 100%;
     object-fit: contain;
+    width: auto;
 }
 
 .fl-step-card-index {
-    width: var(--token-layout-3xs);
-    height: var(--token-layout-3xs);
-    padding: var(--token-spacing-sm);
-    box-sizing: border-box;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: var(--token-layout-3xs);
     background: var(--fl-step-card-index-bg);
-    margin: 0;
+    border-radius: var(--token-layout-3xs);
+    box-sizing: border-box;
+    color: var(--fl-theme-color-text);
+    display: flex;
     font-size: 12px;
     font-weight: var(--token-font-weight-medium);
-    color: var(--fl-theme-color-text);
+    height: var(--token-layout-3xs);
+    justify-content: center;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+    width: var(--token-layout-3xs);
 }
 
 .fl-step-card .fl-heading-group {
@@ -270,39 +289,39 @@ Step Cards List - With Kit variant
 }
 
 .fl-step-card .fl-heading {
-    margin: 0;
     font-size: var(--token-spacing-lg);
     font-weight: var(--token-font-weight-semibold);
-    line-height: 1.1;
     letter-spacing: 0;
+    line-height: 1.1;
+    margin: 0;
     text-wrap: auto;
 }
 
 /* Decorative Kit (Figma): only on the last card */
 .fl-step-cards-with-kit .fl-step-card:last-child::before,
 .fl-step-cards-with-kit .fl-step-card:last-child::after {
-    content: "";
-    position: absolute;
-    top: -32px;
-    pointer-events: none;
     background-repeat: no-repeat;
     background-size: auto;
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    top: -32px;
     z-index: 3;
 }
 
 .fl-step-cards-with-kit .fl-step-card:last-child::before {
+    background-image: url('/media/img/firefox/flare/fox-tail.png');
+    height: 110px;
     left: -20px;
     width: 68px;
-    height: 110px;
-    background-image: url("/media/img/firefox/flare/fox-tail.png");
 }
 
 .fl-step-cards-with-kit .fl-step-card:last-child::after {
-    top: -60px;
-    right: 0;
-    width: 98px;
+    background-image: url('/media/img/firefox/flare/fox-head.png');
     height: 86px;
-    background-image: url("/media/img/firefox/flare/fox-head.png");
+    right: 0;
+    top: -60px;
+    width: 98px;
 }
 
 @media (--viewport-sm-up) {

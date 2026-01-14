@@ -45,17 +45,42 @@ Static values extracted from Figma that do not change based on context.
     --token-color-soft-yellow: rgb(252, 245, 240);
 
     /* Gradients from Figma */
-    --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
+    --token-gradient-firefox: linear-gradient(
+        90deg,
+        #ffeb49 0%,
+        #f60 50%,
+        #fb2872 100%
+    );
     --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
-    --token-gradient-privacy: linear-gradient(90deg, #ae49ec 0%, var(--token-color-dark-purple) 100%);
-    --token-gradient-purple: radial-gradient(122.66% 137.66% at 50% 0%, #AE49EC 0%, #210340 100%);
+    --token-gradient-privacy: linear-gradient(
+        90deg,
+        #ae49ec 0%,
+        var(--token-color-dark-purple) 100%
+    );
+    --token-gradient-purple: radial-gradient(
+        122.66% 137.66% at 50% 0%,
+        #ae49ec 0%,
+        #210340 100%
+    );
 
     /* Light and dark gradients */
-    --token-gradient-light: linear-gradient(180deg, var(--token-color-white-90) 0%, var(--token-color-white) 100%);
-    --token-gradient-dark: linear-gradient(180deg, var(--token-color-black-4-72) 0%, var(--token-color-black-4-90) 100%);
+    --token-gradient-light: linear-gradient(
+        180deg,
+        var(--token-color-white-90) 0%,
+        var(--token-color-white) 100%
+    );
+    --token-gradient-dark: linear-gradient(
+        180deg,
+        var(--token-color-black-4-72) 0%,
+        var(--token-color-black-4-90) 100%
+    );
 
     /* Soft purple gradient */
-    --token-gradient-soft-purple: linear-gradient(180deg, var(--token-color-soft-purple-64) 0%, var(--token-color-white) 100%);
+    --token-gradient-soft-purple: linear-gradient(
+        180deg,
+        var(--token-color-soft-purple-64) 0%,
+        var(--token-color-white) 100%
+    );
 
     /* Radial purple gradient */
     --token-gradient-radial-purple: radial-gradient(
@@ -65,7 +90,7 @@ Static values extracted from Figma that do not change based on context.
     );
 
     /* Gold gradient */
-    --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
+    --token-gradient-gold: linear-gradient(180deg, #ffe500 0%, #ff980e 100%);
 
     /* Spacing variables */
     --token-spacing-2xs: 2px;
@@ -102,8 +127,10 @@ Static values extracted from Figma that do not change based on context.
     --token-width-breakpoint-desktop: 1024; /* Greater than this is desktop, lower is tablet or mobile */
 
     /* Typography and fonts */
-    --token-font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
-    --token-font-family-mozilla-text: 'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system,
+        'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-text: 'Mozilla Text VF', -apple-system,
+        'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
 
     /* Font weights */
     --token-font-weight-regular: 400;

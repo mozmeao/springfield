@@ -5,8 +5,8 @@
 */
 
 .fl-intro {
-    text-align: center;
     position: relative;
+    text-align: center;
 }
 
 .fl-intro > * {
@@ -30,9 +30,9 @@
 }
 
 .fl-intro .fl-subheading {
-    margin-top: 0;
-    margin-bottom: var(--token-layout-sm);
     font-size: var(--fl-theme-font-size-base);
+    margin-bottom: var(--token-layout-sm);
+    margin-top: 0;
 }
 
 .fl-home-intro {
@@ -40,30 +40,38 @@
 }
 
 .fl-home-intro::before {
-    content: "";
-    position: absolute;
+    aspect-ratio: 4/3;
+    background: url('/media/img/firefox/flare/kit-tail-2.svg');
+    background-position: top right;
+    background-repeat: no-repeat;
+    background-size: contain;
     bottom: var(--banner-kit-bottom-position, -260px);
+    content: '';
+    position: absolute;
     right: var(--banner-kit-right-position, calc(50% - 120px));
     width: var(--banner-kit-width, 480px);
-    aspect-ratio: 4/3;
-    background:  url('/media/img/firefox/flare/kit-tail-2.svg');
-    background-position: top right;
-    background-size: contain;
-    background-repeat: no-repeat;
     z-index: 0;
 }
 
 .fl-home-intro .fl-superheading {
-    background: linear-gradient(180deg, var(--token-color-light-purple-40) 0%, var(--token-color-light-purple-20) 100%);
+    background: linear-gradient(
+        180deg,
+        var(--token-color-light-purple-40) 0%,
+        var(--token-color-light-purple-20) 100%
+    );
     border-radius: var(--token-border-radius-xl);
-    padding: var(--token-spacing-sm) var(--token-spacing-md);
-    font-weight: var(--token-font-weight-medium);
     font-size: var(--fl-theme-font-size-tag);
+    font-weight: var(--token-font-weight-medium);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
 }
 
 .fl-home-intro .fl-superheading:has(a:hover) {
-    background: linear-gradient(180deg, var(--token-color-light-purple-60) 0%, var(--token-color-light-purple-40) 100%);
+    background: linear-gradient(
+        180deg,
+        var(--token-color-light-purple-60) 0%,
+        var(--token-color-light-purple-40) 100%
+    );
 }
 
 .fl-home-intro .fl-superheading a {
@@ -72,32 +80,33 @@
 }
 
 .fl-home-intro .fl-superheading a::before {
-    content: "";
-    position: absolute;
+    content: '';
     inset: 0;
+    position: absolute;
 }
 
 .fl-home-intro .fl-superheading a::after {
-    content: "";
-    display: inline-block;
-    width: 1em;
-    height: 1em;
     background-color: currentColor;
-    vertical-align: middle;
-    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat center / 1em 1em;
-    mask-size: contain;
+    content: '';
+    display: inline-block;
+    height: 1em;
     margin-left: var(--token-spacing-xs);
+    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat
+        center / 1em 1em;
+    mask-size: contain;
+    vertical-align: middle;
+    width: 1em;
 }
 
 .fl-home-intro .fl-superheading i,
 .fl-home-intro .fl-superheading em {
     background: var(--token-gradient-gold);
-    color: var(--token-color-black-4);
-    padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     border-radius: var(--token-border-radius-xs);
-    text-transform: uppercase;
+    color: var(--token-color-black-4);
     font-style: normal;
     margin-inline-end: var(--token-spacing-xs);
+    padding: var(--token-spacing-2xs) var(--token-spacing-xs);
+    text-transform: uppercase;
 }
 
 .fl-home-intro .fl-heading {
@@ -111,8 +120,8 @@
 }
 
 .fl-home-intro .fl-subheading {
-    max-width: 48ch;
     margin: 0 auto;
+    max-width: 48ch;
     text-wrap: balance;
 }
 
