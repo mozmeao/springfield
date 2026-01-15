@@ -5,24 +5,24 @@
 */
 
 .fl-section {
-    padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
     margin: 0;
+    padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
 }
 
 .fl-section-container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0;
     display: flex;
     flex-direction: column;
     gap: var(--fl-section-v-padding);
+    margin: 0 auto;
+    max-width: 1440px;
+    padding: 0;
 }
 
 .fl-heading-group {
-    padding-bottom: var(--fl-section-hgroup-padding-bottom);
     display: flex;
     flex-direction: column;
     gap: var(--fl-section-hgroup-gap);
+    padding-bottom: var(--fl-section-hgroup-padding-bottom);
 }
 
 .fl-heading-group > * {

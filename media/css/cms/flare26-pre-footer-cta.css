@@ -8,42 +8,42 @@
     --kit-size: 100px;
     display: flex;
     justify-content: center;
-    position: relative;
-    padding-top: calc(var(--kit-size) + (var(--fl-section-v-padding) * 2));
     padding-bottom: var(--fl-section-v-padding);
+    padding-top: calc(var(--kit-size) + (var(--fl-section-v-padding) * 2));
+    position: relative;
 }
 
 .fl-pre-footer-cta-button {
-    position: relative;
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: var(--token-layout-2xs) var(--token-layout-xs);
     background-color: var(--token-color-light-purple);
-    color: var(--token-color-white);
-    font-family: var(--fl-theme-font-family-headline);
-    font-weight: var(--token-font-weight-bold);
-    font-size: var(--fl-theme-font-size-heading-2xl);
-    line-height: 0.9;
-    letter-spacing: -0.005em;
-    text-decoration: none;
-    text-align: center;
     border-radius: 2000px;
+    color: var(--token-color-white);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-2xl);
+    font-weight: var(--token-font-weight-bold);
+    justify-content: center;
+    letter-spacing: -0.005em;
+    line-height: 0.9;
+    padding: var(--token-layout-2xs) var(--token-layout-xs);
+    position: relative;
+    text-align: center;
+    text-decoration: none;
     transition: background-color var(--token-transition-fast);
 }
 
 .fl-pre-footer-cta-button::before {
-    content: '';
-    position: absolute;
-    bottom: calc(100% - 3.5%);
-    left: 50%;
-    transform: translateX(-66%);
-    width: var(--kit-size);
-    height: var(--kit-size);
     background-image: url('/media/img/firefox/flare/sitting-kit-2.png');
-    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+    background-size: contain;
+    bottom: calc(100% - 3.5%);
+    content: '';
+    height: var(--kit-size);
+    left: 50%;
+    position: absolute;
+    transform: translateX(-66%);
+    width: var(--kit-size);
 }
 
 .fl-pre-footer-cta-button:hover {

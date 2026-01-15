@@ -15,9 +15,8 @@ const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
 const webpack = require('webpack');
-const flareImportAnywhereLoader = require.resolve(
-    './webpack/flare-import-anywhere-loader.js'
-);
+const flareImportAnywhereLoader =
+    require.resolve('./webpack/flare-import-anywhere-loader.js');
 
 function resolveBundles(fileList) {
     return fileList.map((f) => {
