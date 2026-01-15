@@ -1327,7 +1327,41 @@ class HomeIntroBlock(blocks.StructBlock):
 
 class HomeCarouselSlide(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    image = ImageChooserBlock()
+    image = ImageVariantsBlock()
+
+    def to_python(self, value):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        if isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+            value["image"] = {
+                "image": value["image"],
+                "settings": {
+                    "mobile_image": None,
+                    "dark_mode_image": None,
+                    "dark_mode_mobile_image": None,
+                },
+            }
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                migrated_value = {**value}
+                migrated_value["image"] = {
+                    "image": value["image"],
+                    "settings": {
+                        "mobile_image": None,
+                        "dark_mode_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                }
+                migrated_values.append(migrated_value)
+            else:
+                migrated_values.append(value)
+        return super().bulk_to_python(migrated_values)
 
 
 class HomeCarouselBlock(blocks.StructBlock):

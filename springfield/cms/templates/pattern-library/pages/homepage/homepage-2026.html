@@ -84,12 +84,12 @@
         {# Carousel Section #}
         {% set carousel_items = [] %}
         {% for item in carousel.slides %}
+          {% set image_html %}
+            <img src="{{ item.image.url }}" alt="{{ item.image.alt }}">
+          {% endset %}
           {% set _ = carousel_items.append({
             "headline": item.headline,
-            "image": {
-              "url": item.image.url,
-              "alt": item.image.alt,
-            }
+            "image": image_html,
           }) %}
         {% endfor %}
         <include:carousel has_kit="true" items="{{ carousel_items }}">
