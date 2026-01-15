@@ -48,6 +48,11 @@ Card - Flare 2026 Design System Cards
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
 }
 
+.fl-card .fl-heading-group {
+    padding: 0;
+    gap: unset;
+}
+
 .fl-card > :is(
     h1.fl-heading,
     h2.fl-heading,
