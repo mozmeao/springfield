@@ -35,9 +35,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
 
     /* Font size variables */
-    --fl-theme-font-size-base: 16px;
-    --fl-theme-font-size-heading-4xl: 4.625rem; /* 74px */
-    --fl-theme-font-size-heading-3xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-3xl: 5rem; /* 80px */
     --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
     --fl-theme-font-size-heading-xl: 3rem; /* 48px */
     --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
@@ -46,18 +44,17 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
     --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
-    /* Subheading font size variables */
+    /* TODO: refactor these away. Subheading font size variables */
     --fl-theme-font-size-subheading-md: 1rem; /* 16px */
     --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
     --fl-theme-font-size-subheading-xs: 0.75rem; /* 12px */
 
     /* Body font size variables */
-    --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+    --fl-theme-font-size-body-lg: 1.25rem; /* 20px */
     --fl-theme-font-size-body-md: 1.125rem; /* 18px */
     --fl-theme-font-size-body-sm: 1rem; /* 16px */
     --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
-    --fl-theme-font-size-tag: 0.75rem; /* 12px */
 
     /* Label font size variables */
     --fl-theme-label-caps-md: 1rem; /* 16px */
@@ -82,9 +79,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     color-scheme: light dark;
 
     /* Default space between page sections */
-    --fl-section-v-padding: var(--token-layout-md);
+    --fl-section-v-padding: calc(var(--token-layout-md) / 2);
     --fl-section-h-padding: var(--token-layout-3xs);
-    --fl-section-heading-margin-bottom: var(--token-layout-sm);
+    --fl-section-hgroup-gap: var(--token-spacing-lg);
+    --fl-section-hgroup-padding-bottom: var(--token-layout-xs);
 
     /* Card themes */
     --card-bg-color: var(--token-color-white);
@@ -150,12 +148,24 @@ components consume the variables (no per-component media queries) */
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;
         --fl-theme-default-text-align: left;
+        --fl-theme-font-size-heading-3xl: 8rem; /* 128px */
+        --fl-theme-font-size-heading-2xl: 5rem; /* 80px */
+        --fl-theme-font-size-heading-xl: 4rem; /* 64px */
+        --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+        --fl-theme-font-size-heading-md: 2rem; /* 32px */
+        --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
+        --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
+        --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-md: 1.25rem; /* 20px */
+        --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
+        --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
+        --fl-section-hgroup-gap: var(--token-spacing-xl);
     }
 }
 
 @media (--viewport-md-up) {
     :root {
-        --fl-theme-font-size-heading-4xl: 6.25rem; /* 100px */
         --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
         --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
         --fl-theme-font-size-heading-xl: 5rem; /* 80px */
@@ -163,12 +173,10 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-md: 3rem; /* 48px */
         --fl-theme-font-size-heading-sm: 2rem; /* 32px */
         --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
-        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
         --fl-theme-font-size-body-lg: 2rem; /* 32px */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
-        --fl-theme-font-size-body-sm: 1.125rem; /* 18px */
-        --fl-theme-font-size-body-xs: 1rem; /* 16px */
-        --fl-section-v-padding: var(--token-layout-lg);
-        --fl-section-heading-margin-bottom: var(--token-layout-sm);
+        --fl-section-v-padding: calc(var(--token-layout-xl) / 2);
+        --fl-section-hgroup-padding-bottom: var(--token-layout-md);
+        --fl-section-hgroup-gap: var(--token-spacing-2xl);
     }
 }

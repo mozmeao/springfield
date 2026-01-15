@@ -53,6 +53,11 @@ Card - Flare 2026 Design System Cards
     transform: translateY(-2px);
 }
 
+.fl-card .fl-heading-group {
+    gap: unset;
+    padding: 0;
+}
+
 .fl-card
     > :is(
         h1.fl-heading,
@@ -99,6 +104,7 @@ Card - Flare 2026 Design System Cards
         h5.fl-heading,
         h6.fl-heading
     ) {
+    color: inherit;
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--token-font-weight-semibold);
     letter-spacing: -0.01em;
@@ -117,14 +123,16 @@ Card - Flare 2026 Design System Cards
     text-transform: uppercase;
 }
 
-.fl-card .fl-body {
+.fl-card .fl-body > * {
     font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-body-xs);
+    font-size: var(--fl-theme-font-size-body-sm);
     font-weight: var(--token-font-weight-regular);
     line-height: 1.4;
-    margin: 0;
-    margin-top: 0;
     text-wrap: balance;
+}
+
+.fl-card .fl-body > *:first-child {
+    margin-top: 0;
 }
 
 .fl-card .fl-body > *:last-child {
@@ -351,7 +359,8 @@ Illustration Cards List
 }
 
 .fl-illustration-card .fl-heading-group {
-    margin-block-end: var(--token-spacing-sm);
+    gap: 0;
+    padding-block-end: var(--token-spacing-sm);
 }
 
 .fl-illustration-card .fl-card-media,

@@ -16,7 +16,7 @@ theme layer.
 /* TODO: Fix spacing values */
 
 html {
-    font-size: var(--fl-theme-font-size-base);
+    font-size: var(--fl-theme-font-size-body-sm);
 }
 
 body {
@@ -38,19 +38,23 @@ h6 {
     margin-bottom: var(--token-spacing-lg);
 }
 
-h1 {
+h1,
+.fl-heading-size-1 {
     font-size: var(--fl-theme-font-size-heading-xl);
 }
 
-h2 {
+h2,
+.fl-heading-size-2 {
     font-size: var(--fl-theme-font-size-heading-md);
 }
 
-h3 {
+h3,
+.fl-heading-size-3 {
     font-size: var(--fl-theme-font-size-heading-sm);
 }
 
-h4 {
+h4,
+.fl-heading-size-4 {
     font-size: var(--fl-theme-font-size-heading-xs);
 }
 

@@ -8,8 +8,8 @@
     --kit-size: 100px;
     display: flex;
     justify-content: center;
-    padding-bottom: var(--token-layout-md);
-    padding-top: calc(var(--kit-size) + var(--token-layout-md));
+    padding-bottom: var(--fl-section-v-padding);
+    padding-top: calc(var(--kit-size) + (var(--fl-section-v-padding) * 2));
     position: relative;
 }
 
@@ -56,6 +56,6 @@
     }
 
     .fl-pre-footer-cta-button {
-        padding: var(--token-layout-sm) var(--token-layout-lg);
+        padding: var(--token-layout-sm) var(--token-layout-xl);
     }
 }
