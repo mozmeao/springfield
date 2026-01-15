@@ -6,9 +6,11 @@
 
 {% if superheading_text or subheading_text %}
   <hgroup class="fl-heading-group {{ alignment_class }}">
-    <span class="fl-superheading">
-      {{ superheading_text }}
-    </span>
+    {% if superheading_text %}
+      <span class="fl-superheading">
+        {{ superheading_text }}
+      </span>
+    {% endif %}
     <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
       {{ heading_text }}
     </{{ level|default('h2') }}>
