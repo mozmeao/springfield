@@ -12,9 +12,9 @@ For now, this is a blank slate.
 ===================================================================== */
 
 .fl-menu-close-button .fl-menu-close-button-content {
+    height: var(--token-spacing-md);
     margin: 0;
     width: var(--token-spacing-md);
-    height: var(--token-spacing-md);
 }
 
 .fl-menu-category .fl-icon-caret-down {
@@ -31,5 +31,4 @@ For now, this is a blank slate.
     max-width: none;
     padding: var(--token-spacing-lg);
     padding-block-start: var(--fl-section-v-padding);
-
 }
