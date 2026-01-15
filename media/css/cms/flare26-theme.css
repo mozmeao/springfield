@@ -44,7 +44,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
     --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
-
     /* TODO: refactor these away. Subheading font size variables */
     --fl-theme-font-size-subheading-md: 1rem; /* 16px */
     --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
@@ -59,11 +58,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Label font size variables */
     --fl-theme-label-caps-md: 1rem; /* 16px */
-    --fl-theme-label-caps-sm: .875rem; /* 14px */
-    --fl-theme-label-caps-xs: .75rem; /* 12px */
+    --fl-theme-label-caps-sm: 0.875rem; /* 14px */
+    --fl-theme-label-caps-xs: 0.75rem; /* 12px */
     --fl-theme-label-md: 1rem; /* 16px */
-    --fl-theme-label-sm: .875rem; /* 14px */
-    --fl-theme-label-xs: .75rem; /* 12px */
+    --fl-theme-label-sm: 0.875rem; /* 14px */
+    --fl-theme-label-xs: 0.75rem; /* 12px */
 
     /* Line height variables NOT from Figma */
     --fl-theme-line-height-base: 1.2;
@@ -124,7 +123,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
 }
 
-
 /* CSS custom properties are not resolved in media queries; so we
 centralize breakpoints once and flip CSS variables inside.
 components consume the variables (no per-component media queries) */
@@ -147,7 +145,6 @@ components consume the variables (no per-component media queries) */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
         --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
         --fl-section-hgroup-gap: var(--token-spacing-xl);
-
     }
 }
 

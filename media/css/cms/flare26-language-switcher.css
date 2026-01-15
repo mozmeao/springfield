@@ -7,30 +7,31 @@
 /* Language switcher component */
 
 .fl-language-switcher {
-    position: relative;
     color: var(--token-color-white);
+    position: relative;
 }
 
 .fl-language-switcher:has(.fl-language-switcher-select:hover)::before,
 .fl-language-switcher:has(.fl-language-switcher-select:focus)::before,
 .fl-language-switcher:has(.fl-language-switcher-select:focus-within)::before {
-    background: var(--token-color-dark-purple) var(--icon-src) center center no-repeat;
+    background: var(--token-color-dark-purple) var(--icon-src) center center
+        no-repeat;
     background-size: 18px 18px;
 }
 
 .fl-language-switcher::before {
     background-color: currentColor;
-    vertical-align: middle;
+    content: '';
+    display: inline-block;
+    height: 18px;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
     mask: var(--icon-src) no-repeat center / 1em 1em;
     mask-size: 14px;
-    content: "";
-    display: inline-block;
-    height: 18px;
-    width: 18px;
     position: absolute;
-    inset-inline-start: 10px;
-    inset-block-start: 10px;
+    vertical-align: middle;
+    width: 18px;
     z-index: 1;
 }
 
@@ -47,12 +48,12 @@
 }
 
 .fl-language-switcher-link {
-    font-size: 0.875rem;
-    text-decoration: underline;
     color: var(--token-neutrals-gray-3);
-    position: absolute;
+    font-size: 0.875rem;
     inset-block-start: -1.5em;
     padding-block-end: 8px;
+    position: absolute;
+    text-decoration: underline;
 }
 
 .js .fl-language-switcher-link {
@@ -77,40 +78,40 @@
 }
 
 .fl-language-switcher-select-wrapper {
-    position: relative;
     color: var(--token-color-white);
+    position: relative;
 }
 
 .fl-language-switcher-select-wrapper::after {
     background-color: currentColor;
-    vertical-align: middle;
+    content: '';
+    display: inline-block;
+    height: 14px;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
     mask: var(--icon-src) no-repeat center / 1em 1em;
     mask-size: 14px;
-    content: "";
-    display: inline-block;
-    height: 14px;
-    width: 14px;
     position: absolute;
-    inset-inline-end: 12px;
-    inset-block-start: 12px;
+    vertical-align: middle;
+    width: 14px;
     z-index: 1;
 }
 
 .fl-language-switcher-select {
     appearance: unset;
-    line-height: 1.2;
     background-color: var(--token-color-dark-purple);
-    color: var(--token-color-white);
     border: 2px solid var(--token-color-white);
-    font-weight: 600;
+    color: var(--token-color-white);
     font-size: 1rem;
-    padding: 8px calc(1.5em + 16px) 8px 8px;
-    padding-inline-start: 36px; /* space for globe icon */
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
     max-width: 100%;
     min-width: 196px;
+    padding: 8px calc(1.5em + 16px) 8px 8px;
+    padding-inline-start: 36px; /* space for globe icon */
     width: 100%;
-    margin: 0;
 }
 
 .fl-language-switcher-select-wrapper:hover,
@@ -130,13 +131,13 @@
 
 /* Show button when JS is disabled */
 .fl-language-switcher button {
-    display: none;
     background: var(--token-color-white);
-    color: var(--token-color-dark-purple);
     border-radius: 4px;
+    color: var(--token-color-dark-purple);
+    display: none;
+    font-size: 0.875rem;
     margin-block-start: 8px;
     padding: 0 4px;
-    font-size: .875rem;
 }
 
 .no-js .fl-language-switcher button {
