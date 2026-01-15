@@ -16,7 +16,7 @@ Card - Flare 2026 Design System Cards
     justify-content: center;
     align-items: stretch;
     gap: var(--fl-card-grid-gap);
-    padding-block: var(--token-layout-3xs);
+    padding-top: var(--token-layout-3xs);
     container-type: inline-size;
 }
 
@@ -108,14 +108,16 @@ Card - Flare 2026 Design System Cards
     color: var(--token-color-light-purple);
 }
 
-.fl-card .fl-body {
-    margin: 0;
+.fl-card .fl-body > * {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-regular);
-    font-size: var(--fl-theme-font-size-body-xs);
+    font-size: var(--fl-theme-font-size-body-sm);
     line-height: 1.4;
-    margin-top: 0;
     text-wrap: balance;
+}
+
+.fl-card .fl-body > *:first-child {
+    margin-top: 0;
 }
 
 .fl-card .fl-body > *:last-child {

@@ -30,6 +30,7 @@
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
     color: var(--token-color-white);
+    padding-bottom: var(--fl-section-v-padding);
 }
 
 .fl-home-lower {
@@ -37,7 +38,6 @@
     display: flex;
     flex-direction: column;
     padding-top: var(--fl-section-v-padding);
-    gap: var(--fl-section-v-padding);
 }
 
 @media (--viewport-md-up) {
