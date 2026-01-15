@@ -134,6 +134,10 @@ Static values extracted from Figma that do not change based on context.
         'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI',
         'Roboto', sans-serif;
 
+    /* Font sizes */
+    --token-font-size-md: 16px;
+    --token-font-size-sm: 12px;
+
     /* Font weights */
     --token-font-weight-regular: 400;
     --token-font-weight-medium: 500;

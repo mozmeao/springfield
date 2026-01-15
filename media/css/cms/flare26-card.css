@@ -18,9 +18,11 @@ Card - Flare 2026 Design System Cards
     gap: var(--fl-card-grid-gap);
     justify-content: center;
     padding-block: var(--token-layout-3xs);
+    padding-inline: var(--token-spacing-lg);
 }
 
-.fl-card-grid .fl-card {
+.fl-card-grid .fl-card,
+.fl-card-grid .fl-illustration-card {
     flex: 1 1 auto;
 }
 
@@ -194,7 +196,6 @@ Card - Flare 2026 Design System Cards
 @media (--viewport-sm-up) {
     .fl-card-grid {
         --fl-card-sticker-size: 120px;
-        --fl-card-grid-gap: var(--token-spacing-xl);
         flex-flow: row wrap;
     }
 
@@ -333,6 +334,62 @@ Step Cards List - With Kit variant
 
 @media (--viewport-lg-up) {
     .fl-card-grid .fl-step-card {
+        flex-basis: 100%;
+        min-height: unset;
+    }
+}
+
+/* =====================================================================
+Illustration Cards List
+===================================================================== */
+
+.fl-illustration-card {
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: column;
+    padding: 0;
+}
+
+.fl-illustration-card .fl-heading-group {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-illustration-card .fl-card-media,
+.fl-illustration-card .fl-card-media img {
+    border-radius: var(--token-spacing-xl);
+    width: 100%;
+}
+
+.fl-illustration-card .fl-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.fl-illustration-card .fl-superheading {
+    color: var(--token-color-light-purple);
+    display: block;
+    font-size: var(--token-font-size-sm);
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-illustration-card .fl-heading {
+    font-size: var(--token-font-size-md);
+}
+
+.fl-illustration-card .fl-buttons {
+    margin-block-start: auto;
+}
+
+@media (--viewport-sm-up) {
+    .fl-card-grid .fl-illustration-card {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
+        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-grid .fl-illustration-card {
         flex-basis: 100%;
         min-height: unset;
     }
