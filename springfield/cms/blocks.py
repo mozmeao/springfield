@@ -1383,7 +1383,7 @@ class CardGalleryCard(blocks.StructBlock):
         max_num=1,
         required=False,
     )
-    image = ImageChooserBlock()
+    image = ImageVariantsBlock()
 
 
 class CardGalleryCallout(blocks.StructBlock):
