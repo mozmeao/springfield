@@ -87,7 +87,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Card themes */
     --card-bg-color: var(--token-color-white);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
-    --theme-purple-card-bullet-color: var(--token-color-purple);
+    --theme-purple-card-bullet-color: var(--token-color-light-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
