@@ -614,6 +614,75 @@ class LightDarkImageBlock(blocks.StructBlock):
         template = "cms/blocks/light-dark-image.html"
 
 
+class ImageVariantsBlockSettings(blocks.StructBlock):
+    dark_mode_image = ImageChooserBlock(
+        required=False,
+        label="Dark Mode Image",
+        help_text="Optional dark mode image variant",
+    )
+    mobile_image = ImageChooserBlock(
+        required=False,
+        label="Mobile Image",
+        help_text="Optional mobile image variant",
+    )
+    dark_mode_mobile_image = ImageChooserBlock(
+        required=False,
+        label="Dark Mode Mobile Image",
+        help_text="Optional dark mode mobile image variant",
+    )
+
+    class Meta:
+        icon = "image"
+        collapsed = True
+        label = "Image variants"
+        label_format = ""
+        form_classname = "compact-form struct-block"
+
+
+class ImageVariantsBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    settings = ImageVariantsBlockSettings()
+
+    def to_python(self, value):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        if isinstance(value, int):
+            value = {
+                "image": value,
+                "settings": {
+                    "mobile_image": None,
+                    "dark_mode_image": None,
+                    "dark_mode_mobile_image": None,
+                },
+            }
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from old ImageChooserBlock format (just an integer ID
+        # for each image) to new ImageVariantsBlock format (dict with image and settings)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, int):
+                migrated_values.append(
+                    {
+                        "image": value,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": None,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                )
+            else:
+                migrated_values.append(value)
+        return super().bulk_to_python(migrated_values)
+
+    class Meta:
+        label = "Image"
+        label_format = "Image - {image}"
+        template = "cms/blocks/image-variants.html"
+
+
 class VideoBlock(blocks.StructBlock):
     video_url = blocks.URLBlock(
         label="Video URL",

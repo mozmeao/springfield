@@ -1,0 +1,60 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set sizes = sizes or "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw" %}
+{% set widths = widths or "width-{200,400,600,800,1000,1200,1400}" %}
+
+<div class="image-variants-display">
+  {# Dark mode mobile image #}
+  {% if value.settings.dark_mode_mobile_image %}
+    {{ srcset_image(
+        value.settings.dark_mode_mobile_image,
+        widths,
+        sizes=sizes,
+        width=value.settings.dark_mode_mobile_image.width,
+        height=value.settings.dark_mode_mobile_image.height,
+        loading="lazy",
+        class="display-dark display-mobile",
+    ) }}
+  {% endif %}
+
+  {# Dark mode desktop image #}
+  {% if value.settings.dark_mode_image %}
+    {{ srcset_image(
+        value.settings.dark_mode_image,
+        widths,
+        sizes=sizes,
+        width=value.settings.dark_mode_image.width,
+        height=value.settings.dark_mode_image.height,
+        loading="lazy",
+        class="display-dark display-desktop",
+    ) }}
+  {% endif %}
+
+  {# Light mode mobile image #}
+  {% if value.settings.mobile_image %}
+    {{ srcset_image(
+        value.settings.mobile_image,
+        widths,
+        sizes=sizes,
+        width=value.settings.mobile_image.width,
+        height=value.settings.mobile_image.height,
+        loading="lazy",
+        class="display-light display-mobile",
+    ) }}
+  {% endif %}
+
+  {# Default/desktop light mode image #}
+  {{ srcset_image(
+      value.image,
+      widths,
+      sizes=sizes,
+      width=value.image.width,
+      height=value.image.height,
+      loading="lazy",
+      class="display-light display-desktop",
+  ) }}
+</div>

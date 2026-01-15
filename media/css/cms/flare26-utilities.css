@@ -66,6 +66,74 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: block;
 }
 
+/* Image Variants Display - handles desktop/mobile + light/dark combinations */
+.image-variants-display {
+    display: contents;
+}
+
+.image-variants-display .display-light,
+.image-variants-display .display-dark {
+    display: none;
+}
+
+/* Light mode desktop - default */
+@media (prefers-color-scheme: light) {
+    .image-variants-display .display-light.display-desktop {
+        display: block;
+    }
+}
+
+/* Light mode mobile */
+@media (prefers-color-scheme: light) and (--viewport-below-md) {
+    .image-variants-display .display-light.display-desktop {
+        display: none;
+    }
+
+    .image-variants-display .display-light.display-mobile {
+        display: block;
+    }
+}
+
+/* Dark mode desktop */
+@media (prefers-color-scheme: dark) {
+    .image-variants-display .display-dark.display-desktop {
+        display: block;
+    }
+}
+
+/* Dark mode mobile */
+@media (prefers-color-scheme: dark) and (--viewport-below-md) {
+    .image-variants-display .display-dark.display-desktop {
+        display: none;
+    }
+
+    .image-variants-display .display-dark.display-mobile {
+        display: block;
+    }
+}
+
+/* Fallback: if no mobile variant is set, show desktop on mobile */
+.image-variants-display:not(:has(.display-mobile)) .display-light.display-desktop {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    .image-variants-display:not(:has(.display-mobile)) .display-dark.display-desktop {
+        display: block;
+    }
+}
+
+/* Fallback: if no dark variant is set, show light variant in dark mode */
+.image-variants-display:not(:has(.display-dark)) .display-light.display-desktop {
+    display: block;
+}
+
+@media (--viewport-below-md) {
+    .image-variants-display:not(:has(.display-dark)) .display-light.display-mobile {
+        display: block;
+    }
+}
+
 .conditional-display {
     display: none;
 }
