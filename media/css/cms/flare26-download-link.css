@@ -1,4 +1,3 @@
-
 /* ================================================
    Download Links
    ================================================ */
@@ -11,9 +10,9 @@
 }
 
 .fl-header .download-link {
+    display: block;
     font-weight: var(--token-font-weight-bold);
     text-align: center;
-    display: block;
 }
 
 .fl-header .download-link:hover {
@@ -21,18 +20,18 @@
 }
 
 .fl-header .fl-icon-download-white {
-    vertical-align: unset;
     margin-left: 4px;
+    vertical-align: unset;
 }
 
 .fl-nav-mobile-download-link {
-    position: fixed;
+    background: var(--fl-theme-background);
+    border-top: 1px solid var(--token-color-soft-purple);
     bottom: 0;
     left: 0;
-    width: 100%;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
-    border-top: 1px solid var(--token-color-soft-purple);
-    background: var(--fl-theme-background);
+    position: fixed;
+    width: 100%;
 }
 
 .fl-nav-mobile-download-link .fl-fx-download-container {
@@ -41,18 +40,21 @@
 
 .fl-nav-mobile-download-link .download-button {
     display: block;
-    width: 100%;
     padding: var(--token-spacing-md);
+    width: 100%;
 }
 
 @media (--viewport-below-md) {
     .fl-header .fl-header-main-download-button .download-link {
+        border-radius: var(--token-spacing-sm);
         font-size: 0;
         padding: var(--token-spacing-lg);
-        border-radius: var(--token-spacing-sm);
     }
 
-    .fl-header .fl-nav.is-open ~ .fl-header-buttons .fl-header-main-download-button {
+    .fl-header
+        .fl-nav.is-open
+        ~ .fl-header-buttons
+        .fl-header-main-download-button {
         display: none;
     }
 }
@@ -61,7 +63,6 @@
     .fl-header-main-download-button .fl-icon {
         display: none;
     }
-
 }
 
 @media screen and (prefers-color-scheme: dark) {

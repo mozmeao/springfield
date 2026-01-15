@@ -83,7 +83,7 @@ repos:
     hooks:
       - id: prettier
         additional_dependencies:
-        - prettier@3.3.3
+        - prettier@^3.7.4
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2
     hooks:

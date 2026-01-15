@@ -16,33 +16,35 @@
     --kit-banner-padding-right: var(--token-layout-3xs);
     --kit-img-position: bottom center;
     background-image: var(--kit-img), var(--token-gradient-purple);
-    background-size: var(--kit-img-size), cover;
     background-position: var(--kit-img-position), center;
     background-repeat: no-repeat, no-repeat;
+    background-size: var(--kit-img-size), cover;
     border: none;
-    position: relative;
-    padding: calc(var(--fl-section-v-padding) * 2) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-3xs);
     color: var(--token-color-white);
+    padding: calc(var(--fl-section-v-padding) * 2)
+        var(--kit-banner-padding-right) var(--kit-banner-padding-bottom)
+        var(--token-layout-3xs);
+    position: relative;
 }
 
 .fl-banner-kit .fl-banner-content {
-    width: 100%;
     min-width: 0;
+    width: 100%;
 }
 
 .fl-banner-kit .fl-heading {
-    text-wrap: balance;
     display: block;
+    text-wrap: balance;
 }
 
 .fl-banner-kit .fl-banner-content .fl-heading {
-    max-width: min(740px, 100%);
-    margin: 0 auto;
-    text-wrap: balance;
-    display: block;
-    width: 100%;
     box-sizing: border-box;
+    display: block;
+    margin: 0 auto;
+    max-width: min(740px, 100%);
     overflow-wrap: break-word;
+    text-wrap: balance;
+    width: 100%;
     word-break: normal;
 }
 
@@ -51,8 +53,8 @@
 }
 
 .fl-banner-kit .fl-banner-content .fl-subheading {
-    max-width: 500px;
     margin: 0 auto;
+    max-width: 500px;
     text-wrap: balance;
 }
 
@@ -64,33 +66,36 @@
     --kit-img: url('/media/img/firefox/flare/kit-dive.png');
     --kit-banner-padding-bottom: 375px;
     --kit-img-position: left -70px bottom var(--token-layout-3xs);
-    --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px) auto;
+    --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px)
+        auto;
 }
 
 .fl-banner-kit-with-qr {
     --kit-img: url('/media/img/firefox/flare/kit-qr.png');
     --kit-img-position: bottom center;
     --kit-img-size: 100% auto;
-    --kit-banner-padding-bottom: calc(100% * 447 / 596 + var(--token-layout-md));
+    --kit-banner-padding-bottom: calc(
+        100% * 447 / 596 + var(--token-layout-md)
+    );
     position: relative;
 }
 
 .fl-banner-kit-qr {
-    position: absolute;
-    z-index: 1;
     bottom: 0;
     left: 50%;
+    position: absolute;
     transform: translateX(-53%);
     width: 45%;
+    z-index: 1;
 }
 
 .fl-banner-kit-qr svg {
-    width: 100%;
     height: 100%;
+    width: 100%;
 }
 
 /* Override the fill color to transparent for the QR background */
-.fl-banner-kit-qr svg rect[fill="white"] {
+.fl-banner-kit-qr svg rect[fill='white'] {
     fill: transparent;
 }
 
@@ -99,12 +104,13 @@
         --kit-img-size: min(90%, 400px) max(20%, 120px);
         --kit-banner-padding-right: var(--token-layout-md);
         --kit-banner-padding-bottom: var(--token-layout-md);
-        padding: var(--token-layout-md) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-md);
+        padding: var(--token-layout-md) var(--kit-banner-padding-right)
+            var(--kit-banner-padding-bottom) var(--token-layout-md);
     }
 
     .fl-banner-kit-diving-in .fl-banner-content {
-        text-align: center;
         align-items: center;
+        text-align: center;
     }
 
     .fl-banner-kit-diving-in .fl-buttons {
@@ -120,12 +126,14 @@
     .fl-banner-kit-with-qr {
         --kit-img-position: bottom center;
         --kit-img-size: 60% auto;
-        --kit-banner-padding-bottom: calc(60% * 447 / 596 + var(--token-layout-md));
+        --kit-banner-padding-bottom: calc(
+            60% * 447 / 596 + var(--token-layout-md)
+        );
     }
 
     .fl-banner-kit-with-qr .fl-banner-content {
-        text-align: center;
         align-items: center;
+        text-align: center;
     }
 
     .fl-banner-kit-with-qr .fl-buttons {
@@ -138,14 +146,14 @@
         transform: translateX(-53%);
         width: 28%;
     }
-
 }
 
 @media (--viewport-md-up) {
     .fl-banner-kit {
         --kit-banner-padding-right: var(--token-layout-xl);
         --kit-banner-padding-bottom: var(--token-layout-xl);
-        padding: var(--token-layout-xl) var(--kit-banner-padding-right) var(--kit-banner-padding-bottom) var(--token-layout-xl);
+        padding: var(--token-layout-xl) var(--kit-banner-padding-right)
+            var(--kit-banner-padding-bottom) var(--token-layout-xl);
     }
 
     .fl-banner-kit-diving-in {
@@ -156,8 +164,8 @@
     }
 
     .fl-banner-kit-diving-in .fl-banner-content {
-        text-align: center;
         margin: 0 auto;
+        text-align: center;
     }
 
     .fl-banner-kit-diving-in .fl-buttons {
@@ -167,13 +175,15 @@
     .fl-banner-kit-with-qr {
         --kit-img-size: 550px auto;
         --kit-img-position: bottom center;
-        --kit-banner-padding-bottom: calc(550px * 447 / 596 + var(--token-layout-md));
+        --kit-banner-padding-bottom: calc(
+            550px * 447 / 596 + var(--token-layout-md)
+        );
         --kit-banner-padding-right: var(--token-layout-xl);
     }
 
     .fl-banner-kit-with-qr .fl-banner-content {
-        text-align: center;
         margin: 0 auto;
+        text-align: center;
     }
 
     .fl-banner-kit-with-qr .fl-buttons {
@@ -209,7 +219,9 @@
     .fl-banner-kit-with-qr {
         --kit-img-size: 686px auto;
         --kit-img-position: bottom center;
-        --kit-banner-padding-bottom: calc(686px * 447 / 596 + var(--token-layout-md));
+        --kit-banner-padding-bottom: calc(
+            686px * 447 / 596 + var(--token-layout-md)
+        );
         --kit-banner-padding-right: var(--token-layout-xl);
     }
 
