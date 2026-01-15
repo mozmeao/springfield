@@ -26,7 +26,8 @@
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: var(--token-layout-3xs);
+    padding-bottom: unset;
+    gap: unset;
 }
 
 .fl-intro .fl-subheading {
@@ -60,6 +61,7 @@
     font-weight: var(--token-font-weight-medium);
     font-size: var(--fl-theme-font-size-body-2xs);
     position: relative;
+    margin: 0 auto;
 }
 
 .fl-home-intro .fl-superheading:has(a:hover) {

@@ -56,6 +56,6 @@
     }
 
     .fl-pre-footer-cta-button {
-        padding: var(--token-layout-sm) var(--token-layout-lg);
+        padding: var(--token-layout-sm) var(--token-layout-xl);
     }
 }

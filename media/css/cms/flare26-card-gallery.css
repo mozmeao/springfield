@@ -90,7 +90,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: var(--token-spacing-xl);
+    gap: var(--token-spacing-md);
 }
 
 .fl-card-gallery-icon {

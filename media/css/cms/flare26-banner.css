@@ -243,7 +243,7 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        padding: var(--token-layout-lg);
+        padding: var(--token-layout-xl);
         border-radius: var(--token-border-radius-xl);
     }
 
