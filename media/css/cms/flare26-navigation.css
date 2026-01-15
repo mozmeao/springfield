@@ -114,7 +114,7 @@
 
 .fl-nav-link {
     display: block;
-    font-size: var(--fl-theme-font-size-base);
+    font-size: var(--fl-theme-font-size-body-sm);
     color: var(--fl-theme-navigation-link);
     text-decoration: none;
     padding: 8px 0;
@@ -135,7 +135,7 @@
     color: var(--fl-theme-color-text-body);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--token-font-weight-semibold);
-    font-size: 1.125rem;
+    font-size: var(--fl-theme-font-size-body-sm);
     margin-bottom: var(--token-spacing-sm);
     text-decoration: none;
 }

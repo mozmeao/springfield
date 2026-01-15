@@ -32,7 +32,6 @@ h2.fl-heading,
     line-height: 0.9;
 }
 
-
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
     color: var(--token-color-light-purple);

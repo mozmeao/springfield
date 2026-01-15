@@ -23,7 +23,7 @@ Button - Flare 2026 Design System Buttons
     white-space: nowrap;
     background-color: var(--token-color-light-purple);
     color: var(--token-color-white);
-    font-size: var(--fl-theme-font-size-base);
+    font-size: var(--fl-theme-font-size-body-sm);
     padding: var(--token-spacing-md) var(--token-spacing-xl);
 }
 

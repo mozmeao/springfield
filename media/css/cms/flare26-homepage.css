@@ -30,6 +30,7 @@
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
     color: var(--fl-theme-color-text);
+    padding-bottom: var(--fl-section-v-padding);
 }
 
 .fl-home-lower {

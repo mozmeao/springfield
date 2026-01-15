@@ -4,7 +4,7 @@
     gap: var(--token-layout-xs);
     text-align: center;
     margin: 0 auto;
-    padding-inline: var(--token-spacing-lg);
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg);
 }
 
 .fl-showcase-heading,
@@ -15,6 +15,7 @@
 
 .fl-showcase-caption {
     text-align: center;
+    font-size: var(--fl-theme-font-size-body-sm);
 }
 
 .fl-showcase-caption:has(.fl-subheading) {
