@@ -2,6 +2,16 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--token-layout-sm);
+    gap: var(--token-layout-xs);
+    overflow: hidden;
+    padding: var(--token-layout-lg) 0 0;
     text-align: center;
+}
+
+.fl-download-intro-featured-image {
+    padding-block-start: var(--token-spacing-md);
+}
+
+.fl-download-intro-featured-image img {
+    margin-block-end: -4px;
 }

@@ -170,6 +170,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="The platform this download page is for (e.g., Windows, macOS, Linux).",
     )
     subheading = RichTextField(default="Subheading", features=HEADING_TEXT_FEATURES)
+    intro_footer_text = RichTextField(null=True, blank=True, features=HEADING_TEXT_FEATURES)
     featured_image = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,
@@ -197,6 +198,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("platform"),
         FieldPanel("subheading"),
+        FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
         FieldPanel("content"),
     ]
