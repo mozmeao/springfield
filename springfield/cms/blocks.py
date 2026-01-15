@@ -1362,10 +1362,67 @@ class ShowcaseSettings(blocks.StructBlock):
 class ShowcaseBlock(blocks.StructBlock):
     settings = ShowcaseSettings()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    desktop_image = LightDarkImageBlock(label="Desktop Image")
-    mobile_image = LightDarkImageBlock(label="Mobile Image")
+    image = ImageVariantsBlock()
     caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    def to_python(self, value):
+        # Handle migration from the old desktop_image and mobile_image fields to
+        # the new image field (ImageVariantsBlock)
+        if isinstance(value, dict) and "desktop_image" in value and "mobile_image" in value:
+            desktop = value.pop("desktop_image")
+            mobile = value.pop("mobile_image")
+
+            # Extract image IDs from the old LightDarkImageBlock structures
+            desktop_light = desktop.get("image") if isinstance(desktop, dict) else None
+            desktop_dark = desktop.get("dark_image") if isinstance(desktop, dict) else None
+            mobile_light = mobile.get("image") if isinstance(mobile, dict) else None
+            mobile_dark = mobile.get("dark_image") if isinstance(mobile, dict) else None
+
+            # Build new ImageVariantsBlock structure
+            value["image"] = {
+                "image": desktop_light,
+                "settings": {
+                    "mobile_image": mobile_light,
+                    "dark_mode_image": desktop_dark,
+                    "dark_mode_mobile_image": mobile_dark,
+                },
+            }
+
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from the old desktop_image and mobile_image fields to
+        # the new image field (ImageVariantsBlock)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, dict) and "desktop_image" in value and "mobile_image" in value:
+                desktop = value.get("desktop_image")
+                mobile = value.get("mobile_image")
+
+                # Extract image IDs from the old LightDarkImageBlock structures
+                desktop_light = desktop.get("image") if isinstance(desktop, dict) else None
+                desktop_dark = desktop.get("dark_image") if isinstance(desktop, dict) else None
+                mobile_light = mobile.get("image") if isinstance(mobile, dict) else None
+                mobile_dark = mobile.get("dark_image") if isinstance(mobile, dict) else None
+
+                # Build new ImageVariantsBlock structure
+                migrated_value = {**value}
+                migrated_value.pop("desktop_image", None)
+                migrated_value.pop("mobile_image", None)
+                migrated_value["image"] = {
+                    "image": desktop_light,
+                    "settings": {
+                        "mobile_image": mobile_light,
+                        "dark_mode_image": desktop_dark,
+                        "dark_mode_mobile_image": mobile_dark,
+                    },
+                }
+                migrated_values.append(migrated_value)
+            else:
+                migrated_values.append(value)
+
+        return super().bulk_to_python(migrated_values)
 
     class Meta:
         template = "cms/blocks/sections/showcase.html"
