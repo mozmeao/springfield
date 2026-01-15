@@ -83,13 +83,14 @@
     bottom: 0;
     left: 50%;
     position: absolute;
-    transform: translateX(-53%);
+    transform: translateX(-56%);
     width: 45%;
     z-index: 1;
 }
 
 .fl-banner-kit-qr svg {
     height: 100%;
+    margin-block-end: var(--token-spacing-xl);
     width: 100%;
 }
 
@@ -141,7 +142,7 @@
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
         bottom: 10px;
-        left: 50%;
+        left: 49.5%;
         transform: translateX(-53%);
         width: 28%;
     }
@@ -195,7 +196,7 @@
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
         bottom: 20px;
-        left: 50%;
+        left: 49.5%;
         max-width: 270px;
     }
 
@@ -230,7 +231,7 @@
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
         bottom: 20px;
-        left: 50%;
+        left: 49.5%;
         max-width: 320px;
     }
 }
