@@ -10,7 +10,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery {
     --gallery-card-padding: var(--token-layout-2xs);
-    --gallery-card-radius: var(--token-border-radius-md);
     --gallery-callout-card-padding: var(--token-layout-md)
         var(--token-layout-2xs);
     --gallery-callout-card-max-width: 400px;
@@ -28,11 +27,15 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery-card {
     background-color: var(--card-bg-color);
-    border-radius: var(--gallery-card-radius);
+    border-radius: var(--gallery-card-radius, var(--token-border-radius-md));
     color: var(--fl-theme-color-text);
     display: grid;
     gap: var(--token-spacing-md);
     overflow: hidden;
+}
+
+.fl-card-gallery-card .fl-buttons {
+    margin-top: var(--token-spacing-lg);
 }
 
 .purple-card-theme {
@@ -135,7 +138,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 @media (--viewport-md-up) {
     .fl-card-gallery {
         --gallery-card-padding: var(--token-layout-xs);
-        --gallery-card-radius: var(--token-border-radius-xl);
         --gallery-main-image-height: 120px;
         --gallery-secondary-image-height: 120px;
         --gallery-callout-card-padding: var(--token-layout-xs)
@@ -174,6 +176,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 @media (--viewport-lg-up) {
     .fl-card-gallery {
+        --gallery-card-radius: var(--token-border-radius-xl);
         --gallery-card-padding: var(--token-layout-md);
         --gallery-callout-card-padding: var(--token-layout-md)
             var(--token-layout-2xs);
