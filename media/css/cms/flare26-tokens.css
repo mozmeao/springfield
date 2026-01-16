@@ -136,8 +136,9 @@ Static values extracted from Figma that do not change based on context.
         'Roboto', sans-serif;
 
     /* Font sizes */
+    --token-font-size-xs: 12px;
+    --token-font-size-sm: 14px;
     --token-font-size-md: 16px;
-    --token-font-size-sm: 12px;
 
     /* Font weights */
     --token-font-weight-regular: 400;

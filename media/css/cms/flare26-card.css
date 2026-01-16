@@ -378,7 +378,7 @@ Illustration Cards List
 .fl-illustration-card .fl-superheading {
     color: var(--token-color-light-purple);
     display: block;
-    font-size: var(--token-font-size-sm);
+    font-size: var(--token-font-size-xs);
     margin-block-end: var(--token-spacing-sm);
 }
 

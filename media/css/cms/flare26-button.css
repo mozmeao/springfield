@@ -69,6 +69,18 @@ Button - Flare 2026 Design System Buttons
     background-color: var(--token-color-black-16);
 }
 
+.fl-button.button-link,
+.fl-button.button-link:hover,
+.fl-button.button-link:active {
+    background-color: transparent;
+    border: none;
+    color: var(--token-color-link-purple);
+    font-size: var(--token-font-size-sm);
+    font-weight: var(--token-font-weight-regular);
+    padding: 0;
+    text-decoration: underline;
+}
+
 /* Button sizes */
 .fl-button-small {
     padding: var(--token-spacing-sm) var(--token-spacing-xl);

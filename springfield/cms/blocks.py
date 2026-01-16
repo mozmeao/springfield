@@ -414,6 +414,7 @@ class BaseButtonValue(blocks.StructValue):
             "ghost": "button-ghost",
             "secondary": "button-secondary",
             "tertiary": "button-tertiary",
+            "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
 
@@ -429,6 +430,7 @@ class BaseButtonSettings(blocks.StructBlock):
             ("secondary", "Secondary"),
             ("tertiary", "Tertiary"),
             ("ghost", "Ghost"),
+            ("link", "Link"),
         ),
         required=False,
         inline_form=True,
