@@ -13,6 +13,7 @@ import { createFocusTrap } from 'focus-trap';
 
     if (headerEl) {
         const headroomInstance = new Headroom(headerEl, {
+            offset: 80,
             classes: {
                 pinned: 'headroom-pinned',
                 unpinned: 'headroom-unpinned',
