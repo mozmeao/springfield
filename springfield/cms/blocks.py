@@ -811,8 +811,7 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _StickerCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
-        image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -823,6 +822,74 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
             max_num=1,
             required=False,
         )
+
+        def to_python(self, value):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            if isinstance(value, dict) and "dark_image" in value:
+                dark_image_id = value.pop("dark_image")
+                image_id = value.get("image")
+
+                # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                if isinstance(image_id, int):
+                    value["image"] = {
+                        "image": image_id,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": dark_image_id,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+            elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                # Handle case where there's just an old ImageChooserBlock ID
+                value["image"] = {
+                    "image": value["image"],
+                    "settings": {
+                        "mobile_image": None,
+                        "dark_mode_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                }
+            return super().to_python(value)
+
+        def bulk_to_python(self, values):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            migrated_values = []
+            for value in values:
+                if isinstance(value, dict) and "dark_image" in value:
+                    dark_image_id = value.get("dark_image")
+                    image_id = value.get("image")
+
+                    migrated_value = {**value}
+                    migrated_value.pop("dark_image", None)
+
+                    # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                    if isinstance(image_id, int):
+                        migrated_value["image"] = {
+                            "image": image_id,
+                            "settings": {
+                                "mobile_image": None,
+                                "dark_mode_image": dark_image_id,
+                                "dark_mode_mobile_image": None,
+                            },
+                        }
+                    migrated_values.append(migrated_value)
+                elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                    # Handle case where there's just an old ImageChooserBlock ID
+                    migrated_value = {**value}
+                    migrated_value["image"] = {
+                        "image": value["image"],
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": None,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                    migrated_values.append(migrated_value)
+                else:
+                    migrated_values.append(value)
+            return super().bulk_to_python(migrated_values)
 
         class Meta:
             label = "Sticker Card"
