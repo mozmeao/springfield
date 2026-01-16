@@ -754,7 +754,9 @@ button.mzp-c-cta-link {
 // download as default checkbox
 
 .default-browser-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-weight: normal;
     margin: 0 auto $spacing-lg;
     padding-bottom: 0;
@@ -771,5 +773,16 @@ button.mzp-c-cta-link {
 
     .c-intro-download & {
         margin: 0 0 $spacing-lg;
+    }
+
+    .loading {
+        display: none;
+
+        &.show {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: url('/media/img/icons/loading.svg') no-repeat center;
+        }
     }
 }
