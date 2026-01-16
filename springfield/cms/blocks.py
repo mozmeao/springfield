@@ -1466,6 +1466,7 @@ class ShowcaseBlock(blocks.StructBlock):
 
 class CardGalleryCard(blocks.StructBlock):
     icon = IconChoiceBlock()
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
@@ -1478,6 +1479,7 @@ class CardGalleryCard(blocks.StructBlock):
 
 
 class CardGalleryCallout(blocks.StructBlock):
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
 
