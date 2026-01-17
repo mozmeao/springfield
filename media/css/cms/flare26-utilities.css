@@ -43,7 +43,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 @media (prefers-color-scheme: light) {
     .light-dark-display .display-light {
-        display: block;
+        display: unset;
     }
 
     .light-dark-display .display-dark {
@@ -57,13 +57,13 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     }
 
     .light-dark-display .display-dark {
-        display: block;
+        display: unset;
     }
 }
 
 /* Fallback if no dark variant is set */
 .light-dark-display:not(:has(.display-dark)) .display-light {
-    display: block;
+    display: unset;
 }
 
 /* Image Variants Display - handles desktop/mobile + light/dark combinations */
@@ -77,63 +77,63 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 /* Light mode desktop */
-@media (prefers-color-scheme: light) and (--viewport-md-up) {
+@media (prefers-color-scheme: light) and (--viewport-sm-up) {
     .image-variants-display .display-light.display-desktop {
-        display: block;
+        display: unset;
     }
 
     /* Fallback: if no dark variant is set, show light variant in dark mode */
     .image-variants-display:not(:has(.display-dark)) .display-light.display-desktop {
-        display: block;
+        display: unset;
     }
 }
 
 /* Light mode mobile */
-@media (prefers-color-scheme: light) and (--viewport-below-md) {
+@media (prefers-color-scheme: light) and (--viewport-xs) {
     .image-variants-display .display-light.display-desktop {
         display: none;
     }
 
     .image-variants-display .display-light.display-mobile {
-        display: block;
+        display: unset;
     }
 
     /* Fallback: if no mobile variant is set, show desktop on mobile */
     .image-variants-display:not(:has(.display-mobile)) .display-light.display-desktop {
-        display: block;
+        display: unset;
     }
 
     /* Fallback: if no dark variant is set, show light mobile in dark mode */
     .image-variants-display:not(:has(.display-dark)) .display-light.display-mobile {
-        display: block;
+        display: unset;
     }
 
     /* Fallback: if no mobile and no dark variant, show light desktop */
     .image-variants-display:not(:has(.display-mobile)):not(:has(.display-dark)) .display-light.display-desktop {
-        display: block;
+        display: unset;
     }
 }
 
 /* Dark mode desktop */
-@media (prefers-color-scheme: dark) and (--viewport-md-up) {
+@media (prefers-color-scheme: dark) and (--viewport-sm-up) {
     .image-variants-display .display-dark.display-desktop {
-        display: block;
+        display: unset;
     }
 }
 
 /* Dark mode mobile */
-@media (prefers-color-scheme: dark) and (--viewport-below-md) {
+@media (prefers-color-scheme: dark) and (--viewport-xs) {
     .image-variants-display .display-dark.display-desktop {
         display: none;
     }
 
     .image-variants-display .display-dark.display-mobile {
-        display: block;
+        display: unset;
     }
 
     /* Fallback: if no mobile variant is set, show desktop on mobile */
     .image-variants-display:not(:has(.display-mobile)) .display-dark.display-desktop {
-        display: block;
+        display: unset;
     }
 }
 
@@ -147,7 +147,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .conditional-display.is-preview {
-    display: block;
+    display: unset;
     border: red dashed 2px;
     position: relative;
 }
@@ -164,31 +164,31 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .is-firefox .conditional-display.condition-is-firefox {
-    display: block;
+    display: unset;
 }
 
 .not-firefox .conditional-display.condition-not-firefox {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
-    display: block;
+    display: unset;
 }
 
 .windows-10-plus .conditional-display.condition-windows-10-plus {
-    display: block;
+    display: unset;
 }
 
 /* The platform class is placed on the html element and the signed-in state class is placed on the body element */
 
 .windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
-    display: block;
+    display: unset;
 }
 
 .windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
-    display: block;
+    display: unset;
 }
