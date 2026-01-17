@@ -7,54 +7,65 @@
 {% set sizes = sizes or "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw" %}
 {% set widths = widths or "width-{200,400,600,800,1000,1200,1400}" %}
 
-<div class="image-variants-display">
-  {# Dark mode mobile image #}
-  {% if value.settings.dark_mode_mobile_image %}
-    {{ srcset_image(
-        value.settings.dark_mode_mobile_image,
-        widths,
-        sizes=sizes,
-        width=value.settings.dark_mode_mobile_image.width,
-        height=value.settings.dark_mode_mobile_image.height,
-        loading="lazy",
-        class="display-dark display-mobile",
-    ) }}
-  {% endif %}
+{# Default/desktop light mode image #}
+  {%- set default_display_classes -%}
+    {% if value.settings.dark_mode_image %}display-light{% endif %}
+    {% if value.settings.mobile_image %}display-desktop{% endif %}
+  {%- endset -%}
+{{ srcset_image(
+    value.image,
+    widths,
+    sizes=sizes,
+    width=value.image.width,
+    height=value.image.height,
+    loading="lazy",
+    class=default_display_classes,
+) }}
 
-  {# Dark mode desktop image #}
-  {% if value.settings.dark_mode_image %}
-    {{ srcset_image(
-        value.settings.dark_mode_image,
-        widths,
-        sizes=sizes,
-        width=value.settings.dark_mode_image.width,
-        height=value.settings.dark_mode_image.height,
-        loading="lazy",
-        class="display-dark display-desktop",
-    ) }}
-  {% endif %}
-
-  {# Light mode mobile image #}
-  {% if value.settings.mobile_image %}
-    {{ srcset_image(
-        value.settings.mobile_image,
-        widths,
-        sizes=sizes,
-        width=value.settings.mobile_image.width,
-        height=value.settings.mobile_image.height,
-        loading="lazy",
-        class="display-light display-mobile",
-    ) }}
-  {% endif %}
-
-  {# Default/desktop light mode image #}
+{# Light mode mobile image #}
+{% if value.settings.mobile_image %}
+  {%- set mobile_classes -%}
+    display-mobile
+    {% if value.settings.dark_mode_mobile_image %}display-light{% endif %}
+  {%- endset -%}
   {{ srcset_image(
-      value.image,
+      value.settings.mobile_image,
       widths,
       sizes=sizes,
-      width=value.image.width,
-      height=value.image.height,
+      width=value.settings.mobile_image.width,
+      height=value.settings.mobile_image.height,
       loading="lazy",
-      class="display-light display-desktop",
+      class=mobile_classes,
   ) }}
-</div>
+{% endif %}
+
+{# Dark mode mobile image #}
+{% if value.settings.dark_mode_mobile_image %}
+  {{ srcset_image(
+      value.settings.dark_mode_mobile_image,
+      widths,
+      sizes=sizes,
+      width=value.settings.dark_mode_mobile_image.width,
+      height=value.settings.dark_mode_mobile_image.height,
+      loading="lazy",
+      class="display-dark display-mobile",
+  ) }}
+{% endif %}
+
+{# Dark mode desktop image #}
+{% if value.settings.dark_mode_image %}
+{%- set dark_desktop_classes -%}
+  display-dark
+  {% if value.settings.dark_mode_mobile_image %}display-desktop{% endif %}
+{%- endset -%}
+
+  {{ srcset_image(
+      value.settings.dark_mode_image,
+      widths,
+      sizes=sizes,
+      width=value.settings.dark_mode_image.width,
+      height=value.settings.dark_mode_image.height,
+      loading="lazy",
+      class=dark_desktop_classes,
+  ) }}
+{% endif %}

@@ -78,6 +78,11 @@ Card - Flare 2026 Design System Cards
     margin: 0;
 }
 
+.fl-card-sticker {
+    order: 1;
+    margin: auto;
+}
+
 .fl-card > div:has(.fl-card-sticker) {
     order: 2;
 }
@@ -154,7 +159,7 @@ Card - Flare 2026 Design System Cards
     margin: 0;
 }
 
-.fl-card-sticker {
+.fl-card-sticker img {
     width: var(--fl-card-sticker-size, 60px);
     height: var(--fl-card-sticker-size, 60px);
     margin: 0;

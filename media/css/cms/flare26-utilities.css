@@ -32,6 +32,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
+/* todo: refactor this utility away */
 .light-dark-display {
     display: contents;
 }
@@ -66,76 +67,64 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-/* Image Variants Display - handles desktop/mobile + light/dark combinations */
-.image-variants-display {
-    display: contents;
-}
+/* Mobile/dark mode image display utilities. We keep the CSS selectors
+   simple here by ensuring these classes only exist when they're needed.
+   See the image-variants.html template for conditionals that say
+   'only display `display-desktop` if a mobile image exists', etc.  */
 
-.image-variants-display .display-light,
-.image-variants-display .display-dark {
+.display-desktop {
     display: none;
 }
 
-/* Light mode desktop */
-@media (prefers-color-scheme: light) and (--viewport-sm-up) {
-    .image-variants-display .display-light.display-desktop {
+@media (--viewport-sm-up) {
+    .display-desktop {
         display: unset;
     }
 
-    /* Fallback: if no dark variant is set, show light variant in dark mode */
-    .image-variants-display:not(:has(.display-dark)) .display-light.display-desktop {
-        display: unset;
-    }
-}
-
-/* Light mode mobile */
-@media (prefers-color-scheme: light) and (--viewport-xs) {
-    .image-variants-display .display-light.display-desktop {
+    .display-mobile {
         display: none;
     }
-
-    .image-variants-display .display-light.display-mobile {
-        display: unset;
-    }
-
-    /* Fallback: if no mobile variant is set, show desktop on mobile */
-    .image-variants-display:not(:has(.display-mobile)) .display-light.display-desktop {
-        display: unset;
-    }
-
-    /* Fallback: if no dark variant is set, show light mobile in dark mode */
-    .image-variants-display:not(:has(.display-dark)) .display-light.display-mobile {
-        display: unset;
-    }
-
-    /* Fallback: if no mobile and no dark variant, show light desktop */
-    .image-variants-display:not(:has(.display-mobile)):not(:has(.display-dark)) .display-light.display-desktop {
-        display: unset;
-    }
 }
 
-/* Dark mode desktop */
-@media (prefers-color-scheme: dark) and (--viewport-sm-up) {
-    .image-variants-display .display-dark.display-desktop {
-        display: unset;
-    }
-}
-
-/* Dark mode mobile */
-@media (prefers-color-scheme: dark) and (--viewport-xs) {
-    .image-variants-display .display-dark.display-desktop {
+@media (prefers-color-scheme: light) {
+    .display-dark {
         display: none;
     }
+}
 
-    .image-variants-display .display-dark.display-mobile {
-        display: unset;
-    }
-
-    /* Fallback: if no mobile variant is set, show desktop on mobile */
-    .image-variants-display:not(:has(.display-mobile)) .display-dark.display-desktop {
-        display: unset;
+@media (prefers-color-scheme: dark) {
+    .display-light {
+        display: none;
     }
 }
+
+@media (--viewport-xs) and (prefers-color-scheme: dark) {
+    .display-dark.display-desktop {
+        display: none;
+    }
+}
+
+@media (--viewport-xs) and (prefers-color-scheme: light) {
+    .display-light.display-desktop {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-mobile {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: light) {
+    .display-light.display-mobile {
+        display: none;
+    }
+}
+
+
+
+
 
 .conditional-display {
     display: none;
