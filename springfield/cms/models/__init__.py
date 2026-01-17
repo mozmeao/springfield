@@ -6,4 +6,3 @@ from .snippets import *  # noqa
 from .locale import *  # noqa
 from .pages import *  # noqa
 from .images import *  # noqa
-from .data import *  # noqa
