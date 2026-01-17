@@ -70,7 +70,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
    simple here by ensuring these classes only exist when they're needed.
    See the image-variants.html template for conditionals that say
-   'only display `display-desktop` if a mobile image exists', etc.  */
+   'only display `display-desktop` if a mobile image exists', etc.
+
+   The `image-variants-display` class only exists to give context to
+   tests, and add some findability to the utility template.  */
+
+.image-variant-display {
+    display: contents;
+}
 
 .display-desktop {
     display: none;
