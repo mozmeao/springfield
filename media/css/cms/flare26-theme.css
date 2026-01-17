@@ -24,6 +24,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);

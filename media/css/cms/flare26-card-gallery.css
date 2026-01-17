@@ -34,6 +34,13 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     background-color: var(--card-bg-color);
 }
 
+.fl-card-gallery-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    text-transform: uppercase;
+    margin: 0;
+}
+
 .purple-card-theme {
     --card-bg-color: var(--theme-purple-card-bg-color);
     --card-bullet-color: var(--theme-purple-card-bullet-color);

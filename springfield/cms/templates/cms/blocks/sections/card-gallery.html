@@ -16,9 +16,9 @@
   </content:heading>
 
   <content:main_card>
-    <div class="fl-card-gallery-superheading">
+    <p class="fl-card-gallery-superheading">
       {{ value.main_card.superheading|richtext|remove_p_tag }}
-    </div
+    </p>
     <{{ card_heading_level }} class="fl-card-gallery-heading">
       <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.main_card.icon }}" /></span>
       {{ value.main_card.headline|richtext|remove_p_tag }}

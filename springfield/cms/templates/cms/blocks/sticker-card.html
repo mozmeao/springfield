@@ -9,9 +9,7 @@
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
   <include:card expand_link="{{ value.settings.expand_link }}">
-    <content:pre_heading>
-      {{ value.superheading|richtext|remove_p_tag }}
-    </content:pre_heading>
+    <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
 
     <content:heading>
       {% if value.tags %}
