@@ -16,6 +16,9 @@
   </content:heading>
 
   <content:main_card>
+    <p class="fl-card-gallery-superheading">
+      {{ value.main_card.superheading|richtext|remove_p_tag }}
+    </p>
     <{{ card_heading_level }} class="fl-card-gallery-heading">
       <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.main_card.icon }}" /></span>
       {{ value.main_card.headline|richtext|remove_p_tag }}
@@ -35,19 +38,15 @@
   </content:main_card>
 
   <content:main_card_image>
-    {{ srcset_image(
-        value.main_card.image,
-        "width-{400,600,800,1000,1200}",
-        sizes="
-          (min-width: 900px) 70vw,
-          100vw
-        ",
-        width=value.main_card.image.width,
-        loading="lazy"
-      ) }}
+    {% with widths="width-{400,600,800,1000,1200}", sizes="(min-width: 900px) 70vw, 100vw" %}
+      {% include_block value.main_card.image %}
+    {% endwith %}
   </content:main_card_image>
 
   <content:secondary_card>
+    <div class="fl-card-gallery-superheading">
+      {{ value.secondary_card.superheading|richtext|remove_p_tag }}
+    </div>
     <{{ card_heading_level }} class="fl-card-gallery-heading">
       <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.secondary_card.icon }}" /></span>
       {{ value.secondary_card.headline|richtext|remove_p_tag }}
@@ -67,20 +66,15 @@
   </content:secondary_card>
 
   <content:secondary_card_image>
-    {{ srcset_image(
-        value.secondary_card.image,
-        "width-{400,600,800,1000}",
-        sizes="
-          (min-width: 768px) 40vw,
-          (min-width: 1024px) 30vw,
-          100vw
-        ",
-        width=value.secondary_card.image.width,
-        loading="lazy"
-      ) }}
+    {% with widths="width-{400,600,800,1000}", sizes="(min-width: 768px) 40vw, (min-width: 1024px) 30vw, 100vw" %}
+      {% include_block value.secondary_card.image %}
+    {% endwith %}
   </content:secondary_card_image>
 
   <content:callout_card>
+    <div class="fl-card-gallery-superheading">
+      {{ value.callout_card.superheading|richtext|remove_p_tag }}
+    </div>
     <{{ card_heading_level }} class="fl-gallery-callout-card-heading">
       {{ value.callout_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>

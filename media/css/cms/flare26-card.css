@@ -61,20 +61,33 @@ Card - Flare 2026 Design System Cards
     h6.fl-heading,
     .fl-heading-group
 ) {
-    order: 0;
     margin-bottom: 0;
 }
 
-.fl-card > div:has(.fl-card-sticker) {
-    order: 1;
+.fl-card-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    order: 0;
 }
 
-.fl-card > .fl-body {
+.fl-card-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.fl-card > div:has(.fl-card-sticker) {
     order: 2;
 }
 
-.fl-card > .fl-buttons {
+.fl-card > .fl-body {
     order: 3;
+}
+
+.fl-card > .fl-buttons {
+    order: 4;
 }
 
 .fl-card > div:has(.fl-card-sticker),

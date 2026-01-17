@@ -24,6 +24,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);
@@ -80,15 +81,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     color-scheme: light dark;
 
     /* Default space between page sections */
-    --fl-section-v-padding: calc(var(--token-layout-md) / 2);
+    --fl-section-v-padding: var(--token-layout-md-half);
     --fl-section-h-padding: var(--token-layout-3xs);
-    --fl-section-hgroup-gap: var(--token-spacing-lg);
-    --fl-section-hgroup-padding-bottom: var(--token-layout-xs);
+    --fl-section-heading-margin-bottom: var(--token-layout-sm);
 
     /* Card themes */
     --card-bg-color: var(--token-color-white);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
-    --theme-purple-card-bullet-color: var(--token-color-light-purple);
+    --theme-purple-card-bullet-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
 
     /* Navigiation menu variables */
@@ -144,9 +144,6 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
-        --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
-        --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
-        --fl-section-hgroup-gap: var(--token-spacing-xl);
 
     }
 }
@@ -162,8 +159,7 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
         --fl-theme-font-size-body-lg: 2rem; /* 32px */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
-        --fl-section-v-padding: calc(var(--token-layout-xl) / 2);
-        --fl-section-hgroup-padding-bottom: var(--token-layout-md);
-        --fl-section-hgroup-gap: var(--token-spacing-2xl);
+        --fl-section-v-padding: var(--token-layout-lg-half);
+        --fl-section-heading-margin-bottom: var(--token-layout-sm);
     }
 }

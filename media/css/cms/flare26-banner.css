@@ -28,7 +28,9 @@
 
 .fl-banner .fl-heading-group {
     margin-bottom: 0;
-    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
 }
 
 .fl-banner .fl-heading,
@@ -241,7 +243,7 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        padding: var(--token-layout-xl);
+        padding: var(--token-layout-lg);
         border-radius: var(--token-border-radius-xl);
     }
 
