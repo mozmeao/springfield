@@ -82,6 +82,8 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     gap: var(--token-spacing-lg);
     text-align: center;
     text-wrap: balance;
+    max-width: 400px;
+
 
 }
 
@@ -104,7 +106,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: var(--token-spacing-xl);
+    gap: var(--token-spacing-md);
 }
 
 .fl-card-gallery-icon {
@@ -127,6 +129,8 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 .fl-card-gallery-body {
     font-size: var(--fl-theme-font-size-body-sm);
 }
+
+
 
 .fl-card-gallery-card-figure {
     padding-inline-start: var(--gallery-card-padding);
