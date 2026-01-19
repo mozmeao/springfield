@@ -61,6 +61,8 @@
     );
     border-radius: var(--token-border-radius-xl);
     font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
 }
 

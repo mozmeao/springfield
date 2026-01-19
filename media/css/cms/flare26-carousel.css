@@ -66,8 +66,8 @@
     display: flex;
     min-height: calc(var(--counter-size) + 8px);
     padding-left: calc(
-        var(--counter-size) + /* stylelint-disable-line */
-            (var(--spinner-width) * 2) + var(--token-spacing-md)
+        var(--counter-size) + (var(--spinner-width) * 2) +
+            var(--token-spacing-md)
     );
     position: relative;
     width: 100%;
