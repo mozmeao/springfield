@@ -1,0 +1,207 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Card Gallery - Flare 2026 Design System Card Gallery Component
+===================================================================== */
+
+.fl-card-gallery {
+    --gallery-card-padding: var(--token-layout-2xs);
+    --gallery-card-radius: var(--token-border-radius-md);
+    --gallery-callout-card-padding: var(--token-layout-md) var(--token-layout-2xs);
+    --gallery-callout-card-max-width: 400px;
+    --gallery-main-image-height: 450px;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.fl-card-gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-card-gallery-card {
+    display: grid;
+    gap: var(--token-spacing-md);
+    border-radius: var(--gallery-card-radius);
+    overflow: hidden;
+    color: var(--fl-theme-color-text);
+    background-color: var(--card-bg-color);
+}
+
+.fl-card-gallery-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.fl-card-gallery-card .fl-buttons {
+    margin-top: var(--token-spacing-lg);
+}
+
+.purple-card-theme {
+    --card-bg-color: var(--theme-purple-card-bg-color);
+    --card-bullet-color: var(--theme-purple-card-bullet-color);
+}
+
+.yellow-card-theme {
+    --card-bg-color: var(--theme-yellow-card-bg-color);
+}
+
+.fl-card-gallery-main-card {
+    grid-template-rows: auto var(--gallery-main-image-height);
+}
+
+.fl-card-gallery-main-card li::marker {
+    color: var(--card-bullet-color);
+}
+
+.fl-card-gallery-callout-card {
+    align-items: center;
+    background:
+        url('/media/img/firefox/flare/2026/clouds.svg') center center / cover no-repeat,
+        linear-gradient(180deg, #FFF44F 0%, #FFB84A 100%);
+    border-radius: var(--token-border-radius-xl);
+    max-width: var(--gallery-callout-card-max-width);
+    justify-content: center;
+    padding: var(--gallery-callout-card-padding);
+}
+
+.fl-card-gallery-callout-card-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-spacing-lg);
+    text-align: center;
+    text-wrap: balance;
+    max-width: 400px;
+}
+
+.fl-card-gallery-body > *:last-child {
+    margin-bottom: 0;
+}
+
+.fl-gallery-callout-card-heading {
+    margin: 0;
+}
+
+.fl-card-gallery-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    padding: var(--gallery-card-padding);
+}
+
+.fl-card-gallery-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--token-spacing-md);
+}
+
+.fl-card-gallery-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    padding: var(--token-spacing-sm);
+    background-color: var(--token-color-white);
+    border-radius: 50%;
+}
+
+.fl-card-gallery-icon .fl-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--token-color-black-4);
+}
+
+.fl-card-gallery-body {
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+.fl-card-gallery-card-figure {
+    padding-inline-start: var(--gallery-card-padding);
+    padding-bottom: 0;
+}
+
+.fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
+    padding-inline-end: var(--gallery-card-padding);
+}
+
+
+.fl-card-gallery-card-figure img {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: top left;
+}
+
+.fl-card-gallery .fl-section-cta-wrap {
+    margin-top: var(--token-layout-sm);
+}
+
+@media (--viewport-md-up) {
+    .fl-card-gallery {
+        --gallery-card-padding: var(--token-layout-xs);
+        --gallery-card-radius: var(--token-border-radius-lg);
+        --gallery-main-image-height: 338px;
+        --gallery-secondary-image-height: 225px;
+        --gallery-callout-card-padding: var(--token-layout-xs) var(--token-layout-2xs);
+    }
+
+    .fl-card-gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "main secondary"
+            "main callout";
+    }
+
+    .fl-card-gallery-main-card {
+        grid-area: main;
+        grid-template-rows: auto var(--gallery-main-image-height);
+    }
+
+    .fl-card-gallery-secondary-card {
+        grid-area: secondary;
+        grid-template-rows: auto var(--gallery-secondary-image-height);
+    }
+
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
+        padding-inline-end: 0;
+    }
+
+    .fl-card-gallery-card-figure img {
+        height: 103%; /* the height of the image is determined by the grid row height. See .fl-card-gallery-grid */
+    }
+
+
+    .fl-card-gallery-callout-card {
+        grid-area: callout;
+        max-width: max(450px, 80%);
+        border-radius: 150px;
+    }
+
+    .fl-card-gallery-heading {
+        font-size: var(--fl-theme-font-size-heading-sm);
+        flex-direction: row;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-gallery {
+        --gallery-card-padding: var(--token-layout-md);
+        --gallery-card-radius: var(--token-border-radius-xl);
+        --gallery-callout-card-padding: var(--token-layout-md) var(--token-layout-2xs);
+        --gallery-main-image-height: 546px;
+        --gallery-secondary-image-height: 324px;
+        --gallery-callout-card-max-width: 570px;
+    }
+}

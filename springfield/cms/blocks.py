@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
+from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -18,6 +19,14 @@ HEADING_TEXT_FEATURES = [
     "subscript",
     "strikethrough",
     "fxa",
+    "fx-logo",
+]
+
+EXPANDED_TEXT_FEATURES = [
+    *HEADING_TEXT_FEATURES,
+    "blockquote",
+    "ol",
+    "ul",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -30,68 +39,294 @@ HEADING_LEVEL_CHOICES = (
 )
 
 ICON_CHOICES = [
+    ("activity", "Activity"),
+    ("add", "Add"),
+    ("add-circle-fill", "Add Circle Fill"),
+    ("add-text", "Add Text"),
+    ("add-user", "Add User"),
     ("ai", "AI"),
     ("alert", "Alert"),
+    ("all-tabs", "All Tabs"),
     ("android", "Android"),
+    ("app-menu", "App Menu"),
+    ("app-menu-space", "App Menu Space"),
     ("apple", "Apple"),
+    ("applied-policy", "Applied Policy"),
+    ("arrow-clockwise", "Arrow Clockwise"),
+    ("arrow-counterclockwise", "Arrow Counterclockwise"),
     ("arrow-down", "Arrow Down"),
+    ("arrow-down-line", "Arrow Down Line"),
+    ("arrow-forward", "Arrow Forward"),
     ("arrow-left", "Arrow Left"),
     ("arrow-right", "Arrow Right"),
+    ("arrow-trending", "Arrow Trending"),
     ("arrow-up", "Arrow Up"),
+    ("audio", "Audio"),
+    ("audio-muted", "Audio Muted"),
+    ("authenticated-user", "Authenticated User"),
+    ("auto-play", "Auto Play"),
+    ("auto-play-off", "Auto Play Off"),
+    ("avatar-signed-in-fill", "Avatar Signed In Fill"),
+    ("avatar-signed-in-fill-custom-initial", "Avatar Signed In Fill Custom Initial"),
+    ("avatar-signed-out", "Avatar Signed Out"),
+    ("back", "Back"),
+    ("barbell", "Barbell"),
     ("bell", "Bell"),
+    ("bike", "Bike"),
+    ("blocked-popup", "Blocked Popup"),
     ("blog", "Blog"),
+    ("book", "Book"),
     ("bookmark", "Bookmark"),
+    ("bookmark-fill", "Bookmark Fill"),
+    ("bookmarks-tray", "Bookmarks Tray"),
+    ("briefcase", "Briefcase"),
     ("calendar", "Calendar"),
+    ("camera", "Camera"),
+    ("canvas", "Canvas"),
+    ("canvas-off", "Canvas Off"),
     ("caret-down", "Caret Down"),
     ("caret-up", "Caret Up"),
     ("chat", "Chat"),
     ("check", "Check"),
+    ("checkmark", "Checkmark"),
+    ("checkmark-circle-fill", "Checkmark Circle Fill"),
+    ("chevron-double-right", "Chevron Double Right"),
+    ("chevron-down", "Chevron Down"),
+    ("chevron-down-small", "Chevron Down Small"),
+    ("chevron-left", "Chevron Left"),
+    ("chevron-right", "Chevron Right"),
+    ("chevron-up", "Chevron Up"),
     ("close", "Close"),
+    ("close-circle-fill", "Close Circle Fill"),
+    ("closed-caption", "Closed Caption"),
+    ("closed-tabs", "Closed Tabs"),
     ("cloud", "Cloud"),
+    ("color-picker", "Color Picker"),
+    ("comment", "Comment"),
+    ("competitiveness", "Competitiveness"),
     ("copy", "Copy"),
+    ("craft", "Craft"),
+    ("critical", "Critical"),
+    ("critical-fill", "Critical Fill"),
+    ("cryptominer", "Cryptominer"),
+    ("cryptominer-off", "Cryptominer No"),
+    ("current-view", "Current View"),
+    ("cursor-arrow", "Cursor Arrow"),
+    ("dashboard", "Dashboard"),
+    ("data-clearance", "Data Clearance"),
     ("data-insights", "Data Insights"),
     ("data-pie", "Data Pie"),
+    ("delete", "Delete"),
     ("design", "Design"),
+    ("device-mobile", "Device Mobile"),
+    ("diamond", "Diamond"),
     ("download", "Download"),
+    ("downloaded-file", "Downloaded File"),
+    ("downloads", "Downloads"),
     ("earth", "Earth"),
+    ("edit", "Edit"),
+    ("edit-active", "Edit Active"),
+    ("edit-squiggle", "Edit Squiggle"),
     ("edit-write", "Edit Write"),
     ("email", "Email"),
+    ("email-mask", "Email Mask"),
+    ("email-shield", "Email Shield"),
+    ("error", "Error"),
+    ("error-fill", "Error Fill"),
+    ("even-spreads", "Even Spreads"),
     ("event", "Event"),
+    ("export-data", "Export Data"),
+    ("extension", "Extension"),
+    ("extension-critical", "Extension Critical"),
+    ("extension-fill", "Extension Fill"),
+    ("extension-warning", "Extension Warning"),
     ("external-link", "External Link"),
     ("eye-closed", "Eye Closed"),
     ("eye-open", "Eye Open"),
-    ("folder-plus", "Folder Plus"),
+    ("find-in-page", "Find In Page"),
+    ("fingerprinter", "Fingerprinter"),
+    ("fingerprinter-off", "Fingerprinter Off"),
+    ("firefox-bridge", "Firefox Bridge"),
+    ("firefox-browser-bridge", "Firefox Browser Bridge"),
+    ("flower", "Flower"),
     ("folder", "Folder"),
+    ("folder-arrow-down", "Folder Arrow Down"),
+    ("folder-fill", "Folder Fill"),
+    ("folder-plus", "Folder Plus"),
+    ("footprints", "Footprints"),
+    ("footprints-off", "Footprints Off"),
+    ("forward", "Forward"),
+    ("forward-small", "Forward Small"),
+    ("fullscreen-disabled", "Fullscreen Disabled"),
+    ("fullscreen-exit", "Fullscreen Exit"),
+    ("fullscreen-expand", "Fullscreen Expand"),
+    ("fx-view", "FX View"),
     ("gear", "Gear"),
+    ("gift", "Gift"),
     ("globe", "Globe"),
+    ("globe-slash", "Globe Slash"),
+    ("hammer", "Hammer"),
+    ("hand", "Hand"),
     ("hashtag", "Hashtag"),
     ("headphone", "Headphone"),
     ("heart", "Heart"),
+    ("heart-rate", "Heart Rate"),
+    ("help", "Help"),
+    ("help-fill", "Help Fill"),
+    ("highlighter", "Highlighter"),
+    ("history", "History"),
     ("home", "Home"),
+    ("horizontal-scrolling", "Horizontal Scrolling"),
+    ("identity", "Identity"),
+    ("import-data", "Import Data"),
+    ("import-export", "Import Export"),
+    ("information", "Information"),
+    ("information-fill", "Information Fill"),
     ("language", "Language"),
+    ("layer", "Layer"),
+    ("leaf", "Leaf"),
+    ("library", "Library"),
+    ("lightbulb", "Lightbulb"),
+    ("line-arrow-up", "Line Arrow Up"),
+    ("list", "List"),
+    ("list-arrow-left", "List Arrow Left"),
+    ("location", "Location"),
+    ("location-off", "Location Off"),
     ("lock", "Lock"),
+    ("lock-document", "Lock Document"),
+    ("lock-insecure", "Lock Insecure"),
+    ("lock-warning", "Lock Warning"),
+    ("login", "Login"),
+    ("makeup", "Makeup"),
     ("megaphone", "Megaphone"),
     ("menu", "Menu"),
+    ("mic", "Microphone"),
+    ("mic-off", "Microphone Off"),
+    ("midi", "Midi"),
     ("minus", "Minus"),
     ("mobile-phone", "Mobile Phone"),
+    ("musical-note", "Musical Note"),
+    ("newsfeed", "Newsfeed"),
+    ("no-spreads", "No Spreads"),
+    ("notifications", "Notifications"),
+    ("notifications-off", "Notifications Off"),
+    ("odd-spreads", "Odd Spreads"),
+    ("off", "Off"),
+    ("open-tabs", "Open Tabs"),
+    ("organizational-unit", "Organizational Unit"),
+    ("packaging", "Packaging"),
+    ("page-actions", "Page Actions"),
+    ("page-landscape", "Page Landscape"),
+    ("page-portrait", "Page Portrait"),
+    ("page-scrolling", "Page Scrolling"),
+    ("page-thumbnails", "Page Thumbnails"),
+    ("palette", "Palette"),
     ("paperclip", "Paperclip"),
+    ("passkey", "Passkey"),
     ("pause", "Pause"),
+    ("pause-fill", "Pause Fill"),
+    ("paw-print", "Paw Print"),
+    ("payment-methods", "Payment Methods"),
+    ("permission", "Permission"),
+    ("picture-in-picture-closed", "Picture In Picture Closed"),
+    ("picture-in-picture-open", "Picture In Picture Open"),
+    ("pin", "Pin"),
+    ("pin-fill", "Pin Fill"),
+    ("plane", "Plane"),
     ("play", "Play"),
+    ("play-fill", "Play Fill"),
+    ("playback-forward", "Playback Forward"),
+    ("playback-rewind", "Playback Rewind"),
+    ("plugin", "Plugin"),
+    ("plugin-off", "Plugin Off"),
     ("plus", "Plus"),
+    ("pocket", "Pocket"),
+    ("pocket-fill", "Pocket Fill"),
+    ("policy", "Policy"),
+    ("popup-subitem", "Popup Subitem"),
+    ("presentation-mode", "Presentation Mode"),
+    ("price", "Price"),
+    ("print", "Print"),
+    ("private-mode-circle-fill", "Private Mode Circle Fill"),
+    ("private-mode-fill", "Private Mode Fill"),
+    ("quality", "Quality"),
     ("quote", "Quote"),
     ("read", "Read"),
+    ("reader-mode", "Reader Mode"),
+    ("remove-user", "Remove User"),
     ("report", "Report"),
+    ("screenshare", "Screenshare"),
+    ("screenshare-off", "Screenshare Off"),
+    ("search-in-circle", "Search In Circle"),
+    ("search-in-circle-right", "Search In Circle Right"),
     ("search", "Search"),
+    ("settings", "Settings"),
+    ("share-mac-os", "Share Mac"),
+    ("share-win-os", "Share Windows"),
     ("shield", "Shield"),
+    ("shipping", "Shipping"),
+    ("shopping", "Shopping"),
+    ("shopping-cart", "Shopping Cart"),
+    ("show-password", "Show Password"),
+    ("show-password-off", "Show Password Off"),
+    ("sidebar-collapsed", "Sidebar Collapsed"),
+    ("sidebar-collapsed-right", "Sidebar Collapsed Right"),
+    ("sidebar-expanded", "Sidebar Expanded"),
+    ("sidebar-expanded-right", "Sidebar Expanded Right"),
+    ("sidebar-hidden", "Sidebar Hidden"),
+    ("sidebar-left", "Sidebar Left"),
+    ("sidebar-right", "Sidebar Right"),
+    ("signature-properties", "Signature Properties"),
+    ("single-user", "Single User"),
+    ("soccer-ball", "Soccer Ball"),
+    ("social-tracker", "Social Tracker"),
+    ("social-tracker-off", "Social Tracker Off"),
+    ("sort", "Sort"),
     ("sound-off", "Sound Off"),
     ("sound-on", "Sound On"),
+    ("sparkle-single", "Sparkle Single"),
+    ("sparkles", "Sparkles"),
+    ("split-view", "Split View"),
+    ("split-view-left", "Split View Left"),
+    ("split-view-right", "Split View Right"),
     ("star", "Star"),
+    ("storage", "Storage"),
+    ("storage-off", "Storage Off"),
+    ("subtract", "Subtract"),
+    ("subtract-circle-fill", "Subtract Circle Fill"),
+    ("sync", "Sync"),
+    ("synced-tabs", "Synced Tabs"),
+    ("tab", "Tab"),
+    ("tab-group", "Tab Group"),
+    ("tab-notes", "Tab Notes"),
+    ("taskbar-add-tab", "Taskbar Add Tab"),
+    ("taskbar-move-tab", "Taskbar Move Tab"),
+    ("taskbar-remove-tab", "Taskbar Remove Tab"),
+    ("text-cursor", "Text Cursor"),
+    ("themes", "Themes"),
     ("thumbs-up", "Thumbs Up"),
     ("toggle-off", "Toggle Off"),
     ("toggle-on", "Toggle On"),
+    ("top-sites", "Top Sites"),
+    ("tracking-cookies", "Tracking Cookies"),
+    ("tracking-cookies-off", "Tracking Cookies Off"),
     ("trash", "Trash"),
+    ("trending", "Trending"),
+    ("unauthenticated-user", "Unauthenticated User"),
     ("update", "Update"),
+    ("update-circle-fill", "Update Circle Fill"),
     ("user", "User"),
+    ("users", "Users"),
+    ("vertical-scrolling", "Vertical Scrolling"),
+    ("vertical-tabs", "Vertical Tabs"),
+    ("video-game-controller", "Video Game Controller"),
+    ("warning", "Warning"),
+    ("warning-fill", "Warning Fill"),
+    ("window", "Window"),
+    ("window-firefox", "Window Firefox"),
+    ("wrapped-scrolling", "Wrapped Scrolling"),
+    ("xr", "XR"),
+    ("xr-off", "XR Off"),
 ]
 
 CONDITIONAL_DISPLAY_CHOICES = [
@@ -134,6 +369,13 @@ def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
     return value
+
+
+class IconChoiceBlock(ThumbnailChoiceBlock):
+    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
+        choices = choices or ICON_CHOICES
+        thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
+        super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
 
 
 # Element blocks
@@ -191,7 +433,7 @@ class BaseButtonSettings(blocks.StructBlock):
         required=False,
         inline_form=True,
     )
-    icon = blocks.ChoiceBlock(required=False, choices=ICON_CHOICES, inline_form=True)
+    icon = IconChoiceBlock(required=False)
     icon_position = blocks.ChoiceBlock(
         choices=(("left", "Left"), ("right", "Right")),
         default="right",
@@ -326,7 +568,7 @@ class CTABlock(blocks.StructBlock):
 
 class TagBlock(blocks.StructBlock):
     title = blocks.CharBlock()
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES)
+    icon = IconChoiceBlock()
     icon_position = blocks.ChoiceBlock(
         choices=(("before", "Before"), ("after", "After")),
         default="before",
@@ -370,6 +612,75 @@ class LightDarkImageBlock(blocks.StructBlock):
         label = "Image"
         label_format = "Image - {image}"
         template = "cms/blocks/light-dark-image.html"
+
+
+class ImageVariantsBlockSettings(blocks.StructBlock):
+    dark_mode_image = ImageChooserBlock(
+        required=False,
+        label="Dark Mode Image",
+        help_text="Optional dark mode image variant",
+    )
+    mobile_image = ImageChooserBlock(
+        required=False,
+        label="Mobile Image",
+        help_text="Optional mobile image variant",
+    )
+    dark_mode_mobile_image = ImageChooserBlock(
+        required=False,
+        label="Dark Mode Mobile Image",
+        help_text="Optional dark mode mobile image variant",
+    )
+
+    class Meta:
+        icon = "image"
+        collapsed = True
+        label = "Image variants"
+        label_format = ""
+        form_classname = "compact-form struct-block"
+
+
+class ImageVariantsBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    settings = ImageVariantsBlockSettings()
+
+    def to_python(self, value):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        if isinstance(value, int):
+            value = {
+                "image": value,
+                "settings": {
+                    "mobile_image": None,
+                    "dark_mode_image": None,
+                    "dark_mode_mobile_image": None,
+                },
+            }
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from old ImageChooserBlock format (just an integer ID
+        # for each image) to new ImageVariantsBlock format (dict with image and settings)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, int):
+                migrated_values.append(
+                    {
+                        "image": value,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": None,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                )
+            else:
+                migrated_values.append(value)
+        return super().bulk_to_python(migrated_values)
+
+    class Meta:
+        label = "Image"
+        label_format = "Image - {image}"
+        template = "cms/blocks/image-variants.html"
 
 
 class VideoBlock(blocks.StructBlock):
@@ -500,9 +811,9 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _StickerCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
-        image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+        superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -511,6 +822,74 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
             max_num=1,
             required=False,
         )
+
+        def to_python(self, value):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            if isinstance(value, dict) and "dark_image" in value:
+                dark_image_id = value.pop("dark_image")
+                image_id = value.get("image")
+
+                # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                if isinstance(image_id, int):
+                    value["image"] = {
+                        "image": image_id,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": dark_image_id,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+            elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                # Handle case where there's just an old ImageChooserBlock ID
+                value["image"] = {
+                    "image": value["image"],
+                    "settings": {
+                        "mobile_image": None,
+                        "dark_mode_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                }
+            return super().to_python(value)
+
+        def bulk_to_python(self, values):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            migrated_values = []
+            for value in values:
+                if isinstance(value, dict) and "dark_image" in value:
+                    dark_image_id = value.get("dark_image")
+                    image_id = value.get("image")
+
+                    migrated_value = {**value}
+                    migrated_value.pop("dark_image", None)
+
+                    # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                    if isinstance(image_id, int):
+                        migrated_value["image"] = {
+                            "image": image_id,
+                            "settings": {
+                                "mobile_image": None,
+                                "dark_mode_image": dark_image_id,
+                                "dark_mode_mobile_image": None,
+                            },
+                        }
+                    migrated_values.append(migrated_value)
+                elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                    # Handle case where there's just an old ImageChooserBlock ID
+                    migrated_value = {**value}
+                    migrated_value["image"] = {
+                        "image": value["image"],
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": None,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                    migrated_values.append(migrated_value)
+                else:
+                    migrated_values.append(value)
+            return super().bulk_to_python(migrated_values)
 
         class Meta:
             label = "Sticker Card"
@@ -558,7 +937,7 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _IconCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
-        icon = blocks.ChoiceBlock(choices=ICON_CHOICES, inline_form=True)
+        icon = IconChoiceBlock(inline_form=True)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -604,8 +983,7 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
-        image = ImageChooserBlock(inline_form=True)
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -615,6 +993,74 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
             max_num=1,
             required=False,
         )
+
+        def to_python(self, value):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            if isinstance(value, dict) and "dark_image" in value:
+                dark_image_id = value.pop("dark_image")
+                image_id = value.get("image")
+
+                # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                if isinstance(image_id, int):
+                    value["image"] = {
+                        "image": image_id,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": dark_image_id,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+            elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                # Handle case where there's just an old ImageChooserBlock ID
+                value["image"] = {
+                    "image": value["image"],
+                    "settings": {
+                        "mobile_image": None,
+                        "dark_mode_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                }
+            return super().to_python(value)
+
+        def bulk_to_python(self, values):
+            # Handle migration from the old image/dark_image fields to
+            # the new image field (ImageVariantsBlock)
+            migrated_values = []
+            for value in values:
+                if isinstance(value, dict) and "dark_image" in value:
+                    dark_image_id = value.get("dark_image")
+                    image_id = value.get("image")
+
+                    migrated_value = {**value}
+                    migrated_value.pop("dark_image", None)
+
+                    # If image is still just an ID (not yet migrated to ImageVariantsBlock)
+                    if isinstance(image_id, int):
+                        migrated_value["image"] = {
+                            "image": image_id,
+                            "settings": {
+                                "mobile_image": None,
+                                "dark_mode_image": dark_image_id,
+                                "dark_mode_mobile_image": None,
+                            },
+                        }
+                    migrated_values.append(migrated_value)
+                elif isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                    # Handle case where there's just an old ImageChooserBlock ID
+                    migrated_value = {**value}
+                    migrated_value["image"] = {
+                        "image": value["image"],
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": None,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                    migrated_values.append(migrated_value)
+                else:
+                    migrated_values.append(value)
+            return super().bulk_to_python(migrated_values)
 
         class Meta:
             template = "cms/blocks/illustration-card.html"
@@ -703,7 +1149,7 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 
 class InlineNotificationSettings(blocks.StructBlock):
-    icon = blocks.ChoiceBlock(choices=ICON_CHOICES, required=False, inline_form=True)
+    icon = IconChoiceBlock(required=False, inline_form=True)
     color = blocks.ChoiceBlock(
         choices=[
             ("white", "White"),
@@ -994,3 +1440,232 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _KitBannerBlock(*args, **kwargs)
+
+
+# Homepage
+
+
+class HomeIntroBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+    class Meta:
+        template = "cms/blocks/home-intro.html"
+        label = "Home Intro"
+        label_format = "{heading}"
+
+
+class HomeCarouselSlide(blocks.StructBlock):
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    image = ImageVariantsBlock()
+
+    def to_python(self, value):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        if isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+            value["image"] = {
+                "image": value["image"],
+                "settings": {
+                    "mobile_image": None,
+                    "dark_mode_image": None,
+                    "dark_mode_mobile_image": None,
+                },
+            }
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from old ImageChooserBlock format (just an integer ID)
+        # to new ImageVariantsBlock format (dict with image and settings)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, dict) and "image" in value and isinstance(value["image"], int):
+                migrated_value = {**value}
+                migrated_value["image"] = {
+                    "image": value["image"],
+                    "settings": {
+                        "mobile_image": None,
+                        "dark_mode_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                }
+                migrated_values.append(migrated_value)
+            else:
+                migrated_values.append(value)
+        return super().bulk_to_python(migrated_values)
+
+
+class HomeCarouselBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
+
+    class Meta:
+        template = "cms/blocks/sections/home-carousel.html"
+        label = "Home Carousel"
+        label_format = "{heading}"
+
+
+class ShowcaseSettings(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout}"
+        form_classname = "compact-form struct-block"
+
+
+class ShowcaseBlock(blocks.StructBlock):
+    settings = ShowcaseSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    image = ImageVariantsBlock()
+    caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    def to_python(self, value):
+        # Handle migration from the old desktop_image and mobile_image fields to
+        # the new image field (ImageVariantsBlock)
+        if isinstance(value, dict) and "desktop_image" in value and "mobile_image" in value:
+            desktop = value.pop("desktop_image")
+            mobile = value.pop("mobile_image")
+
+            # Extract image IDs from the old LightDarkImageBlock structures
+            desktop_light = desktop.get("image") if isinstance(desktop, dict) else None
+            desktop_dark = desktop.get("dark_image") if isinstance(desktop, dict) else None
+            mobile_light = mobile.get("image") if isinstance(mobile, dict) else None
+            mobile_dark = mobile.get("dark_image") if isinstance(mobile, dict) else None
+
+            # Build new ImageVariantsBlock structure
+            value["image"] = {
+                "image": desktop_light,
+                "settings": {
+                    "mobile_image": mobile_light,
+                    "dark_mode_image": desktop_dark,
+                    "dark_mode_mobile_image": mobile_dark,
+                },
+            }
+
+        return super().to_python(value)
+
+    def bulk_to_python(self, values):
+        # Handle migration from the old desktop_image and mobile_image fields to
+        # the new image field (ImageVariantsBlock)
+        migrated_values = []
+        for value in values:
+            if isinstance(value, dict) and "desktop_image" in value and "mobile_image" in value:
+                desktop = value.get("desktop_image")
+                mobile = value.get("mobile_image")
+
+                # Extract image IDs from the old LightDarkImageBlock structures
+                desktop_light = desktop.get("image") if isinstance(desktop, dict) else None
+                desktop_dark = desktop.get("dark_image") if isinstance(desktop, dict) else None
+                mobile_light = mobile.get("image") if isinstance(mobile, dict) else None
+                mobile_dark = mobile.get("dark_image") if isinstance(mobile, dict) else None
+
+                # Build new ImageVariantsBlock structure
+                migrated_value = {**value}
+                migrated_value.pop("desktop_image", None)
+                migrated_value.pop("mobile_image", None)
+                migrated_value["image"] = {
+                    "image": desktop_light,
+                    "settings": {
+                        "mobile_image": mobile_light,
+                        "dark_mode_image": desktop_dark,
+                        "dark_mode_mobile_image": mobile_dark,
+                    },
+                }
+                migrated_values.append(migrated_value)
+            else:
+                migrated_values.append(value)
+
+        return super().bulk_to_python(migrated_values)
+
+    class Meta:
+        template = "cms/blocks/sections/showcase.html"
+        label = "Showcase"
+        label_format = "{heading}"
+
+
+class CardGalleryCard(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=1,
+        required=False,
+    )
+    image = ImageVariantsBlock()
+
+
+class CardGalleryCallout(blocks.StructBlock):
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+
+
+class CardGalleryBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    main_card = CardGalleryCard()
+    secondary_card = CardGalleryCard()
+    callout_card = CardGalleryCallout()
+    cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+
+    class Meta:
+        template = "cms/blocks/sections/card-gallery.html"
+        label = "Card Gallery"
+        label_format = "{heading}"
+
+
+class HomeKitBannerSettings(blocks.StructBlock):
+    show_to = blocks.ChoiceBlock(
+        choices=CONDITIONAL_DISPLAY_CHOICES,
+        default="all",
+        label="Show To",
+        inline_form=True,
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show To: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create KitBannerBlock with appropriate button types."""
+
+    class _HomeKitBannerBlock(blocks.StructBlock):
+        settings = HomeKitBannerSettings()
+        heading = HeadingBlock()
+        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/home-kit-banner.html"
+            label = "Kit Banner"
+            label_format = "{heading}"
+
+    return _HomeKitBannerBlock(*args, **kwargs)

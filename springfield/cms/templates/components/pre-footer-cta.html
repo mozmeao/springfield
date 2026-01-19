@@ -1,0 +1,17 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-pre-footer-cta">
+  <a
+    href="{{ link }}"
+    class="fl-pre-footer-cta-button"
+    {% if analytics_text %}
+      data-cta-position="{{ analytics_position }}"
+      data-cta-text="{{ analytics_text }}"
+      data-cta-uid="{{ analytics_id }}"
+    {% endif %}
+  >{{ label }}</a>
+</div>

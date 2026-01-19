@@ -1,0 +1,132 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-intro {
+    text-align: center;
+    position: relative;
+}
+
+.fl-intro > * {
+    margin: 0 auto;
+}
+
+.fl-intro-content {
+    max-width: 848px;
+}
+
+.fl-intro-content .fl-buttons {
+    justify-content: center;
+}
+
+.fl-intro-content .text {
+    padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
+}
+
+.fl-intro .fl-heading-group {
+    margin-bottom: var(--token-layout-3xs);
+}
+
+.fl-intro .fl-subheading {
+    margin-top: 0;
+    margin-bottom: var(--token-layout-sm);
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+.fl-home-intro {
+    position: relative;
+}
+
+.fl-home-intro::before {
+    content: "";
+    position: absolute;
+    bottom: var(--banner-kit-bottom-position, -300px);
+    right: var(--banner-kit-right-position, calc(50% - 114px));
+    width: var(--banner-kit-width, 580px);
+    aspect-ratio: 4/3;
+    background:  url('/media/img/firefox/flare/kit-tail-2.svg');
+    background-position: top right;
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 0;
+}
+
+.fl-home-intro .fl-superheading {
+    background: linear-gradient(180deg, var(--token-color-light-purple-40) 0%, var(--token-color-light-purple-20) 100%);
+    border-radius: var(--token-border-radius-xl);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
+    font-weight: var(--token-font-weight-medium);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    position: relative;
+}
+
+.fl-home-intro .fl-superheading:has(a:hover) {
+    background: linear-gradient(180deg, var(--token-color-light-purple-60) 0%, var(--token-color-light-purple-40) 100%);
+}
+
+.fl-home-intro .fl-superheading a {
+    color: var(--token-color-white);
+    text-decoration: none;
+}
+
+.fl-home-intro .fl-superheading a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.fl-home-intro .fl-superheading a::after {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    vertical-align: middle;
+    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat center / 1em 1em;
+    mask-size: contain;
+    margin-left: var(--token-spacing-xs);
+}
+
+.fl-home-intro .fl-superheading i,
+.fl-home-intro .fl-superheading em {
+    background: var(--token-gradient-gold);
+    color: var(--token-color-black-4);
+    padding: var(--token-spacing-2xs) var(--token-spacing-xs);
+    border-radius: var(--token-border-radius-xs);
+    text-transform: uppercase;
+    font-style: normal;
+    margin-inline-end: var(--token-spacing-xs);
+}
+
+.fl-home-intro .fl-heading {
+    margin-bottom: var(--token-spacing-lg);
+    margin-top: var(--token-spacing-lg);
+}
+
+.fl-intro-actions {
+    margin-top: var(--token-spacing-2xl);
+}
+
+.fl-home-intro .fl-subheading {
+    max-width: 48ch;
+    margin: 0 auto;
+    text-wrap: balance;
+}
+
+@media (--viewport-sm-up) {
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 154px);
+        --banner-kit-bottom-position: -394px;
+        --banner-kit-width: 800px;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 198px);
+        --banner-kit-bottom-position: -522px;
+        --banner-kit-width: 1050px;
+    }
+}

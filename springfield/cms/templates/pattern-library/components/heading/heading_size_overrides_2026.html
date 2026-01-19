@@ -1,0 +1,17 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<h2>Heading Size Overrides</h2>
+{% for heading_size in sizes %}
+  {% set heading_text = "This is heading with " ~ heading_size  %}
+  <include:heading
+    level="h2"
+    heading_size="{{ heading_size }}"
+    heading_text="{{ heading_text }}"
+    alignment_class="text-left"
+  />
+  <hr/>
+{% endfor %}

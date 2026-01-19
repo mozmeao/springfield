@@ -1,0 +1,83 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
+
+<li class="fl-menu-category">
+  <a
+    href="#"
+    class="fl-menu-title"
+    aria-haspopup="true"
+    aria-controls="fl-menu-panel-resources"
+  >
+    <h2>
+      {{ ftl('navigation-browser')}}
+      <span class="fl-icon fl-icon-caret-down"></span>
+    </h2>
+  </a>
+  <div class="fl-menu-panel" id="fl-menu-panel-resources">
+    <button class="fl-menu-close-button">
+      <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
+    </button>
+
+
+    <div class="fl-menu-panel-content">
+      <div class="fl-menu-panel-content-column">
+        <h3 class="fl-menu-subtitle">{{ ftl('navigation-product') }}</h3>
+        <ul>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.browsers.desktop.index') }}"
+              data-link-text="Desktop"
+              data-link-position="topnav - desktop"
+            >
+              {{ ftl('navigation-desktop') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.browsers.mobile.index') }}"
+              data-link-text="Mobile"
+              data-link-position="topnav - mobile"
+            >
+              {{ ftl('navigation-mobile') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.notes') }}"
+              data-link-text="Release Notes"
+              data-link-position="topnav - release notes"
+            >
+              {{ ftl('navigation-release-notes') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="https://support.mozilla.org/{{params}}"
+              data-link-text="Support"
+              data-link-position="topnav - support"
+              >{{ ftl('navigation-support') }}</a
+            >
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="https://addons.mozilla.org/firefox/{{params}}"
+              data-link-text="Add-Ons"
+              data-link-position="topnav - addons"
+              >{{ ftl('navigation-add-ons') }}</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</li>

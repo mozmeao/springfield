@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set items = [] %}
+{% for item in value.slides %}
+  {% set image_html %}
+    {% with widths="width-{400,600,800,1000}", sizes="100vw" %}
+      {% include_block item.image %}
+    {% endwith %}
+  {% endset %}
+  {% set _ = items.append({
+    "headline": item.headline|richtext|remove_p_tag,
+    "image": image_html,
+  }) %}
+{% endfor %}
+
+<include:carousel has_kit="true" items="{{ items }}">
+  <content:heading>
+    {% include_block value.heading %}
+  </content:heading>
+</include:carousel>

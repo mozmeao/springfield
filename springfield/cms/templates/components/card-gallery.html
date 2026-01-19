@@ -1,0 +1,53 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set card_heading_level = card_heading_level or "h3" %}
+
+<section class="fl-section">
+  <div class="fl-section-container">
+
+<div class="fl-card-gallery">
+  <div class="fl-heading-group">
+    {% if contents.heading %}
+      {{ contents.heading }}
+    {% endif %}
+  </div>
+
+  <div class="fl-card-gallery-grid swap-mobile-images-at-md">
+    <div class="fl-card-gallery-card fl-card-gallery-main-card purple-card-theme">
+      <div class="fl-card-gallery-card-content">
+        {{ contents.main_card }}
+      </div>
+      <figure class="fl-card-gallery-card-figure">
+        {{ contents.main_card_image }}
+      </figure>
+    </div>
+    <div class="fl-card-gallery-card fl-card-gallery-secondary-card yellow-card-theme">
+      <div class="fl-card-gallery-card-content">
+        {{ contents.secondary_card }}
+      </div>
+      <figure class="fl-card-gallery-card-figure">
+        {{ contents.secondary_card_image }}
+      </figure>
+    </div>
+    <div class="fl-card-gallery-card fl-card-gallery-callout-card">
+      <div class="fl-card-gallery-callout-card-content">
+        {{ contents.callout_card }}
+      </div>
+    </div>
+  </div>
+
+  {% if contents.cta %}
+    <div class="fl-section-cta-wrap">
+      {{ contents.cta }}
+    </div>
+  {% endif %}
+  </div>
+
+
+</div>
+</section>

@@ -7,14 +7,23 @@
 {# props fill=0 expand_link=0 #}
 
 <article class="fl-card {% if fill %}fl-card-fill{% endif %} {% if expand_link %}fl-card-expand-link{% endif %}">
+  <hgroup class="fl-card-heading-group">
   {% if contents.pre_heading %}
-    <div>
+    <p class="fl-card-superheading">
       {{ contents.pre_heading }}
-    </div>
+    </p>
   {% endif %}
   {% if contents.heading %}
     {{ contents.heading }}
   {% endif %}
+  </hgroup>
+
+  {% if contents.sticker %}
+    <div class="fl-card-sticker">
+      {{ contents.sticker }}
+    </div>
+  {% endif %}
+
   {% if contents.body %}
     <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
   {% endif %}

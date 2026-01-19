@@ -1,0 +1,579 @@
+name: Icon variants 2026
+context:
+  icons:
+    - name: Activity
+      icon_name: activity
+    - name: Add
+      icon_name: add
+    - name: Add Circle Fill
+      icon_name: add-circle-fill
+    - name: Add Text
+      icon_name: add-text
+    - name: Add User
+      icon_name: add-user
+    - name: AI
+      icon_name: ai
+    - name: Alert
+      icon_name: alert
+    - name: All Tabs
+      icon_name: all-tabs
+    - name: Android
+      icon_name: android
+    - name: App Menu
+      icon_name: app-menu
+    - name: App Menu Space
+      icon_name: app-menu-space
+    - name: Apple
+      icon_name: apple
+    - name: Applied Policy
+      icon_name: applied-policy
+    - name: Arrow Clockwise
+      icon_name: arrow-clockwise
+    - name: Arrow Counterclockwise
+      icon_name: arrow-counterclockwise
+    - name: Arrow Down
+      icon_name: arrow-down
+    - name: Arrow Down Line
+      icon_name: arrow-down-line
+    - name: Arrow Forward
+      icon_name: arrow-forward
+    - name: Arrow Left
+      icon_name: arrow-left
+    - name: Arrow Right
+      icon_name: arrow-right
+    - name: Arrow Trending
+      icon_name: arrow-trending
+    - name: Arrow Up
+      icon_name: arrow-up
+    - name: Audio
+      icon_name: audio
+    - name: Audio Muted
+      icon_name: audio-muted
+    - name: Authenticated User
+      icon_name: authenticated-user
+    - name: Auto Play
+      icon_name: auto-play
+    - name: Auto Play Off
+      icon_name: auto-play-off
+    - name: Avatar Signed In Fill
+      icon_name: avatar-signed-in-fill
+    - name: Avatar Signed In Fill Custom Initial
+      icon_name: avatar-signed-in-fill-custom-initial
+    - name: Avatar Signed Out
+      icon_name: avatar-signed-out
+    - name: Back
+      icon_name: back
+    - name: Barbell
+      icon_name: barbell
+    - name: Bell
+      icon_name: bell
+    - name: Bike
+      icon_name: bike
+    - name: Blocked Popup
+      icon_name: blocked-popup
+    - name: Blog
+      icon_name: blog
+    - name: Book
+      icon_name: book
+    - name: Bookmark
+      icon_name: bookmark
+    - name: Bookmark Fill
+      icon_name: bookmark-fill
+    - name: Bookmarks Tray
+      icon_name: bookmarks-tray
+    - name: Briefcase
+      icon_name: briefcase
+    - name: Calendar
+      icon_name: calendar
+    - name: Camera
+      icon_name: camera
+    - name: Canvas
+      icon_name: canvas
+    - name: Canvas Off
+      icon_name: canvas-off
+    - name: Caret Down
+      icon_name: caret-down
+    - name: Caret Up
+      icon_name: caret-up
+    - name: Chat
+      icon_name: chat
+    - name: Check
+      icon_name: check
+    - name: Checkmark
+      icon_name: checkmark
+    - name: Checkmark Circle Fill
+      icon_name: checkmark-circle-fill
+    - name: Chevron Double Right
+      icon_name: chevron-double-right
+    - name: Chevron Down
+      icon_name: chevron-down
+    - name: Chevron Down Small
+      icon_name: chevron-down-small
+    - name: Chevron Left
+      icon_name: chevron-left
+    - name: Chevron Right
+      icon_name: chevron-right
+    - name: Chevron Up
+      icon_name: chevron-up
+    - name: Close
+      icon_name: close
+    - name: Close Circle Fill
+      icon_name: close-circle-fill
+    - name: Closed Caption
+      icon_name: closed-caption
+    - name: Closed Tabs
+      icon_name: closed-tabs
+    - name: Cloud
+      icon_name: cloud
+    - name: Color Picker
+      icon_name: color-picker
+    - name: Comment
+      icon_name: comment
+    - name: Competitiveness
+      icon_name: competitiveness
+    - name: Copy
+      icon_name: copy
+    - name: Craft
+      icon_name: craft
+    - name: Critical
+      icon_name: critical
+    - name: Critical Fill
+      icon_name: critical-fill
+    - name: Cryptominer
+      icon_name: cryptominer
+    - name: Cryptominer No
+      icon_name: cryptominer-off
+    - name: Current View
+      icon_name: current-view
+    - name: Cursor Arrow
+      icon_name: cursor-arrow
+    - name: Dashboard
+      icon_name: dashboard
+    - name: Data Clearance
+      icon_name: data-clearance
+    - name: Data Insights
+      icon_name: data-insights
+    - name: Data Pie
+      icon_name: data-pie
+    - name: Delete
+      icon_name: delete
+    - name: Design
+      icon_name: design
+    - name: Device Mobile
+      icon_name: device-mobile
+    - name: Diamond
+      icon_name: diamond
+    - name: Download
+      icon_name: download
+    - name: Downloaded File
+      icon_name: downloaded-file
+    - name: Downloads
+      icon_name: downloads
+    - name: Earth
+      icon_name: earth
+    - name: Edit
+      icon_name: edit
+    - name: Edit Active
+      icon_name: edit-active
+    - name: Edit Squiggle
+      icon_name: edit-squiggle
+    - name: Edit Write
+      icon_name: edit-write
+    - name: Email
+      icon_name: email
+    - name: Email Mask
+      icon_name: email-mask
+    - name: Email Shield
+      icon_name: email-shield
+    - name: Error
+      icon_name: error
+    - name: Error Fill
+      icon_name: error-fill
+    - name: Even Spreads
+      icon_name: even-spreads
+    - name: Event
+      icon_name: event
+    - name: Export Data
+      icon_name: export-data
+    - name: Extension
+      icon_name: extension
+    - name: Extension Critical
+      icon_name: extension-critical
+    - name: Extension Fill
+      icon_name: extension-fill
+    - name: Extension Warning
+      icon_name: extension-warning
+    - name: External Link
+      icon_name: external-link
+    - name: Eye Closed
+      icon_name: eye-closed
+    - name: Eye Open
+      icon_name: eye-open
+    - name: Find In Page
+      icon_name: find-in-page
+    - name: Fingerprinter
+      icon_name: fingerprinter
+    - name: Fingerprinter Off
+      icon_name: fingerprinter-off
+    - name: Firefox Bridge
+      icon_name: firefox-bridge
+    - name: Firefox Browser Bridge
+      icon_name: firefox-browser-bridge
+    - name: Flower
+      icon_name: flower
+    - name: Folder
+      icon_name: folder
+    - name: Folder Arrow Down
+      icon_name: folder-arrow-down
+    - name: Folder Fill
+      icon_name: folder-fill
+    - name: Folder Plus
+      icon_name: folder-plus
+    - name: Footprints
+      icon_name: footprints
+    - name: Footprints Off
+      icon_name: footprints-off
+    - name: Forward
+      icon_name: forward
+    - name: Forward Small
+      icon_name: forward-small
+    - name: Fullscreen Disabled
+      icon_name: fullscreen-disabled
+    - name: Fullscreen Exit
+      icon_name: fullscreen-exit
+    - name: Fullscreen Expand
+      icon_name: fullscreen-expand
+    - name: FX View
+      icon_name: fx-view
+    - name: Gear
+      icon_name: gear
+    - name: Gift
+      icon_name: gift
+    - name: Globe
+      icon_name: globe
+    - name: Globe Slash
+      icon_name: globe-slash
+    - name: Hammer
+      icon_name: hammer
+    - name: Hand
+      icon_name: hand
+    - name: Hashtag
+      icon_name: hashtag
+    - name: Headphone
+      icon_name: headphone
+    - name: Heart
+      icon_name: heart
+    - name: Heart Rate
+      icon_name: heart-rate
+    - name: Help
+      icon_name: help
+    - name: Help Fill
+      icon_name: help-fill
+    - name: Highlighter
+      icon_name: highlighter
+    - name: History
+      icon_name: history
+    - name: Home
+      icon_name: home
+    - name: Horizontal Scrolling
+      icon_name: horizontal-scrolling
+    - name: Identity
+      icon_name: identity
+    - name: Import Data
+      icon_name: import-data
+    - name: Import Export
+      icon_name: import-export
+    - name: Information
+      icon_name: information
+    - name: Information Fill
+      icon_name: information-fill
+    - name: Language
+      icon_name: language
+    - name: Layer
+      icon_name: layer
+    - name: Leaf
+      icon_name: leaf
+    - name: Library
+      icon_name: library
+    - name: Lightbulb
+      icon_name: lightbulb
+    - name: Line Arrow Up
+      icon_name: line-arrow-up
+    - name: List
+      icon_name: list
+    - name: List Arrow Left
+      icon_name: list-arrow-left
+    - name: Location
+      icon_name: location
+    - name: Location Off
+      icon_name: location-off
+    - name: Lock
+      icon_name: lock
+    - name: Lock Document
+      icon_name: lock-document
+    - name: Lock Insecure
+      icon_name: lock-insecure
+    - name: Lock Warning
+      icon_name: lock-warning
+    - name: Login
+      icon_name: login
+    - name: Makeup
+      icon_name: makeup
+    - name: Megaphone
+      icon_name: megaphone
+    - name: Menu
+      icon_name: menu
+    - name: Microphone
+      icon_name: mic
+    - name: Microphone Off
+      icon_name: mic-off
+    - name: Midi
+      icon_name: midi
+    - name: Minus
+      icon_name: minus
+    - name: Mobile Phone
+      icon_name: mobile-phone
+    - name: Musical Note
+      icon_name: musical-note
+    - name: Newsfeed
+      icon_name: newsfeed
+    - name: No Spreads
+      icon_name: no-spreads
+    - name: Notifications
+      icon_name: notifications
+    - name: Notifications Off
+      icon_name: notifications-off
+    - name: Odd Spreads
+      icon_name: odd-spreads
+    - name: Off
+      icon_name: off
+    - name: Open Tabs
+      icon_name: open-tabs
+    - name: Organizational Unit
+      icon_name: organizational-unit
+    - name: Packaging
+      icon_name: packaging
+    - name: Page Actions
+      icon_name: page-actions
+    - name: Page Landscape
+      icon_name: page-landscape
+    - name: Page Portrait
+      icon_name: page-portrait
+    - name: Page Scrolling
+      icon_name: page-scrolling
+    - name: Page Thumbnails
+      icon_name: page-thumbnails
+    - name: Palette
+      icon_name: palette
+    - name: Paperclip
+      icon_name: paperclip
+    - name: Passkey
+      icon_name: passkey
+    - name: Pause
+      icon_name: pause
+    - name: Pause Fill
+      icon_name: pause-fill
+    - name: Paw Print
+      icon_name: paw-print
+    - name: Payment Methods
+      icon_name: payment-methods
+    - name: Permission
+      icon_name: permission
+    - name: Picture In Picture Closed
+      icon_name: picture-in-picture-closed
+    - name: Picture In Picture Open
+      icon_name: picture-in-picture-open
+    - name: Pin
+      icon_name: pin
+    - name: Pin Fill
+      icon_name: pin-fill
+    - name: Plane
+      icon_name: plane
+    - name: Play
+      icon_name: play
+    - name: Play Fill
+      icon_name: play-fill
+    - name: Playback Forward
+      icon_name: playback-forward
+    - name: Playback Rewind
+      icon_name: playback-rewind
+    - name: Plugin
+      icon_name: plugin
+    - name: Plugin Off
+      icon_name: plugin-off
+    - name: Plus
+      icon_name: plus
+    - name: Pocket
+      icon_name: pocket
+    - name: Pocket Fill
+      icon_name: pocket-fill
+    - name: Policy
+      icon_name: policy
+    - name: Popup Subitem
+      icon_name: popup-subitem
+    - name: Presentation Mode
+      icon_name: presentation-mode
+    - name: Price
+      icon_name: price
+    - name: Print
+      icon_name: print
+    - name: Private Mode Circle Fill
+      icon_name: private-mode-circle-fill
+    - name: Private Mode Fill
+      icon_name: private-mode-fill
+    - name: Quality
+      icon_name: quality
+    - name: Quote
+      icon_name: quote
+    - name: Read
+      icon_name: read
+    - name: Reader Mode
+      icon_name: reader-mode
+    - name: Remove User
+      icon_name: remove-user
+    - name: Report
+      icon_name: report
+    - name: Screenshare
+      icon_name: screenshare
+    - name: Screenshare Off
+      icon_name: screenshare-off
+    - name: Search In Circle
+      icon_name: search-in-circle
+    - name: Search In Circle Right
+      icon_name: search-in-circle-right
+    - name: Search
+      icon_name: search
+    - name: Settings
+      icon_name: settings
+    - name: Share Mac
+      icon_name: share-mac-os
+    - name: Share Windows
+      icon_name: share-win-os
+    - name: Shield
+      icon_name: shield
+    - name: Shipping
+      icon_name: shipping
+    - name: Shopping
+      icon_name: shopping
+    - name: Shopping Cart
+      icon_name: shopping-cart
+    - name: Show Password
+      icon_name: show-password
+    - name: Show Password Off
+      icon_name: show-password-off
+    - name: Sidebar Collapsed
+      icon_name: sidebar-collapsed
+    - name: Sidebar Collapsed Right
+      icon_name: sidebar-collapsed-right
+    - name: Sidebar Expanded
+      icon_name: sidebar-expanded
+    - name: Sidebar Expanded Right
+      icon_name: sidebar-expanded-right
+    - name: Sidebar Hidden
+      icon_name: sidebar-hidden
+    - name: Sidebar Left
+      icon_name: sidebar-left
+    - name: Sidebar Right
+      icon_name: sidebar-right
+    - name: Signature Properties
+      icon_name: signature-properties
+    - name: Single User
+      icon_name: single-user
+    - name: Soccer Ball
+      icon_name: soccer-ball
+    - name: Social Tracker
+      icon_name: social-tracker
+    - name: Social Tracker Off
+      icon_name: social-tracker-off
+    - name: Sort
+      icon_name: sort
+    - name: Sound Off
+      icon_name: sound-off
+    - name: Sound On
+      icon_name: sound-on
+    - name: Sparkle Single
+      icon_name: sparkle-single
+    - name: Sparkles
+      icon_name: sparkles
+    - name: Split View
+      icon_name: split-view
+    - name: Split View Left
+      icon_name: split-view-left
+    - name: Split View Right
+      icon_name: split-view-right
+    - name: Star
+      icon_name: star
+    - name: Storage
+      icon_name: storage
+    - name: Storage Off
+      icon_name: storage-off
+    - name: Subtract
+      icon_name: subtract
+    - name: Subtract Circle Fill
+      icon_name: subtract-circle-fill
+    - name: Sync
+      icon_name: sync
+    - name: Synced Tabs
+      icon_name: synced-tabs
+    - name: Tab
+      icon_name: tab
+    - name: Tab Group
+      icon_name: tab-group
+    - name: Tab Notes
+      icon_name: tab-notes
+    - name: Taskbar Add Tab
+      icon_name: taskbar-add-tab
+    - name: Taskbar Move Tab
+      icon_name: taskbar-move-tab
+    - name: Taskbar Remove Tab
+      icon_name: taskbar-remove-tab
+    - name: Text Cursor
+      icon_name: text-cursor
+    - name: Themes
+      icon_name: themes
+    - name: Thumbs Up
+      icon_name: thumbs-up
+    - name: Toggle Off
+      icon_name: toggle-off
+    - name: Toggle On
+      icon_name: toggle-on
+    - name: Top Sites
+      icon_name: top-sites
+    - name: Tracking Cookies
+      icon_name: tracking-cookies
+    - name: Tracking Cookies Off
+      icon_name: tracking-cookies-off
+    - name: Trash
+      icon_name: trash
+    - name: Trending
+      icon_name: trending
+    - name: Unauthenticated User
+      icon_name: unauthenticated-user
+    - name: Update
+      icon_name: update
+    - name: Update Circle Fill
+      icon_name: update-circle-fill
+    - name: User
+      icon_name: user
+    - name: Users
+      icon_name: users
+    - name: Vertical Scrolling
+      icon_name: vertical-scrolling
+    - name: Vertical Tabs
+      icon_name: vertical-tabs
+    - name: Video Game Controller
+      icon_name: video-game-controller
+    - name: Warning
+      icon_name: warning
+    - name: Warning Fill
+      icon_name: warning-fill
+    - name: Window
+      icon_name: window
+    - name: Window Firefox
+      icon_name: window-firefox
+    - name: Wrapped Scrolling
+      icon_name: wrapped-scrolling
+    - name: XR
+      icon_name: xr
+    - name: XR Off
+      icon_name: xr-off

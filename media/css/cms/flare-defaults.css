@@ -25,7 +25,6 @@ body {
     color: var(--fl-theme-color-text-primary);
     background: var(--fl-theme-surface-page);
     width: 100%;
-    max-width: var(--token-widths-viewport-wrapper-screen-2xl);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -96,7 +95,7 @@ li {
 button, [role="button"] {
     background: var(--token-blue-button);
     color: var(--token-neutrals-white);
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--token-border-radius-lg);
     width: auto;
     height: auto;
 }

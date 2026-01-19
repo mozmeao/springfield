@@ -31,6 +31,7 @@ def get_placeholder_images():
             "description": "An placeholder image used for testing purposes.",
         },
     )
+    image_buffer.seek(0)
     dark_image, _ = SpringfieldImage.objects.get_or_create(
         id=settings.PLACEHOLDER_DARK_IMAGE_ID,
         defaults={
@@ -39,8 +40,26 @@ def get_placeholder_images():
             "description": "A dark mode placeholder image used for testing purposes.",
         },
     )
+    dark_image_buffer.seek(0)
+    mobile_image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+        defaults={
+            "title": "Placeholder Mobile Image for Testing",
+            "file": ContentFile(image_buffer.read(), "placeholder_image.png"),
+            "description": "An placeholder mobile image used for testing purposes.",
+        },
+    )
+    image_buffer.seek(0)
+    dark_mobile_image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+        defaults={
+            "title": "Dark Mode Placeholder Mobile Image for Testing",
+            "file": ContentFile(dark_image_buffer.read(), "dark_placeholder_image.png"),
+            "description": "A dark mode mobile placeholder image used for testing purposes.",
+        },
+    )
 
-    return image, dark_image
+    return image, dark_image, mobile_image, dark_mobile_image
 
 
 def get_test_index_page():

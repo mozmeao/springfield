@@ -1,0 +1,36 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div style="max-width: 400px;">
+  <include:sticker-card
+    expand_link="{{ expand_link }}"
+  >
+    <content:sticker>
+      <img class="fl-card-sticker" src="{{ sticker }}" alt="" aria-hidden="true" />
+    </content:sticker>
+    <content:heading>
+      <include:heading
+        level="h3"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ heading }}"
+      />
+    </content:heading>
+    <content:body>
+      {{ body }}
+    </content:body>
+    {% if buttons %}
+      <content:buttons>
+        {% for button in buttons %}
+          <include:button
+            label="{{ button.label }}"
+            link="{{ button.link }}"
+            theme_class="{{ button.theme_class }}"
+          />
+        {% endfor %}
+      </content:buttons>
+    {% endif %}
+  </include:sticker-card>
+</div>

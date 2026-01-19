@@ -294,7 +294,7 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/flare-icon.css",
+        "css/cms/flare26-icon.css",
         "css/cms/flare-button.css",
         "css/cms/flare-download-utils.css",
         "css/cms/flare-download-link.css",
@@ -303,6 +303,30 @@
 
       ],
       "name": "flare_base"
+    },
+    {
+      "files": [
+        "css/cms/flare-utilities.css"
+      ],
+      "name": "flare_utilities"
+    },
+    {
+      "files": [
+        "css/cms/flare26.css"
+      ],
+      "name": "flare26"
+    },
+    {
+      "files": [
+        "css/cms/flare26-base.css",
+        "css/cms/flare26-icon.css",
+        "css/cms/flare26-button.css",
+        "css/cms/flare26-download-utils.css",
+        "css/cms/flare26-download-link.css",
+        "css/cms/flare26-fallback-nav.css",
+        "css/cms/flare26-utilities.css"
+      ],
+      "name": "flare26_base"
     },
     {
       "files": [
@@ -754,6 +778,15 @@
     },
     {
       "files": [
+        "js/base/mozilla-client.js",
+        "js/base/mozilla-fxa.js",
+        "js/base/mozilla-fxa-init.js",
+        "js/cms/flare26.es6.js"
+      ],
+      "name": "firefox-cms-flare26"
+    },
+    {
+      "files": [
         "js/firefox/landing/init.es6.js"
       ],
       "name": "firefox_landing"
@@ -793,6 +826,12 @@
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-fx-logo.js"
+      ],
+      "name": "wagtailadmin-fx-logo"
     },
     {
       "files": [

@@ -1,0 +1,237 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Utilities - Helper classes
+
+This layer provides utility classes that can be used to quickly override
+element styles without having to create a new class or add new CSS
+
+This is imported into both the legacy and modern stylesheets so the
+style rules should have any fallbacks needed for IE8+ and Safari 12.1+
+===================================================================== */
+
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    white-space: nowrap;
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+/* todo: refactor this utility away */
+.light-dark-display {
+    display: contents;
+}
+
+.light-dark-display .display-light,
+.light-dark-display .display-dark {
+    display: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .light-dark-display .display-light {
+        display: unset;
+    }
+
+    .light-dark-display .display-dark {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .light-dark-display .display-light {
+        display: none;
+    }
+
+    .light-dark-display .display-dark {
+        display: unset;
+    }
+}
+
+/* Fallback if no dark variant is set */
+.light-dark-display:not(:has(.display-dark)) .display-light {
+    display: unset;
+}
+
+/* Mobile/dark mode image display utilities. We keep the CSS selectors
+   simple here by ensuring these classes only exist when they're needed.
+   See the image-variants.html template for conditionals that say
+   'only display `display-sm-up` if a mobile image exists', etc.
+
+   The `image-variants-display` class only exists to give context to
+   tests, and add some findability to the utility template.
+
+   By default, image-variants.html swaps the mobile-to-desktop images at
+   the `sm` breakpoint (600px viewport). However, that can be overridden
+   at the template level with `{% set break_at="md" %}`. When enabled, the
+   `md` set of breakpoints and classes below will be used.
+   */
+
+   /* .display-sm-up, .display-md-up, .display-xs-and-sm, .display-xs */
+
+.image-variants-display {
+    display: contents;
+}
+
+.display-sm-up,
+.display-md-up {
+    display: none;
+}
+
+
+@media (--viewport-sm-up) {
+    .display-sm-up {
+        display: unset;
+    }
+
+    .display-xs {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .display-dark {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .display-light {
+        display: none;
+    }
+}
+
+@media (--viewport-xs) and (prefers-color-scheme: dark) {
+    .display-dark.display-sm-up {
+        display: none;
+    }
+}
+
+@media (--viewport-xs) and (prefers-color-scheme: light) {
+    .display-light.display-sm-up {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-xs {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: light) {
+    .display-light.display-xs {
+        display: none;
+    }
+}
+
+/* medium breakpoint variations of all of the above */
+@media (--viewport-md-up) {
+    .display-md-up {
+        display: unset;
+    }
+
+    .display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: dark) {
+    .display-dark.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: light) {
+    .display-light.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: light) {
+    .display-light.display-xs-and-sm {
+        display: none;
+    }
+}
+
+
+
+
+
+
+
+.conditional-display {
+    display: none;
+}
+
+/* This attempts to allow the conditional-display to act as a passthrough when condition is 'all' */
+.conditional-passthrough {
+    display: contents;
+}
+
+.conditional-display.is-preview {
+    display: unset;
+    border: red dashed 2px;
+    position: relative;
+}
+
+.conditional-display.is-preview .preview-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    z-index: 10;
+}
+
+.is-firefox .conditional-display.condition-is-firefox {
+    display: unset;
+}
+
+.not-firefox .conditional-display.condition-not-firefox {
+    display: unset;
+}
+
+.state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
+    display: unset;
+}
+
+.state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
+    display: unset;
+}
+
+.windows-10-plus .conditional-display.condition-windows-10-plus {
+    display: unset;
+}
+
+/* The platform class is placed on the html element and the signed-in state class is placed on the body element */
+
+.windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
+    display: unset;
+}
+
+.windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
+    display: unset;
+}
