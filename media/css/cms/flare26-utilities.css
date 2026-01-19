@@ -75,7 +75,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
    The `image-variants-display` class only exists to give context to
    tests, and add some findability to the utility template.  */
 
-.image-variant-display {
+.image-variants-display {
     display: contents;
 }
 

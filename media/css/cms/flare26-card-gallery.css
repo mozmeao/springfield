@@ -137,10 +137,14 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     padding-bottom: 0;
 }
 
+.fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
+    padding-inline-end: var(--gallery-card-padding);
+}
+
 
 .fl-card-gallery-card-figure img {
     margin: 0;
-    height: 100%; /* the height of the image is determined by the grid row height. See .fl-card-gallery-grid */
+    height: 103%; /* the height of the image is determined by the grid row height. See .fl-card-gallery-grid */
     width: 100%;
     object-fit: cover;
     object-position: top left;
@@ -176,6 +180,11 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
         grid-area: secondary;
         grid-template-rows: auto var(--gallery-secondary-image-height);
     }
+
+    .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
+        padding-inline-end: 0;
+    }
+
 
     .fl-card-gallery-callout-card {
         grid-area: callout;
