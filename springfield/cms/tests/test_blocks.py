@@ -204,7 +204,7 @@ def assert_image_variants_attributes(
     The is_mobile flag indicates if the image is a mobile image.
     """
     dark_light_class_name = "display-dark" if is_dark else "display-light"
-    mobile_desktop_class_name = "display-mobile" if is_mobile else "display-desktop"
+    mobile_desktop_class_name = "display-xs" if is_mobile else "display-sm-up"
     class_name = f"{dark_light_class_name} {mobile_desktop_class_name}"
     assert images_element
     img_tag = images_element.find("img", class_=class_name)
