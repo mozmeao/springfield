@@ -192,6 +192,44 @@ def assert_light_dark_image_attributes(
     assert img_tag["src"] == image_soup["src"]
 
 
+def assert_image_variants_attributes(
+    images_element: BeautifulSoup,
+    image: SpringfieldImage,
+    is_dark: bool = False,
+    is_mobile: bool = False,
+):
+    """
+    Compares the rendered image element with the expected image data.
+    The is_dark flag indicates if the image is a dark mode image.
+    The is_mobile flag indicates if the image is a mobile image.
+    """
+    dark_light_class_name = "display-dark" if is_dark else "display-light"
+    mobile_desktop_class_name = "display-xs" if is_mobile else "display-sm-up"
+    class_name = f"{dark_light_class_name} {mobile_desktop_class_name}"
+    assert images_element
+    img_tag = images_element.find("img", class_=class_name)
+    assert img_tag
+
+    rendered_image = srcset_image(
+        image,
+        "width-{200,400,600,800,1000,1200,1400}",
+        **{
+            "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+            "width": image.width,
+            "height": image.height,
+            "loading": "lazy",
+            "class": class_name,
+        },
+    )
+    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+    assert img_tag["alt"] == image_soup["alt"]
+    assert img_tag["class"] == image_soup["class"]
+    assert img_tag["loading"] == image_soup["loading"]
+    assert img_tag["width"] == image_soup["width"]
+    assert img_tag["height"] == image_soup["height"]
+    assert img_tag["src"] == image_soup["src"]
+
+
 def assert_section_cta_attributes(
     section_element: BeautifulSoup,
     cta_data: dict,
@@ -321,7 +359,7 @@ def test_intro_block(index_page, placeholder_images, rf):
     intro_divs = soup.find_all("div", class_="fl-intro")
     assert len(intro_divs) == len(intros)
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     for index, intro in enumerate(intros):
         intro_element = intro_divs[index]
@@ -357,6 +395,11 @@ def test_intro_block(index_page, placeholder_images, rf):
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media_value)
+
+        if video := intro["value"].get("video"):
+            video = video[0]
+            video_div = intro_element.find("div", class_="fl-video")
+            assert_video_attributes(video_div, video)
 
 
 def test_subscription_block(index_page, rf):
@@ -439,7 +482,7 @@ def test_media_content_block(index_page, placeholder_images, rf):
     media_content_divs = section_element.find_all("div", class_="fl-mediacontent")
     assert len(media_content_divs) == len(media_contents)
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     for index, media_content in enumerate(media_contents):
         div = media_content_divs[index]
@@ -646,7 +689,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
     section_elements = soup.find_all("section", class_="fl-section")
     assert len(section_elements) == len(card_lists)
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     for list_index, card_list in enumerate(card_lists):
         section_element = section_elements[list_index]
@@ -681,16 +724,30 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
             )
-            images_element = card_element.find("div", class_="light-dark-display")
-            assert_light_dark_image_attributes(
+            images_element = card_element.find("div", class_="image-variants-display")
+            assert_image_variants_attributes(
                 images_element=images_element,
                 image=image,
                 is_dark=False,
+                is_mobile=False,
             )
-            assert_light_dark_image_attributes(
+            assert_image_variants_attributes(
+                images_element=images_element,
+                image=mobile_image,
+                is_dark=False,
+                is_mobile=True,
+            )
+            assert_image_variants_attributes(
                 images_element=images_element,
                 image=dark_image,
                 is_dark=True,
+                is_mobile=False,
+            )
+            assert_image_variants_attributes(
+                images_element=images_element,
+                image=dark_mobile_image,
+                is_dark=True,
+                is_mobile=True,
             )
 
 
@@ -719,7 +776,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
     section_elements = soup.find_all("section", class_="fl-section")
     assert len(section_elements) == len(card_lists)
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     for list_index, card_list in enumerate(card_lists):
         section_element = section_elements[list_index]
@@ -855,7 +912,7 @@ def test_banner_block(index_page, placeholder_images, rf):
     banner_divs = soup.find_all("div", class_="fl-banner")
     assert len(banner_divs) == len(banners)
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     for index, banner in enumerate(banners):
         banner_element = banner_divs[index]

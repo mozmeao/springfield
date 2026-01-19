@@ -1,0 +1,41 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props has_kit=True, items=[] #}
+
+<section class="fl-section">
+  <div class="fl-section-container">
+    <div class="fl-carousel {% if has_kit %}fl-carousel-has-kit{% endif %}">
+      <div class="fl-carousel-heading">
+        {{ contents.heading }}
+      </div>
+
+      <div class="fl-carousel-slides">
+        <ol class="fl-carousel-control">
+          {% for item in items %}
+            <li
+              class="fl-carousel-control-item {% if loop.first %}active{% endif %}"
+            >
+              <span class="fl-carousel-control-item-text">{{ item.headline }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+
+        <div class="fl-carousel-images fl-carousel-viewport">
+          <div class="fl-carousel-container">
+            {% for item in items %}
+              <div id="fl-carousel-slide-{{ loop.index }}" class="fl-carousel-slide">
+                <div class="fl-carousel-image">
+                  {{ item.image|safe }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -4,6 +4,8 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+@import 'flare26-icon.css';
+
 /* stylelint-disable selector-class-pattern */
 .compact-form,
 .compact-form .w-panel__content {

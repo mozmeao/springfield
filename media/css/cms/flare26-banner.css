@@ -1,0 +1,282 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-banner {
+    --fl-theme-color-text-primary: var(--fl-theme-color-banner-text);
+    position: relative;
+    border-radius: var(--token-border-radius-md);
+    padding: var(--token-layout-3xs);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.fl-banner-container {
+    width: 100%;
+    max-width: var(--token-width-desktop-layout);
+    margin: 0 auto;
+    padding: var(--token-spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
+}
+
+.fl-banner .fl-heading-group {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
+}
+
+.fl-banner .fl-heading,
+.fl-banner .fl-subheading {
+    margin: 0;
+}
+
+.fl-banner .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xl);
+    line-height: 0.9;
+    text-wrap: balance;
+    display: block;
+    width: 100%;
+}
+
+.fl-banner .fl-subheading {
+    text-wrap: balance;
+    font-size: var(--fl-theme-font-size-body-sm);
+    line-height: 1.4;
+}
+
+.fl-banner-outlined {
+    border: 1px solid var(--token-color-black-1);
+    color: var(--fl-theme-color-text-primary);
+}
+
+.fl-banner-purple {
+    --fl-theme-color-text-primary: var(--token-color-white);
+    --fl-theme-color-link: var(--token-color-white);
+    --fl-theme-color-link-visited: var(--token-color-white);
+    --fl-theme-color-link-strong: var(--token-color-white);
+    background-image: var(--token-gradient-purple);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.fl-banner-purple .fl-superheading {
+    color: var(--fl-theme-color-text-primary);
+}
+
+.fl-banner-media {
+    border-radius: var(--token-spacing-lg);
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.fl-banner-media.has-qr-code {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.fl-banner-media.has-qr-code img {
+    aspect-ratio: 1/1;
+}
+
+.fl-banner-media img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--token-spacing-sm);
+    grid-area: 1 / 1;
+}
+
+.fl-banner-media-qr {
+    background: url('/media/img/firefox/flare/qr-background-simple.png') no-repeat center;
+    background-size: contain;
+    align-items: flex-end;
+    padding: 0 var(--token-spacing-xl);
+    height: 338px;
+}
+
+.fl-banner-qr {
+    display: block;
+    grid-area: 1 / 1;
+    order: 2;
+    place-self: center;
+    width: 50%;
+}
+
+.fl-banner-qr svg {
+    margin: auto;
+    max-height: none;
+    width: 100%;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr {
+    width: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr svg {
+    width: 200px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-sm);
+    box-shadow: none;
+    padding: 10px 18px 0;
+}
+
+.fl-banner-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    max-width: 840px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.fl-banner-content-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
+    width: 100%;
+    min-width: 0;
+}
+
+.fl-banner .fl-buttons {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.fl-banner-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--token-spacing-xl);
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.fl-banner-purple .fl-button:not([class*="button-"]) {
+    color: var(--token-color-white);
+    border-color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button:not([class*="button-"]):hover,
+.fl-banner-purple .fl-button:not([class*="button-"]):focus,
+.fl-banner-purple .fl-button:not([class*="button-"]):active {
+    color: var(--token-color-dark-purple);
+    background-color: var(--token-color-cream);
+    border-color: var(--token-color-black-1);
+}
+
+.fl-banner-purple .fl-button.button-ghost {
+    color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button.button-ghost:hover,
+.fl-banner-purple .fl-button.button-ghost:focus,
+.fl-banner-purple .fl-button.button-ghost:active {
+    background-color: var(--token-color-black-16);
+    color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button.button-secondary:hover,
+.fl-banner-purple .fl-button.button-secondary:focus,
+.fl-banner-purple .fl-button.button-secondary:active {
+    background: var(--token-color-purple);
+    color: var(--token-color-white);
+}
+
+
+@media (--viewport-sm-up) {
+    .fl-banner {
+        border-radius: var(--token-border-radius-lg);
+        padding: var(--token-layout-md);
+        justify-content: initial;
+        align-items: initial;
+        text-align: initial;
+    }
+
+    .fl-banner-container {
+        padding: var(--token-spacing-3xl);
+    }
+
+    .fl-banner-media img {
+        border-radius: var(--token-spacing-lg);
+    }
+
+    .fl-banner-media.has-qr-code img {
+        aspect-ratio: 16/9;
+    }
+
+    .fl-banner-qr {
+        background-size: initial;
+        width: 25%;
+    }
+
+    .fl-banner .fl-buttons {
+        flex-direction: row;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-banner {
+        padding: var(--token-layout-lg);
+        border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-banner-container {
+        gap: var(--token-layout-sm);
+    }
+
+    .fl-banner-layout:has(.fl-banner-media) {
+        gap: var(--token-layout-xs);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-reverse .fl-banner-layout {
+        grid-auto-flow: dense;
+    }
+
+    .fl-banner-reverse .fl-banner-media {
+        order: 2;
+        grid-column: 2;
+    }
+
+    .fl-banner-reverse .fl-banner-content {
+        order: 1;
+        grid-column: 1;
+    }
+
+    .fl-banner-content.fl-banner-content-left {
+        text-align: left;
+        align-items: flex-start;
+        margin: unset;
+    }
+
+    .fl-banner-content.fl-banner-content-left .fl-buttons {
+        justify-content: left;
+    }
+}

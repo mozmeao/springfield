@@ -1,0 +1,153 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Tokens - Flare 2026 Design System Base Tokens
+
+Static values extracted from Figma that do not change based on context.
+===================================================================== */
+
+:root {
+    /* Systemized Color Tokens from Figma */
+    --token-color-white: rgb(255, 255, 255);
+    --token-color-white-90: rgba(255, 255, 255, 0.9);
+    --token-color-grey-1: rgb(249, 249, 251);
+    --token-color-grey-2: rgb(232, 232, 232);
+    --token-color-grey-3: rgb(123, 122, 130);
+    --token-color-black: rgb(0, 0, 0);
+    --token-color-black-16: rgba(0, 0, 0, 0.16);
+    --token-color-black-45: rgba(0, 0, 0, 0.45);
+    --token-color-black-1: rgb(66, 65, 77);
+    --token-color-black-2: rgb(35, 34, 43);
+    --token-color-black-3: rgb(28, 27, 34);
+    --token-color-black-4: rgb(21, 20, 26);
+    --token-color-black-4-72: rgba(21, 20, 26, 0.72);
+    --token-color-black-4-90: rgba(21, 20, 26, 0.9);
+    --token-color-dark-purple: rgb(33, 3, 64);
+    --token-color-dark-purple-22: rgba(33, 3, 64, 0.22);
+    --token-color-dark-purple-30: rgba(33, 3, 64, 0.3);
+    --token-color-purple: rgb(58, 15, 110);
+    --token-color-link-purple: rgb(97, 50, 188);
+    --token-color-light-purple: rgb(117, 67, 227);
+    --token-color-light-purple-20: rgba(117, 67, 227, 0.2);
+    --token-color-light-purple-40: rgba(117, 67, 227, 0.4);
+    --token-color-light-purple-60: rgba(117, 67, 227, 0.6);
+    --token-color-light-purple-80: rgba(117, 67, 227, 0.8);
+    --token-color-cream: rgb(252, 245, 240);
+    --token-color-soft-purple: rgb(241, 231, 248);
+    --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
+    --token-color-soft-magenta: rgb(255, 234, 254);
+    --token-color-soft-yellow: rgb(252, 245, 240);
+
+    /* Gradients from Figma */
+    --token-gradient-firefox: linear-gradient(90deg, #ffeb49 0%, #f60 50%, #fb2872 100%);
+    --token-gradient-world: linear-gradient(90deg, #e752ff 0%, #271aff 100%);
+    --token-gradient-privacy: linear-gradient(90deg, #ae49ec 0%, var(--token-color-dark-purple) 100%);
+    --token-gradient-purple: radial-gradient(122.66% 137.66% at 50% 0%, #AE49EC 0%, #210340 100%);
+
+    /* Light and dark gradients */
+    --token-gradient-light: linear-gradient(180deg, var(--token-color-white-90) 0%, var(--token-color-white) 100%);
+    --token-gradient-dark: linear-gradient(180deg, var(--token-color-black-4-72) 0%, var(--token-color-black-4-90) 100%);
+
+    /* Soft purple gradient */
+    --token-gradient-soft-purple: linear-gradient(180deg, var(--token-color-soft-purple-64) 0%, var(--token-color-white) 100%);
+
+    /* Radial purple gradient */
+    --token-gradient-radial-purple: radial-gradient(
+        74.06% 118.24% at 50% -18.24%,
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 100%
+    );
+
+    /* Gold gradient */
+    --token-gradient-gold: linear-gradient(180deg, #FFE500 0%, #FF980E 100%);
+
+    /* Spacing variables */
+    --token-spacing-2xs: 2px;
+    --token-spacing-xs: 4px;
+    --token-spacing-sm: 8px;
+    --token-spacing-md: 12px;
+    --token-spacing-lg: 16px;
+    --token-spacing-xl: 24px;
+    --token-spacing-2xl: 32px;
+    --token-spacing-3xl: 40px;
+
+    /* Layout variables */
+    --token-layout-3xs: 24px;
+    --token-layout-2xs: 32px;
+    --token-layout-xs: 48px;
+    --token-layout-sm: 64px;
+    --token-layout-md: 80px;
+    --token-layout-md-half: 40px;
+    --token-layout-lg: 128px;
+    --token-layout-lg-half: 64px;
+    --token-layout-xl: 160px;
+    --token-layout-2xl: 200px;
+
+    /* Border radius variables */
+    --token-border-radius-xs: 8px;
+    --token-border-radius-md: 48px;
+    --token-border-radius-lg: 80px;
+    --token-border-radius-xl: 128px;
+
+    /* Width and viewport variables */
+    --token-width-desktop-content: 725px;
+    --token-width-desktop-layout: 1440px;
+    --token-width-desktop-wide-banner: 1170px;
+    --token-width-mobile-layout: 393px;
+    --token-width-breakpoint-mobile: 768; /* Lower than this is mobile, higher is tablet or desktop */
+    --token-width-breakpoint-desktop: 1024; /* Greater than this is desktop, lower is tablet or mobile */
+
+    /* Typography and fonts */
+    --token-font-family-mozilla-headline: 'Mozilla Headline VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+    --token-font-family-mozilla-text: 'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+    /* Font weights */
+    --token-font-weight-regular: 400;
+    --token-font-weight-medium: 500;
+    --token-font-weight-semibold: 600;
+    --token-font-weight-bold: 700;
+    --token-font-condensed-width: 65; /* used in variable font to build condensed heads at larger sizes */
+
+    /* Transition variables NOT from Figma */
+    --token-transition-fast: 0.15s ease;
+    --token-transition-base: 0.2s ease;
+    --token-transition-slow: 0.3s ease;
+}
+
+/* These @custom-media breakpoints set the following viewport sizes.
+Note that the device type in parentheses is only for intuitive reference,
+but not a guarantee since there is a wide range of devices with each
+viewport size and users may resize their browsers to different sizes.
+
+xs: < 600px (phones)
+sm: 600px - 899px (tablets in portrait)
+md: 900px - 1199px (tablets in landscape)
+lg: 1200px - 1799px (laptops and desktops)
+xl: > 1799px (big monitors)
+
+Start with base styles (no media query) for mobile first design, then
+add styles for larger viewports using --viewport-*-up media queries.
+
+Use --viewport-* queries sparingly, to target a specific viewport size.
+
+There are no --viewport-*-down queries to encourage mobile-first design.
+*/
+
+/* stylelint-disable at-rule-no-unknown */
+@custom-media --viewport-sm-up (min-width: 600px);
+@custom-media --viewport-md-up (min-width: 900px);
+@custom-media --viewport-lg-up (min-width: 1200px);
+@custom-media --viewport-xl-up (min-width: 1800px);
+
+@custom-media --viewport-xs (max-width: 599px);
+@custom-media --viewport-sm (min-width: 600px) and (max-width: 899px);
+@custom-media --viewport-md (min-width: 900px) and (max-width: 1199px);
+@custom-media --viewport-lg (min-width: 1200px) and (max-width: 1799px);
+@custom-media --viewport-xl (min-width: 1800px);
+
+@custom-media --viewport-below-md (max-width: 899px);
+@custom-media --viewport-below-lg (max-width: 1199px);

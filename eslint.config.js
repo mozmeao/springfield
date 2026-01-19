@@ -84,6 +84,7 @@ module.exports = [
     eslintConfigPrettier,
     {
         ignores: [
+            'venv/**/*',
             'media/js/ie/libs/**/*.js',
             'media/js/libs/**/*.js',
             'static/**/*.js',

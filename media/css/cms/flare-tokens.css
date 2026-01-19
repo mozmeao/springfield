@@ -95,7 +95,7 @@ non-deterministic so you need to check and adjust the results as needed.
     --token-font-weight-bold: 700; /* Inter only */
 
     /* Other variables from Figma */
-    --token-border-radius-md: 8px;
+    --token-border-radius-lg: 8px;
 
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;
@@ -133,3 +133,5 @@ There are no --viewport-*-down queries to encourage mobile-first design.
 @custom-media --viewport-md (min-width: 900px) and (max-width: 1199px);
 @custom-media --viewport-lg (min-width: 1200px) and (max-width: 1799px);
 @custom-media --viewport-xl (min-width: 1800px);
+
+@custom-media --viewport-below-md (max-width: 899px);

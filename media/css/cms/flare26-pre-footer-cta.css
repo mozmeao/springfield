@@ -1,0 +1,61 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-pre-footer-cta {
+    --kit-size: 100px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-top: calc(var(--kit-size) + (var(--fl-section-v-padding) * 2));
+    padding-bottom: var(--fl-section-v-padding);
+}
+
+.fl-pre-footer-cta-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--token-layout-2xs) var(--token-layout-xs);
+    background-color: var(--token-color-light-purple);
+    color: var(--token-color-white);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-bold);
+    font-size: var(--fl-theme-font-size-heading-2xl);
+    line-height: 0.9;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 2000px;
+    transition: background-color var(--token-transition-fast);
+}
+
+.fl-pre-footer-cta-button::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 3.5%);
+    left: 50%;
+    transform: translateX(-66%);
+    width: var(--kit-size);
+    height: var(--kit-size);
+    background-image: url('/media/img/firefox/flare/sitting-kit-2.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.fl-pre-footer-cta-button:hover {
+    background-color: var(--token-color-link-purple);
+}
+
+@media (--viewport-md-up) {
+    .fl-pre-footer-cta {
+        --kit-size: 180px;
+    }
+
+    .fl-pre-footer-cta-button {
+        padding: var(--token-layout-sm) var(--token-layout-lg);
+    }
+}

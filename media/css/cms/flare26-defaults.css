@@ -1,0 +1,114 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Defaults - Default styles for typography, spacing, and classless
+HTML element styles
+
+This layer overrides some of the constraints from the base layer and
+provides defaults for generic elements using CSS variables from the
+theme layer.
+===================================================================== */
+
+/* TODO: Fix spacing values */
+
+html {
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+body {
+    font-family: var(--fl-theme-font-family-body);
+    font-weight: var(--fl-theme-font-weight-body);
+    color: var(--token-color-black-4);
+    background: var(--token-color-white);
+    width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--fl-theme-font-weight-headline);
+    margin-bottom: var(--token-spacing-lg);
+}
+
+h1, .fl-heading-size-1 { font-size: var(--fl-theme-font-size-heading-xl); }
+h2, .fl-heading-size-2 { font-size: var(--fl-theme-font-size-heading-md); }
+h3, .fl-heading-size-3 { font-size: var(--fl-theme-font-size-heading-sm); }
+h4, .fl-heading-size-4 { font-size: var(--fl-theme-font-size-heading-xs); }
+h5 { font-size: var(--fl-theme-font-size-heading-xs); }
+h6 { font-size: var(--fl-theme-font-size-heading-xs); }
+
+p {
+    margin: 0 0 var(--token-spacing-lg);
+    line-height: 1.6;
+}
+
+a:link, a:visited {
+    color: var(--fl-theme-color-link);
+    text-decoration: underline;
+    transition: color var(--token-transition-fast);
+}
+
+a:visited {
+    color: var(--fl-theme-color-link);
+}
+
+a:hover, a:active, a:focus {
+    text-decoration: none;
+    color: var(--fl-theme-color-link-hover);
+}
+
+img, svg {
+    margin: 0 0 var(--token-spacing-lg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dim-images-on-dark-mode img {
+    filter: brightness(.8) contrast(1.2);
+  }
+}
+
+hr {
+    border-top: 1px solid var(--token-color-soft-purple);
+    margin: var(--token-spacing-lg) 0;
+}
+
+/* Remove section border, since it was just used to provide a clean
+visual break between sections in legacy browsers */
+section {
+    border: none;
+}
+
+ul, ol {
+    margin: 0 0 var(--token-spacing-lg) var(--token-spacing-lg);
+}
+
+li {
+    margin: 0 0 var(--token-spacing-lg);
+}
+
+/* Override base button styles with theme variables and relax constraints */
+button, [role="button"] {
+    background: var(--token-color-light-purple);
+    color: var(--token-color-white);
+    border-radius: var(--token-border-radius-lg);
+    width: auto;
+    height: auto;
+}
+
+button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+    background: var(--token-color-light-purple);
+    color: var(--token-color-white);
+}
+
+button:hover, [role="button"]:hover {
+    background: var(--token-color-link-purple);
+    color: var(--token-color-white);
+}
+
+/* Use theme color for table borders */
+th, td {
+    border-color: var(--token-color-black-4);
+}

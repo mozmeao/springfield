@@ -1,0 +1,31 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-section {
+    padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
+    margin: 0;
+}
+
+.fl-section-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fl-section-v-padding);
+}
+
+.fl-heading-group {
+    margin-bottom: var(--fl-section-heading-margin-bottom);
+}
+
+.fl-heading-group > *:last-child {
+    margin-bottom: 0;
+}
+
+.fl-section-cta-wrap {
+    text-align: center;
+}

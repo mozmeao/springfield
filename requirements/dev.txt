@@ -44,7 +44,6 @@ beautifulsoup4==4.14.3 \
     --hash=sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86
     # via
     #   -r requirements/prod.txt
-    #   bs4
     #   wagtail
 bleach[css]==6.1.0 \
     --hash=sha256:0a31f1837963c41d46bbf1331b8778e1308ea0791db03cc4e7357b97cf42a8fe \
@@ -73,12 +72,6 @@ braceexpand==0.1.7 \
     --hash=sha256:91332d53de7828103dcae5773fb43bc34950b0c8160e35e0f44c4427a3b85014 \
     --hash=sha256:e6e539bd20eaea53547472ff94f4fb5c3d3bf9d0a89388c4b56663aba765f705
     # via -r requirements/dev.in
-bs4==0.0.2 \
-    --hash=sha256:a48685c58f50fe127722417bae83fe6badf500d54b55f7e39ffe43b798653925 \
-    --hash=sha256:abf8742c0805ef7f662dce4b51cca104cffe52b835238afc169142ab9b3fbccc
-    # via
-    #   -r requirements/prod.txt
-    #   django-pattern-library
 certifi==2026.1.4 \
     --hash=sha256:9943707519e4add1115f44c2bc244f782c0249876bf51b6599fee1ffbedd685c \
     --hash=sha256:ac726dd470482006e014ad384921ed6438c457018f4b3d204aea4281258b2120
@@ -595,6 +588,7 @@ django==5.2.9 \
     #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
+    #   wagtail-thumbnail-choice-block
 django-cors-headers==4.9.0 \
     --hash=sha256:15c7f20727f90044dcee2216a9fd7303741a864865f0c3657e28b7056f61b449 \
     --hash=sha256:fe5d7cb59fdc2c8c646ce84b727ac2bca8912a247e6e68e1fb507372178e59e8
@@ -648,8 +642,8 @@ django-mozilla-product-details==1.0.3 \
     --hash=sha256:1d139ba01f4484f3bb43b72864ce33f249835405449e0dc940217cfa42ce5b46 \
     --hash=sha256:a4aba6a68b296dffe8c1afb95d236cdbd402bd855cd49eef4d8a1a610105fd36
     # via -r requirements/prod.txt
-django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.1/django_pattern_library-1.5.1.tar.gz \
-    --hash=sha256:ba3e40e5e5b39ce67feacddf52692caa3a531ff18409daf47b6b4e7148569c50
+django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz \
+    --hash=sha256:ae56e7a996cb9b7a758127735691ccb87fcb9a4630637b04a6ae776f7f50eef2
     # via -r requirements/prod.txt
 django-permissionedforms==0.1 \
     --hash=sha256:4340bb20c4477fffb13b4cc5cccf9f1b1010b64f79956c291c72d2ad2ed243f8 \
@@ -2322,6 +2316,7 @@ wagtail==7.2.1 \
     #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
+    #   wagtail-thumbnail-choice-block
     #   wagtaildraftsharing
 wagtail-factories==4.3.0 \
     --hash=sha256:27c19078ceade5e408aef0edfa3378b7992e5bed4d4c7e8216cbdd53f9732464 \
@@ -2350,6 +2345,10 @@ wagtail-localize-intentional-blanks==0.2.1 \
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
     --hash=sha256:8fad0510319918cc57071d4ef6a07f8ab5a7fa16040b399e6bc084fec1f232ae
+    # via -r requirements/prod.txt
+wagtail-thumbnail-choice-block==0.1.1 \
+    --hash=sha256:c47c0a99c70d387b01f97d49acf40f9d9a1e53d93baaebe2b0fc21be8b5e347b \
+    --hash=sha256:d585e4e5ca6a4f3270c92b2999815cecb6aa3aa5c86665964b70590470f49872
     # via -r requirements/prod.txt
 wagtaildraftsharing==0.3.0 \
     --hash=sha256:2e77b46df0b164c089d25ff146e25fa3601e52de7ccaa9226925e6e6357fdeab \
