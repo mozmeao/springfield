@@ -396,6 +396,7 @@ django==5.2.9 \
     #   wagtail
     #   wagtail-link-block
     #   wagtail-localize
+    #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
 django-cors-headers==4.9.0 \
@@ -1610,6 +1611,7 @@ wagtail==7.2.1 \
     #   -r requirements/prod.in
     #   wagtail-link-block
     #   wagtail-localize
+    #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
     #   wagtaildraftsharing
@@ -1622,8 +1624,13 @@ wagtail-localize==1.12.2 \
     --hash=sha256:a2006793571ae35d3118f091f25c5072eb501a30911b17d98fad028162b63902
     # via
     #   -r requirements/prod.in
+    #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
+wagtail-localize-dashboard==0.1.2 \
+    --hash=sha256:071ecdc1d3bbec2155a28a843238eb2b28aaf4589cfeee5c20042d284c680264 \
+    --hash=sha256:56e7577eb883e3949b5e37ccad959d7356c27fb6449ea460b0da7f926929bcd0
+    # via -r requirements/prod.in
 wagtail-localize-intentional-blanks==0.1.1 \
     --hash=sha256:789068a0ed550684e0a5a8bad6a2054cf237398231ac089d4f068d7d54181b06 \
     --hash=sha256:d8cdeca5f974046b035e0b1d89b322090c0283e472deaaaab0caeeb17f1ac522
