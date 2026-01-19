@@ -10,8 +10,8 @@
 <div class="image-variants-display">
 {# Default/desktop light mode image #}
   {%- set default_display_classes -%}
-    {% if value.settings.dark_mode_image %}display-light{% endif %}
-    {% if value.settings.mobile_image %}display-desktop{% endif %}
+    {%- if value.settings.dark_mode_image -%}display-light {% endif -%}
+    {%- if value.settings.mobile_image -%}display-desktop{% endif -%}
   {%- endset -%}
 
 {{ srcset_image(
@@ -27,8 +27,8 @@
 {# Light mode mobile image #}
 {% if value.settings.mobile_image %}
   {%- set mobile_classes -%}
+    {%- if value.settings.dark_mode_mobile_image -%}display-light {% endif -%}
     display-mobile
-    {% if value.settings.dark_mode_mobile_image %}display-light{% endif %}
   {%- endset -%}
   {{ srcset_image(
       value.settings.mobile_image,
@@ -57,8 +57,7 @@
 {# Dark mode desktop image #}
 {% if value.settings.dark_mode_image %}
 {%- set dark_desktop_classes -%}
-  display-dark
-  {% if value.settings.dark_mode_mobile_image %}display-desktop{% endif %}
+  display-dark {% if value.settings.dark_mode_mobile_image %}display-desktop{% endif -%}
 {%- endset -%}
 
   {{ srcset_image(
