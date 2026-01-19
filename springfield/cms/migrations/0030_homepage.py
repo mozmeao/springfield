@@ -12,7 +12,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0025_merge_0023_auto_20251120_0451_0024_auto_20251117_1157"),
+        ("cms", "0029_remove_pagetranslationdata"),
         ("wagtailcore", "0095_groupsitepermission"),
     ]
 

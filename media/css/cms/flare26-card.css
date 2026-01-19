@@ -69,16 +69,35 @@ Card - Flare 2026 Design System Cards
     order: 0;
 }
 
-.fl-card > div:has(.fl-card-sticker) {
+.fl-card-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    order: 0;
+}
+
+.fl-card-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.fl-card-sticker {
+    margin: auto;
     order: 1;
 }
 
-.fl-card > .fl-body {
+.fl-card > div:has(.fl-card-sticker) {
     order: 2;
 }
 
-.fl-card > .fl-buttons {
+.fl-card > .fl-body {
     order: 3;
+}
+
+.fl-card > .fl-buttons {
+    order: 4;
 }
 
 .fl-card > div:has(.fl-card-sticker),
@@ -153,7 +172,7 @@ Card - Flare 2026 Design System Cards
     margin: 0;
 }
 
-.fl-card-sticker {
+.fl-card-sticker img {
     height: var(--fl-card-sticker-size, 60px);
     margin: 0;
     object-fit: contain;

@@ -25,8 +25,8 @@ class Command(BaseCommand):
     help = "Load page fixtures for testing."
 
     def handle(self, *args, **options):
-        image, dark_image = get_placeholder_images()
-        self.stdout.write(self.style.SUCCESS(f"Placeholder images loaded: {image.id}, {dark_image.id}"))
+        image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+        self.stdout.write(self.style.SUCCESS(f"Placeholder images loaded: {image.id}, {dark_image.id}, {mobile_image.id}, {dark_mobile_image.id}"))
 
         index_page = get_test_index_page()
         self.stdout.write(self.style.SUCCESS(f"Test index page loaded: {index_page.slug}"))
