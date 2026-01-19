@@ -62,4 +62,5 @@ whitenoise==6.11.0
 https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz
 django-includecontents==4.*
 wagtail-link-block==1.1.7
+wagtail-localize-dashboard==0.1.2
 wagtail-thumbnail-choice-block==0.1.1

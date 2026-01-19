@@ -29,7 +29,7 @@
             {% for item in items %}
               <div id="fl-carousel-slide-{{ loop.index }}" class="fl-carousel-slide">
                 <div class="fl-carousel-image">
-                  <img src="{{ item.image.url }}" alt="{{ item.image.alt }}">
+                  {{ item.image|safe }}
                 </div>
               </div>
             {% endfor %}

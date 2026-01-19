@@ -43,6 +43,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
+/* todo: refactor this utility away */
 .light-dark-display {
     display: contents;
 }
@@ -54,7 +55,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 @media (prefers-color-scheme: light) {
     .light-dark-display .display-light {
-        display: block;
+        display: unset;
     }
 
     .light-dark-display .display-dark {
@@ -68,13 +69,119 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     }
 
     .light-dark-display .display-dark {
-        display: block;
+        display: unset;
     }
 }
 
 /* Fallback if no dark variant is set */
 .light-dark-display:not(:has(.display-dark)) .display-light {
-    display: block;
+    display: unset;
+}
+
+/* Mobile/dark mode image display utilities. We keep the CSS selectors
+   simple here by ensuring these classes only exist when they're needed.
+   See the image-variants.html template for conditionals that say
+   'only display `display-sm-up` if a mobile image exists', etc.
+
+   The `image-variants-display` class only exists to give context to
+   tests, and add some findability to the utility template.
+
+   By default, image-variants.html swaps the mobile-to-desktop images at
+   the `sm` breakpoint (600px viewport). However, that can be overridden
+   at the template level with `{% set break_at="md" %}`. When enabled, the
+   `md` set of breakpoints and classes below will be used.
+   */
+
+/* .display-sm-up, .display-md-up, .display-xs-and-sm, .display-xs */
+
+.image-variants-display {
+    display: contents;
+}
+
+.display-sm-up,
+.display-md-up {
+    display: none;
+}
+
+@media (--viewport-sm-up) {
+    .display-sm-up {
+        display: unset;
+    }
+
+    .display-xs {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .display-dark {
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .display-light {
+        display: none;
+    }
+}
+
+@media (--viewport-xs) and (prefers-color-scheme: dark) {
+    .display-dark.display-sm-up {
+        display: none;
+    }
+}
+
+@media (--viewport-xs) and (prefers-color-scheme: light) {
+    .display-light.display-sm-up {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-xs {
+        display: none;
+    }
+}
+
+@media (--viewport-sm-up) and (prefers-color-scheme: light) {
+    .display-light.display-xs {
+        display: none;
+    }
+}
+
+/* medium breakpoint variations of all of the above */
+@media (--viewport-md-up) {
+    .display-md-up {
+        display: unset;
+    }
+
+    .display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: dark) {
+    .display-dark.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: light) {
+    .display-light.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: light) {
+    .display-light.display-xs-and-sm {
+        display: none;
+    }
 }
 
 .conditional-display {
@@ -88,6 +195,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .conditional-display.is-preview {
     border: red dashed 2px;
+    display: unset;
     display: block;
     position: relative;
 }
@@ -104,25 +212,25 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .is-firefox .conditional-display.condition-is-firefox {
-    display: block;
+    display: unset;
 }
 
 .not-firefox .conditional-display.condition-not-firefox {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-in
     .conditional-display.condition-state-fxa-supported-signed-in {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-out
     .conditional-display.condition-state-fxa-supported-signed-out {
-    display: block;
+    display: unset;
 }
 
 .windows-10-plus .conditional-display.condition-windows-10-plus {
-    display: block;
+    display: unset;
 }
 
 /* The platform class is placed on the html element and the signed-in state class is placed on the body element */
@@ -130,11 +238,11 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .windows-10-plus
     .state-fxa-supported-signed-in
     .conditional-display.condition-windows-10-plus-signed-in {
-    display: block;
+    display: unset;
 }
 
 .windows-10-plus
     .state-fxa-supported-signed-out
     .conditional-display.condition-windows-10-plus-signed-out {
-    display: block;
+    display: unset;
 }
