@@ -63,4 +63,4 @@ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.1/d
 django-includecontents==4.*
 wagtail-link-block==1.1.7
 wagtail-localize-dashboard==0.1.2
-wagtail-localize-intentional-blanks==0.1.1
+wagtail-localize-intentional-blanks==0.2.1
