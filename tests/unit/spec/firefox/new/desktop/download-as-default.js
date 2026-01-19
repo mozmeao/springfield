@@ -15,10 +15,12 @@ describe('download-as-default.es6.js', function () {
     beforeEach(function () {
         const optOut = `<div id="opt-out">
             <label for="default-opt-out-primary" class="default-browser-label hidden">
+                <span class="loading"></span>
                 <input type="checkbox" id="default-opt-out-primary"" class="default-browser-checkbox">
                 Set Firefox as your default browser.
             </label>
             <label for="default-opt-out-secondary" class="default-browser-label hidden">
+                <span class="loading"></span>
                 <input type="checkbox" id="default-opt-out-secondary" class="default-browser-checkbox">
                 Set Firefox as your default browser.
             </label>
