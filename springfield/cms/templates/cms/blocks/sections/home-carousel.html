@@ -6,13 +6,14 @@
 
 {% set items = [] %}
 {% for item in value.slides %}
-  {% set img = image(item.image, "width-800") %}
+  {% set image_html %}
+    {% with widths="width-{400,600,800,1000}", sizes="100vw" %}
+      {% include_block item.image %}
+    {% endwith %}
+  {% endset %}
   {% set _ = items.append({
     "headline": item.headline|richtext|remove_p_tag,
-    "image": {
-      "url": img.url,
-      "alt": img.alt,
-    }
+    "image": image_html,
   }) %}
 {% endfor %}
 

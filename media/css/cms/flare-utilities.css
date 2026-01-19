@@ -69,6 +69,77 @@ body:not(.disable-dark-mode) .light-dark-display:not(:has(.display-dark)) .displ
     display: block;
 }
 
+/* Image Variants Display - handles desktop/mobile + light/dark combinations */
+.image-variants-display {
+    display: contents;
+}
+
+body:not(.disable-dark-mode) .image-variants-display .display-light,
+body:not(.disable-dark-mode) .image-variants-display .display-dark {
+    display: none;
+}
+
+/* Light mode desktop */
+@media (prefers-color-scheme: light) and (--viewport-md-up) {
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-desktop {
+        display: block;
+    }
+
+    /* Fallback: if no dark variant is set, show light variant in dark mode */
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-desktop {
+        display: block;
+    }
+}
+
+/* Light mode mobile */
+@media (prefers-color-scheme: light) and (--viewport-below-md) {
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-desktop {
+        display: none;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-mobile {
+        display: block;
+    }
+
+    /* Fallback: if no mobile variant is set, show desktop on mobile */
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-mobile)) .display-light.display-desktop {
+        display: block;
+    }
+
+    /* Fallback: if no dark variant is set, show light mobile in dark mode */
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-mobile {
+        display: block;
+    }
+
+    /* Fallback: if no mobile and no dark variant, show light desktop */
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-mobile)):not(:has(.display-dark)) .display-light.display-desktop {
+        display: block;
+    }
+}
+
+/* Dark mode desktop */
+@media (prefers-color-scheme: dark) and (--viewport-md-up) {
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-desktop {
+        display: block;
+    }
+}
+
+/* Dark mode mobile */
+@media (prefers-color-scheme: dark) and (--viewport-below-md) {
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-desktop {
+        display: none;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-mobile {
+        display: block;
+    }
+
+    /* Fallback: if no mobile variant is set, show desktop on mobile */
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-mobile)) .display-dark.display-desktop {
+        display: block;
+    }
+}
+
 /* Conditional display */
 
 .conditional-display {
