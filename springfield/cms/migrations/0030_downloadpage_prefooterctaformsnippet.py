@@ -16,7 +16,7 @@ import springfield.cms.models.snippets
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0029_prefooterctasnippet"),
+        ("cms", "0029_remove_pagetranslationdata"),
         ("wagtailcore", "0095_groupsitepermission"),
     ]
 
