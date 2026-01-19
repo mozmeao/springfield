@@ -6,12 +6,15 @@
 
 {% set sizes = sizes or "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw" %}
 {% set widths = widths or "width-{200,400,600,800,1000,1200,1400}" %}
+{% set break_at = break_at or "sm" %}
 
 <div class="image-variants-display">
 {# Default/desktop light mode image #}
   {%- set default_display_classes -%}
-    {%- if value.settings.dark_mode_image -%}display-light {% endif -%}
-    {%- if value.settings.mobile_image -%}display-desktop{% endif -%}
+    {% if value.settings.dark_mode_image %}display-light{% endif %}
+    {% if value.settings.mobile_image %}
+    {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
+    {% endif %}
   {%- endset -%}
 
 {{ srcset_image(
@@ -27,8 +30,8 @@
 {# Light mode mobile image #}
 {% if value.settings.mobile_image %}
   {%- set mobile_classes -%}
-    {%- if value.settings.dark_mode_mobile_image -%}display-light {% endif -%}
-    display-mobile
+    {% if break_at == "md" %}display-xs-and-sm{% else %}display-xs{% endif %}
+    {% if value.settings.dark_mode_mobile_image %}display-light{% endif %}
   {%- endset -%}
   {{ srcset_image(
       value.settings.mobile_image,
@@ -43,6 +46,11 @@
 
 {# Dark mode mobile image #}
 {% if value.settings.dark_mode_mobile_image %}
+{%- set dark_mobile_classes -%}
+    {% if break_at == "md" %}display-xs-and-sm{% else %}display-xs{% endif %}
+    display-dark
+  {%- endset -%}
+
   {{ srcset_image(
       value.settings.dark_mode_mobile_image,
       widths,
@@ -50,14 +58,17 @@
       width=value.settings.dark_mode_mobile_image.width,
       height=value.settings.dark_mode_mobile_image.height,
       loading="lazy",
-      class="display-dark display-mobile",
+      class=dark_mobile_classes,
   ) }}
 {% endif %}
 
 {# Dark mode desktop image #}
 {% if value.settings.dark_mode_image %}
 {%- set dark_desktop_classes -%}
-  display-dark {% if value.settings.dark_mode_mobile_image %}display-desktop{% endif -%}
+  display-dark
+  {% if value.settings.dark_mode_mobile_image %}
+    {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
+  {% endif %}
 {%- endset -%}
 
   {{ srcset_image(

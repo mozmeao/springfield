@@ -70,25 +70,35 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
    simple here by ensuring these classes only exist when they're needed.
    See the image-variants.html template for conditionals that say
-   'only display `display-desktop` if a mobile image exists', etc.
+   'only display `display-sm-up` if a mobile image exists', etc.
 
    The `image-variants-display` class only exists to give context to
-   tests, and add some findability to the utility template.  */
+   tests, and add some findability to the utility template.
+
+   By default, image-variants.html swaps the mobile-to-desktop images at
+   the `sm` breakpoint (600px viewport). However, that can be overridden
+   at the template level with `{% set break_at="md" %}`. When enabled, the
+   `md` set of breakpoints and classes below will be used.
+   */
+
+   /* .display-sm-up, .display-md-up, .display-xs-and-sm, .display-xs */
 
 .image-variants-display {
     display: contents;
 }
 
-.display-desktop {
+.display-sm-up,
+.display-md-up {
     display: none;
 }
 
+
 @media (--viewport-sm-up) {
-    .display-desktop {
+    .display-sm-up {
         display: unset;
     }
 
-    .display-mobile {
+    .display-xs {
         display: none;
     }
 }
@@ -106,28 +116,65 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 @media (--viewport-xs) and (prefers-color-scheme: dark) {
-    .display-dark.display-desktop {
+    .display-dark.display-sm-up {
         display: none;
     }
 }
 
 @media (--viewport-xs) and (prefers-color-scheme: light) {
-    .display-light.display-desktop {
+    .display-light.display-sm-up {
         display: none;
     }
 }
 
 @media (--viewport-sm-up) and (prefers-color-scheme: dark) {
-    .display-dark.display-mobile {
+    .display-dark.display-xs {
         display: none;
     }
 }
 
 @media (--viewport-sm-up) and (prefers-color-scheme: light) {
-    .display-light.display-mobile {
+    .display-light.display-xs {
         display: none;
     }
 }
+
+/* medium breakpoint variations of all of the above */
+@media (--viewport-md-up) {
+    .display-md-up {
+        display: unset;
+    }
+
+    .display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: dark) {
+    .display-dark.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-below-md) and (prefers-color-scheme: light) {
+    .display-light.display-md-up {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: dark) {
+    .display-dark.display-xs-and-sm {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) and (prefers-color-scheme: light) {
+    .display-light.display-xs-and-sm {
+        display: none;
+    }
+}
+
+
 
 
 
