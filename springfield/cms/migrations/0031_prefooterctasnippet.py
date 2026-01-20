@@ -14,7 +14,7 @@ import wagtail.models.preview
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0028_merge_20251204_0851"),
+        ("cms", "0030_homepage"),
         ("wagtailcore", "0095_groupsitepermission"),
     ]
 

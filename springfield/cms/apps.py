@@ -10,8 +10,6 @@ class CmsConfig(AppConfig):
     name = "springfield.cms"
 
     def ready(self):
-        from springfield.cms import signals  # noqa
-
         # Replace Wagtail's Locale.get_active() with our implementation
         self._patch_locale_get_active()
 

@@ -108,15 +108,16 @@ Static values extracted from Figma that do not change based on context.
     --token-layout-xs: 48px;
     --token-layout-sm: 64px;
     --token-layout-md: 80px;
-    --token-layout-lg: 104px;
-    --token-layout-xl: 128px;
-    --token-layout-2xl: 160px;
-    --token-layout-3xl: 200px;
+    --token-layout-md-half: 40px;
+    --token-layout-lg: 128px;
+    --token-layout-lg-half: 64px;
+    --token-layout-xl: 160px;
+    --token-layout-2xl: 200px;
 
     /* Border radius variables */
     --token-border-radius-xs: 8px;
-    --token-border-radius-md: 40px;
-    --token-border-radius-lg: 50px;
+    --token-border-radius-md: 48px;
+    --token-border-radius-lg: 80px;
     --token-border-radius-xl: 128px;
 
     /* Width and viewport variables */
