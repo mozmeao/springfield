@@ -45,14 +45,14 @@
     </ul>
     <p>
       {% if ftl_has_messages('firefox-channel-beta-is-an-unstable-testing') %}
-        {{ ftl('firefox-channel-beta-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#pre-release') }}
+        {{ ftl('firefox-channel-beta-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#applicability-firefox-version') }}
       {% else %}
         {{ ftl('firefox-channel-firefox-beta-automatically') }}
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#pre-release">{{ ftl('ui-learn-more') }}</a>
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
       {% endif %}
     </p>
     <p>
-      {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://input.mozilla.com/feedback') }}
+      {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://connect.mozilla.org/') }}
     </p>
   </div>
 </section>
@@ -77,10 +77,10 @@
     </ul>
     <p>
     {% if ftl_has_messages('firefox-channel-nightly-is-an-unstable-testing') %}
-      {{ ftl('firefox-channel-nightly-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#pre-release') }}
+      {{ ftl('firefox-channel-nightly-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params  + '#applicability-firefox-version') }}
     {% else %}
       {{ ftl('firefox-channel-firefox-nightly-automatically') }}
-      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#pre-release">{{ ftl('ui-learn-more') }}</a>
+      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
     {% endif %}
     </p>
     <p>{{ ftl('firefox-channel-nightly-update-one-or-more-times') }}</p>
