@@ -21,7 +21,7 @@ firefox-channel-all-languages-and-platforms = All Languages and Platforms
 firefox-channel-all-languages-and-builds = All Languages and Builds
 
 # Variables:
-#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#pre-release
+#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#applicability-firefox-version
 firefox-channel-beta-is-an-unstable-testing = { -brand-name-beta } is an unstable testing and development platform. By default, { -brand-name-beta } sends data to { -brand-name-mozilla } — and sometimes our partners — to help us handle problems and try ideas. <a href="{ $link }">Learn what is shared</a>.
 
 firefox-channel-firefox-beta-automatically = { -brand-name-firefox-beta } automatically sends feedback to { -brand-name-mozilla }.
@@ -34,7 +34,7 @@ firefox-channel-check-out-new-android-features = Check out new { -brand-name-and
 firefox-channel-nightly-blog = { -brand-name-nightly } Blog
 
 # Variables:
-#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#pre-release
+#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#applicability-firefox-version
 firefox-channel-nightly-is-an-unstable-testing = { -brand-name-nightly } is an unstable testing and development platform. By default, { -brand-name-nightly } sends data to { -brand-name-mozilla } — and sometimes our partners — to help us handle problems and try ideas. <a href="{ $link }">Learn what is shared</a>.
 
 firefox-channel-firefox-nightly-automatically = { -brand-name-firefox-nightly } automatically sends feedback to { -brand-name-mozilla }.
@@ -48,7 +48,7 @@ firefox-channel-developer-edition = { -brand-name-developer-edition }
 firefox-channel-build-test-scale-and-more = Build, test, scale and more with the only browser built just for developers.
 
 # Variables:
-#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#pre-release
+#   $link (url) - link to https://www.mozilla.org/privacy/firefox/#applicability-firefox-version
 firefox-channel-developer-edition-is-an = { -brand-name-developer-edition } is an unstable testing and development platform. By default, { -brand-name-developer-edition } sends data to { -brand-name-mozilla } — and sometimes our partners — to help us handle problems and try ideas. <a href="{ $link }">Learn what is shared</a>.
 
 firefox-channel-firefox-developer-edition = { -brand-name-firefox-developer-edition } automatically sends feedback to { -brand-name-mozilla }.
