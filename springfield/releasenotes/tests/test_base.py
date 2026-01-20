@@ -544,3 +544,252 @@ class TestSysreqRedirect(TestCase):
     )
     def test_desktop_esr_version(self):
         self._test("/firefox/organizations/system-requirements/", "/firefox/24.2.0/system-requirements/")
+
+
+class TestAdjacentMajorReleases(TestCase):
+    """Tests for get_adjacent_major_releases() pagination helper."""
+
+    def _make_release(self, version, product="Firefox", channel="Release", is_public=True):
+        """Helper to create mock release objects."""
+        release = Mock()
+        release.version = version
+        release.product = product
+        release.channel = channel
+        release.is_public = is_public
+        # Parse major version from version string (e.g., "146.0" -> 146)
+        release.major_version_int = int(version.split(".")[0])
+        release.get_absolute_url.return_value = f"/en-US/firefox/{version}/releasenotes/"
+        return release
+
+    @patch("springfield.releasenotes.views.get_release")
+    def test_returns_both_adjacent_releases(self, mock_get_release):
+        """Should return URLs for both previous and next major releases."""
+        release = self._make_release("146.0")
+
+        prev_release = self._make_release("145.0")
+        next_release = self._make_release("147.0")
+
+        def get_release_side_effect(product, version, channel):
+            if version == "145.0":
+                return prev_release
+            if version == "147.0":
+                return next_release
+            return None
+
+        mock_get_release.side_effect = get_release_side_effect
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"]["url"] == "/en-US/firefox/145.0/releasenotes/"
+        assert result["previous"]["version"] == "145.0"
+        assert result["next"]["url"] == "/en-US/firefox/147.0/releasenotes/"
+        assert result["next"]["version"] == "147.0"
+
+    @patch("springfield.releasenotes.views.get_release")
+    def test_no_previous_for_version_1(self, mock_get_release):
+        """Should return None for previous when at version 1."""
+        release = self._make_release("1.0")
+        release.major_version_int = 1
+
+        next_release = self._make_release("2.0")
+        mock_get_release.return_value = next_release
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is None
+        assert result["next"] is not None
+        # Should only call get_release for next version (2.0), not 0.0
+        mock_get_release.assert_called_once_with("Firefox", "2.0", "Release")
+
+    @patch("springfield.releasenotes.views.get_release")
+    def test_no_next_when_latest_release(self, mock_get_release):
+        """Should return None for next when release doesn't exist."""
+        release = self._make_release("147.0")
+
+        prev_release = self._make_release("146.0")
+
+        def get_release_side_effect(product, version, channel):
+            if version == "146.0":
+                return prev_release
+            return None  # 148.0 doesn't exist
+
+        mock_get_release.side_effect = get_release_side_effect
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is not None
+        assert result["next"] is None
+
+    def test_minor_release_has_no_pagination(self):
+        """Minor releases (146.0.1) should not show pagination."""
+        release = self._make_release("146.0.1")
+        release.major_version_int = 146
+
+        result = views.get_adjacent_major_releases(release)
+
+        # Minor releases should not show pagination controls
+        assert result["previous"] is None
+        assert result["next"] is None
+
+    @patch("springfield.releasenotes.views.get_release")
+    def test_respects_product(self, mock_get_release):
+        """Should only query releases for the same product."""
+        release = self._make_release("146.0", product="Firefox for Android")
+
+        mock_get_release.return_value = None
+
+        views.get_adjacent_major_releases(release)
+
+        # Verify calls used correct product
+        calls = mock_get_release.call_args_list
+        assert all(call[0][0] == "Firefox for Android" for call in calls)
+
+    def test_returns_none_for_beta_channel(self):
+        """Should return no pagination for Beta channel."""
+        release = self._make_release("147.0", channel="Beta")
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is None
+        assert result["next"] is None
+
+    def test_returns_none_for_nightly_channel(self):
+        """Should return no pagination for Nightly channel."""
+        release = self._make_release("148.0", channel="Nightly")
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is None
+        assert result["next"] is None
+
+    @patch("springfield.releasenotes.views.ProductRelease")
+    def test_esr_queries_database(self, mock_ProductRelease):
+        """ESR releases should query DB since versions skip."""
+        release = self._make_release("128.0esr", channel="ESR")
+        release.major_version_int = 128
+
+        # Mock ESR releases in DB
+        esr_115 = self._make_release("115.0esr", channel="ESR")
+        esr_140 = self._make_release("140.0esr", channel="ESR")
+
+        # Mock the queryset chain: filter -> annotate -> only -> filter -> order_by -> first
+        mock_qs = Mock()
+        mock_ProductRelease.objects.filter.return_value.annotate.return_value.only.return_value = mock_qs
+
+        def filter_side_effect(**kwargs):
+            filter_mock = Mock()
+            if "major_int__lt" in kwargs:
+                # Previous: return 115.0esr
+                filter_mock.order_by.return_value.first.return_value = esr_115
+            elif "major_int__gt" in kwargs:
+                # Next: return 140.0esr
+                filter_mock.order_by.return_value.first.return_value = esr_140
+            return filter_mock
+
+        mock_qs.filter.side_effect = filter_side_effect
+
+        result = views.get_adjacent_major_releases(release)
+
+        # Should find 115.0esr as previous (not 127.0esr which doesn't exist)
+        assert result["previous"]["version"] == "115.0esr"
+        # Should find 140.0esr as next (not 129.0esr)
+        assert result["next"]["version"] == "140.0esr"
+
+    @patch("springfield.releasenotes.views.ProductRelease")
+    def test_esr_no_previous_for_first(self, mock_ProductRelease):
+        """First ESR release should have no previous."""
+        release = self._make_release("115.0esr", channel="ESR")
+        release.major_version_int = 115
+
+        esr_128 = self._make_release("128.0esr", channel="ESR")
+
+        # Mock the queryset chain: filter -> annotate -> only -> filter -> order_by -> first
+        mock_qs = Mock()
+        mock_ProductRelease.objects.filter.return_value.annotate.return_value.only.return_value = mock_qs
+
+        def filter_side_effect(**kwargs):
+            filter_mock = Mock()
+            if "major_int__lt" in kwargs:
+                # No previous for first ESR
+                filter_mock.order_by.return_value.first.return_value = None
+            elif "major_int__gt" in kwargs:
+                # Next: return 128.0esr
+                filter_mock.order_by.return_value.first.return_value = esr_128
+            return filter_mock
+
+        mock_qs.filter.side_effect = filter_side_effect
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is None
+        assert result["next"]["version"] == "128.0esr"
+
+    @patch("springfield.releasenotes.views.ProductRelease")
+    def test_esr_no_next_for_latest(self, mock_ProductRelease):
+        """Latest ESR release should have no next."""
+        release = self._make_release("128.0esr", channel="ESR")
+        release.major_version_int = 128
+
+        esr_115 = self._make_release("115.0esr", channel="ESR")
+
+        # Mock the queryset chain: filter -> annotate -> only -> filter -> order_by -> first
+        mock_qs = Mock()
+        mock_ProductRelease.objects.filter.return_value.annotate.return_value.only.return_value = mock_qs
+
+        def filter_side_effect(**kwargs):
+            filter_mock = Mock()
+            if "major_int__lt" in kwargs:
+                # Previous: return 115.0esr
+                filter_mock.order_by.return_value.first.return_value = esr_115
+            elif "major_int__gt" in kwargs:
+                # No next for latest ESR
+                filter_mock.order_by.return_value.first.return_value = None
+            return filter_mock
+
+        mock_qs.filter.side_effect = filter_side_effect
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"]["version"] == "115.0esr"
+        assert result["next"] is None
+
+
+class TestReleaseNotesPaginationContext(TestCase):
+    """Tests that pagination context is passed to template."""
+
+    @override_settings(DEV=False)
+    def setUp(self):
+        caches["release-notes"].clear()
+        self.factory = RequestFactory()
+        self.request = self.factory.get("/")
+        self.render_patch = patch("springfield.releasenotes.views.l10n_utils.render")
+        self.mock_render = self.render_patch.start()
+        self.mock_render.return_value.has_header.return_value = False
+
+    def tearDown(self):
+        self.render_patch.stop()
+
+    @property
+    def last_ctx(self):
+        return self.mock_render.call_args[0][2]
+
+    @patch("springfield.releasenotes.views.get_adjacent_major_releases")
+    @patch("springfield.releasenotes.views.get_release_or_404")
+    @patch("springfield.releasenotes.views.equivalent_release_url")
+    def test_pagination_in_context(self, mock_equiv, mock_get_release, mock_get_adjacent):
+        """release_notes view should include pagination in context."""
+        mock_release = mock_get_release.return_value
+        mock_release.major_version = "146"
+        mock_release.get_notes.return_value = []
+        mock_release.product = "Firefox"
+
+        mock_get_adjacent.return_value = {
+            "previous": {"url": "/firefox/145.0/releasenotes/", "version": "145.0"},
+            "next": {"url": "/firefox/147.0/releasenotes/", "version": "147.0"},
+        }
+
+        views.release_notes(self.request, "146.0")
+
+        assert "pagination" in self.last_ctx
+        assert self.last_ctx["pagination"]["previous"]["version"] == "145.0"
+        assert self.last_ctx["pagination"]["next"]["version"] == "147.0"

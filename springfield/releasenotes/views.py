@@ -6,6 +6,8 @@ from copy import copy
 from operator import attrgetter
 
 from django.conf import settings
+from django.db.models import IntegerField, Value
+from django.db.models.functions import Cast, Replace
 from django.http import Http404, HttpResponseRedirect
 from django.urls import NoReverseMatch
 from django.views.decorators.http import require_safe
@@ -15,7 +17,9 @@ from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
+    ProductRelease,
     get_latest_release_or_404,
+    get_release,
     get_release_or_404,
     get_releases_or_404,
 )
@@ -82,6 +86,82 @@ def check_url(product, version):
         return reverse("firefox.system_requirements", args=[version])
 
 
+def get_adjacent_major_releases(release):
+    """
+    Get previous and next major release URLs for pagination.
+    Only shown on X.0 major releases within the same product.
+    Only applies to Release and ESR channels.
+
+    For ESR: queries DB since versions skip (e.g., 115→128).
+    For Release: uses arithmetic (current_major ± 1).
+    """
+
+    # Only show pagination for Release and ESR channels
+    if release.channel not in ("Release", "ESR"):
+        return {"previous": None, "next": None}
+
+    # Only show pagination for major releases (X.0 or X.0esr), not minor versions
+    is_major = release.version.endswith(".0") or release.version.endswith(".0esr")
+    if not is_major:
+        return {"previous": None, "next": None}
+
+    current_major = release.major_version_int
+    product = release.product
+    channel = release.channel
+
+    result = {"previous": None, "next": None}
+
+    if channel == "ESR":
+        # ESR versions skip (e.g., 115, 128), so query DB for adjacent majors
+        # Annotate with major version integer for efficient DB-level filtering/ordering
+        base_qs = (
+            ProductRelease.objects.filter(
+                product=product,
+                channel="ESR",
+                version__endswith=".0esr",
+                is_public=True,
+            )
+            .annotate(major_int=Cast(Replace("version", Value(".0esr"), Value("")), IntegerField()))
+            .only("version", "product", "channel")
+        )
+
+        # Get previous release (largest major version less than current)
+        prev_release = base_qs.filter(major_int__lt=current_major).order_by("-major_int").first()
+        if prev_release:
+            result["previous"] = {
+                "url": prev_release.get_absolute_url(),
+                "version": prev_release.version,
+            }
+
+        # Get next release (smallest major version greater than current)
+        next_release = base_qs.filter(major_int__gt=current_major).order_by("major_int").first()
+        if next_release:
+            result["next"] = {
+                "url": next_release.get_absolute_url(),
+                "version": next_release.version,
+            }
+    else:
+        # Release channel: use simple arithmetic
+        if current_major > 1:
+            prev_version = f"{current_major - 1}.0"
+            prev_release = get_release(product, prev_version, channel)
+            if prev_release:
+                result["previous"] = {
+                    "url": prev_release.get_absolute_url(),
+                    "version": prev_release.version,
+                }
+
+        next_version = f"{current_major + 1}.0"
+        next_release = get_release(product, next_version, channel)
+        if next_release:
+            result["next"] = {
+                "url": next_release.get_absolute_url(),
+                "version": next_release.version,
+            }
+
+    return result
+
+
 @require_safe
 def release_notes(request, version, product="Firefox"):
     if not version:
@@ -113,6 +193,8 @@ def release_notes(request, version, product="Firefox"):
             },
         )
 
+    pagination = get_adjacent_major_releases(release)
+
     return l10n_utils.render(
         request,
         release_notes_template(release.channel, product, int(release.major_version)),
@@ -124,6 +206,7 @@ def release_notes(request, version, product="Firefox"):
             "release": release,
             "release_notes": release_notes,
             "equivalent_release_url": equivalent_release_url(release),
+            "pagination": pagination,
         },
     )
 

@@ -486,3 +486,57 @@ video[autoplay] {
     }
 
 }
+
+// Release notes pagination
+.c-release-pagination {
+    margin: $layout-sm auto;
+    padding: 0;
+}
+
+.c-release-pagination-list {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.c-release-pagination-item {
+    max-width: 45%;
+}
+
+.c-release-pagination-next {
+    margin-left: auto;
+    text-align: right;
+}
+
+.c-release-pagination-link {
+    display: block;
+    text-decoration: none;
+
+    &:hover .c-release-pagination-direction,
+    &:focus .c-release-pagination-direction {
+        text-decoration: underline;
+    }
+}
+
+.c-release-pagination-direction {
+    @include text-body-lg;
+    display: block;
+    font-weight: bold;
+    color: $color-link;
+
+    .c-release-pagination-previous &::before {
+        content: '\2190\00a0'; // ← arrow
+    }
+
+    .c-release-pagination-next &::after {
+        content: '\00a0\2192'; // → arrow
+    }
+}
+
+.c-release-pagination-version {
+    @include text-body-md;
+    display: block;
+    color: $color-marketing-gray-70;
+}
