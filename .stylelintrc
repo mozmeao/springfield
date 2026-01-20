@@ -1,6 +1,13 @@
 {
     "extends": "stylelint-config-standard-scss",
     "rules": {
+        "rule-empty-line-before": [
+            "always",
+            {
+                "except": ["first-nested"],
+                "ignore": ["after-comment"]
+            }
+        ],
         "declaration-empty-line-before": "never",
         "declaration-no-important": true,
         "color-function-notation": "legacy",
