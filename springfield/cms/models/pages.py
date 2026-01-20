@@ -16,7 +16,6 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
-    FeatureCardsBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -181,7 +180,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     content = StreamField(
         [
-            ("feature_cards", FeatureCardsBlock()),
+            ("section", SectionBlock2026()),
             (
                 "banner_snippet",
                 SnippetChooserBlock(

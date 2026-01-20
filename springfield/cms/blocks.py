@@ -1802,17 +1802,3 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
-
-
-# Download page
-
-
-class FeatureCardsBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    cards_list = CardsListBlock2026(allow_uitour=False)
-    bottom_button = ButtonBlock(required=False)
-
-    class Meta:
-        template = "cms/blocks/sections/feature-cards.html"
-        label = "Feature Cards"
-        label_format = "{heading}"

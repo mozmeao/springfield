@@ -11,4 +11,4 @@
 # Page title - Download Firefox for macOS/Windows/Linux
 # Variables:
 #   $platform (string) - Currently selected platform for download
-firefox-download-for = Download <span class="fl-fx-logo"></span> { -brand-name-firefox } for <span class="fl-platform-select js-platform-select" data-platform="{ $platform }"></span>
+firefox-download-for = Download <span class="fl-fx-logo"></span> { -brand-name-firefox } for <span class="fl-platform-select js-platform-select" data-platform="{ $platform }">{ $platform }</span>
