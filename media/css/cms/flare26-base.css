@@ -27,32 +27,42 @@ See https://mozmeao.github.io/platform-docs/browser-support/
 /* stylelint-disable property-no-vendor-prefix */
 
 @font-face {
+    font-display: swap;
     font-family: 'Mozilla Headline VF';
-    src: url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.woff2') format('woff2'),
-         url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.woff') format('woff'),
-         url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.ttf') format('truetype');
-    font-weight: 100 900;
     font-stretch: 75% 125%;
     font-style: normal;
-    font-display: swap;
+    font-weight: 100 900;
+    src:
+        url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.woff2')
+            format('woff2'),
+        url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.woff')
+            format('woff'),
+        url('/media/fonts/mozilla-headline/MozillaHeadline-Variable.ttf')
+            format('truetype');
 }
 
 @font-face {
-    font-family: 'Mozilla Text VF';
-    src: url('/media/fonts/mozilla-text/MozillaText-Variable.woff2') format('woff2'),
-         url('/media/fonts/mozilla-text/MozillaText-Variable.woff') format('woff'),
-         url('/media/fonts/mozilla-text/MozillaText-Variable.ttf') format('truetype');
-    font-weight: 100 900;
-    font-style: normal;
     font-display: swap;
+    font-family: 'Mozilla Text VF';
+    font-style: normal;
+    font-weight: 100 900;
+    src:
+        url('/media/fonts/mozilla-text/MozillaText-Variable.woff2')
+            format('woff2'),
+        url('/media/fonts/mozilla-text/MozillaText-Variable.woff')
+            format('woff'),
+        url('/media/fonts/mozilla-text/MozillaText-Variable.ttf')
+            format('truetype');
 }
 
 /* Single colon selector for IE 8 compatibility */
 /* stylelint-disable-next-line selector-pseudo-element-colon-notation */
-*, *:before, *:after {
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html {
@@ -65,29 +75,46 @@ html {
 }
 
 body {
-    width: 700px;
-    max-width: 100%;
-    margin: 0 auto;
-    padding-left: 20px;
-    padding-right: 20px;
+    background: #fff;
+    color: #15141a; /* color-black-4 from Figma */
 
     /* Mozilla Text for body */
-    font-family: 'Mozilla Text VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family:
+        'Mozilla Text VF',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
     font-weight: 400;
-    color: #15141a; /* color-black-4 from Figma */
-    background: #fff;
+    margin: 0 auto;
+    max-width: 100%;
     min-height: 100vh;
+    padding-left: 20px;
+    padding-right: 20px;
     text-rendering: optimizeLegibility;
+    width: 700px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     /* Mozilla Headline for headings */
-    font-family: 'Mozilla Headline VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0 0 1rem;
+    font-family:
+        'Mozilla Headline VF',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
     font-weight: 600;
     line-height: 1.2;
+    margin: 0 0 1rem;
     text-wrap: balance;
 }
 
@@ -127,15 +154,21 @@ p {
     margin: 0 0 1rem;
 }
 
-p, h1, h2, h3, h4, h5, h6 {
-    /* Prevents long words from overflowing or breaking layout. */
-    overflow-wrap: break-word;
-
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     /* Adds hyphens to long words at language-appropriate places.
     Swapping `auto` with `manual`for now, because it's too aggressive
     in English when combined with `text-wrap: balance`. Maybe we can
     add it to specific languages later, or remove `balance`.  */
     hyphens: manual;
+
+    /* Prevents long words from overflowing or breaking layout. */
+    overflow-wrap: break-word;
 }
 
 a {
@@ -143,7 +176,9 @@ a {
     text-decoration: underline;
 }
 
-a:hover, a:active, a:focus {
+a:hover,
+a:active,
+a:focus {
     color: #7543e3; /* color-vibrant-purple from Figma */
 }
 
@@ -151,76 +186,97 @@ a:visited {
     color: #6132bc; /* color-link-purple from Figma */
 }
 
-code, pre {
+code,
+pre {
     background: #f1e7fb; /* color-soft-purple from Figma */
     color: #7543e3; /* color-vibrant-purple from Figma */
 }
 
-img, picture, video, canvas, svg {
-    max-width: 100%;
-    height: auto;
+img,
+picture,
+video,
+canvas,
+svg {
     display: block;
+    height: auto;
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
+    max-width: 100%;
 }
 
 /* Very likely to be icons within links or buttons */
 a > svg,
 a > img,
-[role="button"] > svg,
-[role="button"] > img,
-p > svg[role="presentation"],
-p > img[role="presentation"],
-span > svg[role="presentation"],
-span > img[role="presentation"] {
+[role='button'] > svg,
+[role='button'] > img,
+p > svg[role='presentation'],
+p > img[role='presentation'],
+span > svg[role='presentation'],
+span > img[role='presentation'] {
+    border: 0;
     display: inline;
     margin: 0 4px;
     max-height: 1.5em;
-    border: 0;
 }
 
-hr, section {
+hr,
+section {
     border: none;
     border-bottom: 1px solid #e4d7fc; /* color-soft-purple-3 from Figma */
     margin: 16px 0; /* IE 8 fallback */
     margin: 1rem 0;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
     font: inherit;
     line-height: inherit;
     margin-bottom: 16px;
     margin-bottom: 1rem;
 }
 
-button, [role="button"] {
-    display: inline-block;
-    padding: 16px 32px;
-    margin: 0 0 16px;
-    margin: 0 0 1rem;
-    cursor: pointer;
+button,
+[role='button'] {
     background: #7543e3; /* color-vibrant-purple from Figma */
-    color: #fff;
-    text-decoration: none;
     border: none;
     border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 0 16px;
+    margin: 0 0 1rem;
+    padding: 16px 32px;
+    text-decoration: none;
 }
 
-button:active, button:focus, button:visited, [role="button"]:active, [role="button"]:focus, [role="button"]:visited {
+button:active,
+button:focus,
+button:visited,
+[role='button']:active,
+[role='button']:focus,
+[role='button']:visited {
     background: #7543e3; /* color-vibrant-purple from Figma */
     color: #fff;
 }
 
-button:hover, [role="button"]:hover {
+button:hover,
+[role='button']:hover {
     background: #6132bc; /* color-link-purple from Figma */
     color: #fff;
 }
 
-textarea { resize: vertical; }
+textarea {
+    resize: vertical;
+}
 
-:disabled { cursor: not-allowed; }
+:disabled {
+    cursor: not-allowed;
+}
 
-ul, ol {
+ul,
+ol {
     margin: 0 0 16px 24px; /* IE 8 fallback */
     margin: 0 0 1rem 1.5rem;
 }
@@ -231,34 +287,37 @@ li {
 }
 
 table {
-    max-width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
+    max-width: 100%;
 }
 
-th, td {
+th,
+td {
+    border: 1px solid #15141a; /* color-black-4 from Figma */
     padding: 8px 12px; /* IE 8 fallback */
     padding: 0.5rem 0.75rem;
-    border: 1px solid #15141a; /* color-black-4 from Figma */
     vertical-align: top;
 }
 
 /* Disables animations for people who prefer reduced motion */
 /* stylelint-disable declaration-no-important */
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
     }
 }
 /* stylelint-enable declaration-no-important */
 
 /* Enables CSS transitions for size keywords like 'auto' */
 @media (prefers-reduced-motion: no-preference) {
-  html {
-    /* stylelint-disable-next-line property-no-unknown */
-    interpolate-size: allow-keywords;
-  }
+    html {
+        /* stylelint-disable-next-line property-no-unknown */
+        interpolate-size: allow-keywords;
+    }
 }

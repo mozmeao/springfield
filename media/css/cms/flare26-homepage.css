@@ -11,13 +11,13 @@
 }
 
 .fl-home-body .fl-main {
-    width: 100%;
-    max-width: unset;
-    padding: 0;
     background: var(--token-color-white);
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
+    max-width: unset;
     overflow: hidden;
+    padding: 0;
+    width: 100%;
 }
 
 .fl-home-upper,
