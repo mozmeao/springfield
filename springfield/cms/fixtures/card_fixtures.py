@@ -19,9 +19,16 @@ def get_sticker_card_variants() -> list[dict]:
             "type": "sticker_card",
             "value": {
                 "settings": {"expand_link": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[:3],
+                "superheading": "",
                 "headline": '<p data-block-key="h5q1p">Sticker Card 1</p>',
                 "content": '<p data-block-key="mkz0c">Sticker cards get images with an optional Dark Mode variant.</p>',
                 "buttons": [
@@ -34,9 +41,16 @@ def get_sticker_card_variants() -> list[dict]:
             "type": "sticker_card",
             "value": {
                 "settings": {"expand_link": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[3:6],
+                "superheading": "",
                 "headline": '<p data-block-key="h5q1p">Sticker Card 2</p>',
                 "content": '<p data-block-key="mkz0c">Switch to Dark Mode in your browser settings to see the alternative image.</p>',
                 "buttons": [
@@ -49,9 +63,16 @@ def get_sticker_card_variants() -> list[dict]:
             "type": "sticker_card",
             "value": {
                 "settings": {"expand_link": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[6:9],
+                "superheading": "",
                 "headline": '<p data-block-key="h5q1p">Sticker Card 3</p>',
                 "content": '<p data-block-key="mkz0c"><a linktype="page" id="64">Cards</a> <b>content</b> <i>have</i> <sup>rich</sup> <sub>text'
                 '</sub> <s>features</s> <fxa data-cta-uid="563a54cd-4357-4d01-9370-3db3ec506d07">too</fxa>.</p>',
@@ -65,9 +86,16 @@ def get_sticker_card_variants() -> list[dict]:
             "type": "sticker_card",
             "value": {
                 "settings": {"expand_link": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[9:12],
+                "superheading": "",
                 "headline": '<p data-block-key="h5q1p">Sticker Card 4</p>',
                 "content": '<p data-block-key="mkz0c">Cards can use all button variants.'
                 "Check the expand link option on the card settings to make the entire card clickable.</p>",
@@ -196,8 +224,14 @@ def get_illustration_card_variants() -> list[dict]:
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "image_after": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[:3],
                 "headline": '<p data-block-key="vqw7t">Illustration Card 1</p>',
                 "content": '<p data-block-key="a8oh9">Illustration Cards have an optional Dark Mode image.</p>',
@@ -209,8 +243,14 @@ def get_illustration_card_variants() -> list[dict]:
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "image_after": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[3:6],
                 "headline": '<p data-block-key="vqw7t">Illustration Card 2</p>',
                 "content": '<p data-block-key="a8oh9">Switch to Dark Mode on your browser settings to see the alternative image.</p>',
@@ -222,8 +262,14 @@ def get_illustration_card_variants() -> list[dict]:
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "image_after": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[6:9],
                 "headline": '<p data-block-key="vqw7t">Reversed Illustration Card</p>',
                 "content": '<p data-block-key="a8oh9">Check the Image After option on the card settings to invert the card layout.</p>',
@@ -235,8 +281,14 @@ def get_illustration_card_variants() -> list[dict]:
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": True, "image_after": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
                 "tags": tags[9:12],
                 "headline": '<p data-block-key="vqw7t">Reversed Card with expand link</p>',
                 "content": '<p data-block-key="a8oh9">Check the Expand Link option to make the entire card clickable.</p>',

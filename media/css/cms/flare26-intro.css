@@ -26,8 +26,7 @@
 }
 
 .fl-intro .fl-heading-group {
-    gap: unset;
-    padding-bottom: unset;
+    margin-bottom: var(--token-layout-3xs);
 }
 
 .fl-intro .fl-subheading {
@@ -63,7 +62,6 @@
     border-radius: var(--token-border-radius-xl);
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
-    margin: 0 auto;
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
 }
