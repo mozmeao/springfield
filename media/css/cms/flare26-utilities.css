@@ -196,7 +196,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .conditional-display.is-preview {
     border: red dashed 2px;
     display: unset;
-    display: block;
     position: relative;
 }
 

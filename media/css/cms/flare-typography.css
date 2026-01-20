@@ -54,10 +54,15 @@
 }
 
 .fl-heading h1, h1.fl-heading, .fl-heading-size-1, .fl-rich-text h1 { font-size: var(--fl-theme-font-size-h1); }
+
 .fl-heading h2, h2.fl-heading, .fl-heading-size-2, .fl-rich-text h2 { font-size: var(--fl-theme-font-size-h2); }
+
 .fl-heading h3, h3.fl-heading, .fl-heading-size-3, .fl-rich-text h3 { font-size: var(--fl-theme-font-size-h3); }
+
 .fl-heading h4, h4.fl-heading, .fl-heading-size-4, .fl-rich-text h4 { font-size: var(--fl-theme-font-size-h4); }
+
 .fl-heading h5, h5.fl-heading, .fl-heading-size-5, .fl-rich-text h5 { font-size: var(--fl-theme-font-size-h5); }
+
 .fl-heading h6, h6.fl-heading, .fl-heading-size-6, .fl-rich-text h6 { font-size: var(--fl-theme-font-size-h6); }
 
 @media (--viewport-xs) {
@@ -74,9 +79,13 @@
 }
 
 .fl-subheading-1 { font-size: var(--fl-theme-font-size-subheading-1); }
+
 .fl-subheading-2 { font-size: var(--fl-theme-font-size-subheading-2); }
+
 .fl-subheading-3 { font-size: var(--fl-theme-font-size-subheading-3); }
+
 .fl-subheading-4 { font-size: var(--fl-theme-font-size-subheading-4); }
+
 .fl-subheading-5 { font-size: var(--fl-theme-font-size-subheading-5); }
 
 .fl-body, .fl-rich-text {
@@ -88,8 +97,11 @@
 }
 
 .fl-body-large { font-size: var(--fl-theme-font-size-body-large); }
+
 .fl-body-medium { font-size: var(--fl-theme-font-size-body-medium); }
+
 .fl-body-small { font-size: var(--fl-theme-font-size-body-small); }
+
 .fl-body-xsmall { font-size: var(--fl-theme-font-size-body-xsmall); }
 
 .fl-body p, .fl-rich-text p {
