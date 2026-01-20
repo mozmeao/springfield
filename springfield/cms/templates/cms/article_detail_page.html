@@ -4,8 +4,10 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
+{% extends base_template %}
 
+{% block body_class %}fl-page-blog{% endblock %}
 
 {% block content %}
 <div class="fl-page fl-article-page">
