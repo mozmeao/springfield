@@ -307,8 +307,14 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
                 "tags": tags[:3],
                 "headline": '<p data-block-key="1aqle">Step Card 1</p>',
                 "content": '<p data-block-key="flh4o">Step cards are just like illustration cards with the <i>Step XX</i> eyebrow.</p>',
@@ -320,8 +326,14 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
                 "tags": tags[3:6],
                 "headline": '<p data-block-key="1aqle">Step Card 2</p>',
                 "content": '<p data-block-key="flh4o">They also have Dark Mode image alternatives.</p>',
@@ -333,8 +345,14 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
                 "tags": tags[6:9],
                 "headline": '<p data-block-key="1aqle">Step Card 3</p>',
                 "content": '<p data-block-key="flh4o">Check the <b>expand link</b> '
@@ -347,8 +365,14 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
                 "tags": tags[9:12],
                 "headline": '<p data-block-key="1aqle">Step Card 4</p>',
                 "content": '<p data-block-key="flh4o">Step Cards also have all the button variants available.</p>',

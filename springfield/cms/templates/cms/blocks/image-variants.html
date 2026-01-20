@@ -13,7 +13,9 @@
   {%- set default_display_classes -%}
     {% if value.settings.dark_mode_image %}display-light {% endif %}
     {% if value.settings.mobile_image %}
-    {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
+      {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
+    {% else %}
+      display-desktop
     {% endif %}
   {%- endset -%}
 
@@ -67,6 +69,8 @@
   display-dark
   {% if value.settings.dark_mode_mobile_image %}
     {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
+  {% else %}
+    display-desktop
   {% endif %}
 {%- endset -%}
 

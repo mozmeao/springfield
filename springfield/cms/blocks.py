@@ -910,8 +910,7 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _StepCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
-        image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
+        image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)

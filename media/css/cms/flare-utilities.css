@@ -91,8 +91,24 @@ body:not(.disable-dark-mode) .image-variants-display .display-dark {
         display: block;
     }
 
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-md-up {
+        display: block;
+    }
+
     /* Fallback: if no dark variant is set, show light variant in dark mode */
     body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-desktop {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-md-up {
         display: block;
     }
 }
@@ -103,7 +119,23 @@ body:not(.disable-dark-mode) .image-variants-display .display-dark {
         display: none;
     }
 
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-sm-up {
+        display: none;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-md-up {
+        display: none;
+    }
+
     body:not(.disable-dark-mode) .image-variants-display .display-light.display-mobile {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-xs {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-light.display-xs-and-sm {
         display: block;
     }
 
@@ -112,8 +144,24 @@ body:not(.disable-dark-mode) .image-variants-display .display-dark {
         display: block;
     }
 
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs)) .display-light.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs-and-sm)) .display-light.display-md-up {
+        display: block;
+    }
+
     /* Fallback: if no dark variant is set, show light mobile in dark mode */
     body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-mobile {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-xs {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-dark)) .display-light.display-xs-and-sm {
         display: block;
     }
 
@@ -121,11 +169,27 @@ body:not(.disable-dark-mode) .image-variants-display .display-dark {
     body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-mobile)):not(:has(.display-dark)) .display-light.display-desktop {
         display: block;
     }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs)):not(:has(.display-dark)) .display-light.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs-and-sm)):not(:has(.display-dark)) .display-light.display-md-up {
+        display: block;
+    }
 }
 
 /* Dark mode desktop */
 @media (prefers-color-scheme: dark) and (--viewport-md-up) {
     body:not(.disable-dark-mode) .image-variants-display .display-dark.display-desktop {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-md-up {
         display: block;
     }
 }
@@ -136,12 +200,36 @@ body:not(.disable-dark-mode) .image-variants-display .display-dark {
         display: none;
     }
 
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-sm-up {
+        display: none;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-md-up {
+        display: none;
+    }
+
     body:not(.disable-dark-mode) .image-variants-display .display-dark.display-mobile {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-xs {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display .display-dark.display-xs-and-sm {
         display: block;
     }
 
     /* Fallback: if no mobile variant is set, show desktop on mobile */
     body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-mobile)) .display-dark.display-desktop {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs)) .display-dark.display-sm-up {
+        display: block;
+    }
+
+    body:not(.disable-dark-mode) .image-variants-display:not(:has(.display-xs-and-sm)) .display-dark.display-md-up {
         display: block;
     }
 }

@@ -204,10 +204,23 @@ def assert_image_variants_attributes(
     The is_mobile flag indicates if the image is a mobile image.
     """
     dark_light_class_name = "display-dark" if is_dark else "display-light"
-    mobile_desktop_class_name = "display-xs" if is_mobile else "display-sm-up"
+    # Try both display-sm-up (when mobile images exist) and display-desktop (when they don't)
+    if is_mobile:
+        mobile_desktop_class_name = "display-xs"
+    else:
+        # For desktop images, try display-sm-up first, then display-desktop
+        mobile_desktop_class_name = "display-sm-up"
+
     class_name = f"{dark_light_class_name} {mobile_desktop_class_name}"
     assert images_element
     img_tag = images_element.find("img", class_=class_name)
+
+    # If not found with display-sm-up, try display-desktop
+    if not img_tag and not is_mobile:
+        mobile_desktop_class_name = "display-desktop"
+        class_name = f"{dark_light_class_name} {mobile_desktop_class_name}"
+        img_tag = images_element.find("img", class_=class_name)
+
     assert img_tag
 
     rendered_image = srcset_image(
@@ -813,16 +826,18 @@ def test_step_card_block(index_page, placeholder_images, rf):
             )
             superheading = card_element.find("span", class_="fl-superheading")
             assert superheading and superheading.get_text().strip() == f"Step {(card_index + 1):>02}"
-            images_element = card_element.find("div", class_="light-dark-display")
-            assert_light_dark_image_attributes(
+            images_element = card_element.find("div", class_="image-variants-display")
+            assert_image_variants_attributes(
                 images_element=images_element,
                 image=image,
                 is_dark=False,
+                is_mobile=False,
             )
-            assert_light_dark_image_attributes(
+            assert_image_variants_attributes(
                 images_element=images_element,
                 image=dark_image,
                 is_dark=True,
+                is_mobile=False,
             )
 
 
