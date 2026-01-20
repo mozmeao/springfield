@@ -23,13 +23,8 @@
     {% if value.cta %}
       <content:cta>
         {% for cta in value.cta %}
-          <a class="fl-section-cta-link"
-            href="{{ cta.link.get_url()|add_utm_parameters }}"
-            {% if cta.link.new_window %}target="_blank" rel="external noopener"{% endif %}
-            data-cta-position="{{ block_position + ".cta" }}"
-            data-cta-text="{{ block_text + " - " + cta.label }}"
-            data-cta-uid="{{ cta.settings.analytics_id }}"
-          >{{ cta.label }}</a>
+          {% set block_position = block_position ~ ".cta" %}
+          {% include_block cta %}
         {% endfor %}
       </content:cta>
     {% endif %}

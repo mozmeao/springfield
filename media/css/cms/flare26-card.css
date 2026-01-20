@@ -379,6 +379,7 @@ Illustration Cards List
 
 .fl-illustration-card .fl-heading-group {
     gap: 0;
+    margin: 0;
     padding-block-end: var(--token-spacing-sm);
 }
 

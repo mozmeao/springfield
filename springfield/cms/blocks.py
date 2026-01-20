@@ -566,6 +566,7 @@ class CTABlock(blocks.StructBlock):
     class Meta:
         label = "Link"
         label_format = "Link - {label}"
+        template = "cms/blocks/cta-link.html"
 
 
 class TagBlock(blocks.StructBlock):
@@ -1430,7 +1431,7 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
             ]
         )
-        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+        cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
 
         class Meta:
             template = "cms/blocks/sections/section.html"
