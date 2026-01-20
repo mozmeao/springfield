@@ -25,11 +25,27 @@ from springfield.cms.fixtures.subscription_fixtures import get_subscription_test
 class Command(BaseCommand):
     help = "Load page fixtures for testing."
 
+    def add_arguments(self, parser):
+        parser.add_argument("--no-refresh", action="store_true", help="Do not delete existing images and pages.")
+
     def handle(self, *args, **options):
+        no_refresh = options["no_refresh"]
+
         image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+        if not no_refresh:
+            image.delete()
+            dark_image.delete()
+            mobile_image.delete()
+            dark_mobile_image.delete()
+            self.stdout.write(self.style.SUCCESS("Existing placeholder images deleted."))
+            image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
         self.stdout.write(self.style.SUCCESS(f"Placeholder images loaded: {image.id}, {dark_image.id}, {mobile_image.id}, {dark_mobile_image.id}"))
 
         index_page = get_test_index_page()
+        if not no_refresh:
+            index_page.get_children().delete()
+            self.stdout.write(self.style.SUCCESS("Existing index page children deleted."))
         self.stdout.write(self.style.SUCCESS(f"Test index page loaded: {index_page.slug}"))
 
         home_page = get_home_test_page()
