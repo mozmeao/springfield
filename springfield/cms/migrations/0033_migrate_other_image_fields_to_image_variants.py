@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# Migration to migrate StepCardBlock from old image/dark_image format
+# Migration to migrate StepCardBlock and LightDarkImageBlock from old image/dark_image format
 # to ImageVariantsBlock structure
 
 import json
@@ -59,11 +59,45 @@ def migrate_step_card_block(card_data):
     return card_data
 
 
+def migrate_lightdarkimage_to_imagevariantsblock(media_item):
+    """
+    Migrate LightDarkImageBlock to ImageVariantsBlock format.
+
+    Old format: {"type": "image", "value": {"image": 123, "dark_image": 456}}
+    New format: {"type": "image", "value": {"image": 123, "settings": {"dark_mode_image": 456, ...}}}
+    """
+    if not isinstance(media_item, dict) or media_item.get("type") != "image":
+        return media_item
+
+    value = media_item.get("value", {})
+    if not isinstance(value, dict):
+        return media_item
+
+    image_id = value.get("image")
+    dark_image_id = value.get("dark_image")
+
+    # Check if it's old format (has int image and optionally dark_image field)
+    if isinstance(image_id, int) and "settings" not in value:
+        new_value = {
+            "image": image_id,
+            "settings": {
+                "mobile_image": None,
+                "dark_mode_image": dark_image_id,
+                "dark_mode_mobile_image": None,
+            },
+        }
+        media_item["value"] = new_value
+
+    return media_item
+
+
 def walk_and_transform(data):
-    """Recursively walk through the block tree and transform step cards."""
+    """Recursively walk through the block tree and transform step cards and lightdarkimage blocks."""
     if isinstance(data, dict):
+        block_type = data.get("type")
+
         # Check if this is a step_cards block (StepCardListBlock)
-        if data.get("type") == "step_cards":
+        if block_type == "step_cards":
             # step_cards uses ListBlock, so cards is a list
             value = data.get("value", {})
             cards = value.get("cards", [])
@@ -72,6 +106,18 @@ def walk_and_transform(data):
                 for card in cards:
                     migrated_cards.append(migrate_step_card_block(card))
                 value["cards"] = migrated_cards
+                data["value"] = value
+
+        # Handle media_content, intro, and banner blocks
+        elif block_type in ["media_content", "intro", "banner"]:
+            value = data.get("value", {})
+            media = value.get("media", [])
+            if isinstance(media, (list, MutableSequence)) and len(media) > 0:
+                # Media is a list with usually one item
+                migrated_media = []
+                for media_item in media:
+                    migrated_media.append(migrate_lightdarkimage_to_imagevariantsblock(media_item))
+                value["media"] = migrated_media
                 data["value"] = value
 
         # Recursively transform nested structures

@@ -600,20 +600,6 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class LightDarkImageBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    dark_image = ImageChooserBlock(
-        required=False,
-        label="Dark Mode Image",
-        help_text="Optional dark mode image",
-    )
-
-    class Meta:
-        label = "Image"
-        label_format = "Image - {image}"
-        template = "cms/blocks/light-dark-image.html"
-
-
 class ImageVariantsBlockSettings(blocks.StructBlock):
     dark_mode_image = ImageChooserBlock(
         required=False,
@@ -706,7 +692,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
         settings = MediaContentSettings()
         media = blocks.StreamBlock(
             [
-                ("image", LightDarkImageBlock()),
+                ("image", ImageVariantsBlock()),
                 ("video", VideoBlock()),
             ],
             label="Media",
@@ -1058,7 +1044,7 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings()
         media = blocks.StreamBlock(
             [
-                ("image", LightDarkImageBlock()),
+                ("image", ImageVariantsBlock()),
                 ("video", VideoBlock()),
             ],
             label="Media",
@@ -1188,7 +1174,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = blocks.StreamBlock(
             [
-                ("image", LightDarkImageBlock()),
+                ("image", ImageVariantsBlock()),
                 ("video", VideoBlock()),
                 ("qr_code", QRCodeBlock()),
             ],

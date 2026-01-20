@@ -400,10 +400,12 @@ def test_intro_block(index_page, placeholder_images, rf):
         media_value = intro["value"]["media"] and intro["value"]["media"][0]
         if media_value:
             if media_value["type"] == "image":
-                images_element = intro_element.find("div", class_="fl-intro-media")
-                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
-                if media_value["value"].get("dark_image"):
-                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                intro_media_container = intro_element.find("div", class_="fl-intro-media")
+                images_element = intro_media_container.find("div", class_="image-variants-display")
+                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False, is_mobile=False)
+                media_settings = media_value["value"].get("settings", {})
+                if media_settings.get("dark_mode_image"):
+                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True, is_mobile=False)
 
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
@@ -532,9 +534,11 @@ def test_media_content_block(index_page, placeholder_images, rf):
 
         media_value = media_content["value"]["media"][0]
         if media_value["type"] == "image":
-            assert_light_dark_image_attributes(images_element=media_element, image=image, is_dark=False)
-            if media_value["value"].get("dark_image"):
-                assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
+            images_element = media_element.find("div", class_="image-variants-display")
+            assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False, is_mobile=False)
+            media_settings = media_value["value"].get("settings", {})
+            if media_settings.get("dark_mode_image"):
+                assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True, is_mobile=False)
 
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
@@ -966,10 +970,11 @@ def test_banner_block(index_page, placeholder_images, rf):
 
             media_value = media["value"]
             if media["type"] == "image":
-                images_element = media_element.find("div", class_="light-dark-display")
-                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
-                if media_value.get("dark_image"):
-                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                images_element = media_element.find("div", class_="image-variants-display")
+                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False, is_mobile=False)
+                media_settings = media_value.get("settings", {})
+                if media_settings.get("dark_mode_image"):
+                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True, is_mobile=False)
             elif media["type"] == "video":
                 video_div = banner_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media)

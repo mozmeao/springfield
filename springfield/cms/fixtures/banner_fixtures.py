@@ -52,7 +52,11 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
                         },
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
                     }
@@ -76,7 +80,11 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
                         },
                         "id": "d57af46b-c7e5-45cd-8768-a74a7e4b6514",
                     }
@@ -100,7 +108,11 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
                         },
                         "id": "95c07ae8-1003-4e68-97a6-feff15840e57",
                     }
@@ -123,7 +135,11 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
                         },
                         "id": "a68f5e12-9c22-4f5b-ba6a-beb3e8e16bea",
                     }
