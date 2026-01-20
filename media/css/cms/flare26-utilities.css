@@ -14,20 +14,31 @@ This is imported into both the legacy and modern stylesheets so the
 style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 ===================================================================== */
 
-.text-left { text-align: left; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.hidden { display: none; }
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.hidden {
+    display: none;
+}
 
 .visually-hidden {
-    position: absolute;
-    width: 1px;
+    border: 0;
+    clip-path: inset(100%);
     height: 1px;
     margin: -1px;
-    border: 0;
     padding: 0;
+    position: absolute;
     white-space: nowrap;
-    clip-path: inset(100%);
+    width: 1px;
     clip: rect(0 0 0 0);
     overflow: hidden;
 }
@@ -81,7 +92,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
    `md` set of breakpoints and classes below will be used.
    */
 
-   /* .display-sm-up, .display-md-up, .display-xs-and-sm, .display-xs */
+/* .display-sm-up, .display-md-up, .display-xs-and-sm, .display-xs */
 
 .image-variants-display {
     display: contents;
@@ -91,7 +102,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .display-md-up {
     display: none;
 }
-
 
 @media (--viewport-sm-up) {
     .display-sm-up {
@@ -174,12 +184,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     }
 }
 
-
-
-
-
-
-
 .conditional-display {
     display: none;
 }
@@ -190,19 +194,19 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .conditional-display.is-preview {
-    display: unset;
     border: red dashed 2px;
+    display: unset;
     position: relative;
 }
 
 .conditional-display.is-preview .preview-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
     background: red;
     color: white;
     font-size: 10px;
+    left: 0;
     padding: 2px 4px;
+    position: absolute;
+    top: 0;
     z-index: 10;
 }
 
@@ -214,11 +218,13 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-.state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
+.state-fxa-supported-signed-in
+    .conditional-display.condition-state-fxa-supported-signed-in {
     display: unset;
 }
 
-.state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
+.state-fxa-supported-signed-out
+    .conditional-display.condition-state-fxa-supported-signed-out {
     display: unset;
 }
 
@@ -228,10 +234,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 /* The platform class is placed on the html element and the signed-in state class is placed on the body element */
 
-.windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
+.windows-10-plus
+    .state-fxa-supported-signed-in
+    .conditional-display.condition-windows-10-plus-signed-in {
     display: unset;
 }
 
-.windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
+.windows-10-plus
+    .state-fxa-supported-signed-out
+    .conditional-display.condition-windows-10-plus-signed-out {
     display: unset;
 }

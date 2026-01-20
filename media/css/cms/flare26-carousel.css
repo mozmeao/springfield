@@ -5,9 +5,9 @@
 */
 
 .fl-carousel {
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: var(--token-spacing-2xl);
 
     --counter-size: 36px;
@@ -15,8 +15,8 @@
 }
 
 .fl-carousel-heading {
-    text-align: center;
     max-width: var(--token-width-desktop-content);
+    text-align: center;
 }
 
 .fl-carousel.fl-carousel-has-kit {
@@ -28,82 +28,85 @@
 }
 
 .fl-carousel-has-kit .fl-carousel-slides::before {
-    position: absolute;
-    content: "";
-    display: block;
-    width: 200px;
-    height: 100px;
-    top: -100px;
-    left: calc(50% - 100px);
-    background: url("/media/img/firefox/flare/fox-brand.svg");
+    background: url('/media/img/firefox/flare/fox-brand.svg');
     background-size: cover;
+    content: '';
+    display: block;
+    height: 100px;
+    left: calc(50% - 100px);
+    position: absolute;
+    top: -100px;
+    width: 200px;
 }
 
 .fl-carousel-slides {
     background: var(--token-gradient-purple);
     border-radius: var(--token-border-radius-md);
+    max-width: 100%;
     padding: var(--token-layout-xs) var(--token-layout-xs) 0;
     width: fit-content;
-    max-width: 100%;
 }
 
 .fl-carousel-control {
+    align-items: center;
+    counter-reset: items;
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-md);
-    align-items: center;
     justify-content: center;
     list-style: none;
-    counter-reset: items;
-    width: 100%;
-    max-width: 100%;
     margin: 0 0 var(--token-spacing-md) 0;
+    max-width: 100%;
+    width: 100%;
 }
 
 .fl-carousel-control-item {
-    display: flex;
     align-items: center;
-    min-height: calc(var(--counter-size) + 8px);
-    width: 100%;
     cursor: pointer;
+    display: flex;
+    min-height: calc(var(--counter-size) + 8px);
+    padding-left: calc(
+        var(--counter-size) + (var(--spinner-width) * 2) +
+            var(--token-spacing-md)
+    );
     position: relative;
-    padding-left: calc(var(--counter-size) + (var(--spinner-width) * 2) + var(--token-spacing-md));
+    width: 100%;
 }
 
 .fl-carousel-control-item-text {
-    min-width: 0;
     flex: none;
     max-width: 200px;
+    min-width: 0;
     overflow-wrap: break-word;
     text-wrap: balance;
 }
 
 .fl-carousel-control-item::before,
 .fl-carousel-control-item::after {
-    display: flex;
     align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: var(--counter-size);
-    height: var(--counter-size);
     background-color: var(--token-color-dark-purple-30);
     border-radius: 50%;
-    font-weight: var(--token-font-weight-bold);
     color: rgb(var(--token-color-white));
+    display: flex;
+    flex-shrink: 0;
+    font-weight: var(--token-font-weight-bold);
+    height: var(--counter-size);
+    justify-content: center;
+    left: var(--spinner-width);
     position: absolute;
     top: var(--spinner-width);
-    left: var(--spinner-width);
+    width: var(--counter-size);
     z-index: 1;
 }
 
 .fl-carousel-control-item::before {
-    counter-increment: items;
     content: counter(items, decimal-leading-zero);
+    counter-increment: items;
 }
 
 .fl-carousel-control-item::after {
-    content: "";
     background: transparent;
+    content: '';
 }
 
 .fl-carousel-control-item.active::before {
@@ -112,25 +115,25 @@
 }
 
 .fl-carousel-control-item.active::after {
-    content: "";
-    width: calc(var(--counter-size) + (var(--spinner-width) * 2));
-    height: calc(var(--counter-size) + (var(--spinner-width) * 2));
     background: conic-gradient(
-     rgba(255,255,255,0.6) calc(var(--carousel-progress, 0) * 3.6deg),
-     transparent calc(var(--carousel-progress, 0) * 3.6deg) 360deg
+        rgba(255, 255, 255, 0.6) calc(var(--carousel-progress, 0) * 3.6deg),
+        transparent calc(var(--carousel-progress, 0) * 3.6deg) 360deg
     ); /* 360deg = 100%. This expects an integer value from 1-100, populated from the JS. */
-    top: 0;
+    content: '';
+    height: calc(var(--counter-size) + (var(--spinner-width) * 2));
     left: 0;
-    z-index: 0;;
+    top: 0;
+    width: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    z-index: 0;
 }
 
 .fl-carousel-images {
-    max-width: var(--token-width-desktop-content);
-    width: 100%;
     aspect-ratio: 2 / 1;
     margin: 0 auto;
-    position: relative;
+    max-width: var(--token-width-desktop-content);
     overflow: hidden;
+    position: relative;
+    width: 100%;
 }
 
 .fl-carousel-viewport {
@@ -144,36 +147,36 @@
 }
 
 .fl-carousel-slide {
-    flex: 0 0 100%;
-    min-width: 0;
-    display: flex;
     align-items: center;
+    display: flex;
+    flex: 0 0 100%;
     justify-content: center;
+    min-width: 0;
 }
 
 .fl-carousel-image {
-    width: 100%;
-    height: 100%;
-    display: flex;
     align-items: center;
+    display: flex;
+    height: 100%;
     justify-content: center;
+    width: 100%;
 }
 
 /* Cross-fade overlay used during slide changes (autoplay + label click). */
 .fl-carousel-fade-overlay {
-    position: absolute;
     inset: 0;
-    z-index: 2;
     pointer-events: none;
+    position: absolute;
+    z-index: 2;
 }
 
 .fl-carousel-fade-layer {
-    position: absolute;
-    inset: 0;
-    display: flex;
     align-items: center;
+    display: flex;
+    inset: 0;
     justify-content: center;
     opacity: 0;
+    position: absolute;
     transition: opacity 400ms ease;
 }
 
@@ -190,12 +193,12 @@
 }
 
 .fl-carousel-image img {
-    margin: 0;
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
     height: auto;
+    margin: 0;
+    max-height: 100%;
+    max-width: 100%;
     object-fit: contain;
+    width: auto;
 }
 
 @media (--viewport-md-up) {
@@ -205,7 +208,7 @@
     }
 
     .fl-carousel-control-item {
-        width: auto;
         flex: 1 1 0;
+        width: auto;
     }
 }

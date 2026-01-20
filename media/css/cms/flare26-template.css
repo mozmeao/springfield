@@ -16,20 +16,20 @@ body {
 }
 
 body.fl-modal-open {
-    position: fixed;
     height: 100vh;
     overflow-y: hidden;
+    position: fixed;
 }
 
 /* Main */
 
 .fl-main {
-    max-width: var(--token-width-desktop-content);
-    margin: 0 auto;
     background: var(--token-color-white);
-    color: var(--token-color-black-4);
-    padding: var(--token-spacing-2xl);
     border-end-end-radius: var(--token-border-radius-xl);
     border-end-start-radius: var(--token-border-radius-xl);
+    color: var(--token-color-black-4);
+    margin: 0 auto;
+    max-width: var(--token-width-desktop-content);
+    padding: var(--token-spacing-2xl);
     padding-bottom: var(--token-border-radius-xl);
 }
