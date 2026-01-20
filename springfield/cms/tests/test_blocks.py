@@ -205,40 +205,72 @@ def assert_light_dark_image_attributes(
 
 def assert_image_variants_attributes(
     images_element: BeautifulSoup,
-    image: SpringfieldImage,
-    is_dark: bool = False,
-    is_mobile: bool = False,
+    images_value: dict,
+    sizes: str = "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw",
+    widths: str = "width-{200,400,600,800,1000,1200,1400}",
+    break_at: str = "sm",
 ):
     """
     Compares the rendered image element with the expected image data.
     The is_dark flag indicates if the image is a dark mode image.
     The is_mobile flag indicates if the image is a mobile image.
     """
-    dark_light_class_name = "display-dark" if is_dark else "display-light"
-    mobile_desktop_class_name = "display-xs" if is_mobile else "display-sm-up"
-    class_name = f"{dark_light_class_name} {mobile_desktop_class_name}"
+
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
     assert images_element
-    img_tag = images_element.find("img", class_=class_name)
+
+    settings = images_value.get("settings", {})
+
+    default_display_classes = "display-light" if settings.get("dark_mode_image") else ""
+    if settings.get("mobile_image") or settings.get("dark_mode_mobile_image"):
+        default_display_classes += f" display-{break_at}-up"
+    img_tag = images_element.find("img", class_=default_display_classes)
     assert img_tag
 
-    rendered_image = srcset_image(
-        image,
-        "width-{200,400,600,800,1000,1200,1400}",
-        **{
-            "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-            "width": image.width,
-            "height": image.height,
-            "loading": "lazy",
-            "class": class_name,
-        },
-    )
-    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
-    assert img_tag["alt"] == image_soup["alt"]
-    assert img_tag["class"] == image_soup["class"]
-    assert img_tag["loading"] == image_soup["loading"]
-    assert img_tag["width"] == image_soup["width"]
-    assert img_tag["height"] == image_soup["height"]
-    assert img_tag["src"] == image_soup["src"]
+    def assert_attrs(img: SpringfieldImage, img_tag: BeautifulSoup, classes: str = ""):
+        rendered_image = srcset_image(
+            img,
+            widths,
+            **{
+                "sizes": sizes,
+                "width": img.width,
+                "height": img.height,
+                "loading": "lazy",
+                "class": classes,
+            },
+        )
+        image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+        assert img_tag["alt"] == image_soup["alt"]
+        assert img_tag["class"] == image_soup["class"]
+        assert img_tag["loading"] == image_soup["loading"]
+        assert img_tag["width"] == image_soup["width"]
+        assert img_tag["height"] == image_soup["height"]
+        assert img_tag["src"] == image_soup["src"]
+
+    assert_attrs(image, img_tag, default_display_classes)
+
+    if settings.get("dark_mode_image"):
+        dark_desktop_classes = "display-dark"
+        if settings.get("mobile_image") or settings.get("dark_mode_mobile_image"):
+            dark_desktop_classes += f" display-{break_at}-up"
+        dark_img_tag = images_element.find("img", class_=dark_desktop_classes)
+        assert dark_img_tag
+        assert_attrs(dark_image, dark_img_tag, dark_desktop_classes)
+
+    if settings.get("mobile_image"):
+        mobile_classes = "display-light" if settings.get("dark_mode_mobile_image") else ""
+        mobile_classes += " display-xs-and-sm" if break_at == "md" else " display-xs"
+        mobile_img_tag = images_element.find("img", class_=mobile_classes)
+        assert mobile_img_tag
+        assert_attrs(mobile_image, mobile_img_tag, mobile_classes)
+
+    if settings.get("dark_mode_mobile_image"):
+        dark_mobile_classes = "display-dark"
+        dark_mobile_classes += " display-xs-and-sm" if break_at == "md" else " display-xs"
+        dark_mobile_img_tag = images_element.find("img", class_=dark_mobile_classes)
+        assert dark_mobile_img_tag
+        assert_attrs(dark_mobile_image, dark_mobile_img_tag, dark_mobile_classes)
 
 
 def assert_section_cta_attributes(
@@ -273,10 +305,10 @@ def assert_card_attributes(
     assert headline and headline_text in headline.get_text()
     assert content and content_text in content.get_text()
 
-    if eyebrow := card_data["value"].get("eyebrow"):
-        eyebrow_text = BeautifulSoup(eyebrow, "html.parser").get_text()
-        eyebrow_element = card_element.find(class_="fl-superheading")
-        assert eyebrow_element and eyebrow_text in eyebrow_element.get_text()
+    if superheading := card_data["value"].get("superheading"):
+        superheading_text = BeautifulSoup(superheading, "html.parser").get_text()
+        superheading_element = card_element.find(class_="fl-superheading")
+        assert superheading_element and superheading_text in superheading_element.get_text()
 
     # TODO: Fix icon card buttons
     buttons = card_data["value"].get("button") or card_data["value"].get("buttons")
@@ -639,8 +671,6 @@ def test_sticker_card_block(index_page, placeholder_images, rf):
     section_elements = soup.find_all("section", class_="fl-section")
     assert len(section_elements) == len(card_lists)
 
-    image, dark_image = placeholder_images
-
     for list_index, card_list in enumerate(card_lists):
         section_element = section_elements[list_index]
         assert section_element
@@ -675,27 +705,12 @@ def test_sticker_card_block(index_page, placeholder_images, rf):
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
             )
 
-            images_element = card_element.find("div", class_="light-dark-display")
-            assert images_element
-
-            image_element = images_element.find("img", class_="fl-card-sticker display-light")
-            assert image_element
-            rendition = image.get_rendition("width-400")
-            assert image_element["src"] == rendition.url
-            assert image_element["alt"] == ""
-            assert image_element["loading"] == "lazy"
-            assert image_element["width"] == str(rendition.width)
-            assert image_element["height"] == str(rendition.height)
-
-            if card["value"].get("dark_image"):
-                dark_image_element = images_element.find("img", class_="fl-card-sticker display-dark")
-                assert dark_image_element
-                dark_rendition = dark_image.get_rendition("width-400")
-                assert dark_image_element["src"] == dark_rendition.url
-                assert dark_image_element["alt"] == ""
-                assert dark_image_element["loading"] == "lazy"
-                assert dark_image_element["width"] == str(dark_rendition.width)
-                assert dark_image_element["height"] == str(dark_rendition.height)
+            images_element = card_element.find("div", class_="fl-card-sticker")
+            assert_image_variants_attributes(
+                images_element=images_element,
+                images_value=card["value"]["image"],
+                widths="width-400",
+            )
 
 
 def test_filled_card_block(index_page, rf):
@@ -789,8 +804,6 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
     section_elements = soup.find_all("section", class_="fl-section")
     assert len(section_elements) == len(card_lists)
 
-    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
-
     for list_index, card_list in enumerate(card_lists):
         section_element = section_elements[list_index]
         assert section_element
@@ -825,29 +838,10 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
             )
             images_element = card_element.find("div", class_="image-variants-display")
+            images_value = card["value"]["image"]
             assert_image_variants_attributes(
                 images_element=images_element,
-                image=image,
-                is_dark=False,
-                is_mobile=False,
-            )
-            assert_image_variants_attributes(
-                images_element=images_element,
-                image=mobile_image,
-                is_dark=False,
-                is_mobile=True,
-            )
-            assert_image_variants_attributes(
-                images_element=images_element,
-                image=dark_image,
-                is_dark=True,
-                is_mobile=False,
-            )
-            assert_image_variants_attributes(
-                images_element=images_element,
-                image=dark_mobile_image,
-                is_dark=True,
-                is_mobile=True,
+                images_value=images_value,
             )
 
 
@@ -1171,7 +1165,7 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
     cards = cards_list["value"]["cards"]
     assert len(card_elements) == len(cards)
 
-    image, dark_image = placeholder_images
+    image, dark_image, _, _ = placeholder_images
 
     for index, card in enumerate(cards):
         card_element = card_elements[index]
@@ -1181,17 +1175,12 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
             context=context,
         )
 
-        images_element = card_element.find("div", class_="light-dark-display")
-        assert images_element
-
-        image_element = images_element.find("img", class_="fl-card-sticker display-light")
-        assert image_element
-        rendition = image.get_rendition("width-400")
-        assert image_element["src"] == rendition.url
-        assert image_element["alt"] == ""
-        assert image_element["loading"] == "lazy"
-        assert image_element["width"] == str(rendition.width)
-        assert image_element["height"] == str(rendition.height)
+        images_element = card_element.find("div", class_="fl-card-sticker")
+        assert_image_variants_attributes(
+            images_element=images_element,
+            images_value=card["value"]["image"],
+            widths="width-400",
+        )
 
         if card["value"].get("dark_image"):
             dark_image_element = images_element.find("img", class_="fl-card-sticker display-dark")
@@ -1218,8 +1207,6 @@ def test_home_carousel_block(index_page, placeholder_images, rf):
     carousel_div = soup.find("div", class_="fl-carousel")
     assert carousel_div
 
-    image, _ = placeholder_images
-
     heading_block = carousel["value"]["heading"]
     assert_section_heading_attributes(section_element=carousel_div, heading_data=heading_block, index=2)
 
@@ -1242,11 +1229,16 @@ def test_home_carousel_block(index_page, placeholder_images, rf):
         slide_element = slide_elements[slide_index]
         assert slide_element
 
-        image_element = slide_element.find("img")
-        assert image_element
-        rendition = image.get_rendition("width-800")
-        assert image_element["src"] == rendition.url
-        assert image_element["alt"] == image.description
+        images_element = slide_element.find("div", class_="fl-carousel-image")
+
+        image_value = slide["value"]["image"]
+
+        assert_image_variants_attributes(
+            images_element=images_element,
+            images_value=image_value,
+            widths="width-{400,600,800,1000}",
+            sizes="(min-width: 900px) 800px, 100vw",
+        )
 
 
 def test_showcase_block(index_page, placeholder_images, rf):
@@ -1263,7 +1255,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
     showcase_sections = soup.find_all("section", class_="fl-showcase")
     assert len(showcase_sections) == 2
 
-    image, dark_image = placeholder_images
+    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
 
     showcase_with_title = showcase_variants["with_title"]
     showcase_no_title = showcase_variants["no_title"]
@@ -1280,31 +1272,12 @@ def test_showcase_block(index_page, placeholder_images, rf):
         figure = showcase_element.find("figure", class_="fl-showcase-image")
         assert figure
 
-        desktop_image_element = figure.find("div", class_="fl-showcase-image-desktop").find("div", class_="light-dark-display")
-        assert_light_dark_image_attributes(
-            images_element=desktop_image_element,
-            image=image,
-            is_dark=False,
-        )
-        if showcase["value"].get("dark_image"):
-            assert_light_dark_image_attributes(
-                images_element=desktop_image_element,
-                image=dark_image,
-                is_dark=True,
-            )
+        image_value = showcase["value"]["image"]
 
-        mobile_image_element = figure.find("div", class_="fl-showcase-image-mobile").find("div", class_="light-dark-display")
-        assert_light_dark_image_attributes(
-            images_element=mobile_image_element,
-            image=image,
-            is_dark=False,
+        assert_image_variants_attributes(
+            images_element=figure,
+            images_value=image_value,
         )
-        if showcase["value"].get("dark_image"):
-            assert_light_dark_image_attributes(
-                images_element=mobile_image_element,
-                image=dark_image,
-                is_dark=True,
-            )
 
         caption_element = figure.find("figcaption", class_="fl-showcase-caption")
         assert caption_element
@@ -1320,7 +1293,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
 
 
 def test_card_gallery_block(index_page, placeholder_images, rf):
-    image, _ = placeholder_images
+    image, _, _, _ = placeholder_images
     rendered_image = srcset_image(
         image,
         "width-{400,600,800,1000,1200}",

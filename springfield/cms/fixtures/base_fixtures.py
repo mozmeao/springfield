@@ -17,12 +17,12 @@ from springfield.cms.models import SpringfieldImage, StructuralPage
 def get_placeholder_images():
     image = Image.new("RGB", (800, 450), (117, 79, 224))
     dark_image = Image.new("RGB", (800, 450), (255, 138, 80))
+    mobile_image = Image.new("RGB", (300, 500), (117, 79, 224))
+    dark_mobile_image = Image.new("RGB", (300, 500), (255, 138, 80))
+
     image_buffer = BytesIO()
     image.save(image_buffer, format="PNG")
     image_buffer.seek(0)
-    dark_image_buffer = BytesIO()
-    dark_image.save(dark_image_buffer, format="PNG")
-    dark_image_buffer.seek(0)
     image, _ = SpringfieldImage.objects.get_or_create(
         id=settings.PLACEHOLDER_IMAGE_ID,
         defaults={
@@ -32,6 +32,10 @@ def get_placeholder_images():
         },
     )
     image_buffer.seek(0)
+
+    dark_image_buffer = BytesIO()
+    dark_image.save(dark_image_buffer, format="PNG")
+    dark_image_buffer.seek(0)
     dark_image, _ = SpringfieldImage.objects.get_or_create(
         id=settings.PLACEHOLDER_DARK_IMAGE_ID,
         defaults={
@@ -41,23 +45,32 @@ def get_placeholder_images():
         },
     )
     dark_image_buffer.seek(0)
+
+    mobile_image_buffer = BytesIO()
+    mobile_image.save(mobile_image_buffer, format="PNG")
+    mobile_image_buffer.seek(0)
     mobile_image, _ = SpringfieldImage.objects.get_or_create(
         id=settings.PLACEHOLDER_MOBILE_IMAGE_ID,
         defaults={
             "title": "Placeholder Mobile Image for Testing",
-            "file": ContentFile(image_buffer.read(), "placeholder_image.png"),
+            "file": ContentFile(mobile_image_buffer.read(), "placeholder_image.png"),
             "description": "An placeholder mobile image used for testing purposes.",
         },
     )
-    image_buffer.seek(0)
+    mobile_image_buffer.seek(0)
+
+    dark_mobile_image_buffer = BytesIO()
+    dark_mobile_image.save(dark_mobile_image_buffer, format="PNG")
+    dark_mobile_image_buffer.seek(0)
     dark_mobile_image, _ = SpringfieldImage.objects.get_or_create(
         id=settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
         defaults={
             "title": "Dark Mode Placeholder Mobile Image for Testing",
-            "file": ContentFile(dark_image_buffer.read(), "dark_placeholder_image.png"),
+            "file": ContentFile(dark_mobile_image_buffer.read(), "dark_placeholder_image.png"),
             "description": "A dark mode mobile placeholder image used for testing purposes.",
         },
     )
+    dark_mobile_image_buffer.seek(0)
 
     return image, dark_image, mobile_image, dark_mobile_image
 

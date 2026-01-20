@@ -15,7 +15,7 @@
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
     />
   </content:heading>
-  <content:desktop_image>
+  <content:image>
     {% if value.settings.layout == "default" %}
       {% set size = "(min-width: 1200px) 750px" %}
     {% elif value.settings.layout == "full" %}
@@ -26,12 +26,7 @@
     {% with sizes = size ~ ", 100vw" %}
       {% include_block value.image %}
     {% endwith %}
-  </content:desktop_image>
-  <content:mobile_image>
-    {% with sizes = "100vw" %}
-      {% include_block value.image %}
-    {% endwith %}
-  </content:mobile_image>
+  </content:image>
   <content:caption>
     {% if value.caption_title %}
       <{{ subheading_level}} class="fl-subheading">{{ value.caption_title|richtext|remove_p_tag }}</{{ subheading_level}}>

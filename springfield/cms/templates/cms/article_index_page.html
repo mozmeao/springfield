@@ -21,7 +21,7 @@
     </header>
     <section class="fl-section">
       <div class="fl-section-container">
-        <include:cards-list length="{{ featured_articles|length }}">
+        <include:cards-list>
           {% for article in featured_articles %}
             {% if switch("flare26_enabled") %}
               <include:illustration-card-2026 expand_link="true">
@@ -88,7 +88,7 @@
         </include:cards-list>
 
 
-        <include:cards-list length="{{ list_articles|length }}">
+        <include:cards-list>
           {% for article in list_articles %}
             <include:card expand_link="true">
               <content:heading>

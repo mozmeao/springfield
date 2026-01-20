@@ -36,8 +36,14 @@ def get_cards_list():
                     "type": "sticker_card",
                     "value": {
                         "settings": {"expand_link": False, "show_to": "all"},
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
-                        "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                         "tags": [],
                         "eyebrow": '<p data-block-key="p55oi">AI</p>',
                         "headline": '<p data-block-key="nnvio">Chat with your favorite AI </p>',
@@ -50,8 +56,14 @@ def get_cards_list():
                     "type": "sticker_card",
                     "value": {
                         "settings": {"expand_link": False, "show_to": "all"},
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
-                        "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                         "tags": [],
                         "eyebrow": '<p data-block-key="p55oi">Privacy</p>',
                         "headline": '<p data-block-key="nnvio">Privacy you can see and control </p>',
@@ -64,8 +76,14 @@ def get_cards_list():
                     "type": "sticker_card",
                     "value": {
                         "settings": {"expand_link": False, "show_to": "all"},
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
-                        "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                         "tags": [],
                         "eyebrow": '<p data-block-key="p55oi">Organization</p>',
                         "headline": '<p data-block-key="nnvio">Work smarter, \u2028not harder</p>',
@@ -79,8 +97,14 @@ def get_cards_list():
                     "type": "sticker_card",
                     "value": {
                         "settings": {"expand_link": False, "show_to": "all"},
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
-                        "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                         "tags": [],
                         "eyebrow": '<p data-block-key="p55oi">Independence</p>',
                         "headline": '<p data-block-key="nnvio">Your browser answers to you</p>',
@@ -112,7 +136,14 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Download Firefox</p>',
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                     },
                     "id": "a3f38c72-322a-48ef-8228-e401152a5b5c",
                 },
@@ -120,7 +151,14 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Select what you want to bring with you</p>',
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                     },
                     "id": "f3ef3097-4e9e-4736-9056-1aedcb12d1d6",
                 },
@@ -128,7 +166,14 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Click import</p>',
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": None,
+                                "dark_mode_mobile_image": None,
+                            },
+                        },
                     },
                     "id": "33f6a49c-a286-47c9-9968-8bf782ffef35",
                 },
@@ -143,15 +188,15 @@ def get_showcase_variants():
         "with_title": {
             "type": "showcase",
             "value": {
-                "settings": {"layout": "default"},
+                "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="t7z9f">All your stuff on \u2028all your devices</p>',
-                "desktop_image": {
+                "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                },
-                "mobile_image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
                 },
                 "caption_title": '<p data-block-key="n053e">Take your tabs, history and passwords wherever you go.</p>',
                 "caption_description": '<p data-block-key="bg8rh">Sign in once, sync everywhere. Your tabs, bookmarks, '
@@ -163,15 +208,15 @@ def get_showcase_variants():
         "no_title": {
             "type": "showcase",
             "value": {
-                "settings": {"layout": "default"},
+                "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="hobr0">Made for 8 billion people. \u2028Not 8 billionaires.</p>',
-                "desktop_image": {
+                "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                },
-                "mobile_image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
                 },
                 "caption_title": "",
                 "caption_description": '<p data-block-key="qskqt">Make Firefox your own, from your language to your layout, '

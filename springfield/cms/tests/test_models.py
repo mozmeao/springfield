@@ -298,7 +298,10 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
     assert "All the Articles" in soup.find("h1").text
 
-    featured_cards = soup.find_all(class_="fl-illustration-card")
+    card_grids = soup.find_all("div", class_="fl-card-grid")
+    assert len(card_grids) == 2
+
+    featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
     assert len(featured_cards) == 2
     for i, card in enumerate(featured_cards):
         title = card.find("h3")
@@ -306,8 +309,7 @@ def test_article_index_and_detail_pages(minimal_site, rf):
         assert f"Description for Featured Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
 
-    # Skip the first two cards, which are featured articles
-    article_cards = soup.find_all(class_="fl-card")[2:]
+    article_cards = card_grids[1].find_all(class_="fl-card")
     assert len(article_cards) == 2
     for i, card in enumerate(article_cards):
         title = card.find("h3")
