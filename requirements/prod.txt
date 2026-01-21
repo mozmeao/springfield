@@ -42,9 +42,9 @@ boto3==1.42.21 \
     --hash=sha256:1885f252d715a5810bb4e0c5bbebfa8e9018b025febf5be3d58540626e7b43d2 \
     --hash=sha256:9b92943d253bc837323079fe88460e741cb2eb80abaebcb558b2446bdb4049d6
     # via -r requirements/prod.in
-botocore==1.42.30 \
-    --hash=sha256:97070a438cac92430bb7b65f8ebd7075224f4a289719da4ee293d22d1e98db02 \
-    --hash=sha256:9bf1662b8273d5cc3828a49f71ca85abf4e021011c1f0a71f41a2ea5769a5116
+botocore==1.42.31 \
+    --hash=sha256:021346ad57cc3018acf4a46edc1f649b9818b33c07a08674ce1c36e9edbb5859 \
+    --hash=sha256:62f2c31e229df625612dd4d7c72618948e4064436d71a647102f36fcddfa0f4d
     # via
     #   boto3
     #   s3transfer
@@ -464,9 +464,9 @@ django-storages[google]==1.14.4 \
     --hash=sha256:69aca94d26e6714d14ad63f33d13619e697508ee33ede184e462ed766dc2a73f \
     --hash=sha256:d61930acb4a25e3aebebc6addaf946a3b1df31c803a6bf1af2f31c9047febaa3
     # via -r requirements/prod.in
-django-stubs-ext==5.2.8 \
-    --hash=sha256:1dd5470c9675591362c78a157a3cf8aec45d0e7a7f0cf32f227a1363e54e0652 \
-    --hash=sha256:b39938c46d7a547cd84e4a6378dbe51a3dd64d70300459087229e5fee27e5c6b
+django-stubs-ext==5.2.9 \
+    --hash=sha256:230c51575551b0165be40177f0f6805f1e3ebf799b835c85f5d64c371ca6cf71 \
+    --hash=sha256:6db4054d1580657b979b7d391474719f1a978773e66c7070a5e246cd445a25a9
     # via django-tasks
 django-taggit==6.1.0 \
     --hash=sha256:ab776264bbc76cb3d7e49e1bf9054962457831bd21c3a42db9138b41956e4cf0 \
@@ -1359,9 +1359,9 @@ pyasn1-modules==0.4.2 \
     --hash=sha256:29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a \
     --hash=sha256:677091de870a80aae844b1ca6134f54652fa2c8c5a52aa396440ac3106e941e6
     # via google-auth
-pycparser==2.23 \
-    --hash=sha256:78816d4f24add8f10a06d6f05b4d424ad9e96cfebf68a4ddc99c65c0720d00c2 \
-    --hash=sha256:e5c6e8d3fbad53479cab09ac03729e0a9faf2bee3db8208a550daf5af81a5934
+pycparser==3.0 \
+    --hash=sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29 \
+    --hash=sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992
     # via cffi
 pygithub==2.8.1 \
     --hash=sha256:23a0a5bca93baef082e03411bf0ce27204c32be8bfa7abc92fe4a3e132936df0 \
@@ -1553,9 +1553,9 @@ six==1.17.0 \
     #   bleach
     #   html5lib
     #   python-dateutil
-soupsieve==2.8.2 \
-    --hash=sha256:0f4c2f6b5a5fb97a641cf69c0bd163670a0e45e6d6c01a2107f93a6a6f93c51a \
-    --hash=sha256:78a66b0fdee2ab40b7199dc3e747ee6c6e231899feeaae0b9b98a353afd48fd8
+soupsieve==2.8.3 \
+    --hash=sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349 \
+    --hash=sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95
     # via beautifulsoup4
 sqlparse==0.5.5 \
     --hash=sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba \
@@ -1627,9 +1627,9 @@ wagtail-localize-dashboard==0.1.2 \
     --hash=sha256:071ecdc1d3bbec2155a28a843238eb2b28aaf4589cfeee5c20042d284c680264 \
     --hash=sha256:56e7577eb883e3949b5e37ccad959d7356c27fb6449ea460b0da7f926929bcd0
     # via -r requirements/prod.in
-wagtail-localize-intentional-blanks==0.2.1 \
-    --hash=sha256:2086bb011d33ba4ecf05c99b621a43571db869bf6f7ad28729719d588416c574 \
-    --hash=sha256:9b8774c5f461b2fa53d3498683224df5685ee3e0b2b1c64ea3b8c02257b3648d
+wagtail-localize-intentional-blanks==0.2.2 \
+    --hash=sha256:4b5f4861ee3508df53192c2665d14a2d5bc5f222b16fa41eb9d3aed2ef80f1a9 \
+    --hash=sha256:d0f38354d7c9e91868b3b1892c056ddb64e0e066781947de5b98c5610473762b
     # via -r requirements/prod.in
 wagtail-localize-smartling==0.10.3 \
     --hash=sha256:5f3d7b7fa97c075023f711786cccd761d340488f29ac8bcbb168db1b6a5a4341 \
