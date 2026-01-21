@@ -90,10 +90,7 @@ body {
     margin: 0 auto;
     max-width: 100%;
     min-height: 100vh;
-    padding-left: 20px;
-    padding-right: 20px;
     text-rendering: optimizeLegibility;
-    width: 700px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
