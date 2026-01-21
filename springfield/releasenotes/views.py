@@ -123,7 +123,7 @@ def get_adjacent_major_releases(release):
             ProductRelease.objects.filter(
                 product=product,
                 channel="ESR",
-                version__endswith=".0esr",
+                version__regex=r"^\d+\.0esr$",
                 is_public=True,
             )
             .annotate(major_int=Cast(Replace("version", Value(".0esr"), Value("")), IntegerField()))

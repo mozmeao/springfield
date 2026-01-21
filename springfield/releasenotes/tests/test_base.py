@@ -762,6 +762,24 @@ class TestAdjacentMajorReleases(TestCase):
         assert result["previous"]["version"] == "115.0esr"
         assert result["next"] is None
 
+    @patch("springfield.releasenotes.views.ProductRelease")
+    def test_esr_excludes_minor_point_releases(self, mock_ProductRelease):
+        """ESR pagination should not break on minor point releases like 102.2.0esr."""
+        release = self._make_release("128.0esr", channel="ESR")
+        release.major_version_int = 128
+
+        # Mock the queryset - ensure the regex filter is used
+        mock_qs = Mock()
+        mock_ProductRelease.objects.filter.return_value.annotate.return_value.only.return_value = mock_qs
+        mock_qs.filter.return_value.order_by.return_value.first.return_value = None
+
+        # Should not raise an error
+        views.get_adjacent_major_releases(release)
+
+        # Verify filter was called with regex pattern
+        filter_call = mock_ProductRelease.objects.filter.call_args
+        assert "version__regex" in filter_call.kwargs
+
 
 class TestReleaseNotesPaginationContext(TestCase):
     """Tests that pagination context is passed to template."""
