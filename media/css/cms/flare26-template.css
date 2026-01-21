@@ -26,9 +26,10 @@ body.fl-modal-open {
 .fl-main {
     --theme-color-text: var(--token-color-black-4);
     background: var(--token-color-white);
-    border-end-end-radius: var(--token-border-radius-xl);
-    border-end-start-radius: var(--token-border-radius-xl);
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
     color: var(--token-color-black-4);
     margin: 0 auto;
-    padding-block: var(--fl-section-v-padding) var(--token-border-radius-xl);
+    padding-block: var(--fl-section-v-padding)
+        var(--fl-theme-main-border-radius);
 }

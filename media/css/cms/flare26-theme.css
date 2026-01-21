@@ -72,6 +72,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-layout-direction: column;
     --fl-theme-default-justify-content: center;
     --fl-theme-default-text-align: center;
+    --fl-theme-main-border-radius: var(--token-layout-xs);
 
     /* Shadows */
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
@@ -177,5 +178,6 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
         --fl-section-v-padding: var(--token-layout-lg-half);
         --fl-section-heading-margin-bottom: var(--token-layout-sm);
+        --fl-theme-main-border-radius: var(--token-layout-lg);
     }
 }
