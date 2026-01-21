@@ -155,6 +155,7 @@
           {% endif %}
         </div>
       </div>
+      {% include "firefox/releases/partials/notes_pagination.html" %}
       {% endblock %}
       {% endif %}
     </header>
@@ -363,6 +364,8 @@
       <a href="{{ download_all_link }}">All {{ product_name }} downloads</a>
     </section>
     {% endif %}
+
+    {% include "firefox/releases/partials/notes_pagination.html" %}
 
     {% block releasenotes_footer %}
     <footer class="c-release-footer">

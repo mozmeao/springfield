@@ -1439,6 +1439,7 @@ _allowed_page_models = [
     "cms.WhatsNewPage",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
+    "cms.HomePage",
 ]
 
 if DEV is True:
