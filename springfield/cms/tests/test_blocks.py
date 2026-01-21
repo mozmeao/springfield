@@ -169,40 +169,6 @@ def assert_section_heading_attributes(section_element: BeautifulSoup, heading_da
         assert subheading and subheading_text in subheading.get_text()
 
 
-def assert_light_dark_image_attributes(
-    images_element: BeautifulSoup,
-    image: SpringfieldImage,
-    is_dark: bool = False,
-):
-    """
-    Compares the rendered image element with the expected image data.
-    The is_dark flag indicates if the image is a dark mode image.
-    """
-    class_name = "display-dark" if is_dark else "display-light"
-    assert images_element
-    img_tag = images_element.find("img", class_=class_name)
-    assert img_tag
-
-    rendered_image = srcset_image(
-        image,
-        "width-{200,400,600,800,1000,1200,1400}",
-        **{
-            "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-            "width": image.width,
-            "height": image.height,
-            "loading": "lazy",
-            "class": class_name,
-        },
-    )
-    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
-    assert img_tag["alt"] == image_soup["alt"]
-    assert img_tag["class"] == image_soup["class"]
-    assert img_tag["loading"] == image_soup["loading"]
-    assert img_tag["width"] == image_soup["width"]
-    assert img_tag["height"] == image_soup["height"]
-    assert img_tag["src"] == image_soup["src"]
-
-
 def assert_image_variants_attributes(
     images_element: BeautifulSoup,
     images_value: dict,
@@ -436,9 +402,9 @@ def test_intro_block(index_page, placeholder_images, rf):
         if media_value:
             if media_value["type"] == "image":
                 images_element = intro_element.find("div", class_="fl-intro-media")
-                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False)
                 if media_value["value"].get("dark_image"):
-                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True)
 
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
@@ -567,9 +533,9 @@ def test_media_content_block(index_page, placeholder_images, rf):
 
         media_value = media_content["value"]["media"][0]
         if media_value["type"] == "image":
-            assert_light_dark_image_attributes(images_element=media_element, image=image, is_dark=False)
+            assert_image_variants_attributes(images_element=media_element, image=image, is_dark=False)
             if media_value["value"].get("dark_image"):
-                assert_light_dark_image_attributes(images_element=media_element, image=dark_image, is_dark=True)
+                assert_image_variants_attributes(images_element=media_element, image=dark_image, is_dark=True)
 
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
@@ -907,17 +873,54 @@ def test_step_card_block(index_page, placeholder_images, rf):
             )
             superheading = card_element.find("span", class_="fl-superheading")
             assert superheading and superheading.get_text().strip() == f"Step {(card_index + 1):>02}"
-            images_element = card_element.find("div", class_="light-dark-display")
-            assert_light_dark_image_attributes(
-                images_element=images_element,
-                image=image,
-                is_dark=False,
+            images_element = card_element.find("div", class_="image-variants-display")
+            assert images_element
+
+            spec = "width-{200,400,600,800,1000,1200,1400}"
+            sizes = "(min-width: 768px) 50vw, (min-width: 1024px) 30vw, (min-width: 1440px) 500px, 100vw"
+
+            img_tag = images_element.find("img", class_="display-light")
+            assert img_tag
+            rendered_image = srcset_image(
+                image,
+                spec,
+                **{
+                    "sizes": sizes,
+                    "width": image.width,
+                    "height": image.height,
+                    "loading": "lazy",
+                    "class": "display-light",
+                },
             )
-            assert_light_dark_image_attributes(
-                images_element=images_element,
-                image=dark_image,
-                is_dark=True,
-            )
+            image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+            assert img_tag["alt"] == image_soup["alt"]
+            assert img_tag["class"] == image_soup["class"]
+            assert img_tag["loading"] == image_soup["loading"]
+            assert img_tag["width"] == image_soup["width"]
+            assert img_tag["height"] == image_soup["height"]
+            assert img_tag["src"] == image_soup["src"]
+
+            if card["value"].get("dark_image"):
+                img_tag = images_element.find("img", class_="display-dark")
+                assert img_tag
+                rendered_image = srcset_image(
+                    dark_image,
+                    spec,
+                    **{
+                        "sizes": sizes,
+                        "width": dark_image.width,
+                        "height": dark_image.height,
+                        "loading": "lazy",
+                        "class": "display-dark",
+                    },
+                )
+                image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+                assert img_tag["alt"] == image_soup["alt"]
+                assert img_tag["class"] == image_soup["class"]
+                assert img_tag["loading"] == image_soup["loading"]
+                assert img_tag["width"] == image_soup["width"]
+                assert img_tag["height"] == image_soup["height"]
+                assert img_tag["src"] == image_soup["src"]
 
 
 def test_buttons(index_page, rf):
@@ -1045,10 +1048,10 @@ def test_banner_block(index_page, placeholder_images, rf):
 
             media_value = media["value"]
             if media["type"] == "image":
-                images_element = media_element.find("div", class_="light-dark-display")
-                assert_light_dark_image_attributes(images_element=images_element, image=image, is_dark=False)
+                images_element = media_element.find("div", class_="image-variants-display")
+                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False)
                 if media_value.get("dark_image"):
-                    assert_light_dark_image_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True)
             elif media["type"] == "video":
                 video_div = banner_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media)
