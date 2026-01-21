@@ -662,6 +662,15 @@ class TestAdjacentMajorReleases(TestCase):
         assert result["previous"] is None
         assert result["next"] is None
 
+    def test_returns_none_for_ios(self):
+        """Should return no pagination for iOS releases."""
+        release = self._make_release("146.0", product="Firefox for iOS")
+
+        result = views.get_adjacent_major_releases(release)
+
+        assert result["previous"] is None
+        assert result["next"] is None
+
     @patch("springfield.releasenotes.views.ProductRelease")
     def test_esr_queries_database(self, mock_ProductRelease):
         """ESR releases should query DB since versions skip."""

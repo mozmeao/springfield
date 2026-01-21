@@ -91,6 +91,7 @@ def get_adjacent_major_releases(release):
     Get previous and next major release URLs for pagination.
     Only shown on X.0 major releases within the same product.
     Only applies to Release and ESR channels.
+    iOS releases are excluded from pagination.
 
     For ESR: queries DB since versions skip (e.g., 115→128).
     For Release: uses arithmetic (current_major ± 1).
@@ -98,6 +99,10 @@ def get_adjacent_major_releases(release):
 
     # Only show pagination for Release and ESR channels
     if release.channel not in ("Release", "ESR"):
+        return {"previous": None, "next": None}
+
+    # Don't show pagination for iOS releases
+    if release.product == "Firefox for iOS":
         return {"previous": None, "next": None}
 
     # Only show pagination for major releases (X.0 or X.0esr), not minor versions
