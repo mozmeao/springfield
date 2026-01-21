@@ -20,6 +20,7 @@ from waffle.models import Switch
 
 from lib import l10n_utils
 from lib.l10n_utils import RequireSafeMixin
+from springfield.base.config_manager import config
 from springfield.base.geo import get_country_from_request
 from springfield.base.waffle import switch
 from springfield.utils import git
@@ -47,13 +48,15 @@ class GeoTemplateView(l10n_utils.L10nTemplateView):
 
 
 SQLITE_DB_IN_USE = settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3"
+LOCAL_DB_UPDATE = config("LOCAL_DB_UPDATE", default="False", parser=bool)
 
 HEALTH_FILES = [
     # Format: (file name, max seconds since last run)
     ("update_locales", 600),
 ]
 
-if SQLITE_DB_IN_USE:
+# Only check download_database health for SQLite deployments that download from S3
+if SQLITE_DB_IN_USE and not LOCAL_DB_UPDATE:
     HEALTH_FILES.insert(
         0,
         ("download_database", 600),
