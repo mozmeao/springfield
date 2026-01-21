@@ -373,8 +373,6 @@ def test_intro_block(index_page, placeholder_images, rf):
     intro_divs = soup.find_all("div", class_="fl-intro")
     assert len(intro_divs) == len(intros)
 
-    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
-
     for index, intro in enumerate(intros):
         intro_element = intro_divs[index]
 
@@ -402,9 +400,7 @@ def test_intro_block(index_page, placeholder_images, rf):
         if media_value:
             if media_value["type"] == "image":
                 images_element = intro_element.find("div", class_="fl-intro-media")
-                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False)
-                if media_value["value"].get("dark_image"):
-                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                assert_image_variants_attributes(images_element=images_element, images_value=media_value["value"])
 
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
@@ -496,8 +492,6 @@ def test_media_content_block(index_page, placeholder_images, rf):
     media_content_divs = section_element.find_all("div", class_="fl-mediacontent")
     assert len(media_content_divs) == len(media_contents)
 
-    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
-
     for index, media_content in enumerate(media_contents):
         div = media_content_divs[index]
 
@@ -533,9 +527,7 @@ def test_media_content_block(index_page, placeholder_images, rf):
 
         media_value = media_content["value"]["media"][0]
         if media_value["type"] == "image":
-            assert_image_variants_attributes(images_element=media_element, image=image, is_dark=False)
-            if media_value["value"].get("dark_image"):
-                assert_image_variants_attributes(images_element=media_element, image=dark_image, is_dark=True)
+            assert_image_variants_attributes(images_element=media_element, images_value=media_value["value"])
 
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
@@ -1049,9 +1041,7 @@ def test_banner_block(index_page, placeholder_images, rf):
             media_value = media["value"]
             if media["type"] == "image":
                 images_element = media_element.find("div", class_="image-variants-display")
-                assert_image_variants_attributes(images_element=images_element, image=image, is_dark=False)
-                if media_value.get("dark_image"):
-                    assert_image_variants_attributes(images_element=images_element, image=dark_image, is_dark=True)
+                assert_image_variants_attributes(images_element=images_element, images_value=media_value)
             elif media["type"] == "video":
                 video_div = banner_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media)

@@ -985,7 +985,7 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
 
     class _StepCardBlock(blocks.StructBlock):
         settings = StepCardSettings()
-        image = LightDarkImageBlock()
+        image = ImageVariantsBlock()
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
@@ -1033,7 +1033,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
 
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
-        image = LightDarkImageBlock()
+        image = ImageVariantsBlock()
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)

@@ -245,14 +245,28 @@ def get_card_gallery():
                 '<li data-block-key="9fo56">Customizable sidebar puts your most-used tools one click away</li>'
                 '<li data-block-key="2ba94">Pinned tabs keep important sites always accessible</li></ul>',
                 "buttons": [buttons["primary"]],
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
             },
             "secondary_card": {
                 "icon": "trending",
                 "headline": '<p data-block-key="czbp1">Simple. Thoughtful. Minimal.</p>',
                 "description": '<p data-block-key="7lrh2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ac congue urna.</p>',
                 "buttons": [buttons["primary"]],
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {
+                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                    },
+                },
             },
             "callout_card": {
                 "headline": '<p data-block-key="5z7qg">Control your corner of the internet</p>',

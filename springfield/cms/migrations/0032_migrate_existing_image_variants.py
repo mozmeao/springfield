@@ -351,7 +351,7 @@ def update_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0031_prefooterctasnippet"),
+        ("cms", "0031_thankspage_downloadpage_bannersnippet_and_more"),
     ]
 
     operations = [
