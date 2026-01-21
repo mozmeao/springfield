@@ -76,6 +76,16 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     }
 }
 
+@media (--viewport-md-up) {
+    .display-md-up {
+        display: unset;
+    }
+
+    .display-xs-and-sm {
+        display: none;
+    }
+}
+
 @media (prefers-color-scheme: light) {
     .display-dark {
         display: none;
@@ -108,17 +118,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 @media (--viewport-sm-up) and (prefers-color-scheme: light) {
     .display-light.display-xs {
-        display: none;
-    }
-}
-
-/* medium breakpoint variations of all of the above */
-@media (--viewport-md-up) {
-    .display-md-up {
-        display: unset;
-    }
-
-    .display-xs-and-sm {
         display: none;
     }
 }
