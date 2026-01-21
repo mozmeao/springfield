@@ -43,41 +43,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
-/* todo: refactor this utility away */
-.light-dark-display {
-    display: contents;
-}
-
-.light-dark-display .display-light,
-.light-dark-display .display-dark {
-    display: none;
-}
-
-@media (prefers-color-scheme: light) {
-    .light-dark-display .display-light {
-        display: unset;
-    }
-
-    .light-dark-display .display-dark {
-        display: none;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .light-dark-display .display-light {
-        display: none;
-    }
-
-    .light-dark-display .display-dark {
-        display: unset;
-    }
-}
-
-/* Fallback if no dark variant is set */
-.light-dark-display:not(:has(.display-dark)) .display-light {
-    display: unset;
-}
-
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
    simple here by ensuring these classes only exist when they're needed.
    See the image-variants.html template for conditionals that say

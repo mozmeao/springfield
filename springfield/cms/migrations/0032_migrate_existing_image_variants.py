@@ -89,6 +89,48 @@ def migrate_illustration_card(block_data):
     return block_data
 
 
+def migrate_media_value(block_data):
+    block_data["value"] = {**block_data.get("value", {})}
+    media_items = block_data["value"].get("media", [])
+    if media_items:
+        migrated_media = []
+        for item in media_items:
+            if item.get("type") == "image":
+                value = item.get("value", {})
+                image = value.get("image")
+                dark_image = value.get("dark_image")
+
+                # Check if image is old format (integer ID)
+                if isinstance(image, int):
+                    value = {
+                        "image": image,
+                        "settings": {
+                            "mobile_image": None,
+                            "dark_mode_image": dark_image,
+                            "dark_mode_mobile_image": None,
+                        },
+                    }
+                    value.pop("dark_image", None)
+                    item["value"] = value
+                # Check if image is already a dict but still has dark_image at top level
+                elif isinstance(image, dict) and "dark_image" in value:
+                    dark_image_id = value.pop("dark_image")
+                    # If the image dict doesn't have settings yet, migrate it
+                    if "settings" not in image:
+                        value = {
+                            "image": image.get("image") if isinstance(image, dict) else image,
+                            "settings": {
+                                "mobile_image": None,
+                                "dark_mode_image": dark_image_id,
+                                "dark_mode_mobile_image": None,
+                            },
+                        }
+                    item["value"] = value
+            migrated_media.append(item)
+        block_data["value"]["media"] = migrated_media
+    return block_data
+
+
 def migrate_home_carousel_slide(slide_data):
     """Migrate HomeCarouselSlide image field from old format to ImageVariantsBlock."""
     # Slides are structured as {'type': ..., 'value': {...}, 'id': ...}
@@ -184,6 +226,8 @@ def walk_and_transform(data):
             data = migrate_sticker_card(data)
         elif block_type == "illustration_card":
             data = migrate_illustration_card(data)
+        elif block_type in ["media_content", "intro", "banner"]:
+            data = migrate_media_value(data)
         elif block_type == "showcase":
             data = migrate_showcase_block(data)
         elif block_type == "carousel":
