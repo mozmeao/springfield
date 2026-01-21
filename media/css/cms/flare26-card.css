@@ -258,6 +258,7 @@ Step Cards List - With Kit variant
     justify-content: center;
     margin: 0 auto;
     max-width: var(--token-width-desktop-wide-banner);
+    width: 100%;
 }
 
 .fl-card-grid .fl-step-card {

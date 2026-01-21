@@ -1151,6 +1151,14 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 # 2026 Cards
 
 
+class StepCardSettings(blocks.StructBlock):
+    expand_link = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Expand the link click area to the whole card",
+    )
+
+
 def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create StepCardBlock with appropriate button types.
 
@@ -1160,7 +1168,7 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _StepCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
+        settings = StepCardSettings()
         image = LightDarkImageBlock()
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1192,7 +1200,7 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
         cards = blocks.ListBlock(StepCardBlock2026(allow_uitour=allow_uitour))
 
         class Meta:
-            template = "cms/blocks/cards-list.html"
+            template = "cms/blocks/step-cards-list-2026.html"
             label = "Step Cards List"
             label_format = "Step Cards - {heading}"
 
