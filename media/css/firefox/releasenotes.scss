@@ -190,6 +190,11 @@ video[autoplay] {
     @include text-body-md;
 }
 
+// remove any extra margin, spacing is controlled by mzp-l-content padding
+.intro .mzp-l-sidebar > *:last-child {
+    margin-bottom: 0;
+}
+
 .mzp-l-content {
     .c-release-product {
         @include text-title-2xs;
@@ -488,43 +493,38 @@ video[autoplay] {
 }
 
 // Release notes pagination
-.c-release-pagination {
-    margin: $layout-sm auto;
-    padding: 0;
+.c-release-pagination.mzp-l-content {
+    padding-top: 0; // override protocol to avoid double section padding
 }
 
 .c-release-pagination-list {
     display: flex;
-    justify-content: space-between;
-    list-style: none;
-    margin: 0;
-    padding: 0;
 }
 
-.c-release-pagination-item {
-    max-width: 45%;
-}
-
+// keep next link stuck to end of container
 .c-release-pagination-next {
-    margin-left: auto;
     text-align: right;
+    margin-left: auto;
 }
 
 .c-release-pagination-link {
-    display: block;
-    text-decoration: none;
+    text-decoration: none; // override protocol to apply underline more selectively
+    display: grid; // stack the spans, make focus ring around block instead of inline
 
-    &:hover .c-release-pagination-direction,
-    &:focus .c-release-pagination-direction {
+    .c-release-pagination-direction {
         text-decoration: underline;
+    }
+
+    &:hover,
+    &:focus-visible {
+        .c-release-pagination-direction {
+            text-decoration: none;
+        }
     }
 }
 
 .c-release-pagination-direction {
     @include text-body-lg;
-    display: block;
-    font-weight: bold;
-    color: $color-link;
 
     .c-release-pagination-previous &::before {
         content: '\2190\00a0'; // ← arrow
@@ -537,6 +537,5 @@ video[autoplay] {
 
 .c-release-pagination-version {
     @include text-body-md;
-    display: block;
     color: $color-marketing-gray-70;
 }
