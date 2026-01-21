@@ -493,8 +493,15 @@ video[autoplay] {
 }
 
 // Release notes pagination
+
+// override protocol
 .c-release-pagination.mzp-l-content {
-    padding-top: 0; // override protocol to avoid double section padding
+    padding-top: $layout-sm;
+    padding-bottom: $layout-sm;
+}
+
+.intro .c-release-pagination.mzp-l-content {
+    padding-top: 0; // avoid double section padding
 }
 
 .c-release-pagination-list {
