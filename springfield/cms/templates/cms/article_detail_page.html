@@ -7,21 +7,42 @@
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
 {% extends base_template %}
 
-{% block body_class %}fl-page-blog{% endblock %}
-
 {% block content %}
 <div class="fl-page fl-article-page">
   <main class="fl-main">
     <div class="fl-article-body">
       <header>
-        <include:heading
-            level="h1"
-            heading_text="{{ page.title }}"
-            subheading_text="{{ page.sub_title }}"
-        />
+        {% if switch("flare26_enabled") and page.image %}
+          {{ srcset_image(
+              page.image,
+              "width-{200,400,600,800,1000,1200,1400}",
+              sizes="
+                (min-width: 768px) 50vw,
+                (min-width: 1440px) 680px,
+                100vw
+              ",
+              width=page.image.width,
+              loading="lazy",
+            ) }}
+            <include:heading
+                level="h1"
+                heading_text="{{ page.title }}"
+            />
+            {{ page.description|richtext }}
+            <p class="fl-article-date">
+              {{ page.latest_revision_created_at|l10n_format_date }}
+            </p>
+        {% else %}
+          <include:heading
+              level="h1"
+              heading_text="{{ page.title }}"
+              subheading_text="{{ page.sub_title }}"
+          />
+        {% endif %}
       </header>
+
       <section class="fl-rich-text">
-      {{ page.content|richtext }}
+        {{ page.content|richtext }}
       </section>
     </div>
   </main>

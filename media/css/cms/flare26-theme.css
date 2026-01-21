@@ -57,13 +57,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
 
-    /* Label font size variables */
+    /* Labels */
     --fl-theme-label-caps-md: 1rem; /* 16px */
     --fl-theme-label-caps-sm: 0.875rem; /* 14px */
     --fl-theme-label-caps-xs: 0.75rem; /* 12px */
     --fl-theme-label-md: 1rem; /* 16px */
     --fl-theme-label-sm: 0.875rem; /* 14px */
     --fl-theme-label-xs: 0.75rem; /* 12px */
+    --fl-theme-label-color: var(--token-color-black-1);
 
     /* Line height variables NOT from Figma */
     --fl-theme-line-height-base: 1.2;
