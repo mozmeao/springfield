@@ -15,18 +15,3 @@
 .fl-download-intro-featured-image img {
     margin-block-end: -4px;
 }
-
-.fl-feature-cards {
-    margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
-    padding-block-start: var(--token-spacing-3xl);
-    width: 100%;
-}
-
-.fl-feature-cards > .fl-heading {
-    text-align: center;
-}
-
-.fl-feature-cards-bottom-button {
-    text-align: center;
-}
