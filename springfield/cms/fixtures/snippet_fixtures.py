@@ -6,7 +6,23 @@ from django.conf import settings
 
 from wagtail.models import Locale
 
-from springfield.cms.models import PreFooterCTAFormSnippet
+from springfield.cms.models import BannerSnippet, PreFooterCTAFormSnippet
+
+
+def get_banner_snippet() -> BannerSnippet:
+    locale = Locale.get_default()
+    snippet, _ = BannerSnippet.objects.update_or_create(
+        id=settings.BANNER_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "kit_theme": True,
+            "heading": '<p data-block-key="c1bc4d7eadf0">Take your tabs, history and passwords wherever you go</p>',
+            "content": '<p data-block-key="0b474f02">Your passwords, bookmarks, and preferences sync seamlessly across all your devices, '
+            "so you can pick up where you left off. </p>",
+            "qr_code": "QR Code Content",
+        },
+    )
+    return snippet
 
 
 def get_pre_footer_cta_form_snippet() -> PreFooterCTAFormSnippet:

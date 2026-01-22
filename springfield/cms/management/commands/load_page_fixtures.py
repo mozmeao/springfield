@@ -22,6 +22,7 @@ from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_pag
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
+from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 
 
 class Command(BaseCommand):
@@ -46,14 +47,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"2026 test index page loaded: {index_page_2026.slug}"))
 
         image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-        if not no_refresh:
-            image.delete()
-            dark_image.delete()
-            mobile_image.delete()
-            dark_mobile_image.delete()
-            self.stdout.write(self.style.SUCCESS("Existing placeholder images deleted."))
-            image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-
         self.stdout.write(self.style.SUCCESS(f"Placeholder images loaded: {image.id}, {dark_image.id}, {mobile_image.id}, {dark_mobile_image.id}"))
 
         # 2026 pages
@@ -66,6 +59,9 @@ class Command(BaseCommand):
 
         download_page = get_download_page()
         self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
+
+        thanks_page = get_thanks_page()
+        self.stdout.write(self.style.SUCCESS(f"Thanks test page loaded: {thanks_page.slug}"))
 
         # 2025 pages
 
