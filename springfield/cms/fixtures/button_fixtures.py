@@ -101,6 +101,29 @@ def get_button_variants(full=False) -> dict[str, dict]:
             },
             "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
         },
+        "link": {
+            "type": "button",
+            "value": {
+                "settings": {
+                    "theme": "link",
+                    "icon": None,
+                    "icon_position": "right",
+                    "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
+                },
+                "label": "Learn more",
+                "link": {
+                    "link_to": "custom_url",
+                    "page": None,
+                    "file": None,
+                    "custom_url": "https://mozilla.org",
+                    "anchor": "",
+                    "email": "",
+                    "phone": "",
+                    "new_window": False,
+                },
+            },
+            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+        },
         "external_mozilla": {
             "type": "button",
             "value": {

@@ -89,6 +89,20 @@ def get_test_index_page():
     return index_page
 
 
+def get_2026_test_index_page():
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    index_page = StructuralPage.objects.filter(slug="tests-index-page-2026").first()
+    if not index_page:
+        index_page = StructuralPage(
+            slug="tests-index-page-2026",
+            title="Tests Index Page 2026",
+        )
+        root_page.add_child(instance=index_page)
+        index_page.save_revision().publish()
+    return index_page
+
+
 def get_test_document():
     document, _ = Document.objects.get_or_create(
         id=settings.PLACEHOLDER_DOCUMENT_ID,
