@@ -440,10 +440,6 @@ Illustration Card
     font-size: var(--token-font-size-md);
 }
 
-.fl-illustration-card .fl-buttons {
-    margin-block-start: auto;
-}
-
 @media (--viewport-sm-up) {
     .fl-card-grid .fl-illustration-card {
         flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);

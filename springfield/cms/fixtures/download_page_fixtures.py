@@ -112,7 +112,7 @@ def get_cards_list_section():
                     "id": "94800c97-3058-4d91-97fc-e46b068c291c",
                 }
             ],
-            "cta": [{**buttons["ghost"], "type": "item"}],
+            "cta": [buttons["ghost"]],
         },
         "id": "f69a5551-fe4c-4c06-be14-ae4f90e65d01",
     }

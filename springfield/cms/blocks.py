@@ -365,6 +365,22 @@ UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
 
 
+BUTTON_PRIMARY = ""
+BUTTON_SECONDARY = "secondary"
+BUTTON_TERTIARY = "tertiary"
+BUTTON_GHOST = "ghost"
+BUTTON_LINK = "link"
+BUTTON_THEME_CHOICES = {
+    BUTTON_PRIMARY: "Primary",
+    BUTTON_SECONDARY: "Secondary",
+    BUTTON_TERTIARY: "Tertiary",
+    BUTTON_GHOST: "Ghost",
+    BUTTON_LINK: "Link",
+}
+BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
+BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
+
+
 def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
@@ -424,48 +440,57 @@ class UUIDBlock(blocks.CharBlock):
         return super().clean(value) or str(uuid4())
 
 
-class BaseButtonSettings(blocks.StructBlock):
-    theme = blocks.ChoiceBlock(
-        (
-            ("secondary", "Secondary"),
-            ("tertiary", "Tertiary"),
-            ("ghost", "Ghost"),
-            ("link", "Link"),
-        ),
-        required=False,
-        inline_form=True,
-    )
-    icon = IconChoiceBlock(required=False)
-    icon_position = blocks.ChoiceBlock(
-        choices=(("left", "Left"), ("right", "Right")),
-        default="right",
-        label="Icon Position",
-        inline_form=True,
-    )
-    analytics_id = UUIDBlock(
-        label="Analytics ID",
-        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
-        required=False,
-    )
+def BaseButtonSettings(themes=None, **kwargs):
+    themes = themes or BUTTON_THEME_CHOICES.keys()
 
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
-        form_classname = "compact-form struct-block"
+    class _BaseButtonSettings(blocks.StructBlock):
+        theme = blocks.ChoiceBlock(
+            choices=[(theme, BUTTON_THEME_CHOICES[theme]) for theme in themes],
+            required=len(themes) == 1,
+            inline_form=True,
+        )
+        icon = IconChoiceBlock(required=False)
+        icon_position = blocks.ChoiceBlock(
+            choices=(("left", "Left"), ("right", "Right")),
+            default="right",
+            label="Icon Position",
+            inline_form=True,
+        )
+        analytics_id = UUIDBlock(
+            label="Analytics ID",
+            help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+            required=False,
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
+            form_classname = "compact-form struct-block"
+
+    return _BaseButtonSettings(**kwargs)
 
 
-class ButtonBlock(blocks.StructBlock):
-    settings = BaseButtonSettings()
-    label = blocks.CharBlock(label="Button Text")
-    link = LinkBlock()
+def ButtonBlock(themes=None, **kwargs):
+    """Factory function to create ButtonBlock with specified themes.
 
-    class Meta:
-        template = "cms/blocks/button.html"
-        label = "Button"
-        label_format = "Button - {label}"
-        value_class = BaseButtonValue
+    Args:
+        themes: List of theme strings to include in the button settings.
+    """
+
+    class _ButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text")
+        link = LinkBlock()
+
+        class Meta:
+            template = "cms/blocks/button.html"
+            label = "Button"
+            label_format = "Button - {label}"
+            value_class = BaseButtonValue
+
+    return _ButtonBlock(**kwargs)
 
 
 class UITourButtonValue(BaseButtonValue):
@@ -492,34 +517,47 @@ class UITourButtonValue(BaseButtonValue):
         return theme_classes
 
 
-class UITourButtonBlock(blocks.StructBlock):
-    settings = BaseButtonSettings()
-    button_type = blocks.ChoiceBlock(
-        default=UITOUR_BUTTON_NEW_TAB,
-        choices=UITOUR_BUTTON_CHOICES,
-        inline_form=True,
-    )
-    label = blocks.CharBlock(label="Button Text")
+def UITourButtonBlock(themes=None, **kwargs):
+    class _UITourButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        button_type = blocks.ChoiceBlock(
+            default=UITOUR_BUTTON_NEW_TAB,
+            choices=UITOUR_BUTTON_CHOICES,
+            inline_form=True,
+        )
+        label = blocks.CharBlock(label="Button Text")
 
-    class Meta:
-        template = "cms/blocks/uitour_button.html"
-        label = "UI Tour Button"
-        label_format = "UI Tour Button - {label}"
-        value_class = UITourButtonValue
+        class Meta:
+            template = "cms/blocks/uitour_button.html"
+            label = "UI Tour Button"
+            label_format = "UI Tour Button - {label}"
+            value_class = UITourButtonValue
 
-
-class FXAccountButtonBlock(blocks.StructBlock):
-    settings = BaseButtonSettings()
-    label = blocks.CharBlock(label="Button Text")
-
-    class Meta:
-        template = "cms/blocks/fxa_button.html"
-        label = "Firefox Account Button"
-        label_format = "Firefox Account Button"
-        value_class = BaseButtonValue
+    return _UITourButtonBlock(**kwargs)
 
 
-def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **kwargs):
+def FXAccountButtonBlock(themes=None, **kwargs):
+    class _FXAccountButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text")
+
+        class Meta:
+            template = "cms/blocks/fxa_button.html"
+            label = "Firefox Account Button"
+            label_format = "Firefox Account Button"
+            value_class = BaseButtonValue
+
+    return _FXAccountButtonBlock(**kwargs)
+
+
+def MixedButtonsBlock(
+    button_types: list,
+    min_num: int,
+    max_num: int,
+    themes=BUTTON_THEMES_2025,
+    label="Buttons",
+    **kwargs,
+):
     """
     Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
 
@@ -529,16 +567,15 @@ def MixedButtonsBlock(button_types: list, min_num: int, max_num: int, *args, **k
     buttons, or up to 1 of each.
     """
     button_blocks = {
-        BUTTON_TYPE: ButtonBlock(),
-        UITOUR_BUTTON_TYPE: UITourButtonBlock(),
-        FXA_BUTTON_TYPE: FXAccountButtonBlock(),
+        BUTTON_TYPE: ButtonBlock(themes=themes),
+        UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
+        FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
         max_num=max_num,
         min_num=min_num,
-        label="Buttons",
-        *args,
+        label=label,
         **kwargs,
     )
 
@@ -991,6 +1028,7 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
             min_num=0,
             max_num=1,
             required=False,
@@ -1039,6 +1077,7 @@ def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
             min_num=0,
             max_num=1,
             required=False,
@@ -1068,6 +1107,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=[BUTTON_LINK],
             min_num=0,
             max_num=1,
             required=False,
@@ -1284,7 +1324,14 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
             ]
         )
-        cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+        cta = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=1,
+            required=False,
+            label="Call to Action",
+        )
 
         class Meta:
             template = "cms/blocks/sections/section.html"
@@ -1436,6 +1483,7 @@ class HomeIntroBlock(blocks.StructBlock):
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(),
+        themes=BUTTON_THEMES_2026,
         min_num=0,
         max_num=2,
         required=False,
@@ -1501,6 +1549,7 @@ class CardGalleryCard(blocks.StructBlock):
     description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(),
+        themes=BUTTON_THEMES_2026,
         min_num=0,
         max_num=1,
         required=False,
@@ -1519,7 +1568,13 @@ class CardGalleryBlock(blocks.StructBlock):
     main_card = CardGalleryCard()
     secondary_card = CardGalleryCard()
     callout_card = CardGalleryCallout()
-    cta = blocks.ListBlock(ButtonBlock(), min_num=0, max_num=1, default=[], label="Call to Action")
+    cta = MixedButtonsBlock(
+        button_types=get_button_types(),
+        themes=BUTTON_THEMES_2026,
+        min_num=0,
+        max_num=1,
+        required=False,
+    )
 
     class Meta:
         template = "cms/blocks/sections/card-gallery.html"
@@ -1553,6 +1608,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
         qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
             min_num=0,
             max_num=2,
             required=False,
