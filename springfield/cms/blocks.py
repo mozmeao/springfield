@@ -1034,7 +1034,6 @@ def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
     class _StickerCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         image = ImageVariantsBlock()
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
         superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)

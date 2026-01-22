@@ -5,26 +5,14 @@
 #}
 
 <article class="fl-sticker-card {% if expand_link %}fl-card-expand-link{% endif %}">
-  <hgroup class="fl-card-heading-group">
-  {% if contents.pre_heading %}
-    <p class="fl-card-superheading">
-      {{ contents.pre_heading }}
-    </p>
-  {% endif %}
-  {% if contents.heading %}
+  <div class="fl-card-heading">
     {{ contents.heading }}
-  {% endif %}
-  </hgroup>
+  </div>
+  <div class="fl-card-sticker">
+    {{ contents.sticker }}
+  </div>
 
-  {% if contents.sticker %}
-    <div class="fl-card-sticker">
-      {{ contents.sticker }}
-    </div>
-  {% endif %}
-
-  {% if contents.body %}
-    <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
-  {% endif %}
+  <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
   {% if contents.buttons %}
     <div class="fl-buttons">
       {{ contents.buttons }}

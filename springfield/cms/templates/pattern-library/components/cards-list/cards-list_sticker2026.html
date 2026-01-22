@@ -7,30 +7,8 @@
 <include:cards-list>
   {% for card in cards %}
     <include:sticker-card-2026
-      fill="{{ card.fill }}"
       expand_link="{{ card.expand_link }}"
     >
-      {% if card.sticker %}
-        <content:sticker>
-          <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
-        </content:sticker>
-      {% elif card.icon_name %}
-        <content:pre_heading>
-          <div class="fl-card-icon">
-            <include:icon icon_name="{{ card.icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
-          </div>
-        </content:pre_heading>
-      {% elif card.tags %}
-        <content:pre_heading>
-          {% for tag in card.tags %}
-            <include:tag
-              text="{{ tag.text }}"
-              color="{{ tag.color }}"
-              corners="{{ tag.corners }}"
-            />
-          {% endfor %}
-        </content:pre_heading>
-      {% endif %}
       <content:heading>
         <include:heading
           level="h3"
@@ -39,6 +17,9 @@
           heading_text="{{ card.heading }}"
         />
       </content:heading>
+      <content:sticker>
+        <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+      </content:sticker>
       <content:body>
         {{ card.body }}
       </content:body>

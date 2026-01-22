@@ -12,13 +12,6 @@
     <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
 
     <content:heading>
-      {% if value.tags %}
-        <div>
-          {% for tag in value.tags %}
-            {% include_block tag %}
-          {% endfor %}
-        </div>
-      {% endif %}
       <include:heading
         level="{{ heading_level }}"
         heading_size="fl-heading-size-3"
