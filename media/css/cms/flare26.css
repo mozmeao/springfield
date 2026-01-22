@@ -41,6 +41,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-footer.css' layer(components);
 @import 'flare26-language-switcher.css' layer(components);
 @import 'flare26-download-link.css' layer(components);
+@import 'flare26-download-utils.css' layer(components);
 @import 'flare26-icon.css' layer(components);
 @import 'flare26-button.css' layer(components);
 @import 'flare26-typography.css' layer(components);
@@ -54,6 +55,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-banner.css' layer(components);
 @import 'flare26-kit-banner.css' layer(components);
 @import 'flare26-newsletterform.css' layer(components);
+@import 'flare26-mediacontent.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);

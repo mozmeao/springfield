@@ -44,6 +44,10 @@
     margin-block: var(--token-layout-md);
 }
 
+.fl-article-page .fl-privacy-link a {
+    color: var(--token-color-white);
+}
+
 @media (--viewport-sm-up) {
     .fl-article-page .fl-main {
         padding-block-start: var(--token-layout-lg);
