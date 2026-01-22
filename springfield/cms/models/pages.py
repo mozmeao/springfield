@@ -152,7 +152,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    ftl_files = ["firefox/cms"]
+    ftl_files = ["firefox/download/download"]
 
     PLATFORM_CHOICES = (
         ("windows", "Windows"),
@@ -224,6 +224,19 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["platforms"] = self.PLATFORM_CHOICES
+        platform_links = {
+            "windows": "/browsers/desktop/windows",
+            "mac": "/browsers/desktop/mac",
+            "linux": "/browsers/desktop/linux",
+            "android": "/browsers/mobile/android",
+            "ios": "/browsers/mobile/ios",
+            "chromebook": "/browsers/desktop/chromebook",
+        }
+        parent = self.get_parent().specific
+        children = parent.get_children().filter(downloadpage__isnull=False).live().public().specific()
+        for page in children:
+            platform_links[page.platform] = page.get_url()
+        context["platform_links"] = platform_links
         return context
 
     class Meta:
