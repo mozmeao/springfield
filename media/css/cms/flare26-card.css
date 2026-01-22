@@ -44,18 +44,15 @@ Card Grid - Flare 2026 Design System Cards
     cursor: pointer;
 }
 
-.fl-card-expand-link a.fl-button,
-.fl-card-expand-link button {
-    position: relative;
-    z-index: 1;
+.fl-card-expand-link a:hover {
+    text-decoration: underline;
 }
 
-.fl-card-expand-link a.fl-button::after,
+.fl-card-expand-link a::after,
 .fl-card-expand-link button::after {
     content: '';
     inset: 0;
     position: absolute;
-    z-index: -1;
 }
 
 .fl-card-expand-link:hover
@@ -94,7 +91,37 @@ Card Grid - Flare 2026 Design System Cards
 }
 
 /* =====================================================================
-Sticker Cards List - With Kit variant
+Basic Card
+===================================================================== */
+
+.fl-card {
+    align-items: stretch;
+    backdrop-filter: blur(7.5px);
+    background: var(--fl-theme-surface-card-gradient);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--token-color-black-4);
+    padding: var(--token-spacing-2xl);
+    position: relative;
+    transition:
+        transform var(--token-transition-base),
+        box-shadow var(--token-transition-base);
+}
+
+.fl-card:hover {
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    transform: translateY(-2px);
+}
+
+.fl-card .fl-heading-group {
+    gap: unset;
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================================================================
+Sticker Card
 ===================================================================== */
 
 .fl-sticker-card {
@@ -373,7 +400,7 @@ Step Cards List - With Kit variant
 }
 
 /* =====================================================================
-Illustration Cards List
+Illustration Card
 ===================================================================== */
 
 .fl-illustration-card {
@@ -381,6 +408,7 @@ Illustration Cards List
     flex-basis: 100%;
     flex-direction: column;
     padding: 0;
+    position: relative;
 }
 
 .fl-illustration-card .fl-heading-group {
