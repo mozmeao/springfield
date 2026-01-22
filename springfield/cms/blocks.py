@@ -1023,6 +1023,36 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create StickerCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                        If False, only allows regular buttons.
+    """
+
+    class _StickerCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        image = ImageVariantsBlock()
+        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+        superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            label = "Sticker Card"
+            label_format = "{headline}"
+            template = "cms/blocks/sticker-card-2026.html"
+
+    return _StickerCardBlock(*args, **kwargs)
+
+
 def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     """Factory function to create IllustrationCardBlock with appropriate button types.
 
@@ -1063,7 +1093,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     class _CardsListBlock(blocks.StructBlock):
         cards = blocks.StreamBlock(
             [
-                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
+                ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
             ]
         )

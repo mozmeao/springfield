@@ -10,14 +10,14 @@
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
     {% for card in cards %}
       <div>
-        <include:card
+        <include:sticker-card-2026
           fill="{{ card.fill }}"
           expand_link="{{ card.expand_link }}"
         >
           {% if card.sticker %}
-            <content:pre_heading>
+            <content:sticker>
               <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
-            </content:pre_heading>
+            </content:sticker>
           {% elif card.icon_name %}
             <content:pre_heading>
               <div class="fl-card-icon">
@@ -57,7 +57,7 @@
               {% endfor %}
             </content:buttons>
           {% endif %}
-        </include:card>
+        </include:sticker-card-2026>
       </div>
     {% endfor %}
   </div>

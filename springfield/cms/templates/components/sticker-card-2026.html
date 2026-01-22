@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<article class="fl-sticker-card {% if expand_link %}fl-card-expand-link{% endif %}">
+  <hgroup class="fl-card-heading-group">
+  {% if contents.pre_heading %}
+    <p class="fl-card-superheading">
+      {{ contents.pre_heading }}
+    </p>
+  {% endif %}
+  {% if contents.heading %}
+    {{ contents.heading }}
+  {% endif %}
+  </hgroup>
+
+  {% if contents.sticker %}
+    <div class="fl-card-sticker">
+      {{ contents.sticker }}
+    </div>
+  {% endif %}
+
+  {% if contents.body %}
+    <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
+  {% endif %}
+  {% if contents.buttons %}
+    <div class="fl-buttons">
+      {{ contents.buttons }}
+    </div>
+  {% endif %}
+</article>

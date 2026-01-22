@@ -6,13 +6,29 @@
 
 <include:cards-list>
   {% for card in cards %}
-    <include:card
+    <include:sticker-card-2026
       fill="{{ card.fill }}"
       expand_link="{{ card.expand_link }}"
     >
       {% if card.sticker %}
-        <content:pre_heading>
+        <content:sticker>
           <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+        </content:sticker>
+      {% elif card.icon_name %}
+        <content:pre_heading>
+          <div class="fl-card-icon">
+            <include:icon icon_name="{{ card.icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
+          </div>
+        </content:pre_heading>
+      {% elif card.tags %}
+        <content:pre_heading>
+          {% for tag in card.tags %}
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              corners="{{ tag.corners }}"
+            />
+          {% endfor %}
         </content:pre_heading>
       {% endif %}
       <content:heading>
@@ -26,6 +42,17 @@
       <content:body>
         {{ card.body }}
       </content:body>
-    </include:card>
+      {% if card.buttons %}
+        <content:buttons>
+          {% for button in card.buttons %}
+            <include:button
+              label="{{ button.label }}"
+              link="{{ button.link }}"
+              theme_class="{{ button.theme_class }}"
+            />
+          {% endfor %}
+        </content:buttons>
+      {% endif %}
+    </include:sticker-card-2026>
   {% endfor %}
 </include:cards-list>

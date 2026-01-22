@@ -5,7 +5,7 @@
 */
 
 /* =====================================================================
-Card - Flare 2026 Design System Cards
+Card Grid - Flare 2026 Design System Cards
 ===================================================================== */
 
 .fl-card-grid {
@@ -21,12 +21,83 @@ Card - Flare 2026 Design System Cards
     padding-inline: var(--token-spacing-lg);
 }
 
-.fl-card-grid .fl-card,
+.fl-card-grid .fl-sticker-card,
 .fl-card-grid .fl-illustration-card {
     flex: 1 1 auto;
 }
 
-.fl-card {
+.fl-card-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    order: 0;
+}
+
+.fl-card-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.fl-card-expand-link {
+    cursor: pointer;
+}
+
+.fl-card-expand-link a.fl-button,
+.fl-card-expand-link button {
+    position: relative;
+    z-index: 1;
+}
+
+.fl-card-expand-link a.fl-button::after,
+.fl-card-expand-link button::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+.fl-card-expand-link:hover
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
+    text-decoration: underline;
+}
+
+@media (--viewport-sm-up) {
+    .fl-card-grid {
+        --fl-card-sticker-size: 120px;
+        flex-flow: row wrap;
+    }
+
+    .fl-card-grid .fl-sticker-card {
+        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
+        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-card-grid {
+        flex-wrap: nowrap;
+    }
+
+    .fl-card-grid .fl-sticker-card {
+        flex-basis: 100%;
+        min-height: unset;
+    }
+}
+
+/* =====================================================================
+Sticker Cards List - With Kit variant
+===================================================================== */
+
+.fl-sticker-card {
     align-items: stretch;
     backdrop-filter: blur(7.5px);
     background: var(--fl-theme-surface-card-gradient);
@@ -48,17 +119,18 @@ Card - Flare 2026 Design System Cards
         box-shadow var(--token-transition-base);
 }
 
-.fl-card:hover {
+.fl-sticker-card:hover {
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
     transform: translateY(-2px);
 }
 
-.fl-card .fl-heading-group {
+.fl-sticker-card .fl-heading-group {
     gap: unset;
+    margin: 0;
     padding: 0;
 }
 
-.fl-card
+.fl-sticker-card
     > :is(
         h1.fl-heading,
         h2.fl-heading,
@@ -72,40 +144,26 @@ Card - Flare 2026 Design System Cards
     order: 0;
 }
 
-.fl-card-heading-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-xl);
-    order: 0;
-}
-
-.fl-card-superheading {
-    color: var(--fl-theme-card-superheading-color);
-    font-size: var(--fl-theme-font-size-body-2xs);
-    margin: 0;
-    text-transform: uppercase;
-}
-
 .fl-card-sticker {
     margin: auto;
     order: 1;
 }
 
-.fl-card > div:has(.fl-card-sticker) {
+.fl-sticker-card > div:has(.fl-card-sticker) {
     order: 2;
 }
 
-.fl-card > .fl-body {
+.fl-sticker-card > .fl-body {
     order: 3;
 }
 
-.fl-card > .fl-buttons {
+.fl-sticker-card > .fl-buttons {
     order: 4;
 }
 
-.fl-card > div:has(.fl-card-sticker),
-.fl-card > div:has(.fl-card-icon),
-.fl-card > div:has(.fl-tag) {
+.fl-sticker-card > div:has(.fl-card-sticker),
+.fl-sticker-card > div:has(.fl-card-icon),
+.fl-sticker-card > div:has(.fl-tag) {
     align-items: center;
     display: flex;
     flex: 1 1 auto;
@@ -114,7 +172,7 @@ Card - Flare 2026 Design System Cards
     width: 100%;
 }
 
-.fl-card
+.fl-sticker-card
     :is(
         h1.fl-heading,
         h2.fl-heading,
@@ -131,7 +189,7 @@ Card - Flare 2026 Design System Cards
     margin: 0;
 }
 
-.fl-card .fl-superheading {
+.fl-sticker-card .fl-superheading {
     color: var(--token-color-light-purple);
     display: block;
     font-family: var(--fl-theme-font-family-body);
@@ -142,7 +200,7 @@ Card - Flare 2026 Design System Cards
     text-transform: uppercase;
 }
 
-.fl-card .fl-body > * {
+.fl-sticker-card .fl-body > * {
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: var(--token-font-weight-regular);
@@ -150,15 +208,15 @@ Card - Flare 2026 Design System Cards
     text-wrap: balance;
 }
 
-.fl-card .fl-body > *:first-child {
+.fl-sticker-card .fl-body > *:first-child {
     margin-top: 0;
 }
 
-.fl-card .fl-body > *:last-child {
+.fl-sticker-card .fl-body > *:last-child {
     margin-bottom: 0;
 }
 
-.fl-card .fl-buttons {
+.fl-sticker-card .fl-buttons {
     align-items: center;
     display: flex;
     flex-wrap: wrap;
@@ -167,11 +225,11 @@ Card - Flare 2026 Design System Cards
     margin-top: var(--token-spacing-lg);
 }
 
-.fl-card .fl-buttons:empty {
+.fl-sticker-card .fl-buttons:empty {
     display: none;
 }
 
-.fl-card .fl-button {
+.fl-sticker-card .fl-button {
     margin: 0;
 }
 
@@ -182,65 +240,12 @@ Card - Flare 2026 Design System Cards
     width: var(--fl-card-sticker-size, 60px);
 }
 
-.fl-card > div:has(.fl-card-icon) {
+.fl-sticker-card > div:has(.fl-card-icon) {
     color: var(--token-color-light-purple);
 }
 
-.fl-card.fl-card-fill {
+.fl-sticker-card.fl-card-fill {
     background: var(--token-gradient-soft-purple);
-}
-
-.fl-card.fl-card-expand-link {
-    cursor: pointer;
-}
-
-.fl-card.fl-card-expand-link a.fl-button,
-.fl-card.fl-card-expand-link button {
-    position: relative;
-    z-index: 1;
-}
-
-.fl-card.fl-card-expand-link a.fl-button::after,
-.fl-card.fl-card-expand-link button::after {
-    content: '';
-    inset: 0;
-    position: absolute;
-    z-index: -1;
-}
-
-.fl-card.fl-card-expand-link:hover
-    :is(
-        h1.fl-heading,
-        h2.fl-heading,
-        h3.fl-heading,
-        h4.fl-heading,
-        h5.fl-heading,
-        h6.fl-heading
-    ) {
-    text-decoration: underline;
-}
-
-@media (--viewport-sm-up) {
-    .fl-card-grid {
-        --fl-card-sticker-size: 120px;
-        flex-flow: row wrap;
-    }
-
-    .fl-card-grid .fl-card {
-        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
-        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
-    }
-}
-
-@media (--viewport-lg-up) {
-    .fl-card-grid {
-        flex-wrap: nowrap;
-    }
-
-    .fl-card-grid .fl-card {
-        flex-basis: 100%;
-        min-height: unset;
-    }
 }
 
 /* =====================================================================
