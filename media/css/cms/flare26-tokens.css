@@ -123,6 +123,7 @@ Static values extracted from Figma that do not change based on context.
 
     /* Width and viewport variables */
     --token-width-desktop-content: 725px;
+    --token-width-desktop-content-lg: 934px;
     --token-width-desktop-layout: 1440px;
     --token-width-desktop-wide-banner: 1170px;
     --token-width-mobile-layout: 393px;

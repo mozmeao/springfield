@@ -86,8 +86,13 @@
             {% endif %}
           {% endfor %}
         </include:cards-list>
+      </div>
+    </section>
 
-
+    <section class="fl-section">
+      <div class="fl-section-container">
+<!--
+  TODO: adapt the cms to use the stacked article list instead
         <include:cards-list>
           {% for article in list_articles %}
             <include:card expand_link="true">
@@ -103,6 +108,83 @@
             </include:card>
           {% endfor %}
         </include:cards-list>
+-->
+
+        <include:heading
+          alignment_class="text-center"
+          level="h1"
+          heading_text="Headline abour other features"
+          subheading_text="Subheading text"
+        />
+
+        <div class="fl-stacked-article-list">
+          <div class="fl-article-item">
+            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
+
+            <div class="fl-article-item-content">
+              <div class="fl-heading">
+                <h2>Privacy that actually protects you</h2>
+              </div>
+
+              <div class="fl-article-item-description">
+                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
+
+                <div class="fl-buttons">
+                  <div class="">
+                    <a class="fl-button button-ghost" href="#">
+                      Button
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fl-article-item">
+            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
+
+            <div class="fl-article-item-content">
+              <div class="fl-heading">
+                <h2>Privacy that actually protects you</h2>
+              </div>
+
+              <div class="fl-article-item-description">
+                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
+
+                <div class="fl-buttons">
+                  <div class="">
+                    <a class="fl-button button-ghost" href="#">
+                      Button
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fl-article-item">
+            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
+
+            <div class="fl-article-item-content">
+              <div class="fl-heading">
+                <h2>Privacy that actually protects you</h2>
+              </div>
+
+              <div class="fl-article-item-description">
+                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
+
+                <div class="fl-buttons">
+                  <div class="">
+                    <a class="fl-button button-ghost" href="#">
+                      Button
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   </main>

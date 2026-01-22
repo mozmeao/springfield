@@ -1,7 +1,7 @@
 .fl-article-index-header {
     margin: 0 auto;
     max-width: var(--token-width-desktop-layout);
-    padding: 0 var(--token-spacing-xl);
+    padding: var(--token-spacing-3xl) var(--token-spacing-xl) 0;
 }
 
 .fl-article-index-header .fl-heading {
@@ -59,5 +59,50 @@
 
     .fl-article-page header img {
         border-radius: var(--token-layout-xs);
+    }
+}
+
+/* =====================================================================
+Stacked article list
+===================================================================== */
+
+.fl-stacked-article-list {
+    margin: 0 auto;
+    max-width: var(--token-width-desktop-content-lg);
+}
+
+.fl-stacked-article-list .fl-article-item {
+    border-top: 1px solid var(--token-color-soft-purple);
+    display: flex;
+    gap: var(--token-spacing-lg);
+    padding-block: var(--token-spacing-2xl);
+}
+
+.fl-stacked-article-list .fl-article-item:last-child {
+    border-bottom: 1px solid var(--token-color-soft-purple);
+}
+
+.fl-stacked-article-list .fl-article-item img {
+    margin: 0;
+    max-width: var(--token-layout-lg);
+}
+
+.fl-stacked-article-list .fl-article-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-stacked-article-list .fl-article-item-content .fl-heading > * {
+    margin: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-stacked-article-list .fl-article-item-content {
+        flex-direction: row;
+    }
+
+    .fl-stacked-article-list .fl-article-item-content .fl-heading {
+        min-width: 45%;
     }
 }
