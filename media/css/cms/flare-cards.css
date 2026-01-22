@@ -79,8 +79,22 @@
     align-self: flex-start;
 }
 
+.fl-card-sticker img {
+    max-height: 100%;
+    width: auto;
+}
+
+.fl-card:has(.fl-card-sticker) > * {
+    order: 1;
+}
+
+.fl-card .fl-card-sticker {
+    order: 0;
+}
+
 .fl-card-icon {
     font-size: var(--fl-theme-font-size-h4);
+    margin-bottom: 16px;
 }
 
 .fl-illustration-card {
