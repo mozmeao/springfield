@@ -1153,12 +1153,10 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
     cards_list_div = soup.find("div", class_="fl-card-grid")
     assert cards_list_div
 
-    card_elements = cards_list_div.find_all("article", class_="fl-card")
+    card_elements = cards_list_div.find_all("article", class_="fl-sticker-card")
 
     cards = cards_list["value"]["cards"]
     assert len(card_elements) == len(cards)
-
-    image, dark_image, _, _ = placeholder_images
 
     for index, card in enumerate(cards):
         card_element = card_elements[index]
@@ -1174,16 +1172,6 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
             images_value=card["value"]["image"],
             widths="width-400",
         )
-
-        if card["value"].get("dark_image"):
-            dark_image_element = images_element.find("img", class_="fl-card-sticker display-dark")
-            assert dark_image_element
-            dark_rendition = dark_image.get_rendition("width-400")
-            assert dark_image_element["src"] == dark_rendition.url
-            assert dark_image_element["alt"] == ""
-            assert dark_image_element["loading"] == "lazy"
-            assert dark_image_element["width"] == str(dark_rendition.width)
-            assert dark_image_element["height"] == str(dark_rendition.height)
 
 
 def test_home_carousel_block(index_page, placeholder_images, rf):
