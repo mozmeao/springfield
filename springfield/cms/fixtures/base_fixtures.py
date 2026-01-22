@@ -11,7 +11,7 @@ from PIL import Image
 from wagtail.documents.models import Document
 from wagtail.models import Site
 
-from springfield.cms.models import SpringfieldImage, StructuralPage
+from springfield.cms.models import ArticleIndexPage, SpringfieldImage, StructuralPage
 
 
 def get_placeholder_images():
@@ -97,6 +97,21 @@ def get_2026_test_index_page():
         index_page = StructuralPage(
             slug="tests-index-page-2026",
             title="Tests Index Page 2026",
+        )
+        root_page.add_child(instance=index_page)
+        index_page.save_revision().publish()
+    return index_page
+
+
+def get_article_index_test_page():
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    index_page = ArticleIndexPage.objects.filter(slug="tests-article-index").first()
+    if not index_page:
+        index_page = ArticleIndexPage(
+            slug="tests-article-index",
+            title="Tests Article Index Page",
+            sub_title="An index page for testing articles.",
         )
         root_page.add_child(instance=index_page)
         index_page.save_revision().publish()

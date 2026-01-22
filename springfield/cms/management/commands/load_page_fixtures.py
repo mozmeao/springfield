@@ -4,8 +4,14 @@
 
 from django.core.management.base import BaseCommand
 
+from springfield.cms.fixtures.article_page_fixtures import get_article_pages
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import (
+    get_2026_test_index_page,
+    get_article_index_test_page,
+    get_placeholder_images,
+    get_test_index_page,
+)
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_filled_cards_test_page,
@@ -62,6 +68,13 @@ class Command(BaseCommand):
 
         thanks_page = get_thanks_page()
         self.stdout.write(self.style.SUCCESS(f"Thanks test page loaded: {thanks_page.slug}"))
+
+        article_index_page = get_article_index_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Index test page loaded: {article_index_page.slug}"))
+
+        article_pages = get_article_pages()
+        for page in article_pages:
+            self.stdout.write(self.style.SUCCESS(f"Article test page loaded: {page.slug}"))
 
         # 2025 pages
 
