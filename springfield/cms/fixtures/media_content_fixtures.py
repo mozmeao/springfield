@@ -26,7 +26,11 @@ def get_media_content_variants() -> list[dict]:
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
                         },
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
                     }
@@ -51,7 +55,11 @@ def get_media_content_variants() -> list[dict]:
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "dark_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
                         },
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
                     }

@@ -1,0 +1,28 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+    {% if pagination and (pagination.previous or pagination.next) %}
+    <nav class="c-release-pagination mzp-l-content" aria-label="Release notes pagination">
+      <ul class="c-release-pagination-list">
+        {% if pagination.previous %}
+        <li class="c-release-pagination-item c-release-pagination-previous">
+          <a href="{{ pagination.previous.url }}" class="c-release-pagination-link">
+            <span class="c-release-pagination-direction mzp-c-cta-link">{{ ftl('ui-previous') }}</span>
+            <span class="c-release-pagination-version">{{ release.product }} {{ pagination.previous.version }}</span>
+          </a>
+        </li>
+        {% endif %}
+        {% if pagination.next %}
+        <li class="c-release-pagination-item c-release-pagination-next">
+          <a href="{{ pagination.next.url }}" class="c-release-pagination-link">
+            <span class="c-release-pagination-direction mzp-c-cta-link">{{ ftl('ui-next') }}</span>
+            <span class="c-release-pagination-version">{{ release.product }} {{ pagination.next.version }}</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
