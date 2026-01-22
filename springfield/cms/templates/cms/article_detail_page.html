@@ -24,21 +24,11 @@
               width=page.image.width,
               loading="lazy",
             ) }}
-            <include:heading
-                level="h1"
-                heading_text="{{ page.title }}"
-            />
-            {{ page.description|richtext }}
-            <p class="fl-article-date">
-              {{ page.latest_revision_created_at|l10n_format_date }}
-            </p>
-        {% else %}
-          <include:heading
-              level="h1"
-              heading_text="{{ page.title }}"
-              subheading_text="{{ page.sub_title }}"
-          />
         {% endif %}
+        <include:heading
+            level="h1"
+            heading_text="{{ page.title }}"
+        />
       </header>
 
       <section class="fl-rich-text">
