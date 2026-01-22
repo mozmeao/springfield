@@ -194,6 +194,23 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    pre_footer = StreamField(
+        [
+            (
+                "pre_footer_cta_form_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.PreFooterCTAFormSnippet",
+                    template="cms/snippets/pre-footer-cta-form-snippet.html",
+                    label="Pre-Footer CTA Form Snippet",
+                ),
+            )
+        ],
+        use_json_field=True,
+        min_num=0,
+        max_num=1,
+        null=True,
+        blank=True,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("platform"),
@@ -201,6 +218,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
         FieldPanel("content"),
+        FieldPanel("pre_footer"),
     ]
 
     def get_context(self, request, *args, **kwargs):
@@ -229,9 +247,27 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ),
         ]
     )
+    pre_footer = StreamField(
+        [
+            (
+                "pre_footer_cta_form_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.PreFooterCTAFormSnippet",
+                    template="cms/snippets/pre-footer-cta-form-snippet.html",
+                    label="Pre-Footer CTA Form Snippet",
+                ),
+            )
+        ],
+        use_json_field=True,
+        min_num=0,
+        max_num=1,
+        null=True,
+        blank=True,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
+        FieldPanel("pre_footer"),
     ]
 
 

@@ -28,17 +28,9 @@
 {% endblock content %}
 
 {% block pre_footer %}
-  {% set pre_footer_form = get_pre_footer_cta_form_snippet() %}
-  {% if pre_footer_form %}
-    {% set analytics_text = pre_footer_form.heading|richtext|remove_tags %}
-    {% set analytics_position = "pre-footer-cta-form" %}
-    {% set analytics_id = pre_footer_form.analytics_id %}
-    <include:newsletter-form>
-      <include:heading
-        level="h2"
-        heading_text="{{ pre_footer_form.heading|richtext|remove_p_tag }}"
-        subheading_text="{{ pre_footer_form.subheading|richtext|remove_p_tag }}"
-    />
-    </include:newsletter-form>
+  {% if page.pre_footer %}
+    {% for block in page.pre_footer %}
+      {% include_block block %}
+    {% endfor %}
   {% endif %}
 {% endblock pre_footer %}

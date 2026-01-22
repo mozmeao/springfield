@@ -118,10 +118,17 @@ def get_cards_list_section():
     }
 
 
+def get_pre_footer():
+    snippet = get_pre_footer_cta_form_snippet()
+    return {
+        "type": "pre_footer_cta_form_snippet",
+        "value": snippet.id,
+        "id": "a02a8fd6-8195-43f1-a77d-ed6a652386b0",
+    }
+
+
 def get_download_page() -> DownloadPage:
     index_page = get_2026_test_index_page()
-    # Make sure the PreFooterCTAFormSnippet exists
-    get_pre_footer_cta_form_snippet()
 
     image, _, _, _ = get_placeholder_images()
 
@@ -140,5 +147,6 @@ def get_download_page() -> DownloadPage:
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
     page.content = [get_cards_list_section()]
+    page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page
