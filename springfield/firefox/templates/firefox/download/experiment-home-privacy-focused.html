@@ -6,12 +6,9 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 
-{% set is_download_privacy_enabled = switch('download_privacy') and LANG.startswith('en') %}
-
+<!-- Cannot run at same time as download as default -->
 {% if switch('download_as_default') %}
-{% set download_as_default_enabled = true %}
-{% else %}
-{% set download_as_default_enabled = false %}
+  {% set download_as_default_enabled = false %}
 {% endif %}
 
 {% macro default_browser_checkbox(id='default-browser-checkbox') -%}
@@ -23,13 +20,14 @@
 
 {% extends "firefox/download/desktop/base.html" %}
 
+{# "noindex" pages should not have the canonical or hreflang tags: bug 1442331 #}
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
 {% block experiments %}
-  {% if is_download_privacy_enabled %}
-    {{ js_bundle('experiment-firefox-home') }}
-  {% endif %}
+  {{ js_bundle('experiment-firefox-home') }}
 {% endblock %}
 
-{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-home' %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-home-privacy-focused' %}
 {% set ios_url = app_store_url('firefox', 'firefox-home') %}
 
 {% block string_data %}{% endblock %}
@@ -77,9 +75,8 @@
   <section id="desktop-banner" class="c-block t-intro show-else mzp-has-media-hide-on-sm">
     <div class="c-block-container">
       <div class="c-block-body">
-        <h1>{{ ftl('firefox-desktop-download-firefox') }}</h1>
-          <h2>{{ ftl('firefox-home-take-control') }}</h2>
-          <p>{{ ftl('firefox-home-go-online') }}</p>
+          <h2>Privacy built in, not bolted on</h2>
+          <p>Go online knowing your data stays yours. Privacy is the default, not another setting to hunt for.</p>
         <div class="c-intro-download">
           {% block primary_cta %}
             {{ default_browser_checkbox(id='default-browser-checkbox-primary') }}
@@ -93,13 +90,12 @@
       </div>
       <div class="c-block-media l-v-center">
       {{ resp_img(
-        url='img/firefox/home/hero.png',
+        url='img/firefox/home/experiment/hero.png',
         srcset={
-          'img/firefox/home/hero-high-res.png': '2x'
+          'img/firefox/home/experiment/hero-high-res.png': '2x'
         },
         optional_attributes={
           'class': 'c-block-media-img',
-          'alt': ftl('firefox-home-firefox-on-desktop'),
           'width': '768'
         }
       ) }}
@@ -112,34 +108,34 @@
       <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-latest-features') }}</h2>
       <ul class="c-trio">
         <li>
-          <img alt="{{ ftl('firefox-home-happy-toggle') }}" src="{{ static('img/firefox/home/toggle.svg') }}" width="90" height="54">
-          <h3>{{ ftl('firefox-home-dial-down') }}</h3>
-          <p>{{ ftl('firefox-home-block-ads') }}</p>
-        </li>
-        <li class="t-cursor">
-          <img alt="{{ ftl('firefox-home-multiple-cursors') }}" src="{{ static('img/firefox/home/multi.svg') }}" width="134" height="38">
-          <h3>{{ ftl('firefox-home-multitasking') }}</h3>
-          <p>{{ ftl('firefox-home-go-into-reading') }}</p>
+          <img alt="" src="{{ static('img/firefox/home/experiment/no-cookie.svg') }}" width="90" height="54">
+          <h3>Tracking won’t follow you</h3>
+          <p>Firefox <a href="https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-desktop{{ params }}" rel="external noopener" data-link-text="blocks hidden trackers">blocks hidden trackers</a> and keeps tracking cookies contained, <a href="https://support.mozilla.org/kb/introducing-total-cookie-protection-standard-mode{{ params }}" rel="external noopener" data-link-text="cutting off cross-site data trails">cutting off cross-site data trails</a> automatically.</p>
         </li>
         <li>
-          <img alt="{{ ftl('firefox-home-lots-of-open') }}" src="{{ static('img/firefox/home/tabs.svg') }}" width="72" height="54">
-          <h3>{{ ftl('firefox-home-keep-tabs-on') }}</h3>
-          <p>{{ ftl('firefox-home-close-duplicates') }}</p>
+          <img alt="" src="{{ static('img/firefox/home/experiment/private-browsing.svg') }}" width="134" height="38">
+          <h3>Private mode leaves no trace</h3>
+          <p>Private windows don’t save your history or cookies, and block third-party trackers as you browse.  Nothing stays behind when you’re done.</p>
+        </li>
+        <li>
+          <img alt="" src="{{ static('img/firefox/home/experiment/fingerprint.svg') }}" width="72" height="54">
+          <h3>Hide your device identity</h3>
+          <p>Fingerprinting Protection hides the details that make your device unique, reducing how identifiable you are online.</p>
         </li>
       </ul>
 
-      <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.notes') }}" data-cta-text="See Release Notes">{{ ftl('firefox-home-see-release') }}</a></p>
+      <p class="c-notes"><a class="mzp-c-cta-link" href="{{ url('firefox.user-privacy') }}" data-cta-text="See how we protect your data">See how we protect your data</a></p>
     </div>
   </section>
 
   <section class="t-highlights">
-    <h2 class="mzp-c-section-heading">{{ ftl('firefox-home-get-the-browser') }}</h2>
+    <h2 class="mzp-c-section-heading">One browser, total control of your privacy</h2>
 
     <div class="t-block c-block l-reversed js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center l-h-start">
-          <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-block-ad-trackers') }}</h3>
-          <p>{{ ftl('firefox-home-ad-trackers-make') }}</p>
+          <h3 class="mzp-u-title-sm">See how Firefox keeps you safe</h3>
+          <p>Open the Protection Dashboard to see how many trackers Firefox has already blocked. It’s privacy you can actually measure.</p>
           <button id="protection-report" type="button" class="mzp-c-cta-link">{{ ftl('firefox-desktop-download-see-your-report') }}</button>
         </div>
         <div class="c-block-media l-v-end l-h-end l-media-constrain-on-sm">
@@ -148,23 +144,35 @@
       </div>
     </div>
 
-    <div class="t-think c-block js-animate">
+    <div class="c-block js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center l-h-end">
-          <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-swear-off') }}</h3>
-          <p>{{ ftl('firefox-home-stay-focused', tomato_clock_attrs='href="https://addons.mozilla.org/firefox/addon/tomato-clock/" target="_blank"', turn_off_the_lights_attrs='href="https://addons.mozilla.org/firefox/addon/turn-off-the-lights/" target="_blank"') }}</p>
+          <h3 class="mzp-u-title-sm">Strong logins, safer accounts</h3>
+          <p><a href="https://support.mozilla.org/kb/manage-your-logins-firefox-password-manager{{ params }}" rel="external noopener" data-link-text="Firefox Password Manager">Firefox Password Manager</a> encrypts every password and syncs them securely. <a href="https://monitor.mozilla.org/{{ params }}" rel="external noopener" data-link-text="Monitor">Monitor</a> lets you know if any of your accounts are in a breach.</p>
         </div>
         <div class="c-block-media l-v-center l-h-start l-media-constrain-on-sm">
-        <img alt="{{ ftl('firefox-home-a-human-brain') }}" class="c-block-media-img" src="{{ static('img/firefox/home/think.svg') }}" width="260">
+        <img alt="{{ ftl('firefox-home-browser-window-with-lock') }}" class="c-block-media-img" src="{{ static('img/firefox/home/privacy.svg') }}" width="320">
         </div>
       </div>
     </div>
 
-    <div class="t-devices c-block l-reversed js-animate">
+    <div class="c-block l-reversed js-animate">
       <div class="c-block-container">
         <div class="c-block-body l-v-center">
-          <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-your-stuff') }}</h3>
-          <p>{{ ftl('firefox-home-get-firefox-mobile') }}</p>
+          <h3 class="mzp-u-title-sm">Privacy-enhancing extensions</h3>
+          <p>Add extensions like <a href="https://addons.mozilla.org/firefox/addon/privacy-badger17/{{ params }}" rel="external noopener" data-link-text="Privacy Badger">Privacy Badger</a> or <a href="https://addons.mozilla.org/firefox/addon/clearurls/{{ params }}" rel="external noopener" data-link-text="Clean URLs">Clean URLs</a> for extra privacy and performance. Both Firefox Recommended.</p>
+        </div>
+        <div class="c-block-media l-v-end l-h-end l-media-constrain-on-sm">
+        <img alt="" class="c-block-media-img" src="{{ static('img/firefox/home/experiment/extensions.svg') }}" width="350">
+        </div>
+      </div>
+    </div>
+
+    <div class="t-devices c-block js-animate">
+      <div class="c-block-container">
+        <div class="c-block-body l-v-center l-h-end">
+          <h3 class="mzp-u-title-sm">Same safeguards on every screen</h3>
+          <p>Tabs, passwords and history stay protected and in sync across every device you use Firefox on, no setup required.</p>
           <div class="mobile-download-buttons-wrapper">
             {% block mobile_secondary_cta %}
               <ul class="mobile-download-buttons">
@@ -178,21 +186,8 @@
             {% endblock %}
           </div>
         </div>
-        <div class="c-block-media l-v-end l-h-end l-media-constrain-on-sm">
-        <img alt="{{ ftl('firefox-home-desktop-laptop-and-phone') }}" class="c-block-media-img" src="{{ static('img/firefox/home/screens.svg') }}" width="350">
-        </div>
-      </div>
-    </div>
-
-    <div class="t-privacy c-block js-animate">
-      <div class="c-block-container">
-        <div class="c-block-body l-v-center l-h-end">
-          <h3 class="mzp-u-title-sm">{{ ftl('firefox-home-privacy-built-in') }}</h3>
-          <p>{{ ftl('firefox-home-personal-data-not-for-sale') }}</p>
-          <a href="{{ url('firefox.user-privacy') }}" class="mzp-c-cta-link" data-cta-text="Learn how Firefox protects your data">{{ ftl('firefox-home-learn-data-protection') }}</a>
-        </div>
         <div class="c-block-media l-v-center l-h-start l-media-constrain-on-sm">
-        <img alt="{{ ftl('firefox-home-browser-window-with-lock') }}" class="c-block-media-img" src="{{ static('img/firefox/home/privacy.svg') }}" width="320">
+        <img alt="{{ ftl('firefox-home-desktop-laptop-and-phone') }}" class="c-block-media-img" src="{{ static('img/firefox/home/screens.svg') }}" width="350">
         </div>
       </div>
     </div>

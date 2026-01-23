@@ -456,6 +456,7 @@ class DownloadView(L10nTemplateView):
         "firefox/download/basic/base_download.html": ["firefox/download/download"],
         "firefox/download/desktop/download.html": ["firefox/download/desktop"],
         "firefox/download/home.html": ["firefox/download/desktop", "firefox/download/home"],
+        "firefox/download/experiment-home-privacy-focused.html": ["firefox/download/desktop", "firefox/download/home"],
     }
     activation_files = [
         "firefox/download/download",
@@ -463,7 +464,7 @@ class DownloadView(L10nTemplateView):
     ]
 
     # place expected ?v= values in this list
-    variations = []
+    variations = ["treatment", "control"]
 
     def get(self, *args, **kwargs):
         # Remove legacy query parameters (Bug 1236791)
@@ -510,7 +511,10 @@ class DownloadView(L10nTemplateView):
             variation = None
 
         if ftl_file_is_active("firefox/download/home") and experience not in ["basic", "legacy"]:
-            template = "firefox/download/home.html"
+            if variation == "treatment":
+                template = "firefox/download/experiment-home-privacy-focused.html"
+            else:
+                template = "firefox/download/home.html"
         elif ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             template = "firefox/download/desktop/download.html"
         else:
