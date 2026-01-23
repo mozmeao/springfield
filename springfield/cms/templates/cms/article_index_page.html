@@ -102,30 +102,49 @@
           subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
         />
 
-        <div class="fl-stacked-article-list">
-          {% for article in list_articles %}
-            <div class="fl-article-item">
-              {{ image(article.icon, "width-400") }}
+        {% if switch("flare26_enabled") %}
+          <div class="fl-stacked-article-list">
+            {% for article in list_articles %}
+              <div class="fl-article-item">
+                {{ image(article.icon, "width-400") }}
 
-              <div class="fl-article-item-content">
-                <div class="fl-heading">
-                  <h2>{{ article.title }}</h2>
-                </div>
+                <div class="fl-article-item-content">
+                  <div class="fl-heading">
+                    <h3>{{ article.title }}</h3>
+                  </div>
 
-                <div class="fl-article-item-description">
-                  <p>{{ article.description|richtext }}</p>
-                  <div class="fl-buttons">
-                    <div class="">
-                      <a class="fl-button button-ghost" href="{{ article.url }}">
-                        {{ article.link_text }}
-                      </a>
+                  <div class="fl-article-item-description">
+                    <p>{{ article.description|richtext }}</p>
+                    <div class="fl-buttons">
+                      <div class="">
+                        <a class="fl-button button-ghost" href="{{ article.url }}">
+                          {{ article.link_text }}
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          {% endfor %}
-        </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          <include:cards-list>
+            {% for article in list_articles %}
+              <include:card expand_link="true">
+                <content:heading>
+                  <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+                </content:heading>
+                <content:body>
+                  {{ article.description|richtext }}
+                </content:body>
+                <content:buttons>
+                  <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                </content:buttons>
+              </include:card>
+            {% endfor %}
+          </include:cards-list>
+        {% endif %}
 
       </div>
     </section>
