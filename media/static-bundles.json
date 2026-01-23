@@ -824,12 +824,6 @@
     },
     {
       "files": [
-        "js/cms/flare26-ui-tour-buttons.js"
-      ],
-      "name": "flare26-ui-tour-buttons"
-    },
-    {
-      "files": [
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
