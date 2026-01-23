@@ -1,0 +1,19 @@
+
+name: "Stacked Article List 2026"
+context:
+  list_articles:
+    - icon: "/media/img/firefox/flare/privacy-sticker.png"
+      title: "Privacy that puts you in control."
+      description: "Firefox doesn’t exploit your data and is backed by a people-first foundation."
+      url: "#"
+      link_text: "Learn more"
+    - icon: "/media/img/firefox/flare/organization-sticker.png"
+      title: "Get organized. Stay organized."
+      description: "Browse smarter with vertical tabs, tab groups, PDF editing and more."
+      url: "#"
+      link_text: "Learn more"
+    - icon: "/media/img/firefox/flare/independence-sticker.png"
+      title: "Billionaire-free and open source for 20+ years."
+      description: "Since 2004, Firefox has been the independent choice."
+      url: "#"
+      link_text: "Learn more"

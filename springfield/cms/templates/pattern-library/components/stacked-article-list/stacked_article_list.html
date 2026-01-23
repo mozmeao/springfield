@@ -1,0 +1,35 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-section fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+  <div class="fl-section-container">
+    <div class="fl-stacked-article-list">
+      {% for article in list_articles %}
+        <div class="fl-article-item">
+          <img src="{{ article.icon }}" alt="" aria-hidden="true" />
+
+          <div class="fl-article-item-content">
+            <div class="fl-heading">
+              <h2>{{ article.title }}</h2>
+            </div>
+
+            <div class="fl-article-item-description">
+              <p>{{ article.description|richtext }}</p>
+              <div class="fl-buttons">
+                <div class="">
+                  <a class="fl-button button-ghost" href="{{ article.url }}">
+                    {{ article.link_text }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
