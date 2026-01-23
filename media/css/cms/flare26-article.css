@@ -13,6 +13,7 @@
 }
 
 .fl-article-page .fl-heading {
+    margin-block-end: var(--token-spacing-3xl);
     text-align: center;
 }
 
