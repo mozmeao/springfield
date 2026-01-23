@@ -6,7 +6,8 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail.admin.panels import FieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -291,9 +292,13 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_length=255,
         blank=True,
     )
+    other_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES)
+    other_articles_subheading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
+        FieldPanel("other_articles_heading"),
+        FieldPanel("other_articles_subheading"),
     ]
 
     def get_context(self, request, *args, **kwargs):
@@ -316,21 +321,46 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=False,
         help_text="Check to set as a featured article on the index page.",
     )
-    image = models.ForeignKey(
+    featured_image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
+        help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_tag = models.CharField(
+        blank=True,
+        help_text="A short tag to display above the article title on featured article cards.",
+    )
+    link_text = models.CharField(
+        default="Read more",
+        help_text="Custom text for the 'Read more' link on article cards.",
+    )
+    icon = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="An icon used for listing articles on the index page.",
     )
     description = RichTextField(
         blank=True,
         features=HEADING_TEXT_FEATURES,
-        help_text="A short description used on index page.",
+        help_text="A short description used on the index page.",
     )
-    content = RichTextField(
-        blank=True,
-        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
+
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    content = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+        ],
+        use_json_field=True,
     )
     call_to_action = StreamField(
         [
@@ -350,9 +380,18 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("featured"),
+        MultiFieldPanel(
+            [
+                FieldPanel("featured"),
+                FieldPanel("featured_tag"),
+                FieldPanel("featured_image"),
+                FieldPanel("icon"),
+                FieldPanel("link_text"),
+                FieldPanel("description"),
+            ],
+            heading="Index Page Settings",
+        ),
         FieldPanel("image"),
-        FieldPanel("description"),
         FieldPanel("content"),
         FieldPanel("call_to_action"),
     ]

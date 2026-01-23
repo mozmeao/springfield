@@ -19,23 +19,25 @@
         subheading_text="{{ page.sub_title }}"
       />
     </header>
+
     <section class="fl-section">
       <div class="fl-section-container">
         <include:cards-list>
           {% for article in featured_articles %}
+
             {% if switch("flare26_enabled") %}
               <include:illustration-card-2026 expand_link="true">
                 <content:media>
-                  {% if article.image %}
+                  {% if article.featured_image %}
                     {{ srcset_image(
-                        article.image,
+                        article.featured_image,
                         "width-{200,400,600,800,1000,1200,1400}",
                         sizes="
                           (min-width: 768px) 50vw,
                           (min-width: 1440px) 680px,
                           100vw
                         ",
-                        width=article.image.width,
+                        width=article.featured_image.width,
                         loading="lazy",
                       ) }}
                     {% else %}
@@ -53,19 +55,20 @@
                   {{ article.description|richtext }}
                 </content:body>
               </include:illustration-card-2026>
+
             {% else %}
               <include:illustration-card expand_link="true">
                 <content:media>
-                  {% if article.image %}
+                  {% if article.featured_image %}
                     {{ srcset_image(
-                        article.image,
+                        article.featured_image,
                         "width-{200,400,600,800,1000,1200,1400}",
                         sizes="
                           (min-width: 768px) 50vw,
                           (min-width: 1440px) 680px,
                           100vw
                         ",
-                        width=article.image.width,
+                        width=article.featured_image.width,
                         loading="lazy",
                       ) }}
                     {% else %}
@@ -84,6 +87,7 @@
                 </content:body>
               </include:illustration-card>
             {% endif %}
+
           {% endfor %}
         </include:cards-list>
       </div>
@@ -91,98 +95,37 @@
 
     <section class="fl-section">
       <div class="fl-section-container">
-<!--
-  TODO: adapt the cms to use the stacked article list instead
-        <include:cards-list>
-          {% for article in list_articles %}
-            <include:card expand_link="true">
-              <content:heading>
-                <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
-              </content:heading>
-              <content:body>
-                {{ article.description|richtext }}
-              </content:body>
-              <content:buttons>
-                <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-              </content:buttons>
-            </include:card>
-          {% endfor %}
-        </include:cards-list>
--->
 
         <include:heading
           alignment_class="text-center"
           level="h1"
-          heading_text="Headline abour other features"
-          subheading_text="Subheading text"
+          heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
+          subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
         />
 
         <div class="fl-stacked-article-list">
-          <div class="fl-article-item">
-            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
+          {% for article in list_articles %}
+            <div class="fl-article-item">
+              {{ image(article.icon, "width-400") }}
 
-            <div class="fl-article-item-content">
-              <div class="fl-heading">
-                <h2>Privacy that actually protects you</h2>
-              </div>
+              <div class="fl-article-item-content">
+                <div class="fl-heading">
+                  <h2>{{ article.title }}</h2>
+                </div>
 
-              <div class="fl-article-item-description">
-                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
-
-                <div class="fl-buttons">
-                  <div class="">
-                    <a class="fl-button button-ghost" href="#">
-                      Button
-                    </a>
+                <div class="fl-article-item-description">
+                  <p>{{ article.description|richtext }}</p>
+                  <div class="fl-buttons">
+                    <div class="">
+                      <a class="fl-button button-ghost" href="{{ article.url }}">
+                        {{ article.link_text }}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="fl-article-item">
-            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
-
-            <div class="fl-article-item-content">
-              <div class="fl-heading">
-                <h2>Privacy that actually protects you</h2>
-              </div>
-
-              <div class="fl-article-item-description">
-                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
-
-                <div class="fl-buttons">
-                  <div class="">
-                    <a class="fl-button button-ghost" href="#">
-                      Button
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="fl-article-item">
-            <img src="http://localhost:8000/custom-media/images/placeholder_image_OavkrGv.width-800.webp" />
-
-            <div class="fl-article-item-content">
-              <div class="fl-heading">
-                <h2>Privacy that actually protects you</h2>
-              </div>
-
-              <div class="fl-article-item-description">
-                <p>Real security isn't something you have to think about, it just works. Firefox automatically blocks over 2,000 trackers before they can follow you around the web. And lets you actually see what you’re being protected from.</p>
-
-                <div class="fl-buttons">
-                  <div class="">
-                    <a class="fl-button button-ghost" href="#">
-                      Button
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {% endfor %}
         </div>
 
       </div>

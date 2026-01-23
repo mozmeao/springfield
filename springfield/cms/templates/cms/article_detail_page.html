@@ -32,7 +32,9 @@
       </header>
 
       <section class="fl-rich-text">
-        {{ page.content|richtext }}
+        {% for block in page.content %}
+          {% include_block block %}
+        {% endfor %}
       </section>
     </div>
   </main>
