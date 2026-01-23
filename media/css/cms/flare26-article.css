@@ -78,7 +78,7 @@ Stacked article list
 
 .fl-stacked-article-list .fl-article-item {
     border-top: 1px solid var(--token-color-soft-purple);
-    display: flex;
+    display: grid;
     gap: var(--token-spacing-lg);
     padding-block: var(--token-spacing-2xl);
 }
@@ -89,7 +89,7 @@ Stacked article list
 
 .fl-stacked-article-list .fl-article-item img {
     margin: 0;
-    max-width: var(--token-layout-lg);
+    width: var(--token-layout-lg);
 }
 
 .fl-stacked-article-list .fl-article-item-content {
@@ -103,11 +103,16 @@ Stacked article list
 }
 
 @media (--viewport-md-up) {
+    .fl-stacked-article-list .fl-article-item {
+        grid-template-columns: 128px auto;
+    }
+
     .fl-stacked-article-list .fl-article-item-content {
         flex-direction: row;
     }
 
     .fl-stacked-article-list .fl-article-item-content .fl-heading {
+        max-width: 45%;
         min-width: 45%;
     }
 }
