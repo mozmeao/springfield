@@ -111,10 +111,12 @@ def get_article_index_test_page():
         index_page = ArticleIndexPage(
             slug="tests-article-index",
             title="Tests Article Index Page",
-            sub_title="An index page for testing articles.",
         )
         root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
+    index_page.sub_title = "An index page for testing articles."
+    index_page.other_articles_heading = "More Articles"
+    index_page.other_articles_subheading = "Explore additional articles below."
+    index_page.save_revision().publish()
     return index_page
 
 
