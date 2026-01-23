@@ -9,26 +9,16 @@
   <div class="fl-section-container">
     <div class="fl-stacked-article-list">
       {% for article in list_articles %}
-        <div class="fl-article-item">
-          <img src="{{ article.icon }}" alt="" aria-hidden="true" />
-
-          <div class="fl-article-item-content">
-            <div class="fl-heading">
-              <h2>{{ article.title }}</h2>
-            </div>
-
-            <div class="fl-article-item-description">
-              <p>{{ article.description|richtext }}</p>
-              <div class="fl-buttons">
-                <div class="">
-                  <a class="fl-button button-ghost" href="{{ article.url }}">
-                    {{ article.link_text }}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <include:stacked-article-list-item
+          title={{ article.title }}
+          description={{ article.description }}
+          link_text={{ article.link_text }}
+          url={{ article.url }}
+        >
+          <content:icon>
+            <img src="{{ article.icon }}"/>
+          </content:icon>
+        </include:stacked-article-list-item>
       {% endfor %}
     </div>
   </div>

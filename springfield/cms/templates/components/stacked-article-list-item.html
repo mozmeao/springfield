@@ -1,0 +1,28 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props icon="" title="" description="" link_text="" url="" #}
+
+<div class="fl-article-item">
+  {{ contents.icon }}
+
+  <div class="fl-article-item-content">
+    <include:heading
+      heading_text="{{ title }}"
+    />
+
+    <div class="fl-article-item-description">
+      {{ description|richtext }}
+      <div class="fl-buttons">
+        <include:button
+          theme_class="button-ghost"
+          label="{{ link_text }}"
+          link="{{ url }}"
+        />
+      </div>
+    </div>
+  </div>
+</div>

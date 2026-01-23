@@ -105,26 +105,16 @@
         {% if switch("flare26_enabled") %}
           <div class="fl-stacked-article-list">
             {% for article in list_articles %}
-              <div class="fl-article-item">
-                {{ image(article.icon, "width-400") }}
-
-                <div class="fl-article-item-content">
-                  <div class="fl-heading">
-                    <h3>{{ article.title }}</h3>
-                  </div>
-
-                  <div class="fl-article-item-description">
-                    <p>{{ article.description|richtext }}</p>
-                    <div class="fl-buttons">
-                      <div class="">
-                        <a class="fl-button button-ghost" href="{{ article.url }}">
-                          {{ article.link_text }}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <include:stacked-article-list-item
+                title={{ article.title }}
+                description={{ article.description }}
+                link_text={{ article.link_text }}
+                url={{ article.url }}
+              >
+                <content:icon>
+                  {{ image(article.icon, "width-400") }}
+                </content:icon>
+              </include:stacked-article-list-item>
             {% endfor %}
           </div>
 
