@@ -111,11 +111,15 @@ def get_article_index_test_page():
         index_page = ArticleIndexPage(
             slug="tests-article-index",
             title="Tests Article Index Page",
+            sub_title="An index page for testing articles.",
+            other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+            other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
         )
         root_page.add_child(instance=index_page)
-    index_page.sub_title = "An index page for testing articles."
-    index_page.other_articles_heading = "More Articles"
-    index_page.other_articles_subheading = "Explore additional articles below."
+    else:
+        index_page.sub_title = "An index page for testing articles."
+        index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
+        index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
     index_page.save_revision().publish()
     return index_page
 

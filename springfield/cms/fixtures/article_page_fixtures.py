@@ -32,10 +32,7 @@ def create_article(
 
     article = ArticleDetailPage.objects.filter(slug=slug).first()
     if not article:
-        article = ArticleDetailPage(
-            title=title,
-            slug=slug,
-        )
+        article = ArticleDetailPage(title=title, slug=slug, image=image)
         index_page.add_child(instance=article)
 
     article.featured = featured
