@@ -12,6 +12,10 @@
   <main class="fl-main">
     <div class="fl-article-body">
       <header>
+        <include:heading
+            level="h1"
+            heading_text="{{ page.title }}"
+        />
         {% if switch("flare26_enabled") and page.image %}
           {{ srcset_image(
               page.image,
@@ -25,10 +29,6 @@
               loading="lazy",
             ) }}
         {% endif %}
-        <include:heading
-            level="h1"
-            heading_text="{{ page.title }}"
-        />
       </header>
 
       <section class="fl-rich-text">
