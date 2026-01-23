@@ -163,7 +163,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="articledetailpage",
             name="image",
-            field=models.ForeignKey(default=1000, on_delete=django.db.models.deletion.PROTECT, related_name="+", to="cms.springfieldimage"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="+",
+                to="cms.springfieldimage",
+                null=True,
+                blank=True,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(

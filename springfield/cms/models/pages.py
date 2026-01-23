@@ -355,6 +355,8 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,
         related_name="+",
+        null=True,
+        blank=True,
     )
     content = StreamField(
         [
