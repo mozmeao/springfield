@@ -4,17 +4,15 @@
 
 @use 'sass:math';
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/templates/main-with-sidebar';
-@import '../protocol/components/sub-navigation';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-nightly';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-beta';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-developer';
+@use '~@mozilla-protocol/core/protocol/css/templates/main-with-sidebar';
+@use '../protocol/components/sub-navigation';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-nightly';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-beta';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-developer';
 
 
 // supports js/base/video-prefers-reduced-motion.es6.js

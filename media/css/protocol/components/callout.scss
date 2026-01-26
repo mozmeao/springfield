@@ -2,11 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/callout';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
+
+@use '~@mozilla-protocol/core/protocol/css/components/callout';
 
 // Temporary styles for call-out while the hero component has been depreciated. Will be updated with a new component
 .mzp-c-callout.mzp-t-hero {
