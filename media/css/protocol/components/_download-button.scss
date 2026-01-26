@@ -123,7 +123,7 @@ ul.download-list {
 // Platform specific Firefox download macros (bedrock issue #12192)
 .firefox-platform-button {
     .download-link.os_linux64 {
-        margin-bottom: $spacing-sm; // allow spacing between macro Linux buttons ('download-list' buttons get spacing from
+        margin-bottom: $spacing-sm; // allow spacing between macro Linux buttons ('download-list' buttons get spacing from grid)
     }
 
     .linux & {
