@@ -723,6 +723,7 @@ INSTALLED_APPS = [
     "wagtail.snippets",
     "wagtail.images",
     "wagtail_localize_smartling",  # Has to come before wagtail_localize
+    "wagtail_localize_intentional_blanks",  # Must be before wagtail_localize for template overrides
     "wagtail_localize",
     "wagtail_localize.locales",  # This replaces "wagtail.locales"
     "wagtail.search",
@@ -1276,6 +1277,7 @@ if WAGTAIL_ENABLE_ADMIN:
             "django-rq",
             "oidc",
             "_internal_draft_preview",
+            "intentional-blanks",  # wagtail-localize-intentional-blanks
         ]
     )
 
