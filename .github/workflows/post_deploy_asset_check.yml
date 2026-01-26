@@ -20,11 +20,14 @@ on:
         description: Fully qualified base URL for the CDN (eg. https://www.firefox.com)
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   notify-of-checks-start:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: |
             .github/actions/slack
@@ -41,15 +44,14 @@ jobs:
 
   asset-check:
     runs-on: ubuntu-latest
+    env:
+      GIT_SHA: ${{ inputs.git_sha }}
+      ORIGIN_HOSTNAME: ${{ inputs.origin_hostname }}
+      CDN_HOSTNAME: ${{ inputs.cdn_hostname }}
     steps:
       - name: Pull release image
-        run: docker pull mozmeao/springfield:${{ inputs.git_sha }}
-
+        run: docker pull mozmeao/springfield:$GIT_SHA
       - name: Verify deployed assets are available
-        env:
-          GIT_SHA: ${{ inputs.git_sha }}
-          ORIGIN_HOSTNAME: ${{ inputs.origin_hostname }}
-          CDN_HOSTNAME: ${{ inputs.cdn_hostname }}
         run: |
           docker run --rm \
             mozmeao/springfield:$GIT_SHA \
@@ -63,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [asset-check]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: |
             .github/actions/slack

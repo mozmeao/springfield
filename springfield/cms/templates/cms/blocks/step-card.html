@@ -13,37 +13,29 @@
     expand_link="{{ card.settings.expand_link }}"
   >
     <content:media>
-      <div class="light-dark-display">
+      {% set sizes = "(min-width: 768px) 50vw, (min-width: 1024px) 30vw, (min-width: 1440px) 500px, 100vw" %}
+      <div class="image-variants-display">
+        {% set light_class = "display-light" if value.dark_image else "" %}
+        {{ srcset_image(
+            value.image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes=sizes,
+            width=value.image.width,
+            height=value.image.height,
+            loading="lazy",
+            class=light_class,
+        ) }}
         {% if value.dark_image %}
           {{ srcset_image(
               value.dark_image,
               "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1024px) 30vw,
-                (min-width: 1440px) 500px,
-                100vw
-              ",
+              sizes=sizes,
               width=value.dark_image.width,
               height=value.dark_image.height,
               loading="lazy",
               class="display-dark",
-            ) }}
-        {% endif %}
-        {{ srcset_image(
-            value.image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1024px) 30vw,
-              (min-width: 1440px) 500px,
-              100vw
-            ",
-            width=value.image.width,
-            height=value.image.height,
-            loading="lazy",
-            class="display-light",
           ) }}
+        {% endif %}
       </div>
     </content:media>
     <content:heading>

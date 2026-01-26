@@ -14,9 +14,6 @@
   {{ css_bundle('page_not_found') }}
 {% endblock %}
 
-{# 404 pages must not include canonical and hreflang x-default: https://github.com/mozilla/bedrock/issues/5895 #}
-{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
-
 {% block content %}
   <main class="mzp-l-content message-section">
     <h1 class="error-title">{{ ftl('not-found-page-sorry-we-cant-find-that-page') }}</h1>
