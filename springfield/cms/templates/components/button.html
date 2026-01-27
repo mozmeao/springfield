@@ -9,7 +9,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% if external %}target="_blank" rel="external noopener"{% endif %}
     {% if analytics_text %}
       data-cta-position="{{ analytics_position }}"
-      data-cta-text="{{ analytics_text }}"
+      data-cta-text="{{ analytics_text|escape }}"
       data-cta-uid="{{ analytics_id }}"
     {% endif %}
   >
