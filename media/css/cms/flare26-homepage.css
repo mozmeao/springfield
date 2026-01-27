@@ -11,7 +11,7 @@
 }
 
 .fl-home-body .fl-main {
-    background: var(--token-color-white);
+    background: var(--fl-theme-background);
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
     max-width: unset;
@@ -35,13 +35,33 @@
 }
 
 .fl-home-lower {
-    --fl-theme-color-text: var(--token-color-black-4);
-    background-color: var(--token-color-white);
+    background-color: var(--fl-theme-background);
     color: var(--fl-theme-color-text);
     display: flex;
     flex-direction: column;
     gap: var(--fl-section-v-padding);
     padding-top: var(--fl-section-v-padding);
+    position: relative;
+}
+
+.fl-home-lower::before {
+    --gradient-height: 44vh;
+    background-image: radial-gradient(
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 50%
+    );
+    content: var(--content-dark-mode-only);
+    filter: blur(200px);
+    height: var(--gradient-height);
+    inset: calc(var(--gradient-height) / -2) -30vw auto;
+    position: absolute;
+    z-index: 0;
+}
+
+.fl-home-upper,
+.fl-home-lower > * {
+    position: relative;
+    z-index: 1;
 }
 
 @media (--viewport-md-up) {

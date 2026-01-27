@@ -9,10 +9,11 @@
 <div id="{{ id }}" class="{% if flare_styles %}fl-fx-download-container{% else %}mzp-c-button-download-container{% endif %} c-button-download-thanks">
 
   <a href="{{ transition_url }}"
-     class="download-link c-button-download-thanks-link {% if flare_styles %}fl-button button-secondary{% else %}mzp-c-button mzp-t-product{% endif %} {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
+     class="download-link c-button-download-thanks-link {% if flare_styles %}fl-button {% if not switch('flare26_enabled') %}button-secondary {% endif %}{% else %}mzp-c-button mzp-t-product{% endif %} {% if button_class %}{{ button_class }}{% else %}mzp-t-xl{% endif %}"
      data-direct-link="{{ download_link_direct }}"
      data-testid="{{ id }}"
      data-cta-text="Download Firefox"
+     data-why="{% if not switch('flare26_enabled') %}enabled{% else %}not-enabled{% endif %}"
      {% if download_location %}data-cta-position="{{ download_location }}"{% endif %}>
     {% if alt_copy %}
       {{ alt_copy }}

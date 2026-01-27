@@ -135,7 +135,7 @@ Sticker Card
     align-items: stretch;
     backdrop-filter: blur(7.5px);
     background: var(--fl-theme-surface-card-gradient);
-    border-radius: var(--token-border-radius-lg);
+    border-radius: var(--token-border-radius-md);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--token-color-black-4);
     display: flex;
