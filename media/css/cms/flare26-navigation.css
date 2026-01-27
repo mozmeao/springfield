@@ -351,10 +351,6 @@
         padding-block: 9px;
     }
 
-    .fl-logo-fx {
-        margin: var(--token-spacing-sm) 0;
-    }
-
     .fl-header .fl-fx-download-container {
         display: block;
     }
@@ -393,6 +389,7 @@
     .fl-menu-category {
         cursor: pointer;
         margin: 0;
+        min-height: 68px;
         padding: var(--token-spacing-xl) 0;
     }
 

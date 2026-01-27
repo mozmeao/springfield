@@ -24,7 +24,6 @@ h1.fl-heading,
 .fl-heading h2,
 h2.fl-heading,
 .fl-heading-size-2,
-.fl-rich-text h2,
 .fl-pre-footer-cta-button {
     font-variation-settings:
         'wght' var(--token-font-weight-semibold),
