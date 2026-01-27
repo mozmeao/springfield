@@ -81,18 +81,18 @@
 {% macro firefox_download_desktop_button_linux(cta_copy=ftl('download-button-download-now'), id='download-button-desktop-release-linux', position='primary cta') -%}
   <div class="firefox-platform-button-linux">
     <div class="firefox-platform-button">
-      <!--<a class="download-link os_linux mzp-t-xl mzp-c-button mzp-t-product ga-product-download" id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux&lang={{ LANG }}" data-download-version="linux" data-cta-text="Download for Linux 32-bit" data-cta-position="{{ position }}" data-testid="{{ id }}">
-        <strong class="download-title">
-          {{ ftl('download-button-linux-32-v2') }}
-        </strong>
-        <span class="mzp-c-button-icon-end">
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
-        </span>
-      </a>-->
-
       <a class="download-link os_linux64 mzp-t-xl mzp-c-button mzp-t-product ga-product-download" id="{{ id }}-64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Download for Linux 64-bit" data-cta-position="{{ position }}" data-testid="{{ id }}-64">
         <strong class="download-title">
           {{ ftl('download-button-linux-64-v2') }}
+        </strong>
+        <span class="mzp-c-button-icon-end">
+          <!-- TODO: replace with new protocol-assets version -->
+          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        </span>
+      </a>
+      <a class="download-link os_linux64-aarch64 mzp-t-xl mzp-c-button mzp-t-product ga-product-download" id="{{ id }}-64-aarch64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Download for Linux ARM64/AArch64" data-cta-position="{{ position }}" data-testid="{{ id }}-64-aarch64">
+        <strong class="download-title">
+          {{ ftl('download-button-linux-arm64') }}
         </strong>
         <span class="mzp-c-button-icon-end">
           <!-- TODO: replace with new protocol-assets version -->

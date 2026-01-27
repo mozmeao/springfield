@@ -76,7 +76,7 @@ test.describe(
                 waitUntil: 'commit'
             });
 
-            // Assert Linux 32-bit / 64-bit choices are displayed.
+            // Assert Linux 64-bit / ARM64 choices are displayed.
 
             // Linux 32 buttons disappearing in Release 145 (Issue #466)
             const latest_firefox = await page.evaluate(
@@ -98,12 +98,20 @@ test.describe(
                 );
             }
             const downloadButtonLinux64 = page.getByTestId(
-                'thanks-download-button-linux-64'
+                'download-button-desktop-release-linux-64'
             );
             await expect(downloadButtonLinux64).toBeVisible();
             await expect(downloadButtonLinux64).toHaveAttribute(
                 'href',
                 /\?product=firefox-latest-ssl&os=linux64/
+            );
+            const downloadButtonLinuxArm64 = page.getByTestId(
+                'download-button-desktop-release-linux-64-aarch64'
+            );
+            await expect(downloadButtonLinuxArm64).toBeVisible();
+            await expect(downloadButtonLinuxArm64).toHaveAttribute(
+                'href',
+                /\?product=firefox-latest-ssl&os=linux64-aarch64/
             );
         });
 

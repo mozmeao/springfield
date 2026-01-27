@@ -24,16 +24,6 @@ $image-path: '/media/protocol/img';
     display: none !important;
 }
 
-.show-linux {
-    .c-linux-button-group {
-        margin-bottom: $spacing-md;
-
-        a:first-child {
-            margin-bottom: $spacing-md;
-        }
-    }
-}
-
 // Show platform specific messaging when known.
 .js {
     &.osx {
