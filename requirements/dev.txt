@@ -1082,9 +1082,9 @@ jq==1.11.0 \
     --hash=sha256:fbb189af2000458bbd59d291c73d5257b46d2ca9ef00c3d76b410fbb7dc0fd33 \
     --hash=sha256:fe1c5facefd0f1197fb95cda8f31195487f431e4c4699cb0cb207efc47553504
     # via -r requirements/prod.txt
-justhtml==1.2.0 \
-    --hash=sha256:241e08f30e44c19b4c4a29588a567405b2e3539d409bb8eb0a146d12f6861917 \
-    --hash=sha256:d031306bbfe5cdcd32854fad0508f7cf0c242fe42e44e025d789f7587b441ea2
+justhtml==0.14.0 \
+    --hash=sha256:582a272cdb57a31d4350d2f00a88fccfc4eb6586bfbf6fd2ef05c07d261f67e8 \
+    --hash=sha256:a17554f985cca54a55e110ffacbf4fdf13118d631ab4881558d92aa22fef7cfa
     # via -r requirements/prod.txt
 laces==0.1.2 \
     --hash=sha256:3218e09c1889ae5cf3fc7a82f5bb63ec0c7879889b6a9760bfc42323c694b84d \
