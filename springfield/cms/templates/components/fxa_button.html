@@ -38,7 +38,7 @@
 {% set optional_attributes = None %}
 {% if analytics_text %}
   {% set optional_attributes = {
-    'data-cta-text': analytics_text,
+    'data-cta-text': analytics_text|escape,
     'data-cta-position': analytics_position,
     'data-cta-uid': analytics_id,
   } %}
