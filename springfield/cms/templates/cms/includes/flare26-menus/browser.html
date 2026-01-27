@@ -26,7 +26,6 @@
 
     <div class="fl-menu-panel-content">
       <div class="fl-menu-panel-content-column">
-        <h3 class="fl-menu-subtitle">{{ ftl('navigation-product') }}</h3>
         <ul>
           <li>
             <a
@@ -51,11 +50,32 @@
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.notes') }}"
-              data-link-text="Release Notes"
-              data-link-position="topnav - release notes"
+              href="{{ url('firefox.enterprise.index') }}"
+              data-link-text="Enterprise"
+              data-link-position="topnav - enterprise"
             >
-              {{ ftl('navigation-release-notes') }}
+              {{ ftl('navigation-enterprise') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.all') }}"
+              data-link-text="All Downloads"
+              data-link-position="topnav - all downloads"
+            >
+              {{ ftl('navigation-all-downloads') }}
+            </a>
+          </li>
+          <span class="fl-nav-separator"></span>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="https://addons.mozilla.org/firefox/{{params}}"
+              data-link-text="Extensions & Themes"
+              data-link-position="topnav - addons"
+            >
+              {{ ftl('navigation-extensions-and-themes') }}
             </a>
           </li>
           <li>
@@ -64,17 +84,9 @@
               href="https://support.mozilla.org/{{params}}"
               data-link-text="Support"
               data-link-position="topnav - support"
-              >{{ ftl('navigation-support') }}</a
             >
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="https://addons.mozilla.org/firefox/{{params}}"
-              data-link-text="Add-Ons"
-              data-link-position="topnav - addons"
-              >{{ ftl('navigation-add-ons') }}</a
-            >
+              {{ ftl('navigation-support') }}
+            </a>
           </li>
         </ul>
       </div>
