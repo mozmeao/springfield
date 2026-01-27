@@ -32,10 +32,6 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-defaults.css' layer(defaults);
 @import 'flare26-template.css' layer(template);
 
-@import 'flare26-homepage.css' layer(page);
-@import 'flare26-download.css' layer(page);
-@import 'flare26-blog.css' layer(page);
-
 @import 'flare26-article.css' layer(components);
 @import 'flare26-navigation.css' layer(components);
 @import 'flare26-footer.css' layer(components);
@@ -57,11 +53,22 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-newsletterform.css' layer(components);
 @import 'flare26-mediacontent.css' layer(components);
 
+@import 'flare26-homepage.css' layer(page);
+@import 'flare26-download.css' layer(page);
+@import 'flare26-blog.css' layer(page);
+
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);
 
 /* Layer order */
-@layer base, theme, defaults, template, page, components, utilities, overrides;
+@layer base,
+    theme,
+    defaults,
+    template,
+    components,
+    page,
+    utilities,
+    overrides;
 
 /* Fallback for browsers that don't support CSS layers
 IE11 and below don't support @supports, so the base CSS is also
