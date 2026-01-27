@@ -34,7 +34,6 @@ ATTRS_ALLOWED_IN_FLUENT_STRINGS = {
     ],
     "a": [
         "href",
-        "target",
     ],
 }
 

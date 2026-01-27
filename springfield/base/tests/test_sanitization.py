@@ -113,3 +113,33 @@ class TestSanitizeHtml:
         """Test that HTML entities are preserved."""
         assert sanitize_html("text &amp; more", {"a"}, {}) == "text &amp; more"
         assert sanitize_html("<b>&lt;escaped&gt;</b>", {"b"}, {}) == "<b>&lt;escaped&gt;</b>"
+
+
+class TestUrlSchemeValidation:
+    """Tests for URL scheme validation (XSS prevention)."""
+
+    @pytest.mark.parametrize(
+        "html, expected",
+        [
+            # javascript: URLs should be stripped
+            ('<a href="javascript:alert(1)">click</a>', "<a>click</a>"),
+            ('<a href="javascript:alert(document.cookie)">xss</a>', "<a>xss</a>"),
+            # Case variations
+            ('<a href="JAVASCRIPT:alert(1)">click</a>', "<a>click</a>"),
+            ('<a href="JaVaScRiPt:alert(1)">click</a>', "<a>click</a>"),
+            # data: URLs should be stripped
+            ('<img src="data:text/html,<script>alert(1)</script>">', "<img>"),
+            ('<a href="data:text/html,<script>alert(1)</script>">xss</a>', "<a>xss</a>"),
+            # vbscript: URLs should be stripped
+            ('<a href="vbscript:msgbox(1)">click</a>', "<a>click</a>"),
+            # Valid URLs should pass through
+            ('<a href="https://example.com">safe</a>', '<a href="https://example.com">safe</a>'),
+            ('<a href="http://example.com">safe</a>', '<a href="http://example.com">safe</a>'),
+            ('<a href="mailto:test@example.com">email</a>', '<a href="mailto:test@example.com">email</a>'),
+            ('<a href="tel:+1234567890">call</a>', '<a href="tel:+1234567890">call</a>'),
+        ],
+    )
+    def test_url_scheme_validation(self, html, expected):
+        allowed_tags = {"a", "img"}
+        allowed_attributes = {"a": ["href"], "img": ["src"]}
+        assert sanitize_html(html, allowed_tags, allowed_attributes) == expected
