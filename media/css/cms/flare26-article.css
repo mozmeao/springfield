@@ -12,11 +12,6 @@
     padding-block-start: var(--token-layout-md);
 }
 
-.fl-article-page .fl-heading {
-    margin-block-end: var(--token-spacing-3xl);
-    text-align: center;
-}
-
 .fl-article-page header {
     margin-block-end: var(--token-layout-md);
 }
@@ -38,6 +33,11 @@
 .fl-article-body h5,
 .fl-article-body h6 {
     margin-block-start: var(--token-layout-md);
+}
+
+.fl-article-body .fl-heading {
+    margin-block-end: var(--token-spacing-3xl);
+    text-align: center;
 }
 
 .fl-article-date {
