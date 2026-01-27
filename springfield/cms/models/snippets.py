@@ -28,6 +28,7 @@ class FluentPreviewableMixin(PreviewableMixin):
         context = super().get_preview_context(request, mode_name)
         locale = get_locale(request)
         context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
+        context["is_preview"] = True
         return context
 
 
@@ -85,7 +86,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(PreFooterCTAFormSnippet)
 
 
-class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
+class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMixin):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
     heading = RichTextField(
@@ -114,6 +115,9 @@ class DownloadFirefoxCallToActionSnippet(TranslatableMixin):
 
     def __str__(self):
         return f"{remove_tags(self.heading)} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/download-firefox-cta-snippet-preview.html"
 
 
 register_snippet(DownloadFirefoxCallToActionSnippet)

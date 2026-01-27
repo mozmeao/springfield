@@ -44,7 +44,14 @@ Card Grid - Flare 2026 Design System Cards
     cursor: pointer;
 }
 
-.fl-card-expand-link a:hover {
+.fl-card-heading-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-card-heading-link:hover,
+.fl-card-heading-link:focus,
+.fl-card-heading-link:active {
     text-decoration: underline;
 }
 

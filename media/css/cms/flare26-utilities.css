@@ -158,8 +158,9 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .conditional-display.is-preview {
-    border: red dashed 2px;
     display: unset;
+    outline: red dashed 2px;
+    outline-offset: -2px;
     position: relative;
 }
 
@@ -170,6 +171,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     left: 0;
     padding: 2px 4px;
     position: absolute;
+    text-wrap: nowrap;
     top: 0;
     z-index: 10;
 }
