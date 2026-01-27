@@ -24,6 +24,7 @@ ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
 urlpatterns = (
     path("", views.DownloadView.as_view(), name="firefox"),
     path("download/all/", views.firefox_all, name="firefox.all"),
+    page("download/all/new/", "cms/download_all_page.html"),
     path("download/all/<slug:product_slug>/", views.firefox_all, name="firefox.all.platforms"),
     path("download/all/<slug:product_slug>/<str:platform>/", views.firefox_all, name="firefox.all.locales"),
     path("download/all/<slug:product_slug>/<str:platform>/<str:locale>/", views.firefox_all, name="firefox.all.download"),
