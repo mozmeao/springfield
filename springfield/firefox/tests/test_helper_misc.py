@@ -520,9 +520,11 @@ class TestAbsoluteURLFilter(TestCase):
 @pytest.mark.parametrize(
     "html, cleaned",
     [
-        ("pre <script>alert('oops')</script> post", "pre alert('oops') post"),
-        ("pre <script>alert('oops') post", "pre alert('oops') post"),
-        ("pre <style>body {background-color: red;}</style> post", "pre body {background-color: red;} post"),
+        # Script and style content is dropped entirely (more secure)
+        ("pre <script>alert('oops')</script> post", "pre  post"),
+        # Unclosed script tag: everything after <script> is treated as script content and dropped
+        ("pre <script>alert('oops') post", "pre "),
+        ("pre <style>body {background-color: red;}</style> post", "pre  post"),
         ("pre <div onclick='foo()'></div> post", "pre  post"),
         ("pre <p>foo &amp; bar</p> post", "pre foo & bar post"),
         ("pre <p>mid</p> post", "pre mid post"),
