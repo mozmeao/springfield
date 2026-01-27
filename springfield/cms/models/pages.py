@@ -370,7 +370,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 "download_firefox",
                 SnippetChooserBlock(
                     target_model="cms.DownloadFirefoxCallToActionSnippet",
-                    template="cms/snippets/download_firefox_cta.html",
+                    template="cms/snippets/download-firefox-cta.html",
                     label="Download Firefox Call To Action",
                 ),
             )
