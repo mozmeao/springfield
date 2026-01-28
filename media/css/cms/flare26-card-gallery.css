@@ -68,11 +68,24 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     background:
         url('/media/img/firefox/flare/2026/clouds.svg') center center / cover
             no-repeat,
-        linear-gradient(180deg, #fff44f 0%, #ffb84a 100%);
+        var(--cloud-background-gradient);
     border-radius: var(--token-border-radius-xl);
     justify-content: center;
     max-width: var(--gallery-callout-card-max-width);
     padding: var(--gallery-callout-card-padding);
+    position: relative;
+}
+
+.fl-card-gallery-callout-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.fl-card-gallery-callout-card::before {
+    background: var(--token-color-dark-purple-50);
+    content: var(--content-dark-mode-only);
+    inset: 0;
+    position: absolute;
 }
 
 .fl-card-gallery-callout-card-content {

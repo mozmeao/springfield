@@ -8,7 +8,7 @@ from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
-from waffle.models import Switch
+from waffle.testutils import override_switch
 from wagtail.models import Locale, Page, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -30,20 +30,6 @@ from springfield.cms.tests.factories import (
 pytestmark = [
     pytest.mark.django_db,
 ]
-
-
-@pytest.fixture
-def flare26_enabled():
-    flag, _ = Switch.objects.get_or_create(name="FLARE26_ENABLED")
-    flag.active = True
-    flag.save()
-
-
-@pytest.fixture
-def flare26_disabled():
-    flag, _ = Switch.objects.get_or_create(name="FLARE26_ENABLED")
-    flag.active = False
-    flag.save()
 
 
 @mock.patch("springfield.cms.models.SimpleRichTextPage.get_view_restrictions")
@@ -259,7 +245,8 @@ def test_freeform_page(minimal_site, rf):
     assert response.status_code == 200
 
 
-def test_article_index_and_detail_pages(minimal_site, rf, flare26_disabled):
+@override_switch("FLARE26_ENABLED", active=False)
+def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
         parent=root_page,
@@ -344,7 +331,8 @@ def test_article_index_and_detail_pages(minimal_site, rf, flare26_disabled):
         assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
 
 
-def test_article_index_and_detail_pages_2026(minimal_site, rf, flare26_enabled):
+@override_switch("FLARE26_ENABLED", active=True)
+def test_article_index_and_detail_pages_2026(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
         parent=root_page,

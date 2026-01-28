@@ -5,7 +5,7 @@
 */
 
 .fl-rich-text a {
-    color: var(--token-color-link-purple);
+    color: var(--fl-theme-color-link);
     text-decoration: underline;
 }
 

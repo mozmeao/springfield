@@ -94,6 +94,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
+    --cloud-background-gradient: linear-gradient(
+        180deg,
+        #fff44f 0%,
+        #ffb84a 100%
+    );
 
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
@@ -105,6 +110,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
     --fl-navigation-menu-height: 80px;
+    --content-dark-mode-only: unset;
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -112,6 +118,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Main theme */
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-background: var(--token-color-dark-purple);
+    --fl-theme-color-link: var(--token-color-white);
+    --fl-theme-color-link-hover: var(--token-color-white);
 
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
@@ -124,8 +132,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
     /* Step cards */
-    --fl-step-card-bg: var(--token-color-card-purple);
+    --fl-step-card-bg: var(--token-color-medium-purple);
     --fl-step-card-index-bg: var(--token-color-dark-purple);
+    --content-dark-mode-only: '';
+
+    /* homepage card grid styles */
+    --theme-purple-card-bg-color: var(--token-color-purple);
+    --theme-purple-card-bullet-color: var(--token-color-light-purple);
+    --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+    --cloud-background-gradient: linear-gradient(
+        180deg,
+        var(--token-color-medium-purple) 0%,
+        var(--token-color-purple) 100%
+    );
 }
 
 .fl-force-light-theme {
@@ -146,6 +165,40 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Step cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
+    --content-dark-mode-only: unset;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Main theme */
+        --fl-theme-color-text: var(--token-color-white);
+        --fl-theme-background: var(--token-color-dark-purple);
+        --fl-theme-color-link: var(--token-color-white);
+        --fl-theme-color-link-hover: var(--token-color-white);
+
+        /* Navigiation menu */
+        --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+        --fl-menu-title-color: var(--token-color-white);
+        --fl-menu-panel-border-color: var(--token-color-link-purple);
+        --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
+        --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
+        --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
+
+        /* Step cards */
+        --fl-step-card-bg: var(--token-color-medium-purple);
+        --fl-step-card-index-bg: var(--token-color-dark-purple);
+        --content-dark-mode-only: '';
+
+        /* homepage card grid styles */
+        --theme-purple-card-bg-color: var(--token-color-purple);
+        --theme-purple-card-bullet-color: var(--token-color-light-purple);
+        --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+        --cloud-background-gradient: linear-gradient(
+            180deg,
+            var(--token-color-medium-purple) 0%,
+            var(--token-color-purple) 100%
+        );
+    }
 }
 
 /* CSS custom properties are not resolved in media queries; so we
