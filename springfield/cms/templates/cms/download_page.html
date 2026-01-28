@@ -38,17 +38,17 @@
           {% if page.intro_footer_text %}
             <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
           {% endif %}
+          <div class="fl-download-intro-featured-image">
+            {{ srcset_image(
+                page.featured_image,
+                "width-{200,400,600,800,1000,1200,1400}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image.width,
+                height=page.featured_image.height,
+                loading="lazy",
+            ) }}
+          </div>
         </div>
-      </div>
-      <div class="fl-download-intro-featured-image">
-        {{ srcset_image(
-            page.featured_image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="(min-width: 900px) 810px, 100vw",
-            width=page.featured_image.width,
-            height=page.featured_image.height,
-            loading="lazy",
-        ) }}
       </div>
     </section>
 
