@@ -116,7 +116,7 @@ urlpatterns = (
         VariationTemplateView.as_view(
             template_name="firefox/landing/get.html",
             template_name_variations=["treatment"],
-            variation_locales=["en-US", "en-CA", "en-GB"],
+            variation_locales=["en-US"],
             ftl_files=["firefox/download/desktop", "firefox/download/home"],
         ),
     ),

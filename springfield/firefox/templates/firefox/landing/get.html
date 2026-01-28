@@ -6,7 +6,7 @@
 
 {% extends "firefox/download/desktop/download.html" %}
 
-{% set is_download_privacy_enabled = switch('download_privacy') and LANG.startswith('en') %}
+{% set is_download_privacy_enabled = switch('download_privacy') and LANG == 'en-US' and country_code == 'US' %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
