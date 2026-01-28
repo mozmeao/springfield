@@ -77,13 +77,24 @@
    ================================================ */
 
 .fl-show-mobile-menu {
-    background: var(--fl-theme-background);
+    background: var(--fl-menu-hamburger-bg);
     border-radius: var(--token-spacing-sm);
     color: var(--fl-theme-color-text);
     font-weight: var(--token-font-weight-semibold);
     margin: 0;
     padding: var(--token-spacing-lg);
     text-decoration: underline;
+}
+
+.fl-show-mobile-menu .fl-icon-close {
+    height: 1.5em;
+    -webkit-mask: var(--icon-src) no-repeat center / 1.5em 1.5em;
+    mask: var(--icon-src) no-repeat center / 1.5em 1.5em;
+    width: 1.5em;
+}
+
+.fl-show-mobile-menu.is-open {
+    padding: var(--token-spacing-md);
 }
 
 /* ================================================
@@ -223,6 +234,7 @@
 
 .fl-menu-panel .fl-button {
     display: block;
+    font-family: var(--token-font-family-mozilla-headline);
     text-align: center;
 }
 
