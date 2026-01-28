@@ -26,7 +26,6 @@
 
 .fl-nav-mobile-download-link {
     background: var(--fl-theme-background);
-    border-top: 1px solid var(--token-color-soft-purple);
     bottom: 0;
     left: 0;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
@@ -48,7 +47,7 @@
     .fl-header .fl-header-main-download-button .download-link {
         border-radius: var(--token-spacing-sm);
         font-size: 0;
-        padding: var(--token-spacing-lg);
+        padding: var(--token-spacing-sm);
     }
 
     .fl-header

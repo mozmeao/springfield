@@ -33,6 +33,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-purple: rgb(58, 15, 110);
     --token-color-medium-purple: rgb(76, 36, 137);
     --token-color-link-purple: rgb(97, 50, 188);
+    --token-color-nav-icon-purple: rgba(174, 137, 255, 1);
     --token-color-light-purple: rgb(117, 67, 227);
     --token-color-light-purple-20: rgba(117, 67, 227, 0.2);
     --token-color-light-purple-40: rgba(117, 67, 227, 0.4);

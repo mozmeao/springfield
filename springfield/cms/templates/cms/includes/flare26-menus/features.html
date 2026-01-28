@@ -22,7 +22,6 @@
     </button>
     <div class="fl-menu-panel-content">
       <div class="fl-menu-panel-content-column">
-        <h3 class="fl-menu-subtitle">{{ ftl('navigation-top-features') }}</h3>
         <ul>
           <li>
             <a
@@ -65,15 +64,14 @@
             </a>
           </li>
         </ul>
-        <div class="fl-menu-category-link">
-          <a
-            href="{{ url('firefox.features.index') }}"
-            data-link-text="View all Firefox Features"
-            data-link-position="topnav - all features"
-          >
-            {{ ftl('navigation-features-all') }}
-          </a>
-        </div>
+
+        <span class="fl-nav-separator"></span>
+
+        <include:button
+          theme_class="button-ghost"
+          label="{{ ftl('navigation-features-all') }}"
+          link="{{ url('firefox.features.index') }}"
+        />
       </div>
     </div>
   </div>
