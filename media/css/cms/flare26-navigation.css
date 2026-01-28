@@ -318,6 +318,10 @@
         z-index: 1000;
     }
 
+    .fl-menu-category .fl-icon-caret-down {
+        display: none;
+    }
+
     .fl-menu-panel-content-column {
         padding-top: var(--token-spacing-xl);
     }
