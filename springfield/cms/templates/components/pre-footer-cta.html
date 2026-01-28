@@ -6,7 +6,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 <div class="fl-pre-footer-cta">
   <a
-    href="{{ link }}"
+    href="{{ link|add_utm_parameters }}"
     class="fl-pre-footer-cta-button"
     {% if analytics_text %}
       data-cta-position="{{ analytics_position }}"
