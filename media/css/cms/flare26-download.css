@@ -8,6 +8,10 @@
     text-align: center;
 }
 
+.fl-download-intro .fl-section {
+    padding-block-start: 0;
+}
+
 .fl-download-intro-featured-image {
     padding-block-start: var(--token-spacing-md);
 }

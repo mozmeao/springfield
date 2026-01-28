@@ -7,6 +7,7 @@
 .fl-section {
     margin: 0;
     padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
+    z-index: 1;
 }
 
 .fl-section-container {
