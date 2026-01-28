@@ -12,6 +12,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
 
+from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     BannerBlock,
@@ -156,12 +157,12 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ftl_files = ["firefox/download/download"]
 
     PLATFORM_CHOICES = (
-        ("windows", "Windows"),
-        ("mac", "macOS"),
-        ("linux", "Linux"),
-        ("android", "Android"),
-        ("ios", "iOS"),
-        ("chromebook", "Chromebook"),
+        ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
+        ("mac", ftl("platform-macos", ftl_files=["firefox/download/download"])),
+        ("linux", ftl("platform-linux", ftl_files=["firefox/download/download"])),
+        ("android", ftl("platform-android", ftl_files=["firefox/download/download"])),
+        ("ios", ftl("platform-ios", ftl_files=["firefox/download/download"])),
+        ("chromebook", ftl("platform-chromebook", ftl_files=["firefox/download/download"])),
     )
 
     platform = models.CharField(
