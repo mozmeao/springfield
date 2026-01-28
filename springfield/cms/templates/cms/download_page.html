@@ -19,20 +19,24 @@
           <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
           {# TODO: implement platform select. Show link if no JS. #}
 
-          <button class="fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
-              {{ page.platform }}
-            </span>
-            <span class="fl-dropdown-icon" aria-hidden="true">▾</span>
-          </button>
-          <ul class="fl-platform-dropdown is-open" aria-role="listbox">
-            {% for key, platform in platforms %}
-              <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-                <a href="{{ platform_links[key] }}">
-                  {{ platform }}
-                </a>
-              </li>
-            {% endfor %}
-            </ul>
+          <div class="fl-platform-dropdown-wrapper dropdown-is-open">
+            <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+                {{ page.platform | title }}
+              </span>
+              <span class="fl-icon-wrapper">
+                <span class="fl-icon fl-icon-caret-down" aria-hidden="true"></span>
+              </span>
+            </button>
+            <ul class="fl-platform-dropdown" aria-role="listbox">
+              {% for key, platform in platforms %}
+                <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+                  <a href="{{ platform_links[key] }}">
+                    {{ platform }}
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+          </div>
 
           {{ download_firefox_thanks(
               alt_copy=ftl('download-button-download-firefox'),
