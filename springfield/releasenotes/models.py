@@ -17,7 +17,6 @@ from django.http import Http404
 from django.utils.dateparse import parse_datetime
 from django.utils.functional import cached_property
 
-import bleach
 import markdown
 from bs4 import BeautifulSoup
 from django_extensions.db.fields.json import JSONField
@@ -26,6 +25,7 @@ from markdown.inlinepatterns import InlineProcessor
 from product_details import product_details
 from product_details.version_compare import Version
 
+from springfield.base.sanitization import sanitize_html
 from springfield.base.urlresolvers import reverse
 from springfield.releasenotes import version_re
 from springfield.releasenotes.utils import memoize
@@ -159,7 +159,7 @@ def _patch_html(html: str) -> str:
 def process_markdown(value):
     rendered_html = markdowner.reset().convert(value)
     patched_html = _patch_html(rendered_html)
-    return bleach.clean(patched_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS)
+    return sanitize_html(patched_html, ALLOWED_TAGS, ALLOWED_ATTRS)
 
 
 def process_notes(notes):

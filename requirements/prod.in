@@ -1,7 +1,6 @@
 APScheduler==3.11.2
 babis==0.2.4
 basket-client==1.2.0
-bleach[css]==6.1.0
 boto3==1.42.35
 chardet==5.2.0
 commonware==0.6.0
@@ -35,6 +34,7 @@ honcho==2.0.0
 html5lib==1.1
 jinja2==3.1.6  # Moved to top-level dep to control its upgrade, to avoid breaking changes later if glean-parser updates it (keeping for now incase we add Glean back to www.firefox.com)
 jq==1.11.0
+justhtml==1.2.0
 lxml==5.4.0  # Needed as a top-level dep so that it's available for BeautifulSoup, which doesn't explicitly pull it in
 Markdown==3.9
 markus[datadog]==5.0.0

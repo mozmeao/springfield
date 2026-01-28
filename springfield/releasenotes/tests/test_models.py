@@ -233,7 +233,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 '<source src="example.mp4" type="video/mp4" rel="prefetch">'
                 '<source src="example.webm" type="video/webm" rel="prefetch">'
                 "Your browser does not support the video tag."
@@ -247,7 +247,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 "Your browser does not support the video tag."
                 "</video>"
             ),
