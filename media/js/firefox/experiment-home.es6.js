@@ -57,11 +57,12 @@ const init = () => {
     } else if (TrafficCop) {
         if (isApprovedToRun()) {
             // TODO: confirm traffic split
+            // NOTE: experiment & variation params are needed for Stub Attribution, v param for VariationTemplateView
             const cop = new TrafficCop({
                 id: experimentCookieID,
                 variations: {
-                    [`experiment=${experimentName}&variation=control`]: 10,
-                    [`experiment=${experimentName}&variation=treatment`]: 10
+                    [`experiment=${experimentName}&variation=control`]: 20,
+                    [`experiment=${experimentName}&variation=treatment&v=treatment`]: 80
                 }
             });
             cop.init();

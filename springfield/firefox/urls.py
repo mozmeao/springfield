@@ -110,7 +110,16 @@ urlpatterns = (
     page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
     page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
     page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
-    page("landing/get/", "firefox/landing/get.html", ftl_files="firefox/download/desktop"),
+    # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
+    path(
+        "landing/get/",
+        VariationTemplateView.as_view(
+            template_name="firefox/landing/get.html",
+            template_name_variations=["treatment"],
+            variation_locales=["en-US", "en-CA", "en-GB"],
+            ftl_files=["firefox/download/desktop", "firefox/download/home"],
+        ),
+    ),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),

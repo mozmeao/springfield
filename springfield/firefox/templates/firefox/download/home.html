@@ -6,8 +6,6 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 
-{% set is_download_privacy_enabled = switch('download_privacy') and LANG.startswith('en') %}
-
 {% if switch('download_as_default') %}
 {% set download_as_default_enabled = true %}
 {% else %}
@@ -22,12 +20,6 @@
 {%- endmacro %}
 
 {% extends "firefox/download/desktop/base.html" %}
-
-{% block experiments %}
-  {% if is_download_privacy_enabled %}
-    {{ js_bundle('experiment-firefox-home') }}
-  {% endif %}
-{% endblock %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-home' %}
 {% set ios_url = app_store_url('firefox', 'firefox-home') %}
