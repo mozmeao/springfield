@@ -40,6 +40,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-light-purple-80: rgba(117, 67, 227, 0.8);
     --token-color-cream: rgb(252, 245, 240);
     --token-color-soft-purple: rgb(241, 231, 248);
+    --token-color-soft-purple-4: rgb(199, 168, 255);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
     --token-color-soft-magenta-20: rgba(255, 234, 254, 0.2);

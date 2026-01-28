@@ -293,7 +293,7 @@ Step Cards List - With Kit variant
  */
 
 .fl-card-grid.fl-step-cards-with-kit {
-    gap: var(--token-layout-lg) var(--token-layout-3xs);
+    gap: var(--token-layout-2xs);
     justify-content: center;
     margin: 0 auto;
     max-width: var(--token-width-desktop-wide-banner);
@@ -366,6 +366,10 @@ Step Cards List - With Kit variant
 }
 
 /* Decorative Kit (Figma): only on the last card */
+.fl-step-cards-with-kit .fl-step-card:last-child {
+    margin-top: var(--token-layout-sm);
+}
+
 .fl-step-cards-with-kit .fl-step-card:last-child::before,
 .fl-step-cards-with-kit .fl-step-card:last-child::after {
     background-repeat: no-repeat;
@@ -379,6 +383,7 @@ Step Cards List - With Kit variant
 
 .fl-step-cards-with-kit .fl-step-card:last-child::before {
     background-image: url('/media/img/firefox/flare/fox-tail.png');
+    background-size: contain;
     height: 110px;
     left: -20px;
     width: 68px;
@@ -386,6 +391,7 @@ Step Cards List - With Kit variant
 
 .fl-step-cards-with-kit .fl-step-card:last-child::after {
     background-image: url('/media/img/firefox/flare/fox-head.png');
+    background-size: contain;
     height: 86px;
     right: 0;
     top: -60px;
@@ -400,6 +406,14 @@ Step Cards List - With Kit variant
 }
 
 @media (--viewport-lg-up) {
+    .fl-card-grid.fl-step-cards-with-kit {
+        gap: var(--token-layout-lg) var(--token-layout-3xs);
+    }
+
+    .fl-step-cards-with-kit .fl-step-card:last-child {
+        margin-top: 0;
+    }
+
     .fl-card-grid .fl-step-card {
         flex-basis: 100%;
         min-height: unset;
@@ -437,20 +451,22 @@ Illustration Card
 }
 
 .fl-illustration-card .fl-superheading {
-    color: var(--token-color-light-purple);
+    color: var(--fl-theme-color-brand-text);
     display: block;
-    font-size: var(--token-font-size-xs);
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-medium);
     margin-block-end: var(--token-spacing-sm);
 }
 
 .fl-illustration-card .fl-heading {
-    font-size: var(--token-font-size-md);
+    font-size: var(--fl-theme-font-size-heading-2xs);
+    font-variation-settings: unset;
+    line-height: 1.1;
 }
 
 @media (--viewport-sm-up) {
     .fl-card-grid .fl-illustration-card {
         flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
-        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
     }
 }
 

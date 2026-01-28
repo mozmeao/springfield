@@ -17,7 +17,7 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
-    <section class="fl-home-upper">
+    <div class="fl-split-page-upper">
       {% set ns = namespace(headings=0) %}
       {% for block in page.upper_content %}
         {% set block_index = loop.index %}
@@ -31,9 +31,9 @@
 
         {% include_block block %}
       {% endfor %}
-    </section>
+    </div>
 
-    <section class="fl-home-lower">
+    <div class="fl-split-page-lower has-gradient-top">
       {% for block in page.lower_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
@@ -46,7 +46,7 @@
 
         {% include_block block %}
       {% endfor %}
-    </section>
+    </div>
   </main>
 </div>
 {% endblock %}

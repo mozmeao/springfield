@@ -15,6 +15,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-color-banner-text: var(--token-color-white);
+    --fl-theme-color-brand-text: var(--token-color-link-purple);
     --fl-theme-color-link: var(--token-color-link-purple);
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);
@@ -116,7 +117,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Main theme */
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-background: var(--token-color-dark-purple);
-    --fl-theme-color-link: var(--token-color-white);
+    --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
+    --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
 
     /* Navigiation menu */
@@ -167,7 +169,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* Main theme */
         --fl-theme-color-text: var(--token-color-white);
         --fl-theme-background: var(--token-color-dark-purple);
-        --fl-theme-color-link: var(--token-color-white);
+        --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
+        --fl-theme-color-link: var(--token-color-soft-purple-4);
         --fl-theme-color-link-hover: var(--token-color-white);
 
         /* Navigiation menu */
@@ -211,7 +214,6 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-md: 2rem; /* 32px */
         --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
         --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
-        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);

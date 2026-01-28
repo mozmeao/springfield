@@ -12,7 +12,7 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
-    <section class="fl-home-upper fl-download-intro">
+    <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <div class="fl-section-container">
         <div class="fl-section">
           <h1>{{ ftl('firefox-new-download-firefox') }}</h1>
@@ -52,7 +52,7 @@
       </div>
     </section>
 
-    <section class="fl-home-lower">
+    <section class="fl-split-page-lower">
       {% set ns = namespace(headings=0) %}
       {% for block in page.content %}
         {% set block_index = loop.index %}
@@ -60,7 +60,7 @@
         {% set block_position = "block-" ~ block_index + "-" + block_type %}
 
         {% if block.value.heading and block.value.heading.heading_text %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set block_level = 1 if ns.headings == 0 else 3 %}
           {% set ns.headings = ns.headings + 1 %}
         {% endif %}
 

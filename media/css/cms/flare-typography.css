@@ -48,6 +48,7 @@
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-secondary);
     margin: calc(var(--token-scale-8) * 1px) 0;
+    display: inline-flex;
 }
 
 .fl-superheading + .fl-heading {
