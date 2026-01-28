@@ -424,6 +424,7 @@
     }
 
     .fl-menu-category {
+        border: none;
         cursor: pointer;
         margin: 0;
         min-height: var(--fl-navigation-menu-height);
