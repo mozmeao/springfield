@@ -271,6 +271,7 @@ img, picture, video, canvas, svg {
     display: block;
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
+    vertical-align: bottom; /* in case display: block is removed */
 }
 
 /* Very likely to be icons within links or buttons */

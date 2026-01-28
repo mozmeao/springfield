@@ -6,6 +6,7 @@
 
 .fl-home-body {
     --section-border-radius: var(--token-border-radius-lg);
+    background: var(--token-color-dark-purple);
     max-width: unset;
     padding: 0;
 }
