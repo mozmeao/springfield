@@ -19,6 +19,10 @@
     padding: 0;
 }
 
+.fl-section-container.is-narrow {
+    max-width: 900px;
+}
+
 .fl-heading-group {
     margin-bottom: var(--fl-section-heading-margin-bottom);
 }

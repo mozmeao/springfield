@@ -60,8 +60,10 @@
         var(--token-color-light-purple-20) 100%
     );
     border-radius: var(--token-border-radius-xl);
+    display: inline-flex;
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
+    margin: 0;
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
 }

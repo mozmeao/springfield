@@ -1138,7 +1138,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/sections/cards-list-section.html"
+            template = "cms/blocks/cards-list.html"
             label = "Cards List"
             label_format = "Cards List - {heading}"
 

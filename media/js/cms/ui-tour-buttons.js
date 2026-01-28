@@ -27,6 +27,7 @@ function init() {
             // If the button exists in a .fl-card element with an .expand-link class,
             // then the link is meant to expand to the entire .fl-card, so we add
             // the same event listener to the .fl-card.expand-link element.
+            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
             let card = button.closest('.fl-card.expand-link');
             if (!card) {
                 card = button.closest('.fl-card-expand-link');
@@ -82,6 +83,7 @@ function init() {
             // If the button exists in a .fl-card element with an .expand-link class,
             // then the link is meant to expand to the entire .fl-card, so we add
             // the same event listener to the .fl-card.expand-link element.
+            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
             let card = button.closest('.fl-card.expand-link');
             if (!card) {
                 card = button.closest('.fl-card-expand-link');
@@ -135,6 +137,7 @@ function init() {
             // If the button exists in a .fl-card element with an .expand-link class,
             // then the link is meant to expand to the entire .fl-card, so we add
             // the same event listener to the .fl-card.expand-link element.
+            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
             let card = button.closest('.fl-card.expand-link');
             if (!card) {
                 card = button.closest('.fl-card-expand-link');

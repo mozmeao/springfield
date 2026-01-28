@@ -14,7 +14,6 @@
 }
 
 .fl-mediacontent-media {
-    background: var(--card-bg-color);
     border-radius: var(--token-spacing-lg);
     height: auto;
     overflow: hidden;

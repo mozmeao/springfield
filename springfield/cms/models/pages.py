@@ -12,6 +12,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
 
+from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     BannerBlock,
@@ -156,12 +157,12 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ftl_files = ["firefox/download/download"]
 
     PLATFORM_CHOICES = (
-        ("windows", "Windows"),
-        ("mac", "macOS"),
-        ("linux", "Linux"),
-        ("android", "Android"),
-        ("ios", "iOS"),
-        ("chromebook", "Chromebook"),
+        ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
+        ("mac", ftl("platform-macos", ftl_files=["firefox/download/download"])),
+        ("linux", ftl("platform-linux", ftl_files=["firefox/download/download"])),
+        ("android", ftl("platform-android", ftl_files=["firefox/download/download"])),
+        ("ios", ftl("platform-ios", ftl_files=["firefox/download/download"])),
+        ("chromebook", ftl("platform-chromebook", ftl_files=["firefox/download/download"])),
     )
 
     platform = models.CharField(
@@ -364,22 +365,6 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
-    call_to_action = StreamField(
-        [
-            (
-                "download_firefox",
-                SnippetChooserBlock(
-                    target_model="cms.DownloadFirefoxCallToActionSnippet",
-                    template="cms/snippets/download-firefox-cta.html",
-                    label="Download Firefox Call To Action",
-                ),
-            )
-        ],
-        blank=True,
-        null=True,
-        use_json_field=True,
-        max_num=1,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
@@ -395,7 +380,6 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("image"),
         FieldPanel("content"),
-        FieldPanel("call_to_action"),
     ]
 
 

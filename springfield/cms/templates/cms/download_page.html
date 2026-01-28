@@ -12,10 +12,10 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
-    <section class="fl-home-upper fl-download-intro">
+    <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <div class="fl-section-container">
         <div class="fl-section">
-          <h1>{{ ftl('firefox-new-download-firefox') }}</h1>
+          <h1 class="fl-text-condensed">{{ ftl('firefox-new-download-firefox') }}</h1>
           <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
           {# TODO: implement platform select. Show link if no JS. #}
           <div class="fl-dropdown">
@@ -38,21 +38,21 @@
           {% if page.intro_footer_text %}
             <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
           {% endif %}
+          <div class="fl-download-intro-featured-image">
+            {{ srcset_image(
+                page.featured_image,
+                "width-{200,400,600,800,1000,1200,1400}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image.width,
+                height=page.featured_image.height,
+                loading="lazy",
+            ) }}
+          </div>
         </div>
-      </div>
-      <div class="fl-download-intro-featured-image">
-        {{ srcset_image(
-            page.featured_image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="(min-width: 900px) 810px, 100vw",
-            width=page.featured_image.width,
-            height=page.featured_image.height,
-            loading="lazy",
-        ) }}
       </div>
     </section>
 
-    <section class="fl-home-lower">
+    <section class="fl-split-page-lower">
       {% set ns = namespace(headings=0) %}
       {% for block in page.content %}
         {% set block_index = loop.index %}
@@ -60,7 +60,7 @@
         {% set block_position = "block-" ~ block_index + "-" + block_type %}
 
         {% if block.value.heading and block.value.heading.heading_text %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set block_level = 1 if ns.headings == 0 else 3 %}
           {% set ns.headings = ns.headings + 1 %}
         {% endif %}
 
