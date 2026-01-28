@@ -18,6 +18,11 @@
     margin-block: var(--token-layout-xs);
 }
 
+.fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    display: inline-block;
+    margin-bottom: 0.25em;
+}
+
 .fl-download-intro .fl-subheading {
     margin-inline: auto;
     max-width: 800px;
@@ -35,7 +40,6 @@
 /* Platform dropdown styles */
 
 .fl-platform-dropdown-wrapper {
-    --platform-dropdown-min-width: 200px;
     display: flex;
     justify-content: center;
 }
@@ -92,7 +96,7 @@
     border-bottom: transparent;
     border-radius: var(--token-border-radius-xs) var(--token-border-radius-xs) 0
         0;
-    min-width: var(--platform-dropdown-min-width);
+    min-width: var(--platform-dropdown-min-width, 200px);
 }
 
 .fl-platform-dropdown.dropdown-is-open .fl-platform-dropdown-list {
@@ -120,7 +124,7 @@
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-heading-md);
     font-weight: var(--token-font-weight-semibold);
-    min-width: var(--platform-dropdown-min-width);
+    min-width: var(--platform-dropdown-min-width, 200px);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     text-decoration: none;
 }
