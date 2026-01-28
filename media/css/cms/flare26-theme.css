@@ -121,7 +121,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
 
-    /* Navigiation menu */
+    /* Navigation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
     --fl-menu-title-color: var(--token-color-white);
     --fl-menu-panel-border-color: var(--token-color-link-purple);
