@@ -31,6 +31,10 @@ h2.fl-heading,
     line-height: 0.9;
 }
 
+.fl-text-condensed {
+    font-stretch: condensed;
+}
+
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
     border-radius: var(--token-border-radius-md);
