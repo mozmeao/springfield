@@ -528,6 +528,30 @@ class TestFirefoxSetAsDefaultThanks(TestCase):
         assert resp.templates[0].name == "firefox/default/thanks.html"
 
 
+class TestFirefoxGetExperiment(TestCase):
+    """Tests for /landing/get/ privacy-focused download experiment."""
+
+    def test_firefox_get_default(self):
+        """Default"""
+        response = self.client.get("/en-US/landing/get/")
+        assert response.templates[0].name == "firefox/landing/get.html"
+
+    def test_firefox_get_control(self):
+        """Control parameters"""
+        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=control")
+        assert response.templates[0].name == "firefox/landing/get.html"
+
+    def test_firefox_get_treatment(self):
+        """Treatment parameters"""
+        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
+        assert response.templates[0].name == "firefox/landing/get-treatment.html"
+
+    def test_firefox_get_not_en_us_locale(self):
+        """Default"""
+        response = self.client.get("/en-CA/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
+        assert response.templates[0].name == "firefox/landing/get.html"
+
+
 @override_settings(DEV=False)
 @patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
 class TestFirefoxPlatform(TestCase):

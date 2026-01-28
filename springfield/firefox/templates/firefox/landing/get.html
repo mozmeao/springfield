@@ -6,9 +6,15 @@
 
 {% extends "firefox/download/desktop/download.html" %}
 
+{% set is_download_privacy_enabled = switch('download_privacy') and LANG == 'en-US' and country_code == 'US' %}
+
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
-{% block experiments %}{% endblock %}
+{% block experiments %}
+  {% if is_download_privacy_enabled %}
+    {{ js_bundle('experiment-firefox-home') }}
+  {% endif %}
+{% endblock %}
 
 {% block extrahead %}
   {{ super() }}
