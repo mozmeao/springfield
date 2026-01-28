@@ -43,6 +43,7 @@ from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
 )
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -1415,3 +1416,29 @@ def test_home_kit_banner_block(index_page, rf):
         cta_position="lower-block-4-kit_banner.button-1",
         cta_text=f"{heading_text} - {button['value']['label'].strip()}",
     )
+
+
+def test_home_pre_footer_cta(index_page, rf):
+    test_page = get_home_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(content, "html.parser")
+
+    pre_footer_cta = get_pre_footer_cta_snippet()
+
+    cta_element = soup.find("div", class_="fl-pre-footer-cta")
+    assert cta_element
+
+    link_element = cta_element.find("a", class_="fl-pre-footer-cta-button")
+    assert link_element
+
+    assert link_element.get_text().strip() == pre_footer_cta.label.strip()
+    assert link_element["href"] == add_utm_parameters(context, pre_footer_cta.link)
+    assert link_element["data-cta-position"] == "pre-footer-cta"
+    assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
+    assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id

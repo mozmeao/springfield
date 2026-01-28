@@ -38,6 +38,7 @@
 
 .fl-heading-group .fl-heading + .fl-subheading {
     margin-top: calc(var(--token-scale-24) * 1px);
+    text-wrap: balance;
 }
 
 .fl-superheading {

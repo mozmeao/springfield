@@ -45,10 +45,6 @@ beautifulsoup4==4.14.3 \
     # via
     #   -r requirements/prod.txt
     #   wagtail
-bleach[css]==6.1.0 \
-    --hash=sha256:0a31f1837963c41d46bbf1331b8778e1308ea0791db03cc4e7357b97cf42a8fe \
-    --hash=sha256:3225f354cfc436b9789c66c4ee030194bee0568fbf9cbdad3bc8b5c26c5f12b6
-    # via -r requirements/prod.txt
 blessed==1.27.0 \
     --hash=sha256:1c599969acc993bb5842bf3f638b0691e335277a9d9058cd079463a346988714 \
     --hash=sha256:e3064559388bd532ab6460d9b6c7d6dd699c4e0cf54d28ed6e2cab12feda13bb
@@ -1085,6 +1081,10 @@ jq==1.11.0 \
     --hash=sha256:f6857f2770d1afb8a202f9b6702a7f099cf4052d820f76d01c59dfc6e44d4709 \
     --hash=sha256:fbb189af2000458bbd59d291c73d5257b46d2ca9ef00c3d76b410fbb7dc0fd33 \
     --hash=sha256:fe1c5facefd0f1197fb95cda8f31195487f431e4c4699cb0cb207efc47553504
+    # via -r requirements/prod.txt
+justhtml==1.2.0 \
+    --hash=sha256:241e08f30e44c19b4c4a29588a567405b2e3539d409bb8eb0a146d12f6861917 \
+    --hash=sha256:d031306bbfe5cdcd32854fad0508f7cf0c242fe42e44e025d789f7587b441ea2
     # via -r requirements/prod.txt
 laces==0.1.2 \
     --hash=sha256:3218e09c1889ae5cf3fc7a82f5bb63ec0c7879889b6a9760bfc42323c694b84d \
@@ -2163,7 +2163,6 @@ six==1.17.0 \
     # via
     #   -r requirements/prod.txt
     #   babis
-    #   bleach
     #   compare-locales
     #   html5lib
     #   python-dateutil
@@ -2209,12 +2208,6 @@ tenacity==9.1.2 \
 timeago==1.0.16 \
     --hash=sha256:9b8cb2e3102b329f35a04aa4531982d867b093b19481cfbb1dac7845fa2f79b0
     # via -r requirements/prod.txt
-tinycss2==1.2.1 \
-    --hash=sha256:2b80a96d41e7c3914b8cda8bc7f705a4d9c49275616e886103dd839dfc847847 \
-    --hash=sha256:8cff3a8f066c2ec677c06dbc7b45619804a6938478d9d73c284b29d14ecb0627
-    # via
-    #   -r requirements/prod.txt
-    #   bleach
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
@@ -2347,9 +2340,7 @@ webencodings==0.5.1 \
     --hash=sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923
     # via
     #   -r requirements/prod.txt
-    #   bleach
     #   html5lib
-    #   tinycss2
 whitenoise==6.11.0 \
     --hash=sha256:0f5bfce6061ae6611cd9396a8231e088722e4fc67bc13a111be74c738d99375f \
     --hash=sha256:b2aeb45950597236f53b5342b3121c5de69c8da0109362aee506ce88e022d258
