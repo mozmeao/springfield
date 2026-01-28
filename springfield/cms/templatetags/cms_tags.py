@@ -258,3 +258,31 @@ def get_pre_footer_cta_form_snippet(context):
         return PreFooterCTAFormSnippet.objects.filter(locale=locale).first()
 
     return None
+
+
+@pass_context
+@library.global_function
+def get_download_firefox_cta_snippet(context):
+    """
+    Retrieves the DownloadFirefoxCallToActionSnippet for the current locale.
+    Returns the first available snippet for the locale, or None if not found.
+
+    Usage in templates:
+        {% set download_firefox_cta = get_download_firefox_cta_snippet() %}
+        {% if download_firefox_cta %}
+            {% set value = download_firefox_cta %}
+            {% include "cms/snippets/download-firefox-cta.html" %}
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import DownloadFirefoxCallToActionSnippet
+
+    locale = None
+    if "page" in context and hasattr(context["page"], "locale"):
+        locale = context["page"].locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).first()
+
+    return None

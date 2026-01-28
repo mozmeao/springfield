@@ -7,10 +7,12 @@
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
 {% extends base_template %}
 
+{% block body_class %}fl-article-body{% endblock %}
+
 {% block content %}
 <div class="fl-page fl-article-page">
   <main class="fl-main">
-    <div class="fl-article-body">
+    <div class="fl-article-main">
       <header>
         <include:heading
             level="h1"
@@ -38,11 +40,11 @@
       </section>
     </div>
   </main>
-
-  {% if page.call_to_action %}
-    {% for block in page.call_to_action %}
-      {% include_block block %}
-    {% endfor %}
+  {% if not switch("flare26_enabled") %}
+    {% set value = get_download_firefox_cta_snippet() %}
+    {% if value %}
+      {% include "cms/snippets/download-firefox-cta.html" %}
+    {% endif %}
   {% endif %}
 </div>
 {% endblock %}

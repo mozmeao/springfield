@@ -365,22 +365,6 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
-    call_to_action = StreamField(
-        [
-            (
-                "download_firefox",
-                SnippetChooserBlock(
-                    target_model="cms.DownloadFirefoxCallToActionSnippet",
-                    template="cms/snippets/download-firefox-cta.html",
-                    label="Download Firefox Call To Action",
-                ),
-            )
-        ],
-        blank=True,
-        null=True,
-        use_json_field=True,
-        max_num=1,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
@@ -396,7 +380,6 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("image"),
         FieldPanel("content"),
-        FieldPanel("call_to_action"),
     ]
 
 
