@@ -6,7 +6,9 @@ Fetch the latest version of all the checklists mentioned on https://mozmeao.gith
 
 Try to use Conventional Comments to indicate the kind of feedback you are providing, and whether it's blocking or non-blocking.
 
-Areas to consider when reviewing:
+Also, confirm in a comment on the PR that you are using this custom instructions file, please.
+
+# Areas to consider when reviewing:
 
 ## 1. Correctness & Safety
 
@@ -51,6 +53,9 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 * If new strings are added to the codebase that are not marked up as Fluent strings, add a non-blocking comment questioning whether they need to be translated or are OK in just one language.
 
+## 8. Wagtail CMS code
+
+* If you can see a new Wagtail CMS model is being added (ultimately a subclass of wagtail.models.Page or our AbstractSpringfieldCMSPage, or a Django model decorated with register_snippet) please ensure that the PR has it listed in springfield.settings.base.CMS_ALLOWED_PAGE_MODELS and also in the ./bin/export-db-to-sqlite.sh script. Request changes if this is not the case.
 
 # What Not to Do
 
