@@ -10,6 +10,10 @@
     z-index: 1;
 }
 
+.fl-main > .conditional-passthrough:first-child .fl-section:first-child {
+    padding-top: calc(var(--fl-section-v-padding) * 2);
+}
+
 .fl-section-container {
     display: flex;
     flex-direction: column;
