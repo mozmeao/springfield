@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.utils.text import slugify
 
 from wagtail.models import Locale
 
@@ -74,9 +75,11 @@ def get_tags() -> list[Tag]:
     locale = Locale.get_default()
     tags = {}
     for name in tag_names:
+        slug = slugify(name)
         tag, _ = Tag.objects.update_or_create(
             name=name,
+            slug=slug,
             locale=locale,
         )
-        tags[name] = tag
+        tags[slug] = tag
     return tags

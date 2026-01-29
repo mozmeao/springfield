@@ -7,7 +7,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import PreviewableMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
@@ -169,6 +169,12 @@ class Tag(TranslatableMixin, models.Model):
     """A tag for categorizing articles."""
 
     name = models.CharField()
+    slug = models.SlugField()
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+    ]
 
     class Meta(TranslatableMixin.Meta):
         verbose_name = "Tag"

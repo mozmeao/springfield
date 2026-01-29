@@ -72,7 +72,7 @@ def get_article_pages():
         image=image,
         featured_image=dark_mobile_image,
         icon=mobile_image,
-        tag=tags["Security"],
+        tag=tags["security"],
         link_text="See Featured 1",
         cta_field=cta_field,
     )
@@ -88,7 +88,7 @@ def get_article_pages():
         image=dark_image,
         featured_image=mobile_image,
         icon=dark_mobile_image,
-        tag=tags["Privacy"],
+        tag=tags["privacy"],
         link_text="See Featured 2",
         cta_field=cta_field,
     )
@@ -104,7 +104,7 @@ def get_article_pages():
         image=image,
         featured_image=dark_mobile_image,
         icon=mobile_image,
-        tag=tags["Performance"],
+        tag=tags["performance"],
         link_text="See Regular 1",
         cta_field=cta_field,
     )
@@ -120,7 +120,7 @@ def get_article_pages():
         image=image,
         featured_image=mobile_image,
         icon=image,
-        tag=tags["Tips"],
+        tag=tags["tips"],
         link_text="See Regular 2",
         cta_field=cta_field,
     )

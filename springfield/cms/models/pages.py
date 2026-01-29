@@ -312,7 +312,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
-        context["tags"] = sorted({article.tag.name for article in all_articles if article.tag})
+        context["tags"] = {article.tag.slug: article.tag.name for article in all_articles if article.tag}
         return context
 
 

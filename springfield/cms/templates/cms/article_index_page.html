@@ -26,7 +26,7 @@
           {% for article in featured_articles %}
 
             {% if switch("flare26_enabled") %}
-              <div class="fl-article-wrapper" data-tag="{{ article.tag.name if article.tag else '' }}">
+              <div class="fl-article-wrapper" data-tag="{{ article.tag.slug if article.tag else '' }}">
                 <include:illustration-card-2026 expand_link="true">
                   <content:media>
                     {% if article.featured_image %}
@@ -111,11 +111,16 @@
         {% if switch("flare26_enabled") %}
 
           {# TODO: filter by tag #}
-          <p>ALL TAGS: {{ ", ".join(tags) }} </p>
+          <p>
+            ALL TAGS:
+            {% for slug, name in tags.items() %}
+            <span data-tag="{{ slug }}">{{ name }}</span>,
+            {% endfor %}
+          </p>
 
           <div class="fl-stacked-article-list">
             {% for article in list_articles %}
-              <div class="fl-article-wrapper" data-tag="{{ article.tag.name if article.tag else '' }}">
+              <div class="fl-article-wrapper" data-tag="{{ article.tag.slug if article.tag else '' }}">
                 <include:stacked-article-list-item
                   title={{ article.title }}
                   description={{ article.description }}
