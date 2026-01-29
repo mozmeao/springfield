@@ -18,4 +18,6 @@
 
 .fl-download-intro-featured-image img {
     margin-block-end: -4px;
+    max-width: 100%;
+    width: 810px;
 }
