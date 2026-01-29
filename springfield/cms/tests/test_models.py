@@ -16,6 +16,7 @@ from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     SimpleRichTextPage,
     StructuralPage,
+    Tag,
 )
 from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
@@ -354,6 +355,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     image, _, _, _ = get_placeholder_images()
 
     for i in range(1, 3):
+        tag = Tag.objects.create(name=f"Tag {i}", locale=index_page.locale)
+
         featured_page = ArticleDetailPageFactory(
             parent=index_page,
             title=f"Featured Article {i}",
@@ -361,6 +364,7 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             description=f"Description for Featured Article {i}",
             featured=True,
             image=image,
+            tag=tag,
         )
         featured_page.save()
 
@@ -378,6 +382,7 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             description=f"Description for Article {i}",
             featured=False,
             image=image,
+            tag=tag,
         )
         article.save()
 
@@ -407,6 +412,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
         assert f"Featured Article {i + 1}" in title.text
         assert f"Description for Featured Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+        superheading = card.find(class_="fl-superheading")
+        assert superheading and f"Tag {i + 1}" in superheading.text
 
     stacked_cards = soup.find("div", class_="fl-stacked-article-list")
     assert stacked_cards

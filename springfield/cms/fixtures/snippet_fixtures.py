@@ -7,7 +7,7 @@ from django.conf import settings
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet
+from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, Tag
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -67,3 +67,16 @@ def get_download_firefox_cta_snippet() -> DownloadFirefoxCallToActionSnippet:
         },
     )
     return snippet
+
+
+def get_tags() -> list[Tag]:
+    tag_names = ["Security", "Privacy", "Performance", "Tips", "Updates"]
+    locale = Locale.get_default()
+    tags = {}
+    for name in tag_names:
+        tag, _ = Tag.objects.update_or_create(
+            name=name,
+            locale=locale,
+        )
+        tags[name] = tag
+    return tags

@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_download_firefox_cta_snippet
-from springfield.cms.models import ArticleDetailPage, SpringfieldImage
+from springfield.cms.fixtures.snippet_fixtures import get_download_firefox_cta_snippet, get_tags
+from springfield.cms.models import ArticleDetailPage, SpringfieldImage, Tag
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -23,7 +23,7 @@ def create_article(
     content_blocks: list,
     image: SpringfieldImage,
     icon: SpringfieldImage,
-    tag: str,
+    tag: Tag,
     link_text: str,
     featured_image: SpringfieldImage,
     cta_field: list,
@@ -39,7 +39,7 @@ def create_article(
     article.image = image
     article.featured_image = featured_image
     article.icon = icon
-    article.featured_tag = tag
+    article.tag = tag
     article.link_text = link_text
     article.description = description
     article.content = [{"type": "text", "value": "".join(content_blocks)}]
@@ -52,6 +52,7 @@ def create_article(
 def get_article_pages():
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
     cta_snippet = get_download_firefox_cta_snippet()
+    tags = get_tags()
     cta_field = [
         {
             "type": "download_firefox",
@@ -71,7 +72,7 @@ def get_article_pages():
         image=image,
         featured_image=dark_mobile_image,
         icon=mobile_image,
-        tag="Tag 1",
+        tag=tags["Security"],
         link_text="See Featured 1",
         cta_field=cta_field,
     )
@@ -87,10 +88,11 @@ def get_article_pages():
         image=dark_image,
         featured_image=mobile_image,
         icon=dark_mobile_image,
-        tag="Tag 2",
+        tag=tags["Privacy"],
         link_text="See Featured 2",
         cta_field=cta_field,
     )
+
     regular_article_1 = create_article(
         title="Test Regular Article 1",
         slug="test-regular-article-1",
@@ -102,7 +104,7 @@ def get_article_pages():
         image=image,
         featured_image=dark_mobile_image,
         icon=mobile_image,
-        tag="Tag 1",
+        tag=tags["Performance"],
         link_text="See Regular 1",
         cta_field=cta_field,
     )
@@ -118,7 +120,7 @@ def get_article_pages():
         image=image,
         featured_image=mobile_image,
         icon=image,
-        tag="Tag 2",
+        tag=tags["Tips"],
         link_text="See Regular 2",
         cta_field=cta_field,
     )
