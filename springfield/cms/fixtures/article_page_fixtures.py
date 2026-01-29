@@ -4,7 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images
 from springfield.cms.fixtures.snippet_fixtures import get_download_firefox_cta_snippet, get_tags
-from springfield.cms.models import ArticleDetailPage, SpringfieldImage, Tag
+from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -119,7 +119,7 @@ def get_article_pages():
         content_blocks=[f"<p data-block-key='{key}'>{LOREM_IPSUM}</p>" for key in p_keys[:3]],
         image=image,
         featured_image=mobile_image,
-        icon=image,
+        icon=dark_mobile_image,
         tag=tags["tips"],
         link_text="See Regular 2",
         cta_field=cta_field,
@@ -131,3 +131,82 @@ def get_article_pages():
         regular_article_1,
         regular_article_2,
     ]
+
+
+def get_featured_articles() -> list[dict]:
+    _, _, mobile_image, dark_mobile_image = get_placeholder_images()
+    articles = get_article_pages()
+    featured_articles = [
+        {
+            "type": "article",
+            "value": {
+                "article": articles[0].id,
+                "overrides": {
+                    "image": mobile_image.id,  # original is dark_mobile_image
+                    "superheading": "Custom Superheading for Featured Article 1",
+                    "title": '<p data-block-key="0b474f02">Overridden Title for Featured Article 1</p>',
+                    "description": '<p data-block-key="y1bk4d7eadf9">This is an overridden description for Featured Article 1.</p>',
+                },
+            },
+        },
+        {
+            "type": "article",
+            "value": {
+                "article": articles[1].id,
+                "overrides": {
+                    "image": dark_mobile_image.id,  # original is mobile_image
+                    "superheading": "Custom Superheading for Featured Article 2",
+                    "title": '<p data-block-key="0b474f02">Overridden Title for Featured Article 2</p>',
+                    "description": '<p data-block-key="y1bk4d7eadf9">This is an overridden description for Featured Article 2.</p>',
+                },
+            },
+        },
+        {
+            "type": "article",
+            "value": {
+                "article": articles[2].id,
+                "overrides": {
+                    "image": None,
+                    "superheading": None,
+                    "title": None,
+                    "description": None,
+                },
+            },
+        },
+    ]
+    return featured_articles
+
+
+def get_articles_list() -> list[dict]:
+    articles = get_article_pages()
+    articles_list = [{"type": "article", "value": {"article": article.id}} for article in articles]
+    return articles_list
+
+
+def get_article_theme_page():
+    index_page = get_article_index_test_page()
+    theme_page = ArticleThemePage.objects.filter(slug="test-article-theme-page").first()
+    heading = '<p data-block-key="c1bc4d7eadf0">A theme to highlight articles related to a specific topic</p>'
+    other_articles_heading = '<p data-block-key="0b474f02">Other articles you might find interesting</p>'
+    if not theme_page:
+        theme_page = ArticleThemePage(
+            title="Test Article Theme Page",
+            slug="test-article-theme-page",
+            heading=heading,
+            other_articles_heading=other_articles_heading,
+        )
+        index_page.add_child(instance=theme_page)
+    theme_page.heading = heading
+    theme_page.subheading = (
+        '<p data-block-key="d3fd4d86">Explore a curated selection of articles that delve into various aspects of this theme, '
+        "providing insights, tips, and updates.</p>"
+    )
+    theme_page.featured_articles = get_featured_articles()
+    theme_page.other_articles_heading = other_articles_heading
+    theme_page.other_articles_subheading = (
+        '<p data-block-key="83cdc1bc">Stay informed with additional articles that complement the main theme, '
+        "offering a broader perspective and deeper understanding.</p>"
+    )
+    theme_page.other_articles = get_articles_list()
+    theme_page.save_revision().publish()
+    return theme_page
