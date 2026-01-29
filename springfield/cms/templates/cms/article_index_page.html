@@ -26,36 +26,42 @@
           {% for article in featured_articles %}
 
             {% if switch("flare26_enabled") %}
-              <include:illustration-card-2026 expand_link="true">
-                <content:media>
-                  {% if article.featured_image %}
-                    {{ srcset_image(
-                        article.featured_image,
-                        "width-{200,400,600,800,1000,1200,1400}",
-                        sizes="
-                          (min-width: 768px) 50vw,
-                          (min-width: 1440px) 680px,
-                          100vw
-                        ",
-                        width=article.featured_image.width,
-                        loading="lazy",
-                      ) }}
-                    {% else %}
-                      <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+              <div class="fl-article-wrapper" data-tag="{{ article.tag.name if article.tag else '' }}">
+                <include:illustration-card-2026 expand_link="true">
+                  <content:media>
+                    {% if article.featured_image %}
+                      {{ srcset_image(
+                          article.featured_image,
+                          "width-{200,400,600,800,1000,1200,1400}",
+                          sizes="
+                            (min-width: 768px) 50vw,
+                            (min-width: 1440px) 680px,
+                            100vw
+                          ",
+                          width=article.featured_image.width,
+                          loading="lazy",
+                        ) }}
+                      {% else %}
+                        <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+                      {% endif %}
+                  </content:media>
+                  <content:heading>
+                    {% if article.tag %}
+                      <p class="fl-superheading">
+                        {{ article.tag.name }}
+                      </p>
                     {% endif %}
-                </content:media>
-                <content:heading>
-                  <h3 class="fl-heading fl-heading-size-3">
-                    <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                    {{ article.title }}
-                    </a>
-                  </h3>
-                </content:heading>
-                <content:body>
-                  {{ article.description|richtext }}
-                </content:body>
-              </include:illustration-card-2026>
-
+                    <h3 class="fl-heading fl-heading-size-3">
+                      <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                      {{ article.title }}
+                      </a>
+                    </h3>
+                  </content:heading>
+                  <content:body>
+                    {{ article.description|richtext }}
+                  </content:body>
+                </include:illustration-card-2026>
+              </div>
             {% else %}
               <include:illustration-card expand_link="true">
                 <content:media>
@@ -103,18 +109,24 @@
         />
 
         {% if switch("flare26_enabled") %}
+
+          {# TODO: filter by tag #}
+          <p>ALL TAGS: {{ ", ".join(tags) }} </p>
+
           <div class="fl-stacked-article-list">
             {% for article in list_articles %}
-              <include:stacked-article-list-item
-                title={{ article.title }}
-                description={{ article.description }}
-                link_text={{ article.link_text }}
-                url={{ article.url }}
-              >
-                <content:icon>
-                  {{ image(article.icon, "width-400") }}
-                </content:icon>
-              </include:stacked-article-list-item>
+              <div class="fl-article-wrapper" data-tag="{{ article.tag.name if article.tag else '' }}">
+                <include:stacked-article-list-item
+                  title={{ article.title }}
+                  description={{ article.description }}
+                  link_text={{ article.link_text }}
+                  url={{ article.url }}
+                >
+                  <content:icon>
+                    {{ image(article.icon, "width-400") }}
+                  </content:icon>
+                </include:stacked-article-list-item>
+              </div>
             {% endfor %}
           </div>
 

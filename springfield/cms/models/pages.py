@@ -312,6 +312,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
+        context["tags"] = sorted({article.tag.name for article in all_articles if article.tag})
         return context
 
 
@@ -330,9 +331,12 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="A portrait-oriented image used in featured article cards.",
     )
-    featured_tag = models.CharField(
+    tag = models.ForeignKey(
+        "cms.Tag",
+        null=True,
         blank=True,
-        help_text="A short tag to display above the article title on featured article cards.",
+        on_delete=models.SET_NULL,
+        related_name="articles",
     )
     link_text = models.CharField(
         default="Read more",
@@ -370,7 +374,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("featured"),
-                FieldPanel("featured_tag"),
+                FieldPanel("tag"),
                 FieldPanel("featured_image"),
                 FieldPanel("icon"),
                 FieldPanel("link_text"),

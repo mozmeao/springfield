@@ -170,6 +170,7 @@ python manage.py dumpdata \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
+    cms.Tag \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

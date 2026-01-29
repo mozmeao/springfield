@@ -163,3 +163,19 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
 
 
 register_snippet(BannerSnippet)
+
+
+class Tag(TranslatableMixin, models.Model):
+    """A tag for categorizing articles."""
+
+    name = models.CharField()
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+
+register_snippet(Tag)
