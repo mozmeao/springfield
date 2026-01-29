@@ -164,7 +164,12 @@ python manage.py dumpdata \
     cms.ArticleIndexPage \
     cms.ArticleDetailPage \
     cms.HomePage \
+    cms.DownloadPage \
+    cms.ThanksPage \
     cms.DownloadFirefoxCallToActionSnippet \
+    cms.BannerSnippet \
+    cms.PreFooterCTAFormSnippet \
+    cms.PreFooterCTASnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

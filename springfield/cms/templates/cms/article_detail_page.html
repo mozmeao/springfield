@@ -4,30 +4,47 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
+{% extends base_template %}
 
+{% block body_class %}fl-article-body{% endblock %}
 
 {% block content %}
 <div class="fl-page fl-article-page">
   <main class="fl-main">
-    <div class="fl-article-body">
+    <div class="fl-article-main">
       <header>
         <include:heading
             level="h1"
             heading_text="{{ page.title }}"
-            subheading_text="{{ page.sub_title }}"
         />
+        {% if switch("flare26_enabled") and page.image %}
+          {{ srcset_image(
+              page.image,
+              "width-{200,400,600,800,1000,1200,1400}",
+              sizes="
+                (min-width: 768px) 50vw,
+                (min-width: 1440px) 680px,
+                100vw
+              ",
+              width=page.image.width,
+              loading="lazy",
+            ) }}
+        {% endif %}
       </header>
+
       <section class="fl-rich-text">
-      {{ page.content|richtext }}
+        {% for block in page.content %}
+          {% include_block block %}
+        {% endfor %}
       </section>
     </div>
   </main>
-
-  {% if page.call_to_action %}
-    {% for block in page.call_to_action %}
-      {% include_block block %}
-    {% endfor %}
+  {% if not switch("flare26_enabled") %}
+    {% set value = get_download_firefox_cta_snippet() %}
+    {% if value %}
+      {% include "cms/snippets/download-firefox-cta.html" %}
+    {% endif %}
   {% endif %}
 </div>
 {% endblock %}

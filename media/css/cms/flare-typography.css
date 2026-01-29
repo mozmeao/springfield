@@ -38,6 +38,7 @@
 
 .fl-heading-group .fl-heading + .fl-subheading {
     margin-top: calc(var(--token-scale-24) * 1px);
+    text-wrap: balance;
 }
 
 .fl-superheading {
@@ -47,6 +48,7 @@
     line-height: var(--fl-theme-line-height-base);
     color: var(--fl-theme-color-text-secondary);
     margin: calc(var(--token-scale-8) * 1px) 0;
+    display: inline-flex;
 }
 
 .fl-superheading + .fl-heading {
@@ -108,7 +110,7 @@
     margin: 0 0 calc(var(--token-scale-16) * 1px);
 }
 
-.fl-article-body .fl-heading {
+.fl-article-main .fl-heading {
     border-bottom: 1px solid var(--fl-theme-border-color-muted);
     padding-bottom: calc(var(--token-scale-24) * 1px);
     margin-bottom: calc(var(--token-scale-32) * 1px);

@@ -1,0 +1,99 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-home-body{% endblock %}
+
+{% block flare_header %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+    <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
+      <div class="fl-section-container">
+        <div class="fl-section">
+          <h1 class="fl-heading fl-heading-size-1">
+            <span class="fl-fx-logo">‍</span><br>
+            {{ ftl('firefox-new-download-firefox') }}
+          </h1>
+          <div class="fl-platform-dropdown-wrapper">
+            <div class="fl-platform-dropdown">
+            <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+                {% if page.platform == 'ios'%}iOS{% else %}{{ page.platform | title }}{% endif %}
+              </span>
+              <span class="fl-icon-wrapper">
+                <span class="fl-icon fl-icon-caret-down" aria-hidden="true"></span>
+              </span>
+            </button>
+            <ul class="fl-platform-dropdown-list" aria-role="listbox">
+              {% for key, platform in platforms %}
+                <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+                  <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                    {{ platform }}
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
+
+          {{ download_firefox_thanks(
+              alt_copy=ftl('download-button-download-firefox'),
+              dom_id='features-footer-download',
+              download_location='download-page',
+              flare_styles=True
+          ) }}
+
+          {% if page.intro_footer_text %}
+            <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
+          {% endif %}
+          <div class="fl-download-intro-featured-image">
+            {{ srcset_image(
+                page.featured_image,
+                "width-{200,400,600,800,1000,1200,1400}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image.width,
+                height=page.featured_image.height,
+                loading="lazy",
+            ) }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fl-split-page-lower">
+      {% set ns = namespace(headings=0) %}
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "block-" ~ block_index + "-" + block_type %}
+
+        {% if block.value.heading and block.value.heading.heading_text %}
+          {% set block_level = 1 if ns.headings == 0 else 3 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </section>
+  </main>
+</div>
+{% endblock %}
+
+
+{% block pre_footer %}
+  {% if page.pre_footer %}
+    {% for block in page.pre_footer %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
+{% endblock pre_footer %}

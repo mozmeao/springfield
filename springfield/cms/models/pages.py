@@ -6,16 +6,18 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import redirect
 
-from wagtail.admin.panels import FieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
 
+from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     BannerBlock,
     CardGalleryBlock,
-    CardsListBlock,
+    CardsListBlock2026,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -23,6 +25,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     KitBannerBlock,
     SectionBlock,
+    SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
 )
@@ -104,11 +107,27 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
         return context
 
 
-class HomePage(AbstractSpringfieldCMSPage):
+class UTMParamsMixin:
+    def get_utm_campaign(self):
+        return self.slug
+
+    def get_utm_parameters(self):
+        return {
+            **BASE_UTM_PARAMETERS,
+            "utm_campaign": self.get_utm_campaign(),
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["utm_parameters"] = self.get_utm_parameters()
+        return context
+
+
+class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", HomeIntroBlock()),
-            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", HomeCarouselBlock()),
         ],
         use_json_field=True,
@@ -134,21 +153,157 @@ class HomePage(AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
-class ArticleIndexPage(AbstractSpringfieldCMSPage):
+class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    ftl_files = ["firefox/download/download"]
+
+    PLATFORM_CHOICES = (
+        ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
+        ("mac", ftl("platform-macos", ftl_files=["firefox/download/download"])),
+        ("linux", ftl("platform-linux", ftl_files=["firefox/download/download"])),
+        ("android", ftl("platform-android", ftl_files=["firefox/download/download"])),
+        ("ios", ftl("platform-ios", ftl_files=["firefox/download/download"])),
+        ("chromebook", ftl("platform-chromebook", ftl_files=["firefox/download/download"])),
+    )
+
+    platform = models.CharField(
+        default="windows",
+        max_length=50,
+        choices=PLATFORM_CHOICES,
+        help_text="The platform this download page is for (e.g., Windows, macOS, Linux).",
+    )
+    subheading = RichTextField(default="Subheading", features=HEADING_TEXT_FEATURES)
+    intro_footer_text = RichTextField(null=True, blank=True, features=HEADING_TEXT_FEATURES)
+    featured_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="download_page_featured_images",
+    )
+    content = StreamField(
+        [
+            ("section", SectionBlock2026()),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+    pre_footer = StreamField(
+        [
+            (
+                "pre_footer_cta_form_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.PreFooterCTAFormSnippet",
+                    template="cms/snippets/pre-footer-cta-form-snippet.html",
+                    label="Pre-Footer CTA Form Snippet",
+                ),
+            )
+        ],
+        use_json_field=True,
+        min_num=0,
+        max_num=1,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("platform"),
+        FieldPanel("subheading"),
+        FieldPanel("intro_footer_text"),
+        FieldPanel("featured_image"),
+        FieldPanel("content"),
+        FieldPanel("pre_footer"),
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["platforms"] = self.PLATFORM_CHOICES
+        platform_links = {
+            "windows": "/browsers/desktop/windows",
+            "mac": "/browsers/desktop/mac",
+            "linux": "/browsers/desktop/linux",
+            "android": "/browsers/mobile/android",
+            "ios": "/browsers/mobile/ios",
+            "chromebook": "/browsers/desktop/chromebook",
+        }
+        parent = self.get_parent().specific
+        children = parent.get_children().filter(downloadpage__isnull=False).live().public().specific()
+        for page in children:
+            platform_links[page.platform] = page.get_url()
+        context["platform_links"] = platform_links
+        return context
+
+    class Meta:
+        verbose_name = "Download Page"
+        verbose_name_plural = "Download Pages"
+
+
+class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A thank you page displayed after the user downloads Firefox."""
+
+    content = StreamField(
+        [
+            ("section", SectionBlock2026(allow_uitour=False)),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ]
+    )
+    pre_footer = StreamField(
+        [
+            (
+                "pre_footer_cta_form_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.PreFooterCTAFormSnippet",
+                    template="cms/snippets/pre-footer-cta-form-snippet.html",
+                    label="Pre-Footer CTA Form Snippet",
+                ),
+            )
+        ],
+        use_json_field=True,
+        min_num=0,
+        max_num=1,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
+        FieldPanel("pre_footer"),
+    ]
+
+
+class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage"]
 
     sub_title = models.CharField(
         max_length=255,
         blank=True,
     )
+    other_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES)
+    other_articles_subheading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
+        FieldPanel("other_articles_heading"),
+        FieldPanel("other_articles_subheading"),
     ]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
-        context["utm_parameters"] = self.get_utm_parameters()
 
         all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
 
@@ -159,71 +314,73 @@ class ArticleIndexPage(AbstractSpringfieldCMSPage):
         context["list_articles"] = list_articles
         return context
 
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.slug,
-        }
 
-
-class ArticleDetailPage(AbstractSpringfieldCMSPage):
+class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleIndexPage"]
 
     featured = models.BooleanField(
         default=False,
         help_text="Check to set as a featured article on the index page.",
     )
-    image = models.ForeignKey(
+    featured_image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
+        help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_tag = models.CharField(
+        blank=True,
+        help_text="A short tag to display above the article title on featured article cards.",
+    )
+    link_text = models.CharField(
+        default="Read more",
+        help_text="Custom text for the 'Read more' link on article cards.",
+    )
+    icon = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="An icon used for listing articles on the index page.",
     )
     description = RichTextField(
         blank=True,
         features=HEADING_TEXT_FEATURES,
-        help_text="A short description used on index page.",
+        help_text="A short description used on the index page.",
     )
-    content = RichTextField(
-        blank=True,
-        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
-    )
-    call_to_action = StreamField(
-        [
-            (
-                "download_firefox",
-                SnippetChooserBlock(
-                    target_model="cms.DownloadFirefoxCallToActionSnippet",
-                    template="cms/snippets/download_firefox_cta.html",
-                    label="Download Firefox Call To Action",
-                ),
-            )
-        ],
-        blank=True,
+
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
         null=True,
+        blank=True,
+    )
+    content = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+        ],
         use_json_field=True,
-        max_num=1,
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("featured"),
+        MultiFieldPanel(
+            [
+                FieldPanel("featured"),
+                FieldPanel("featured_tag"),
+                FieldPanel("featured_image"),
+                FieldPanel("icon"),
+                FieldPanel("link_text"),
+                FieldPanel("description"),
+            ],
+            heading="Index Page Settings",
+        ),
         FieldPanel("image"),
-        FieldPanel("description"),
         FieldPanel("content"),
-        FieldPanel("call_to_action"),
     ]
-
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.slug,
-        }
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context["utm_parameters"] = self.get_utm_parameters()
-        return context
 
 
 def _get_freeform_page_blocks(allow_uitour=False):
@@ -251,23 +408,7 @@ FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
 
 
-class FreeFormPageMixin:
-    def get_utm_campaign(self):
-        return self.slug
-
-    def get_utm_parameters(self):
-        return {
-            **BASE_UTM_PARAMETERS,
-            "utm_campaign": self.get_utm_campaign(),
-        }
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context["utm_parameters"] = self.get_utm_parameters()
-        return context
-
-
-class FreeFormPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A flexible page type that allows a variety of content blocks to be added."""
 
     content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
@@ -298,7 +439,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             return redirect("/")
 
 
-class WhatsNewPage(FreeFormPageMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]

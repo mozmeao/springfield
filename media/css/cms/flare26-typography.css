@@ -5,7 +5,7 @@
 */
 
 .fl-rich-text a {
-    color: var(--token-color-link-purple);
+    color: var(--fl-theme-color-link);
     text-decoration: underline;
 }
 
@@ -24,8 +24,8 @@ h1.fl-heading,
 .fl-heading h2,
 h2.fl-heading,
 .fl-heading-size-2,
-.fl-rich-text h2,
-.fl-pre-footer-cta-button {
+.fl-pre-footer-cta-button,
+.fl-heading-condensed {
     font-variation-settings:
         'wght' var(--token-font-weight-semibold),
         'wdth' var(--token-font-condensed-width);
@@ -187,4 +187,13 @@ span.fl-fx-logo {
     margin-inline: 0.1em;
     vertical-align: bottom;
     width: 1em;
+}
+
+@media (--viewport-sm-up) {
+    .fl-heading-condensed-on-sm-up {
+        font-variation-settings:
+            'wght' var(--token-font-weight-semibold),
+            'wdth' var(--token-font-condensed-width);
+        line-height: 0.9;
+    }
 }

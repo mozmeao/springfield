@@ -10,31 +10,9 @@
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
     {% for card in cards %}
       <div>
-        <include:card
-          fill="{{ card.fill }}"
+        <include:sticker-card-2026
           expand_link="{{ card.expand_link }}"
         >
-          {% if card.sticker %}
-            <content:pre_heading>
-              <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
-            </content:pre_heading>
-          {% elif card.icon_name %}
-            <content:pre_heading>
-              <div class="fl-card-icon">
-                <include:icon icon_name="{{ card.icon_name }}" extra_class="fl-icon-size-4" hidden="true" />
-              </div>
-            </content:pre_heading>
-          {% elif card.tags %}
-            <content:pre_heading>
-              {% for tag in card.tags %}
-                <include:tag
-                  text="{{ tag.text }}"
-                  color="{{ tag.color }}"
-                  corners="{{ tag.corners }}"
-                />
-              {% endfor %}
-            </content:pre_heading>
-          {% endif %}
           <content:heading>
             <include:heading
               level="h3"
@@ -43,6 +21,9 @@
               heading_text="{{ card.heading }}"
             />
           </content:heading>
+          <content:sticker>
+            <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" aria-hidden="true" />
+          </content:sticker>
           <content:body>
             {{ card.body }}
           </content:body>
@@ -57,7 +38,7 @@
               {% endfor %}
             </content:buttons>
           {% endif %}
-        </include:card>
+        </include:sticker-card-2026>
       </div>
     {% endfor %}
   </div>

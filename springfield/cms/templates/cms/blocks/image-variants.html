@@ -12,7 +12,7 @@
 {# Default/desktop light mode image #}
   {%- set default_display_classes -%}
     {% if value.settings.dark_mode_image %}display-light {% endif %}
-    {% if value.settings.mobile_image %}
+    {% if value.settings.mobile_image or value.settings.dark_mode_mobile_image %}
     {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
     {% endif %}
   {%- endset -%}

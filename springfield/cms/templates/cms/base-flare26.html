@@ -51,18 +51,38 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
     {% block pre_footer %}
+
       {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
       {% if pre_footer_cta %}
         {% set analytics_text = pre_footer_cta.label %}
         {% set analytics_position = "pre-footer-cta" %}
-        <include:pre-footer-cta
-          label="{{ pre_footer_cta.label }}"
-          link="{{ pre_footer_cta.link }}"
-          analytics_text="{{ analytics_text }}"
-          analytics_position="{{ analytics_position }}"
-          analytics_id="{{ pre_footer_cta.analytics_id }}"
-        />
+          <include:conditional-display condition="not-firefox">
+          <include:pre-footer-cta
+            label="{{ pre_footer_cta.label }}"
+            link="{{ pre_footer_cta.link }}"
+            analytics_text="{{ analytics_text }}"
+            analytics_position="{{ analytics_position }}"
+            analytics_id="{{ pre_footer_cta.analytics_id }}"
+          />
+          </include:conditional-display>
       {% endif %}
+
+      {% set pre_footer_cta_form = get_pre_footer_cta_form_snippet() %}
+      {% if pre_footer_cta_form %}
+        {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
+        {% set analytics_position = "pre-footer-cta-form" %}
+        {% set analytics_id = pre_footer_cta_form.analytics_id %}
+          <include:conditional-display condition="is-firefox">
+            <include:newsletter-form>
+              <include:heading
+                level="h2"
+                heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
+                subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
+              />
+              </include:newsletter-form>
+          </include:conditional-display>
+      {% endif %}
+
     {% endblock pre_footer %}
 
     {% block flare_footer %}

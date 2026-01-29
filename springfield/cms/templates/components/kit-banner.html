@@ -22,8 +22,9 @@
     {% endif %}
     <div class="fl-banner-content">
       <div class="fl-banner-content-inner">
-        {% if contents.heading %}
-          {{ contents.heading }}
+        {{ contents.heading }}
+        {% if contents.body %}
+          <div class="fl-body">{{ contents.body }}</div>
         {% endif %}
 
         {% if contents.actions %}

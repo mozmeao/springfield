@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<article class="fl-illustration-card fl-step-card {% if expand_link %}fl-card-expand-link{% endif %}">
+  <div class="fl-card-media">
+    <span class="fl-step-card-index">{{ step }}</span>
+    {{ contents.media }}
+  </div>
+
+  <div class="fl-card-content">
+    {{ contents.heading }}
+    {% if contents.body %}
+      <div class="fl-body">{{ contents.body }}</div>
+    {% endif %}
+    {% if contents.buttons %}
+      <div class="fl-buttons">
+        {{ contents.buttons }}
+      </div>
+    {% endif %}
+  </div>
+</article>

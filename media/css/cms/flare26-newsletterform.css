@@ -1,0 +1,311 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-newsletterform-cta {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-layout-2xs);
+    padding: var(--token-layout-xs) var(--token-layout-2xs);
+    width: 100%;
+}
+
+@media (--viewport-md-up) {
+    .fl-newsletterform-cta {
+        align-items: center;
+        flex-direction: row;
+        gap: var(--token-layout-sm);
+        justify-content: center;
+        padding: var(--token-layout-sm);
+    }
+}
+
+.fl-newsletterform-illustration {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: center;
+}
+
+.fl-newsletterform-illustration img {
+    height: auto;
+    width: min(340px, 100%);
+}
+
+@media (--viewport-md-up) {
+    .fl-newsletterform-illustration img {
+        width: 360px;
+    }
+}
+
+.fl-newsletterform-content {
+    color: var(--token-color-white);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    max-width: 520px;
+    text-align: left;
+    width: 100%;
+}
+
+.fl-newsletterform-cta .fl-heading-group {
+    margin: 0;
+}
+
+.fl-newsletterform-cta .fl-heading {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-sm);
+    font-variation-settings: unset;
+    font-weight: var(--token-font-weight-bold);
+    line-height: 1.1;
+    margin: 0;
+}
+
+.fl-newsletterform {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+}
+
+.fl-newsletterform.fl-newsletterform-expanded:not(.hidden) {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .fl-newsletterform-input,
+.fl-newsletterform.fl-newsletterform-expanded .fl-button {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.fl-newsletterform.fl-newsletterform-expanded .fl-button {
+    order: 3;
+}
+
+.fl-newsletterform-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+    position: relative;
+    width: 100%;
+}
+
+.fl-newsletterform-row-hidden {
+    display: none;
+}
+
+.fl-newsletterform-label {
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+}
+
+.fl-newsletterform .fl-newsletterform-input {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
+    color: var(--token-color-black-4);
+    height: 44px;
+    outline: none;
+    padding: 0 var(--token-spacing-lg);
+    width: 100%;
+}
+
+.fl-newsletterform-input:focus {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.fl-newsletterform .fl-button {
+    align-items: center;
+    background-color: var(--token-color-purple);
+    border: 0;
+    border-radius: 200px;
+    color: var(--token-color-white);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-2xs);
+    font-weight: var(--token-font-weight-semibold);
+    justify-content: center;
+    line-height: 1.1;
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+    text-decoration: none;
+    transition: background-color var(--token-transition-fast);
+    width: 100%;
+}
+
+.fl-newsletterform .fl-button:hover {
+    background-color: var(--token-color-link-purple);
+}
+
+.fl-newsletterform .fl-button:focus {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+    outline: none;
+}
+
+.fl-newsletterform-consent {
+    color: var(--token-color-grey-1);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-xs);
+    font-weight: var(--token-font-weight-medium);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin: 0;
+    opacity: 0.9;
+    text-align: center;
+    width: 100%;
+}
+
+.fl-newsletterform-checkbox-label {
+    align-items: flex-start;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    gap: var(--token-spacing-xs);
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.fl-newsletterform-checkbox-label input[type='checkbox'] {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--token-color-white);
+    border: 1px solid var(--token-color-grey-3);
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    height: 19px;
+    margin: 0;
+    position: relative;
+    top: 2px;
+    vertical-align: baseline;
+    width: 19px;
+}
+
+.fl-newsletterform-checkbox-label .fl-newsletterform-checkbox-text {
+    flex: 1;
+    line-height: 1.4;
+    margin: 0;
+    min-width: 0;
+    text-align: left;
+}
+
+.fl-newsletterform-checkbox-label input[type='checkbox']:checked {
+    background: #f60;
+    border-color: #f60;
+}
+
+.fl-newsletterform-checkbox-label input[type='checkbox']:checked::after {
+    border: 2px solid var(--token-color-white);
+    border-left: 0;
+    border-top: 0;
+    content: '';
+    height: 9px;
+    left: 6px;
+    position: absolute;
+    top: 3px;
+    transform: rotate(45deg);
+    width: 5px;
+}
+
+.fl-newsletterform-checkbox-label input[type='checkbox']:focus-visible {
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
+}
+
+.fl-newsletterform-checkbox-label input[type='checkbox']:hover {
+    background: var(--token-color-purple);
+}
+
+.fl-newsletterform-error {
+    align-self: start;
+    padding-inline-start: var(--token-spacing-lg);
+}
+
+.fl-newsletterform-error-list {
+    color: var(--token-color-soft-magenta);
+    margin: 0 auto;
+    padding: 0;
+}
+
+.fl-newsletterform-input[aria-invalid='true'] {
+    border-color: var(--token-color-soft-magenta);
+    box-shadow: 0 0 0 3px var(--token-color-soft-magenta-20);
+}
+
+.fl-newsletterform-select-arrow {
+    display: block;
+    height: 1rem;
+    margin: 0;
+    position: absolute;
+    right: var(--token-spacing-lg);
+    top: calc(50% - var(--token-spacing-xs));
+    transition: transform var(--token-transition-base);
+    width: 1rem;
+}
+
+/* stylelint-disable selector-pseudo-class-no-unknown */
+.fl-newsletterform-select:open ~ .fl-newsletterform-select-arrow {
+    transform: rotate(180deg);
+}
+
+.fl-newsletterform-select {
+    align-items: center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
+    color: var(--token-color-black-4);
+    cursor: pointer;
+    display: flex;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-base);
+    height: 44px;
+    justify-content: space-between;
+    outline: none;
+    padding: 0 var(--token-spacing-lg);
+    text-align: left;
+    transition: border-color var(--token-transition-base);
+    width: 100%;
+}
+
+.fl-newsletterform-select:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.fl-newsletterform-select:focus {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.fl-newsletterform-select option {
+    border-bottom: 1px solid var(--token-color-black-1);
+    cursor: pointer;
+    padding: var(--token-spacing-sm);
+    transition: background-color var(--token-transition-base);
+}
+
+.fl-newsletterform-select option:last-child {
+    border-bottom: none;
+}
+
+.fl-newsletterform-select option:hover {
+    background: var(--token-color-black-1);
+    color: var(--token-color-white);
+}
+
+.fl-newsletterform-success {
+    margin-top: var(--token-spacing-2xl);
+    text-align: center;
+}
+
+.fl-newsletterform-success svg {
+    display: block;
+    margin: 0 auto;
+}

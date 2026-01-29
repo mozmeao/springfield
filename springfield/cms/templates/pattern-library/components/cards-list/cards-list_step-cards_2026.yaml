@@ -1,0 +1,15 @@
+name: Step Cards With Kit 2026
+context:
+  title: "Thank you for downloading Firefox!"
+  intro: "Follow these steps to get Firefox set up."
+  footer: "Download in another language or for another operating system."
+  cards:
+    - image: "/media/img/firefox/flare/firefox-dmg.png"
+      heading: "Open Firefox.dmg from your Downloads folder."
+      body: ""
+    - image: "/media/img/firefox/flare/2026/homepage/Group_1597882542.width-800.png"
+      heading: "Drag the Firefox icon into your Applications folder."
+      body: ""
+    - image: "/media/img/firefox/flare/dock.png"
+      heading: "Open your Applications folder and drag Firefox to your dock."
+      body: ""

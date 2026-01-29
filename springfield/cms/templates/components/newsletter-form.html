@@ -1,0 +1,24 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-newsletterform-cta" data-state="default">
+  <div class="fl-newsletterform-illustration" aria-hidden="true">
+    <img alt="" loading="lazy" src="/media/img/firefox/flare/kit-on-rock.png" />
+  </div>
+
+  <div class="fl-newsletterform-content">
+    {{ contents }}
+
+    {{ email_newsletter_form(
+      template="cms/newsletter_form_2026.html",
+      include_country=true,
+      include_language=true,
+      footer=false,
+      include_title=false
+    ) }}
+  </div>
+</div>

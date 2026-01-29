@@ -29,8 +29,11 @@ Static values extracted from Figma that do not change based on context.
     --token-color-dark-purple: rgb(33, 3, 64);
     --token-color-dark-purple-22: rgba(33, 3, 64, 0.22);
     --token-color-dark-purple-30: rgba(33, 3, 64, 0.3);
+    --token-color-dark-purple-50: rgba(33, 3, 64, 0.4);
     --token-color-purple: rgb(58, 15, 110);
+    --token-color-medium-purple: rgb(76, 36, 137);
     --token-color-link-purple: rgb(97, 50, 188);
+    --token-color-nav-icon-purple: rgba(174, 137, 255, 1);
     --token-color-light-purple: rgb(117, 67, 227);
     --token-color-light-purple-20: rgba(117, 67, 227, 0.2);
     --token-color-light-purple-40: rgba(117, 67, 227, 0.4);
@@ -38,8 +41,10 @@ Static values extracted from Figma that do not change based on context.
     --token-color-light-purple-80: rgba(117, 67, 227, 0.8);
     --token-color-cream: rgb(252, 245, 240);
     --token-color-soft-purple: rgb(241, 231, 248);
+    --token-color-soft-purple-4: rgb(199, 168, 255);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
+    --token-color-soft-magenta-20: rgba(255, 234, 254, 0.2);
     --token-color-soft-yellow: rgb(252, 245, 240);
 
     /* Gradients from Figma */
@@ -114,12 +119,14 @@ Static values extracted from Figma that do not change based on context.
 
     /* Border radius variables */
     --token-border-radius-xs: 8px;
+    --token-border-radius-sm: 24px;
     --token-border-radius-md: 48px;
     --token-border-radius-lg: 80px;
     --token-border-radius-xl: 128px;
 
     /* Width and viewport variables */
     --token-width-desktop-content: 725px;
+    --token-width-desktop-content-lg: 934px;
     --token-width-desktop-layout: 1440px;
     --token-width-desktop-wide-banner: 1170px;
     --token-width-mobile-layout: 393px;
@@ -133,6 +140,11 @@ Static values extracted from Figma that do not change based on context.
     --token-font-family-mozilla-text:
         'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI',
         'Roboto', sans-serif;
+
+    /* Font sizes */
+    --token-font-size-xs: 12px;
+    --token-font-size-sm: 14px;
+    --token-font-size-md: 16px;
 
     /* Font weights */
     --token-font-weight-regular: 400;

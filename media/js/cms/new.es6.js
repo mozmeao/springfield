@@ -140,9 +140,9 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                     } else {
                         // Show error message
                         showNewsletterError(
-                            data.errors || [
-                                'An error occurred. Please try again.'
-                            ]
+                            data.errors || data.desc
+                                ? [data.desc]
+                                : ['An error occurred. Please try again.']
                         );
                     }
                 })
@@ -293,6 +293,35 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         });
     }
 
+    function initDownloadDropdown() {
+        const dropdownEl = document.querySelector('.fl-platform-dropdown');
+
+        if (dropdownEl) {
+            const dropdownButtonEl = document.querySelector(
+                '.fl-platform-dropdown-button'
+            );
+            dropdownButtonEl.addEventListener('click', function () {
+                if (dropdownEl.classList.contains('dropdown-is-open')) {
+                    dropdownEl.classList.remove('dropdown-is-open');
+                } else {
+                    dropdownEl.classList.add('dropdown-is-open');
+                }
+            });
+
+            dropdownEl.addEventListener('keyup', function (e) {
+                if (e.key === 'Escape') {
+                    dropdownEl.classList.remove('dropdown-is-open');
+                }
+            });
+
+            window.addEventListener('click', function (e) {
+                if (!dropdownEl.contains(e.target)) {
+                    dropdownEl.classList.remove('dropdown-is-open');
+                }
+            });
+        }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
@@ -300,6 +329,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
             initNotificationClose();
             applyVideoAspectRatios();
             initVideoPlayers();
+            initDownloadDropdown();
         });
     } else {
         initNewsletterForm();
@@ -307,5 +337,6 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         initNotificationClose();
         applyVideoAspectRatios();
         initVideoPlayers();
+        initDownloadDropdown();
     }
 })();

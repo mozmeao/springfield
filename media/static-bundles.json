@@ -781,7 +781,8 @@
         "js/base/mozilla-client.js",
         "js/base/mozilla-fxa.js",
         "js/base/mozilla-fxa-init.js",
-        "js/cms/flare26.es6.js"
+        "js/cms/flare26.es6.js",
+        "js/cms/new.es6.js"
       ],
       "name": "firefox-cms-flare26"
     },

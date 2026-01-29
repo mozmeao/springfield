@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-card-grid">
+{# props extra_class="" #}
+
+<div class="fl-card-grid{% if extra_class %} {{ extra_class }}{% endif %}">
   {{ contents }}
 </div>

@@ -136,7 +136,7 @@
 }
 
 @media (--viewport-xs) {
-    .fl-card {
+    .fl-card:not(.fl-illustration-card) {
         padding: calc(var(--token-scale-24) * 1px);
     }
 }

@@ -8,9 +8,10 @@ from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
+from waffle.testutils import override_switch
 from wagtail.models import Locale, Page, Site
-from wagtail.rich_text import RichText
 
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     SimpleRichTextPage,
@@ -244,9 +245,17 @@ def test_freeform_page(minimal_site, rf):
     assert response.status_code == 200
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
-    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="All the Articles")
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="All the Articles",
+        sub_title="A collection of all articles.",
+        other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+        other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+    )
     index_page.save()
 
     _relative_url = index_page.relative_url(minimal_site)
@@ -256,6 +265,8 @@ def test_article_index_and_detail_pages(minimal_site, rf):
     response = index_page.specific.serve(request)
     assert response.status_code == 200
 
+    image, _, _, _ = get_placeholder_images()
+
     for i in range(1, 3):
         featured_page = ArticleDetailPageFactory(
             parent=index_page,
@@ -263,6 +274,7 @@ def test_article_index_and_detail_pages(minimal_site, rf):
             slug=f"featured-article-{i}",
             description=f"Description for Featured Article {i}",
             featured=True,
+            image=image,
         )
         featured_page.save()
 
@@ -279,6 +291,7 @@ def test_article_index_and_detail_pages(minimal_site, rf):
             slug=f"article-{i}",
             description=f"Description for Article {i}",
             featured=False,
+            image=image,
         )
         article.save()
 
@@ -298,7 +311,10 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
     assert "All the Articles" in soup.find("h1").text
 
-    featured_cards = soup.find_all(class_="fl-illustration-card")
+    card_grids = soup.find_all("div", class_="fl-card-grid")
+    assert len(card_grids) == 2
+
+    featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
     assert len(featured_cards) == 2
     for i, card in enumerate(featured_cards):
         title = card.find("h3")
@@ -306,8 +322,95 @@ def test_article_index_and_detail_pages(minimal_site, rf):
         assert f"Description for Featured Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
 
-    # Skip the first two cards, which are featured articles
-    article_cards = soup.find_all(class_="fl-card")[2:]
+    article_cards = card_grids[1].find_all(class_="fl-card")
+    assert len(article_cards) == 2
+    for i, card in enumerate(article_cards):
+        title = card.find("h3")
+        assert f"Article {i + 1}" in title.text
+        assert f"Description for Article {i + 1}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+
+
+@override_switch("FLARE26_ENABLED", active=True)
+def test_article_index_and_detail_pages_2026(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="All the Articles",
+        sub_title="A collection of all articles.",
+        other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+        other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+    )
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/"
+
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    image, _, _, _ = get_placeholder_images()
+
+    for i in range(1, 3):
+        featured_page = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Featured Article {i}",
+            slug=f"featured-article-{i}",
+            description=f"Description for Featured Article {i}",
+            featured=True,
+            image=image,
+        )
+        featured_page.save()
+
+        _featured_relative_url = featured_page.relative_url(minimal_site)
+        assert _featured_relative_url == f"/en-US/articles/featured-article-{i}/"
+
+        featured_request = rf.get(_featured_relative_url)
+        featured_response = featured_page.specific.serve(featured_request)
+        assert featured_response.status_code == 200
+
+        article = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Article {i}",
+            slug=f"article-{i}",
+            description=f"Description for Article {i}",
+            featured=False,
+            image=image,
+        )
+        article.save()
+
+        _article_relative_url = article.relative_url(minimal_site)
+        assert _article_relative_url == f"/en-US/articles/article-{i}/"
+
+        article_request = rf.get(_article_relative_url)
+        article_response = article.specific.serve(article_request)
+        assert article_response.status_code == 200
+
+    index_page.refresh_from_db()
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    page_content = response.content
+
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "All the Articles" in soup.find("h1").text
+
+    card_grids = soup.find_all("div", class_="fl-card-grid")
+    assert len(card_grids) == 1
+
+    featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
+    assert len(featured_cards) == 2
+    for i, card in enumerate(featured_cards):
+        title = card.find("h3")
+        assert f"Featured Article {i + 1}" in title.text
+        assert f"Description for Featured Article {i + 1}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+
+    stacked_cards = soup.find("div", class_="fl-stacked-article-list")
+    assert stacked_cards
+    article_cards = stacked_cards.find_all(class_="fl-article-item")
     assert len(article_cards) == 2
     for i, card in enumerate(article_cards):
         title = card.find("h3")
@@ -317,8 +420,16 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
 
 def test_article_detail_content(minimal_site, rf):
+    image, _, _, _ = get_placeholder_images()
     root_page = SimpleRichTextPage.objects.first()
-    index_page = ArticleIndexPageFactory(parent=root_page, slug="articles", title="Articles")
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="All the Articles",
+        sub_title="A collection of all articles.",
+        other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+        other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+    )
     index_page.save()
 
     article_page = ArticleDetailPageFactory(
@@ -326,9 +437,13 @@ def test_article_detail_content(minimal_site, rf):
         title="Test Article Detail Page",
         slug="article-detail-page",
         description="Test Article Description for Index Page",
-        content=RichText(
-            f'<p>This is the content of the test article. With a link to the <a id="{index_page.id}" linktype="page">Index Page</a></p>'
-        ),
+        content=[
+            {
+                "type": "text",
+                "value": f'<p>This is the content of the test article. With a link to the <a id="{index_page.id}" linktype="page">Index Page</a></p>',
+            },
+        ],
+        image=image,
     )
     article_page.save()
 

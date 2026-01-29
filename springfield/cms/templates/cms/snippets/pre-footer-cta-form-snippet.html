@@ -1,0 +1,17 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set analytics_text = value.heading|richtext|remove_tags %}
+{% set analytics_position = "pre-footer-cta-form" %}
+{% set analytics_id = value.analytics_id %}
+<include:newsletter-form>
+  <include:heading
+    level="h2"
+    heading_text="{{ value.heading|richtext|remove_p_tag }}"
+    subheading_text="{{ value.subheading|richtext|remove_p_tag }}"
+/>
+</include:newsletter-form>

@@ -1,0 +1,113 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-nav-icon-up-right-arrow {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/append-up-right-24.svg');
+}
+
+.fl-nav-icon-avatar-info-circle {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/avatar-info-circle-fill-24.svg');
+}
+
+.fl-nav-icon-cursor {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/cursor-arrow-24.svg');
+}
+
+.fl-nav-icon-device-desktop {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/device-desktop-24.svg');
+}
+
+.fl-nav-icon-device-mobile {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/device-mobile-24.svg');
+}
+
+.fl-nav-icon-download {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/download-24.svg');
+}
+
+.fl-nav-icon-extensions {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/extension-fill-24.svg');
+}
+
+.fl-nav-icon-eye {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/eye-24.svg');
+}
+
+.fl-nav-icon-fingerprint {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/fingerprinter-24.svg');
+}
+
+.fl-nav-icon-forward-arrow {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/forward-24.svg');
+}
+
+.fl-nav-icon-globe {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/globe-24.svg');
+}
+
+.fl-nav-icon-lock {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/lock-fill-24.svg');
+}
+
+.fl-nav-icon-microphone {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/microphone-24.svg');
+}
+
+.fl-nav-icon-notification {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/notification-24.svg');
+}
+
+.fl-nav-icon-reader-view-customize {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/reader-view-customize-24.svg');
+}
+
+.fl-nav-icon-reader-view {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/reader-view-fill-24.svg');
+}
+
+.fl-nav-icon-reading-list {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/reading-list-24.svg');
+}
+
+.fl-nav-icon-sparkle {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/sparkle-24.svg');
+}

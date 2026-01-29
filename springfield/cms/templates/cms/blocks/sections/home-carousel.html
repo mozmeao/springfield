@@ -7,7 +7,7 @@
 {% set items = [] %}
 {% for item in value.slides %}
   {% set image_html %}
-    {% with widths="width-{400,600,800,1000}", sizes="100vw" %}
+    {% with widths="width-{400,600,800,1000}", sizes="(min-width: 900px) 800px, 100vw" %}
       {% include_block item.image %}
     {% endwith %}
   {% endset %}

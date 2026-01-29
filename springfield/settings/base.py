@@ -1440,6 +1440,8 @@ _allowed_page_models = [
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.HomePage",
+    "cms.DownloadPage",
+    "cms.ThanksPage",
 ]
 
 if DEV is True:
@@ -1476,3 +1478,8 @@ PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", 
 PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
+
+BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
+PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
+PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
+DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)

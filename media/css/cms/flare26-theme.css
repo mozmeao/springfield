@@ -15,6 +15,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-color-banner-text: var(--token-color-white);
+    --fl-theme-color-brand-text: var(--token-color-link-purple);
     --fl-theme-color-link: var(--token-color-link-purple);
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);
@@ -57,13 +58,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
     --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
 
-    /* Label font size variables */
+    /* Labels */
     --fl-theme-label-caps-md: 1rem; /* 16px */
     --fl-theme-label-caps-sm: 0.875rem; /* 14px */
     --fl-theme-label-caps-xs: 0.75rem; /* 12px */
     --fl-theme-label-md: 1rem; /* 16px */
     --fl-theme-label-sm: 0.875rem; /* 14px */
     --fl-theme-label-xs: 0.75rem; /* 12px */
+    --fl-theme-label-color: var(--token-color-black-1);
 
     /* Line height variables NOT from Figma */
     --fl-theme-line-height-base: 1.2;
@@ -72,6 +74,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-layout-direction: column;
     --fl-theme-default-justify-content: center;
     --fl-theme-default-text-align: center;
+    --fl-theme-main-border-radius: var(--token-layout-xs);
 
     /* Shadows */
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
@@ -86,41 +89,120 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Card themes */
     --card-bg-color: var(--token-color-white);
+    --card-border-color: var(--token-color-soft-purple);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
+    --fl-step-card-bg: var(--token-color-cream);
+    --fl-step-card-index-bg: var(--token-color-white);
+    --cloud-background-gradient: linear-gradient(
+        180deg,
+        #fff44f 0%,
+        #ffb84a 100%
+    );
 
-    /* Navigiation menu variables */
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+    /* Navigiation menu */
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
+    --fl-menu-separator-color: var(--token-color-grey-2);
     --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-hamburger-bg: var(--token-color-soft-purple);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
     --fl-navigation-menu-height: 80px;
+    --content-dark-mode-only: unset;
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
 .fl-force-dark-theme {
+    /* Main theme */
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-background: var(--token-color-dark-purple);
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
+    --fl-theme-color-link: var(--token-color-soft-purple-4);
+    --fl-theme-color-link-hover: var(--token-color-white);
+
+    /* Navigation menu */
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
+    --fl-menu-separator-color: var(--token-color-light-purple);
     --fl-menu-title-color: var(--token-color-white);
+    --fl-menu-hamburger-bg: var(--token-color-card-purple);
     --fl-menu-panel-border-color: var(--token-color-link-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
+
+    /* Step cards */
+    --fl-step-card-bg: var(--token-color-medium-purple);
+    --fl-step-card-index-bg: var(--token-color-dark-purple);
+    --content-dark-mode-only: '';
+
+    /* homepage card grid styles */
+    --theme-purple-card-bg-color: var(--token-color-purple);
+    --theme-purple-card-bullet-color: var(--token-color-light-purple);
+    --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+    --cloud-background-gradient: linear-gradient(
+        180deg,
+        var(--token-color-medium-purple) 0%,
+        var(--token-color-purple) 100%
+    );
 }
 
 .fl-force-light-theme {
+    /* Main theme */
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-background: var(--token-color-white);
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+
+    /* Navigiation menu */
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
+    --fl-menu-separator-color: var(--token-color-grey-2);
     --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-hamburger-bg: var(--token-color-soft-purple);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
+
+    /* Step cards */
+    --fl-step-card-bg: var(--token-color-cream);
+    --fl-step-card-index-bg: var(--token-color-white);
+    --content-dark-mode-only: unset;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Main theme */
+        --fl-theme-color-text: var(--token-color-white);
+        --fl-theme-background: var(--token-color-dark-purple);
+        --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
+        --fl-theme-color-link: var(--token-color-soft-purple-4);
+        --fl-theme-color-link-hover: var(--token-color-white);
+
+        /* Navigiation menu */
+        --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
+        --fl-menu-title-color: var(--token-color-white);
+        --fl-menu-hamburger-bg: var(--token-color-medium-purple);
+        --fl-menu-panel-border-color: var(--token-color-link-purple);
+        --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
+        --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
+        --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
+
+        /* Step cards */
+        --fl-step-card-bg: var(--token-color-medium-purple);
+        --fl-step-card-index-bg: var(--token-color-dark-purple);
+        --content-dark-mode-only: '';
+
+        /* homepage card grid styles */
+        --theme-purple-card-bg-color: var(--token-color-purple);
+        --theme-purple-card-bullet-color: var(--token-color-light-purple);
+        --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+        --cloud-background-gradient: linear-gradient(
+            180deg,
+            var(--token-color-medium-purple) 0%,
+            var(--token-color-purple) 100%
+        );
+    }
 }
 
 /* CSS custom properties are not resolved in media queries; so we
@@ -139,7 +221,6 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-heading-md: 2rem; /* 32px */
         --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
         --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
-        --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
@@ -161,5 +242,6 @@ components consume the variables (no per-component media queries) */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
         --fl-section-v-padding: var(--token-layout-lg-half);
         --fl-section-heading-margin-bottom: var(--token-layout-sm);
+        --fl-theme-main-border-radius: var(--token-layout-lg);
     }
 }

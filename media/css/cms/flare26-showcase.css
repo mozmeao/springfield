@@ -30,23 +30,11 @@
     width: 100%;
 }
 
-.fl-showcase-image-desktop {
-    display: none;
-}
-
 @media (--viewport-sm-up) {
     .fl-showcase-caption:has(.fl-subheading) {
         display: grid;
         gap: var(--token-spacing-lg);
         grid-template-columns: 1fr 1fr;
-    }
-
-    .fl-showcase-image-mobile {
-        display: none;
-    }
-
-    .fl-showcase-image-desktop {
-        display: block;
     }
 }
 

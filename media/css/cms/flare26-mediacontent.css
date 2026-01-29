@@ -1,0 +1,129 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-mediacontent {
+    align-items: center;
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+    padding: var(--token-spacing-lg);
+    position: relative;
+}
+
+.fl-mediacontent-media {
+    border-radius: var(--token-spacing-lg);
+    height: auto;
+    overflow: hidden;
+}
+
+.fl-mediacontent-content .heading,
+.fl-mediacontent-content .fl-body,
+.fl-mediacontent-content .fl-superheading {
+    text-align: left;
+}
+
+.fl-mediacontent-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-sm);
+    margin-bottom: var(--token-spacing-xl);
+
+    .fl-tag {
+        margin: 0;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-mediacontent {
+        gap: var(--token-layout-xs);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-mediacontent-reverse {
+        grid-auto-flow: dense;
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-media {
+        order: 2;
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-content {
+        order: 1;
+    }
+
+    .fl-mediacontent-content {
+        padding: 0;
+    }
+
+    .fl-mediacontent-content .fl-buttons {
+        margin-top: var(--token-spacing-xl);
+    }
+
+    .fl-mediacontent .fl-button {
+        width: fit-content;
+    }
+}
+
+@media (--viewport-xs) {
+    .fl-mediacontent-content .fl-button {
+        width: 100%;
+    }
+
+    .fl-mediacontent {
+        gap: var(--token-spacing-xl);
+    }
+
+    .fl-mediacontent-media {
+        height: auto;
+    }
+}
+
+.fl-mediacontent .fl-subtitle a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-mediacontent .fl-subtitle a:hover {
+    text-decoration: underline;
+}
+
+.fl-mediacontent .fl-subtitle a:focus {
+    outline: 2px solid var(--fl-theme-color-link);
+    outline-offset: 2px;
+}
+
+.fl-mediacontent .fl-button {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.fl-mediacontent-media img {
+    border-radius: var(--token-spacing-lg);
+    display: block;
+    height: auto;
+    margin: 0;
+    width: 100%;
+}
+
+.fl-mediacontent-media iframe {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--token-spacing-lg);
+    height: auto;
+    width: 100%;
+}
+
+/* Blog page related articles */
+.fl-blog-related-articles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    margin-top: var(--token-layout-sm);
+}
+
+.fl-blog-related-articles .fl-mediacontent {
+    margin: 0;
+    padding: 0;
+}

@@ -1,0 +1,121 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
+
+{% if not success %}
+  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
+    {% if not is_multi_newsletter_form %}
+      <div hidden>
+        {{ form.newsletters|safe }}
+      </div>
+    {% endif %}
+    <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
+
+    <div class="fl-newsletterform-field">
+      <label class="fl-newsletterform-label" for="newsletter-email">{{ email_label|d(ftl('newsletter-form-your-email-address'), true) }}</label>
+      {% if email_placeholder %}
+        {% set placeholder = email_placeholder %}
+      {% else %}
+        {% set placeholder = ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') %}
+      {% endif %}
+      <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" />
+    </div>
+
+    {% if not include_language %}
+      <input type="hidden" name="lang" id="id_lang" value="en">
+    {% endif %}
+
+    <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
+      {% if include_country %}
+        <div class="fl-newsletterform-field">
+          <label for="{{ form.country.id_for_label }}" class="fl-newsletterform-label">{{ form.country.label }}</label>
+          <select class="fl-newsletterform-select" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}">
+            <option value="" disabled selected>{{ ftl('newsletter-form-please-select-country') }}</option>
+            {% for choice in form.country.field.choices %}
+            {% if choice.0 %}
+            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          <svg class="fl-newsletterform-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6L8 10L12 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+      {% endif %}
+
+      {% if include_language %}
+      <div class="fl-newsletterform-field">
+        <label for="{{ form.lang.id_for_label }}" class="fl-newsletterform-label">{{ form.lang.label }}</label>
+        {% if LANG.startswith('en-') %}
+          {% set lang_default = 'en' %}
+        {% else %}
+          {% set lang_default = LANG %}
+        {% endif %}
+        <select class="fl-newsletterform-select" name="{{ form.lang.name }}" id="{{ form.lang.id_for_label }}">
+          {% for choice in form.lang.field.choices %}
+            {% if choice.0 %}
+              <option value="{{ choice.0 }}" {% if choice.0== lang_default  %}selected{% endif %}>{{ choice.1 }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <svg class="fl-newsletterform-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6L8 10L12 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      {% endif %}
+
+      {% if LANG == 'de' %}
+        {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Nutzungsbedingungen</a> und <a href="https://www.mozilla.org/privacy/websites/">Datenschutzrichtlinie</a> von Firefox.' %}
+      {% elif LANG == 'fr' %}
+        {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Conditions d’utilisation</a> de Firefox et <a href="https://www.mozilla.org/privacy/websites/">Politique de confidentialité</a>.' %}
+      {% else %}
+        {% set legal_links = 'Firefox <a href="https://www.mozilla.org/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="https://www.mozilla.org/privacy/websites/">Privacy Policy</a>.' %}
+      {% endif %}
+      <div class="fl-newsletterform-consent">
+        <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
+          <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true">
+          <span class="fl-newsletterform-checkbox-text">{{ legal_links | safe }} {{ ftl('newsletter-form-we-will-only-send-firefox-v2') }}</span>
+        </label>
+      </div>
+    </div>
+    <button
+     id="newsletter-submit"
+     class="fl-button"
+     type="submit"
+     disabled
+     {% if analytics_id %}
+      data-cta-position="{{ analytics_position }}"
+      data-cta-text="{{ analytics_text }}"
+      data-cta-uid="{{ analytics_id }}"
+     {% endif %}
+    >{{ ftl('newsletter-form-button-cta') }}</button>
+    <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+      <ul class="fl-newsletterform-error-list mzp-u-list-styled">
+        <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>
+        <li class="error-try-again-later hidden">{{ ftl('newsletter-form-we-are-sorry-but-there') }}</li>
+      </ul>
+    </div>
+  </form>
+  <div id="newsletter-thanks" class="fl-newsletterform-success hidden" data-testid="newsletter-thanks-message"
+       {% if thankyou_head %}aria-label="{{ thankyou_head }}" {% endif %}
+       {% if thankyou_content %}aria-description="{{ thankyou_content }}" {% endif %}>
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="40" cy="40" r="40" fill="white" />
+      <path d="M28 40L36 48L52 32" stroke="black" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" />
+    </svg>
+  </div>
+
+{% elif use_thankyou %}
+  <div class="fl-newsletterform-thanks">
+    {% if thankyou_content %}
+      <h3>{{ thankyou_head }}</h3>
+      <p>{{ thankyou_content }}</p>
+    {% else %}
+      {{ email_form_thankyou() }}
+    {% endif %}
+  </div>
+{% endif %}

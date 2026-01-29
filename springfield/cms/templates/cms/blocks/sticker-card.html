@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{# Attention! Used both for the 2025 and 2026 designs #}
+
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
 
@@ -23,6 +25,7 @@
         level="{{ heading_level }}"
         heading_size="fl-heading-size-3"
         heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        superheading_text="{{ value.superheading|richtext|remove_tags }}"
       />
     </content:heading>
 

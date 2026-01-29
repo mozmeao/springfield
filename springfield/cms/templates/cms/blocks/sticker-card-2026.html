@@ -1,0 +1,41 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set block_text =  value.headline|richtext|remove_tags %}
+
+<include:conditional-display condition="{{ value.settings.show_to }}">
+  <include:sticker-card-2026 expand_link="{{ value.settings.expand_link }}">
+    <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
+
+    <content:heading>
+      <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        superheading_text="{{ value.superheading|richtext|remove_tags }}"
+      />
+    </content:heading>
+
+    <content:sticker>
+      {% with widths="width-400", extra_classes="fl-card-sticker", aria_hidden="true" %}
+        {% include_block value.image %}
+      {% endwith %}
+    </content:sticker>
+
+    <content:body>
+      {{ value.content|richtext }}
+    </content:body>
+    {% if value.buttons %}
+      <content:buttons>
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+      </content:buttons>
+    {% endif %}
+  </include:sticker-card-2026>
+</include:conditional-display>
