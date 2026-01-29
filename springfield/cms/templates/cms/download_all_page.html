@@ -1,0 +1,33 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  This setting here checks for the switch and changes the base template accordingly.
+  It doesn't change the HTML rendered though, only CSS and JS.
+  If you need specific HTML to be different, look at the example below.
+#}
+
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
+{% extends base_template %}
+
+{% block content %}
+<div class="fl-section">
+  {# If you want specific content for different versions, do it like this: #}
+  {% if switch("flare26_enabled") %}
+    <include:heading
+      alignment_class="new-download-all-example"
+      heading_text="This is a heading 2026 style"
+      subheading_text="The CSS is in media/css/cms/flare26.css"
+    />
+  {% else %}
+    <include:heading
+      alignment_class="new-download-all-example"
+      heading_text="This is a heading 2025 style"
+      subheading_text="The CSS is in media/css/cms/flare.css"
+    />
+  {% endif %}
+</div>
+{% endblock %}
