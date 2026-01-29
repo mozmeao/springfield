@@ -12,6 +12,23 @@
     padding-block: 0;
 }
 
+.fl-download-intro .fl-subheading,
+.fl-download-intro .fl-fx-download-container,
+.fl-download-intro .fl-download-intro-footer-text {
+    margin-block: var(--token-layout-xs);
+}
+
+.fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    display: inline-block;
+    margin-bottom: 0.25em;
+}
+
+.fl-download-intro .fl-subheading {
+    margin-inline: auto;
+    max-width: 800px;
+    text-wrap: balance;
+}
+
 .fl-download-intro-featured-image {
     padding-block-start: var(--token-spacing-md);
 }
@@ -20,4 +37,129 @@
     margin-block-end: -4px;
     max-width: 100%;
     width: 810px;
+}
+
+/* Platform dropdown styles */
+
+.fl-platform-dropdown-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.fl-platform-dropdown {
+    display: flex;
+    position: relative;
+}
+
+.fl-platform-dropdown-button {
+    align-items: baseline;
+    background-color: transparent;
+    border-bottom: 2px solid var(--token-color-light-purple);
+    border-radius: 0;
+    border-top: 2px solid transparent;
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-headline);
+    gap: var(--token-spacing-md);
+    justify-content: center;
+    margin: 0;
+    padding: var(--token-spacing-xs) var(--token-spacing-md);
+    width: 100%;
+}
+
+.fl-platform-dropdown-button:hover,
+.fl-platform-dropdown-button:focus,
+.fl-platform-dropdown-button:active {
+    background-color: var(--token-color-light-purple);
+    border-color: var(--token-color-light-purple);
+    border-radius: var(--token-border-radius-xs);
+}
+
+.fl-platform-dropdown-button .fl-icon-wrapper {
+    align-items: center;
+    background: var(--token-color-medium-purple);
+    border-radius: 50%;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    transform: translateY(-0.2em);
+    width: 36px;
+}
+
+.fl-platform-dropdown-button .fl-icon-wrapper .fl-icon {
+    height: 16px;
+    width: 16px;
+}
+
+.fl-platform-dropdown-list {
+    display: none;
+}
+
+.fl-platform-dropdown.dropdown-is-open .fl-platform-dropdown-button {
+    border: 2px solid var(--token-color-light-purple);
+    border-bottom: transparent;
+    border-radius: var(--token-border-radius-xs) var(--token-border-radius-xs) 0
+        0;
+    min-width: var(--platform-dropdown-min-width, 8ch);
+}
+
+.fl-platform-dropdown.dropdown-is-open .fl-platform-dropdown-list {
+    background-color: var(--token-color-dark-purple);
+    border: 2px solid var(--token-color-light-purple);
+    border-radius: 0 0 var(--token-border-radius-xs)
+        var(--token-border-radius-xs);
+    display: block;
+    inset: 100% 0 auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 10;
+}
+
+.fl-dropdown-item {
+    margin: 0;
+}
+
+.fl-dropdown-item > a {
+    border-bottom: 2px solid var(--token-color-light-purple);
+    color: var(--token-color-white);
+    display: flex;
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-md);
+    font-weight: var(--token-font-weight-semibold);
+    min-width: var(--platform-dropdown-min-width, 8ch);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
+    text-decoration: none;
+}
+
+.fl-dropdown-item > a:hover {
+    background: var(--token-color-light-purple);
+}
+
+.fl-dropdown-item > a:active {
+    background: var(--token-color-link-purple);
+}
+
+.fl-dropdown-item:last-child > a {
+    border-bottom: 0 none;
+}
+
+.fl-dropdown-item > a,
+.fl-platform-dropdown-button {
+    box-sizing: content-box;
+}
+
+.no-js .fl-platform-dropdown .fl-icon-wrapper {
+    display: none;
+}
+
+.no-js .fl-platform-dropdown-button {
+    cursor: default;
+}
+
+.no-js .fl-platform-dropdown-button:hover,
+.no-js .fl-platform-dropdown-button:focus,
+.no-js .fl-platform-dropdown-button:active {
+    background-color: unset;
+    border-radius: 0;
 }

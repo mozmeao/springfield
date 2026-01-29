@@ -15,18 +15,32 @@
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <div class="fl-section-container">
         <div class="fl-section">
-          <h1 class="fl-heading fl-heading-size-1">{{ ftl('firefox-new-download-firefox') }}</h1>
-          <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
-          {# TODO: implement platform select. Show link if no JS. #}
-          <div class="fl-dropdown">
-            {% for key, platform in platforms %}
-              <div class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-                <a href="{{ platform_links[key] }}">
-                  {{ platform }} {% if key == page.platform %}ACTIVE{% endif %}
-                </a>
-              </div>
-            {% endfor %}
+          <h1 class="fl-heading fl-heading-size-1">
+            <span class="fl-fx-logo">‍</span><br>
+            {{ ftl('firefox-new-download-firefox') }}
+          </h1>
+          <div class="fl-platform-dropdown-wrapper">
+            <div class="fl-platform-dropdown">
+            <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+                {% if page.platform == 'ios'%}iOS{% else %}{{ page.platform | title }}{% endif %}
+              </span>
+              <span class="fl-icon-wrapper">
+                <span class="fl-icon fl-icon-caret-down" aria-hidden="true"></span>
+              </span>
+            </button>
+            <ul class="fl-platform-dropdown-list" aria-role="listbox">
+              {% for key, platform in platforms %}
+                <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+                  <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                    {{ platform }}
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
           </div>
+
+          <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
 
           {{ download_firefox_thanks(
               alt_copy=ftl('download-button-download-firefox'),
