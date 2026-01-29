@@ -1,0 +1,51 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
+{% extends base_template %}
+
+{% block body_class %}fl-article-body{% endblock %}
+
+{% block content %}
+<div class="fl-page">
+  <main class="fl-main">
+    <header class="fl-article-index-header">
+      <include:heading
+        alignment_class="text-center"
+        level="h1"
+        heading_text="{{ page.heading|richtext|remove_p_tag }}"
+        subheading_text="{{ page.subheading|richtext|remove_p_tag if page.subheading else '' }}"
+      />
+    </header>
+
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <include:cards-list>
+          {% for article in page.featured_articles %}
+            {% include_block article %}
+          {% endfor %}
+        </include:cards-list>
+      </div>
+    </section>
+
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <include:heading
+          alignment_class="text-center"
+          level="h2"
+          heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
+          subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag if page.other_articles_subheading else '' }}"
+        />
+          <div class="fl-stacked-article-list">
+            {% for article in page.other_articles %}
+              {% include_block article %}
+            {% endfor %}
+          </div>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

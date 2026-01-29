@@ -15,9 +15,11 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
+    ArticleItemBlock,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    FeaturedArticleBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -287,7 +289,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    subpage_types = ["cms.ArticleDetailPage"]
+    subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
 
     sub_title = models.CharField(
         max_length=255,
@@ -384,6 +386,59 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("image"),
         FieldPanel("content"),
+    ]
+
+
+class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays articles related to a specific theme."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    subheading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    featured_articles = StreamField(
+        [
+            ("article", FeaturedArticleBlock()),
+        ],
+        use_json_field=True,
+        min_num=2,
+        max_num=4,
+    )
+    other_articles_heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    other_articles_subheading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    other_articles = StreamField(
+        [
+            ("article", ArticleItemBlock()),
+        ],
+        use_json_field=True,
+        min_num=2,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("heading"),
+                FieldPanel("subheading"),
+                FieldPanel("featured_articles"),
+            ],
+            heading="Featured Articles Section",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("other_articles_heading"),
+                FieldPanel("other_articles_subheading"),
+                FieldPanel("other_articles"),
+            ],
+            heading="Other Articles Section",
+        ),
     ]
 
 

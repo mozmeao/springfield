@@ -1620,3 +1620,61 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
+
+
+# Articles
+
+
+class FeaturedArticleOverridesBlock(blocks.StructBlock):
+    image = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom image to override the article's original featured image.",
+    )
+    superheading = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom superheading to override the article's original tag.",
+    )
+    title = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom title to override the article's original title.",
+    )
+    description = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom description to override the article's original description.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Overrides"
+
+
+class FeaturedArticleBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        label="Featured Article",
+        help_text="Select an article to feature.",
+        target_model="cms.ArticleDetailPage",
+    )
+    overrides = FeaturedArticleOverridesBlock(required=False)
+
+    class Meta:
+        template = "cms/blocks/featured-article.html"
+        label = "Featured Article"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
+
+
+class ArticleItemBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        label="Article",
+        help_text="Select an article to list.",
+        target_model="cms.ArticleDetailPage",
+    )
+
+    class Meta:
+        template = "cms/blocks/article-item.html"
+        label = "Article Item"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
