@@ -54,6 +54,7 @@
     background-color: transparent;
     border-bottom: 2px solid var(--token-color-light-purple);
     border-radius: 0;
+    border-top: 2px solid transparent;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-headline);
     gap: var(--token-spacing-md);
@@ -144,4 +145,19 @@
 .fl-dropdown-item > a,
 .fl-platform-dropdown-button {
     box-sizing: content-box;
+}
+
+.no-js .fl-platform-dropdown .fl-icon-wrapper {
+    display: none;
+}
+
+.no-js .fl-platform-dropdown-button {
+    cursor: default;
+}
+
+.no-js .fl-platform-dropdown-button:hover,
+.no-js .fl-platform-dropdown-button:focus,
+.no-js .fl-platform-dropdown-button:active {
+    background-color: unset;
+    border-radius: 0;
 }
