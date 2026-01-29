@@ -134,8 +134,11 @@ class TestReleaseModel(TestCase):
             query = models.ProductRelease.objects.product(product_name="firefox", channel_name="esr")
 
         raw_query_as_str = str(query.query)
-        assert 'AND "releasenotes_productrelease"."channel" LIKE esr' in raw_query_as_str
-        assert 'AND "releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
+        # Check channel filter is applied (syntax varies by database: LIKE on SQLite, UPPER()=UPPER() on PostgreSQL)
+        assert '"releasenotes_productrelease"."channel"' in raw_query_as_str
+        assert "esr" in raw_query_as_str.lower()
+        # Check version filter uses the exact ESR version from product_details
+        assert '"releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
 
     @override_settings(DEV=False)
     def test_is_public_query(self):
