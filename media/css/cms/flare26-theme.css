@@ -102,8 +102,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     );
 
     /* Navigiation menu */
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
+    --fl-menu-separator-color: var(--token-color-grey-2);
     --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-hamburger-bg: var(--token-color-soft-purple);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
@@ -122,8 +124,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-link-hover: var(--token-color-white);
 
     /* Navigation menu */
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
+    --fl-menu-separator-color: var(--token-color-light-purple);
     --fl-menu-title-color: var(--token-color-white);
+    --fl-menu-hamburger-bg: var(--token-color-card-purple);
     --fl-menu-panel-border-color: var(--token-color-link-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
@@ -151,8 +155,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-background: var(--token-color-white);
 
     /* Navigiation menu */
-    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor.svg');
+    --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
+    --fl-menu-separator-color: var(--token-color-grey-2);
     --fl-menu-title-color: var(--token-color-black-4);
+    --fl-menu-hamburger-bg: var(--token-color-soft-purple);
     --fl-menu-panel-border-color: var(--token-color-soft-purple);
     --fl-menu-panel-box-shadow-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
@@ -174,8 +180,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-color-link-hover: var(--token-color-white);
 
         /* Navigiation menu */
-        --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white.svg');
+        --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
         --fl-menu-title-color: var(--token-color-white);
+        --fl-menu-hamburger-bg: var(--token-color-medium-purple);
         --fl-menu-panel-border-color: var(--token-color-link-purple);
         --fl-menu-panel-box-shadow-color: var(--token-color-light-purple-20);
         --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);

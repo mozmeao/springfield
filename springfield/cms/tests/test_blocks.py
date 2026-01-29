@@ -162,7 +162,7 @@ def assert_section_heading_attributes(section_element: BeautifulSoup, heading_da
     assert heading and heading_text in heading.get_text()
 
     if superheading_text:
-        superheading = section_element.find("span", class_="fl-superheading")
+        superheading = section_element.find("p", class_="fl-superheading")
         assert superheading and superheading_text in superheading.get_text()
 
     if subheading_text:
@@ -434,7 +434,7 @@ def test_subscription_block(index_page, rf):
         heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
         subheading_text = BeautifulSoup(heading_block["subheading_text"], "html.parser").get_text()
 
-        superheading = section.find("span", class_="fl-superheading")
+        superheading = section.find("p", class_="fl-superheading")
         heading = section.find("h1" if index == 0 else "h2", class_="fl-heading")
         subheading = section.find("p", class_="fl-subheading")
 
@@ -864,7 +864,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-step_cards.card-{card_index + 1}.button-1",
             )
-            superheading = card_element.find("span", class_="fl-superheading")
+            superheading = card_element.find("p", class_="fl-superheading")
             assert superheading and superheading.get_text().strip() == f"Step {(card_index + 1):>02}"
             images_element = card_element.find("div", class_="image-variants-display")
             assert images_element
@@ -1120,7 +1120,7 @@ def test_home_intro_block(index_page, rf):
     heading_block = home_intro["value"]["heading"]
     assert_section_heading_attributes(section_element=intro_div, heading_data=heading_block, index=0)
 
-    superheading_element = intro_div.find("span", class_="fl-superheading")
+    superheading_element = intro_div.find("p", class_="fl-superheading")
     superheading_link = superheading_element.find("a")
     assert superheading_link["href"] == add_utm_parameters(context, "https://mozilla.org")
 

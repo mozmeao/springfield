@@ -39,6 +39,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-download-link.css' layer(components);
 @import 'flare26-download-utils.css' layer(components);
 @import 'flare26-icon.css' layer(components);
+@import 'flare26-nav-icons.css' layer(components);
 @import 'flare26-button.css' layer(components);
 @import 'flare26-typography.css' layer(components);
 @import 'flare26-card.css' layer(components);
@@ -78,6 +79,7 @@ included via a <link> tag in a conditional comment */
     a custom webpack loader. */
     @import 'flare26-base.css';
     @import 'flare26-icon.css';
+    @import 'flare26-nav-icons.css';
     @import 'flare26-button.css';
     @import 'flare26-download-utils.css';
     @import 'flare26-download-link.css';
