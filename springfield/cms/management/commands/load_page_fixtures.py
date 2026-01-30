@@ -20,7 +20,7 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_cards_test_page,
     get_sticker_cards_test_page,
 )
-from springfield.cms.fixtures.download_page_fixtures import get_download_page
+from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
@@ -63,8 +63,9 @@ class Command(BaseCommand):
         home_page = get_home_test_page()
         self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
 
-        download_page = get_download_page()
-        self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
+        download_pages = get_download_pages()
+        for download_page in download_pages.values():
+            self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
 
         thanks_page = get_thanks_page()
         self.stdout.write(self.style.SUCCESS(f"Thanks test page loaded: {thanks_page.slug}"))
