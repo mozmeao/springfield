@@ -140,7 +140,7 @@ URL_REWRITES = [
 
 
 def _rewrite_urls(soup: BeautifulSoup) -> None:
-    """Apply URL rewrites to src, srcset, and poster attributes."""
+    """Apply URL rewrites from URL_REWRITES to src, srcset, and poster attributes in the provided BeautifulSoup object. Modifies the soup in-place."""
     url_attrs = ["src", "srcset", "poster"]
     for attr in url_attrs:
         for element in soup.find_all(attrs={attr: True}):
