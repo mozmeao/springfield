@@ -1,3 +1,9 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 /* ================================================
    Download Links
    ================================================ */
@@ -26,7 +32,7 @@
 .fl-header .mzp-c-button-download-privacy-link,
 .fl-header .fx-unsupported-message,
 .fl-header .fl-privacy-link {
-    display: none;
+    display: none !important; /* stylelint-disable-line */
     margin: 0;
 }
 

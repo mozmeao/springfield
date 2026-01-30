@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import redirect
 
@@ -18,6 +19,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    DownloadSupportBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -249,9 +251,12 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A thank you page displayed after the user downloads Firefox."""
 
+    ftl_files = ["firefox/download/desktop"]
+
     content = StreamField(
         [
             ("section", SectionBlock2026(allow_uitour=False)),
+            ("download_support", DownloadSupportBlock()),
             (
                 "banner_snippet",
                 SnippetChooserBlock(
@@ -260,7 +265,8 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                     label="Banner Snippet",
                 ),
             ),
-        ]
+        ],
+        use_json_field=True,
     )
     pre_footer = StreamField(
         [
@@ -284,6 +290,12 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
         FieldPanel("pre_footer"),
     ]
+
+    def clean(self):
+        super().clean()
+        content_block_types = [block.block_type for block in self.content]
+        if "download_support" not in content_block_types:
+            raise ValidationError("The 'Download Support Message' block is required.")
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

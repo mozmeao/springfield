@@ -335,6 +335,9 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("not-firefox", "Non Firefox Users"),
     ("state-fxa-supported-signed-in", "Signed-in Users"),
     ("state-fxa-supported-signed-out", "Signed-out Users"),
+    ("windows", "Windows 7-10 Users"),
+    ("osx", "macOS Users"),
+    ("linux", "Linux Users"),
     ("windows-10-plus", "Windows 10+ Users"),
     ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
     ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
@@ -1620,3 +1623,12 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
+
+
+# Thanks Page
+
+
+class DownloadSupportBlock(blocks.StaticBlock):
+    class Meta:
+        template = "cms/blocks/download-support.html"
+        label = "Download Support Message"

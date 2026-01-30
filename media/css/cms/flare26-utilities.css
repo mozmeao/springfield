@@ -194,7 +194,50 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
+.android .conditional-display.condition-android {
+    display: unset;
+}
+
+.ios .conditional-display.condition-ios {
+    display: unset;
+}
+
+.linux .conditional-display.condition-linux {
+    display: unset;
+}
+
+.osx .conditional-display.condition-osx {
+    display: unset;
+}
+
+.windows:not(.fx-unsupported) .conditional-display.condition-windows {
+    display: unset;
+}
+
 .windows-10-plus .conditional-display.condition-windows-10-plus {
+    display: unset;
+}
+
+.other .conditional-display.condition-other {
+    display: unset;
+}
+
+.conditional-display.condition-unknown {
+    display: unset;
+}
+
+html.linux .conditional-display.condition-unknown:not(.is-preview),
+html.osx .conditional-display.condition-unknown:not(.is-preview),
+html.windows .conditional-display.condition-unknown:not(.is-preview),
+html.windows-10-plus .conditional-display.condition-unknown:not(.is-preview),
+html.ios .conditional-display.condition-unknown:not(.is-preview),
+html.other .conditional-display.condition-unknown:not(.is-preview),
+html.android .conditional-display.condition-unknown:not(.is-preview) {
+    display: none;
+}
+
+html.windows.fx-unsupported .conditional-display.condition-unknown,
+html.osx.fx-unsupported .conditional-display.condition-unknown {
     display: unset;
 }
 

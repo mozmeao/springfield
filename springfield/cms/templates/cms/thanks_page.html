@@ -8,9 +8,30 @@
 
 {% block body_class %}fl-home-body{% endblock %}
 
+{% block site_js %}
+  {{ super() }}
+  {{ js_bundle('firefox_download_thanks') }}
+{% endblock %}
 
 {% block content %}
   <div class="fl-main">
+
+    <div class="fl-notification-wrapper">
+      {# TODO: show-auto-download-notification #}
+      {# TODO: inline notification styles #}
+      <div class="fl-notification fl-notification-green show-auto-download-notification">
+        {# fallback_url is replaced by the platform download link via JS, but if
+            something fails the user should still get a link to a working download path. #}
+
+        <div class="fl-notification-content">
+          <span class="fl-notification-message">
+          {% set fallback_href = firefox_url('desktop', 'all') %}
+          {{ ftl('firefox-desktop-download-your-firefox-new-should-begin', id='direct-download-link', fallback_url=fallback_href)}}
+          </span>
+        </div>
+      </div>
+    </div>
+
     {% set ns = namespace(headings=0) %}
     {% for block in page.content %}
       {% set block_index = loop.index %}
