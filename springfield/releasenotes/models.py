@@ -132,6 +132,23 @@ HTML_PATCHING = {
     },
 }
 
+# Global URL rewrites applied to src, srcset, poster attributes
+# List of (regex_pattern, replacement) tuples
+URL_REWRITES = [
+    (r"www\.mozilla\.org/media/", "www.firefox.com/media/"),
+]
+
+
+def _rewrite_urls(soup: BeautifulSoup) -> None:
+    """Apply URL rewrites to src, srcset, and poster attributes."""
+    url_attrs = ["src", "srcset", "poster"]
+    for attr in url_attrs:
+        for element in soup.find_all(attrs={attr: True}):
+            value = element[attr]
+            for pattern, replacement in URL_REWRITES:
+                value = re.sub(pattern, replacement, value)
+            element[attr] = value
+
 
 def _patch_html(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -153,6 +170,7 @@ def _patch_html(html: str) -> str:
             elif action == "delete":
                 if attr in element.attrs:
                     del element[attr]
+    _rewrite_urls(soup)
     return str(soup)
 
 

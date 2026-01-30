@@ -82,7 +82,8 @@ _csp_img_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
     "data:",
-    "www.mozilla.org",  # mainly for release notes images.
+    "www.mozilla.org",  # mainly for release notes images. TODO: investigate removing
+    "www.firefox.com",  # for release notes images when loading from nonprod or origin hosts
     "www.googletagmanager.com",
     "www.google-analytics.com",
 }
