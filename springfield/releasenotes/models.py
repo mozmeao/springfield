@@ -140,7 +140,15 @@ URL_REWRITES = [
 
 
 def _rewrite_urls(soup: BeautifulSoup) -> None:
-    """Apply URL rewrites from URL_REWRITES to src, srcset, and poster attributes in the provided BeautifulSoup object. Modifies the soup in-place."""
+    """Apply URL rewrites from URL_REWRITES to src, srcset, and poster attributes in the provided BeautifulSoup object.
+
+    URL_REWRITES is expected to be a list of (pattern, replacement) tuples, where:
+      * pattern is a regular expression string
+      * replacement is the replacement string
+
+    Each (pattern, replacement) pair is applied in order to the attribute value using re.sub(pattern, replacement, value).
+    The provided BeautifulSoup object is modified in-place.
+    """
     url_attrs = ["src", "srcset", "poster"]
     for attr in url_attrs:
         for element in soup.find_all(attrs={attr: True}):
