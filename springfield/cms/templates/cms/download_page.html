@@ -6,6 +6,9 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
 {% block body_class %}fl-home-body{% endblock %}
 
 {% block flare_header %}
@@ -46,12 +49,21 @@
 
           <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
 
-          {{ download_firefox_thanks(
-              alt_copy=ftl('download-button-download-firefox'),
-              dom_id='features-footer-download',
-              download_location='download-page',
-              flare_styles=True
-          ) }}
+          {% if page.platform == "mac" %}
+            {{ firefox_download_desktop_button_mac(flare_styles=True) }}
+          {% elif page.platform == "windows" %}
+            {{ firefox_download_desktop_button_windows(flare_styles=True) }}
+          {% elif page.platform == "linux" %}
+            {{ firefox_download_desktop_button_linux(flare_styles=True) }}
+          {% elif page.platform == "android" %}
+            {% set android_url = play_store_url('firefox', 'app-store-banner') %}
+            {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
+          {% elif page.platform == "ios" %}
+            {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios') %}
+            {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+          {% elif page.platform == "chromebook" %}
+            {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
+          {% endif %}
 
           {% if page.intro_footer_text %}
             <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
