@@ -7,9 +7,10 @@ from django.template.loader import render_to_string
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.documents.models import Document
-from wagtail.images.jinja2tags import srcset_image
+from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Page
 
+from springfield.cms.fixtures.article_page_fixtures import get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
@@ -45,7 +46,7 @@ from springfield.cms.fixtures.media_content_fixtures import (
 )
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
-from springfield.cms.models import SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.firefox.templatetags.misc import fxa_button
 
@@ -1442,3 +1443,124 @@ def test_home_pre_footer_cta(index_page, rf):
     assert link_element["data-cta-position"] == "pre-footer-cta"
     assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
     assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
+
+
+# Articles
+
+
+def test_theme_page_blocks(index_page, rf):
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-index-header")
+    assert header
+    assert header.find("h1").get_text().strip() == BeautifulSoup(page.heading, "html.parser").get_text().strip()
+    assert (
+        header.find("p", class_="fl-subheading").get_text().strip()
+        == BeautifulSoup(
+            page.subheading,
+            "html.parser",
+        )
+        .get_text()
+        .strip()
+    )
+
+    sections = soup.find_all("section", class_="fl-section")
+    assert len(sections) == 2
+
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Featured Articles
+    featured_articles_data = page.featured_articles.raw_data
+    featured_articles_section = sections[0]
+    assert featured_articles_section.find(class_="fl-card-grid")
+    featured_cards = featured_articles_section.find_all("article", class_="fl-illustration-card")
+    assert len(featured_cards) == len(featured_articles_data)
+    for i, article_data in enumerate(featured_articles_data):
+        card_element = featured_cards[i]
+        article_id = article_data["value"]["article"]
+        article = ArticleDetailPage.objects.get(id=article_id)
+        overrides = article_data["value"].get("overrides", {})
+
+        image_id = overrides.get("image") or article.featured_image.id
+        img = image_ids[image_id]
+        rendered_image = srcset_image(
+            img,
+            "width-{200,400,600,800,1000,1200,1400}",
+            **{
+                "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
+                "width": img.width,
+                "height": img.height,
+                "loading": "lazy",
+            },
+        )
+        img_tag = card_element.find("img")
+        image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+        assert img_tag["alt"] == image_soup["alt"]
+        assert img_tag["loading"] == image_soup["loading"]
+        assert img_tag["width"] == image_soup["width"]
+        assert img_tag["height"] == image_soup["height"]
+        assert img_tag["src"] == image_soup["src"]
+
+        superheading_text = overrides.get("superheading") or (article.tag.name if article.tag else "")
+        if superheading_text:
+            superheading_element = card_element.find("p", class_="fl-superheading")
+            assert superheading_element and superheading_element.get_text().strip() == superheading_text.strip()
+
+        title_override = overrides.get("title")
+        title_text = BeautifulSoup(title_override, "html.parser").get_text() if title_override else article.title
+        heading_element = card_element.find("h3", class_="fl-heading")
+        assert heading_element and heading_element.get_text().strip() == title_text.strip()
+
+        link = heading_element.find("a")
+        assert link and link["href"] == article.url
+
+        description_override = overrides.get("description")
+        description_source = description_override if description_override else article.description
+        description_text = BeautifulSoup(description_source, "html.parser").get_text().strip()
+        description_element = card_element.find("div", class_="fl-body")
+        assert description_element and description_element.get_text().strip() == description_text.strip()
+
+    # Other Articles
+    other_articles_section = sections[1]
+
+    assert_section_heading_attributes(
+        section_element=other_articles_section,
+        heading_data={
+            "heading_text": BeautifulSoup(page.other_articles_heading, "html.parser").get_text().strip(),
+            "subheading_text": BeautifulSoup(page.other_articles_subheading, "html.parser").get_text().strip(),
+            "superheading_text": "",
+        },
+        index=1,
+    )
+
+    other_articles_data = page.other_articles.raw_data
+    other_article_items = other_articles_section.find_all("article", class_="fl-article-item")
+    assert len(other_article_items) == len(other_articles_data)
+    for i, article_data in enumerate(other_articles_data):
+        article_element = other_article_items[i]
+        article_id = article_data["value"]["article"]
+        article = ArticleDetailPage.objects.get(id=article_id)
+
+        rendered_icon = image(article.icon, "width-400")
+        icon_element = article_element.find("img")
+        assert icon_element and icon_element.prettify() == BeautifulSoup(rendered_icon.img_tag(), "html.parser").find("img").prettify()
+
+        title_element = article_element.find("h3", class_="fl-heading")
+        assert title_element and title_element.get_text().strip() == article.title.strip()
+        description_element = article_element.find("div", class_="fl-article-item-description")
+        assert (
+            description_element
+            and description_element.find("p").get_text().strip() == BeautifulSoup(article.description, "html.parser").get_text().strip()
+        )
+
+        button = article_element.find("a", class_="fl-button")
+        assert button and button.get_text().strip() == article.link_text.strip()
+        assert button["href"] == article.url
