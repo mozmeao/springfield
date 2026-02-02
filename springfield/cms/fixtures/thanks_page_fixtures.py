@@ -108,6 +108,10 @@ def get_banner():
     }
 
 
+def get_download_support():
+    return {"type": "download_support", "value": None, "id": "d3f5e8c4-3f4e-4c2e-9f4a-1c2b5e6d7f8a"}
+
+
 def get_pre_footer():
     snippet = get_pre_footer_cta_form_snippet()
     return {
@@ -127,6 +131,7 @@ def get_thanks_page() -> ThanksPage:
         page = ThanksPage(
             slug="test-thanks-page",
             title="Thanks Page Test",
+            content=[get_download_support()],
         )
         index_page.add_child(instance=page)
 
@@ -136,7 +141,7 @@ def get_thanks_page() -> ThanksPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
-    page.content = [get_step_cards_section(), get_banner()]
+    page.content = [get_step_cards_section(), get_download_support(), get_banner()]
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page

@@ -335,7 +335,7 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("not-firefox", "Non Firefox Users"),
     ("state-fxa-supported-signed-in", "Signed-in Users"),
     ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("windows", "Windows 7-10 Users"),
+    ("windows", "Windows 8.1 - 9 Users"),
     ("osx", "macOS Users"),
     ("linux", "Linux Users"),
     ("windows-10-plus", "Windows 10+ Users"),
@@ -1325,7 +1325,8 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
-            ]
+            ],
+            required=False,
         )
         cta = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
