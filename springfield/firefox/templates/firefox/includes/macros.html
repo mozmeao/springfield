@@ -131,14 +131,22 @@
           </span>
         {% endif %}
       </a>
-      <a class="download-link os_linux64-aarch64 mzp-t-xl mzp-c-button mzp-t-product ga-product-download" id="{{ id }}-64-aarch64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Download for Linux ARM64/AArch64" data-cta-position="{{ position }}" data-testid="{{ id }}-64-aarch64">
+      <a class="download-link os_linux64-aarch64 {{ btn_class}} ga-product-download" id="{{ id }}-64-aarch64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Download for Linux ARM64/AArch64" data-cta-position="{{ position }}" data-testid="{{ id }}-64-aarch64">
         <strong class="download-title">
           {{ ftl('download-button-linux-arm64') }}
         </strong>
-        <span class="mzp-c-button-icon-end">
-          <!-- TODO: replace with new protocol-assets version -->
-          <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
-        </span>
+
+        {% if flare_styles %}
+          <include:icon
+            icon_name="download"
+            hidden=true
+            extra_class="fl-icon-right" />
+        {% else %}
+          <span class="mzp-c-button-icon-end">
+            <!-- TODO: replace with new protocol-assets version -->
+            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+          </span>
+        {% endif %}
       </a>
 
       <p class="c-linux-debian">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"

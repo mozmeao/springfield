@@ -12,7 +12,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-md);
+    gap: var(--token-spacing-lg);
     justify-content: center;
 }
 

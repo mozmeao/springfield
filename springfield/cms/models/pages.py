@@ -156,7 +156,12 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    ftl_files = ["firefox/download/download", "firefox/browsers/mobile/android", "firefox/browsers/mobile/ios"]
+    ftl_files = [
+        "firefox/download/download",
+        "firefox/browsers/mobile/android",
+        "firefox/browsers/mobile/ios",
+        "firefox/browsers/desktop/chromebook",
+    ]
 
     PLATFORM_CHOICES = (
         ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
