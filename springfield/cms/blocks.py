@@ -341,6 +341,8 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("windows-10-plus", "Windows 10+ Users"),
     ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
     ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
+    ("unsupported", "Unsupported OS Users"),
+    ("other-os", "Other OS Users"),  # iOS, Android, Other
 ]
 
 

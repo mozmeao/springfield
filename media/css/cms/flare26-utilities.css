@@ -244,6 +244,12 @@ html.fx-unsupported .conditional-display.condition-unsupported {
     display: unset;
 }
 
+html.android .conditional-display.condition-other-os,
+html.ios .conditional-display.condition-other-os,
+html.other .conditional-display.condition-other-os {
+    display: unset;
+}
+
 /* The platform class is placed on the html element and the signed-in state class is placed on the body element */
 
 .windows-10-plus

@@ -268,27 +268,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
-    pre_footer = StreamField(
-        [
-            (
-                "pre_footer_cta_form_snippet",
-                SnippetChooserBlock(
-                    target_model="cms.PreFooterCTAFormSnippet",
-                    template="cms/snippets/pre-footer-cta-form-snippet.html",
-                    label="Pre-Footer CTA Form Snippet",
-                ),
-            )
-        ],
-        use_json_field=True,
-        min_num=0,
-        max_num=1,
-        null=True,
-        blank=True,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
-        FieldPanel("pre_footer"),
     ]
 
     def clean(self):
@@ -296,6 +278,18 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")
+        first_block = self.content[0]
+        if first_block.block_type != "section":
+            raise ValidationError("The first block must be a 'Section' block.")
+        if first_block.value["settings"].get("show_to") != "all":
+            section_blocks = [block for block in self.content if block.block_type == "section"]
+            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
+            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
+            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+                raise ValidationError(
+                    "When using conditional display in sections, all platform conditions "
+                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                )
 
     def get_utm_campaign(self):
         return "firefox-download-thanks"
