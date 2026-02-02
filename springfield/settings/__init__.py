@@ -82,14 +82,16 @@ _csp_img_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
     "data:",
-    "www.mozilla.org",  # mainly for release notes images.
+    "www.mozilla.org",  # mainly for release notes images. TODO: investigate removing
+    "www.firefox.com",  # for release notes images when loading from nonprod or origin hosts
     "www.googletagmanager.com",
     "www.google-analytics.com",
 }
 _csp_media_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
-    "www.mozilla.org",  # mainly for release notes videos.
+    "www.mozilla.org",  # mainly for release notes videos. TODO: investigate removing
+    "www.firefox.com",  # for release notes videos when loading from nonprod or origin hosts
     "assets.mozilla.net",
     "videos.cdn.mozilla.net",
 }
