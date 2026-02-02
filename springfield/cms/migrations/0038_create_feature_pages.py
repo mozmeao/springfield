@@ -84,12 +84,14 @@ def import_ftl_translations(apps, schema_editor):
 
     from springfield.cms.ftl_parser import (
         get_english_ftl_strings,
+        get_english_shared_strings,
         get_english_ui_strings,
         get_ftl_translations,
+        get_shared_translations,
         get_ui_translations,
         normalize_text_for_matching,
     )
-    from springfield.cms.models import ArticleDetailPage
+    from springfield.cms.models import ArticleDetailPage, ArticleIndexPage
 
     source_locale = Locale.objects.get(language_code="en-US")
 
@@ -110,14 +112,78 @@ def import_ftl_translations(apps, schema_editor):
         Locale.objects.get(language_code="tr"),  # Turkish
     ]
 
-    content_type = ContentType.objects.get_for_model(ArticleDetailPage)
     total_imported = 0
 
     # Get index page FTL strings (for descriptions shown on feature cards)
     index_en_strings = get_english_ftl_strings("index-2023.ftl")
 
+    # Get shared strings (for "Do more with Firefox" heading)
+    shared_en_strings = get_english_shared_strings()
+
     # Get UI strings (for common strings like "Learn more")
     ui_en_strings = get_english_ui_strings()
+
+    # ==========================================================================
+    # Translate the index page
+    # ==========================================================================
+    index_page = ArticleIndexPage.objects.get(slug="features", locale=source_locale)
+    index_content_type = ContentType.objects.get_for_model(ArticleIndexPage)
+
+    # Build lookup from normalized English text to FTL message ID
+    # Include index-2023.ftl and shared.ftl strings
+    index_en_text_to_msgid = {}
+    for msgid, text in index_en_strings.items():
+        normalized = normalize_text_for_matching(text)
+        index_en_text_to_msgid[normalized] = msgid
+    for msgid, text in shared_en_strings.items():
+        normalized = normalize_text_for_matching(text)
+        index_en_text_to_msgid[normalized] = msgid
+
+    # Get the TranslationSource for the index page
+    index_translation_source = (
+        TranslationSource.objects.filter(
+            object_id=index_page.translation_key,
+            specific_content_type=index_content_type,
+        )
+        .order_by("-created_at")
+        .first()
+    )
+
+    if not index_translation_source:
+        raise Exception("No TranslationSource found for index page: features")
+
+    for target_locale in target_locales:
+        # Get translations from both index-2023.ftl and shared.ftl
+        index_translations = get_ftl_translations(target_locale.language_code, "index-2023.ftl")
+        index_translations.update(get_shared_translations(target_locale.language_code))
+        if not index_translations:
+            continue
+
+        # Get or create Translation for the index page
+        translation, _ = Translation.objects.get_or_create(
+            source=index_translation_source,
+            target_locale=target_locale,
+        )
+
+        # Build PO file from FTL translations
+        po = _build_po_from_ftl(translation, index_en_text_to_msgid, index_translations)
+
+        if po:
+            translation.import_po(
+                po,
+                delete=False,
+                translation_type="manual",
+                tool_name="ftl_import",
+            )
+            total_imported += len(po)
+            translation.save_target(publish=True)
+
+    print(f"\n  Translated index page to {len(target_locales)} locales")
+
+    # ==========================================================================
+    # Translate detail pages
+    # ==========================================================================
+    content_type = ContentType.objects.get_for_model(ArticleDetailPage)
 
     for page_slug, ftl_filename in PAGE_FTL_MAPPING.items():
         # Get the source page

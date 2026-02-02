@@ -248,6 +248,32 @@ def get_english_ui_strings() -> dict[str, str]:
     return parse_ftl_file(en_path)
 
 
+def get_shared_translations(locale: str) -> dict[str, str]:
+    """
+    Get shared string translations for a specific locale.
+
+    shared.ftl contains strings shared across feature pages like
+    "Do more with Firefox".
+
+    Args:
+        locale: The locale code (e.g., "de", "fr", "es-ES")
+
+    Returns:
+        Dict mapping FTL message IDs to translated text
+    """
+    return get_ftl_translations(locale, "shared.ftl")
+
+
+def get_english_shared_strings() -> dict[str, str]:
+    """
+    Get English shared strings from shared.ftl.
+
+    Returns:
+        Dict mapping FTL message IDs to English text
+    """
+    return get_english_ftl_strings("shared.ftl")
+
+
 def normalize_text_for_matching(text: str) -> str:
     """
     Normalize text for fuzzy matching between FTL and Wagtail content.

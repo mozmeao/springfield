@@ -388,8 +388,8 @@ def get_features_index_page() -> ArticleIndexPage:
             title="Firefox browser features",
             # From: features-index-firefox-is-the-fast-lightweight
             sub_title="Firefox is the fast, lightweight, privacy-focused browser that works across all your devices.",
-            other_articles_heading="<p>More Firefox features</p>",
-            other_articles_subheading="<p>Explore what makes Firefox the best browser for you.</p>",
+            other_articles_heading="Do more with Firefox",
+            other_articles_subheading="",
         )
         root_page.add_child(instance=index_page)
 
