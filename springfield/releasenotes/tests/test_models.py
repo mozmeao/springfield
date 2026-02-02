@@ -418,3 +418,44 @@ def test_patch_html_variants(input_html, patching, expected_html):
     finally:
         models.HTML_PATCHING.clear()
         models.HTML_PATCHING.update(orig_patching)
+
+
+@pytest.mark.parametrize(
+    "input_html, rewrites, expected_html",
+    [
+        # Basic src rewrite
+        (
+            '<img src="https://www.mozilla.org/media/img/foo.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://www.firefox.com/media/img/foo.png">',
+        ),
+        # Video poster rewrite (note: video also gets ga-video-engagement class from HTML_PATCHING)
+        (
+            '<video poster="https://www.mozilla.org/media/poster.jpg"></video>',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<video class="ga-video-engagement" poster="https://www.firefox.com/media/poster.jpg"></video>',
+        ),
+        # srcset rewrite
+        (
+            '<img srcset="https://www.mozilla.org/media/1x.png 1x, https://www.mozilla.org/media/2x.png 2x">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img srcset="https://www.firefox.com/media/1x.png 1x, https://www.firefox.com/media/2x.png 2x">',
+        ),
+        # No match - unchanged
+        (
+            '<img src="https://example.com/img.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://example.com/img.png">',
+        ),
+    ],
+)
+def test_url_rewrites(input_html, rewrites, expected_html):
+    orig_rewrites = models.URL_REWRITES.copy()
+    models.URL_REWRITES.clear()
+    models.URL_REWRITES.extend(rewrites)
+    try:
+        output = models._patch_html(input_html)
+        assert_html_equal(output, expected_html)
+    finally:
+        models.URL_REWRITES.clear()
+        models.URL_REWRITES.extend(orig_rewrites)
