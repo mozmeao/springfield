@@ -1,0 +1,34 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props icon=None, color=None, theme=None, closable=False #}
+
+<div class="fl-notification-wrapper">
+  <div class="fl-notification {% if theme %}fl-notification-{{ theme }}{% endif %} {% if color %} fl-notification-{{ color }}{% endif %}">
+    {% if icon %}
+      <div class="fl-notification-icon-section">
+        <include:icon
+          icon_name="{{ icon }}"
+          hidden=true
+          extra_class="fl-notification-icon" />
+      </div>
+    {% endif %}
+    <div class="fl-notification-content">
+      <span class="fl-notification-message">
+        {{ contents }}
+      </span>
+    </div>
+    {% if closable %}
+      <button class="fl-notification-close" aria-label="Close notification">
+        <include:icon
+          icon_name="close"
+          hidden=true
+          extra_class="fl-notification-close-icon"
+        />
+      </button>
+    {% endif %}
+  </div>
+</div>

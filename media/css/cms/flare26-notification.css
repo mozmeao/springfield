@@ -1,0 +1,176 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+:root {
+    --notification-bg: var(--token-color-soft-purple);
+    --notification-color: var(--token-color-black-1);
+    --notification-border-color: var(--token-color-soft-purple-2);
+    --notification-icon-bg: var(--token-color-dark-purple);
+    --notification-icon-color: var(--token-color-white);
+    --notification-dark-bg: var(--token-color-purple);
+    --notification-dark-color: var(--token-color-white);
+    --notification-dark-border-color: var(--token-color-link-purple);
+    --notification-dark-icon-bg: var(--token-color-soft-purple);
+    --notification-dark-icon-color: var(--token-color-black-4);
+}
+
+.fl-notification-wrapper {
+    display: flex;
+    justify-content: center;
+
+    /* Negative margin used to reduce the top spacing on the next block */
+    margin-bottom: var(--token-spacing-xl);
+    padding: var(--token-spacing-lg) 0 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.fl-notification {
+    align-items: stretch;
+    background: var(--notification-bg);
+    border: 1px solid var(--notification-border-color);
+    border-radius: var(--token-spacing-sm);
+    color: var(--notification-color);
+    display: flex;
+    flex-direction: row;
+    gap: var(--token-spacing-xl);
+    margin: var(--token-spacing-sm) 0;
+    margin-left: var(--token-spacing-lg);
+    margin-right: var(--token-spacing-lg);
+    max-width: 560px;
+    min-height: 48px;
+    overflow: hidden;
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+    position: relative;
+}
+
+.fl-notification.fl-notification-dark {
+    background: var(--notification-dark-bg);
+    border-color: var(--notification-dark-border-color);
+    color: var(--notification-dark-color);
+}
+
+.fl-notification-icon-section {
+    align-items: center;
+    align-self: stretch;
+    background: var(--notification-icon-bg);
+    border-radius: var(--token-spacing-md);
+    color: var(--notification-icon-color);
+    display: flex;
+    flex-shrink: 0;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
+}
+
+.fl-notification.fl-notification-dark .fl-notification-icon-section {
+    background: var(--notification-dark-icon-bg);
+    color: var(--notification-dark-icon-color);
+}
+
+.fl-notification-icon-section .fl-notification-icon {
+    color: currentColor;
+    font-size: 24px;
+}
+
+.fl-notification-purple {
+    --notification-bg: var(--token-color-soft-purple);
+    --notification-color: var(--token-color-black-4);
+    --notification-border-color: var(--token-color-soft-purple-2);
+    --notification-icon-bg: var(--token-color-dark-purple);
+    --notification-dark-bg: var(--token-color-purple);
+    --notification-dark-color: var(--token-color-white);
+    --notification-dark-border-color: var(--token-color-link-purple);
+    --notification-dark-icon-bg: var(--token-color-soft-purple);
+    --notification-dark-icon-color: var(--token-color-black-4);
+}
+
+.fl-notification-red {
+    --notification-bg: var(--token-color-soft-red);
+    --notification-color: var(--token-color-black-4);
+    --notification-border-color: var(--token-color-secondary-red);
+    --notification-icon-bg: var(--token-color-secondary-red);
+    --notification-dark-bg: var(--token-color-secondary-red-3);
+    --notification-dark-border-color: var(--token-color-secondary-red-2);
+    --notification-dark-icon-bg: var(--token-color-secondary-red);
+}
+
+.fl-notification-orange {
+    --notification-bg: var(--token-color-soft-orange);
+    --notification-color: var(--token-color-black-4);
+    --notification-border-color: var(--token-color-secondary-orange);
+    --notification-icon-bg: var(--token-color-secondary-orange);
+    --notification-dark-bg: var(--token-color-secondary-orange-3);
+    --notification-dark-border-color: var(--token-color-secondary-orange-2);
+    --notification-dark-icon-bg: var(--token-color-secondary-orange);
+}
+
+.fl-notification-green {
+    --notification-bg: var(--token-color-soft-green);
+    --notification-color: var(--token-color-black-4);
+    --notification-border-color: var(--token-color-secondary-green);
+    --notification-icon-bg: var(--token-color-secondary-green);
+    --notification-dark-bg: var(--token-color-secondary-green-3);
+    --notification-dark-border-color: var(--token-color-secondary-green);
+    --notification-dark-icon-bg: var(--token-color-soft-green);
+}
+
+.fl-notification-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-notification-content .fl-notification-message {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-sm);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.fl-notification-content .fl-notification-message p {
+    margin: 0;
+}
+
+.fl-notification-content .fl-notification-message p:first-of-type {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.1;
+}
+
+.fl-notification-content a {
+    color: inherit;
+    font-weight: var(--token-font-weight-semibold);
+    text-decoration: underline;
+}
+
+.fl-notification-close {
+    align-items: start;
+    background: none;
+    color: currentColor;
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    margin: 0;
+    opacity: 0.7;
+    padding: 2px 0 0;
+    transition: opacity 0.2s ease;
+}
+
+.fl-notification-close:hover {
+    opacity: 1;
+}
+
+.fl-notification-close .fl-notification-close-icon {
+    font-size: 14px;
+}
