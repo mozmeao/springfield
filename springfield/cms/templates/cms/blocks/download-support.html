@@ -28,21 +28,17 @@
   {% endif %}
 
   <div class="fl-support-install">
-    <include:conditional-display condition="supported">
-      <include:conditional-display condition="osx">
-        <p>
-          {% set support_mac_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
-          {{ ftl('firefox-desktop-download-get-help', attrs=support_mac_attrs) }}
-        </p>
-      </include:conditional-display>
+    <include:conditional-display condition="osx">
+      <p>
+        {% set support_mac_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+        {{ ftl('firefox-desktop-download-get-help', attrs=support_mac_attrs) }}
+      </p>
     </include:conditional-display>
-    <include:conditional-display condition="supported">
-      <include:conditional-display condition="windows">
-        <p>
-          {% set support_windows_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
-          {{ ftl('firefox-desktop-download-get-help', attrs=support_windows_attrs) }}
-        </p>
-      </include:conditional-display>
+    <include:conditional-display condition="windows">
+      <p>
+        {% set support_windows_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+        {{ ftl('firefox-desktop-download-get-help', attrs=support_windows_attrs) }}
+      </p>
     </include:conditional-display>
     <include:conditional-display condition="linux">
       <div class="fl-buttons is-horizontal is-center">

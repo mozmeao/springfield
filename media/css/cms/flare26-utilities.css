@@ -202,15 +202,15 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-.linux .conditional-display.condition-linux {
+.linux:not(.fx-unsupported) .conditional-display.condition-linux {
     display: unset;
 }
 
-.osx .conditional-display.condition-osx {
+.osx:not(.fx-unsupported) .conditional-display.condition-osx {
     display: unset;
 }
 
-.windows .conditional-display.condition-windows {
+.windows:not(.fx-unsupported) .conditional-display.condition-windows {
     display: unset;
 }
 
