@@ -28,6 +28,7 @@ from springfield.cms.blocks import (
     SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
+    VideoBlock,
 )
 from springfield.cms.fields import StreamField
 
@@ -346,6 +347,10 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="An icon used for listing articles on the index page.",
     )
+    index_page_heading = models.CharField(
+        blank=True,
+        help_text="Custom heading to be used on the index page card.",
+    )
     description = RichTextField(
         blank=True,
         features=HEADING_TEXT_FEATURES,
@@ -362,6 +367,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content = StreamField(
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+            ("video", VideoBlock()),
         ],
         use_json_field=True,
     )
@@ -374,6 +380,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("featured_image"),
                 FieldPanel("icon"),
                 FieldPanel("link_text"),
+                FieldPanel("index_page_heading"),
                 FieldPanel("description"),
             ],
             heading="Index Page Settings",

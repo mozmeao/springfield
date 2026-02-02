@@ -47,7 +47,7 @@
                 <content:heading>
                   <h3 class="fl-heading fl-heading-size-3">
                     <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                    {{ article.title }}
+                    {{ article.index_page_heading or article.title }}
                     </a>
                   </h3>
                 </content:heading>
@@ -78,7 +78,7 @@
                 <content:heading>
                   <h3 class="fl-heading fl-heading-size-3">
                     <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                    {{ article.title }}
+                    {{ article.index_page_heading or article.title }}
                     </a>
                   </h3>
                 </content:heading>
@@ -106,7 +106,7 @@
           <div class="fl-stacked-article-list">
             {% for article in list_articles %}
               <include:stacked-article-list-item
-                title={{ article.title }}
+                title={{ article.index_page_heading or article.title }}
                 description={{ article.description }}
                 link_text={{ article.link_text }}
                 url={{ article.url }}
@@ -123,7 +123,7 @@
             {% for article in list_articles %}
               <include:card expand_link="true">
                 <content:heading>
-                  <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+                  <h3 class="fl-heading fl-heading-size-3">{{ article.index_page_heading or article.title }}</h3>
                 </content:heading>
                 <content:body>
                   {{ article.description|richtext }}
