@@ -82,7 +82,6 @@ def import_ftl_translations(apps, schema_editor):
     from wagtail.models import Locale
     from wagtail_localize.models import Translation, TranslationSource
 
-    from springfield.cms.models import ArticleDetailPage
     from springfield.cms.ftl_parser import (
         get_english_ftl_strings,
         get_english_ui_strings,
@@ -90,6 +89,7 @@ def import_ftl_translations(apps, schema_editor):
         get_ui_translations,
         normalize_text_for_matching,
     )
+    from springfield.cms.models import ArticleDetailPage
 
     source_locale = Locale.objects.get(language_code="en-US")
 
