@@ -297,6 +297,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")
 
+    def get_utm_campaign(self):
+        return "firefox-download-thanks"
+
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage"]

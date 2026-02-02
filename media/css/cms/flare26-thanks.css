@@ -11,6 +11,7 @@
     flex-direction: column;
     gap: var(--token-spacing-md);
     justify-content: center;
+    text-align: center;
 }
 
 .fl-download-support .fl-linux-deb-text {

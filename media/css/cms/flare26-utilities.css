@@ -210,7 +210,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-.windows:not(.fx-unsupported) .conditional-display.condition-windows {
+.windows .conditional-display.condition-windows {
     display: unset;
 }
 
@@ -236,8 +236,11 @@ html.android .conditional-display.condition-unknown:not(.is-preview) {
     display: none;
 }
 
-html.windows.fx-unsupported .conditional-display.condition-unknown,
-html.osx.fx-unsupported .conditional-display.condition-unknown {
+html:not(.fx-unsupported) .conditional-display.condition-supported {
+    display: unset;
+}
+
+html.fx-unsupported .conditional-display.condition-unsupported {
     display: unset;
 }
 
