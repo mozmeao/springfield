@@ -5,16 +5,22 @@
 */
 
 :root {
+    /* Base */
     --notification-bg: var(--token-color-soft-purple);
     --notification-color: var(--token-color-black-1);
     --notification-border-color: var(--token-color-soft-purple-2);
     --notification-icon-bg: var(--token-color-dark-purple);
     --notification-icon-color: var(--token-color-white);
+
+    /* Dark variant */
     --notification-dark-bg: var(--token-color-purple);
     --notification-dark-color: var(--token-color-white);
     --notification-dark-border-color: var(--token-color-link-purple);
     --notification-dark-icon-bg: var(--token-color-soft-purple);
     --notification-dark-icon-color: var(--token-color-black-4);
+
+    /* Stacked variant */
+    --notification-stacked-color: var(--token-color-dark-purple);
 }
 
 .fl-notification-wrapper {
@@ -51,6 +57,16 @@
     background: var(--notification-dark-bg);
     border-color: var(--notification-dark-border-color);
     color: var(--notification-dark-color);
+}
+
+.fl-notification.fl-notification-stacked {
+    align-items: center;
+    color: var(--notification-stacked-color);
+    flex-direction: column;
+    justify-content: center;
+    max-width: var(--token-width-desktop-content-lg);
+    padding: var(--token-spacing-3xl);
+    text-align: center;
 }
 
 .fl-notification-icon-section {
@@ -134,6 +150,10 @@
     gap: var(--token-spacing-sm);
     line-height: 1.4;
     margin: 0;
+}
+
+.fl-notification.fl-notification-stacked .fl-notification-message {
+    font-size: var(--fl-theme-font-size-body-sm);
 }
 
 .fl-notification-content .fl-notification-message p {

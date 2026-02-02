@@ -16,20 +16,16 @@
 {% block content %}
   <div class="fl-main">
 
-    <div class="fl-notification-wrapper">
-      {# TODO: show-auto-download-notification #}
-      {# TODO: inline notification styles #}
-      <div class="fl-notification fl-notification-green show-auto-download-notification">
+    <div class="fl-show-auto-download-notification {% if is_preview %}conditional-display is-preview{% endif %}">
+      {% if is_preview %}
+        <span class="preview-indicator">Condition: windows or mac</span>
+      {% endif %}
+      <include:notification color="green">
         {# fallback_url is replaced by the platform download link via JS, but if
             something fails the user should still get a link to a working download path. #}
-
-        <div class="fl-notification-content">
-          <span class="fl-notification-message">
-          {% set fallback_href = firefox_url('desktop', 'all') %}
-          {{ ftl('firefox-desktop-download-your-firefox-new-should-begin', id='direct-download-link', fallback_url=fallback_href)}}
-          </span>
-        </div>
-      </div>
+        {% set fallback_href = firefox_url('desktop', 'all') %}
+        {{ ftl('firefox-desktop-download-your-firefox-new-should-begin', id='direct-download-link', fallback_url=fallback_href)}}
+      </include:notification>
     </div>
 
     {% set ns = namespace(headings=0) %}

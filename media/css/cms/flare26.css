@@ -58,6 +58,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-homepage.css' layer(page);
 @import 'flare26-download.css' layer(page);
 @import 'flare26-blog.css' layer(page);
+@import 'flare26-thanks.css' layer(page);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);

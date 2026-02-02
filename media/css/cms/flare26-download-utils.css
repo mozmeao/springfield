@@ -6,24 +6,6 @@
 
 /* Styles used by Download Firefox Button messages */
 
-#thanks-download-button {
-    display: none;
-}
-
-.fl-download-support,
-.fl-support-install {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-md);
-    justify-content: center;
-}
-
-.fl-download-support .fl-linux-deb-text {
-    margin-top: var(--token-spacing-md);
-    text-align: center;
-}
-
 .fl-fx-download-container {
     align-items: center;
     display: flex;

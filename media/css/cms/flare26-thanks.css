@@ -1,0 +1,28 @@
+/* Alternative download buttons handled by JS on Thanks page */
+#thanks-download-button {
+    display: none;
+}
+
+/* Support messages */
+.fl-download-support,
+.fl-support-install {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    justify-content: center;
+}
+
+.fl-download-support .fl-linux-deb-text {
+    margin-top: var(--token-spacing-md);
+    text-align: center;
+}
+
+.fl-show-auto-download-notification {
+    display: none;
+}
+
+.windows:not(.fx-unsupported) .fl-show-auto-download-notification,
+.osx:not(.fx-unsupported) .fl-show-auto-download-notification {
+    display: block;
+}
