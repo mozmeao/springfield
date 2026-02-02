@@ -49,21 +49,11 @@
 {% elif release.product == 'Firefox' %}
   {% set product_name = 'Firefox' %}
   {% set primary_heading = 'See what’s new in Firefox!' if release.is_latest else 'Firefox Release Notes' %}
-  <!-- TODO: remove condition once we refactor /all to simplify Linux download path -->
-  {% if release.channel == 'Release'%}
-    {% set download_button_primary %}
-      {{ download_firefox_thanks(dom_id='download-release-primary') }}
-    {% endset %}
-    {% set download_button_secondary %}
-      {{ download_firefox_thanks(dom_id='download-release-secondary') }}
-    {% endset %}
-  {% else %}
-    {% set download_button_primary %}
-      {{ download_firefox(dom_id='download-release-primary') }}
-    {% endset %}
-    {% set download_button_secondary %}
-      {{ download_firefox(dom_id='download-release-secondary') }}
-    {% endset %}
-  {% endif %}
+  {% set download_button_primary %}
+    {{ download_firefox(dom_id='download-release-primary') }}
+  {% endset %}
+  {% set download_button_secondary %}
+    {{ download_firefox(dom_id='download-release-secondary') }}
+  {% endset %}
   {% set download_all_link = firefox_url('desktop', 'all', channel='release') %}
 {% endif %}
