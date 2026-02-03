@@ -54,9 +54,9 @@ firefox-new-desc = { -brand-name-firefox-browser } is a free web browser with fa
 firefox-new-download-a-different = Download a different platform or language
 
 # Download platforms
-platform-windows = Windows
-platform-macos = macOS
-platform-linux = Linux
-platform-android = Android
-platform-ios = iOS
-platform-chromebook = Chromebook
+firefox-new-platform-windows = Windows
+firefox-new-platform-macos = macOS
+firefox-new-platform-linux = Linux
+firefox-new-platform-android = Android
+firefox-new-platform-ios = iOS
+firefox-new-platform-chromebook = Chromebook
