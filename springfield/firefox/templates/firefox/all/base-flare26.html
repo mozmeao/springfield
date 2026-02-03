@@ -6,12 +6,19 @@
 
 {% extends "cms/base-flare26.html" %}
 
-{%- block page_title -%}
-  {{ ftl('firefox-all-download-the-firefox-v2') }}
-{%- endblock -%}
+{#
+  If you need specific files or markup, you can use the following check
+  to see if the switch for flare26 is set to True
+#}
 
 {% block page_css %}
- {{ css_bundle('flare26_download_all') }}
+  {% if not switch('flare26_enabled' %}
+    {{ css_bundle('flare26_download_all') }}
+  {% endif %}
+{% endblock %}
+
+{% block page_title %}
+  {{ ftl('firefox-all-download-the-firefox-v2') }}
 {% endblock %}
 
 {% block canonical_urls %}
@@ -46,5 +53,7 @@
 {% endblock %}
 
 {% block js %}
-  {{ js_bundle('firefox_all') }}
+  {% if not switch('flare26_enabled' %}
+    {{ js_bundle('firefox_all') }}
+  {% endif %}
 {% endblock %}

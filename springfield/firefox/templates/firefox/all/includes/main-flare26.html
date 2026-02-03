@@ -5,14 +5,21 @@
 #}
 
 <main id="partial-target" class="fl-main" {% if product %} data-current="{{ product.slug }}"{% endif %}>
-   <!-- LOGO changes with product: needs v2 FTL string that accepts icon variable -->
+  <!-- LOGO changes with product: needs v2 FTL string that accepts icon variable -->
+
+  <!--
+    You can use the following syntax to use any of the components in the
+    springfield/cms/templates/components/ folder.
+    Some of them are even shared between 2025 and 2026 versions,
+    with only CSS differences.
+  -->
   <include:intro>
     <content:heading>
     <include:heading
           level="h1"
           heading_size="fl-heading-md"
           heading_text="{{ ftl('firefox-all-choose-which-firefox') }}"
-          alignment_class="text-center"
+          alignment_class="fl-new-class-example"
           subheading_text="{{ ftl('firefox-all-everyone-deserves-access-v2') }}"
         />
       </content:heading>
