@@ -107,6 +107,7 @@
     border: 2px solid var(--token-color-light-purple);
     border-radius: 0 0 var(--token-border-radius-xs)
         var(--token-border-radius-xs);
+    box-shadow: 0 4px 30px 0 var(--fl-menu-panel-box-shadow-color);
     display: block;
     inset: 100% 0 auto;
     list-style: none;
