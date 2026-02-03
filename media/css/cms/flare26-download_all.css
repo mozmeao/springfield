@@ -1,0 +1,11 @@
+/*
+  Tokens are in the flare26-tokens file, and theme variables are in flare26-theme.
+  Try to use them as much as possible.
+  If you need to create any variables, do it in the theme file and
+  add it to the dark mode variants, if necessary.
+*/
+
+.fl-new-class-example {
+    padding: var(--token-layout-sm);
+    text-align: center;
+}

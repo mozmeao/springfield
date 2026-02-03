@@ -330,12 +330,6 @@
     },
     {
       "files": [
-        "css/cms/flare26-download-all.css"
-      ],
-      "name": "flare26_download_all"
-    },
-    {
-      "files": [
         "css/cms/wagtail-admin.css"
       ],
       "name": "wagtail-admin"
