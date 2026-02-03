@@ -67,7 +67,11 @@ def create_translation_sources(apps, schema_editor):
 
     # Create TranslationSource for each feature page
     for slug in PAGE_FTL_MAPPING.keys():
-        page = ArticleDetailPage.objects.get(slug=slug, locale=source_locale)
+        page = ArticleDetailPage.objects.get(
+            slug=slug,
+            locale=source_locale,
+            path__contains=index_page.path,  # Make sure to get the ArticleDetailPage that is a child of index_page
+        )
         source, created = TranslationSource.get_or_create_from_instance(page)
         if created:
             print(f"  Created TranslationSource for: {slug}")
@@ -208,7 +212,11 @@ def import_ftl_translations(apps, schema_editor):
 
     for page_slug, ftl_filename in PAGE_FTL_MAPPING.items():
         # Get the source page
-        source_page = ArticleDetailPage.objects.get(slug=page_slug, locale=source_locale)
+        source_page = ArticleDetailPage.objects.get(
+            slug=page_slug,
+            locale=source_locale,
+            path__contains=index_page.path,  # Make sure to get the ArticleDetailPage that is a child of index_page
+        )
 
         # Get English FTL strings for matching (from page's FTL file + index file + ui)
         en_ftl_strings = get_english_ftl_strings(ftl_filename)
