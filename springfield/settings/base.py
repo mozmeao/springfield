@@ -731,6 +731,7 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail",
     "wagtail_thumbnail_choice_block",
+    "wagtailmedia",
     "modelcluster",
     "taggit",
     "csp",

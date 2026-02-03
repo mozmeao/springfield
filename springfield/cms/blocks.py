@@ -10,6 +10,7 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
+from wagtailmedia.blocks import VideoChooserBlock
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -675,6 +676,29 @@ class ImageVariantsBlockSettings(blocks.StructBlock):
         required=False,
         label="Dark Mode Mobile Image",
         help_text="Optional dark mode mobile image variant",
+    )
+    video = VideoChooserBlock(
+        required=False,
+        label="Video",
+        help_text="Optional video (mp4 or webm). When provided, displays instead of the image.",
+    )
+    video_autoplay = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Autoplay",
+        help_text="Automatically play the video (will be muted)",
+    )
+    video_loop = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Loop",
+        help_text="Loop the video continuously",
+    )
+    video_show_controls = blocks.BooleanBlock(
+        required=False,
+        default=True,
+        label="Show Controls",
+        help_text="Display video playback controls",
     )
 
     class Meta:

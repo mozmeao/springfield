@@ -61,6 +61,7 @@ wagtail-localize==1.13
 wagtail-thumbnail-choice-block==0.1.4
 Wagtail==7.2.2
 wagtaildraftsharing==0.3.0
+wagtailmedia==0.17.2
 Wand==0.6.13  # For animated GIF support
 whitenoise==6.11.0
 https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz
