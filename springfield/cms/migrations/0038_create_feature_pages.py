@@ -47,17 +47,39 @@ def create_feature_pages(apps, schema_editor):
     print(f"  Created {len(feature_pages)} feature pages")
 
 
+def get_source_locale():
+    from wagtail.models import Locale
+
+    return Locale.objects.get(language_code="en-US")
+
+
+def get_article_index_page_in_source_locale():
+    from wagtail.models import Site
+
+    from springfield.cms.models import ArticleIndexPage
+
+    source_locale = get_source_locale()
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    return ArticleIndexPage.objects.get(
+        slug="features",
+        locale=source_locale,
+        # Get the ArticleIndexPage that is a direct child of the root page
+        path__startswith=root_page.path,
+        depth=root_page.depth + 1,
+    )
+
+
 def create_translation_sources(apps, schema_editor):
     """Create TranslationSource records and segments for feature pages."""
-    from wagtail.models import Locale
     from wagtail_localize.models import TranslationSource
 
-    from springfield.cms.models import ArticleDetailPage, ArticleIndexPage
+    from springfield.cms.models import ArticleDetailPage
 
-    source_locale = Locale.objects.get(language_code="en-US")
+    source_locale = get_source_locale()
 
     # Create TranslationSource for the index page
-    index_page = ArticleIndexPage.objects.get(slug="features", locale=source_locale)
+    index_page = get_article_index_page_in_source_locale()
     source, created = TranslationSource.get_or_create_from_instance(index_page)
     if created:
         print(f"\n  Created TranslationSource for index page: {index_page.slug}")
@@ -131,11 +153,14 @@ def import_ftl_translations(apps, schema_editor):
     if not settings.DEBUG or all_locales_env:
         locale_codes = all_locale_codes
     else:
-        locale_codes = ["es-ES"]
+        locale_codes = ["id"]
         print("\n  Development mode: translating es-ES only (set ALL_LOCALES=1 for all)")
 
     # Fetch target locales from database
-    target_locales = [Locale.objects.get(language_code=code) for code in locale_codes]
+    target_locales = []
+    for code in locale_codes:
+        locale, _ = Locale.objects.get_or_create(language_code=code)
+        target_locales.append(locale)
 
     total_imported = 0
 
@@ -151,7 +176,7 @@ def import_ftl_translations(apps, schema_editor):
     # ==========================================================================
     # Translate the index page
     # ==========================================================================
-    index_page = ArticleIndexPage.objects.get(slug="features", locale=source_locale)
+    index_page = get_article_index_page_in_source_locale()
     index_content_type = ContentType.objects.get_for_model(ArticleIndexPage)
 
     # Build lookup from normalized English text to FTL message ID
@@ -375,18 +400,30 @@ def run_all_forward(apps, schema_editor):
 
 def reverse_migration(apps, schema_editor):
     """Reverse the migration by deleting created pages, translations, and unused images."""
+
     from springfield.cms.fixtures.feature_page_fixtures import FEATURE_IMAGES
     from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, SpringfieldImage
 
-    # Delete ALL feature detail pages (including translations in all locales)
-    deleted_detail = ArticleDetailPage.objects.filter(
-        slug__in=PAGE_FTL_MAPPING.keys(),
-    ).delete()
-    detail_count = deleted_detail[0] if deleted_detail else 0
+    try:
+        index_page = get_article_index_page_in_source_locale()
+    except ArticleIndexPage.DoesNotExist:
+        detail_count = 0
+        index_count = 0
+    else:
+        # Delete ALL feature detail pages (including translations in all locales)
+        deleted_detail = ArticleDetailPage.objects.filter(
+            slug__in=PAGE_FTL_MAPPING.keys(),
+            # Make sure to match only the ArticleDetailPages that are a child of index_page
+            path__contains=index_page.path,
+        ).delete()
+        detail_count = deleted_detail[0] if deleted_detail else 0
 
-    # Delete ALL features index pages (including translations)
-    deleted_index = ArticleIndexPage.objects.filter(slug="features").delete()
-    index_count = deleted_index[0] if deleted_index else 0
+        # Delete ALL features index pages (including translations)
+        deleted_index = index_page.get_translations().count()
+        index_page.get_translations().delete()
+        index_page.delete()
+        deleted_index += 1
+        index_count = deleted_index
 
     # Delete images created for feature pages (only if not in use elsewhere)
     image_titles = [info["title"] for info in FEATURE_IMAGES.values()]

@@ -379,7 +379,13 @@ def get_features_index_page() -> ArticleIndexPage:
     source_locale = Locale.objects.get(language_code="en-US")
 
     # Filter by locale to avoid finding pages in other locales
-    index_page = ArticleIndexPage.objects.filter(slug="features", locale=source_locale).first()
+    index_page = ArticleIndexPage.objects.filter(
+        slug="features",
+        locale=source_locale,
+        # Get the ArticleIndexPage that is a direct child of the root page
+        path__startswith=root_page.path,
+        depth=root_page.depth + 1,
+    ).first()
     if not index_page:
         index_page = ArticleIndexPage(
             slug="features",
