@@ -87,6 +87,7 @@ ul.download-list {
 
 .linux .download-button .os_linux,
 .linux .download-button .os_linux64,
+.linux .download-button .os_linux64-aarch64,
 .windows .download-button .os_win,
 .osx .download-button .os_osx,
 .android .download-button .os_android,
@@ -100,8 +101,10 @@ ul.download-list {
     display: block !important;
 }
 
-.os_linux64 { /* stylelint-disable-line */
-    margin-bottom: $spacing-md;
+// add spacing between displayed buttons
+.download-list {
+    display: grid;
+    gap: $spacing-md;
 }
 
 // 64-bit UA detection for Firefox Beta on Windows (issue #10194)
@@ -117,20 +120,38 @@ ul.download-list {
     margin-bottom: $spacing-md;
 }
 
-// Platform specific Firefox download macros (issue #12192)
+// Platform specific Firefox download macros (bedrock issue #12192)
 .firefox-platform-button {
-    .download-link.os_linux {
-        display: none;
+    .download-link.os_linux64 {
+        margin-bottom: $spacing-sm; // allow spacing between macro Linux buttons ('download-list' buttons get spacing from grid)
     }
 
     .linux & {
-        .download-link.os_linux {
+        .download-link.os_linux64,
+        .download-link.os_linux64-aarch64 {
             display: inline-block;
+        }
+    }
+
+    .c-linux-debian {
+        margin-top: $spacing-md;
+
+        br {
+            display: none;
         }
 
-        .download-link.os_linux64 {
-            display: inline-block;
+        @media #{$mq-md} {
+            br {
+                display: inline;
+            }
         }
+    }
+}
+
+// All linux download links (issue 648)
+.linux {
+    .download-link {
+        text-wrap: balance; // TODO: update with https://github.com/mozilla/protocol/issues/1119
     }
 }
 

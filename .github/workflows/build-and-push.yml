@@ -8,7 +8,6 @@ on:
       - run-integration-tests
     tags:
       - '*'
-
   workflow_dispatch:
     inputs:
       ref:
@@ -16,6 +15,7 @@ on:
         type: string
         required: true
         default: refs/heads/main
+
 env:
   APP: springfield
   GAR_LOCATION: us
@@ -25,6 +25,8 @@ env:
   ORG: mozmeao
   REF_ID: ${{ github.event.inputs.ref || github.ref }}
 
+permissions:
+  contents: read
 
 jobs:
   build_and_publish_public_images:
@@ -38,11 +40,21 @@ jobs:
       image_tag: ${{ env.TAG }}
 
     steps:
+      - name: Reclaim disk space
+        run: |
+          sudo rm -rf /home/runner/.rustup
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          docker system df
+          df -h
+
       - uses: docker/setup-buildx-action@v3
         with:
           buildkitd-flags: "cache-from: type=gha cache-to: type=gha,mode=max"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
             fetch-depth: 10 # get enough so we have a Git history, but not everything
             fetch-tags: true
@@ -89,8 +101,6 @@ jobs:
 
       - name: Build and push public images to Docker Hub
         run: |
-            # FIXME: GitHub provides compose version enabling bake but timing out
-            export COMPOSE_BAKE=false
             ./bin/build-release-image.sh --push
         timeout-minutes: 90
         env:
@@ -150,12 +160,9 @@ jobs:
     environment: build
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       id-token: write
 
     steps:
-      - uses: docker/setup-buildx-action@v3
-
       - id: gcp_auth
         uses: google-github-actions/auth@v2
         with:

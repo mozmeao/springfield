@@ -55,7 +55,8 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 ## 8. Wagtail CMS code
 
-* If you can see a new Wagtail CMS model is being added (ultimately a subclass of wagtail.models.Page or our AbstractSpringfieldCMSPage, or a Django model decorated with register_snippet) please ensure that the PR has it listed in springfield.settings.base.CMS_ALLOWED_PAGE_MODELS and also in the ./bin/export-db-to-sqlite.sh script. Request changes if this is not the case.
+* If you can see a new Wagtail CMS model is being added (specifically, a new Python class that is a subclass of wagtail.models.Page or of AbstractSpringfieldCMSPage, or a Django model class that is decorated or wrapped with with `register_snippet`) please check that the PR has it listed in springfield.settings.base.CMS_ALLOWED_PAGE_MODELS and also in the ./bin/export-db-to-sqlite.sh script.
+
 
 # What Not to Do
 
