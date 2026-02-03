@@ -76,7 +76,15 @@ def create_translation_sources(apps, schema_editor):
 
 
 def import_ftl_translations(apps, schema_editor):
-    """Import FTL translations for all feature pages and locales."""
+    """Import FTL translations for all feature pages and locales.
+
+    In production (DEBUG=False), all locales are translated.
+    In development (DEBUG=True), only es-ES is translated for speed.
+    Set ALL_LOCALES=1 in development to translate all locales.
+    """
+    import os
+
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     from wagtail.models import Locale
@@ -95,22 +103,36 @@ def import_ftl_translations(apps, schema_editor):
 
     source_locale = Locale.objects.get(language_code="en-US")
 
-    # Target locales for FTL translation import
-    target_locales = [
-        Locale.objects.get(language_code="de"),  # German
-        Locale.objects.get(language_code="fr"),  # French
-        Locale.objects.get(language_code="es-ES"),  # Spanish - Spain
-        Locale.objects.get(language_code="es-MX"),  # Spanish - México
-        Locale.objects.get(language_code="zh-CN"),  # Chinese (Simplified)
-        Locale.objects.get(language_code="pt-BR"),  # Portuguese (Brazil)
-        Locale.objects.get(language_code="ru"),  # Russian
-        Locale.objects.get(language_code="pl"),  # Polish
-        Locale.objects.get(language_code="it"),  # Italian
-        Locale.objects.get(language_code="ja"),  # Japanese
-        Locale.objects.get(language_code="id"),  # Indonesian
-        Locale.objects.get(language_code="nl"),  # Dutch
-        Locale.objects.get(language_code="tr"),  # Turkish
+    # All available target locales
+    all_locale_codes = [
+        "de",  # German
+        "fr",  # French
+        "es-ES",  # Spanish - Spain
+        "es-MX",  # Spanish - México
+        "zh-CN",  # Chinese (Simplified)
+        "pt-BR",  # Portuguese (Brazil)
+        "ru",  # Russian
+        "pl",  # Polish
+        "it",  # Italian
+        "ja",  # Japanese
+        "id",  # Indonesian
+        "nl",  # Dutch
+        "tr",  # Turkish
     ]
+
+    # Determine which locales to translate:
+    # - Production (DEBUG=False): all locales
+    # - Development with ALL_LOCALES=1: all locales
+    # - Development otherwise: es-ES only (for speed)
+    all_locales_env = os.environ.get("ALL_LOCALES", "").lower() in ("1", "true", "yes")
+    if not settings.DEBUG or all_locales_env:
+        locale_codes = all_locale_codes
+    else:
+        locale_codes = ["es-ES"]
+        print("\n  Development mode: translating es-ES only (set ALL_LOCALES=1 for all)")
+
+    # Fetch target locales from database
+    target_locales = [Locale.objects.get(language_code=code) for code in locale_codes]
 
     total_imported = 0
 
