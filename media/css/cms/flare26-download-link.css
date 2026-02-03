@@ -47,7 +47,7 @@
     .fl-header .fl-header-main-download-button .download-link {
         border-radius: var(--token-spacing-sm);
         font-size: 0;
-        padding: 6px;
+        padding: 8px;
     }
 
     .fl-header
