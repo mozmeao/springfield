@@ -514,6 +514,12 @@
     },
     {
       "files": [
+        "js/firefox/experiment-home.es6.js"
+      ],
+      "name": "experiment-firefox-home"
+    },
+    {
+      "files": [
         "js/firefox/download/desktop/download-as-default.es6.js",
         "js/firefox/download/desktop/download-as-default-init.es6.js"
       ],
