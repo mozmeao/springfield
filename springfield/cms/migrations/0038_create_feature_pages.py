@@ -12,6 +12,7 @@ This migration:
 4. Imports FTL translations for all configured target locales
 """
 
+import os
 import re
 
 from django.db import migrations
@@ -82,8 +83,6 @@ def import_ftl_translations(apps, schema_editor):
     In development (DEBUG=True), only es-ES is translated for speed.
     Set ALL_LOCALES=1 in development to translate all locales.
     """
-    import os
-
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
@@ -356,6 +355,11 @@ def _convert_ftl_links_to_wagtail(translated, source):
 
 def run_all_forward(apps, schema_editor):
     """Run all migration steps in order."""
+    # In tests, the code to create feature pages is skipped entirely.
+    if os.environ.get("DJANGO_SETTINGS_MODULE") == "springfield.settings.test":
+        print("Skipping feature page creation in test environment")
+        return
+
     create_feature_pages(apps, schema_editor)
     create_translation_sources(apps, schema_editor)
     import_ftl_translations(apps, schema_editor)
@@ -398,6 +402,9 @@ def reverse_migration(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0037_articledetailpage_index_page_heading"),
+        # Required because save_target(publish=True) triggers the page_published signal,
+        # which has a handler in wagtail_localize_smartling that queries LandedTranslationTask
+        ("wagtail_localize_smartling", "0004_landedtranslationtask"),
     ]
 
     operations = [
