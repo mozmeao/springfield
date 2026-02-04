@@ -8,9 +8,26 @@
 
 {% block body_class %}fl-home-body{% endblock %}
 
+{% block site_js %}
+  {{ super() }}
+  {{ js_bundle('firefox_download_thanks') }}
+{% endblock %}
 
 {% block content %}
   <div class="fl-main">
+
+    <div class="fl-show-auto-download-notification {% if is_preview %}conditional-display is-preview{% endif %}">
+      {% if is_preview %}
+        <span class="preview-indicator">Condition: windows or mac</span>
+      {% endif %}
+      <include:notification color="green">
+        {# fallback_url is replaced by the platform download link via JS, but if
+            something fails the user should still get a link to a working download path. #}
+        {% set fallback_href = firefox_url('desktop', 'all') %}
+        {{ ftl('firefox-desktop-download-your-firefox-new-should-begin', id='direct-download-link', fallback_url=fallback_href)}}
+      </include:notification>
+    </div>
+
     {% set ns = namespace(headings=0) %}
     {% for block in page.content %}
       {% set block_index = loop.index %}
@@ -27,10 +44,20 @@
   </div>
 {% endblock content %}
 
+
 {% block pre_footer %}
-  {% if page.pre_footer %}
-    {% for block in page.pre_footer %}
-      {% include_block block %}
-    {% endfor %}
+  {% set pre_footer_cta_form = get_pre_footer_cta_form_snippet() %}
+  {% if pre_footer_cta_form %}
+    {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
+    {% set analytics_position = "pre-footer-cta-form" %}
+    {% set analytics_id = pre_footer_cta_form.analytics_id %}
+    <include:newsletter-form>
+      <include:heading
+        level="h2"
+        heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
+        subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
+      />
+      </include:newsletter-form>
   {% endif %}
+
 {% endblock pre_footer %}

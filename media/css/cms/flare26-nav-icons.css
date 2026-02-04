@@ -106,6 +106,30 @@
     --icon-src: url('/media/img/firefox/flare/2026/nav/reading-list-24.svg');
 }
 
+.fl-nav-icon-key {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/key-24.svg');
+}
+
+.fl-nav-icon-more-grid {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/more-grid-24.svg');
+}
+
+.fl-nav-icon-private-mode {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/private-mode-fill-24.svg');
+}
+
+.fl-nav-icon-shield-checkmark {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/2026/nav/shield-checkmark-fill-16.svg');
+}
+
 .fl-nav-icon-sparkle {
     color: var(--token-color-nav-icon-purple);
 

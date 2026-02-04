@@ -176,31 +176,55 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .is-firefox .conditional-display.condition-is-firefox {
-    display: block;
+    display: unset;
 }
 
 .not-firefox .conditional-display.condition-not-firefox {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
-    display: block;
+    display: unset;
 }
 
 .state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
-    display: block;
+    display: unset;
+}
+
+.android .conditional-display.condition-android {
+    display: unset;
+}
+
+.ios .conditional-display.condition-ios {
+    display: unset;
+}
+
+.linux .conditional-display.condition-linux {
+    display: unset;
+}
+
+.osx .conditional-display.condition-osx {
+    display: unset;
+}
+
+.windows:not(.fx-unsupported) .conditional-display.condition-windows {
+    display: unset;
 }
 
 .windows-10-plus .conditional-display.condition-windows-10-plus {
-    display: block;
+    display: unset;
+}
+
+.other .conditional-display.condition-other {
+    display: unset;
 }
 
 /* The platform class is placed on the html element and the signed-in state class is placed on the body element */
 
 .windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
-    display: block;
+    display: unset;
 }
 
 .windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
-    display: block;
+    display: unset;
 }

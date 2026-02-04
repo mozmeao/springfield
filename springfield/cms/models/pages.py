@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import redirect
 
@@ -18,6 +19,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    DownloadSupportBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -154,15 +156,20 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    ftl_files = ["firefox/download/download"]
+    ftl_files = [
+        "firefox/download/download",
+        "firefox/browsers/mobile/android",
+        "firefox/browsers/mobile/ios",
+        "firefox/browsers/desktop/chromebook",
+    ]
 
     PLATFORM_CHOICES = (
-        ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
-        ("mac", ftl("platform-macos", ftl_files=["firefox/download/download"])),
-        ("linux", ftl("platform-linux", ftl_files=["firefox/download/download"])),
-        ("android", ftl("platform-android", ftl_files=["firefox/download/download"])),
-        ("ios", ftl("platform-ios", ftl_files=["firefox/download/download"])),
-        ("chromebook", ftl("platform-chromebook", ftl_files=["firefox/download/download"])),
+        ("windows", ftl("firefox-new-platform-windows", ftl_files=["firefox/download/download"])),
+        ("mac", ftl("firefox-new-platform-macos", ftl_files=["firefox/download/download"])),
+        ("linux", ftl("firefox-new-platform-linux", ftl_files=["firefox/download/download"])),
+        ("android", ftl("firefox-new-platform-android", ftl_files=["firefox/download/download"])),
+        ("ios", ftl("firefox-new-platform-ios", ftl_files=["firefox/download/download"])),
+        ("chromebook", ftl("firefox-new-platform-chromebook", ftl_files=["firefox/download/download"])),
     )
 
     platform = models.CharField(
@@ -225,7 +232,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["platforms"] = self.PLATFORM_CHOICES
+        context["platforms"] = dict(self.PLATFORM_CHOICES)
         platform_links = {
             "windows": "/browsers/desktop/windows",
             "mac": "/browsers/desktop/mac",
@@ -249,9 +256,12 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A thank you page displayed after the user downloads Firefox."""
 
+    ftl_files = ["firefox/download/desktop"]
+
     content = StreamField(
         [
             ("section", SectionBlock2026(allow_uitour=False)),
+            ("download_support", DownloadSupportBlock()),
             (
                 "banner_snippet",
                 SnippetChooserBlock(
@@ -260,30 +270,34 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                     label="Banner Snippet",
                 ),
             ),
-        ]
-    )
-    pre_footer = StreamField(
-        [
-            (
-                "pre_footer_cta_form_snippet",
-                SnippetChooserBlock(
-                    target_model="cms.PreFooterCTAFormSnippet",
-                    template="cms/snippets/pre-footer-cta-form-snippet.html",
-                    label="Pre-Footer CTA Form Snippet",
-                ),
-            )
         ],
         use_json_field=True,
-        min_num=0,
-        max_num=1,
-        null=True,
-        blank=True,
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
-        FieldPanel("pre_footer"),
     ]
+
+    def clean(self):
+        super().clean()
+        content_block_types = [block.block_type for block in self.content]
+        if "download_support" not in content_block_types:
+            raise ValidationError("The 'Download Support Message' block is required.")
+        first_block = self.content[0]
+        if first_block.block_type != "section":
+            raise ValidationError("The first block must be a 'Section' block.")
+        if first_block.value["settings"].get("show_to") != "all":
+            section_blocks = [block for block in self.content if block.block_type == "section"]
+            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
+            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
+            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+                raise ValidationError(
+                    "When using conditional display in sections, all platform conditions "
+                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                )
+
+    def get_utm_campaign(self):
+        return "firefox-download-thanks"
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

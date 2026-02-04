@@ -1,0 +1,44 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set block_text = block_text ~ " - " ~ value.label %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set icon_name = value.settings.icon %}
+
+<div class="fl-download-firefox-button" id="{{ block_position }}">
+  <a href="{{ download_firefox_thanks_link['transition_url'] }}"
+     class="download-link fl-button {{ value.theme_class() }} "
+     data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
+     data-testid="{{ block_position }}"
+     data-cta-text="{{ block_text }}"
+     data-cta-position="{{ block_position }}"
+     data-cta-uid="{{ value.settings.analytics_id }}"
+  >
+    {% if value.settings.icon and value.settings.icon_position == "left" %}
+      <include:icon
+        icon_name="{{ value.settings.icon }}"
+        hidden=true
+        extra_class="fl-icon-left"
+      />
+    {% endif %}
+    {{ value.label }}
+    {% if value.settings.icon and value.settings.icon_position == "right" %}
+      <include:icon
+        icon_name="{{ value.settings.icon }}"
+        hidden=true
+        extra_class="fl-icon-right"
+      />
+    {% endif %}
+  </a>
+
+  {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+  {% set ios_url = app_store_url('firefox', campaign) %}
+  {% set android_url = play_store_url('firefox', campaign) %}
+  {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
+  {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+</div>
