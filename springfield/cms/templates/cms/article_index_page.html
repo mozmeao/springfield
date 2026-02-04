@@ -98,9 +98,9 @@
           {% if switch("flare26_enabled") %}
             <include:cards-list>
               {% for article in list_articles %}
-                <include:illustration-card-2026 expand_link="true">
+                <include:illustration-card-2026 expand_link="true" variant="icon">
                   <content:media>
-                    {% if article.featured_image %}
+                    {# {% if article.featured_image %}
                       {{ srcset_image(
                           article.featured_image,
                           "width-{200,400,600,800,1000,1200,1400}",
@@ -112,9 +112,9 @@
                           width=article.featured_image.width,
                           loading="lazy",
                         ) }}
-                      {% else %}
-                        <img src="/media/img/firefox/flare/placeholder.png" alt="" />
-                      {% endif %}
+                      {% else %} #}
+                        <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
+                      {# {% endif %} #}
                   </content:media>
                   <content:heading>
                     {% if article.tag %}

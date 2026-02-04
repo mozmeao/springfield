@@ -9,7 +9,7 @@
   so the a new template is needed.
 #}
 
-<article class="fl-illustration-card {% if expand_link %}fl-card-expand-link{% endif %}">
+<article class="fl-illustration-card {% if expand_link %}fl-card-expand-link{% endif %} {% if variant == 'icon' %}fl-illustration-icon-card{% endif %}">
   {% if contents.media %}
     <div class="fl-card-media">
       {{ contents.media }}

@@ -476,3 +476,18 @@ Illustration Card
         min-height: unset;
     }
 }
+
+.fl-illustration-card.fl-illustration-icon-card img {
+    border-radius: 0;
+    margin: 0;
+}
+
+.fl-illustration-card.fl-illustration-icon-card .fl-card-media {
+    align-items: center;
+    background-color: var(--fl-theme-illustration-icon-bg);
+    display: flex;
+    justify-content: center;
+    margin-block-end: var(--token-spacing-lg);
+    max-width: 102px;
+    padding: var(--token-spacing-md);
+}

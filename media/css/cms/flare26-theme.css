@@ -95,6 +95,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
+    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --cloud-background-gradient: linear-gradient(
         180deg,
         #fff44f 0%,
@@ -133,9 +134,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
     --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
-    /* Step cards */
+    /* Cards */
     --fl-step-card-bg: var(--token-color-medium-purple);
     --fl-step-card-index-bg: var(--token-color-dark-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
     --content-dark-mode-only: '';
 
     /* homepage card grid styles */
@@ -164,9 +166,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-bg-color: var(--token-color-soft-purple-64);
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
 
-    /* Step cards */
+    /* Cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
+    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
 }
 
@@ -188,9 +191,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-menu-category-link-bg-color: var(--token-color-light-purple-20);
         --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
-        /* Step cards */
+        /* Cards */
         --fl-step-card-bg: var(--token-color-medium-purple);
         --fl-step-card-index-bg: var(--token-color-dark-purple);
+        --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
         --content-dark-mode-only: '';
 
         /* homepage card grid styles */
