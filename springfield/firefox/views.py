@@ -282,8 +282,12 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     platform_name = None
     locale_name = None
     download_url = None
+
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        template_name = "firefox/all/includes/main.html"
+        if waffle.switch("FLARE26_ENABLED"):
+            template_name = "firefox/all/main-flare26.html"
+        else:
+            template_name = "firefox/all/main.html"
     elif waffle.switch("FLARE26_ENABLED"):
         template_name = "firefox/all/base-flare26.html"
     else:

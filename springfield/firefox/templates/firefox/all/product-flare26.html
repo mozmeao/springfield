@@ -1,0 +1,88 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# Choose product #}
+
+<section tabindex="-1" aria-labelledby="all-product" class="fl-c-flow-section">
+<h2 id="all-product" class="fl-c-flow-section-heading">
+  <span class="fl-c-flow-step">
+    <span>
+      <span>{% if product %}<include:icon icon_name="checkmark" />{% endif %}</span>
+      <!-- TODO: FTL fallback -->
+      01. {{ ftl('firefox-all-browser-v3') }}
+    </span>
+    {% if not product %}
+      <a id="icon-browser-help" href="#browser-help" class="c-button-help" title="{{ ftl('firefox-all-learn-about-firefox') }}">
+        <include:icon icon_name="help" />
+        <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
+      </a>
+    {% endif %}
+  </span>
+  {% if product %}
+    <span class="fl-c-flow-selection">{{ product and product.name }}
+      <!-- TODO reapply edit functionality -->
+      <include:button
+        theme_class="button-secondary"
+        label="EDIT" # TODO: l10n
+        icon_name="edit"
+        icon_position="left"
+      />
+    </span>
+  {% endif %}
+  </h2>
+
+{% if not product %}
+  <div class="fl-c-flow-options">
+    <h3 class="c-product-title"><img alt="" role="presentation" src="{{ static('protocol/img/icons/desktop.svg') }}"> {{ ftl('firefox-all-desktop') }}</h3>
+    <ul class="c-product-list qa-desktop-list">
+      <li class="release"><a href="{{ url('firefox.all.platforms', product_slug='desktop-release') }}" class="load-content-partial">{{ ftl('firefox-all-product-firefox') }}</a> <strong>{{ ftl('firefox-all-recommended') }}</strong></li>
+      {% for p in products %}
+        {% if p.slug.startswith('desktop') and not p.slug.endswith('release') %}
+          <li class="{{ p.slug }}"><a href="{{ url('firefox.all.platforms', product_slug=p.slug) }}" class="load-content-partial">{{ p.name }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+
+    <h3 class="c-product-title"><img alt="" role="presentation" src="{{ static('protocol/img/icons/mobile.svg') }}"> {{ ftl('firefox-all-mobile') }}</h3>
+
+    <ul class="c-product-list qa-mobile-list">
+      <li class="release"><a href="{{ url('firefox.all.platforms', product_slug='mobile-release') }}" class="load-content-partial">{{ ftl('firefox-all-product-firefox') }}</a> <strong>{{ ftl('firefox-all-recommended') }}</strong></li>
+      {% for p in products %}
+        {% if p.slug.startswith('android') and not p.slug.endswith('release')%}
+          <li class="{{ p.slug }}"><a href="{{ url('firefox.all.platforms', product_slug=p.slug) }}" class="load-content-partial">{{ p.name }}</a></li>
+        {% endif %}
+      {% endfor %}
+      <li class="ios-testflight"><a href="{{ url('firefox.ios.testflight') }}">{{ ftl('firefox-all-product-firefox-ios-testflight') }}</a></li>
+    </ul>
+
+    <div id="browser-help" class="c-help mzp-u-modal-content">
+      <h3>{{ ftl('firefox-all-learn-about-firefox') }}</h3>
+      <ul>
+        <li>
+          <h4 class="c-help-title"><a href="{{ url('firefox') }}">{{ ftl('firefox-all-product-firefox') }}</a></h4>
+          <p class="c-help-desc">{{ ftl('firefox-all-the-standard-firefox') }}</p>
+        </li>
+        <li>
+          <h4 class="c-help-title"><a href="{{ url('firefox.channel.desktop') }}#beta">Firefox <span>Beta</span></a></h4>
+          <p class="c-help-desc">{{ ftl('firefox-all-get-a-sneak-peek-at') }}</p>
+        </li>
+        <li>
+          <h4 class="c-help-title"><a href="{{ url('firefox.developer.index') }}">Firefox <span>Developer Edition</span></a></h4>
+          <p class="c-help-desc">{{ ftl('firefox-all-test-your-sites-against') }}</p>
+        </li>
+        <li>
+          <h4 class="c-help-title"><a href="{{ url('firefox.channel.desktop') }}#nightly">Firefox <span>Nightly</span></a></h4>
+          <p class="c-help-desc">{{ ftl('firefox-all-the-pre-alpha-version') }}</p>
+        </li>
+        <li>
+          <h4 class="c-help-title"><a href="{{ url('firefox.enterprise.index') }}">Firefox <span>Extended Support Release</span></a></h4>
+          <p class="c-help-desc">{{ ftl('firefox-all-count-on-stability-and') }}</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endif %}
+</section>

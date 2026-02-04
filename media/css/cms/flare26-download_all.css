@@ -1,11 +1,27 @@
 /*
-  Tokens are in the flare26-tokens file, and theme variables are in flare26-theme.
-  Try to use them as much as possible.
-  If you need to create any variables, do it in the theme file and
-  add it to the dark mode variants, if necessary.
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-new-class-example {
-    padding: var(--token-layout-sm);
-    text-align: center;
+.fl-c-flow-wrapper {
+    margin: 0 auto;
+    max-width: var(--token-width-desktop-layout);
+    padding-inline: var(--token-spacing-lg);
+}
+
+/* TODO: ensure source order matches for tabbing  */
+@media (--viewport-sm-up) {
+    .fl-c-flow-wrapper {
+        display: grid;
+        grid-template-columns: [steps-start] 1fr [steps-end links-start] auto [links-end];
+    }
+
+    .fl-c-flow-steps {
+        grid-area: steps;
+    }
+
+    .fl-c-flow-links {
+        grid-area: links;
+    }
 }

@@ -26,8 +26,8 @@
   </include:intro>
 
   <!-- TODO: desktop column layout, add section names -->
-  <div class="c-flow-wrapper">
-    <section class="">
+  <div class="fl-c-flow-wrapper">
+    <section class="fl-c-flow-links">
       {% if product %}
         {% if product.slug == "desktop-release" %}
           <ul>
@@ -88,12 +88,12 @@
         <li><a href="https://support.mozilla.org/products/{{ params }}&utm_content=need-help-link">{{ ftl('firefox-all-need-help') }}</a></li>
       </ul>
     </section>
-    <section>
+    <section class="fl-c-flow-steps">
       <!-- TODO: checkboxes/steps inside each section -->
-      {% include 'firefox/all/product.html' %}
-      {% include 'firefox/all/platform.html' %}
-      {% include 'firefox/all/lang.html' %}
-      {% include 'firefox/all/download.html' %}
+      {% include 'firefox/all/product-flare26.html' %}
+      {% include 'firefox/all/platform-flare26.html' %}
+      {% include 'firefox/all/lang-flare26.html' %}
+      {% include 'firefox/all/download-flare26.html' %}
     </section>
   </div>
 </main>
