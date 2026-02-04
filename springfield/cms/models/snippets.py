@@ -16,7 +16,6 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
-from springfield.cms.templatetags.cms_tags import remove_tags
 
 
 class FluentPreviewableMixin(PreviewableMixin):
@@ -77,6 +76,8 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
         verbose_name_plural = "Pre Footer Call To Action Forms"
 
     def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):
@@ -114,7 +115,9 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
         verbose_name_plural = "Download Firefox Call To Action Snippets"
 
     def __str__(self):
-        return f"{remove_tags(self.heading)} – {self.locale}"
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/download-firefox-cta-snippet-preview.html"
@@ -156,6 +159,8 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
         verbose_name_plural = "Banner Snippets"
 
     def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):

@@ -10,7 +10,13 @@ from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Page
 
-from springfield.cms.fixtures.article_page_fixtures import get_article_theme_page
+from springfield.cms.fixtures.article_page_fixtures import (
+    get_article_theme_page,
+    get_theme_page_icon_cards_section,
+    get_theme_page_illustration_cards_section,
+    get_theme_page_intro,
+    get_theme_page_sticker_row_section,
+)
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
@@ -290,6 +296,40 @@ def assert_card_attributes(
             cta_position=cta_position,
             cta_text=cta_text,
         )
+
+
+def assert_article_card_attributes(
+    card_element: BeautifulSoup,
+    card_data: dict,
+    article: ArticleDetailPage,
+    card_list_type: str,
+):
+    overrides = card_data["value"].get("overrides", {})
+
+    if card_list_type in ["sticker_card", "illustration_card"]:
+        superheading_text = overrides.get("superheading") or (article.tag.name if article.tag else "")
+        if superheading_text:
+            superheading_element = card_element.find("p", class_="fl-superheading")
+            assert superheading_element and superheading_element.get_text().strip() == superheading_text.strip()
+
+    title_override = overrides.get("title")
+    title_text = BeautifulSoup(title_override, "html.parser").get_text() if title_override else article.title
+    heading_element = card_element.find("h3", class_="fl-heading")
+    assert heading_element and heading_element.get_text().strip() == title_text.strip()
+
+    link = card_element.find("a")
+    assert link and link["href"] == article.url
+    link_text = overrides.get("link_label") or article.link_text
+    assert link.get_text().strip() == link_text.strip()
+
+    description_override = overrides.get("description")
+    description_source = description_override if description_override else article.description
+    description_text = BeautifulSoup(description_source, "html.parser").get_text().strip()
+    description_class = "fl-article-item-description" if card_list_type == "sticker_row" else "fl-body"
+    description_element = card_element.find("div", class_=description_class)
+    if card_list_type == "sticker_row":
+        description_element = description_element.find("p")
+    assert description_element and description_element.get_text().strip() == description_text.strip()
 
 
 def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
@@ -1458,36 +1498,41 @@ def test_theme_page_blocks(index_page, rf):
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
-    header = soup.find("header", class_="fl-article-index-header")
-    assert header
-    assert header.find("h1").get_text().strip() == BeautifulSoup(page.heading, "html.parser").get_text().strip()
-    assert (
-        header.find("p", class_="fl-subheading").get_text().strip()
-        == BeautifulSoup(
-            page.subheading,
-            "html.parser",
-        )
-        .get_text()
-        .strip()
+    intro_div = soup.find("div", class_="fl-intro")
+    intro_data = get_theme_page_intro()
+    assert_section_heading_attributes(
+        section_element=intro_div,
+        heading_data=intro_data["value"]["heading"],
+        index=0,
     )
 
     sections = soup.find_all("section", class_="fl-section")
-    assert len(sections) == 2
+    assert len(sections) == 3
 
     images = get_placeholder_images()
     image_ids = {img.id: img for img in images}
 
-    # Featured Articles
-    featured_articles_data = page.featured_articles.raw_data
-    featured_articles_section = sections[0]
-    assert featured_articles_section.find(class_="fl-card-grid")
-    featured_cards = featured_articles_section.find_all("article", class_="fl-illustration-card")
-    assert len(featured_cards) == len(featured_articles_data)
-    for i, article_data in enumerate(featured_articles_data):
-        card_element = featured_cards[i]
+    # Illustration Card Articles
+    illustration_card_section_data = get_theme_page_illustration_cards_section()
+    illustration_card_article_section = sections[0]
+
+    assert illustration_card_article_section.find(class_="fl-card-grid")
+    illustration_card_articles = illustration_card_article_section.find_all("article", class_="fl-illustration-card")
+    illustration_card_articles_data = illustration_card_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(illustration_card_articles) == len(illustration_card_articles_data)
+
+    for i, article_data in enumerate(illustration_card_articles_data):
+        card_element = illustration_card_articles[i]
         article_id = article_data["value"]["article"]
         article = ArticleDetailPage.objects.get(id=article_id)
         overrides = article_data["value"].get("overrides", {})
+
+        assert_article_card_attributes(
+            card_element=card_element,
+            article=article,
+            card_data=article_data,
+            card_list_type="illustration_card",
+        )
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
@@ -1509,58 +1554,71 @@ def test_theme_page_blocks(index_page, rf):
         assert img_tag["height"] == image_soup["height"]
         assert img_tag["src"] == image_soup["src"]
 
-        superheading_text = overrides.get("superheading") or (article.tag.name if article.tag else "")
-        if superheading_text:
-            superheading_element = card_element.find("p", class_="fl-superheading")
-            assert superheading_element and superheading_element.get_text().strip() == superheading_text.strip()
-
-        title_override = overrides.get("title")
-        title_text = BeautifulSoup(title_override, "html.parser").get_text() if title_override else article.title
-        heading_element = card_element.find("h3", class_="fl-heading")
-        assert heading_element and heading_element.get_text().strip() == title_text.strip()
-
-        link = heading_element.find("a")
-        assert link and link["href"] == article.url
-
-        description_override = overrides.get("description")
-        description_source = description_override if description_override else article.description
-        description_text = BeautifulSoup(description_source, "html.parser").get_text().strip()
-        description_element = card_element.find("div", class_="fl-body")
-        assert description_element and description_element.get_text().strip() == description_text.strip()
-
-    # Other Articles
-    other_articles_section = sections[1]
+    # Icon Cards Section
+    icon_card_section_data = get_theme_page_icon_cards_section()
+    icon_card_section = sections[1]
+    assert icon_card_section and icon_card_section.find(class_="fl-card-grid")
 
     assert_section_heading_attributes(
-        section_element=other_articles_section,
-        heading_data={
-            "heading_text": BeautifulSoup(page.other_articles_heading, "html.parser").get_text().strip(),
-            "subheading_text": BeautifulSoup(page.other_articles_subheading, "html.parser").get_text().strip(),
-            "superheading_text": "",
-        },
+        section_element=icon_card_section,
+        heading_data=icon_card_section_data["value"]["heading"],
         index=1,
     )
 
-    other_articles_data = page.other_articles.raw_data
-    other_article_items = other_articles_section.find_all("article", class_="fl-article-item")
-    assert len(other_article_items) == len(other_articles_data)
-    for i, article_data in enumerate(other_articles_data):
-        article_element = other_article_items[i]
+    assert icon_card_section.find(class_="fl-card-grid")
+    icon_card_articles = icon_card_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+    icon_card_articles_data = icon_card_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(icon_card_articles) == len(icon_card_articles_data)
+
+    for i, article_data in enumerate(icon_card_articles_data):
+        card_element = icon_card_articles[i]
         article_id = article_data["value"]["article"]
         article = ArticleDetailPage.objects.get(id=article_id)
+        overrides = article_data["value"].get("overrides", {})
 
-        rendered_icon = image(article.icon, "width-400")
-        icon_element = article_element.find("img")
-        assert icon_element and icon_element.prettify() == BeautifulSoup(rendered_icon.img_tag(), "html.parser").find("img").prettify()
-
-        title_element = article_element.find("h3", class_="fl-heading")
-        assert title_element and title_element.get_text().strip() == article.title.strip()
-        description_element = article_element.find("div", class_="fl-article-item-description")
-        assert (
-            description_element
-            and description_element.find("p").get_text().strip() == BeautifulSoup(article.description, "html.parser").get_text().strip()
+        assert_article_card_attributes(
+            card_element=card_element,
+            article=article,
+            card_data=article_data,
+            card_list_type="icon_card",
         )
 
-        button = article_element.find("a", class_="fl-button")
-        assert button and button.get_text().strip() == article.link_text.strip()
-        assert button["href"] == article.url
+        image_id = overrides.get("image") or article.icon.id
+        img = image_ids[image_id]
+        rendered_icon = image(img, "width-400").img_tag()
+        icon_element = card_element.find("img")
+        assert icon_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+
+    # Sticker Row Articles
+    sticker_row_section_data = get_theme_page_sticker_row_section()
+    sticker_row_section = sections[2]
+
+    assert_section_heading_attributes(
+        section_element=sticker_row_section,
+        heading_data=sticker_row_section_data["value"]["heading"],
+        index=2,
+    )
+
+    assert sticker_row_section and sticker_row_section.find(class_="fl-stacked-article-list")
+    sticker_row_articles = sticker_row_section.find_all("article", class_="fl-article-item")
+    sticker_row_articles_data = sticker_row_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(sticker_row_articles) == len(sticker_row_articles_data)
+
+    for i, article_data in enumerate(sticker_row_articles_data):
+        card_element = sticker_row_articles[i]
+        article_id = article_data["value"]["article"]
+        article = ArticleDetailPage.objects.get(id=article_id)
+        overrides = article_data["value"].get("overrides", {})
+
+        assert_article_card_attributes(
+            card_element=card_element,
+            article=article,
+            card_data=article_data,
+            card_list_type="sticker_row",
+        )
+
+        image_id = overrides.get("image") or article.sticker.id
+        img = image_ids[image_id]
+        rendered_icon = image(img, "width-400").img_tag()
+        sticker_element = card_element.find("img")
+        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()

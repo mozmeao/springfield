@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
@@ -1144,6 +1145,120 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     return _CardsListBlock(*args, **kwargs)
 
 
+# Article Cards
+
+
+class ArticleOverridesBlock(blocks.StructBlock):
+    image = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom image to override the article's image. "
+        "Will replace the featured image, icon or sticker, depending on the card type.",
+    )
+    superheading = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
+    )
+    title = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom title to override the article's original title.",
+    )
+    description = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom description to override the article's original description.",
+    )
+    link_label = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom link label to override the article's original call to action text.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Overrides"
+
+
+class ArticleValue(blocks.StructValue):
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if title := overrides.get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get("article")
+        return article_page.title if article_page else ""
+
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if description := overrides.get("description"):
+            return remove_p_tag(richtext(description))
+        article_page = self.get("article")
+        return remove_p_tag(richtext(article_page.description))
+
+    def get_superheading(self) -> str:
+        overrides = self.get("overrides", {})
+        if superheading := overrides.get("superheading"):
+            return superheading
+        article_page = self.get("article")
+        if article_page and article_page.tag:
+            return article_page.tag.name
+        return ""
+
+    def get_link_label(self) -> str:
+        overrides = self.get("overrides", {})
+        if link_label := overrides.get("link_label"):
+            return link_label
+        article_page = self.get("article")
+        return article_page.link_text
+
+
+class ArticleBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        target_model="cms.ArticleDetailPage",
+    )
+    overrides = ArticleOverridesBlock(required=False)
+
+    class Meta:
+        label = "Article"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
+        value_class = ArticleValue
+
+
+class ArticlesListSettings(blocks.StructBlock):
+    card_type = blocks.ChoiceBlock(
+        choices=[
+            ("sticker_card", "Sticker Card"),
+            ("illustration_card", "Illustration Card"),
+            ("icon_card", "Icon Card"),
+            ("sticker_row", "Sticker Row"),
+        ],
+        default="sticker_card",
+        label="Card Type",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Card Type: {card_type}"
+        form_classname = "compact-form struct-block"
+
+
+class ArticleCardsListBlock(blocks.StructBlock):
+    settings = ArticlesListSettings()
+    cards = blocks.ListBlock(ArticleBlock())
+
+    class Meta:
+        template = "cms/blocks/article-cards-list.html"
+        label = "Article Cards List"
+        label_format = "{heading}"
+
+
 # Section blocks
 
 
@@ -1248,15 +1363,39 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             label = "Intro"
             label_format = "{heading}"
 
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
+    return _IntroBlock(*args, **kwargs)
 
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image, not both.")
-            return cleaned_data
+
+def IntroBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IntroBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IntroBlock(blocks.StructBlock):
+        media = blocks.StreamBlock(
+            [
+                ("image", ImageVariantsBlock()),
+                ("video", VideoBlock()),
+            ],
+            label="Media",
+            required=False,
+            max_num=1,
+        )
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/intro-2026.html"
+            label = "Intro"
+            label_format = "{heading}"
 
     return _IntroBlock(*args, **kwargs)
 
@@ -1321,6 +1460,7 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
             ]
         )
         cta = MixedButtonsBlock(
@@ -1619,61 +1759,3 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
-
-
-# Articles
-
-
-class FeaturedArticleOverridesBlock(blocks.StructBlock):
-    image = ImageChooserBlock(
-        required=False,
-        help_text="Optional custom image to override the article's original featured image.",
-    )
-    superheading = blocks.CharBlock(
-        required=False,
-        help_text="Optional custom superheading to override the article's original tag.",
-    )
-    title = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom title to override the article's original title.",
-    )
-    description = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom description to override the article's original description.",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Overrides"
-
-
-class FeaturedArticleBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        label="Featured Article",
-        help_text="Select an article to feature.",
-        target_model="cms.ArticleDetailPage",
-    )
-    overrides = FeaturedArticleOverridesBlock(required=False)
-
-    class Meta:
-        template = "cms/blocks/featured-article.html"
-        label = "Featured Article"
-        label_format = "{article}"
-        form_classname = "compact-form struct-block"
-
-
-class ArticleItemBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        label="Article",
-        help_text="Select an article to list.",
-        target_model="cms.ArticleDetailPage",
-    )
-
-    class Meta:
-        template = "cms/blocks/article-item.html"
-        label = "Article Item"
-        label_format = "{article}"
-        form_classname = "compact-form struct-block"

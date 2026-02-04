@@ -448,6 +448,11 @@ Illustration Card
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    gap: var(--token-spacing-md);
+}
+
+.fl-illustration-card .fl-card-content .fl-heading {
+    margin: 0;
 }
 
 .fl-illustration-card .fl-superheading {
@@ -477,36 +482,50 @@ Illustration Card
     }
 }
 
-.fl-illustration-card.fl-illustration-icon-card {
-    flex-direction: row;
-    gap: var(--token-spacing-lg);
+.fl-illustration-card.fl-illustration-icon-card,
+.fl-illustration-card.fl-illustration-sticker-card {
+    --media-padding: var(--token-spacing-md);
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
 }
 
-.fl-illustration-card.fl-illustration-icon-card img {
+.fl-illustration-card.fl-illustration-sticker-card {
+    --media-size: 56px;
+    --media-border-radius: var(--token-border-radius-xs);
+}
+
+.fl-illustration-card.fl-illustration-icon-card {
+    --media-size: 48px;
+    --media-border-radius: var(--token-border-radius-2xs);
+}
+
+.fl-illustration-card.fl-illustration-icon-card img,
+.fl-illustration-card.fl-illustration-sticker-card img {
     border-radius: 0;
     margin: 0;
+    max-height: 100%;
+    max-width: 100%;
 }
 
-.fl-illustration-card.fl-illustration-icon-card .fl-card-media {
+.fl-illustration-card.fl-illustration-icon-card .fl-card-media,
+.fl-illustration-card.fl-illustration-sticker-card .fl-card-media {
     align-items: center;
     background-color: var(--fl-theme-illustration-icon-bg);
-    border-radius: var(--token-spacing-md);
+    border-radius: var(--media-border-radius);
     display: flex;
+    height: var(--media-size);
     justify-content: center;
     margin-block-end: var(--token-spacing-lg);
-    max-height: 56px;
-    max-width: 56px;
-    padding: var(--token-spacing-md);
+    min-height: var(--media-size);
+    min-width: var(--media-size);
+    padding: var(--media-padding);
+    width: var(--media-size);
 }
 
 @media (--viewport-md-up) {
-    .fl-illustration-card.fl-illustration-icon-card {
-        flex-direction: column;
-    }
-
-    .fl-illustration-card.fl-illustration-icon-card .fl-card-media {
-        border-radius: var(--token-spacing-xl);
-        max-height: 102px;
-        max-width: 102px;
+    .fl-illustration-card.fl-illustration-sticker-card {
+        --media-border-radius: var(--token-border-radius-sm);
+        --media-padding: var(--token-spacing-lg);
+        --media-size: 102px;
     }
 }

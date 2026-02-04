@@ -40,7 +40,7 @@
                     {% if article.icon %}
                       {{ image(article.icon, "width-400") }}
                     {% else %}
-                      <img src="/media/img/firefox/flare/placeholder.png" alt="" aria-hidden />
+                      <img src="/media/img/firefox/flare/independence-sticker.png" alt="" aria-hidden />
                     {% endif %}
                   </content:sticker>
                   <content:body>
@@ -98,23 +98,13 @@
           {% if switch("flare26_enabled") %}
             <include:cards-list>
               {% for article in list_articles %}
-                <include:illustration-card-2026 expand_link="true" variant="icon">
+                <include:illustration-card-2026 expand_link="true" variant="sticker">
                   <content:media>
-                    {# {% if article.featured_image %}
-                      {{ srcset_image(
-                          article.featured_image,
-                          "width-{200,400,600,800,1000,1200,1400}",
-                          sizes="
-                            (min-width: 768px) 50vw,
-                            (min-width: 1440px) 680px,
-                            100vw
-                          ",
-                          width=article.featured_image.width,
-                          loading="lazy",
-                        ) }}
-                      {% else %} #}
-                        <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
-                      {# {% endif %} #}
+                    {% if article.sticker %}
+                      {{ image(article.sticker, "width-400") }}
+                    {% else %}
+                      <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
+                    {% endif %}
                   </content:media>
                   <content:heading>
                     {% if article.tag %}

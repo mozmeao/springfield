@@ -5,6 +5,7 @@
 */
 
 .fl-intro {
+    padding: var(--token-layout-md) 0;
     position: relative;
     text-align: center;
 }
@@ -15,6 +16,12 @@
 
 .fl-intro-content {
     max-width: 848px;
+}
+
+.fl-intro-media {
+    align-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .fl-intro-content .fl-buttons {
@@ -103,7 +110,7 @@
 .fl-home-intro .fl-superheading i,
 .fl-home-intro .fl-superheading em {
     background: var(--token-gradient-gold);
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
     font-style: normal;
     margin-inline-end: var(--token-spacing-xs);
@@ -127,6 +134,10 @@
 }
 
 @media (--viewport-sm-up) {
+    .fl-intro {
+        padding: var(--token-layout-lg) 0;
+    }
+
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 154px);
         --banner-kit-bottom-position: -394px;

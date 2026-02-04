@@ -12,41 +12,19 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
-    <div class="fl-split-page-upper">
-      <section class="fl-section">
-        <div class="fl-section-container">
-          <include:heading
-            alignment_class="text-center"
-            level="h1"
-            heading_text="{{ page.heading|richtext|remove_p_tag }}"
-            subheading_text="{{ page.subheading|richtext|remove_p_tag if page.subheading else '' }}"
-          />
-          <include:cards-list>
-            {% for article in page.featured_articles %}
-              {% include_block article %}
-            {% endfor %}
-          </include:cards-list>
-        </div>
-      </section>
-    </div>
+    {% set ns = namespace(headings=0) %}
+    {% for block in page.content %}
+      {% set block_index = loop.index %}
+      {% set block_type = block.block_type %}
+      {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
 
-    <div class="fl-split-page-lower">
-      <section class="fl-section">
-        <div class="fl-section-container">
-          <include:heading
-            alignment_class="text-center"
-            level="h2"
-            heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
-            subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag if page.other_articles_subheading else '' }}"
-          />
-            <div class="fl-stacked-article-list">
-              {% for article in page.other_articles %}
-                {% include_block article %}
-              {% endfor %}
-            </div>
-        </div>
-      </section>
-    </div>
+      {% if block.value.heading and block.value.heading.heading_text %}
+        {% set block_level = 1 if ns.headings == 0 else 2 %}
+        {% set ns.headings = ns.headings + 1 %}
+      {% endif %}
+
+      {% include_block block %}
+    {% endfor %}
   </main>
 </div>
 {% endblock %}

@@ -100,7 +100,7 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-button-square {
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-2xs);
 }
 
 /* Button fills - Outline */

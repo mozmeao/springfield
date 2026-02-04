@@ -352,7 +352,7 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     response = index_page.specific.serve(request)
     assert response.status_code == 200
 
-    image, _, _, _ = get_placeholder_images()
+    image, dark_image, mobile_image, mobile_dark_image = get_placeholder_images()
 
     for i in range(1, 3):
         tag = Tag.objects.create(name=f"Tag {i}", slug=f"tag-{i}", locale=index_page.locale)
@@ -365,6 +365,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             featured=True,
             image=image,
             tag=tag,
+            icon=mobile_image,
+            sticker=dark_image,
         )
         featured_page.save()
 
@@ -383,6 +385,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             featured=False,
             image=image,
             tag=tag,
+            icon=mobile_image,
+            sticker=dark_image,
         )
         article.save()
 
@@ -403,9 +407,9 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     assert "All the Articles" in soup.find("h1").text
 
     card_grids = soup.find_all("div", class_="fl-card-grid")
-    assert len(card_grids) == 1
+    assert len(card_grids) == 2
 
-    featured_cards = card_grids[0].find_all(class_="fl-article-wrapper")
+    featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
     assert len(featured_cards) == 2
     for i, card in enumerate(featured_cards):
         title = card.find("h3")
@@ -414,18 +418,14 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
         assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
         superheading = card.find(class_="fl-superheading")
         assert superheading and f"Tag {i + 1}" in superheading.text
-        assert card["data-tag"] == f"tag-{i + 1}"
 
-    stacked_cards = soup.find("div", class_="fl-stacked-article-list")
-    assert stacked_cards
-    article_cards = stacked_cards.find_all(class_="fl-article-wrapper")
-    assert len(article_cards) == 2
-    for i, card in enumerate(article_cards):
+    sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
+    assert len(sticker_cards) == 2
+    for i, card in enumerate(sticker_cards):
         title = card.find("h3")
         assert f"Article {i + 1}" in title.text
         assert f"Description for Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
-        assert card["data-tag"] == f"tag-{i + 1}"
 
 
 def test_article_detail_content(minimal_site, rf):
