@@ -49,6 +49,8 @@
 
           <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
 
+          {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+
           {% if page.platform == "mac" %}
             {{ firefox_download_desktop_button_mac(flare_styles=True) }}
           {% elif page.platform == "windows" %}
@@ -56,16 +58,16 @@
           {% elif page.platform == "linux" %}
             {{ firefox_download_desktop_button_linux(flare_styles=True) }}
           {% elif page.platform == "android" %}
-            {% set android_url = play_store_url('firefox', 'app-store-banner') %}
+            {% set android_url = play_store_url('firefox', campaign) %}
             {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
           {% elif page.platform == "ios" %}
-            {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios') %}
+            {% set ios_url = app_store_url('firefox', campaign) %}
             {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
           {% elif page.platform == "chromebook" %}
-            {% set android_url = play_store_url('firefox', 'firefox-browsers-chromebook') %}
+            {% set android_url = play_store_url('firefox', campaign) %}
             {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
             <p><small>{{ ftl('browsers-chromebook-x86-based-chromebook') }}</small></p>
-            {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=desktop-browsers-chromebook&utm_content=seo' %}
+            {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' ~ campaign ~ '&utm_content=seo' %}
             <a href="https://support.mozilla.org/kb/run-firefox-chromeos{{ params }}" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
               {{ ftl('browsers-chromebook-get-firefox-desktop') }}
             </a>

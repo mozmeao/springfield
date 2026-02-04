@@ -368,6 +368,7 @@ UITOUR_BUTTON_CHOICES = (
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+DOWNLOAD_BUTTON_TYPE = "download_button"
 
 
 BUTTON_PRIMARY = ""
@@ -425,8 +426,8 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE]
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -555,6 +556,20 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def DownloadFirefoxButtonBlock(themes=None, **kwargs):
+    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
+        settings = BaseButtonSettings(themes=themes)
+
+        class Meta:
+            label = "Download Firefox Button"
+            label_format = "Download Firefox Button - {label}"
+            template = "cms/blocks/download-firefox-button.html"
+            value_class = BaseButtonValue
+
+    return _DownloadFirefoxButtonBlock(**kwargs)
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -568,13 +583,14 @@ def MixedButtonsBlock(
 
     The min_num and max_num parameters control the total number of buttons (combined).
 
-    Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
+    Example: min_num=0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
     buttons, or up to 1 of each.
     """
     button_blocks = {
         BUTTON_TYPE: ButtonBlock(themes=themes),
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
+        DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
