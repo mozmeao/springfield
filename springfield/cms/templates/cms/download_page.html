@@ -23,14 +23,14 @@
           <div class="fl-platform-dropdown-wrapper">
             <div class="fl-platform-dropdown">
             <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
-                {% if page.platform == 'ios'%}iOS{% else %}{{ page.platform | title }}{% endif %}
+                {{ platforms[page.platform] }}
               </span>
               <span class="fl-icon-wrapper">
                 <span class="fl-icon fl-icon-caret-down" aria-hidden="true"></span>
               </span>
             </button>
             <ul class="fl-platform-dropdown-list" aria-role="listbox">
-              {% for key, platform in platforms %}
+              {% for key, platform in platforms.items() %}
                 <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
                   <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
                     {{ platform }}

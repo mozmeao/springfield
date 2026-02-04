@@ -159,12 +159,12 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ftl_files = ["firefox/download/download"]
 
     PLATFORM_CHOICES = (
-        ("windows", ftl("platform-windows", ftl_files=["firefox/download/download"])),
-        ("mac", ftl("platform-macos", ftl_files=["firefox/download/download"])),
-        ("linux", ftl("platform-linux", ftl_files=["firefox/download/download"])),
-        ("android", ftl("platform-android", ftl_files=["firefox/download/download"])),
-        ("ios", ftl("platform-ios", ftl_files=["firefox/download/download"])),
-        ("chromebook", ftl("platform-chromebook", ftl_files=["firefox/download/download"])),
+        ("windows", ftl("firefox-new-platform-windows", ftl_files=["firefox/download/download"])),
+        ("mac", ftl("firefox-new-platform-macos", ftl_files=["firefox/download/download"])),
+        ("linux", ftl("firefox-new-platform-linux", ftl_files=["firefox/download/download"])),
+        ("android", ftl("firefox-new-platform-android", ftl_files=["firefox/download/download"])),
+        ("ios", ftl("firefox-new-platform-ios", ftl_files=["firefox/download/download"])),
+        ("chromebook", ftl("firefox-new-platform-chromebook", ftl_files=["firefox/download/download"])),
     )
 
     platform = models.CharField(
@@ -227,7 +227,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["platforms"] = self.PLATFORM_CHOICES
+        context["platforms"] = dict(self.PLATFORM_CHOICES)
         platform_links = {
             "windows": "/browsers/desktop/windows",
             "mac": "/browsers/desktop/mac",

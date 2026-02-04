@@ -4,17 +4,15 @@
 
 @use 'sass:math';
 
-$image-path: '/media/protocol/img';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($image-path: '/media/protocol/img');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+@use '~@mozilla-protocol/core/protocol/css/templates/multi-column';
 
-@import '~@mozilla-protocol/core/protocol/css/templates/multi-column';
-
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
-@import '~@mozilla-protocol/core/protocol/css/components/picto';
-@import '~@mozilla-protocol/core/protocol/css/components/callout';
-@import '~@mozilla-protocol/core/protocol/css/components/section-heading';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
+@use '~@mozilla-protocol/core/protocol/css/components/picto';
+@use '~@mozilla-protocol/core/protocol/css/components/callout';
+@use '~@mozilla-protocol/core/protocol/css/components/section-heading';
 
 
 .mzp-c-callout .mzp-l-content .mzp-t-callout-brand {

@@ -348,6 +348,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
@@ -356,6 +357,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
@@ -500,20 +502,17 @@ class UITourButtonValue(BaseButtonValue):
         """
         theme_classes = super().theme_class()
         button_type = self.get("button_type", "")
-        if button_type == UITOUR_BUTTON_NEW_TAB:
-            theme_classes += " ui-tour-open-new-tab"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES:
-            theme_classes += " ui-tour-open-about-preferences"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL:
-            theme_classes += " ui-tour-open-about-preferences-general"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_HOME:
-            theme_classes += " ui-tour-open-about-preferences-home"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH:
-            theme_classes += " ui-tour-open-about-preferences-search"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
-            theme_classes += " ui-tour-open-about-preferences-privacy"
-        elif button_type == UITOUR_BUTTON_PROTECTIONS_REPORT:
-            theme_classes += " ui-tour-open-protections-report"
+        classes = {
+            UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+            UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+            UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
+        }
+        theme_classes += " " + classes.get(button_type, "")
         return theme_classes
 
 
