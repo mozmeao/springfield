@@ -9,7 +9,8 @@ import {
     dntEnabled,
     getConsentCookie,
     gpcEnabled,
-    isFirefoxDownloadThanks
+    isFirefoxDownloadThanks,
+    setGtagConsentMode
 } from '../consent/utils.es6';
 
 const GTM_CONTAINER_ID = document
@@ -18,12 +19,38 @@ const GTM_CONTAINER_ID = document
 
 const GTMSnippet = {};
 
+if (typeof window.dataLayer === 'undefined') {
+    window.dataLayer = [];
+}
+
+/**
+ * Set Gtag consent defaults to false unless there is a
+ * consent pref cookie allowing analytics
+ */
+GTMSnippet.setGtagConsentDefaults = () => {
+    let defaultConsent = false;
+    const cookie = getConsentCookie();
+
+    if (cookie && cookie.analytics) {
+        defaultConsent = true;
+    }
+
+    setGtagConsentMode(defaultConsent, 'default');
+};
+
 /**
  * Load the GTM snippet. Expects `GTM_CONTAINER_ID` to be
  * defined in the HTML tag via a data attribute.
  */
 GTMSnippet.loadSnippet = () => {
     if (GTM_CONTAINER_ID) {
+        window.gtag = function () {
+            window.dataLayer.push(arguments);
+        };
+        // first: set default consent
+        GTMSnippet.setGtagConsentDefaults();
+
+        // then: load GTM script (the order is important)
         // prettier-ignore
         (function(w,d,s,l,i,j,f,dl,k,q){
             w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});f=d.getElementsByTagName(s)[0];
@@ -50,6 +77,7 @@ GTMSnippet.handleConsent = (e) => {
 
     if (hasConsent) {
         GTMSnippet.loadSnippet();
+        setGtagConsentMode(hasConsent);
         window.removeEventListener(
             'mozConsentStatus',
             GTMSnippet.handleConsent,
