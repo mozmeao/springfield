@@ -130,8 +130,6 @@ Static values extracted from Figma that do not change based on context.
     --token-width-desktop-layout: 1440px;
     --token-width-desktop-wide-banner: 1170px;
     --token-width-mobile-layout: 393px;
-    --token-width-breakpoint-mobile: 768; /* Lower than this is mobile, higher is tablet or desktop */
-    --token-width-breakpoint-desktop: 1024; /* Greater than this is desktop, lower is tablet or mobile */
 
     /* Typography and fonts */
     --token-font-family-mozilla-headline:
