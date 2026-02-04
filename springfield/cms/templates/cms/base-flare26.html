@@ -89,6 +89,15 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       <include:flare26-footer />
     {% endblock %}
 
+    {% block stub_attribution %}
+      {% if settings.STUB_ATTRIBUTION_RATE %}
+        <!--[if IE 9]><!-->
+          {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
+          {{ js_bundle('stub-attribution') }}
+        <!--<![endif]-->
+      {% endif %}
+    {% endblock %}
+
     {% block site_js %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}

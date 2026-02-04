@@ -20,6 +20,25 @@
     width: fit-content;
 }
 
+.fl-download-firefox-button .fl-store-button {
+    display: none;
+}
+
+html.android .fl-download-firefox-button .download-link,
+html.ios .fl-download-firefox-button .download-link {
+    display: none;
+}
+
+html.android
+    .fl-download-firefox-button
+    .fl-store-button.fl-store-button-android {
+    display: block;
+}
+
+html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
+    display: block;
+}
+
 .fl-store-button {
     display: block;
 }

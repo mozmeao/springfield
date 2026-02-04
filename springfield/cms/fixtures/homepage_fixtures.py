@@ -22,7 +22,7 @@ def get_home_intro():
                 "subheading_text": '<p data-block-key="m6fp1">Fast, customizable and secure, Firefox lets you browse how you like, when you like. '
                 "We're built by a people-first organization that answers to you — not billionaires.  </p>",
             },
-            "buttons": [buttons["primary"]],
+            "buttons": [buttons["download"]],
         },
         "id": "f5a78a6e-7dfb-477e-ad38-d800460ff152",
     }
