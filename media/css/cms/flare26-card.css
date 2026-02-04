@@ -10,20 +10,19 @@ Card Grid - Flare 2026 Design System Cards
 
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-lg);
+    --fl-card-grid-column-width: 340px;
     --fl-card-sticker-size: 60px;
-    align-items: stretch;
-    container-type: inline-size;
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: var(--fl-card-grid-gap);
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(
+            min(100%, var(--fl-card-grid-column-width)),
+            var(--fl-card-grid-column-width)
+        )
+    );
     justify-content: center;
     padding-block: var(--token-layout-3xs);
-    padding-inline: var(--token-spacing-lg);
-}
-
-.fl-card-grid .fl-sticker-card,
-.fl-card-grid .fl-illustration-card {
-    flex: 1 1 auto;
 }
 
 .fl-card-heading .fl-heading-group {
@@ -74,26 +73,22 @@ Card Grid - Flare 2026 Design System Cards
     text-decoration: underline;
 }
 
-@media (--viewport-sm-up) {
-    .fl-card-grid {
-        --fl-card-sticker-size: 120px;
-        flex-flow: row wrap;
-    }
+/*
+    Container queries don't support variables or calc(),
+    so these values must be static.
+*/
 
-    .fl-card-grid .fl-sticker-card {
-        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
-        min-height: calc((100cqw - var(--fl-card-grid-gap)) / 2);
+/* 696px = 2 columns * 340px + 16px */
+@container (max-width: 696px) {
+    .fl-card-grid {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (--viewport-lg-up) {
+/* 1408px = 4 columns * 340px + 3 * 16px */
+@container (min-width: 697px) and (max-width: 1408px) {
     .fl-card-grid {
-        flex-wrap: nowrap;
-    }
-
-    .fl-card-grid .fl-sticker-card {
-        flex-basis: 100%;
-        min-height: unset;
+        grid-template-columns: 1fr 1fr;
     }
 }
 
@@ -143,7 +138,6 @@ Sticker Card
     gap: var(--token-spacing-xl);
     height: auto;
     justify-content: flex-start;
-    min-height: 100cqw;
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
         var(--token-spacing-3xl);
     position: relative;
@@ -300,10 +294,6 @@ Step Cards List - With Kit variant
     width: 100%;
 }
 
-.fl-card-grid .fl-step-card {
-    flex: 1 1 auto;
-}
-
 .fl-step-card {
     display: flex;
     flex-direction: column;
@@ -398,13 +388,6 @@ Step Cards List - With Kit variant
     width: 98px;
 }
 
-@media (--viewport-sm-up) {
-    .fl-card-grid .fl-step-card {
-        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
-        max-width: 50%;
-    }
-}
-
 @media (--viewport-lg-up) {
     .fl-card-grid.fl-step-cards-with-kit {
         gap: var(--token-layout-lg) var(--token-layout-3xs);
@@ -412,11 +395,6 @@ Step Cards List - With Kit variant
 
     .fl-step-cards-with-kit .fl-step-card:last-child {
         margin-top: 0;
-    }
-
-    .fl-card-grid .fl-step-card {
-        flex-basis: 100%;
-        min-height: unset;
     }
 }
 
@@ -426,7 +404,6 @@ Illustration Card
 
 .fl-illustration-card {
     display: flex;
-    flex-basis: 100%;
     flex-direction: column;
     padding: 0;
     position: relative;
@@ -464,24 +441,6 @@ Illustration Card
     line-height: 1.1;
 }
 
-@media (--viewport-sm-up) {
-    .fl-card-grid .fl-illustration-card {
-        flex-basis: calc((100% - var(--fl-card-grid-gap)) / 2);
-    }
-}
-
-@media (--viewport-lg-up) {
-    .fl-card-grid .fl-illustration-card {
-        flex-basis: 100%;
-        min-height: unset;
-    }
-}
-
-.fl-illustration-card.fl-illustration-icon-card {
-    flex-direction: row;
-    gap: var(--token-spacing-lg);
-}
-
 .fl-illustration-card.fl-illustration-icon-card img {
     border-radius: 0;
     margin: 0;
@@ -500,10 +459,6 @@ Illustration Card
 }
 
 @media (--viewport-md-up) {
-    .fl-illustration-card.fl-illustration-icon-card {
-        flex-direction: column;
-    }
-
     .fl-illustration-card.fl-illustration-icon-card .fl-card-media {
         border-radius: var(--token-spacing-xl);
         max-height: 102px;
