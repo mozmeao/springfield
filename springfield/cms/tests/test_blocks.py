@@ -10,9 +10,10 @@ from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import srcset_image
 from wagtail.models import Page
 
+from lib.l10n_utils import get_locale
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
-from springfield.cms.fixtures.button_fixtures import get_button_variants, get_buttons_test_page
+from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
     get_filled_card_variants,
@@ -47,6 +48,7 @@ from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.misc import fxa_button
 
 pytestmark = [
@@ -111,6 +113,49 @@ def assert_button_attributes(
         assert set(button_element["rel"]) == {"external", "noopener"}
 
     assert label in button_element.get_text()
+    if theme:
+        assert f"button-{theme}" in button_element["class"]
+    if icon:
+        icon_span = button_element.find("span", class_="fl-icon")
+        assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
+        if icon_position == "left":
+            assert "fl-icon-left" in icon_span["class"]
+        else:
+            assert "fl-icon-right" in icon_span["class"]
+    assert button_element["data-cta-uid"] == analytics_id
+    if cta_position:
+        assert button_element["data-cta-position"] == cta_position
+    if cta_text:
+        assert button_element["data-cta-text"] == cta_text
+
+
+def assert_download_button_attributes(
+    button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
+):
+    label = button_data["value"]["label"]
+    settings = button_data["value"]["settings"]
+    theme = settings["theme"]
+    icon = settings["icon"]
+    icon_position = settings["icon_position"]
+    analytics_id = settings["analytics_id"]
+
+    assert label in button_element.get_text()
+    assert "download-link" in button_element["class"]
+    assert button_element["href"] == "/thanks/"
+
+    channel = "release"
+    version = firefox_desktop.latest_version(channel)
+    locale = get_locale(context["request"])
+    download_link_direct = firefox_desktop.get_download_url(
+        channel=channel,
+        version=version,
+        platform="win",
+        locale=locale,
+        force_direct=True,
+        force_full_installer=False,
+    )
+    assert button_element["data-direct-link"] == download_link_direct
+
     if theme:
         assert f"button-{theme}" in button_element["class"]
     if icon:
@@ -918,7 +963,6 @@ def test_step_card_block(index_page, placeholder_images, rf):
 
 def test_buttons(index_page, rf):
     test_page = get_buttons_test_page()
-    button_variants = get_button_variants(full=True)
 
     # Page renders
     request = rf.get(test_page.get_full_url())
@@ -931,18 +975,10 @@ def test_buttons(index_page, rf):
 
     main = soup.find("main", class_="fl-main")
     button_elements = main.find_all("a", class_="fl-button")
-    tested_buttons = [
-        button_variants["external_mozilla"],
-        button_variants["external_mozilla_new_tab"],
-        button_variants["external_other"],
-        button_variants["external_other_new_tab"],
-        button_variants["page"],
-        button_variants["page_new_tab"],
-        button_variants["fxa"],
-        button_variants["document"],
-        button_variants["email"],
-        button_variants["phone"],
-    ]
+    blocks = get_button_blocks()
+    tested_buttons = []
+    for block in blocks:
+        tested_buttons.extend(block["value"]["buttons"])
 
     for index, button_element in enumerate(button_elements):
         button_data = tested_buttons[index]
@@ -983,6 +1019,12 @@ def test_buttons(index_page, rf):
             )
             fxa_button_soup = BeautifulSoup(rendered_fxa_button, "html.parser").find("a")
             assert button_element.prettify() == fxa_button_soup.prettify()
+        elif button_data["type"] == "download_button":
+            assert_download_button_attributes(
+                button_element=button_element,
+                button_data=button_data,
+                context=context,
+            )
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -1129,7 +1171,7 @@ def test_home_intro_block(index_page, rf):
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
     cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-    assert_button_attributes(
+    assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
         context=context,

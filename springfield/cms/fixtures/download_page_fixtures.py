@@ -127,20 +127,21 @@ def get_pre_footer():
     }
 
 
-def get_download_page() -> DownloadPage:
+def get_download_page(platform) -> DownloadPage:
     index_page = get_2026_test_index_page()
 
     image, _, _, _ = get_placeholder_images()
 
-    page = DownloadPage.objects.filter(slug="test-download-page").first()
+    slug = f"test-download-page-{platform}"
+    page = DownloadPage.objects.filter(slug=slug).first()
     if not page:
         page = DownloadPage(
-            slug="test-download-page",
-            title="Download Page Test",
+            slug=slug,
+            title=f"Download Page Test - {platform.capitalize()}",
         )
         index_page.add_child(instance=page)
 
-    page.platform = "linux"
+    page.platform = platform
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'
     )
@@ -150,3 +151,11 @@ def get_download_page() -> DownloadPage:
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page
+
+
+def get_download_pages() -> dict:
+    pages = {}
+    for platform, _ in DownloadPage.PLATFORM_CHOICES:
+        page = get_download_page(platform)
+        pages[platform] = page
+    return pages
