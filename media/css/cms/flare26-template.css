@@ -28,6 +28,5 @@ body.fl-modal-open {
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     margin: 0 auto;
-    padding-block: var(--fl-section-v-padding)
-        var(--fl-theme-main-border-radius);
+    padding-block: 0 var(--fl-theme-main-border-radius);
 }
