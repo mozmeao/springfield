@@ -6,7 +6,7 @@
 
 {# Choose language #}
 
-<section tabindex="-1" {% if not (product and platform) %} class="fl-t-step-disabled" aria-disabled="true" {% endif %} aria-labelledby="all-lang" class="fl-c-flow-section">
+<section tabindex="-1" {% if not (product and platform) %} aria-disabled="true" {% endif %} aria-labelledby="all-lang" class="fl-c-flow-section c-step-name">
 <h2 id="all-lang" class="fl-c-flow-section-heading">
   <span class="fl-c-flow-step">
     <span>
@@ -18,12 +18,12 @@
   {% if locale %}
     <span class="fl-c-flow-selection">{{ locale_name }}
       {% if product.slug.startswith('desktop') and platform != "win-store" %}
-      <!-- TODO reapply edit functionality -->
       <include:button
-        theme_class="button-secondary"
+        theme_class="button-secondary load-content-partial"
         label="EDIT" # TODO: l10n
         icon_name="edit"
         icon_position="left"
+        link="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}"
       />
       {% endif %}
     </span>

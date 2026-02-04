@@ -7,7 +7,7 @@
 {% from "macros.html" import google_play_button, apple_app_store_button, ms_store_button with context %}
 
 {# Show download #}
-<section tabindex="-1" {% if not (product and platform and locale) %} class="fl-t-step-disabled" aria-disabled="true" {% endif %} aria-labelledby="all-download" class="fl-c-flow-section">
+<section tabindex="-1" {% if not (product and platform and locale) %} aria-disabled="true" {% endif %} aria-labelledby="all-download" class="fl-c-flow-section c-step-name">
 <h2 id="all-download" class="fl-c-flow-section-heading">
   <span class="fl-c-flow-step">
     <span>

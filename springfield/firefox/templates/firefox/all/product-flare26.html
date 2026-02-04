@@ -6,7 +6,7 @@
 
 {# Choose product #}
 
-<section tabindex="-1" aria-labelledby="all-product" class="fl-c-flow-section">
+<section tabindex="-1" aria-labelledby="all-product" class="fl-c-flow-section c-step-name">
 <h2 id="all-product" class="fl-c-flow-section-heading">
   <span class="fl-c-flow-step">
     <span>
@@ -23,12 +23,12 @@
   </span>
   {% if product %}
     <span class="fl-c-flow-selection">{{ product and product.name }}
-      <!-- TODO reapply edit functionality -->
       <include:button
-        theme_class="button-secondary"
+        theme_class="button-secondary load-content-partial"
         label="EDIT" # TODO: l10n
         icon_name="edit"
         icon_position="left"
+        link="{{ url('firefox.all') }}"
       />
     </span>
   {% endif %}

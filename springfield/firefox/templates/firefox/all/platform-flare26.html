@@ -7,7 +7,7 @@
 
 {# Choose platform #}
 
-<section tabindex="-1" {% if not product %} class="fl-t-step-disabled" aria-disabled="true" {% endif %} aria-labelledby="all-platform" class="fl-c-flow-section">
+<section tabindex="-1" {% if not product %} aria-disabled="true" {% endif %} aria-labelledby="all-platform" class="fl-c-flow-section c-step-name">
 <h2 id="all-platform" class="fl-c-flow-section-heading">
   <span class="fl-c-flow-step">
     <span>
@@ -25,12 +25,12 @@
   {% if platform %}
     <span class="fl-c-flow-selection">{{ platform_name }}
       {% if product.slug.startswith('desktop') %}
-      <!-- TODO reapply edit functionality -->
       <include:button
-        theme_class="button-secondary"
+        theme_class="button-secondary load-content-partial"
         label="EDIT" # TODO: l10n
         icon_name="edit"
         icon_position="left"
+        link="{{ url('firefox.all.platforms', product_slug=product.slug) }}"
       />
       {% endif %}
     </span>
