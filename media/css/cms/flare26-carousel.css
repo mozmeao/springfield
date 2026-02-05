@@ -41,8 +41,10 @@
 
 .fl-carousel-slides {
     background: var(--token-gradient-purple);
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--token-border-radius-md) var(--token-border-radius-md) 0
+        0;
     inline-size: fit-content;
+    margin-block-end: calc(var(--fl-section-v-padding) * -1);
     max-inline-size: 100%;
     padding: var(--token-layout-xs) var(--token-layout-xs) 0;
 }
@@ -210,5 +212,10 @@
     .fl-carousel-control-item {
         flex: 1 1 0;
         inline-size: auto;
+    }
+
+    .fl-carousel-slides {
+        border-radius: var(--token-border-radius-md);
+        margin-block-end: 0;
     }
 }

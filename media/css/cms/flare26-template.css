@@ -49,6 +49,7 @@ body.fl-modal-open {
     overflow: hidden;
     padding-block: var(--fl-section-v-padding);
     position: relative;
+    z-index: 1;
 }
 
 .fl-split-page-lower {
@@ -57,7 +58,6 @@ body.fl-modal-open {
     display: flex;
     flex-direction: column;
     gap: var(--fl-section-v-padding);
-    overflow: hidden;
     padding-block-start: var(--fl-section-v-padding);
     position: relative;
 }
