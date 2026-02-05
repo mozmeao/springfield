@@ -45,6 +45,7 @@ body.fl-modal-open {
     border-bottom-left-radius: var(--section-border-radius);
     border-bottom-right-radius: var(--section-border-radius);
     color: var(--fl-theme-color-text);
+    overflow: hidden;
     padding-block: var(--fl-section-v-padding);
     position: relative;
     width: 100%;
@@ -56,6 +57,7 @@ body.fl-modal-open {
     display: flex;
     flex-direction: column;
     gap: var(--fl-section-v-padding);
+    overflow: hidden;
     padding-top: var(--fl-section-v-padding);
     position: relative;
 }

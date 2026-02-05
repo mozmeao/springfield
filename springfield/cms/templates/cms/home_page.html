@@ -17,7 +17,7 @@
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
-    <div class="fl-split-page-upper">
+    <div class="fl-split-page-upper has-gradient-bottom">
       {% set ns = namespace(headings=0) %}
       {% for block in page.upper_content %}
         {% set block_index = loop.index %}
@@ -33,7 +33,7 @@
       {% endfor %}
     </div>
 
-    <div class="fl-split-page-lower has-gradient-top">
+    <div class="fl-split-page-lower">
       {% for block in page.lower_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
