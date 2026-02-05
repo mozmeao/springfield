@@ -224,6 +224,19 @@ def get_button_variants(full=False) -> dict[str, dict]:
             },
             "id": "bc17ead3-29c7-44d5-b8b8-0b0aaaee3e56",
         },
+        "download": {
+            "type": "download_button",
+            "value": {
+                "label": "Get Firefox",
+                "settings": {
+                    "theme": "",
+                    "icon": "download",
+                    "icon_position": "right",
+                    "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
+                },
+            },
+            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+        },
     }
     if full:
         index_page = get_test_index_page()
@@ -373,9 +386,9 @@ def get_cta_variants() -> dict[str, dict]:
     }
 
 
-def get_buttons_test_page() -> FreeFormPage:
+def get_button_blocks() -> list[dict]:
     buttons = get_button_variants(full=True)
-    content = [
+    return [
         {
             "type": "intro",
             "value": {
@@ -446,6 +459,20 @@ def get_buttons_test_page() -> FreeFormPage:
             "type": "intro",
             "value": {
                 "settings": {"media_position": "after"},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="dkgdn">Download Firefox Button</p>',
+                    "subheading_text": "",
+                },
+                "buttons": [buttons["download"]],
+            },
+            "id": "79f53077-d740-4332-b9ab-6f9dd95c326a",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
                 "image": None,
                 "dark_image": None,
                 "heading": {
@@ -474,6 +501,9 @@ def get_buttons_test_page() -> FreeFormPage:
         },
     ]
 
+
+def get_buttons_test_page() -> FreeFormPage:
+    content = get_button_blocks()
     index_page = get_test_index_page()
 
     page = FreeFormPage.objects.filter(slug="test-buttons-page").first()

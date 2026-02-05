@@ -41,10 +41,22 @@ Static values extracted from Figma that do not change based on context.
     --token-color-light-purple-80: rgba(117, 67, 227, 0.8);
     --token-color-cream: rgb(252, 245, 240);
     --token-color-soft-purple: rgb(241, 231, 248);
+    --token-color-soft-purple-2: rgb(228, 215, 252);
     --token-color-soft-purple-4: rgb(199, 168, 255);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
     --token-color-soft-magenta-20: rgba(255, 234, 254, 0.2);
+    --token-color-secondary-red: rgba(255, 69, 63, 1);
+    --token-color-secondary-red-2: rgba(85, 3, 28, 1);
+    --token-color-secondary-red-3: rgba(49, 0, 14, 1);
+    --token-color-soft-red: rgba(255, 234, 233, 1);
+    --token-color-secondary-orange: rgba(255, 109, 0, 1);
+    --token-color-secondary-orange-2: rgba(102, 28, 25, 1);
+    --token-color-secondary-orange-3: rgba(51, 5, 5, 1);
+    --token-color-soft-orange: rgba(255, 242, 229, 1);
+    --token-color-secondary-green: rgba(20, 74, 39, 1);
+    --token-color-secondary-green-3: rgba(3, 28, 0, 1);
+    --token-color-soft-green: rgba(222, 255, 214, 1);
     --token-color-soft-yellow: rgb(252, 245, 240);
 
     /* Gradients from Figma */

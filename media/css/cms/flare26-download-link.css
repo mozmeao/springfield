@@ -1,11 +1,57 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 /* ================================================
    Download Links
    ================================================ */
 
+.fl-firefox-platform-button {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    justify-content: center;
+}
+
+.fl-firefox-platform-button .fl-button {
+    width: fit-content;
+}
+
+.fl-download-firefox-button .fl-store-button {
+    display: none;
+}
+
+html.android .fl-download-firefox-button .download-link,
+html.ios .fl-download-firefox-button .download-link {
+    display: none;
+}
+
+html.android
+    .fl-download-firefox-button
+    .fl-store-button.fl-store-button-android {
+    display: block;
+}
+
+html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
+    display: block;
+}
+
+.fl-store-button {
+    display: block;
+}
+
+.fl-store-button img {
+    margin: 0;
+    min-height: 45px;
+}
+
 .fl-header .mzp-c-button-download-privacy-link,
 .fl-header .fx-unsupported-message,
 .fl-header .fl-privacy-link {
-    display: none;
+    display: none !important; /* stylelint-disable-line */
     margin: 0;
 }
 
