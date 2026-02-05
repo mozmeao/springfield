@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props video_url="", alt="", poster="", aspect_ratio="" #}
+{# props video_url="", alt="", poster="", aspect_ratio="", autoplay="", loop="", show_controls="" #}
 
 {% if 'youtube.com' in video_url or 'youtu.be' in video_url %}
   {% set video_id = video_url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
@@ -29,26 +29,48 @@
     </button>
   </div>
 {% elif 'assets.mozilla.net' in video_url %}
-  <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
-    <button
-      class="fl-video-play js-video-play"
-      data-video-url="{{ video_url }}"
-      data-video-type="cdn"
-      {% if poster %}data-video-poster="{{ poster }}"{% endif %}
-      aria-label="{{ alt|default('Play video') }}"
-      type="button"
-    >
-      {% if poster %}
-        <img src="{{ poster }}" alt="" class="fl-video-poster" />
-      {% endif %}
-      <span class="fl-video-play-icon" aria-hidden="true">
-        <svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-          <circle cx="24" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
-          <path d="M17.887 13.951 35.472 24 17.887 34.049z" fill="#fff"/>
-        </svg>
-      </span>
-    </button>
-  </div>
+  {% if autoplay %}
+    <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+      <video
+        autoplay muted
+        {% if show_controls %}controls{% endif %}
+        {% if loop %}loop{% endif %}
+        poster="{{ poster }}"
+        playsinline
+        preload="metadata"
+      >
+          <source src="{{ video_url }}">
+          <img src="{{ poster }}" alt="" class="fl-video-poster" />
+      </video>
+    </div>
+  {% else %}
+    <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+      <button
+        class="fl-video-play js-video-play"
+        data-video-url="{{ video_url }}"
+        data-video-type="cdn"
+        {% if loop %}
+          data-loop="true"
+        {% endif %}
+        {% if show_controls %}
+         data-show-controls="true"
+        {% endif %}
+        {% if poster %}data-video-poster="{{ poster }}"{% endif %}
+        aria-label="{{ alt|default('Play video') }}"
+        type="button"
+      >
+        {% if poster %}
+          <img src="{{ poster }}" alt="" class="fl-video-poster" />
+        {% endif %}
+        <span class="fl-video-play-icon" aria-hidden="true">
+          <svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
+            <path d="M17.887 13.951 35.472 24 17.887 34.049z" fill="#fff"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+  {% endif %}
 {% else %}
   <div class="fl-video fl-video-error">
     <p>Video from this source cannot be embedded. Only YouTube and assets.mozilla.net videos are supported.</p>

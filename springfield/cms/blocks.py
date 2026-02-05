@@ -695,7 +695,37 @@ class ImageVariantsBlock(blocks.StructBlock):
         template = "cms/blocks/image-variants.html"
 
 
+class VideoBlockSettings(blocks.StructBlock):
+    autoplay = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Auto-play",
+        help_text="Automatically play the video (will be muted)",
+    )
+    loop = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Loop",
+        help_text="Loop the video continuously",
+    )
+    show_controls = blocks.BooleanBlock(
+        required=False,
+        default=True,
+        label="Show Controls",
+        help_text="Display video playback controls",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Auto-play: {autoplay} - Loop: {loop} - Show Controls: {show_controls}"
+        help_text = "These settings only apply to videos hosted on assets.mozilla.net"
+        form_classname = "compact-form struct-block"
+
+
 class VideoBlock(blocks.StructBlock):
+    settings = VideoBlockSettings()
     video_url = blocks.URLBlock(
         label="Video URL",
         help_text="Link to a video from YouTube or assets.mozilla.net.",
