@@ -95,3 +95,18 @@ body.fl-modal-open {
     position: absolute;
     z-index: 0;
 }
+
+.has-gradient-bottom-100-always::before {
+    --gradient-height: 100vh;
+    background-image: radial-gradient(
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 50%
+    );
+    block-size: var(--gradient-height);
+    content: '';
+    filter: blur(200px);
+    inset: 0;
+    inset-block-start: calc(100% - 25vh);
+    position: absolute;
+    z-index: 0;
+}
