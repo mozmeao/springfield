@@ -89,6 +89,12 @@ Card Grid - Flare 2026 Design System Cards
     }
 }
 
+@container (min-width: 560px) {
+    .fl-card-grid.fl-step-cards-with-kit {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 /* 1408px = 4 columns * 340px + 3 * 16px */
 @container (min-width: 697px) and (max-width: 1408px) {
     .fl-card-grid {
