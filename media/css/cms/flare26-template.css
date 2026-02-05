@@ -16,7 +16,7 @@ body {
 }
 
 body.fl-modal-open {
-    height: 100vh;
+    block-size: 100vh;
     overflow-y: hidden;
     position: fixed;
 }
@@ -42,13 +42,13 @@ body.fl-modal-open {
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-nav-icon-purple);
     background: var(--token-color-dark-purple);
-    border-bottom-left-radius: var(--section-border-radius);
-    border-bottom-right-radius: var(--section-border-radius);
+    border-end-end-radius: var(--section-border-radius);
+    border-end-start-radius: var(--section-border-radius);
     color: var(--fl-theme-color-text);
+    inline-size: 100%;
     overflow: hidden;
     padding-block: var(--fl-section-v-padding);
     position: relative;
-    width: 100%;
 }
 
 .fl-split-page-lower {
@@ -58,7 +58,7 @@ body.fl-modal-open {
     flex-direction: column;
     gap: var(--fl-section-v-padding);
     overflow: hidden;
-    padding-top: var(--fl-section-v-padding);
+    padding-block-start: var(--fl-section-v-padding);
     position: relative;
 }
 
@@ -74,9 +74,9 @@ body.fl-modal-open {
         var(--token-color-light-purple) 0%,
         var(--token-color-dark-purple) 50%
     );
+    block-size: var(--gradient-height);
     content: var(--content-dark-mode-only);
     filter: blur(200px);
-    height: var(--gradient-height);
     inset: calc(var(--gradient-height) / -2) -30vw auto;
     position: absolute;
     z-index: 0;
@@ -88,9 +88,9 @@ body.fl-modal-open {
         var(--token-color-light-purple) 0%,
         var(--token-color-dark-purple) 50%
     );
+    block-size: var(--gradient-height);
     content: var(--content-dark-mode-only);
     filter: blur(200px);
-    height: var(--gradient-height);
     inset: auto -40vw calc(var(--gradient-height) / -2);
     position: absolute;
     z-index: 0;

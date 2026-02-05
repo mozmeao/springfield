@@ -140,15 +140,15 @@ Sticker Card
     align-items: stretch;
     backdrop-filter: blur(7.5px);
     background: var(--fl-theme-surface-card-gradient);
+    block-size: auto;
     border-radius: var(--token-border-radius-md);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--token-color-black-4);
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-xl);
-    height: auto;
     justify-content: flex-start;
-    min-height: 480px;
+    min-block-size: 480px;
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
         var(--token-spacing-3xl);
     position: relative;
@@ -179,7 +179,7 @@ Sticker Card
         h6.fl-heading,
         .fl-heading-group
     ) {
-    margin-bottom: 0;
+    margin-block-end: 0;
     order: 0;
 }
 
@@ -207,8 +207,8 @@ Sticker Card
     display: flex;
     flex: 1 1 auto;
     gap: var(--token-spacing-sm);
+    inline-size: 100%;
     justify-content: center;
-    width: 100%;
 }
 
 .fl-sticker-card
@@ -248,11 +248,11 @@ Sticker Card
 }
 
 .fl-sticker-card .fl-body > *:first-child {
-    margin-top: 0;
+    margin-block-start: 0;
 }
 
 .fl-sticker-card .fl-body > *:last-child {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-sticker-card .fl-buttons {
@@ -261,7 +261,7 @@ Sticker Card
     flex-wrap: wrap;
     gap: var(--token-spacing-lg);
     justify-content: center;
-    margin-top: var(--token-spacing-lg);
+    margin-block-start: var(--token-spacing-lg);
 }
 
 .fl-sticker-card .fl-buttons:empty {
@@ -273,10 +273,10 @@ Sticker Card
 }
 
 .fl-card-sticker img {
-    height: var(--fl-card-sticker-size, 60px);
+    block-size: var(--fl-card-sticker-size, 60px);
+    inline-size: var(--fl-card-sticker-size, 60px);
     margin: 0;
     object-fit: contain;
-    width: var(--fl-card-sticker-size, 60px);
 }
 
 .fl-sticker-card > div:has(.fl-card-icon) {
@@ -299,10 +299,10 @@ Step Cards List - With Kit variant
 
 .fl-card-grid.fl-step-cards-with-kit {
     gap: var(--token-layout-2xs);
+    inline-size: 100%;
     justify-content: center;
     margin: 0 auto;
-    max-width: var(--token-width-desktop-wide-banner);
-    width: 100%;
+    max-inline-size: var(--token-width-desktop-wide-banner);
 }
 
 .fl-step-card {
@@ -320,37 +320,37 @@ Step Cards List - With Kit variant
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-2xl);
+    inline-size: 100%;
     justify-content: center;
 
     /* Figma: 240px on desktop, but keep responsive */
-    min-height: calc(var(--token-layout-md) * 3);
+    min-block-size: calc(var(--token-layout-md) * 3);
     overflow: hidden;
     padding: var(--token-spacing-2xl);
-    width: 100%;
 }
 
 .fl-step-card .fl-card-media img {
-    height: auto;
-    max-height: 96px;
-    max-width: 100%;
+    block-size: auto;
+    inline-size: auto;
+    max-block-size: 96px;
+    max-inline-size: 100%;
     object-fit: contain;
-    width: auto;
 }
 
 .fl-step-card-index {
     align-items: center;
     background: var(--fl-step-card-index-bg);
+    block-size: var(--token-layout-3xs);
     border-radius: var(--token-layout-3xs);
     box-sizing: border-box;
     color: var(--fl-theme-color-text);
     display: flex;
     font-size: 12px;
     font-weight: var(--token-font-weight-medium);
-    height: var(--token-layout-3xs);
+    inline-size: var(--token-layout-3xs);
     justify-content: center;
     margin: 0;
     padding: var(--token-spacing-sm);
-    width: var(--token-layout-3xs);
 }
 
 .fl-step-card .fl-heading-group {
@@ -368,7 +368,7 @@ Step Cards List - With Kit variant
 
 /* Decorative Kit (Figma): only on the last card */
 .fl-step-cards-with-kit .fl-step-card:last-child {
-    margin-top: var(--token-layout-sm);
+    margin-block-start: var(--token-layout-sm);
 }
 
 .fl-step-cards-with-kit .fl-step-card:last-child::before,
@@ -376,27 +376,27 @@ Step Cards List - With Kit variant
     background-repeat: no-repeat;
     background-size: auto;
     content: '';
+    inset-block-start: -32px;
     pointer-events: none;
     position: absolute;
-    top: -32px;
     z-index: 3;
 }
 
 .fl-step-cards-with-kit .fl-step-card:last-child::before {
     background-image: url('/media/img/firefox/flare/fox-tail.png');
     background-size: contain;
-    height: 110px;
-    left: -20px;
-    width: 68px;
+    block-size: 110px;
+    inline-size: 68px;
+    inset-inline-start: -20px;
 }
 
 .fl-step-cards-with-kit .fl-step-card:last-child::after {
     background-image: url('/media/img/firefox/flare/fox-head.png');
     background-size: contain;
-    height: 86px;
-    right: 0;
-    top: -60px;
-    width: 98px;
+    block-size: 86px;
+    inline-size: 98px;
+    inset-block-start: -60px;
+    inset-inline-end: 0;
 }
 
 @media (--viewport-lg-up) {
@@ -405,7 +405,7 @@ Step Cards List - With Kit variant
     }
 
     .fl-step-cards-with-kit .fl-step-card:last-child {
-        margin-top: 0;
+        margin-block-start: 0;
     }
 }
 
@@ -429,7 +429,7 @@ Illustration Card
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-spacing-xl);
-    width: 100%;
+    inline-size: 100%;
 }
 
 .fl-illustration-card .fl-card-content {
@@ -478,23 +478,23 @@ Illustration Card
 .fl-illustration-card.fl-illustration-sticker-card img {
     border-radius: 0;
     margin: 0;
-    max-height: 100%;
-    max-width: 100%;
+    max-block-size: 100%;
+    max-inline-size: 100%;
 }
 
 .fl-illustration-card.fl-illustration-icon-card .fl-card-media,
 .fl-illustration-card.fl-illustration-sticker-card .fl-card-media {
     align-items: center;
     background-color: var(--fl-theme-illustration-icon-bg);
+    block-size: var(--media-size);
     border-radius: var(--media-border-radius);
     display: flex;
-    height: var(--media-size);
+    inline-size: var(--media-size);
     justify-content: center;
     margin-block-end: var(--token-spacing-lg);
-    min-height: var(--media-size);
-    min-width: var(--media-size);
+    min-block-size: var(--media-size);
+    min-inline-size: var(--media-size);
     padding: var(--media-padding);
-    width: var(--media-size);
 }
 
 @media (--viewport-md-up) {

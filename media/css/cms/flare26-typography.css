@@ -51,19 +51,20 @@ h2.fl-heading,
 .fl-rich-text ul,
 .fl-rich-text ol {
     margin: var(--token-spacing-lg) 0;
-    padding-left: var(--token-spacing-xl);
+    padding-inline-start: var(--token-spacing-xl);
 }
 
 .fl-rich-text li {
-    margin-bottom: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-sm);
 }
 
 .fl-rich-text blockquote {
-    border-left: var(--token-spacing-xs) solid var(--token-color-light-purple);
+    border-inline-start: var(--token-spacing-xs) solid
+        var(--token-color-light-purple);
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-body-lg);
     margin: var(--token-spacing-lg) 0;
-    padding-left: var(--token-spacing-lg);
+    padding-inline-start: var(--token-spacing-lg);
 }
 
 .fl-rich-text cite {
@@ -73,15 +74,15 @@ h2.fl-heading,
 
 .fl-rich-text hr {
     border: 0;
-    border-top: 1px solid var(--token-color-soft-purple);
+    border-block-start: 1px solid var(--token-color-soft-purple);
     margin: var(--token-spacing-xl) 0;
 }
 
 .fl-rich-text img {
+    block-size: auto;
     display: block;
-    height: auto;
     margin: var(--token-spacing-lg) 0;
-    max-width: 100%;
+    max-inline-size: 100%;
 }
 
 /* Heading size classes */
@@ -182,11 +183,11 @@ span.fl-fx-logo {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
+    block-size: 1em;
     display: inline-block;
-    height: 1em;
+    inline-size: 1em;
     margin-inline: 0.1em;
     vertical-align: bottom;
-    width: 1em;
 }
 
 @media (--viewport-sm-up) {

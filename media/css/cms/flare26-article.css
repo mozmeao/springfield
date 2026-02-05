@@ -4,7 +4,7 @@
 
 .fl-article-index-header {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
+    max-inline-size: var(--token-width-desktop-layout);
     padding: var(--token-spacing-3xl) var(--token-spacing-xl) 0;
 }
 
@@ -22,12 +22,12 @@
 
 .fl-article-page header img {
     border-radius: var(--token-spacing-lg);
-    margin-bottom: var(--token-layout-xs);
+    margin-block-end: var(--token-layout-xs);
 }
 
 .fl-article-main {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
     padding-inline: var(--token-spacing-lg);
 }
 
@@ -82,23 +82,23 @@ Stacked article list
 
 .fl-stacked-article-list {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content-lg);
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-stacked-article-list .fl-article-item {
-    border-top: 1px solid var(--token-color-soft-purple);
+    border-block-start: 1px solid var(--token-color-soft-purple);
     display: grid;
     gap: var(--token-spacing-lg);
     padding-block: var(--token-spacing-2xl);
 }
 
 .fl-stacked-article-list .fl-article-item:last-child {
-    border-bottom: 1px solid var(--token-color-soft-purple);
+    border-block-end: 1px solid var(--token-color-soft-purple);
 }
 
 .fl-stacked-article-list .fl-article-item img {
+    inline-size: var(--token-layout-lg);
     margin: 0;
-    width: var(--token-layout-lg);
 }
 
 .fl-stacked-article-list .fl-article-item-content {
@@ -121,7 +121,7 @@ Stacked article list
     }
 
     .fl-stacked-article-list .fl-article-item-content .fl-heading {
-        max-width: 45%;
-        min-width: 45%;
+        max-inline-size: 45%;
+        min-inline-size: 45%;
     }
 }

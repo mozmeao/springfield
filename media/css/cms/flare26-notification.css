@@ -26,12 +26,12 @@
 
 .fl-notification-wrapper {
     display: flex;
+    inline-size: 100%;
     justify-content: center;
 
     /* Negative margin used to reduce the top spacing on the next block */
-    margin-bottom: var(--token-spacing-xl);
+    margin-block-end: var(--token-spacing-xl);
     padding: var(--token-spacing-lg) 0 0;
-    width: 100%;
     z-index: 10;
 }
 
@@ -45,10 +45,9 @@
     flex-direction: row;
     gap: var(--token-spacing-xl);
     margin: var(--token-spacing-sm) 0;
-    margin-left: var(--token-spacing-lg);
-    margin-right: var(--token-spacing-lg);
-    max-width: 560px;
-    min-height: 48px;
+    margin-inline: var(--token-spacing-lg);
+    max-inline-size: 560px;
+    min-block-size: 48px;
     overflow: hidden;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
     position: relative;
@@ -65,7 +64,7 @@
     color: var(--notification-stacked-color);
     flex-direction: column;
     justify-content: center;
-    max-width: var(--token-width-desktop-content-lg);
+    max-inline-size: var(--token-width-desktop-content-lg);
     padding: var(--token-spacing-3xl);
     text-align: center;
 }
@@ -78,13 +77,13 @@
     align-items: center;
     align-self: stretch;
     background: var(--notification-icon-bg);
+    block-size: 40px;
     border-radius: var(--token-spacing-md);
     color: var(--notification-icon-color);
     display: flex;
     flex-shrink: 0;
-    height: 40px;
+    inline-size: 40px;
     justify-content: center;
-    width: 40px;
 }
 
 .fl-notification.fl-notification-dark .fl-notification-icon-section {

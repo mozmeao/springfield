@@ -21,9 +21,10 @@
 
 .fl-language-switcher::before {
     background-color: currentColor;
+    block-size: 18px;
     content: '';
     display: inline-block;
-    height: 18px;
+    inline-size: 18px;
     inset-block-start: 10px;
     inset-inline-start: 10px;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
@@ -31,20 +32,19 @@
     mask-size: 14px;
     position: absolute;
     vertical-align: middle;
-    width: 18px;
     z-index: 1;
 }
 
 .fl-language-switcher label {
     border: 0;
     clip: rect(0, 0, 0, 0);
-    height: 1px;
+    block-size: 1px;
+    inline-size: 1px;
     margin: -1px;
     overflow: hidden;
     padding: 0;
     position: absolute;
     white-space: nowrap;
-    width: 1px;
 }
 
 .fl-language-switcher-link {
@@ -59,22 +59,22 @@
 .js .fl-language-switcher-link {
     border: 0;
     clip: rect(0, 0, 0, 0);
-    height: 1px;
+    block-size: 1px;
+    inline-size: 1px;
     margin: -1px;
     overflow: hidden;
     padding: 0;
     position: absolute;
     white-space: nowrap;
-    width: 1px;
 }
 
 .fl-language-switcher-link:focus,
 .fl-language-switcher-link:focus-visible {
     clip: auto;
-    height: auto;
+    block-size: auto;
+    inline-size: auto;
     overflow: visible;
     text-indent: 0;
-    width: auto;
 }
 
 .fl-language-switcher-select-wrapper {
@@ -84,9 +84,10 @@
 
 .fl-language-switcher-select-wrapper::after {
     background-color: currentColor;
+    block-size: 14px;
     content: '';
     display: inline-block;
-    height: 14px;
+    inline-size: 14px;
     inset-block-start: 12px;
     inset-inline-end: 12px;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
@@ -94,7 +95,6 @@
     mask-size: 14px;
     position: absolute;
     vertical-align: middle;
-    width: 14px;
     z-index: 1;
 }
 
@@ -105,13 +105,13 @@
     color: var(--token-color-white);
     font-size: 1rem;
     font-weight: 600;
+    inline-size: 100%;
     line-height: 1.2;
     margin: 0;
-    max-width: 100%;
-    min-width: 196px;
+    max-inline-size: 100%;
+    min-inline-size: 196px;
     padding: 8px calc(1.5em + 16px) 8px 8px;
     padding-inline-start: 36px; /* space for globe icon */
-    width: 100%;
 }
 
 .fl-language-switcher-select-wrapper:hover,

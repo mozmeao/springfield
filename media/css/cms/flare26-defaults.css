@@ -24,7 +24,7 @@ body {
     color: var(--token-color-black-4);
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
-    width: 100%;
+    inline-size: 100%;
 }
 
 h1,
@@ -35,7 +35,7 @@ h5,
 h6 {
     font-family: var(--fl-theme-font-family-headline);
     font-weight: var(--fl-theme-font-weight-headline);
-    margin-bottom: var(--token-spacing-lg);
+    margin-block-end: var(--token-spacing-lg);
 }
 
 h1,
@@ -101,7 +101,7 @@ svg {
 }
 
 hr {
-    border-top: 1px solid var(--token-color-soft-purple);
+    border-block-start: 1px solid var(--token-color-soft-purple);
     margin: var(--token-spacing-lg) 0;
 }
 
@@ -124,10 +124,10 @@ li {
 button,
 [role='button'] {
     background: var(--token-color-light-purple);
+    block-size: auto;
     border-radius: var(--token-border-radius-lg);
     color: var(--token-color-white);
-    height: auto;
-    width: auto;
+    inline-size: auto;
 }
 
 button:active,

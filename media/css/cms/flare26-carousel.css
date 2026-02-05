@@ -15,7 +15,7 @@
 }
 
 .fl-carousel-heading {
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
     text-align: center;
 }
 
@@ -30,21 +30,21 @@
 .fl-carousel-has-kit .fl-carousel-slides::before {
     background: url('/media/img/firefox/flare/fox-brand.svg');
     background-size: cover;
+    block-size: 100px;
     content: '';
     display: block;
-    height: 100px;
-    left: calc(50% - 100px);
+    inline-size: 200px;
+    inset-block-start: -100px;
+    inset-inline-start: calc(50% - 100px);
     position: absolute;
-    top: -100px;
-    width: 200px;
 }
 
 .fl-carousel-slides {
     background: var(--token-gradient-purple);
     border-radius: var(--token-border-radius-md);
-    max-width: 100%;
+    inline-size: fit-content;
+    max-inline-size: 100%;
     padding: var(--token-layout-xs) var(--token-layout-xs) 0;
-    width: fit-content;
 }
 
 .fl-carousel-control {
@@ -53,30 +53,30 @@
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-md);
+    inline-size: 100%;
     justify-content: center;
     list-style: none;
     margin: 0 0 var(--token-spacing-md) 0;
-    max-width: 100%;
-    width: 100%;
+    max-inline-size: 100%;
 }
 
 .fl-carousel-control-item {
     align-items: center;
     cursor: pointer;
     display: flex;
-    min-height: calc(var(--counter-size) + 8px);
-    padding-left: calc(
+    inline-size: 100%;
+    min-block-size: calc(var(--counter-size) + 8px);
+    padding-inline-start: calc(
         var(--counter-size) + (var(--spinner-width) * 2) +
             var(--token-spacing-md)
     );
     position: relative;
-    width: 100%;
 }
 
 .fl-carousel-control-item-text {
     flex: none;
-    max-width: 200px;
-    min-width: 0;
+    max-inline-size: 200px;
+    min-inline-size: 0;
     overflow-wrap: break-word;
     text-wrap: balance;
 }
@@ -85,17 +85,17 @@
 .fl-carousel-control-item::after {
     align-items: center;
     background-color: var(--token-color-dark-purple-30);
+    block-size: var(--counter-size);
     border-radius: 50%;
     color: rgb(var(--token-color-white));
     display: flex;
     flex-shrink: 0;
     font-weight: var(--token-font-weight-bold);
-    height: var(--counter-size);
+    inline-size: var(--counter-size);
+    inset-block-start: var(--spinner-width);
+    inset-inline-start: var(--spinner-width);
     justify-content: center;
-    left: var(--spinner-width);
     position: absolute;
-    top: var(--spinner-width);
-    width: var(--counter-size);
     z-index: 1;
 }
 
@@ -119,21 +119,21 @@
         rgba(255, 255, 255, 0.6) calc(var(--carousel-progress, 0) * 3.6deg),
         transparent calc(var(--carousel-progress, 0) * 3.6deg) 360deg
     ); /* 360deg = 100%. This expects an integer value from 1-100, populated from the JS. */
+    block-size: calc(var(--counter-size) + (var(--spinner-width) * 2));
     content: '';
-    height: calc(var(--counter-size) + (var(--spinner-width) * 2));
-    left: 0;
-    top: 0;
-    width: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    inline-size: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    inset-block-start: 0;
+    inset-inline-start: 0;
     z-index: 0;
 }
 
 .fl-carousel-images {
     aspect-ratio: 2 / 1;
+    inline-size: 100%;
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
     overflow: hidden;
     position: relative;
-    width: 100%;
 }
 
 .fl-carousel-viewport {
@@ -142,8 +142,8 @@
 }
 
 .fl-carousel-container {
+    block-size: 100%;
     display: flex;
-    height: 100%;
 }
 
 .fl-carousel-slide {
@@ -151,15 +151,15 @@
     display: flex;
     flex: 0 0 100%;
     justify-content: center;
-    min-width: 0;
+    min-inline-size: 0;
 }
 
 .fl-carousel-image {
     align-items: center;
+    block-size: 100%;
     display: flex;
-    height: 100%;
+    inline-size: 100%;
     justify-content: center;
-    width: 100%;
 }
 
 /* Cross-fade overlay used during slide changes (autoplay + label click). */
@@ -193,12 +193,12 @@
 }
 
 .fl-carousel-image img {
-    height: auto;
+    block-size: auto;
+    inline-size: auto;
     margin: 0;
-    max-height: 100%;
-    max-width: 100%;
+    max-block-size: 100%;
+    max-inline-size: 100%;
     object-fit: contain;
-    width: auto;
 }
 
 @media (--viewport-md-up) {
@@ -209,6 +209,6 @@
 
     .fl-carousel-control-item {
         flex: 1 1 0;
-        width: auto;
+        inline-size: auto;
     }
 }

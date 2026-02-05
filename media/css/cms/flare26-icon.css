@@ -6,13 +6,13 @@
 
 .fl-icon {
     background-color: currentColor;
+    block-size: 1em;
     display: inline-block;
-    height: 1em;
+    inline-size: 1em;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
     mask: var(--icon-src) no-repeat center / 1em 1em;
     mask-size: contain;
     vertical-align: middle;
-    width: 1em;
 }
 
 .fl-icon-activity {
