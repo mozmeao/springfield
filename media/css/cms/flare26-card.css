@@ -148,6 +148,7 @@ Sticker Card
     gap: var(--token-spacing-xl);
     height: auto;
     justify-content: flex-start;
+    min-height: 480px;
     padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
         var(--token-spacing-3xl);
     position: relative;
