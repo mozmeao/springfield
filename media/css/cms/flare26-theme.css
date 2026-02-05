@@ -22,6 +22,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Background colors */
     --fl-theme-background: var(--token-color-white);
+    --fl-theme-body-background: var(--token-color-dark-purple);
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);

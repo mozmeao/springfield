@@ -11,7 +11,7 @@ This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
-    background: var(--fl-theme-background);
+    background: var(--fl-theme-body-background);
     color: var(--fl-theme-color-text);
 }
 
