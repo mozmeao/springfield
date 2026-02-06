@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
@@ -20,10 +21,12 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_cards_test_page,
     get_sticker_cards_test_page,
 )
-from springfield.cms.fixtures.download_page_fixtures import get_download_page
+from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
-from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page
+from springfield.cms.fixtures.inline_notification_fixtures import (
+    get_inline_notification_test_page,
+)
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
@@ -36,8 +39,13 @@ class Command(BaseCommand):
     help = "Load page fixtures for testing."
 
     def add_arguments(self, parser):
-        parser.add_argument("--no-refresh", action="store_true", help="Do not delete existing images and pages.")
+        parser.add_argument(
+            "--no-refresh",
+            action="store_true",
+            help="Do not delete existing images and pages.",
+        )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         no_refresh = options["no_refresh"]
 
@@ -64,8 +72,9 @@ class Command(BaseCommand):
         home_page = get_home_test_page()
         self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
 
-        download_page = get_download_page()
-        self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
+        download_pages = get_download_pages()
+        for download_page in download_pages.values():
+            self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
 
         thanks_page = get_thanks_page()
         self.stdout.write(self.style.SUCCESS(f"Thanks test page loaded: {thanks_page.slug}"))

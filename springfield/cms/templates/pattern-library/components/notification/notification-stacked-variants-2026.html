@@ -1,0 +1,65 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  {% set colors = ['purple', 'red', 'orange', 'green'] %}
+  <div class="fl-split-page-upper">
+    <h4>Dark Notification variants</h4>
+    <div class="pl-row" style="display: flex; flex-direction: column; gap: 16px;">
+      {% for color in colors %}
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for notification in notifications %}
+              <div>
+                <include:notification
+                  theme="dark"
+                  color="{{ color }}"
+                  icon="{{ notification.icon }}"
+                  closable="{{ notification.closable }}"
+                  stacked="true"
+                >
+                  <content:heading>
+                    <p>{{ notification.heading }}</p>
+                  </content:heading>
+                  <p>{{ notification.message }}</p>
+                </include:notification>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="fl-split-page-lower">
+    <h4>Light Notification variants</h4>
+    <div class="pl-row"  style="display: flex; flex-direction: column; gap: 16px;">
+      {% for color in colors %}
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for notification in notifications %}
+              <div>
+                <include:notification
+                  color="{{ color }}"
+                  icon="{{ notification.icon }}"
+                  closable="{{ notification.closable }}"
+                  stacked="true"
+                >
+                  <content:heading>
+                    <p>{{ notification.heading }}</p>
+                  </content:heading>
+                  <p>{{ notification.message }}</p>
+                </include:notification>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

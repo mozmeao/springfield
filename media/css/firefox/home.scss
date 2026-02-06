@@ -4,13 +4,11 @@
 
 @use 'sass:math';
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/notification-bar';
-@import '~@mozilla-protocol/core/protocol/css/components/section-heading';
-@import '~@mozilla-protocol/core/protocol/css/templates/multi-column';
+@use '~@mozilla-protocol/core/protocol/css/components/notification-bar';
+@use '~@mozilla-protocol/core/protocol/css/components/section-heading';
+@use '~@mozilla-protocol/core/protocol/css/templates/multi-column';
 
 // --------------------------------------------------------------------------
 // Protocol over-rides

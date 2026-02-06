@@ -72,15 +72,83 @@ def get_step_cards():
     ]
 
 
-def get_step_cards_section():
+def get_windows_section():
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "windows"},
+            "heading": {
+                "superheading_text": "Windows Users",
+                "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
+                "subheading_text": '<p data-block-key="hablc">This sections will only show to Windows users.</p>',
+            },
+            "content": [],
+            "cta": [],
+        },
+        "id": "9304b845-491a-4a12-8be3-42c783504a4d",
+    }
+
+
+def get_linux_section():
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "linux"},
+            "heading": {
+                "superheading_text": "Linux Users",
+                "heading_text": '<p data-block-key="x4k4z">Almost there!</p>',
+                "subheading_text": '<p data-block-key="hablc">This sections will only show to Linux users.</p>',
+            },
+            "content": [],
+            "cta": [],
+        },
+        "id": "9304b845-491a-4a12-8be3-42c783504a4d",
+    }
+
+
+def get_unsupported_section():
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "unsupported"},
+            "heading": {
+                "superheading_text": "Unsupported OS Users",
+                "heading_text": '<p data-block-key="x4k4z">Your download was interrupted. But all is not lost.</p>',
+                "subheading_text": '<p data-block-key="hablc">This sections will only show to Unsupported OS users.</p>',
+            },
+            "content": [],
+            "cta": [],
+        },
+        "id": "9304b845-491a-4a12-8be3-42c783504a4d",
+    }
+
+
+def get_other_os_section():
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "other-os"},
+            "heading": {
+                "superheading_text": "Other OS Users",
+                "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
+                "subheading_text": '<p data-block-key="hablc">This sections will only show to Other OS users.</p>',
+            },
+            "content": [],
+            "cta": [],
+        },
+        "id": "9304b845-491a-4a12-8be3-42c783504a4d",
+    }
+
+
+def get_mac_section():
     buttons = get_button_variants()
 
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all"},
+            "settings": {"show_to": "osx"},
             "heading": {
-                "superheading_text": "",
+                "superheading_text": "Mac Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
                 "subheading_text": '<p data-block-key="hablc">Follow these steps to get Firefox set up. </p>',
             },
@@ -108,13 +176,8 @@ def get_banner():
     }
 
 
-def get_pre_footer():
-    snippet = get_pre_footer_cta_form_snippet()
-    return {
-        "type": "pre_footer_cta_form_snippet",
-        "value": snippet.id,
-        "id": "a02a8fd6-8195-43f1-a77d-ed6a652386b0",
-    }
+def get_download_support():
+    return {"type": "download_support", "value": None, "id": "d3f5e8c4-3f4e-4c2e-9f4a-1c2b5e6d7f8a"}
 
 
 def get_thanks_page() -> ThanksPage:
@@ -122,11 +185,24 @@ def get_thanks_page() -> ThanksPage:
 
     image, _, _, _ = get_placeholder_images()
 
+    get_pre_footer_cta_form_snippet()
+
+    content = [
+        get_windows_section(),
+        get_mac_section(),
+        get_linux_section(),
+        get_unsupported_section(),
+        get_other_os_section(),
+        get_download_support(),
+        get_banner(),
+    ]
+
     page = ThanksPage.objects.filter(slug="test-thanks-page").first()
     if not page:
         page = ThanksPage(
             slug="test-thanks-page",
             title="Thanks Page Test",
+            content=content,
         )
         index_page.add_child(instance=page)
 
@@ -136,7 +212,6 @@ def get_thanks_page() -> ThanksPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
-    page.content = [get_step_cards_section(), get_banner()]
-    page.pre_footer = [get_pre_footer()]
+    page.content = content
     page.save_revision().publish()
     return page

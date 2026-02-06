@@ -1,0 +1,87 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set source = utm_parameters.get("utm_source", "www.firefox.com") %}
+{% set medium = utm_parameters.get("utm_medium", "referral") %}
+{% set campaign = utm_parameters.get("utm_campaign", "firefox-download-thanks") %}
+{% set params = '?utm_source=' ~ source ~ '&utm_medium=' ~ medium ~ '&utm_campaign=' ~ campaign %}
+
+<div class="fl-download-support">
+
+  {% if ftl_has_messages('firefox-desktop-download-if-you-see-a-prompt', 'firefox-desktop-download-visit-support-for-more') %}
+    <include:conditional-display condition="windows-10-plus">
+      <div class="fl-notification-wrapper">
+        <aside class="fl-notification fl-notification-stacked">
+          <div class="fl-notification-icon-section">
+            <img class="fl-windows-disclaimer-logo" src="{{ static('img/logos/windows/logo-windows.svg') }}" alt="{{ ftl('firefox-desktop-download-windows') }}" width="40" height="35">
+          </div>
+          <div class="fl-notification-content">
+            <p>{{ ftl('firefox-desktop-download-if-you-see-a-prompt', attrs='href="https://support.mozilla.org/kb/windows-10-warns-me-use-microsoft-verified-app%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params)) }}</p>
+            <p><a href="https://support.mozilla.org/kb/windows-10-warns-me-use-microsoft-verified-app{{ params }}" rel="external noopener" data-cta-text="Visit Support for More Details">{{ ftl('firefox-desktop-download-visit-support-for-more') }}</a></p>
+          </div>
+        </aside>
+      </div>
+    </include:conditional-display>
+  {% endif %}
+
+  <div class="fl-support-install">
+    <include:conditional-display condition="osx">
+      <p>
+        {% set support_mac_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+        {{ ftl('firefox-desktop-download-get-help', attrs=support_mac_attrs) }}
+      </p>
+    </include:conditional-display>
+    <include:conditional-display condition="windows">
+      <p>
+        {% set support_windows_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+        {{ ftl('firefox-desktop-download-get-help', attrs=support_windows_attrs) }}
+      </p>
+    </include:conditional-display>
+    <include:conditional-display condition="linux">
+      <div class="fl-buttons is-horizontal is-center">
+        <!-- <a href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux&lang={{ LANG }}" class="mzp-c-button mzp-t-product" data-testid="thanks-download-button-linux-32">{{ ftl('download-button-linux-32-v2') }}</a> -->
+        <a href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" class="fl-button" data-testid="thanks-download-button-linux-64">{{ ftl('download-button-linux-64-v2') }}</a>
+      </div>
+      {% set attrs = 'href="https://support.mozilla.org/kb/install-firefox-linux%s#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener" data-cta-text="You can set up our APT repository instead"'|safe|format(params) %}
+      <p class="linux-deb-text fl-linux-deb-text">{{ ftl('download-button-using-debian', attrs=attrs) }}</p>
+    </include:conditional-display>
+    {% set other_platforms %}
+      <p>
+        {% set support_else_attrs = 'href="https://support.mozilla.org/products/firefox/install-and-update-firefox%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+        {{ ftl('firefox-desktop-download-get-help', attrs=support_else_attrs) }}
+      </p>
+    {% endset %}
+    <include:conditional-display condition="android">
+      {{ other_platforms }}
+    </include:conditional-display>
+    <include:conditional-display condition="ios">
+      {{ other_platforms }}
+    </include:conditional-display>
+    <include:conditional-display condition="other">
+      {{ other_platforms }}
+    </include:conditional-display>
+
+    {# Edge-case platform support messaging #}
+    {% set unsupported_message %}
+      <p>
+        {% set unsupported_href = firefox_url('desktop', 'all') %}
+        {{ ftl('firefox-desktop-download-your-system-may-not', url=unsupported_href)}}
+      </p>
+    {% endset %}
+    <include:conditional-display condition="unsupported">
+      {{ unsupported_message }}
+    </include:conditional-display>
+    <include:conditional-display condition="unknown">
+      {{ unsupported_message }}
+    </include:conditional-display>
+  </div>
+
+  {{ download_firefox(force_direct=true, dom_id='thanks-download-button',  button_class="fl-button") }}
+
+  <div>
+    <a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-desktop-download-in-another-language') }}</a>
+  </div>
+</div>

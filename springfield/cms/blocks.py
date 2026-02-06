@@ -335,9 +335,14 @@ CONDITIONAL_DISPLAY_CHOICES = [
     ("not-firefox", "Non Firefox Users"),
     ("state-fxa-supported-signed-in", "Signed-in Users"),
     ("state-fxa-supported-signed-out", "Signed-out Users"),
+    ("osx", "macOS Users"),
+    ("linux", "Linux Users"),
+    ("windows", "Windows Users"),
     ("windows-10-plus", "Windows 10+ Users"),
     ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
     ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
+    ("unsupported", "Unsupported OS Users"),
+    ("other-os", "Other OS Users"),  # iOS, Android, Other
 ]
 
 
@@ -348,6 +353,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
@@ -356,6 +362,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
@@ -363,6 +370,7 @@ UITOUR_BUTTON_CHOICES = (
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+DOWNLOAD_BUTTON_TYPE = "download_button"
 
 
 BUTTON_PRIMARY = ""
@@ -420,8 +428,8 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE]
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -500,20 +508,17 @@ class UITourButtonValue(BaseButtonValue):
         """
         theme_classes = super().theme_class()
         button_type = self.get("button_type", "")
-        if button_type == UITOUR_BUTTON_NEW_TAB:
-            theme_classes += " ui-tour-open-new-tab"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES:
-            theme_classes += " ui-tour-open-about-preferences"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL:
-            theme_classes += " ui-tour-open-about-preferences-general"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_HOME:
-            theme_classes += " ui-tour-open-about-preferences-home"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH:
-            theme_classes += " ui-tour-open-about-preferences-search"
-        elif button_type == UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY:
-            theme_classes += " ui-tour-open-about-preferences-privacy"
-        elif button_type == UITOUR_BUTTON_PROTECTIONS_REPORT:
-            theme_classes += " ui-tour-open-protections-report"
+        classes = {
+            UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+            UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+            UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
+        }
+        theme_classes += " " + classes.get(button_type, "")
         return theme_classes
 
 
@@ -550,6 +555,20 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def DownloadFirefoxButtonBlock(themes=None, **kwargs):
+    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
+        settings = BaseButtonSettings(themes=themes)
+
+        class Meta:
+            label = "Download Firefox Button"
+            label_format = "Download Firefox Button - {label}"
+            template = "cms/blocks/download-firefox-button.html"
+            value_class = BaseButtonValue
+
+    return _DownloadFirefoxButtonBlock(**kwargs)
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -563,13 +582,14 @@ def MixedButtonsBlock(
 
     The min_num and max_num parameters control the total number of buttons (combined).
 
-    Example: min_num0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
+    Example: min_num=0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
     buttons, or up to 1 of each.
     """
     button_blocks = {
         BUTTON_TYPE: ButtonBlock(themes=themes),
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
+        DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -1322,7 +1342,8 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
-            ]
+            ],
+            required=False,
         )
         cta = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -1620,3 +1641,12 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
+
+
+# Thanks Page
+
+
+class DownloadSupportBlock(blocks.StaticBlock):
+    class Meta:
+        template = "cms/blocks/download-support.html"
+        label = "Download Support Message"

@@ -2,17 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/modal';
-@import '~@mozilla-protocol/core/protocol/css/components/section-heading';
-@import '~@mozilla-protocol/core/protocol/css/components/zap';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-mozilla';
-@import '../../protocol/components/video';
+@use '~@mozilla-protocol/core/protocol/css/components/modal';
+@use '~@mozilla-protocol/core/protocol/css/components/section-heading';
+@use '~@mozilla-protocol/core/protocol/css/components/zap';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-mozilla';
+@use '../../protocol/components/video';
 
 // Play button on videos
 .mzp-c-card-media-wrapper {
