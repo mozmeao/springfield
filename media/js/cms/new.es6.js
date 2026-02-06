@@ -250,11 +250,8 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
                     if (!videoUrl) return;
 
-                    const data = button.dataset;
-
                     const video = document.createElement('video');
-                    video.controls = data.showControls;
-                    video.loop = data.loop;
+                    video.controls = true;
                     video.autoplay = true;
 
                     if (posterUrl) {

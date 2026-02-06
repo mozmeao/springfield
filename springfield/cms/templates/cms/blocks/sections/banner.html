@@ -36,7 +36,7 @@
     {% if value.media %}
       <content:media>
         {% for block in value.media %}
-          {% if block.block_type in ["video", "image"] %}
+          {% if block.block_type in ["video", "image", "animation"] %}
             {% include_block block %}
           {% elif block.block_type == "qr_code" and block.value.background %}
             {{ srcset_image(

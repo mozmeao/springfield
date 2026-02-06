@@ -389,6 +389,12 @@ BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_
 BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
 
 
+def validate_animation_url(value):
+    if value and "assets.mozilla.net" not in value:
+        raise ValidationError("Please provide a valid assets.mozilla.net URL for the animation.")
+    return value
+
+
 def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
@@ -695,37 +701,7 @@ class ImageVariantsBlock(blocks.StructBlock):
         template = "cms/blocks/image-variants.html"
 
 
-class VideoBlockSettings(blocks.StructBlock):
-    autoplay = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Auto-play",
-        help_text="Automatically play the video (will be muted)",
-    )
-    loop = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Loop",
-        help_text="Loop the video continuously",
-    )
-    show_controls = blocks.BooleanBlock(
-        required=False,
-        default=True,
-        label="Show Controls",
-        help_text="Display video playback controls",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Auto-play: {autoplay} - Loop: {loop} - Show Controls: {show_controls}"
-        help_text = "These settings only apply to videos hosted on assets.mozilla.net"
-        form_classname = "compact-form struct-block"
-
-
 class VideoBlock(blocks.StructBlock):
-    settings = VideoBlockSettings()
     video_url = blocks.URLBlock(
         label="Video URL",
         help_text="Link to a video from YouTube or assets.mozilla.net.",
@@ -740,6 +716,20 @@ class VideoBlock(blocks.StructBlock):
         template = "cms/blocks/video.html"
 
 
+class AnimationBlock(blocks.StructBlock):
+    video_url = blocks.URLBlock(
+        label="Animation URL",
+        help_text="Link to a webm video from assets.mozilla.net.",
+        validators=[validate_animation_url],
+    )
+    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
+    poster = ImageChooserBlock(help_text="Poster image displayed before the animation is played.")
+
+    class Meta:
+        label = "Animation"
+        template = "cms/blocks/animation.html"
+
+
 class QRCodeBlock(blocks.StructBlock):
     data = blocks.URLBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
     background = ImageChooserBlock(
@@ -751,6 +741,17 @@ class QRCodeBlock(blocks.StructBlock):
     class Meta:
         label = "QR Code"
         label_format = "QR Code - {data}"
+
+
+class MediaBlock(blocks.StreamBlock):
+    image = ImageVariantsBlock(required=False)
+    video = VideoBlock(required=False)
+    animation = AnimationBlock(required=False)
+    qr_code = QRCodeBlock(required=False)
+
+    class Meta:
+        label = "Media"
+        template = "cms/blocks/media.html"
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -780,15 +781,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        media = MediaBlock(max_num=1)
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
@@ -1277,15 +1270,7 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
     class _IntroBlock(blocks.StructBlock):
         settings = IntroBlockSettings()
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -1442,16 +1427,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
 
     class _BannerBlock(blocks.StructBlock):
         settings = BannerSettings()
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-                ("qr_code", QRCodeBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),

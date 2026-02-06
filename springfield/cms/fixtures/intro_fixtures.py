@@ -119,6 +119,20 @@ def get_intro_variants() -> list[dict]:
             },
             "id": "98856064-26db-45eb-862f-e0e87a9c9736",
         },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with Animation</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
+                },
+                "buttons": [buttons["primary"]],
+            },
+            "id": "gbjweiof-26db-45eb-862f-e0e87a9c9736",
+        },
     ]
 
 
