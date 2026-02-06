@@ -446,7 +446,7 @@ def reverse_migration(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0037_articledetailpage_index_page_heading"),
+        ("cms", "0038_articledetailpage_index_page_heading"),
         # Required because save_target(publish=True) triggers the page_published signal,
         # which has a handler in wagtail_localize_smartling that queries LandedTranslationTask
         ("wagtail_localize_smartling", "0004_landedtranslationtask"),

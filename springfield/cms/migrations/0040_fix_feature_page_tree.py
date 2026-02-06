@@ -10,7 +10,7 @@ copy_for_translation), the numchild counter can get out of sync. This causes
 get_children() to return incorrect results, making translated index pages
 appear to have no children.
 
-This migration runs after 0038_create_feature_pages commits, ensuring that
+This migration runs after 0039_create_feature_pages commits, ensuring that
 fix_tree() sees all pages in their final state.
 """
 
@@ -38,7 +38,7 @@ def reverse_noop(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0038_create_feature_pages"),
+        ("cms", "0039_create_feature_pages"),
     ]
 
     operations = [

@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0036_remove_articledetailpage_call_to_action"),
+        ("cms", "0037_remove_thankspage_pre_footer"),
     ]
 
     operations = [
