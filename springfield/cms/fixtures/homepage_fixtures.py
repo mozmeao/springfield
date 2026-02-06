@@ -191,14 +191,20 @@ def get_showcase_variants():
             "value": {
                 "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="t7z9f">All your stuff on \u2028all your devices</p>',
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-                    },
-                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "caption_title": '<p data-block-key="n053e">Take your tabs, history and passwords wherever you go.</p>',
                 "caption_description": '<p data-block-key="bg8rh">Sign in once, sync everywhere. Your tabs, bookmarks, '
                 "passwords and history follow you from desktop to phone to tablet — encrypted and private. "
@@ -211,14 +217,20 @@ def get_showcase_variants():
             "value": {
                 "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="hobr0">Made for 8 billion people. \u2028Not 8 billionaires.</p>',
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-                    },
-                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                    }
+                ],
                 "caption_title": "",
                 "caption_description": '<p data-block-key="qskqt">Make Firefox your own, from your language to your layout, '
                 "and leave big tech behind.\xa0</p>",

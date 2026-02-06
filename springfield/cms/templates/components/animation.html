@@ -1,0 +1,19 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props video_url, poster, alt, aspect_ratio="" #}
+
+<div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+  <video
+    autoplay muted loop
+    poster="{{ poster }}"
+    playsinline
+    preload="metadata"
+  >
+    <source src="{{ video_url }}">
+    <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-poster" />
+  </video>
+</div>
