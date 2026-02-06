@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props video_url="", alt="", poster="", aspect_ratio="", autoplay="", loop="", show_controls="" #}
+{# props video_url="", alt="", poster="", aspect_ratio="" #}
 
 {% if 'youtube.com' in video_url or 'youtu.be' in video_url %}
   {% set video_id = video_url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}

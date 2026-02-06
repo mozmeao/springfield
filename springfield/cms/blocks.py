@@ -1560,7 +1560,7 @@ class ShowcaseSettings(blocks.StructBlock):
 class ShowcaseBlock(blocks.StructBlock):
     settings = ShowcaseSettings()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    media = MediaBlock(max_num=1, min_num=0, required=False)
+    media = MediaBlock(max_num=1)
     caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
