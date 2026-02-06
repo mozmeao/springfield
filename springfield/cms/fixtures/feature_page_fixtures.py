@@ -362,7 +362,7 @@ def build_content_blocks(content: str, image_ids: dict[str, int]) -> list[dict]:
 # =============================================================================
 
 
-def get_features_index_page() -> ArticleIndexPage:
+def get_features_index_page(publish: bool = True) -> ArticleIndexPage:
     """
     Get or create the ArticleIndexPage at /features/.
 
@@ -399,7 +399,13 @@ def get_features_index_page() -> ArticleIndexPage:
         )
         root_page.add_child(instance=index_page)
 
-    index_page.save_revision().publish()
+    if publish:
+        index_page.save_revision().publish()
+    else:
+        index_page.live = False
+        index_page.has_unpublished_changes = True
+        index_page.save_revision()
+        index_page.save()
     return index_page
 
 
@@ -740,7 +746,7 @@ FEATURE_PAGES = {
 # =============================================================================
 
 
-def get_feature_page(slug: str, image_ids: dict[str, int]) -> ArticleDetailPage:
+def get_feature_page(slug: str, image_ids: dict[str, int], publish: bool = True) -> ArticleDetailPage:
     """
     Get or create an ArticleDetailPage for a feature.
 
@@ -755,7 +761,7 @@ def get_feature_page(slug: str, image_ids: dict[str, int]) -> ArticleDetailPage:
         raise ValueError(f"Unknown feature page slug: {slug}")
 
     page_data = FEATURE_PAGES[slug]
-    index_page = get_features_index_page()
+    index_page = get_features_index_page(publish=publish)
 
     # Filter by parent to avoid finding pages in other locales/parents
     page = ArticleDetailPage.objects.child_of(index_page).filter(slug=slug).first()
@@ -782,11 +788,17 @@ def get_feature_page(slug: str, image_ids: dict[str, int]) -> ArticleDetailPage:
     # Build content blocks (handles both image and video placeholders)
     page.content = build_content_blocks(page_data["content"], image_ids)
 
-    page.save_revision().publish()
+    if publish:
+        page.save_revision().publish()
+    else:
+        page.live = False
+        page.has_unpublished_changes = True
+        page.save_revision()
+        page.save()
     return page
 
 
-def get_all_feature_pages(image_ids: dict[str, int]) -> list[ArticleDetailPage]:
+def get_all_feature_pages(image_ids: dict[str, int], publish: bool = True) -> list[ArticleDetailPage]:
     """
     Get or create all feature pages.
 
@@ -798,7 +810,7 @@ def get_all_feature_pages(image_ids: dict[str, int]) -> list[ArticleDetailPage]:
     """
     pages = []
     for slug in FEATURE_PAGES:
-        page = get_feature_page(slug, image_ids)
+        page = get_feature_page(slug, image_ids, publish=publish)
         pages.append(page)
     return pages
 
@@ -808,11 +820,15 @@ def get_all_feature_pages(image_ids: dict[str, int]) -> list[ArticleDetailPage]:
 # =============================================================================
 
 
-def load_feature_page_fixtures():
+def load_feature_page_fixtures(publish: bool = True):
     """
     Load all feature page fixtures.
 
     This is the main entry point called by the management command.
+
+    Args:
+        publish: If True (default), pages are published and live.
+                 If False, pages are saved as drafts.
     """
     # Import images first
     print("Importing feature images...")
@@ -820,11 +836,11 @@ def load_feature_page_fixtures():
     print(f"  Imported {len(image_ids)} images")
 
     # Create index page
-    index_page = get_features_index_page()
+    index_page = get_features_index_page(publish=publish)
     print(f"Created/updated ArticleIndexPage: {index_page.url}")
 
     # Create all feature pages with images
-    pages = get_all_feature_pages(image_ids)
+    pages = get_all_feature_pages(image_ids, publish=publish)
     for page in pages:
         print(f"Created/updated ArticleDetailPage: {page.url}")
 

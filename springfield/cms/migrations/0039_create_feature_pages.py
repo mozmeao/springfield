@@ -42,7 +42,7 @@ def create_feature_pages(apps, schema_editor):
     # Import here to avoid issues with app registry not being ready
     from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
 
-    index_page, feature_pages = load_feature_page_fixtures()
+    index_page, feature_pages = load_feature_page_fixtures(publish=False)
     print(f"\n  Created feature index page: {index_page.slug}")
     print(f"  Created {len(feature_pages)} feature pages")
 
@@ -226,7 +226,7 @@ def import_ftl_translations(apps, schema_editor):
                 tool_name="ftl_import",
             )
             total_imported += len(po)
-            translation.save_target(publish=True)
+            translation.save_target(publish=False)
 
     print(f"\n  Translated index page to {len(target_locales)} locales")
 
@@ -301,7 +301,7 @@ def import_ftl_translations(apps, schema_editor):
                 total_imported += len(po)
 
                 # Create the translated page
-                translation.save_target(publish=True)
+                translation.save_target(publish=False)
 
     print(f"\n  Imported {total_imported} translations")
 
@@ -447,8 +447,8 @@ def reverse_migration(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0038_articledetailpage_index_page_heading"),
-        # Required because save_target(publish=True) triggers the page_published signal,
-        # which has a handler in wagtail_localize_smartling that queries LandedTranslationTask
+        # Required because save_target() may interact with wagtail_localize_smartling
+        # which has a handler that queries LandedTranslationTask
         ("wagtail_localize_smartling", "0004_landedtranslationtask"),
     ]
 
