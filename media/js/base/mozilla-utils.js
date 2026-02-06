@@ -59,9 +59,7 @@ if (typeof window.Mozilla === 'undefined') {
      * Set stub attribution data attributes for download_firefox_thanks() buttons.
      */
     Utils.attributeDownloadThanksButton = function () {
-        var downloadButton = document.querySelectorAll(
-            '.c-button-download-thanks > .download-link'
-        );
+        var downloadButton = document.querySelectorAll('.download-link');
         var data = Utils.getDownloadPlatformVersion(window.site);
 
         for (var i = 0; i < downloadButton.length; ++i) {
