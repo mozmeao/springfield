@@ -24,7 +24,9 @@
       {% set size = "(min-width: 1200px) 950px" %}
     {% endif %}
     {% with sizes = size ~ ", 100vw" %}
-      {% include_block value.image %}
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
     {% endwith %}
   </content:image>
   <content:caption>

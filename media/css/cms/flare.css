@@ -62,7 +62,6 @@ https://caniuse.com/?compare=safari+15.6&compareCats=CSS
 @import 'flare-cards.css' layer(components);
 @import 'flare-section.css' layer(components);
 @import 'flare-language-switcher.css' layer(components);
-@import 'flare-qr-code.css' layer(components);
 
 @import 'flare-utilities.css' layer(utilities);
 @import 'flare-overrides.css' layer(overrides);
