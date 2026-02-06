@@ -54,6 +54,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-newsletterform.css' layer(components);
 @import 'flare26-mediacontent.css' layer(components);
 @import 'flare26-notification.css' layer(components);
+@import 'flare26-qr-code.css' layer(components);
 
 @import 'flare26-homepage.css' layer(page);
 @import 'flare26-download.css' layer(page);

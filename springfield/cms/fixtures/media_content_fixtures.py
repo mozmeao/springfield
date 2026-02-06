@@ -119,6 +119,27 @@ def get_media_content_variants() -> list[dict]:
             },
             "id": "7e56b431-f30f-43c9-8fed-3b74f50873f2",
         },
+        {
+            "type": "media_content",
+            "value": {
+                "settings": {"media_after": True},
+                "media": [
+                    {
+                        "type": "qr_code",
+                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
+                    },
+                ],
+                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
+                "headline": '<p data-block-key="4h9nd">QR Code + Content Before</p>',
+                "tags": tags[3:6],
+                "content": '<p data-block-key="4fkrh">Add a QR Code instead of an image as the media element.</p>',
+                "buttons": [
+                    buttons["primary"],
+                ],
+            },
+            "id": "38b08efa-ddd2-4feb-b070-6a50781fc253",
+        },
     ]
 
 

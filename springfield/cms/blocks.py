@@ -731,7 +731,7 @@ class AnimationBlock(blocks.StructBlock):
 
 
 class QRCodeBlock(blocks.StructBlock):
-    data = blocks.URLBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    data = blocks.CharBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
     background = ImageChooserBlock(
         required=False,
         help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. "
@@ -741,6 +741,7 @@ class QRCodeBlock(blocks.StructBlock):
     class Meta:
         label = "QR Code"
         label_format = "QR Code - {data}"
+        template = "cms/blocks/qr-code.html"
 
 
 class MediaBlock(blocks.StreamBlock):
@@ -1559,7 +1560,7 @@ class ShowcaseSettings(blocks.StructBlock):
 class ShowcaseBlock(blocks.StructBlock):
     settings = ShowcaseSettings()
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    image = ImageVariantsBlock()
+    media = MediaBlock(max_num=1, min_num=0, required=False)
     caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
