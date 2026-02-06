@@ -284,7 +284,7 @@ def get_kit_banner():
     return {
         "type": "kit_banner",
         "value": {
-            "settings": {"show_to": "all"},
+            "settings": {"show_to": "all", "anchor_id": "kit-banner"},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="cggck">Peace of mind?</p><p data-block-key="eia38">Piece of cake.</p>',

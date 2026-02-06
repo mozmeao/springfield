@@ -17,7 +17,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "simple-intro-with-text-and-button",
+                },
                 "media": [],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
@@ -33,7 +36,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "intro-with-image",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -62,7 +68,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "before"},
+                "settings": {
+                    "media_position": "before",
+                    "anchor_id": "intro-with-image-before",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -92,7 +101,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "intro-with-youtube-video",
+                },
                 "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
@@ -107,7 +119,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "before"},
+                "settings": {
+                    "media_position": "before",
+                    "anchor_id": "intro-with-cdn-video",
+                },
                 "media": [videos["cdn"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',

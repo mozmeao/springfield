@@ -112,7 +112,7 @@ def get_section_with_media_content_variants() -> dict:
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all"},
+            "settings": {"show_to": "all", "anchor_id": "section-with-media-content"},
             "heading": {
                 "superheading_text": '<p data-block-key="d2q88">Media + Content</p>',
                 "heading_text": '<p data-block-key="w8raa">Section with Media + Content Blocks and Call To Action</p>',

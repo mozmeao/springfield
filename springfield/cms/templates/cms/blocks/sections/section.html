@@ -8,7 +8,7 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-  <include:section>
+  <include:section anchor_id="{{ value.settings.anchor_id }}">
     <content:heading>
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}
