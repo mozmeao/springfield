@@ -1296,7 +1296,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
         figure = showcase_element.find("figure", class_="fl-showcase-image")
         assert figure
 
-        image_value = showcase["value"]["image"]
+        image_value = showcase["value"]["media"][0]["value"]
 
         assert_image_variants_attributes(
             images_element=figure,
