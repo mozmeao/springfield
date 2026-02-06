@@ -101,6 +101,29 @@ def create_translation_sources(apps, schema_editor):
             source.refresh_segments()
             print(f"  Refreshed segments for: {slug}")
 
+    # Fix schema_version on all TranslationSource records we just created.
+    # During this migration, get_schema_version("cms") returns the previous
+    # migration because the current one hasn't been recorded as applied yet.
+    # We determine the correct value from the migration files on disk so it
+    # matches whatever get_schema_version("cms") will return after all
+    # migrations have been applied.
+    from pathlib import Path
+
+    migrations_dir = Path(__file__).parent
+    migration_names = sorted(f.stem for f in migrations_dir.glob("0*.py"))
+    latest_schema_version = migration_names[-1] if migration_names else ""
+
+    TranslationSource.objects.filter(
+        object_id__in=[index_page.translation_key]
+        + list(
+            ArticleDetailPage.objects.filter(
+                slug__in=PAGE_FTL_MAPPING.keys(),
+                locale=source_locale,
+                path__contains=index_page.path,
+            ).values_list("translation_key", flat=True)
+        ),
+    ).update(schema_version=latest_schema_version)
+
 
 def import_ftl_translations(apps, schema_editor):
     """Import FTL translations for all feature pages and locales.
