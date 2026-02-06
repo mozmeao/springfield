@@ -4,7 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-intro{% if contents.media %} fl-intro-has-media{% endif %}{% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}">
+{# props media_position="after" anchor_id=""  #}
+
+<div
+  class="fl-intro{% if contents.media %} fl-intro-has-media{% endif %}{% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}"
+  {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
+>
   <div class="fl-intro-content">
     {{ contents.heading }}
     {% if contents.actions %}

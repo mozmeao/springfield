@@ -1228,12 +1228,16 @@ class IntroBlockSettings(blocks.StructBlock):
         label="Media Position",
         inline_form=True,
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Media Position: {media_position}"
+        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -1290,12 +1294,16 @@ class SectionBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to}"
+        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -1398,12 +1406,16 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -1467,12 +1479,16 @@ class KitBannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Show To: {show_to}"
+        label_format = "Theme: {theme} - Show To: {show_to} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 
@@ -1611,12 +1627,16 @@ class HomeKitBannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to}"
+        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 
