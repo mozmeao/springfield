@@ -8,21 +8,78 @@
 Card Grid - Flare 2026 Design System Cards
 ===================================================================== */
 
+/* The idea with the card grid is that we'll adjust the container based
+   on how many cards are present, and also the container size. We're setting
+   reasonable defaults, and then adjusting with :has() based on which
+   type of card is being used. The selectors are a little complicated,
+   but this allows us to make the card list component in the CMS completely
+   agnostic to which card type it contains.
+*/
+
 .fl-card-grid {
-    --fl-card-grid-gap: var(--token-spacing-lg);
-    --fl-card-grid-column-width: 340px;
+    --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
     --fl-card-sticker-size: 60px;
     display: grid;
     gap: var(--fl-card-grid-gap);
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(
-            min(100%, var(--fl-card-grid-column-width)),
-            var(--fl-card-grid-column-width)
-        )
-    );
+    grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
     justify-content: center;
     padding-block: var(--token-layout-3xs);
+}
+
+/* default usage of illustration cards get two-wide on mobile. */
+.fl-card-grid:has(.fl-illustration-card-default) {
+    --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (--viewport-sm-up) {
+    /* for most instances, tablet size gets two-wide cards */
+    .fl-card-grid {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* when a card grid only has two items, reduce the max width and center it. */
+    .fl-card-grid:has(> *:nth-child(2):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+        margin-inline: auto;
+        max-inline-size: 700px;
+    }
+
+    /* The features theme page has a unique design for the illustration
+       icon cards, where they are two wide on desktop. */
+    .fl-features-theme-page .fl-card-grid:has(.fl-illustration-icon-card) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+        margin-inline: auto;
+        max-inline-size: 980px;
+    }
+}
+
+@media (--viewport-md-up) {
+    /* The default assumes four cards */
+    .fl-card-grid {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* when there are three cards, let them fill the space. */
+    .fl-card-grid:has(> *:nth-child(3):last-child) {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* These are used on features/all. The design is specified at 3 wide max. */
+    .fl-card-grid:has(.fl-illustration-sticker-card) {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* default usage of illustration cards assumes four wide... */
+    .fl-card-grid:has(.fl-illustration-card-default) {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* ...unless there are only three, and then it gets a special treatment. */
+    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child) {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+        margin-inline: auto;
+        max-inline-size: 980px;
+    }
 }
 
 .fl-card-heading .fl-heading-group {
@@ -71,35 +128,6 @@ Card Grid - Flare 2026 Design System Cards
         h6.fl-heading
     ) {
     text-decoration: underline;
-}
-
-/*
-    Container queries don't support variables or calc(),
-    so these values must be static.
-*/
-
-/* 696px = 2 columns * 340px + 16px */
-@container (max-width: 696px) {
-    .fl-card-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .fl-card-grid:has(.fl-illustration-card:not(.fl-illustration-icon-card)) {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@container (min-width: 560px) {
-    .fl-card-grid.fl-step-cards-with-kit {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* 1408px = 4 columns * 340px + 3 * 16px */
-@container (min-width: 697px) and (max-width: 1408px) {
-    .fl-card-grid {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 /* =====================================================================
@@ -399,7 +427,7 @@ Step Cards List - With Kit variant
     inset-inline-end: 0;
 }
 
-@media (--viewport-lg-up) {
+@media (--viewport-md-up) {
     .fl-card-grid.fl-step-cards-with-kit {
         gap: var(--token-layout-lg) var(--token-layout-3xs);
     }
