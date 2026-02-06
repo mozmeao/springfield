@@ -153,7 +153,7 @@ def import_ftl_translations(apps, schema_editor):
     if not settings.DEBUG or all_locales_env:
         locale_codes = all_locale_codes
     else:
-        locale_codes = ["id"]
+        locale_codes = ["es-ES"]
         print("\n  Development mode: translating es-ES only (set ALL_LOCALES=1 for all)")
 
     # Fetch target locales from database
