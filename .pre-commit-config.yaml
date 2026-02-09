@@ -97,7 +97,8 @@ repos:
     rev: 0.0.2
     hooks:
       - id: stylelint
-        args: ["media/css/**/flare26*.css", -c, .stylelintrc-flare26]
+        files: media/css/.*/flare26.*\.css$
+        args: [-c, .stylelintrc-flare26]
         additional_dependencies:
           - "stylelint@16.10.0"
           - "stylelint-config-standard-scss@13.1.0"
