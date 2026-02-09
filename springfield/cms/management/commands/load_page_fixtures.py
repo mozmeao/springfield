@@ -22,6 +22,7 @@ from springfield.cms.fixtures.card_fixtures import (
     get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
+from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
@@ -87,6 +88,15 @@ class Command(BaseCommand):
 
         article_theme_page = get_article_theme_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
+
+        feature_index_page, feature_pages = load_feature_page_fixtures()
+        if not no_refresh:
+            # Delete existing feature page children (but not the index page itself)
+            feature_index_page.get_children().delete()
+            self.stdout.write(self.style.SUCCESS("Existing feature page children deleted."))
+        self.stdout.write(self.style.SUCCESS(f"Feature Index page loaded: {feature_index_page.slug}"))
+        for page in feature_pages:
+            self.stdout.write(self.style.SUCCESS(f"Feature page loaded: {page.slug}"))
 
         # 2025 pages
 

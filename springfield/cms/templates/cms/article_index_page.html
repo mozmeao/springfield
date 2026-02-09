@@ -32,7 +32,7 @@
                         level="h3"
                         heading_size="fl-heading-size-3"
                         superheading_text="{{ article.tag.name }}"
-                        heading_text="{{ article.title }}"
+                        heading_text="{{  article.index_page_heading or article.title }}"
                       />
                     </a>
                   </content:heading>
@@ -69,7 +69,7 @@
                   <content:heading>
                     <h3 class="fl-heading fl-heading-size-3">
                       <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                      {{ article.title }}
+                      {{  article.index_page_heading or article.title }}
                       </a>
                     </h3>
                   </content:heading>
@@ -114,7 +114,7 @@
                     {% endif %}
                     <h3 class="fl-heading fl-heading-size-3">
                       <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                      {{ article.title }}
+                      {{  article.index_page_heading or article.title }}
                       </a>
                     </h3>
                   </content:heading>
@@ -129,7 +129,7 @@
               {% for article in list_articles %}
                 <include:card expand_link="true">
                   <content:heading>
-                    <h3 class="fl-heading fl-heading-size-3">{{ article.title }}</h3>
+                    <h3 class="fl-heading fl-heading-size-3">{{  article.index_page_heading or article.title }}</h3>
                   </content:heading>
                   <content:body>
                     {{ article.description|richtext }}

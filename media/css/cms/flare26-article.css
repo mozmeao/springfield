@@ -112,10 +112,6 @@ Stacked article list
 }
 
 @media (--viewport-md-up) {
-    .fl-stacked-article-list .fl-article-item {
-        grid-template-columns: 128px auto;
-    }
-
     .fl-stacked-article-list .fl-article-item-content {
         flex-direction: row;
     }
