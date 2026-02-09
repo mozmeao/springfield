@@ -10,6 +10,10 @@
   {{ ftl('firefox-all-download-the-firefox-v2') }}
 {% endblock %}
 
+{% block page_css %}
+  {{ css_bundle('cms-modal') }}
+{% endblock %}
+
 {% block canonical_urls %}
   {% if product %}
     {# do not index or follow child pages, we prefer people visit more user friendly pages from search results bedrock/16104 #}

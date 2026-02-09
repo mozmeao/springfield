@@ -4,6 +4,8 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* NOTE: this file is _all instead of -all to avoid being hidden by a gitignore rule */
+
 .fl-c-flow-wrapper {
     margin: 0 auto;
     max-width: var(--token-width-desktop-layout);
