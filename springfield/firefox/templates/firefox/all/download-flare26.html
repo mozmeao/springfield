@@ -7,17 +7,17 @@
 {% from "macros.html" import google_play_button, apple_app_store_button, ms_store_button with context %}
 
 {# Show download #}
-<section tabindex="-1" {% if not (product and platform and locale) %} aria-disabled="true" {% endif %} aria-labelledby="all-download" class="fl-c-flow-section c-step-name">
-<h2 id="all-download" class="fl-c-flow-section-heading">
-  <span class="fl-c-flow-step">
-    <span>
-      <!-- only empty checkmark here -->
-      <!-- TODO: FTL fallback -->
-      04. {{ ftl('firefox-all-download-v2') }}
-    </span>
-  </span>
-</h2>
+<div tabindex="-1" {% if not (product and platform and locale) %} aria-disabled="true" {% endif %} aria-labelledby="all-download" class="fl-c-flow-section c-step-name">
+  <!-- STEP IS ALWAYS VISIBLE -->
+  <div class="fl-c-flow-step">
+    <span class="fl-c-flow-step-checkbox"></span>
+    <h2 id="all-download" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+    <!-- TODO: FTL fallback -->
+    {{ ftl('firefox-all-download-v2') }}
+    </h2>
+  </div>
 
+<!-- CONTENT is DOWNLOAD OPTIONS -->
 {% if product and platform and locale %}
 <div class="c-step-contents">
   {% if platform.startswith("linux") %}
@@ -96,4 +96,4 @@
   {% endif %}
 </div>
 {% endif %}
-</section>
+</div>

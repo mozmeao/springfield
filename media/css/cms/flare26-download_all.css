@@ -6,16 +6,126 @@
 
 /* NOTE: this file is _all instead of -all to avoid being hidden by a gitignore rule */
 
+.fl-download-all .fl-intro {
+    padding-inline: var(--token-spacing-lg);
+}
+
 .fl-c-flow-wrapper {
     margin: 0 auto;
     max-width: var(--token-width-desktop-layout);
     padding-inline: var(--token-spacing-lg);
 }
 
-/* TODO: ensure source order matches for tabbing  */
+/* override defaults */
+.fl-c-flow-step-title,
+.fl-c-flow-selection,
+.fl-c-flow-product-title-img {
+    margin-block-end: 0;
+}
+
+.fl-c-unstyled-list {
+    list-style: '';
+    margin-inline-start: 0;
+
+    /* override default */
+    li {
+        margin-block-end: var(--token-spacing-xs);
+    }
+}
+
+.fl-c-flow-product-title-img {
+    display: inline;
+    vertical-align: middle;
+}
+
+.fl-c-flow-section {
+    --download-all-checkmark-size: 24px;
+    display: grid;
+    gap: var(--token-spacing-md);
+    grid-template-columns:
+        [step-start] var(--download-all-checkmark-size)
+        [content-start] 1fr [content-end step-end];
+    grid-template-rows:
+        var(--token-spacing-2xl)
+        [step-start] auto [step-end content-start] auto [content-end];
+}
+
+.fl-c-flow-steps {
+    counter-reset: stepCounter;
+}
+
+.fl-c-flow-step-title::before {
+    content: counter(stepCounter, decimal-leading-zero) '.';
+}
+
+.fl-c-flow-step {
+    align-items: center;
+    counter-increment: stepCounter;
+    display: flex;
+    gap: var(--token-spacing-md);
+    grid-area: step;
+}
+
+.fl-c-flow-step + * {
+    border-block-end: 1px solid var(--token-color-soft-purple); /* TODO: extract to shared divider style */
+    grid-area: content;
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-c-flow-step-checkbox {
+    border: 1px solid var(--fl-theme-color-brand-text);
+    border-radius: var(--token-border-radius-2xs);
+    color: var(--fl-theme-color-text-inverse);
+    display: grid;
+    height: var(--download-all-checkmark-size);
+    place-content: center;
+    width: var(--download-all-checkmark-size);
+}
+
+.fl-c-flow-step-checkbox:not(:empty) {
+    background-color: var(--fl-theme-color-brand-text);
+}
+
+.fl-c-flow-selection {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-md);
+    justify-content: space-between;
+    line-height: 1;
+}
+
 @media (--viewport-sm-up) {
+    .fl-c-flow-section {
+        --download-all-content-spacing: var(--token-spacing-2xl);
+        grid-template-columns: [step-start] 153px [step-end content-start] 1fr [content-end];
+        grid-template-rows:
+            [content-start]
+            var(--download-all-content-spacing)
+            [step-start] auto [step-end] var(--download-all-content-spacing)
+            [content-end];
+        row-gap: 0;
+    }
+
+    .fl-c-flow-step + * {
+        padding-block: var(--download-all-content-spacing);
+    }
+
+    .fl-c-flow-step:has(+ .fl-c-flow-options) {
+        align-self: start;
+    }
+}
+
+@media (--viewport-below-md) {
+    .fl-c-flow-links {
+        text-align: center;
+    }
+}
+
+@media (--viewport-md-up) {
     .fl-c-flow-wrapper {
         display: grid;
+        gap: var(--token-spacing-lg);
         grid-template-columns: [steps-start] 1fr [steps-end links-start] auto [links-end];
     }
 
@@ -25,5 +135,43 @@
 
     .fl-c-flow-links {
         grid-area: links;
+    }
+}
+
+/* Product logos copied from all.scss */
+@supports (margin-inline-start: 1em) {
+    .c-product-list {
+        li {
+            background-repeat: no-repeat;
+            background-size: 1.5em auto;
+        }
+
+        a {
+            margin-inline-start: calc(1.5em + var(--token-spacing-sm));
+        }
+
+        .release,
+        .desktop-release,
+        .desktop-esr {
+            background-image: url('/media/protocol/img/logos/firefox/browser/logo.svg');
+        }
+
+        .desktop-beta,
+        .android-beta {
+            background-image: url('/media/protocol/img/logos/firefox/browser/beta/logo.svg');
+        }
+
+        .desktop-developer {
+            background-image: url('/media/protocol/img/logos/firefox/browser/developer/logo.svg');
+        }
+
+        .desktop-nightly,
+        .android-nightly {
+            background-image: url('/media/protocol/img/logos/firefox/browser/nightly/logo.svg');
+        }
+
+        .ios-testflight {
+            background-image: url('/media/img/logos/testflight/testflight.svg');
+        }
     }
 }

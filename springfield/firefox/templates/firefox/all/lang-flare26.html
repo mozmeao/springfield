@@ -6,17 +6,17 @@
 
 {# Choose language #}
 
-<section tabindex="-1" {% if not (product and platform) %} aria-disabled="true" {% endif %} aria-labelledby="all-lang" class="fl-c-flow-section c-step-name">
-<h2 id="all-lang" class="fl-c-flow-section-heading">
-  <span class="fl-c-flow-step">
-    <span>
-      <span>{% if product and platform and locale %}<include:icon icon_name="checkmark" />{% endif %}</span>
-      <!-- TODO: FTL fallback -->
-      03. {{ ftl('firefox-all-language-v3') }}
-    </span>
-  </span>
+<div tabindex="-1" {% if not (product and platform) %} aria-disabled="true" {% endif %} aria-labelledby="all-lang" class="fl-c-flow-section c-step-name">
+   <!-- STEP IS ALWAYS VISIBLE -->
+  <div class="fl-c-flow-step">
+    <span class="fl-c-flow-step-checkbox">{% if product and platform and locale %}<include:icon icon_name="checkmark" />{% endif %}</span>
+    <!-- TODO: FTL fallback -->
+    <h2 id="all-lang" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">{{ ftl('firefox-all-language-v3') }}</h2>
+  </div>
+
+  <!-- CONTENT is either SELECTION or OPTIONS -->
   {% if locale %}
-    <span class="fl-c-flow-selection">{{ locale_name }}
+    <h3 id="all-lang-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ locale_name }}
       {% if product.slug.startswith('desktop') and platform != "win-store" %}
       <include:button
         theme_class="button-secondary load-content-partial"
@@ -24,19 +24,19 @@
         icon_name="edit"
         icon_position="left"
         link="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}"
+        aria-labelledby="all-lang-selection"
       />
       {% endif %}
-    </span>
+    </h3>
   {% endif %}
-</h2>
 
 {% if product and platform and not locale %}
-<div class="c-step-contents">
-  <ul class="c-lang-list">
+<div class="fl-c-flow-options">
+  <ul class="c-lang-list fl-c-unstyled-list">
     {% for locale, name in locales %}
       <li><a href="{{ url('firefox.all.download', product_slug=product.slug, platform=platform, locale=locale) }}" class="load-content-partial">{{ name }}</a></li>
     {% endfor %}
   </ul>
 </div>
 {% endif %}
-</section>
+</div>

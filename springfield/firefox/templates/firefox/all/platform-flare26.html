@@ -7,23 +7,25 @@
 
 {# Choose platform #}
 
-<section tabindex="-1" {% if not product %} aria-disabled="true" {% endif %} aria-labelledby="all-platform" class="fl-c-flow-section c-step-name">
-<h2 id="all-platform" class="fl-c-flow-section-heading">
-  <span class="fl-c-flow-step">
-    <span>
-      <span>{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>
+<div tabindex="-1" {% if not product %} aria-disabled="true" {% endif %} aria-labelledby="all-platform" class="fl-c-flow-section c-step-name">
+  <!-- STEP IS ALWAYS VISIBLE -->
+  <div class="fl-c-flow-step">
+    <span class="fl-c-flow-step-checkbox">{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>
+    <h2 id="all-platform" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
       <!-- TODO: FTL fallback -->
-      02. {{ ftl('firefox-all-platform-v3') }}
-    </span>
+      {{ ftl('firefox-all-platform-v3') }}
     {% if product and not platform %}
       <a id="icon-installer-help" href="#installer-help" class="c-button-help icon-installer-help" title="{{ ftl('firefox-all-learn-about-installers')}}">
         <include:icon icon_name="help" />
         <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
       </a>
     {% endif %}
-  </span>
+    </h2>
+  </div>
+
+  <!-- CONTENT is either SELECTION or OPTIONS -->
   {% if platform %}
-    <span class="fl-c-flow-selection">{{ platform_name }}
+    <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ platform_name }}
       {% if product.slug.startswith('desktop') %}
       <include:button
         theme_class="button-secondary load-content-partial"
@@ -31,22 +33,22 @@
         icon_name="edit"
         icon_position="left"
         link="{{ url('firefox.all.platforms', product_slug=product.slug) }}"
+        aria-labelledby="all-platform-selection"
       />
       {% endif %}
     </span>
   {% endif %}
-</h2>
 
 {% if product and not platform %}
-  <div class="c-step-contents">
-    <ul class="c-platform-list">
+  <div class="fl-c-flow-options">
+    <ul class="c-platform-list fl-c-unstyled-list">
       {% for platform, name in platforms %}
         <li><a href="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}" class="load-content-partial">{{ name }}</a></li>
       {% endfor %}
     </ul>
     <div id="installer-help" class="c-help mzp-u-modal-content">
       <h3>{{ ftl('firefox-all-learn-about-installers')}}</h3>
-      <ul>
+      <ul class="fl-c-unstyled-list">
         <li>
           <h4 class="c-help-title">{{ ftl('firefox-all-64-bit-installers') }}</h4>
           <p class="c-help-desc">
@@ -83,4 +85,4 @@
     </div>
   </div>
 {% endif %}
-</section>
+</div>
