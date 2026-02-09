@@ -1300,6 +1300,7 @@ def lazy_wagtail_langs():
         ("de", "German"),
         ("fr", "French"),
         ("es-ES", "Spanish (Spain)"),
+        ("es-MX", "Spanish (México)"),
         ("it", "Italian"),
         ("ja", "Japanese"),
         ("nl", "Dutch (Netherlands)"),
@@ -1307,6 +1308,8 @@ def lazy_wagtail_langs():
         ("pt-BR", "Portuguese (Brazil)"),
         ("ru", "Russian"),
         ("zh-CN", "Chinese (China-Simplified)"),
+        ("id", "Indonesian"),
+        ("tr", "Turkish"),
     ]
     enabled_language_codes = [x[0] for x in LANGUAGES]
     retval = [wagtail_lang for wagtail_lang in enabled_wagtail_langs if wagtail_lang[0] in enabled_language_codes]
