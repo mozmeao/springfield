@@ -4,9 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="outlined" media_after=False qr_code=None  #}
+{# props theme="outlined" media_after=False qr_code=None anchor_id=""  #}
 
-<div class="fl-banner-container">
+<div class="fl-banner-container" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
   <div
     class="
       fl-banner

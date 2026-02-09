@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-media-qr-code">
+  <div class="fl-qr-code" role="img" aria-label="QR Code">
+    {{ qrcode(qr_code, 12) }}
+  </div>
+  {{ srcset_image(
+    block.value.background,
+    "width-{200,400,600,800,1000,1200,1400}",
+    sizes="
+      (min-width: 768px) 50vw,
+      (min-width: 1440px) 680px,
+      100vw
+    ",
+    width=block.value.background.width,
+    height=block.value.background.height,
+    loading="lazy"
+  ) }}
+</div>

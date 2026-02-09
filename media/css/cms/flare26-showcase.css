@@ -30,6 +30,10 @@
     inline-size: 100%;
 }
 
+.fl-showcase-image .fl-video {
+    margin-block-end: var(--token-spacing-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-showcase-caption:has(.fl-subheading) {
         display: grid;

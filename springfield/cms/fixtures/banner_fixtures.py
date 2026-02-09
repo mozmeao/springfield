@@ -16,7 +16,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "simple-outlined-banner",
+                },
                 "media": [],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
@@ -31,7 +36,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "simple-purple-banner",
+                },
                 "media": [],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
@@ -46,7 +56,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "outlined-banner-with-image",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -74,7 +89,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "purple-banner-with-image",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -102,7 +122,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": True, "show_to": "all"},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": True,
+                    "show_to": "all",
+                    "anchor_id": "outlined-banner-with-image-after",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -129,7 +154,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": True, "show_to": "all"},
+                "settings": {
+                    "theme": "purple",
+                    "media_after": True,
+                    "show_to": "all",
+                    "anchor_id": "purple-banner-with-image-after",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -156,7 +186,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": True, "show_to": "all"},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": True,
+                    "show_to": "all",
+                    "anchor_id": "outlined-banner-with-qr-code",
+                },
                 "media": [
                     {
                         "type": "qr_code",
@@ -176,7 +211,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "purple-banner-with-qr-code",
+                },
                 "media": [
                     {
                         "type": "qr_code",
@@ -196,7 +236,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": False, "show_to": "all"},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": "all",
+                    "anchor_id": "outlined-banner-with-video",
+                },
                 "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
@@ -211,7 +256,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": True, "show_to": "all"},
+                "settings": {
+                    "theme": "purple",
+                    "media_after": True,
+                    "show_to": "all",
+                    "anchor_id": "purple-banner-with-video",
+                },
                 "media": [videos["cdn"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
@@ -222,6 +272,36 @@ def get_banner_variants():
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
             "id": "e5bda829-e447-4398-b9d6-2228959ec021",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {"theme": "outlined", "media_after": False, "show_to": "all"},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with Animation</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "83071a7f-253b-42ba-b3a2-70e52a83675e",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {"theme": "purple", "media_after": True, "show_to": "all"},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Animation</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "29e5bda829-e447-4398-b9d6-2228959ec021",
         },
     ]
 

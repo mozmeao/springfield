@@ -8,7 +8,10 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display condition="{{ value.settings.show_to }}">
-  <include:kit-banner theme="{{ 'with-qr' if value.qr_code else 'diving-in' }}" qr_code="{{ value.qr_code }}">
+  <include:kit-banner
+    theme="{{ 'with-qr' if value.qr_code else 'diving-in' }}"
+    qr_code="{{ value.qr_code }}"
+    anchor_id="{{ value.settings.anchor_id }}">
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}

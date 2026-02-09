@@ -17,7 +17,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "simple-intro-with-text-and-button",
+                },
                 "media": [],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
@@ -33,7 +36,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "intro-with-image",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -62,7 +68,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "before"},
+                "settings": {
+                    "media_position": "before",
+                    "anchor_id": "intro-with-image-before",
+                },
                 "media": [
                     {
                         "type": "image",
@@ -92,7 +101,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {
+                    "media_position": "after",
+                    "anchor_id": "intro-with-youtube-video",
+                },
                 "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
@@ -107,7 +119,10 @@ def get_intro_variants() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "before"},
+                "settings": {
+                    "media_position": "before",
+                    "anchor_id": "intro-with-cdn-video",
+                },
                 "media": [videos["cdn"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
@@ -118,6 +133,40 @@ def get_intro_variants() -> list[dict]:
                 "buttons": [buttons["primary"]],
             },
             "id": "98856064-26db-45eb-862f-e0e87a9c9736",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with Animation</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
+                },
+                "buttons": [buttons["primary"]],
+            },
+            "id": "gbjweiof-26db-45eb-862f-e0e87a9c9736",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "before"},
+                "media": [
+                    {
+                        "type": "qr_code",
+                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
+                    },
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with QR Code</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add a QR Code instead of the image.</p>',
+                },
+                "buttons": [buttons["secondary"]],
+            },
+            "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
         },
     ]
 

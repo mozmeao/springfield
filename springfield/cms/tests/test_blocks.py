@@ -463,6 +463,12 @@ def test_intro_block(index_page, placeholder_images, rf):
     for index, intro in enumerate(intros):
         intro_element = intro_divs[index]
 
+        # Settings
+        settings = intro["value"]["settings"]
+        anchor_id = settings.get("anchor_id")
+        if anchor_id:
+            assert intro_element.get("id") == anchor_id
+
         # Heading
         heading_block = intro["value"]["heading"]
         assert_section_heading_attributes(section_element=intro_element, heading_data=heading_block, index=index)
@@ -558,6 +564,12 @@ def test_media_content_block(index_page, placeholder_images, rf):
 
     section_element = soup.find("section", class_="fl-section")
     assert section_element
+
+    # Settings
+    settings = section["value"]["settings"]
+    anchor_id = settings.get("anchor_id")
+    if anchor_id:
+        assert section_element.get("id") == anchor_id
 
     # Heading
     heading_data = section["value"]["heading"]
@@ -1085,8 +1097,6 @@ def test_banner_block(index_page, placeholder_images, rf):
     banner_divs = soup.find_all("div", class_="fl-banner")
     assert len(banner_divs) == len(banners)
 
-    image, dark_image, mobile_image, dark_mobile_image = placeholder_images
-
     for index, banner in enumerate(banners):
         banner_element = banner_divs[index]
 
@@ -1094,6 +1104,9 @@ def test_banner_block(index_page, placeholder_images, rf):
         assert f"fl-banner-{settings['theme']}" in banner_element["class"]
         if settings.get("media_after"):
             assert "fl-banner-reverse" in banner_element["class"]
+        anchor_id = settings.get("anchor_id")
+        if anchor_id:
+            assert banner_element.parent.get("id") == anchor_id
 
         # Heading
         heading_block = banner["value"]["heading"]
@@ -1160,6 +1173,9 @@ def test_kit_banner_block(index_page, rf):
         theme = settings["theme"].replace("filled-", "").replace("filled", "")
         if theme:
             assert f"fl-banner-kit-{theme}" in banner_element["class"]
+        anchor_id = settings.get("anchor_id")
+        if anchor_id:
+            assert banner_element.parent.get("id") == anchor_id
 
         # Heading
         heading_block = banner["value"]["heading"]
@@ -1337,7 +1353,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
         figure = showcase_element.find("figure", class_="fl-showcase-image")
         assert figure
 
-        image_value = showcase["value"]["image"]
+        image_value = showcase["value"]["media"][0]["value"]
 
         assert_image_variants_attributes(
             images_element=figure,
@@ -1483,6 +1499,12 @@ def test_home_kit_banner_block(index_page, rf):
     banner_element = soup.find("div", class_="fl-banner-kit")
     assert banner_element
     assert "fl-banner-kit-diving-in" in banner_element["class"]
+
+    # Settings
+    settings = kit_banner["value"]["settings"]
+    anchor_id = settings.get("anchor_id")
+    if anchor_id:
+        assert banner_element.parent.get("id") == anchor_id
 
     assert_section_heading_attributes(
         section_element=banner_element,

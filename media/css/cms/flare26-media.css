@@ -41,23 +41,23 @@
 
 /* Video component with click-to-play */
 .fl-video {
-    position: relative;
-    width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
+    position: relative;
+    width: 100%;
 }
 
 .fl-video-play {
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 0;
     position: relative;
     width: 100%;
-    height: 100%;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .fl-video-play:hover .fl-video-play-icon {
@@ -70,38 +70,38 @@
 }
 
 .fl-video-poster {
+    height: 100%;
+    left: 0;
+    object-fit: cover;
     position: absolute;
     top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 
 .fl-video-play-icon {
-    position: relative;
-    z-index: 1;
-    transition: transform 0.2s ease;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    position: relative;
+    transition: transform 0.2s ease;
+    z-index: 1;
 }
 
 .fl-video iframe,
 .fl-video video {
+    border: none;
+    height: 100%;
+    left: 0;
     position: absolute;
     top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    border: none;
 }
 
 .fl-video-error {
-    display: flex;
     align-items: center;
+    display: flex;
     justify-content: center;
+    min-height: 200px;
     padding: calc(var(--token-scale-24) * 1px);
     text-align: center;
-    min-height: 200px;
 }
 
 .fl-video-error p {

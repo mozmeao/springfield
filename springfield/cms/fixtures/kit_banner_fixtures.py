@@ -13,7 +13,11 @@ def get_kit_banner_variants():
         {
             "type": "kit_banner",
             "value": {
-                "settings": {"theme": "filled", "show_to": "all"},
+                "settings": {
+                    "theme": "filled",
+                    "show_to": "all",
+                    "anchor_id": "filled-banner-without-kit-image",
+                },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner without Kit Image</p>',
@@ -26,7 +30,11 @@ def get_kit_banner_variants():
         {
             "type": "kit_banner",
             "value": {
-                "settings": {"theme": "filled-small", "show_to": "all"},
+                "settings": {
+                    "theme": "filled-small",
+                    "show_to": "all",
+                    "anchor_id": "filled-banner-small-curious-kit",
+                },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner Small Curious Kit</p>',
@@ -40,7 +48,11 @@ def get_kit_banner_variants():
         {
             "type": "kit_banner",
             "value": {
-                "settings": {"theme": "filled-large", "show_to": "all"},
+                "settings": {
+                    "theme": "filled-large",
+                    "show_to": "all",
+                    "anchor_id": "filled-banner-large-curious-kit",
+                },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner Large Curious Kit</p>',
@@ -54,7 +66,11 @@ def get_kit_banner_variants():
         {
             "type": "kit_banner",
             "value": {
-                "settings": {"theme": "filled-face", "show_to": "all"},
+                "settings": {
+                    "theme": "filled-face",
+                    "show_to": "all",
+                    "anchor_id": "filled-banner-sitting-kit",
+                },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner Sitting Kit</p>',
@@ -68,7 +84,11 @@ def get_kit_banner_variants():
         {
             "type": "kit_banner",
             "value": {
-                "settings": {"theme": "filled-tail", "show_to": "all"},
+                "settings": {
+                    "theme": "filled-tail",
+                    "show_to": "all",
+                    "anchor_id": "filled-banner-kit-tail",
+                },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner Kit Tail</p>',
