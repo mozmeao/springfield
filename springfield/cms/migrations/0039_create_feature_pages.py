@@ -419,9 +419,10 @@ def run_all_forward(apps, schema_editor):
         print("Skipping feature page creation in test/CI environment")
         return
 
-    create_feature_pages(apps, schema_editor)
-    create_translation_sources(apps, schema_editor)
-    import_ftl_translations(apps, schema_editor)
+    print("Skipping feature page creation since the migration has already been applied in production.")
+    # create_feature_pages(apps, schema_editor)
+    # create_translation_sources(apps, schema_editor)
+    # import_ftl_translations(apps, schema_editor)
 
 
 def reverse_migration(apps, schema_editor):

@@ -102,8 +102,6 @@ services:
   test-image:
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     env_file: docker/envfiles/test.env
-    environment:
-      CI: ${CI:-}
 
   # the django app
   release:
