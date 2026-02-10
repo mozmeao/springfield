@@ -10,8 +10,13 @@
    <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform and locale %}<include:icon icon_name="checkmark" />{% endif %}</span>
-    <!-- TODO: FTL fallback -->
-    <h2 id="all-lang" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">{{ ftl('firefox-all-language-v3') }}</h2>
+    <h2 id="all-lang" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-language-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+      {% if ftl_has_messages('firefox-all-language-v3') %}
+        {{ ftl('firefox-all-language-v3') }}
+      {% else %}
+        {{ ftl('firefox-all-language-v2') }}
+      {% endif %}
+    </h2>
   </div>
 
   <!-- CONTENT is either SELECTION or OPTIONS -->
@@ -19,8 +24,8 @@
     <h3 id="all-lang-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ locale_name }}
       {% if product.slug.startswith('desktop') and platform != "win-store" %}
       <include:button
-        theme_class="button-secondary fl-button-small load-content-partial"
-        label="EDIT" # TODO: l10n
+        theme_class="button-secondary fl-button-small fl-u-text-uppercase load-content-partial"
+        label="{{ ftl('ui-edit') }}"
         icon_name="edit"
         icon_position="left"
         link="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}"

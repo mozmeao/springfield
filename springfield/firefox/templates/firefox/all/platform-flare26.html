@@ -11,9 +11,12 @@
   <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>
-    <h2 id="all-platform" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
-      <!-- TODO: FTL fallback -->
-      {{ ftl('firefox-all-platform-v3') }}
+    <h2 id="all-platform" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-platform-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+      {% if ftl_has_messages('firefox-all-platform-v3') %}
+        {{ ftl('firefox-all-platform-v3') }}
+      {% else %}
+        {{ ftl('firefox-all-platform-v2') }}
+      {% endif %}
     {% if product and not platform %}
       <a id="icon-installer-help" href="#installer-help" class="c-button-help icon-installer-help" title="{{ ftl('firefox-all-learn-about-installers')}}">
         <include:icon icon_name="help" />
@@ -28,8 +31,8 @@
     <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ platform_name }}
       {% if product.slug.startswith('desktop') %}
       <include:button
-        theme_class="button-secondary fl-button-small load-content-partial"
-        label="EDIT" # TODO: l10n
+        theme_class="button-secondary fl-button-small fl-u-text-uppercase load-content-partial"
+        label="{{ ftl('ui-edit') }}"
         icon_name="edit"
         icon_position="left"
         link="{{ url('firefox.all.platforms', product_slug=product.slug) }}"

@@ -60,7 +60,7 @@
     counter-reset: stepCounter;
 }
 
-.fl-c-flow-step-title::before {
+.fl-t-flow-step-title-counter::before {
     content: counter(stepCounter, decimal-leading-zero) '.';
 }
 

@@ -10,9 +10,12 @@
   <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product %}<include:icon icon_name="checkmark" />{% endif %}</span>
-    <h2 id="all-product" class="fl-c-flow-step-title fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
-      <!-- TODO: FTL fallback -->
-      {{ ftl('firefox-all-browser-v3') }}
+    <h2 id="all-product" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-browser-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+      {% if ftl_has_messages('firefox-all-browser-v3') %}
+        {{ ftl('firefox-all-browser-v3') }}
+      {% else %}
+        {{ ftl('firefox-all-browser-v2') }}
+      {% endif %}
       {% if not product %}
         <a id="icon-browser-help" href="#browser-help" class="c-button-help" title="{{ ftl('firefox-all-learn-about-firefox') }}">
           <include:icon icon_name="help" />
@@ -26,8 +29,8 @@
   {% if product %}
     <h3 id="all-product-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ product and product.name }}
       <include:button
-        theme_class="button-secondary fl-button-small load-content-partial"
-        label="EDIT" # TODO: l10n
+        theme_class="button-secondary fl-button-small fl-u-text-uppercase load-content-partial"
+        label="{{ ftl('ui-edit') }}"
         icon_name="edit"
         icon_position="left"
         link="{{ url('firefox.all') }}"
