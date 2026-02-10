@@ -22,7 +22,7 @@
 <div class="c-step-contents">
   {% if platform.startswith("linux") %}
     {# Linux preamble #}
-    <p class="c-linux-debian"><br>
+    <p class="c-linux-debian">
       {{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener" data-cta-text="You can set up our APT repository instead"'|safe) }}
     </p>
   {% endif %}
@@ -37,6 +37,7 @@
     {% elif product.slug == "desktop-esr" %}
       {# ESR #}
       {% set is_esr_next_version = desktop_esr_next_version %}
+      <p>{{ product.slug }} {{ desktop_esr_next_version }} {{ download_esr_115_url }}</p>
       {# If there are multiple ESR's available, show next as well. #}
       {% if is_esr_next_version %}
         <p class="c-step-download">

@@ -19,8 +19,13 @@
 /* override defaults */
 .fl-c-flow-step-title,
 .fl-c-flow-selection,
-.fl-c-flow-product-title-img {
+.fl-c-flow-product-title-img,
+.fl-c-flow-section a > img {
     margin-block-end: 0;
+}
+
+.fl-c-flow-section a > img {
+    max-height: unset;
 }
 
 .fl-c-unstyled-list {
@@ -111,7 +116,7 @@
         padding-block: var(--download-all-content-spacing);
     }
 
-    .fl-c-flow-step:has(+ .fl-c-flow-options) {
+    .fl-c-flow-step {
         align-self: start;
     }
 }
@@ -173,5 +178,55 @@
         .ios-testflight {
             background-image: url('/media/img/logos/testflight/testflight.svg');
         }
+    }
+}
+
+/* Mobile QR code copied from all.scss */
+.c-mobile {
+    width: fit-content;
+}
+
+.qr-code-wrapper {
+    background: var(--fl-theme-color-text-inverse);
+    border: 2px solid var(--token-color-grey-2);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow:
+        0 8px 12px 1px rgba(29, 17, 51, 0.04),
+        0 3px 16px 2px rgba(9, 32, 77, 0.12),
+        0 5px 10px -3px rgba(29, 17, 51, 0.12);
+    margin: 0 auto var(--token-spacing-xl);
+    max-width: 220px;
+    padding: var(--token-spacing-lg);
+
+    svg {
+        height: auto;
+        max-width: 100%;
+    }
+
+    figcaption {
+        color: var(--fl-theme-color-text);
+        font-weight: bold;
+        line-height: 1.125;
+        padding: 0 var(--token-spacing-lg);
+        text-align: center;
+
+        em {
+            display: block;
+        }
+    }
+}
+
+.c-store-badges {
+    margin-inline-start: 0;
+    margin-bottom: 0;
+    text-align: center;
+
+    li {
+        display: inline-block;
+        margin: 0 var(--token-spacing-sm);
+    }
+
+    a {
+        display: inline-block;
     }
 }
