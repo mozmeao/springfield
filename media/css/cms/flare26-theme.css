@@ -114,6 +114,34 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
     --fl-navigation-menu-height: 80px;
     --content-dark-mode-only: unset;
+
+    /* Notifications */
+
+    /* base/purple */
+    --notification-bg: var(--token-color-soft-purple);
+    --notification-color: var(--token-color-black-1);
+    --notification-border-color: var(--token-color-soft-purple-2);
+    --notification-icon-bg: var(--token-color-dark-purple);
+    --notification-icon-color: var(--token-color-white);
+    --notification-stacked-color: var(--token-color-dark-purple);
+
+    /* red */
+    --notification-red-bg: var(--token-color-soft-red);
+    --notification-red-color: var(--token-color-black-4);
+    --notification-red-border-color: var(--token-color-secondary-red);
+    --notification-red-icon-bg: var(--token-color-secondary-red);
+
+    /* orange */
+    --notification-orange-bg: var(--token-color-soft-orange);
+    --notification-orange-color: var(--token-color-black-4);
+    --notification-orange-border-color: var(--token-color-secondary-orange);
+    --notification-orange-icon-bg: var(--token-color-secondary-orange);
+
+    /* green */
+    --notification-green-bg: var(--token-color-soft-green);
+    --notification-green-color: var(--token-color-black-4);
+    --notification-green-border-color: var(--token-color-secondary-green);
+    --notification-green-icon-bg: var(--token-color-secondary-green);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -150,6 +178,34 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         var(--token-color-medium-purple) 0%,
         var(--token-color-purple) 100%
     );
+
+    /* Notifications */
+
+    /* base/purple */
+    --notification-bg: var(--token-color-purple);
+    --notification-color: var(--token-color-white);
+    --notification-border-color: var(--token-color-link-purple);
+    --notification-icon-bg: var(--token-color-soft-purple);
+    --notification-icon-color: var(--token-color-black-4);
+    --notification-stacked-color: var(--token-color-white);
+
+    /* red */
+    --notification-red-bg: var(--token-color-secondary-red-3);
+    --notification-red-color: var(--token-color-white);
+    --notification-red-border-color: var(--token-color-secondary-red-2);
+    --notification-red-icon-bg: var(--token-color-secondary-red);
+
+    /* orange */
+    --notification-orange-bg: var(--token-color-secondary-orange-3);
+    --notification-orange-color: var(--token-color-white);
+    --notification-orange-border-color: var(--token-color-secondary-orange-2);
+    --notification-orange-icon-bg: var(--token-color-secondary-orange);
+
+    /* green */
+    --notification-green-bg: var(--token-color-secondary-green-3);
+    --notification-green-color: var(--token-color-white);
+    --notification-green-border-color: var(--token-color-secondary-green);
+    --notification-green-icon-bg: var(--token-color-soft-green);
 }
 
 .fl-force-light-theme {
@@ -172,6 +228,34 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
+
+    /* Notifications */
+
+    /* base/purple */
+    --notification-bg: var(--token-color-soft-purple);
+    --notification-color: var(--token-color-black-1);
+    --notification-border-color: var(--token-color-soft-purple-2);
+    --notification-icon-bg: var(--token-color-dark-purple);
+    --notification-icon-color: var(--token-color-white);
+    --notification-stacked-color: var(--token-color-dark-purple);
+
+    /* red */
+    --notification-red-bg: var(--token-color-soft-red);
+    --notification-red-color: var(--token-color-black-4);
+    --notification-red-border-color: var(--token-color-secondary-red);
+    --notification-red-icon-bg: var(--token-color-secondary-red);
+
+    /* orange */
+    --notification-orange-bg: var(--token-color-soft-orange);
+    --notification-orange-color: var(--token-color-black-4);
+    --notification-orange-border-color: var(--token-color-secondary-orange);
+    --notification-orange-icon-bg: var(--token-color-secondary-orange);
+
+    /* green */
+    --notification-green-bg: var(--token-color-soft-green);
+    --notification-green-color: var(--token-color-black-4);
+    --notification-green-border-color: var(--token-color-secondary-green);
+    --notification-green-icon-bg: var(--token-color-secondary-green);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -207,6 +291,36 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             var(--token-color-medium-purple) 0%,
             var(--token-color-purple) 100%
         );
+
+        /* Notifications */
+
+        /* base/purple */
+        --notification-bg: var(--token-color-purple);
+        --notification-color: var(--token-color-white);
+        --notification-border-color: var(--token-color-link-purple);
+        --notification-icon-bg: var(--token-color-soft-purple);
+        --notification-icon-color: var(--token-color-black-4);
+        --notification-stacked-color: var(--token-color-white);
+
+        /* red */
+        --notification-red-bg: var(--token-color-secondary-red-3);
+        --notification-red-color: var(--token-color-white);
+        --notification-red-border-color: var(--token-color-secondary-red-2);
+        --notification-red-icon-bg: var(--token-color-secondary-red);
+
+        /* orange */
+        --notification-orange-bg: var(--token-color-secondary-orange-3);
+        --notification-orange-color: var(--token-color-white);
+        --notification-orange-border-color: var(
+            --token-color-secondary-orange-2
+        );
+        --notification-orange-icon-bg: var(--token-color-secondary-orange);
+
+        /* green */
+        --notification-green-bg: var(--token-color-secondary-green-3);
+        --notification-green-color: var(--token-color-white);
+        --notification-green-border-color: var(--token-color-secondary-green);
+        --notification-green-icon-bg: var(--token-color-soft-green);
     }
 }
 

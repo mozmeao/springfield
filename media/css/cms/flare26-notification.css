@@ -4,26 +4,6 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-:root {
-    /* Base */
-    --notification-bg: var(--token-color-soft-purple);
-    --notification-color: var(--token-color-black-1);
-    --notification-border-color: var(--token-color-soft-purple-2);
-    --notification-icon-bg: var(--token-color-dark-purple);
-    --notification-icon-color: var(--token-color-white);
-
-    /* Dark variant */
-    --notification-dark-bg: var(--token-color-purple);
-    --notification-dark-color: var(--token-color-white);
-    --notification-dark-border-color: var(--token-color-link-purple);
-    --notification-dark-icon-bg: var(--token-color-soft-purple);
-    --notification-dark-icon-color: var(--token-color-black-4);
-
-    /* Stacked variant */
-    --notification-stacked-color: var(--token-color-dark-purple);
-    --notification-stacked-dark-color: var(--token-color-white);
-}
-
 .fl-notification-wrapper {
     display: flex;
     inline-size: 100%;
@@ -43,20 +23,14 @@
     color: var(--notification-color);
     display: flex;
     flex-direction: row;
-    gap: var(--token-spacing-xl);
+    gap: var(--token-spacing-lg);
     margin: var(--token-spacing-sm) 0;
     margin-inline: var(--token-spacing-lg);
     max-inline-size: 560px;
     min-block-size: 48px;
     overflow: hidden;
-    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+    padding: var(--token-spacing-xl);
     position: relative;
-}
-
-.fl-notification.fl-notification-dark {
-    background: var(--notification-dark-bg);
-    border-color: var(--notification-dark-border-color);
-    color: var(--notification-dark-color);
 }
 
 .fl-notification.fl-notification-stacked {
@@ -67,10 +41,6 @@
     max-inline-size: var(--token-width-desktop-content-lg);
     padding: var(--token-spacing-3xl);
     text-align: center;
-}
-
-.fl-notification.fl-notification-dark.fl-notification-stacked {
-    color: var(--notification-stacked-dark-color);
 }
 
 .fl-notification-icon-section {
@@ -104,46 +74,25 @@
     font-size: 24px;
 }
 
-.fl-notification-purple {
-    --notification-bg: var(--token-color-soft-purple);
-    --notification-color: var(--token-color-black-4);
-    --notification-border-color: var(--token-color-soft-purple-2);
-    --notification-icon-bg: var(--token-color-dark-purple);
-    --notification-dark-bg: var(--token-color-purple);
-    --notification-dark-color: var(--token-color-white);
-    --notification-dark-border-color: var(--token-color-link-purple);
-    --notification-dark-icon-bg: var(--token-color-soft-purple);
-    --notification-dark-icon-color: var(--token-color-black-4);
-}
-
 .fl-notification-red {
-    --notification-bg: var(--token-color-soft-red);
-    --notification-color: var(--token-color-black-4);
-    --notification-border-color: var(--token-color-secondary-red);
-    --notification-icon-bg: var(--token-color-secondary-red);
-    --notification-dark-bg: var(--token-color-secondary-red-3);
-    --notification-dark-border-color: var(--token-color-secondary-red-2);
-    --notification-dark-icon-bg: var(--token-color-secondary-red);
+    --notification-bg: var(--notification-red-bg);
+    --notification-color: var(--notification-red-color);
+    --notification-border-color: var(--notification-red-border-color);
+    --notification-icon-bg: var(--notification-red-icon-bg);
 }
 
 .fl-notification-orange {
-    --notification-bg: var(--token-color-soft-orange);
-    --notification-color: var(--token-color-black-4);
-    --notification-border-color: var(--token-color-secondary-orange);
-    --notification-icon-bg: var(--token-color-secondary-orange);
-    --notification-dark-bg: var(--token-color-secondary-orange-3);
-    --notification-dark-border-color: var(--token-color-secondary-orange-2);
-    --notification-dark-icon-bg: var(--token-color-secondary-orange);
+    --notification-bg: var(--notification-orange-bg);
+    --notification-color: var(--notification-orange-color);
+    --notification-border-color: var(--notification-orange-border-color);
+    --notification-icon-bg: var(--notification-orange-icon-bg);
 }
 
 .fl-notification-green {
-    --notification-bg: var(--token-color-soft-green);
-    --notification-color: var(--token-color-black-4);
-    --notification-border-color: var(--token-color-secondary-green);
-    --notification-icon-bg: var(--token-color-secondary-green);
-    --notification-dark-bg: var(--token-color-secondary-green-3);
-    --notification-dark-border-color: var(--token-color-secondary-green);
-    --notification-dark-icon-bg: var(--token-color-soft-green);
+    --notification-bg: var(--notification-green-bg);
+    --notification-color: var(--notification-green-color);
+    --notification-border-color: var(--notification-green-border-color);
+    --notification-icon-bg: var(--notification-green-icon-bg);
 }
 
 .fl-notification-content {
