@@ -81,7 +81,7 @@
 
   {{ download_firefox(force_direct=true, dom_id='thanks-download-button',  button_class="fl-button") }}
 
-  <div>
-    <a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-desktop-download-in-another-language') }}</a>
+  <div class="fl-buttons">
+    <a class="fl-button" href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-desktop-download-in-another-language') }}</a>
   </div>
 </div>
