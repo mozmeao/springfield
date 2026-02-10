@@ -416,9 +416,14 @@ def run_all_forward(apps, schema_editor):
         print("Skipping feature page creation in test environment")
         return
 
-    create_feature_pages(apps, schema_editor)
-    create_translation_sources(apps, schema_editor)
-    import_ftl_translations(apps, schema_editor)
+    # NOTE: deliberately disabled because we don't need to run this in production
+    # again and keeping this behaviour around breaks the DB export, which has no
+    # permissions to copy the files around etc - and we don't want it to!
+    #
+    # create_feature_pages(apps, schema_editor)
+    # create_translation_sources(apps, schema_editor)
+    # import_ftl_translations(apps, schema_editor)
+    print("Skipping creation of feature pages via data migration - no longer needed and causes DB export to grumble")
 
 
 def reverse_migration(apps, schema_editor):
