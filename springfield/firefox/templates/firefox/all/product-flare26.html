@@ -37,12 +37,13 @@
   {% else %}
     <div class="fl-c-flow-options">
       {% set desktop_heading %}
-          <img alt="" role="presentation" src="{{ static('protocol/img/icons/desktop.svg') }}" class="fl-c-flow-product-title-img"> {{ ftl('firefox-all-desktop') }}
+          <span class="fl-c-flow-options-heading"><img alt="" role="presentation" src="{{ static('protocol/img/icons/desktop.svg') }}" class="fl-c-flow-product-title-img"> {{ ftl('firefox-all-desktop') }}</span>
       {% endset %}
       <include:heading
         level="h3"
         heading_size="fl-heading-2xs"
         heading_text="{{ desktop_heading }}"
+        class="test"
       />
       <ul class="c-product-list qa-desktop-list fl-c-unstyled-list">
         <li class="release"><a href="{{ url('firefox.all.platforms', product_slug='desktop-release') }}" class="load-content-partial">{{ ftl('firefox-all-product-firefox') }}</a> <strong>{{ ftl('firefox-all-recommended') }}</strong></li>
@@ -54,7 +55,7 @@
       </ul>
 
       {% set mobile_heading %}
-          <img alt="" role="presentation" src="{{ static('protocol/img/icons/mobile.svg') }}" class="fl-c-flow-product-title-img"> {{ ftl('firefox-all-mobile') }}
+          <span class="fl-c-flow-options-heading"><img alt="" role="presentation" src="{{ static('protocol/img/icons/mobile.svg') }}" class="fl-c-flow-product-title-img"> {{ ftl('firefox-all-mobile') }}</span>
       {% endset %}
       <include:heading
         level="h3"

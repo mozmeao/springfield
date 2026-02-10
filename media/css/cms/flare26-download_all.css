@@ -38,9 +38,10 @@
     }
 }
 
-.fl-c-flow-product-title-img {
-    display: inline;
-    vertical-align: middle;
+.fl-c-flow-options-heading {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-sm);
 }
 
 .fl-c-flow-section {
