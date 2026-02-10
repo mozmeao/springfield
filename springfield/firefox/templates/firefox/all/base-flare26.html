@@ -29,9 +29,6 @@
   {% endwith %}
 {% endblock %}
 
-{% set campaign = "firefox-all" %}
-{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
-
 
 {% if product and platform %}
   {% set current_step = ftl('firefox-all-choose-language') %}

@@ -4,6 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set campaign = "firefox-all" %}
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
+
 <main id="partial-target" class="fl-download-all fl-main" {% if product %} data-current="{{ product.slug }}"{% endif %}>
   <include:intro>
     <!-- TODO: v2 FTL string that accepts icon variable, which changes with product selection -->

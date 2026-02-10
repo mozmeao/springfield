@@ -257,3 +257,16 @@
         display: inline-block;
     }
 }
+
+/* Modal styles copied from all.scss */
+.mzp-c-modal.help-modal .mzp-c-modal-window > .mzp-c-modal-inner header {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    /* stylelint-disable-next-line declaration-no-important */
+    position: absolute !important;
+    width: 1px;
+}
