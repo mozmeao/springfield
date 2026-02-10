@@ -125,6 +125,12 @@
     .fl-c-flow-links {
         text-align: center;
     }
+
+    /* links will appear after the steps content on desktop
+    we need to match source order to visual order for keyboard UX */
+    .fl-t-flow-links-desktop {
+        display: none;
+    }
 }
 
 @media (--viewport-md-up) {
@@ -140,6 +146,11 @@
 
     .fl-c-flow-links {
         grid-area: links;
+    }
+
+    /* when reading-flow has better support, we can remove this workaround */
+    .fl-t-flow-links-mobile {
+        display: none;
     }
 }
 

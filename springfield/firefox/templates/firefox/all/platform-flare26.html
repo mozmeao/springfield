@@ -7,7 +7,7 @@
 
 {# Choose platform #}
 
-<div tabindex="-1" {% if not product %} aria-disabled="true" {% endif %} aria-labelledby="all-platform" class="fl-c-flow-section c-step-name">
+<div tabindex="-1" aria-labelledby="all-platform" class="fl-c-flow-section c-step-name {% if not product %}t-step-disabled{% endif %}">
   <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>

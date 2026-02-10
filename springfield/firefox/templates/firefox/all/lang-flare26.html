@@ -6,7 +6,7 @@
 
 {# Choose language #}
 
-<div tabindex="-1" {% if not (product and platform) %} aria-disabled="true" {% endif %} aria-labelledby="all-lang" class="fl-c-flow-section c-step-name">
+<div tabindex="-1" aria-labelledby="all-lang" class="fl-c-flow-section c-step-name {% if not (product and platform) %}t-step-disabled{% endif %}">
    <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform and locale %}<include:icon icon_name="checkmark" />{% endif %}</span>
