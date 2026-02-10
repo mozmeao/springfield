@@ -55,15 +55,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endblock %}
     </div>
 
-    {% block stub_attribution %}
-      {% if settings.STUB_ATTRIBUTION_RATE %}
-        <!--[if IE 9]><!-->
-          {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
-          {{ js_bundle('stub-attribution') }}
-        <!--<![endif]-->
-      {% endif %}
-    {% endblock %}
-
     {% block site_js %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
@@ -73,6 +64,19 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
     {% endblock %}
+
+    {% block stub_attribution %}
+      {% if settings.STUB_ATTRIBUTION_RATE %}
+        <!--[if IE 9]><!-->
+          {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
+          {{ js_bundle('stub-attribution') }}
+        <!--<![endif]-->
+      {% endif %}
+    {% endblock %}
+
+    {% block js %}
+      {# Page specific JavaScript #}
+    {% endblock js %}
   </body>
 
 </html>
