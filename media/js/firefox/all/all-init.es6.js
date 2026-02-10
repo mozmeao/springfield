@@ -136,7 +136,17 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
                     '.c-step-name:not(.t-step-disabled)'
                 );
                 const targetHeader = activeHeaders[activeHeaders.length - 1];
-                targetHeader.focus();
+                if (targetHeader) {
+                    // if not already in view, scroll into view
+                    const rect = targetHeader.getBoundingClientRect();
+                    const isVisible =
+                        rect.top >= 0 && rect.top < window.innerHeight;
+                    if (!isVisible) {
+                        targetHeader.scrollIntoView();
+                    }
+                    // .focus() scroll is buggy
+                    targetHeader.focus({ preventScroll: true });
+                }
             })
             .catch((error) => {
                 throw new Error(
