@@ -38,9 +38,6 @@ body.fl-modal-open {
 
 .fl-split-page-upper {
     --section-border-radius: var(--token-border-radius-lg);
-    --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-color-link: var(--token-color-soft-purple-4);
-    --fl-theme-color-link-hover: var(--token-color-nav-icon-purple);
     background: var(--token-color-dark-purple);
     border-end-end-radius: var(--section-border-radius);
     border-end-start-radius: var(--section-border-radius);
