@@ -7,7 +7,6 @@
 {# Choose language #}
 
 <div tabindex="-1" aria-labelledby="all-lang" class="fl-c-flow-section c-step-name {% if not (product and platform) %}t-step-disabled{% endif %}">
-   <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform and locale %}<include:icon icon_name="checkmark" />{% endif %}</span>
     <h2 id="all-lang" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-language-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
@@ -19,7 +18,6 @@
     </h2>
   </div>
 
-  <!-- CONTENT is either SELECTION or OPTIONS -->
   {% if locale %}
     <h3 id="all-lang-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ locale_name }}
       {% if product.slug.startswith('desktop') and platform != "win-store" %}

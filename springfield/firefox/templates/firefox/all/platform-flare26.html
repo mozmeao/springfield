@@ -8,7 +8,6 @@
 {# Choose platform #}
 
 <div tabindex="-1" aria-labelledby="all-platform" class="fl-c-flow-section c-step-name {% if not product %}t-step-disabled{% endif %}">
-  <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>
     <h2 id="all-platform" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-platform-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
@@ -26,7 +25,6 @@
     </h2>
   </div>
 
-  <!-- CONTENT is either SELECTION or OPTIONS -->
   {% if platform %}
     <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ platform_name }}
       {% if product.slug.startswith('desktop') %}

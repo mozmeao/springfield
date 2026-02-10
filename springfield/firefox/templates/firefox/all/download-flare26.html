@@ -8,7 +8,6 @@
 
 {# Show download #}
 <div tabindex="-1" aria-labelledby="all-download" class="fl-c-flow-section c-step-name {% if not (product and platform and locale) %}t-step-disabled{% endif %}">
-  <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox"></span>
     <h2 id="all-download" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-download-v2') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
@@ -20,7 +19,6 @@
     </h2>
   </div>
 
-<!-- CONTENT is DOWNLOAD OPTIONS -->
 {% if product and platform and locale %}
 <div class="c-step-contents">
   {% if platform.startswith("linux") %}

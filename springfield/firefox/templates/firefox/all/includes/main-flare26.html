@@ -5,15 +5,8 @@
 #}
 
 <main id="partial-target" class="fl-download-all fl-main" {% if product %} data-current="{{ product.slug }}"{% endif %}>
-  <!-- LOGO changes with product: needs v2 FTL string that accepts icon variable -->
-
-  <!--
-    You can use the following syntax to use any of the components in the
-    springfield/cms/templates/components/ folder.
-    Some of them are even shared between 2025 and 2026 versions,
-    with only CSS differences.
-  -->
   <include:intro>
+    <!-- TODO: v2 FTL string that accepts icon variable, which changes with product selection -->
     <content:heading>
     <include:heading
           level="h1"
@@ -88,7 +81,6 @@
       </ul>
     </section>
     <section class="fl-c-flow-steps">
-      <!-- TODO: checkboxes/steps inside each section -->
       {% include 'firefox/all/product-flare26.html' %}
       {% include 'firefox/all/platform-flare26.html' %}
       {% include 'firefox/all/lang-flare26.html' %}

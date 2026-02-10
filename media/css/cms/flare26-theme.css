@@ -23,6 +23,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Background colors */
     --fl-theme-background: var(--token-color-white);
 
+    /* Divider color */
+    --fl-theme-divider-color: var(--token-color-soft-purple);
+
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
@@ -78,6 +81,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Shadows */
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+
+    /* Divider */
+    --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
 
     /* Dark mode support */
     color-scheme: light dark;

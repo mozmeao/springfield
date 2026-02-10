@@ -7,7 +7,6 @@
 {# Choose product #}
 
 <div tabindex="-1" aria-labelledby="all-product" class="fl-c-flow-section c-step-name">
-  <!-- STEP IS ALWAYS VISIBLE -->
   <div class="fl-c-flow-step">
     <span class="fl-c-flow-step-checkbox">{% if product %}<include:icon icon_name="checkmark" />{% endif %}</span>
     <h2 id="all-product" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-browser-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
@@ -25,7 +24,6 @@
     </h2>
   </div>
 
-  <!-- CONTENT is either SELECTION or OPTIONS -->
   {% if product %}
     <h3 id="all-product-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ product and product.name }}
       <include:button

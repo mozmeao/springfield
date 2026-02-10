@@ -52,7 +52,7 @@
         [step-start] var(--download-all-checkmark-size)
         [content-start] 1fr [content-end step-end];
     grid-template-rows:
-        var(--token-spacing-2xl)
+        var(--token-spacing-lg)
         [step-start] auto [step-end content-start] auto [content-end];
 }
 
@@ -73,7 +73,7 @@
 }
 
 .fl-c-flow-step + * {
-    border-block-end: 1px solid var(--token-color-soft-purple); /* TODO: extract to shared divider style */
+    border-block-end: var(--fl-theme-divider);
     grid-area: content;
     padding-block-end: var(--token-spacing-md);
 }
@@ -101,9 +101,18 @@
     line-height: 1;
 }
 
+@media (--viewport-xs) {
+    /* Divider only goes across entire first section */
+    .fl-c-flow-steps {
+        border-block-start: var(--fl-theme-divider);
+    }
+}
+
 @media (--viewport-sm-up) {
     .fl-c-flow-section {
         --download-all-content-spacing: var(--token-spacing-2xl);
+
+        /* 153px is one-off Figma value */
         grid-template-columns: [step-start] 153px [step-end content-start] 1fr [content-end];
         grid-template-rows:
             [content-start]
@@ -119,6 +128,12 @@
 
     .fl-c-flow-step {
         align-self: start;
+    }
+
+    /* Divider only goes across part of 1st section */
+    [aria-labelledby='all-product']
+        :where(.fl-c-flow-options, .fl-c-flow-selection) {
+        border-block-start: var(--fl-theme-divider);
     }
 }
 
