@@ -150,6 +150,9 @@ def assert_download_button_attributes(
     assert "download-link" in button_element["class"]
     assert button_element["href"] == "/thanks/"
 
+    assert "c-button-download-thanks" in button_element.parent["class"]
+    assert button_data["value"]["settings"]["analytics_id"] == button_element.parent["id"]
+
     channel = "release"
     version = firefox_desktop.latest_version(channel)
     locale = get_locale(context["request"])

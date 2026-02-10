@@ -10,7 +10,11 @@
 {% set download_firefox_thanks_link = download_firefox_thanks_link() %}
 {% set icon_name = value.settings.icon %}
 
-<div class="fl-download-firefox-button" id="{{ block_position }}">
+{#
+  Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
+  media/js/base/mozilla-utils.js
+#}
+<div class="fl-download-firefox-button c-button-download-thanks" id="{{ value.settings.analytics_id }}">
   <a href="{{ download_firefox_thanks_link['transition_url'] }}"
      class="download-link fl-button {{ value.theme_class() }} "
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"

@@ -6,8 +6,9 @@
 
 {% extends "cms/base-flare26.html" %}
 
-{% block site_js %}
-  {{ super() }}
+{% block body_class %}fl-home-body{% endblock %}
+
+{% block js %}
   {{ js_bundle('firefox_download_thanks') }}
 {% endblock %}
 
