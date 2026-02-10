@@ -10,3 +10,6 @@
 # Variables:
 #   $number (number) - the number of the step
 block-step-card-step = Step { $number }
+
+# Download Firefox button
+firefox-new-set-as-default = Set { -brand-name-firefox } as your default browser.

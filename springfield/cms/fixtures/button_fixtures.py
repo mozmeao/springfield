@@ -233,6 +233,21 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon": "download",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
+                    "show_default_browser_checkbox": False,
+                },
+            },
+            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+        },
+        "download_default_browser": {
+            "type": "download_button",
+            "value": {
+                "label": "Get Firefox",
+                "settings": {
+                    "theme": "secondary",
+                    "icon": "download",
+                    "icon_position": "right",
+                    "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
+                    "show_default_browser_checkbox": True,
                 },
             },
             "id": "98bd248c-c715-4986-9a60-c0922ba12799",
@@ -463,9 +478,10 @@ def get_button_blocks() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="dkgdn">Download Firefox Button</p>',
-                    "subheading_text": "",
+                    "subheading_text": '<p data-block-key="dkgdn">A special link to /thanks with the required attributes for the download flow.</p>'
+                    '<p data-block-key="5inkg">Optional "Set as default browser" checkbox. The checkbox is only shown to Windows users.</p>',
                 },
-                "buttons": [buttons["download"]],
+                "buttons": [buttons["download"], buttons["download_default_browser"]],
             },
             "id": "79f53077-d740-4332-b9ab-6f9dd95c326a",
         },

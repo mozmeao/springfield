@@ -561,10 +561,50 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def DownloadFirefoxButtonSettings(themes=None, **kwargs):
+    themes = themes or BUTTON_THEME_CHOICES.keys()
+
+    class _DownloadFirefoxButtonSettings(blocks.StructBlock):
+        theme = blocks.ChoiceBlock(
+            choices=[(theme, BUTTON_THEME_CHOICES[theme]) for theme in themes],
+            required=len(themes) == 1,
+            inline_form=True,
+        )
+        icon = IconChoiceBlock(required=False)
+        icon_position = blocks.ChoiceBlock(
+            choices=(("left", "Left"), ("right", "Right")),
+            default="right",
+            label="Icon Position",
+            inline_form=True,
+        )
+        analytics_id = UUIDBlock(
+            label="Analytics ID",
+            help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+            required=False,
+        )
+        show_default_browser_checkbox = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Show 'Set as default browser' checkbox with the download button to Windows and macOS users.",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            label_format = (
+                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - ",
+                "Show Default Browser Checkbox: {show_default_browser_checkbox}",
+            )
+            form_classname = "compact-form struct-block"
+
+    return _DownloadFirefoxButtonSettings(**kwargs)
+
+
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+        settings = DownloadFirefoxButtonSettings(themes=themes)
         label = blocks.CharBlock(label="Button Text", default="Get Firefox")
-        settings = BaseButtonSettings(themes=themes)
 
         class Meta:
             label = "Download Firefox Button"

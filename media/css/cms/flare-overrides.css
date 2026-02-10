@@ -105,3 +105,12 @@ a[role="button"].fxa-link:active,
 a[role="button"].fxa-link:focus {
     text-decoration: none;
 }
+
+/* Show the default browser checkbox in preview even when hidden by JS */
+.fl-download-firefox-button .conditional-display.is-preview .default-browser-label.hidden {
+    display: unset;
+}
+
+.fl-download-firefox-button .conditional-display.is-preview {
+    padding-top: calc(var(--token-scale-16) * 1px);
+}
