@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -160,7 +161,19 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
+class DownloadIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.DownloadPage"]
+
+    def serve(self, request):
+        return redirect(reverse("firefox.all"))
+
+    def serve_preview(self, request, *args, **kwargs):
+        return redirect(reverse("firefox.all"))
+
+
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.DownloadIndexPage"]
+
     ftl_files = [
         "firefox/download/download",
         "firefox/browsers/mobile/android",
@@ -208,23 +221,6 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
-    pre_footer = StreamField(
-        [
-            (
-                "pre_footer_cta_form_snippet",
-                SnippetChooserBlock(
-                    target_model="cms.PreFooterCTAFormSnippet",
-                    template="cms/snippets/pre-footer-cta-form-snippet.html",
-                    label="Pre-Footer CTA Form Snippet",
-                ),
-            )
-        ],
-        use_json_field=True,
-        min_num=0,
-        max_num=1,
-        null=True,
-        blank=True,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("platform"),
@@ -232,7 +228,6 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
         FieldPanel("content"),
-        FieldPanel("pre_footer"),
     ]
 
     def get_context(self, request, *args, **kwargs):

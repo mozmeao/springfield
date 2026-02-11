@@ -76,6 +76,13 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # on the page class. If None is specced, we default to what's in settings.FLUENT_DEFAULT_FILES
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
+    def _get_dummy_headers(self, original_request=None):
+        """Override Wagtail's fake request for previews to include the query string"""
+        dummy_values = super()._get_dummy_headers(original_request)
+        if original_request and original_request.META.get("QUERY_STRING"):
+            dummy_values["QUERY_STRING"] = original_request.META["QUERY_STRING"]
+        return dummy_values
+
     def serve(self, request, *args, **kwargs):
         # Need to replicate behaviour in https://github.com/wagtail/wagtail/blob/stable/5.2.x/wagtail/models/__init__.py#L1928
         request.is_preview = False
@@ -90,7 +97,8 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)
-        context["is_preview"] = True
+        hide_preview = request.GET.get("hide_preview", False)
+        context["is_preview"] = not hide_preview
         return context
 
     def serve_preview(self, request, *args, **kwargs):
