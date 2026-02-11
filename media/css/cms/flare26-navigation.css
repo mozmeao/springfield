@@ -176,14 +176,14 @@
     position: relative;
 }
 
-.fl-menu-category .fl-icon-caret-down {
+.fl-menu-category .fl-icon-chevron-down {
     transform: scale(0.8);
     transform-origin: center;
     transition: transform 0.1s ease;
     vertical-align: bottom;
 }
 
-.fl-menu-category.is-active .fl-icon-caret-down {
+.fl-menu-category.is-active .fl-icon-chevron-down {
     transform: rotate(180deg) scale(0.8);
 }
 
@@ -268,7 +268,7 @@
 }
 
 .fl-show-mobile-menu .fl-icon-close,
-.fl-show-mobile-menu.is-open .fl-icon-hamburger {
+.fl-show-mobile-menu.is-open .fl-icon-app-menu {
     display: none;
 }
 
@@ -317,7 +317,7 @@
         z-index: 1000;
     }
 
-    .fl-menu-category .fl-icon-caret-down {
+    .fl-menu-category .fl-icon-chevron-down {
         display: none;
     }
 

@@ -134,12 +134,12 @@
 }
 
 .fl-show-mobile-menu .fl-icon-close,
-.fl-show-mobile-menu.is-open .fl-icon-hamburger {
+.fl-show-mobile-menu.is-open .fl-icon-app-menu {
     display: none;
 }
 
 .fl-show-mobile-menu.is-open .fl-icon-close,
-.fl-show-mobile-menu .fl-icon-hamburger {
+.fl-show-mobile-menu .fl-icon-app-menu {
     display: block;
 }
 
