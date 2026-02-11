@@ -102,7 +102,7 @@
 }
 
 @media (--viewport-xs) {
-    /* Divider only goes across entire first section */
+    /* Divider goes across entire first section */
     .fl-c-flow-steps {
         border-block-start: var(--fl-theme-divider);
     }
