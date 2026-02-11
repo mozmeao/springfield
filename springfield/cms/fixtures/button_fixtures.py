@@ -230,7 +230,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "label": "Get Firefox",
                 "settings": {
                     "theme": "",
-                    "icon": "download",
+                    "icon": "downloads",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
                 },

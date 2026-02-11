@@ -10,6 +10,8 @@
 
 .fl-home-body .fl-main {
     background: var(--fl-theme-background);
+    overflow: hidden;
+    padding-block-end: 0;
 }
 
 .fl-home-body .fl-split-page-upper {
