@@ -66,7 +66,8 @@ body.fl-modal-open {
 .fl-split-page-upper > *,
 .fl-split-page-lower > *,
 .has-gradient-top > *,
-.has-gradient-bottom > * {
+.has-gradient-bottom > *,
+.has-gradient-bottom > .conditional-passthrough > * {
     position: relative;
     z-index: 1;
 }
