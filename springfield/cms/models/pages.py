@@ -12,10 +12,12 @@ from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
+from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
+    ICON_CHOICES,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
@@ -362,14 +364,6 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default="Read more",
         help_text="Custom text for the 'Read more' link on article cards.",
     )
-    icon = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-        help_text="An icon used for listing articles on the index page.",
-    )
     sticker = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -377,6 +371,13 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="A sticker image used in article cards.",
+    )
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        choices=ICON_CHOICES,
+        help_text="Optional icon to display on icon article cards.",
     )
     index_page_heading = models.CharField(
         blank=True,
@@ -409,8 +410,14 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("featured"),
                 FieldPanel("tag"),
                 FieldPanel("featured_image"),
-                FieldPanel("icon"),
                 FieldPanel("sticker"),
+                FieldPanel(
+                    "icon",
+                    widget=ThumbnailRadioSelect(
+                        thumbnail_template_mapping={choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in ICON_CHOICES},
+                        thumbnail_size=20,
+                    ),
+                ),
                 FieldPanel("link_text"),
                 FieldPanel("index_page_heading"),
                 FieldPanel("description"),

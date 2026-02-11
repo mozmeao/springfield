@@ -1196,8 +1196,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
 class ArticleOverridesBlock(blocks.StructBlock):
     image = ImageChooserBlock(
         required=False,
-        help_text="Optional custom image to override the article's image. "
-        "Will replace the featured image, icon or sticker, depending on the card type.",
+        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
     )
     superheading = blocks.CharBlock(
         required=False,
@@ -1264,6 +1263,7 @@ class ArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(
         target_model="cms.ArticleDetailPage",
     )
+    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     overrides = ArticleOverridesBlock(required=False)
 
     class Meta:
