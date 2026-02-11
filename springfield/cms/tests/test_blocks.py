@@ -1650,11 +1650,9 @@ def test_theme_page_blocks(index_page, rf):
             card_list_type="icon_card",
         )
 
-        image_id = overrides.get("image") or article.icon.id
-        img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
-        icon_element = card_element.find("img")
-        assert icon_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+        icon_name = overrides.get("icon") or article.icon or "globe"
+        icon_element = card_element.find("span", class_="fl-icon")
+        assert icon_element and f"fl-icon-{icon_name}" in icon_element["class"]
 
     # Sticker Row Articles
     sticker_row_section_data = get_theme_page_sticker_row_section()

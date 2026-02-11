@@ -1194,6 +1194,7 @@ class ArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
     )
+    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     superheading = blocks.CharBlock(
         required=False,
         help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
@@ -1259,7 +1260,6 @@ class ArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(
         target_model="cms.ArticleDetailPage",
     )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     overrides = ArticleOverridesBlock(required=False)
 
     class Meta:

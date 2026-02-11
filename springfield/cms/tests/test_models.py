@@ -365,7 +365,6 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             featured=True,
             image=image,
             tag=tag,
-            icon=mobile_image,
             sticker=dark_image,
         )
         featured_page.save()
@@ -385,7 +384,6 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             featured=False,
             image=image,
             tag=tag,
-            icon=mobile_image,
             sticker=dark_image,
         )
         article.save()
