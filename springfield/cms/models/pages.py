@@ -29,6 +29,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
+    RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
@@ -403,6 +404,15 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    related_articles = StreamField(
+        [
+            ("related_articles_list", RelatedArticlesListBlock()),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+        max_num=1,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
@@ -426,6 +436,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("image"),
         FieldPanel("content"),
+        FieldPanel("related_articles"),
     ]
 
 

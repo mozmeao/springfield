@@ -39,6 +39,12 @@
         {% endfor %}
       </section>
     </div>
+
+    {% if switch("flare26_enabled") and page.related_articles %}
+      {% for block in page.related_articles %}
+        {% include_block block %}
+      {% endfor %}
+    {% endif %}
   </main>
   {% if not switch("flare26_enabled") %}
     {% set value = get_download_firefox_cta_snippet() %}

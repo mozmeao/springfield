@@ -667,6 +667,34 @@ class TagBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class TagBlock2026(blocks.StructBlock):
+    title = blocks.CharBlock()
+    icon = IconChoiceBlock()
+    icon_position = blocks.ChoiceBlock(
+        choices=(("before", "Before"), ("after", "After")),
+        default="before",
+        label="Icon Position",
+        inline_form=True,
+    )
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("red", "Red"),
+            ("orange", "Orange"),
+            ("green", "Green"),
+        ],
+        default="purple",
+        required=False,
+        inline_form=True,
+    )
+
+    class Meta:
+        template = "cms/blocks/tag.html"
+        label = "Tag"
+        label_format = "Tag - {title}"
+        form_classname = "compact-form struct-block"
+
+
 class ImageVariantsBlockSettings(blocks.StructBlock):
     dark_mode_image = ImageChooserBlock(
         required=False,
@@ -1301,6 +1329,78 @@ class ArticleCardsListBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/article-cards-list.html"
         label = "Article Cards List"
+        label_format = "{heading}"
+
+
+class RelatedArticleOverridesBlock(blocks.StructBlock):
+    sticker = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom sticker image to override the article's sticker.",
+    )
+    superheading = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom superheading to override the article's tag.",
+    )
+    title = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom title to override the article's title.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Overrides"
+
+
+class RelatedArticleValue(blocks.StructValue):
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if title := overrides.get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get("article")
+        return article_page.title if article_page else ""
+
+    def get_superheading(self) -> str:
+        overrides = self.get("overrides", {})
+        if superheading := overrides.get("superheading"):
+            return superheading
+        article_page = self.get("article")
+        if article_page and article_page.tag:
+            return article_page.tag.name
+        return ""
+
+    def get_sticker(self):
+        overrides = self.get("overrides", {})
+        if sticker := overrides.get("sticker"):
+            return sticker
+        article_page = self.get("article")
+        return article_page.sticker if article_page else None
+
+
+class RelatedArticleBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        target_model="cms.ArticleDetailPage",
+    )
+    overrides = RelatedArticleOverridesBlock(required=False)
+    tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+
+    class Meta:
+        label = "Related Article"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
+        value_class = RelatedArticleValue
+        template = "cms/blocks/related-article-card.html"
+
+
+class RelatedArticlesListBlock(blocks.StructBlock):
+    cards = blocks.ListBlock(RelatedArticleBlock())
+
+    class Meta:
+        template = "cms/blocks/related-articles-list.html"
+        label = "Related Articles List"
         label_format = "{heading}"
 
 

@@ -1,0 +1,49 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* base/purple */
+.fl-tag {
+    align-items: center;
+    background: var(--notification-bg);
+    border-radius: var(--token-spacing-lg);
+    color: var(--notification-stacked-color);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-semibold);
+    gap: var(--token-spacing-xs);
+    line-height: var(--fl-theme-line-height-base);
+    margin-block-end: var(--token-spacing-lg);
+    margin-inline-end: var(--token-spacing-xs);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
+    white-space: nowrap;
+}
+
+.fl-tag .fl-icon-left {
+    margin-inline-end: var(--token-spacing-xs);
+}
+
+.fl-tag .fl-icon-right {
+    margin-inline-start: var(--token-spacing-xs);
+}
+
+/* red */
+.fl-tag.fl-tag-red {
+    background: var(--notification-red-bg);
+    color: var(--notification-red-color);
+}
+
+/* orange */
+.fl-tag.fl-tag-orange {
+    background: var(--notification-orange-bg);
+    color: var(--notification-orange-color);
+}
+
+/* green */
+.fl-tag.fl-tag-green {
+    background: var(--notification-green-bg);
+    color: var(--notification-green-color);
+}
