@@ -13,7 +13,7 @@
 <div class="fl-page fl-article-page">
   <main class="fl-main">
     <div class="fl-article-main">
-      <header>
+      <header class="fl-article-header">
         <include:heading
             level="h1"
             heading_text="{{ page.title }}"
@@ -39,6 +39,8 @@
         {% endfor %}
       </section>
     </div>
+
+
 
     {% if switch("flare26_enabled") and page.related_articles %}
       {% for block in page.related_articles %}

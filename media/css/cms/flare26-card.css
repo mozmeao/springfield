@@ -77,6 +77,7 @@ Card Grid - Flare 2026 Design System Cards
     /* ...unless there are only three, and then it gets a special treatment. */
     .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+        inline-size: 100%;
         margin-inline: auto;
         max-inline-size: 980px;
     }
