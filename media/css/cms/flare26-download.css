@@ -39,6 +39,7 @@
 .fl-platform-dropdown-wrapper {
     display: flex;
     justify-content: center;
+    z-index: 10;
 }
 
 .fl-platform-dropdown {
@@ -109,7 +110,6 @@
     margin: 0;
     padding: 0;
     position: absolute;
-    z-index: 10;
 }
 
 .fl-dropdown-item {
