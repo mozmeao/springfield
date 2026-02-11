@@ -79,9 +79,11 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
 
         // init stub attribution & event tracking for GA4
         if (downloadButtons && downloadButtons.length > 0) {
-            // We cannot rely on DOM ready as this section is partially fetched
-            // This flow is scheduled for refactoring: https://github.com/mozmeao/springfield/issues/258
-            StubAttributionConsent.init();
+            if (StubAttributionConsent) {
+                // We cannot rely on DOM ready as this section is partially fetched
+                // This flow is scheduled for refactoring: https://github.com/mozmeao/springfield/issues/258
+                StubAttributionConsent.init();
+            }
 
             for (let i = 0; i < downloadButtons.length; ++i) {
                 const downloadButton = downloadButtons[i];
