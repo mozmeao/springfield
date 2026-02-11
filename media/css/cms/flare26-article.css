@@ -92,13 +92,19 @@ Stacked article list
     padding-block: var(--token-spacing-2xl);
 }
 
-.fl-stacked-article-list .fl-article-item:last-child {
-    border-block-end: 1px solid var(--token-color-soft-purple);
+.fl-article-item-header {
+    align-items: start;
+    display: flex;
+    gap: var(--token-spacing-lg);
 }
 
-.fl-stacked-article-list .fl-article-item img {
-    inline-size: var(--token-layout-lg);
+.fl-article-item-header img {
+    inline-size: var(--token-layout-md);
     margin: 0;
+}
+
+.fl-stacked-article-list .fl-article-item:last-child {
+    border-block-end: 1px solid var(--token-color-soft-purple);
 }
 
 .fl-stacked-article-list .fl-article-item-content {
@@ -112,6 +118,10 @@ Stacked article list
 }
 
 @media (--viewport-md-up) {
+    .fl-stacked-article-list .fl-article-item {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .fl-stacked-article-list .fl-article-item-content {
         flex-direction: row;
     }

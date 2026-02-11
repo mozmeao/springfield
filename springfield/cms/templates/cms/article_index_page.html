@@ -9,8 +9,8 @@
 
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
-    <div class="fl-split-page-upper">
+  <main class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-upper has-gradient-bottom">
 
       <section class="fl-section">
         <div class="fl-section-container">
@@ -21,6 +21,7 @@
             subheading_text="{{ page.sub_title }}"
           />
 
+          {% if featured_articles|length > 0 %}
           <include:cards-list>
             {% for article in featured_articles %}
 
@@ -81,6 +82,7 @@
 
             {% endfor %}
           </include:cards-list>
+          {% endif %}
         </div>
       </section>
     </div>

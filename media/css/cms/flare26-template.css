@@ -59,10 +59,22 @@ body.fl-modal-open {
     position: relative;
 }
 
+.fl-main.has-gradient-bottom .fl-split-page-lower {
+    background: transparent;
+}
+
 .fl-split-page-upper > *,
-.fl-split-page-lower > * {
+.fl-split-page-lower > *,
+.has-gradient-top > *,
+.has-gradient-bottom > * {
     position: relative;
     z-index: 1;
+}
+
+.has-gradient-bottom {
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
 }
 
 .has-gradient-top::before {
