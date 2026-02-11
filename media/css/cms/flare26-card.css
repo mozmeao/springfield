@@ -450,9 +450,14 @@ Illustration Card
 }
 
 .fl-illustration-card .fl-heading-group {
-    gap: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
     margin: 0;
-    padding-block-end: var(--token-spacing-sm);
+}
+
+.fl-illustration-card .fl-heading-group .fl-superheading {
+    margin: 0;
 }
 
 .fl-illustration-card .fl-card-media,
@@ -465,11 +470,16 @@ Illustration Card
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: var(--token-spacing-md);
+    gap: var(--token-spacing-lg);
 }
 
-.fl-illustration-card .fl-card-content .fl-heading {
+.fl-illustration-card .fl-heading,
+.fl-illustration-card .fl-body {
     margin: 0;
+}
+
+.fl-illustration-card .fl-buttons {
+    margin-block-start: auto;
 }
 
 .fl-illustration-card .fl-superheading {
