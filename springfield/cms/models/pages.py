@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -156,7 +157,19 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
+class DownloadIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.DownloadPage"]
+
+    def serve(self, request):
+        return redirect(reverse("firefox.all"))
+
+    def serve_preview(self, request, *args, **kwargs):
+        return redirect(reverse("firefox.all"))
+
+
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.DownloadIndexPage"]
+
     ftl_files = [
         "firefox/download/download",
         "firefox/browsers/mobile/android",
