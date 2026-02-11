@@ -12,6 +12,13 @@
   {{ js_bundle('firefox_download_thanks') }}
 {% endblock %}
 
+
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header />
+{% endblock %}
+
+
 {% block content %}
   <div class="fl-main">
 

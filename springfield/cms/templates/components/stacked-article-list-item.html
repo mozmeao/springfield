@@ -6,24 +6,29 @@
 
 {# props icon="" title="" description="" link_text="" url="" #}
 
-<div class="fl-article-item">
+<article class="fl-article-item">
+  <header class="fl-article-item-header">
   {{ contents.icon }}
 
-  <div class="fl-article-item-content">
-    <include:heading
+  <include:heading
       level="h3"
       heading_text="{{ title }}"
     />
+  </header>
+
+  <div class="fl-article-item-content">
+
 
     <div class="fl-article-item-description">
-      {{ description|richtext }}
+      <p>{{ description }}</p>
       <div class="fl-buttons">
         <include:button
           theme_class="button-ghost"
+          size_class="fl-button-small"
           label="{{ link_text }}"
           link="{{ url }}"
         />
       </div>
     </div>
   </div>
-</div>
+</article>

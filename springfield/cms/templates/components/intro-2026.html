@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-intro">
+  <div class="fl-intro-content">
+    {{ contents.heading }}
+    {% if contents.actions %}
+      <div class="fl-intro-actions">
+        {{ contents.actions }}
+      </div>
+    {% endif %}
+  </div>
+  {% if contents.media %}
+    <div class="fl-intro-media">
+      {{ contents.media }}
+    </div>
+  {% endif %}
+</div>

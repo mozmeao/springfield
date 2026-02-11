@@ -7,7 +7,7 @@ context:
       closable: false
     - heading: Notification Heading
       message: This is a notification with an icon
-      icon: earth
+      icon: globe
       closable: false
     - heading: Notification Heading
       message: This is a closable notification
@@ -15,9 +15,9 @@ context:
       closable: true
     - heading: Notification Heading
       message: This is a notification with icon and close button
-      icon: earth
+      icon: globe
       closable: true
     - heading: Notification Heading
       message: Moving to Windows 11? Check if your bookmarks and passwords are <a href="https://support.mozilla.org/en-US/kb/how-do-i-sync-firefox-settings-and-data">synced and ready</a>.
-      icon: earth
+      icon: globe
       closable: true

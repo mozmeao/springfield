@@ -5,6 +5,7 @@
 */
 
 .fl-intro {
+    padding: var(--token-layout-md) 0;
     position: relative;
     text-align: center;
 }
@@ -14,7 +15,13 @@
 }
 
 .fl-intro-content {
-    max-width: 848px;
+    max-inline-size: 848px;
+}
+
+.fl-intro-media {
+    align-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .fl-intro-content .fl-buttons {
@@ -26,13 +33,12 @@
 }
 
 .fl-intro .fl-heading-group {
-    margin-bottom: var(--token-layout-3xs);
+    margin-block-end: var(--token-layout-3xs);
 }
 
 .fl-intro .fl-subheading {
     font-size: var(--fl-theme-font-size-body-sm);
-    margin-bottom: var(--token-layout-sm);
-    margin-top: 0;
+    margin-block: 0 var(--token-layout-sm);
 }
 
 .fl-home-intro {
@@ -45,11 +51,11 @@
     background-position: top right;
     background-repeat: no-repeat;
     background-size: contain;
-    bottom: var(--banner-kit-bottom-position, -300px);
     content: '';
+    inline-size: var(--banner-kit-width, 580px);
+    inset-block-end: var(--banner-kit-bottom-position, -300px);
+    inset-inline-end: var(--banner-kit-right-position, calc(50% - 114px));
     position: absolute;
-    right: var(--banner-kit-right-position, calc(50% - 114px));
-    width: var(--banner-kit-width, 580px);
     z-index: 0;
 }
 
@@ -89,21 +95,21 @@
 
 .fl-home-intro .fl-superheading a::after {
     background-color: currentColor;
+    block-size: 1em;
     content: '';
     display: inline-block;
-    height: 1em;
-    margin-left: var(--token-spacing-xs);
+    inline-size: 1em;
+    margin-inline-start: var(--token-spacing-xs);
     mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat
         center / 1em 1em;
     mask-size: contain;
     vertical-align: middle;
-    width: 1em;
 }
 
 .fl-home-intro .fl-superheading i,
 .fl-home-intro .fl-superheading em {
     background: var(--token-gradient-gold);
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
     font-style: normal;
     margin-inline-end: var(--token-spacing-xs);
@@ -112,21 +118,24 @@
 }
 
 .fl-home-intro .fl-heading {
-    margin-bottom: var(--token-spacing-lg);
-    margin-top: var(--token-spacing-lg);
+    margin-block: var(--token-spacing-lg);
 }
 
 .fl-intro-actions {
-    margin-top: var(--token-spacing-2xl);
+    margin-block-start: var(--token-spacing-2xl);
 }
 
 .fl-home-intro .fl-subheading {
     margin: 0 auto;
-    max-width: 48ch;
+    max-inline-size: 48ch;
     text-wrap: balance;
 }
 
 @media (--viewport-sm-up) {
+    .fl-intro {
+        padding: var(--token-layout-lg) 0;
+    }
+
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 154px);
         --banner-kit-bottom-position: -394px;

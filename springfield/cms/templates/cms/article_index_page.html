@@ -7,137 +7,146 @@
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
 {% extends base_template %}
 
-
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
-    <header class="fl-article-index-header">
-      <include:heading
-        alignment_class="text-center"
-        level="h1"
-        heading_text="{{ page.title }}"
-        subheading_text="{{ page.sub_title }}"
-      />
-    </header>
+  <main class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-upper has-gradient-bottom">
 
-    <section class="fl-section">
-      <div class="fl-section-container">
-        <include:cards-list>
-          {% for article in featured_articles %}
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:heading
+            alignment_class="text-center"
+            level="h1"
+            heading_text="{{ page.title }}"
+            subheading_text="{{ page.sub_title }}"
+          />
 
-            {% if switch("flare26_enabled") %}
-              <include:illustration-card-2026 expand_link="true">
-                <content:media>
-                  {% if article.featured_image %}
-                    {{ srcset_image(
-                        article.featured_image,
-                        "width-{200,400,600,800,1000,1200,1400}",
-                        sizes="
-                          (min-width: 768px) 50vw,
-                          (min-width: 1440px) 680px,
-                          100vw
-                        ",
-                        width=article.featured_image.width,
-                        loading="lazy",
-                      ) }}
-                    {% else %}
-                      <img src="/media/img/firefox/flare/placeholder.png" alt="" />
-                    {% endif %}
-                </content:media>
-                <content:heading>
-                  <h3 class="fl-heading fl-heading-size-3">
-                    <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                    {{ article.index_page_heading or article.title }}
-                    </a>
-                  </h3>
-                </content:heading>
-                <content:body>
-                  {{ article.description|richtext }}
-                </content:body>
-              </include:illustration-card-2026>
-
-            {% else %}
-              <include:illustration-card expand_link="true">
-                <content:media>
-                  {% if article.featured_image %}
-                    {{ srcset_image(
-                        article.featured_image,
-                        "width-{200,400,600,800,1000,1200,1400}",
-                        sizes="
-                          (min-width: 768px) 50vw,
-                          (min-width: 1440px) 680px,
-                          100vw
-                        ",
-                        width=article.featured_image.width,
-                        loading="lazy",
-                      ) }}
-                    {% else %}
-                      <img src="/media/img/firefox/flare/placeholder.png" alt="" />
-                    {% endif %}
-                </content:media>
-                <content:heading>
-                  <h3 class="fl-heading fl-heading-size-3">
-                    <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                    {{ article.index_page_heading or article.title }}
-                    </a>
-                  </h3>
-                </content:heading>
-                <content:body>
-                  {{ article.description|richtext }}
-                </content:body>
-              </include:illustration-card>
-            {% endif %}
-
-          {% endfor %}
-        </include:cards-list>
-      </div>
-    </section>
-
-    <section class="fl-section">
-      <div class="fl-section-container">
-        <include:heading
-          alignment_class="text-center"
-          level="h2"
-          heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
-          subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
-        />
-
-        {% if switch("flare26_enabled") %}
-          <div class="fl-stacked-article-list">
-            {% for article in list_articles %}
-              <include:stacked-article-list-item
-                title={{ article.index_page_heading or article.title }}
-                description={{ article.description }}
-                link_text={{ article.link_text }}
-                url={{ article.url }}
-              >
-                <content:icon>
-                  {{ image(article.icon, "width-400") }}
-                </content:icon>
-              </include:stacked-article-list-item>
-            {% endfor %}
-          </div>
-
-        {% else %}
+          {% if featured_articles|length > 0 %}
           <include:cards-list>
-            {% for article in list_articles %}
-              <include:card expand_link="true">
-                <content:heading>
-                  <h3 class="fl-heading fl-heading-size-3">{{ article.index_page_heading or article.title }}</h3>
-                </content:heading>
-                <content:body>
-                  {{ article.description|richtext }}
-                </content:body>
-                <content:buttons>
-                  <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-                </content:buttons>
-              </include:card>
+            {% for article in featured_articles %}
+
+              {% if switch("flare26_enabled") %}
+                <include:sticker-card-2026 expand_link="true">
+                  <content:heading>
+                    <a class="fl-card-heading-link" href="{{ article.url }}">
+                      <include:heading
+                        level="h3"
+                        heading_size="fl-heading-size-3"
+                        superheading_text="{{ article.tag.name }}"
+                        heading_text="{{  article.index_page_heading or article.title }}"
+                      />
+                    </a>
+                  </content:heading>
+                  <content:sticker>
+                    {% if article.sticker %}
+                      {{ image(article.sticker, "width-400") }}
+                    {% else %}
+                      <img src="/media/img/firefox/flare/independence-sticker.png" alt="" aria-hidden />
+                    {% endif %}
+                  </content:sticker>
+                  <content:body>
+                    {{ article.description|richtext }}
+                  </content:body>
+                </include:sticker-card-2026>
+              {% else %}
+                <include:illustration-card expand_link="true">
+                  <content:media>
+                    {% if article.featured_image %}
+                      {{ srcset_image(
+                          article.featured_image,
+                          "width-{200,400,600,800,1000,1200,1400}",
+                          sizes="
+                            (min-width: 768px) 50vw,
+                            (min-width: 1440px) 680px,
+                            100vw
+                          ",
+                          width=article.featured_image.width,
+                          loading="lazy",
+                        ) }}
+                      {% else %}
+                        <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+                      {% endif %}
+                  </content:media>
+                  <content:heading>
+                    <h3 class="fl-heading fl-heading-size-3">
+                      <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                      {{  article.index_page_heading or article.title }}
+                      </a>
+                    </h3>
+                  </content:heading>
+                  <content:body>
+                    {{ article.description|richtext }}
+                  </content:body>
+                </include:illustration-card>
+              {% endif %}
+
             {% endfor %}
           </include:cards-list>
-        {% endif %}
+          {% endif %}
+        </div>
+      </section>
+    </div>
 
-      </div>
-    </section>
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:heading
+            alignment_class="text-center"
+            level="h2"
+            heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
+            subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
+          />
+
+          {% if switch("flare26_enabled") %}
+            <include:cards-list>
+              {% for article in list_articles %}
+                <include:illustration-card-2026 expand_link="true" variant="sticker">
+                  <content:media>
+                    {% if article.sticker %}
+                      {{ image(article.sticker, "width-400") }}
+                    {% else %}
+                      <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
+                    {% endif %}
+                  </content:media>
+                  <content:heading>
+                    {% if article.tag %}
+                      <p class="fl-superheading">
+                        {{ article.tag.name }}
+                      </p>
+                    {% endif %}
+                    <h3 class="fl-heading fl-heading-size-3">
+                      <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                      {{  article.index_page_heading or article.title }}
+                      </a>
+                    </h3>
+                  </content:heading>
+                  <content:body>
+                    {{ article.description|richtext }}
+                  </content:body>
+                </include:illustration-card-2026>
+              {% endfor %}
+            </include:cards-list>
+          {% else %}
+            <include:cards-list>
+              {% for article in list_articles %}
+                <include:card expand_link="true">
+                  <content:heading>
+                    <h3 class="fl-heading fl-heading-size-3">{{  article.index_page_heading or article.title }}</h3>
+                  </content:heading>
+                  <content:body>
+                    {{ article.description|richtext }}
+                  </content:body>
+                  <content:buttons>
+                    <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                  </content:buttons>
+                </include:card>
+              {% endfor %}
+            </include:cards-list>
+          {% endif %}
+
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 {% endblock %}

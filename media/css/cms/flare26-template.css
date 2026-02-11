@@ -11,12 +11,12 @@ This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
-    background: var(--fl-theme-background);
+    background: var(--fl-theme-body-background);
     color: var(--fl-theme-color-text);
 }
 
 body.fl-modal-open {
-    height: 100vh;
+    block-size: 100vh;
     overflow-y: hidden;
     position: fixed;
 }
@@ -28,6 +28,95 @@ body.fl-modal-open {
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     margin: 0 auto;
-    padding-block: var(--fl-section-v-padding)
-        var(--fl-theme-main-border-radius);
+    padding-block: 0 var(--fl-theme-main-border-radius);
+}
+
+.fl-split-page-upper,
+.fl-split-page-lower {
+    margin: 0;
+}
+
+.fl-split-page-upper {
+    --section-border-radius: var(--token-border-radius-lg);
+    background: var(--token-color-dark-purple);
+    border-end-end-radius: var(--section-border-radius);
+    border-end-start-radius: var(--section-border-radius);
+    color: var(--fl-theme-color-text);
+    inline-size: 100%;
+    overflow: hidden;
+    padding-block: var(--fl-section-v-padding);
+    position: relative;
+    z-index: 1;
+}
+
+.fl-split-page-lower {
+    background-color: var(--fl-theme-background);
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--fl-section-v-padding);
+    padding-block-start: var(--fl-section-v-padding);
+    position: relative;
+}
+
+.fl-main.has-gradient-bottom .fl-split-page-lower {
+    background: transparent;
+}
+
+.fl-split-page-upper > *,
+.fl-split-page-lower > *,
+.has-gradient-top > *,
+.has-gradient-bottom > *,
+.has-gradient-bottom > .conditional-passthrough > * {
+    position: relative;
+    z-index: 1;
+}
+
+.has-gradient-bottom {
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+}
+
+.has-gradient-top::before {
+    --gradient-height: 44vh;
+    background-image: radial-gradient(
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 50%
+    );
+    block-size: var(--gradient-height);
+    content: var(--content-dark-mode-only);
+    filter: blur(200px);
+    inset: calc(var(--gradient-height) / -2) -30vw auto;
+    position: absolute;
+    z-index: 0;
+}
+
+.has-gradient-bottom::before {
+    --gradient-height: 60vh;
+    background-image: radial-gradient(
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 50%
+    );
+    block-size: var(--gradient-height);
+    content: var(--content-dark-mode-only);
+    filter: blur(200px);
+    inset: auto -40vw calc(var(--gradient-height) / -2);
+    position: absolute;
+    z-index: 0;
+}
+
+.has-gradient-bottom-100-always::before {
+    --gradient-height: 100vh;
+    background-image: radial-gradient(
+        var(--token-color-light-purple) 0%,
+        var(--token-color-dark-purple) 50%
+    );
+    block-size: var(--gradient-height);
+    content: '';
+    filter: blur(200px);
+    inset: 0;
+    inset-block-start: calc(100% - 25vh);
+    position: absolute;
+    z-index: 0;
 }

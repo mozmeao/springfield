@@ -10,7 +10,7 @@
 .fl-showcase-heading,
 .fl-showcase-caption {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
 }
 
 .fl-showcase-caption {
@@ -19,7 +19,7 @@
 }
 
 .fl-showcase-caption:has(.fl-subheading) {
-    text-align: left;
+    text-align: start;
 }
 
 .fl-showcase-image {
@@ -27,7 +27,7 @@
 }
 
 .fl-showcase-image img {
-    width: 100%;
+    inline-size: 100%;
 }
 
 .fl-showcase-image .fl-video {
@@ -44,15 +44,15 @@
 
 @media (--viewport-md-up) {
     .fl-showcase.fl-showcase-default .fl-showcase-image {
-        max-width: var(--token-width-desktop-content);
+        max-inline-size: var(--token-width-desktop-content);
     }
 
     .fl-showcase.fl-showcase-full .fl-showcase-image {
-        width: 100%;
+        inline-size: 100%;
     }
 
     .fl-showcase.fl-showcase-expanded {
-        width: var(--token-width-desktop-content);
+        inline-size: var(--token-width-desktop-content);
     }
 
     .fl-showcase.fl-showcase-expanded .fl-showcase-image {
@@ -62,6 +62,6 @@
 
 @media (--viewport-lg-up) {
     .fl-showcase.fl-showcase-expanded {
-        max-width: 100%;
+        max-inline-size: 100%;
     }
 }

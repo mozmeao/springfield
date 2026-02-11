@@ -21,13 +21,12 @@
     {% endif %}
     {% if flare_styles %}
       <include:icon
-        icon_name="download"
+        icon_name="downloads"
         hidden=true
         extra_class="fl-icon-right" />
     {% else %}
       <span class="mzp-c-button-icon-end">
-        <!-- TODO: replace with new protocol-assets version -->
-        <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+        <span class="fl-icon fl-icon-downloads" aria-hidden="true"></span>
       </span>
     {% endif %}
   </a>

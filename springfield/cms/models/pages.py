@@ -6,16 +6,19 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail.snippets.blocks import SnippetChooserBlock
+from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
+    ICON_CHOICES,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
@@ -25,7 +28,9 @@ from springfield.cms.blocks import (
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
+    IntroBlock2026,
     KitBannerBlock,
+    RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
@@ -156,7 +161,19 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name_plural = "Home Pages"
 
 
+class DownloadIndexPage(AbstractSpringfieldCMSPage):
+    subpage_types = ["cms.DownloadPage"]
+
+    def serve(self, request):
+        return redirect(reverse("firefox.all"))
+
+    def serve_preview(self, request, *args, **kwargs):
+        return redirect(reverse("firefox.all"))
+
+
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    parent_page_types = ["cms.DownloadIndexPage"]
+
     ftl_files = [
         "firefox/download/download",
         "firefox/browsers/mobile/android",
@@ -204,23 +221,6 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
-    pre_footer = StreamField(
-        [
-            (
-                "pre_footer_cta_form_snippet",
-                SnippetChooserBlock(
-                    target_model="cms.PreFooterCTAFormSnippet",
-                    template="cms/snippets/pre-footer-cta-form-snippet.html",
-                    label="Pre-Footer CTA Form Snippet",
-                ),
-            )
-        ],
-        use_json_field=True,
-        min_num=0,
-        max_num=1,
-        null=True,
-        blank=True,
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("platform"),
@@ -228,7 +228,6 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
         FieldPanel("content"),
-        FieldPanel("pre_footer"),
     ]
 
     def get_context(self, request, *args, **kwargs):
@@ -302,7 +301,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    subpage_types = ["cms.ArticleDetailPage"]
+    subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
 
     sub_title = models.CharField(
         max_length=255,
@@ -320,13 +319,18 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        all_articles = [page.specific for page in self.get_children().live().public().order_by("-first_published_at")]
+        all_articles = [
+            page.specific
+            for page in self.get_children().live().public().order_by("-first_published_at")
+            if isinstance(page.specific, ArticleDetailPage)
+        ]
 
         featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
         list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
+        context["tags"] = {article.tag.slug: article.tag.name for article in all_articles if article.tag}
         return context
 
 
@@ -345,21 +349,31 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="A portrait-oriented image used in featured article cards.",
     )
-    featured_tag = models.CharField(
+    tag = models.ForeignKey(
+        "cms.Tag",
+        null=True,
         blank=True,
-        help_text="A short tag to display above the article title on featured article cards.",
+        on_delete=models.SET_NULL,
+        related_name="articles",
     )
     link_text = models.CharField(
         default="Read more",
         help_text="Custom text for the 'Read more' link on article cards.",
     )
-    icon = models.ForeignKey(
+    sticker = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="An icon used for listing articles on the index page.",
+        help_text="A sticker image used in article cards.",
+    )
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        choices=ICON_CHOICES,
+        help_text="Optional icon to display on icon article cards.",
     )
     index_page_heading = models.CharField(
         blank=True,
@@ -385,14 +399,30 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    related_articles = StreamField(
+        [
+            ("related_articles_list", RelatedArticlesListBlock()),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+        max_num=1,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
             [
                 FieldPanel("featured"),
-                FieldPanel("featured_tag"),
+                FieldPanel("tag"),
                 FieldPanel("featured_image"),
-                FieldPanel("icon"),
+                FieldPanel("sticker"),
+                FieldPanel(
+                    "icon",
+                    widget=ThumbnailRadioSelect(
+                        thumbnail_template_mapping={choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in ICON_CHOICES},
+                        thumbnail_size=20,
+                    ),
+                ),
                 FieldPanel("link_text"),
                 FieldPanel("index_page_heading"),
                 FieldPanel("description"),
@@ -400,6 +430,24 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             heading="Index Page Settings",
         ),
         FieldPanel("image"),
+        FieldPanel("content"),
+        FieldPanel("related_articles"),
+    ]
+
+
+class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays articles related to a specific theme."""
+
+    content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("section", SectionBlock2026()),
+        ],
+        use_json_field=True,
+        default=list(),
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
     ]
 

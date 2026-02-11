@@ -1,0 +1,33 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:illustration-card-2026 expand_link="true">
+  <content:media>
+    {% set img = value.get_sticker() %}
+    {% if img %}
+      {{ image(img, "width-400") }}
+    {% else %}
+      <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
+    {% endif %}
+  </content:media>
+  <content:heading>
+    {% set superheading = value.get_superheading() %}
+    <include:heading
+      level="h3"
+      heading_text="{{ value.get_title()|safe }}"
+      superheading_text="{{ superheading }}"
+    />
+  </content:heading>
+  <content:body>
+    {% if value.tags %}
+      <div>
+        {% for tag in value.tags %}
+          {% include_block tag %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </content:body>
+</include:illustration-card-2026>
