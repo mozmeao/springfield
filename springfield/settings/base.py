@@ -56,6 +56,9 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
+ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
