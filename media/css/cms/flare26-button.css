@@ -100,7 +100,7 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-button-square {
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-2xs);
 }
 
 /* Button fills - Outline */
@@ -118,8 +118,7 @@ Button - Flare 2026 Design System Buttons
 .fl-button-text {
     background-color: transparent;
     color: var(--fl-theme-button-primary);
-    padding-left: 0;
-    padding-right: 0;
+    padding-inline: 0;
 }
 
 .fl-button-text:hover {
@@ -135,8 +134,8 @@ Button - Flare 2026 Design System Buttons
 
 /* Button icons */
 .fl-button .fl-icon {
-    height: var(--token-spacing-lg);
-    width: var(--token-spacing-lg);
+    block-size: var(--token-spacing-lg);
+    inline-size: var(--token-spacing-lg);
 }
 
 .fl-buttons {
@@ -150,8 +149,8 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-buttons.is-horizontal.is-center {
+    inline-size: 100%;
     justify-content: center;
-    width: 100%;
 }
 
 .fl-buttons.is-stacked {
@@ -160,7 +159,7 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-buttons.is-stacked .fl-button {
-    width: 100%;
+    inline-size: 100%;
 }
 
 .fl-buttons > * {
@@ -168,9 +167,9 @@ Button - Flare 2026 Design System Buttons
 }
 
 .fl-buttons.is-stacked > * {
-    width: 100%;
+    inline-size: 100%;
 }
 
 .fl-buttons .fl-button {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }

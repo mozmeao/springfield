@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
@@ -41,53 +42,44 @@ HEADING_LEVEL_CHOICES = (
 ICON_CHOICES = [
     ("activity", "Activity"),
     ("add", "Add"),
+    ("android", "Android"),
+    ("apple", "Apple"),
     ("add-circle-fill", "Add Circle Fill"),
     ("add-text", "Add Text"),
     ("add-user", "Add User"),
-    ("ai", "AI"),
-    ("alert", "Alert"),
     ("all-tabs", "All Tabs"),
-    ("android", "Android"),
     ("app-menu", "App Menu"),
     ("app-menu-space", "App Menu Space"),
-    ("apple", "Apple"),
     ("applied-policy", "Applied Policy"),
     ("arrow-clockwise", "Arrow Clockwise"),
     ("arrow-counterclockwise", "Arrow Counterclockwise"),
-    ("arrow-down", "Arrow Down"),
     ("arrow-down-line", "Arrow Down Line"),
-    ("arrow-forward", "Arrow Forward"),
-    ("arrow-left", "Arrow Left"),
-    ("arrow-right", "Arrow Right"),
     ("arrow-trending", "Arrow Trending"),
-    ("arrow-up", "Arrow Up"),
     ("audio", "Audio"),
     ("audio-muted", "Audio Muted"),
     ("authenticated-user", "Authenticated User"),
-    ("auto-play", "Auto Play"),
-    ("auto-play-off", "Auto Play Off"),
+    ("auto-play-false", "Auto Play False"),
+    ("auto-play-true", "Auto Play True"),
     ("avatar-signed-in-fill", "Avatar Signed In Fill"),
     ("avatar-signed-in-fill-custom-initial", "Avatar Signed In Fill Custom Initial"),
+    ("avatar-signed-in-fill-profile-picture", "Avatar Signed In Fill Profile Picture"),
     ("avatar-signed-out", "Avatar Signed Out"),
     ("back", "Back"),
     ("barbell", "Barbell"),
-    ("bell", "Bell"),
     ("bike", "Bike"),
     ("blocked-popup", "Blocked Popup"),
-    ("blog", "Blog"),
+    ("block", "Block"),
+    ("block-download", "Block Download"),
     ("book", "Book"),
     ("bookmark", "Bookmark"),
     ("bookmark-fill", "Bookmark Fill"),
     ("bookmarks-tray", "Bookmarks Tray"),
     ("briefcase", "Briefcase"),
     ("calendar", "Calendar"),
-    ("camera", "Camera"),
-    ("canvas", "Canvas"),
-    ("canvas-off", "Canvas Off"),
-    ("caret-down", "Caret Down"),
-    ("caret-up", "Caret Up"),
-    ("chat", "Chat"),
-    ("check", "Check"),
+    ("camera-false", "Camera False"),
+    ("camera-true", "Camera True"),
+    ("canvas-false", "Canvas False"),
+    ("canvas-true", "Canvas True"),
     ("checkmark", "Checkmark"),
     ("checkmark-circle-fill", "Checkmark Circle Fill"),
     ("chevron-double-right", "Chevron Double Right"),
@@ -100,75 +92,59 @@ ICON_CHOICES = [
     ("close-circle-fill", "Close Circle Fill"),
     ("closed-caption", "Closed Caption"),
     ("closed-tabs", "Closed Tabs"),
-    ("cloud", "Cloud"),
     ("color-picker", "Color Picker"),
     ("comment", "Comment"),
     ("competitiveness", "Competitiveness"),
-    ("copy", "Copy"),
     ("craft", "Craft"),
     ("critical", "Critical"),
     ("critical-fill", "Critical Fill"),
-    ("cryptominer", "Cryptominer"),
-    ("cryptominer-off", "Cryptominer No"),
+    ("cryptominer-false", "Cryptominer False"),
+    ("cryptominer-true", "Cryptominer True"),
     ("current-view", "Current View"),
     ("cursor-arrow", "Cursor Arrow"),
     ("dashboard", "Dashboard"),
     ("data-clearance", "Data Clearance"),
-    ("data-insights", "Data Insights"),
-    ("data-pie", "Data Pie"),
     ("delete", "Delete"),
-    ("design", "Design"),
     ("device-mobile", "Device Mobile"),
     ("diamond", "Diamond"),
-    ("download", "Download"),
     ("downloaded-file", "Downloaded File"),
     ("downloads", "Downloads"),
-    ("earth", "Earth"),
     ("edit", "Edit"),
     ("edit-active", "Edit Active"),
     ("edit-squiggle", "Edit Squiggle"),
-    ("edit-write", "Edit Write"),
-    ("email", "Email"),
     ("email-mask", "Email Mask"),
     ("email-shield", "Email Shield"),
     ("error", "Error"),
     ("error-fill", "Error Fill"),
     ("even-spreads", "Even Spreads"),
-    ("event", "Event"),
     ("export-data", "Export Data"),
     ("extension", "Extension"),
     ("extension-critical", "Extension Critical"),
     ("extension-fill", "Extension Fill"),
     ("extension-warning", "Extension Warning"),
     ("external-link", "External Link"),
-    ("eye-closed", "Eye Closed"),
-    ("eye-open", "Eye Open"),
     ("find-in-page", "Find In Page"),
-    ("fingerprinter", "Fingerprinter"),
-    ("fingerprinter-off", "Fingerprinter Off"),
     ("firefox-bridge", "Firefox Bridge"),
     ("firefox-browser-bridge", "Firefox Browser Bridge"),
     ("flower", "Flower"),
     ("folder", "Folder"),
     ("folder-arrow-down", "Folder Arrow Down"),
     ("folder-fill", "Folder Fill"),
-    ("folder-plus", "Folder Plus"),
-    ("footprints", "Footprints"),
-    ("footprints-off", "Footprints Off"),
+    ("fingerprinter-false", "Fingerprinter False"),
+    ("fingerprinter-true", "Fingerprinter True"),
+    ("footprints-false", "Footprints False"),
+    ("footprints-true", "Footprints True"),
     ("forward", "Forward"),
     ("forward-small", "Forward Small"),
     ("fullscreen-disabled", "Fullscreen Disabled"),
     ("fullscreen-exit", "Fullscreen Exit"),
     ("fullscreen-expand", "Fullscreen Expand"),
-    ("fx-view", "FX View"),
-    ("gear", "Gear"),
+    ("fx-view", "Fx View"),
     ("gift", "Gift"),
     ("globe", "Globe"),
     ("globe-slash", "Globe Slash"),
     ("hammer", "Hammer"),
     ("hand", "Hand"),
-    ("hashtag", "Hashtag"),
-    ("headphone", "Headphone"),
     ("heart", "Heart"),
     ("heart-rate", "Heart Rate"),
     ("help", "Help"),
@@ -180,9 +156,10 @@ ICON_CHOICES = [
     ("identity", "Identity"),
     ("import-data", "Import Data"),
     ("import-export", "Import Export"),
+    ("image-tracker-false", "Image Tracker False"),
+    ("image-tracker-true", "Image Tracker True"),
     ("information", "Information"),
     ("information-fill", "Information Fill"),
-    ("language", "Language"),
     ("layer", "Layer"),
     ("leaf", "Leaf"),
     ("library", "Library"),
@@ -190,26 +167,26 @@ ICON_CHOICES = [
     ("line-arrow-up", "Line Arrow Up"),
     ("list", "List"),
     ("list-arrow-left", "List Arrow Left"),
-    ("location", "Location"),
-    ("location-off", "Location Off"),
     ("lock", "Lock"),
     ("lock-document", "Lock Document"),
     ("lock-insecure", "Lock Insecure"),
     ("lock-warning", "Lock Warning"),
+    ("local-host-false", "Local Host False"),
+    ("local-host-true", "Local Host True"),
+    ("local-network-false", "Local Network False"),
+    ("local-network-true2", "Local Network True2"),
+    ("location-false", "Location False"),
+    ("location-true", "Location True"),
     ("login", "Login"),
     ("makeup", "Makeup"),
-    ("megaphone", "Megaphone"),
-    ("menu", "Menu"),
-    ("mic", "Microphone"),
-    ("mic-off", "Microphone Off"),
+    ("microphone-false", "Microphone False"),
+    ("microphone-true", "Microphone True"),
     ("midi", "Midi"),
-    ("minus", "Minus"),
-    ("mobile-phone", "Mobile Phone"),
     ("musical-note", "Musical Note"),
     ("newsfeed", "Newsfeed"),
+    ("notifications-false", "Notifications False"),
+    ("notifications-true", "Notifications True"),
     ("no-spreads", "No Spreads"),
-    ("notifications", "Notifications"),
-    ("notifications-off", "Notifications Off"),
     ("odd-spreads", "Odd Spreads"),
     ("off", "Off"),
     ("open-tabs", "Open Tabs"),
@@ -223,52 +200,46 @@ ICON_CHOICES = [
     ("palette", "Palette"),
     ("paperclip", "Paperclip"),
     ("passkey", "Passkey"),
-    ("pause", "Pause"),
     ("pause-fill", "Pause Fill"),
     ("paw-print", "Paw Print"),
     ("payment-methods", "Payment Methods"),
-    ("permission", "Permission"),
     ("picture-in-picture-closed", "Picture In Picture Closed"),
     ("picture-in-picture-open", "Picture In Picture Open"),
     ("pin", "Pin"),
     ("pin-fill", "Pin Fill"),
     ("plane", "Plane"),
-    ("play", "Play"),
     ("play-fill", "Play Fill"),
     ("playback-forward", "Playback Forward"),
     ("playback-rewind", "Playback Rewind"),
-    ("plugin", "Plugin"),
-    ("plugin-off", "Plugin Off"),
-    ("plus", "Plus"),
+    ("plugin-false", "Plugin False"),
+    ("plugin-true", "Plugin True"),
+    ("popup-subitem", "Popup Subitem"),
     ("pocket", "Pocket"),
     ("pocket-fill", "Pocket Fill"),
     ("policy", "Policy"),
-    ("popup-subitem", "Popup Subitem"),
     ("presentation-mode", "Presentation Mode"),
     ("price", "Price"),
     ("print", "Print"),
     ("private-mode-circle-fill", "Private Mode Circle Fill"),
     ("private-mode-fill", "Private Mode Fill"),
     ("quality", "Quality"),
-    ("quote", "Quote"),
-    ("read", "Read"),
     ("reader-mode", "Reader Mode"),
     ("remove-user", "Remove User"),
-    ("report", "Report"),
-    ("screenshare", "Screenshare"),
-    ("screenshare-off", "Screenshare Off"),
+    ("screenshot-camera", "Camera (Screenshot)"),
+    ("search", "Search"),
     ("search-in-circle", "Search In Circle"),
     ("search-in-circle-right", "Search In Circle Right"),
-    ("search", "Search"),
+    ("screesnshare-false", "Screesnshare False"),
+    ("screesnshare-true", "Screesnshare True"),
     ("settings", "Settings"),
-    ("share-mac-os", "Share Mac"),
-    ("share-win-os", "Share Windows"),
+    ("share-macos", "Share Macos"),
+    ("share-winos", "Share Winos"),
     ("shield", "Shield"),
     ("shipping", "Shipping"),
     ("shopping", "Shopping"),
     ("shopping-cart", "Shopping Cart"),
-    ("show-password", "Show Password"),
-    ("show-password-off", "Show Password Off"),
+    ("show-password-false", "Show Password False"),
+    ("show-password-true", "Show Password True"),
     ("sidebar-collapsed", "Sidebar Collapsed"),
     ("sidebar-collapsed-right", "Sidebar Collapsed Right"),
     ("sidebar-expanded", "Sidebar Expanded"),
@@ -279,19 +250,16 @@ ICON_CHOICES = [
     ("signature-properties", "Signature Properties"),
     ("single-user", "Single User"),
     ("soccer-ball", "Soccer Ball"),
-    ("social-tracker", "Social Tracker"),
-    ("social-tracker-off", "Social Tracker Off"),
+    ("social-tracker-false", "Social Tracker False"),
+    ("social-tracker-true", "Social Tracker True"),
     ("sort", "Sort"),
-    ("sound-off", "Sound Off"),
-    ("sound-on", "Sound On"),
     ("sparkle-single", "Sparkle Single"),
     ("sparkles", "Sparkles"),
     ("split-view", "Split View"),
     ("split-view-left", "Split View Left"),
     ("split-view-right", "Split View Right"),
-    ("star", "Star"),
-    ("storage", "Storage"),
-    ("storage-off", "Storage Off"),
+    ("storage-false", "Storage False"),
+    ("storage-true", "Storage True"),
     ("subtract", "Subtract"),
     ("subtract-circle-fill", "Subtract Circle Fill"),
     ("sync", "Sync"),
@@ -304,29 +272,30 @@ ICON_CHOICES = [
     ("taskbar-remove-tab", "Taskbar Remove Tab"),
     ("text-cursor", "Text Cursor"),
     ("themes", "Themes"),
-    ("thumbs-up", "Thumbs Up"),
-    ("toggle-off", "Toggle Off"),
-    ("toggle-on", "Toggle On"),
     ("top-sites", "Top Sites"),
-    ("tracking-cookies", "Tracking Cookies"),
-    ("tracking-cookies-off", "Tracking Cookies Off"),
-    ("trash", "Trash"),
+    ("toggle-on", "Toggle On"),
+    ("tracking-cookies-false", "Tracking Cookies False"),
+    ("tracking-cookies-true", "Tracking Cookies True"),
+    ("translate", "Translate"),
     ("trending", "Trending"),
     ("unauthenticated-user", "Unauthenticated User"),
     ("update", "Update"),
     ("update-circle-fill", "Update Circle Fill"),
-    ("user", "User"),
     ("users", "Users"),
     ("vertical-scrolling", "Vertical Scrolling"),
     ("vertical-tabs", "Vertical Tabs"),
     ("video-game-controller", "Video Game Controller"),
+    ("vpn-disconnected", "Vpn Disconnected"),
+    ("vpn-off", "Vpn Off"),
+    ("vpn-on", "Vpn On"),
+    ("vpn-on-off-site", "Vpn On Off Site"),
     ("warning", "Warning"),
     ("warning-fill", "Warning Fill"),
     ("window", "Window"),
     ("window-firefox", "Window Firefox"),
     ("wrapped-scrolling", "Wrapped Scrolling"),
-    ("xr", "XR"),
-    ("xr-off", "XR Off"),
+    ("xr-false", "XR False"),
+    ("xr-true", "XR True"),
 ]
 
 CONDITIONAL_DISPLAY_CHOICES = [
@@ -657,6 +626,34 @@ class TagBlock(blocks.StructBlock):
             ("outline", "Outline"),
         ],
         required=False,
+    )
+
+    class Meta:
+        template = "cms/blocks/tag.html"
+        label = "Tag"
+        label_format = "Tag - {title}"
+        form_classname = "compact-form struct-block"
+
+
+class TagBlock2026(blocks.StructBlock):
+    title = blocks.CharBlock()
+    icon = IconChoiceBlock()
+    icon_position = blocks.ChoiceBlock(
+        choices=(("before", "Before"), ("after", "After")),
+        default="before",
+        label="Icon Position",
+        inline_form=True,
+    )
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("red", "Red"),
+            ("orange", "Orange"),
+            ("green", "Green"),
+        ],
+        default="purple",
+        required=False,
+        inline_form=True,
     )
 
     class Meta:
@@ -1189,6 +1186,192 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     return _CardsListBlock(*args, **kwargs)
 
 
+# Article Cards
+
+
+class ArticleOverridesBlock(blocks.StructBlock):
+    image = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
+    )
+    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
+    superheading = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
+    )
+    title = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom title to override the article's original title.",
+    )
+    description = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom description to override the article's original description.",
+    )
+    link_label = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom link label to override the article's original call to action text.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Overrides"
+
+
+class ArticleValue(blocks.StructValue):
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if title := overrides.get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get("article")
+        return article_page.title if article_page else ""
+
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if description := overrides.get("description"):
+            return remove_p_tag(richtext(description))
+        article_page = self.get("article")
+        return remove_p_tag(richtext(article_page.description))
+
+    def get_superheading(self) -> str:
+        overrides = self.get("overrides", {})
+        if superheading := overrides.get("superheading"):
+            return superheading
+        article_page = self.get("article")
+        if article_page and article_page.tag:
+            return article_page.tag.name
+        return ""
+
+    def get_link_label(self) -> str:
+        overrides = self.get("overrides", {})
+        if link_label := overrides.get("link_label"):
+            return link_label
+        article_page = self.get("article")
+        return article_page.link_text
+
+
+class ArticleBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        target_model="cms.ArticleDetailPage",
+    )
+    overrides = ArticleOverridesBlock(required=False)
+
+    class Meta:
+        label = "Article"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
+        value_class = ArticleValue
+
+
+class ArticlesListSettings(blocks.StructBlock):
+    card_type = blocks.ChoiceBlock(
+        choices=[
+            ("sticker_card", "Sticker Card"),
+            ("illustration_card", "Illustration Card"),
+            ("icon_card", "Icon Card"),
+            ("sticker_row", "Sticker Row"),
+        ],
+        default="sticker_card",
+        label="Card Type",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Card Type: {card_type}"
+        form_classname = "compact-form struct-block"
+
+
+class ArticleCardsListBlock(blocks.StructBlock):
+    settings = ArticlesListSettings()
+    cards = blocks.ListBlock(ArticleBlock())
+
+    class Meta:
+        template = "cms/blocks/article-cards-list.html"
+        label = "Article Cards List"
+        label_format = "{heading}"
+
+
+class RelatedArticleOverridesBlock(blocks.StructBlock):
+    sticker = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom sticker image to override the article's sticker.",
+    )
+    superheading = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom superheading to override the article's tag.",
+    )
+    title = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom title to override the article's title.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Overrides"
+
+
+class RelatedArticleValue(blocks.StructValue):
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if title := overrides.get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get("article")
+        return article_page.title if article_page else ""
+
+    def get_superheading(self) -> str:
+        overrides = self.get("overrides", {})
+        if superheading := overrides.get("superheading"):
+            return superheading
+        article_page = self.get("article")
+        if article_page and article_page.tag:
+            return article_page.tag.name
+        return ""
+
+    def get_sticker(self):
+        overrides = self.get("overrides", {})
+        if sticker := overrides.get("sticker"):
+            return sticker
+        article_page = self.get("article")
+        return article_page.sticker if article_page else None
+
+
+class RelatedArticleBlock(blocks.StructBlock):
+    article = blocks.PageChooserBlock(
+        target_model="cms.ArticleDetailPage",
+    )
+    overrides = RelatedArticleOverridesBlock(required=False)
+    tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
+
+    class Meta:
+        label = "Related Article"
+        label_format = "{article}"
+        form_classname = "compact-form struct-block"
+        value_class = RelatedArticleValue
+        template = "cms/blocks/related-article-card.html"
+
+
+class RelatedArticlesListBlock(blocks.StructBlock):
+    cards = blocks.ListBlock(RelatedArticleBlock())
+
+    class Meta:
+        template = "cms/blocks/related-articles-list.html"
+        label = "Related Articles List"
+        label_format = "{heading}"
+
+
 # Section blocks
 
 
@@ -1289,15 +1472,39 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             label = "Intro"
             label_format = "{heading}"
 
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
+    return _IntroBlock(*args, **kwargs)
 
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image, not both.")
-            return cleaned_data
+
+def IntroBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IntroBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IntroBlock(blocks.StructBlock):
+        media = blocks.StreamBlock(
+            [
+                ("image", ImageVariantsBlock()),
+                ("video", VideoBlock()),
+            ],
+            label="Media",
+            required=False,
+            max_num=1,
+        )
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/sections/intro-2026.html"
+            label = "Intro"
+            label_format = "{heading}"
 
     return _IntroBlock(*args, **kwargs)
 
@@ -1366,6 +1573,7 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
             ],
             required=False,
         )

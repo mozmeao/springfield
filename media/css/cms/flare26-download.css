@@ -2,14 +2,9 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--token-layout-xs);
     overflow: hidden;
     padding: var(--token-layout-lg) 0 0;
     text-align: center;
-}
-
-.fl-download-intro .fl-section {
-    padding-block: 0;
 }
 
 .fl-download-intro .fl-subheading,
@@ -20,12 +15,12 @@
 
 .fl-download-intro .fl-heading-size-1 .fl-fx-logo {
     display: inline-block;
-    margin-bottom: 0.25em;
+    margin-block-end: 0.25em;
 }
 
 .fl-download-intro .fl-subheading {
     margin-inline: auto;
-    max-width: 800px;
+    max-inline-size: 800px;
     text-wrap: balance;
 }
 
@@ -34,9 +29,9 @@
 }
 
 .fl-download-intro-featured-image img {
+    inline-size: 810px;
     margin-block-end: -4px;
-    max-width: 100%;
-    width: 810px;
+    max-inline-size: 100%;
 }
 
 /* Platform dropdown styles */
@@ -44,6 +39,7 @@
 .fl-platform-dropdown-wrapper {
     display: flex;
     justify-content: center;
+    z-index: 10;
 }
 
 .fl-platform-dropdown {
@@ -54,16 +50,16 @@
 .fl-platform-dropdown-button {
     align-items: baseline;
     background-color: transparent;
-    border-bottom: 2px solid var(--token-color-light-purple);
+    border-block-end: 2px solid var(--token-color-light-purple);
+    border-block-start: 2px solid transparent;
     border-radius: 0;
-    border-top: 2px solid transparent;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-headline);
     gap: var(--token-spacing-md);
+    inline-size: 100%;
     justify-content: center;
     margin: 0;
     padding: var(--token-spacing-xs) var(--token-spacing-md);
-    width: 100%;
 }
 
 .fl-platform-dropdown-button:hover,
@@ -71,23 +67,23 @@
 .fl-platform-dropdown-button:active {
     background-color: var(--token-color-light-purple);
     border-color: var(--token-color-light-purple);
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-2xs);
 }
 
 .fl-platform-dropdown-button .fl-icon-wrapper {
     align-items: center;
     background: var(--token-color-medium-purple);
+    block-size: 36px;
     border-radius: 50%;
     display: flex;
-    height: 36px;
+    inline-size: 36px;
     justify-content: center;
     transform: translateY(-0.2em);
-    width: 36px;
 }
 
 .fl-platform-dropdown-button .fl-icon-wrapper .fl-icon {
-    height: 16px;
-    width: 16px;
+    block-size: 16px;
+    inline-size: 16px;
 }
 
 .fl-platform-dropdown-list {
@@ -96,17 +92,17 @@
 
 .fl-platform-dropdown.dropdown-is-open .fl-platform-dropdown-button {
     border: 2px solid var(--token-color-light-purple);
-    border-bottom: transparent;
-    border-radius: var(--token-border-radius-xs) var(--token-border-radius-xs) 0
-        0;
-    min-width: var(--platform-dropdown-min-width, 8ch);
+    border-block-end: transparent;
+    border-radius: var(--token-border-radius-2xs) var(--token-border-radius-2xs)
+        0 0;
+    min-inline-size: var(--platform-dropdown-min-width, 8ch);
 }
 
 .fl-platform-dropdown.dropdown-is-open .fl-platform-dropdown-list {
     background-color: var(--token-color-dark-purple);
     border: 2px solid var(--token-color-light-purple);
-    border-radius: 0 0 var(--token-border-radius-xs)
-        var(--token-border-radius-xs);
+    border-radius: 0 0 var(--token-border-radius-2xs)
+        var(--token-border-radius-2xs);
     box-shadow: 0 4px 30px 0 var(--fl-menu-panel-box-shadow-color);
     display: block;
     inset: 100% 0 auto;
@@ -114,7 +110,6 @@
     margin: 0;
     padding: 0;
     position: absolute;
-    z-index: 10;
 }
 
 .fl-dropdown-item {
@@ -122,13 +117,13 @@
 }
 
 .fl-dropdown-item > a {
-    border-bottom: 2px solid var(--token-color-light-purple);
+    border-block-end: 2px solid var(--token-color-light-purple);
     color: var(--token-color-white);
     display: flex;
     font-family: var(--fl-theme-font-family-headline);
     font-size: var(--fl-theme-font-size-heading-md);
     font-weight: var(--token-font-weight-semibold);
-    min-width: var(--platform-dropdown-min-width, 8ch);
+    min-inline-size: var(--platform-dropdown-min-width, 8ch);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     text-decoration: none;
 }
@@ -142,7 +137,7 @@
 }
 
 .fl-dropdown-item:last-child > a {
-    border-bottom: 0 none;
+    border-block-end: 0 none;
 }
 
 .fl-dropdown-item > a,

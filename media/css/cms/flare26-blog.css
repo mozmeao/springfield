@@ -5,5 +5,5 @@
 */
 
 .fl-page-blog .fl-main {
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
 }
