@@ -39,7 +39,7 @@ context:
         - text: Featured
           color: orange
           corners: round
-          before_icon: star
+          before_icon: bookmark
           after_icon: ''
       body: This variant shows the media content component with the image positioned after the content, creating a reversed layout.
       buttons:

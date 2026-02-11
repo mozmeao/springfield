@@ -34,7 +34,7 @@
   <h4>Icons</h4>
   <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 16px; align-items: start;">
     {% for icon in icons %}
-    <div style="text-align: center;">
+    <div style="text-align: center;" style="color: white;">
       {% set icon_name = icon.icon_name %}
       <include:icon icon_name="{{ icon_name }}" />
       <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">{{ icon.name }}</div>

@@ -216,7 +216,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "user",
+                    "icon": "single-user",
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
                 },
