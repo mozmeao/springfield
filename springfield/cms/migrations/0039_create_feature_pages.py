@@ -411,9 +411,12 @@ def _convert_ftl_links_to_wagtail(translated, source):
 
 def run_all_forward(apps, schema_editor):
     """Run all migration steps in order."""
-    # In tests, the code to create feature pages is skipped entirely.
-    if os.environ.get("DJANGO_SETTINGS_MODULE") == "springfield.settings.test":
-        print("Skipping feature page creation in test environment")
+    # Skip in tests and CI environments
+    is_test = os.environ.get("DJANGO_SETTINGS_MODULE") == "springfield.settings.test"
+    is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
+
+    if is_test or is_ci:
+        print("Skipping feature page creation in test/CI environment")
         return
 
     # NOTE: deliberately disabled because we don't need to run this in production

@@ -1,0 +1,19 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-section fl-related-articles">
+  <div class="fl-section-container">
+    <header class="fl-related-articles-header">
+      <h3 class="fl-heading fl-heading-xs">{{ ftl('ui-more-features') }}</h3>
+      <a class="fl-related-articles-header-link" href="/features">{{ ftl('ui-view-all') }}</a>
+    </header>
+    <include:cards-list>
+      {% for card in value.cards %}
+        {% include_block card %}
+      {% endfor %}
+    </include:cards-list>
+  </div>
+</section>

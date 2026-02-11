@@ -9,7 +9,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Purple Tag",
-                "icon": "ai",
+                "icon": "trending",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "purple",
@@ -20,7 +20,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Blue Tag",
-                "icon": "alert",
+                "icon": "warning",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "blue",
@@ -53,7 +53,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "White Tag",
-                "icon": "bell",
+                "icon": "translate",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "white",
@@ -64,7 +64,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Black Tag",
-                "icon": "blog",
+                "icon": "edit-active",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "black",
@@ -75,7 +75,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Grey Tag",
-                "icon": "blog",
+                "icon": "bookmark",
                 "icon_position": "after",
                 "corners": "round",
                 "color": None,
@@ -119,7 +119,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft black",
-                "icon": "email",
+                "icon": "email-shield",
                 "icon_position": "after",
                 "corners": "soft",
                 "color": "black",

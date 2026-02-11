@@ -9,84 +9,78 @@
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% block body_class %}fl-home-body{% endblock %}
 
 {% block flare_header %}
   <include:flare26-header theme="dark" />
 {% endblock %}
 
-
 {% block content %}
 <div class="fl-page">
   <main class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
-      <div class="fl-section-container">
-        <div class="fl-section">
-          <h1 class="fl-heading fl-heading-size-1">
-            <span class="fl-fx-logo">‍</span><br>
-            {{ ftl('firefox-new-download-firefox') }}
-          </h1>
-          <div class="fl-platform-dropdown-wrapper">
-            <div class="fl-platform-dropdown">
-            <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
-                {{ platforms[page.platform] }}
-              </span>
-              <span class="fl-icon-wrapper">
-                <span class="fl-icon fl-icon-caret-down" aria-hidden="true"></span>
-              </span>
-            </button>
-            <ul class="fl-platform-dropdown-list" aria-role="listbox">
-              {% for key, platform in platforms.items() %}
-                <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-                  <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
-                    {{ platform }}
-                  </a>
-                </li>
-              {% endfor %}
-              </ul>
-            </div>
-          </div>
-
-          <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
-
-          {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
-
-          {% if page.platform == "mac" %}
-            {{ firefox_download_desktop_button_mac(flare_styles=True) }}
-          {% elif page.platform == "windows" %}
-            {{ firefox_download_desktop_button_windows(flare_styles=True) }}
-          {% elif page.platform == "linux" %}
-            {{ firefox_download_desktop_button_linux(flare_styles=True) }}
-          {% elif page.platform == "android" %}
-            {% set android_url = play_store_url('firefox', campaign) %}
-            {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
-          {% elif page.platform == "ios" %}
-            {% set ios_url = app_store_url('firefox', campaign) %}
-            {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
-          {% elif page.platform == "chromebook" %}
-            {% set android_url = play_store_url('firefox', campaign) %}
-            {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
-            <p><small>{{ ftl('browsers-chromebook-x86-based-chromebook') }}</small></p>
-            {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' ~ campaign ~ '&utm_content=seo' %}
-            <a href="https://support.mozilla.org/kb/run-firefox-chromeos{{ params }}" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
-              {{ ftl('browsers-chromebook-get-firefox-desktop') }}
-            </a>
-          {% endif %}
-
-          {% if page.intro_footer_text %}
-            <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
-          {% endif %}
-          <div class="fl-download-intro-featured-image">
-            {{ srcset_image(
-                page.featured_image,
-                "width-{200,400,600,800,1000,1200,1400}",
-                sizes="(min-width: 900px) 810px, 100vw",
-                width=page.featured_image.width,
-                height=page.featured_image.height,
-                loading="lazy",
-            ) }}
-          </div>
+      <h1 class="fl-heading fl-heading-size-1">
+        <span class="fl-fx-logo">‍</span><br>
+        {{ ftl('firefox-new-download-firefox') }}
+      </h1>
+      <div class="fl-platform-dropdown-wrapper">
+        <div class="fl-platform-dropdown">
+        <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+            {{ platforms[page.platform] }}
+          </span>
+          <span class="fl-icon-wrapper">
+            <span class="fl-icon fl-icon-chevron-down" aria-hidden="true"></span>
+          </span>
+        </button>
+        <ul class="fl-platform-dropdown-list" aria-role="listbox">
+          {% for key, platform in platforms.items() %}
+            <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+              <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                {{ platform }}
+              </a>
+            </li>
+          {% endfor %}
+          </ul>
         </div>
+      </div>
+
+      <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
+
+      {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+
+      {% if page.platform == "mac" %}
+        {{ firefox_download_desktop_button_mac(flare_styles=True) }}
+      {% elif page.platform == "windows" %}
+        {{ firefox_download_desktop_button_windows(flare_styles=True) }}
+      {% elif page.platform == "linux" %}
+        {{ firefox_download_desktop_button_linux(flare_styles=True) }}
+      {% elif page.platform == "android" %}
+        {% set android_url = play_store_url('firefox', campaign) %}
+        {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
+      {% elif page.platform == "ios" %}
+        {% set ios_url = app_store_url('firefox', campaign) %}
+        {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+      {% elif page.platform == "chromebook" %}
+        {% set android_url = play_store_url('firefox', campaign) %}
+        {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
+        <p><small>{{ ftl('browsers-chromebook-x86-based-chromebook') }}</small></p>
+        {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' ~ campaign ~ '&utm_content=seo' %}
+        <a href="https://support.mozilla.org/kb/run-firefox-chromeos{{ params }}" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
+          {{ ftl('browsers-chromebook-get-firefox-desktop') }}
+        </a>
+      {% endif %}
+
+      {% if page.intro_footer_text %}
+        <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
+      {% endif %}
+      <div class="fl-download-intro-featured-image">
+        {{ srcset_image(
+            page.featured_image,
+            "width-{200,400,600,800,1000,1200,1400}",
+            sizes="(min-width: 900px) 810px, 100vw",
+            width=page.featured_image.width,
+            height=page.featured_image.height,
+            loading="lazy",
+        ) }}
       </div>
     </section>
 

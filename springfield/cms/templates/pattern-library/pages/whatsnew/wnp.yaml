@@ -44,7 +44,7 @@ context:
         tags:
           - text: "Opensourcio"
             color: purple
-            before_icon: user
+            before_icon: single-user
         media_after: false
       - eyebrow: "Mobileous Secureum"
         heading:

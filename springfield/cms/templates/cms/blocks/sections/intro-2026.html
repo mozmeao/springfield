@@ -1,0 +1,30 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:intro-2026>
+  <content:heading>
+    {% include_block value.heading %}
+  </content:heading>
+  <content:actions>
+    {% set block_position = block_position or "intro" %}
+    {% set block_text = value.heading.heading_text|richtext|remove_tags %}
+    {% if value.buttons %}
+      <div class="fl-buttons">
+        {% for button in value.buttons %}
+          {% set block_position = block_position + "." + "button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </content:actions>
+  {% if value.media %}
+    <content:media>
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
+    </content:media>
+  {% endif %}
+</include:intro-2026>

@@ -82,6 +82,7 @@ class ArticleDetailPageFactory(wagtail_factories.PageFactory):
     live = True
     slug = "article-detail-page"
     description = "Test Article Description for Index Page"
+    icon = "globe"
 
     class Meta:
         model = models.ArticleDetailPage

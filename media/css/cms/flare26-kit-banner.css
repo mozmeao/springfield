@@ -28,8 +28,8 @@
 }
 
 .fl-banner-kit .fl-banner-content {
-    min-width: 0;
-    width: 100%;
+    inline-size: 100%;
+    min-inline-size: 0;
 }
 
 .fl-banner-kit .fl-heading {
@@ -40,11 +40,11 @@
 .fl-banner-kit .fl-banner-content .fl-heading {
     box-sizing: border-box;
     display: block;
+    inline-size: 100%;
     margin: 0 auto;
-    max-width: min(740px, 100%);
+    max-inline-size: min(740px, 100%);
     overflow-wrap: break-word;
     text-wrap: balance;
-    width: 100%;
     word-break: normal;
 }
 
@@ -54,7 +54,7 @@
 
 .fl-banner-kit .fl-banner-content .fl-subheading {
     margin: 0 auto;
-    max-width: 500px;
+    max-inline-size: 500px;
     text-wrap: balance;
 }
 
@@ -81,17 +81,17 @@
 }
 
 .fl-banner-kit-qr {
-    bottom: 0;
-    left: 50%;
+    inline-size: 45%;
+    inset-block-end: 0;
+    inset-inline-start: 50%;
     position: absolute;
     transform: translateX(-53%);
-    width: 45%;
     z-index: 1;
 }
 
 .fl-banner-kit-qr svg {
-    height: 100%;
-    width: 100%;
+    block-size: 100%;
+    inline-size: 100%;
 }
 
 /* Override the fill color to transparent for the QR background */
@@ -141,10 +141,10 @@
     }
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
-        bottom: 10px;
-        left: 49.5%;
+        inline-size: 28%;
+        inset-block-end: 10px;
+        inset-inline-start: 49.5%;
         transform: translateX(-53%);
-        width: 28%;
     }
 }
 
@@ -191,20 +191,20 @@
     }
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
-        bottom: 20px;
-        left: 49.5%;
-        max-width: 270px;
+        inset-block-end: 20px;
+        inset-inline-start: 49.5%;
+        max-inline-size: 270px;
     }
 
     .fl-banner-kit .fl-banner-content .fl-heading {
-        max-width: min(790px, 100%);
+        max-inline-size: min(790px, 100%);
     }
 }
 
 /* Exception: Hardcoded media query to avoid 741-775px container width range that causes imbalanced text wrapping. Only set max-width here, no other styles should be added inside this media query. */
 @media (min-width: 1100px) and (max-width: 1200px) {
     .fl-banner-kit .fl-banner-content .fl-heading {
-        max-width: min(740px, 100%);
+        max-inline-size: min(740px, 100%);
     }
 }
 
@@ -226,8 +226,8 @@
     }
 
     .fl-banner-kit-with-qr .fl-banner-kit-qr {
-        bottom: 20px;
-        left: 49.5%;
-        max-width: 320px;
+        inset-block-end: 20px;
+        inset-inline-start: 49.5%;
+        max-inline-size: 320px;
     }
 }

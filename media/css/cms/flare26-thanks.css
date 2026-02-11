@@ -15,7 +15,7 @@
 }
 
 .fl-download-support .fl-linux-deb-text {
-    margin-top: var(--token-spacing-md);
+    margin-block-start: var(--token-spacing-md);
     text-align: center;
 }
 
