@@ -585,7 +585,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
         show_default_browser_checkbox = blocks.BooleanBlock(
             required=False,
             default=False,
-            help_text="Show 'Set as default browser' checkbox with the download button to Windows and macOS users.",
+            help_text="Show 'Set as default browser' checkbox with the download button to Windows users.",
         )
 
         class Meta:
