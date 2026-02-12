@@ -539,13 +539,13 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
-        icon = IconChoiceBlock(required=False)
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
             default="right",
             label="Icon Position",
             inline_form=True,
         )
+        icon = IconChoiceBlock(required=False)
         analytics_id = UUIDBlock(
             label="Analytics ID",
             help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
@@ -554,7 +554,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
         show_default_browser_checkbox = blocks.BooleanBlock(
             required=False,
             default=False,
-            help_text="Show 'Set as default browser' checkbox with the download button to Windows users.",
+            help_text="Show 'Set as default browser' checkbox to Windows users. Attention! This will affect all download buttons on the page.",
         )
 
         class Meta:
@@ -562,7 +562,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             collapsed = True
             label = "Settings"
             label_format = (
-                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - ",
+                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}",
             )
             form_classname = "compact-form struct-block"
