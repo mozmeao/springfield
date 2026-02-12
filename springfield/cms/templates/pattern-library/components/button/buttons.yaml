@@ -12,5 +12,5 @@ context:
       link: "/contact"
       external: false
       theme_class: 'button-secondary'
-      icon_name: 'arrow-left'
+      icon_name: 'back'
       icon_position: 'left'

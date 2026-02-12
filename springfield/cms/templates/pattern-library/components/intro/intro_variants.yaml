@@ -18,7 +18,7 @@ context:
         - label: Sign Up
           link: testurl
           external: false
-          icon_name: arrow-left
+          icon_name: back
           icon_position: left
       fine_print: Fine print
       image:
@@ -42,7 +42,7 @@ context:
         - label: Sign Up
           link: testurl
           external: false
-          icon_name: arrow-left
+          icon_name: back
           icon_position: left
       fine_print: Fine print
       image:
@@ -65,7 +65,7 @@ context:
         - label: Sign Up
           link: testurl
           external: false
-          icon_name: arrow-left
+          icon_name: back
           icon_position: left
       fine_print: Fine print
 
@@ -86,7 +86,7 @@ context:
         - label: Sign Up
           link: testurl
           external: false
-          icon_name: arrow-left
+          icon_name: back
           icon_position: left
       fine_print: Fine print
       video:

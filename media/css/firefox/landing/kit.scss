@@ -516,7 +516,9 @@ main {
         width: 16px;
         height: 16px;
         background-color: currentColor;
-        mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/16px 16px;
+        mask: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-16.svg') no-repeat center/16px 16px;
+
+
     }
 
     .buttons {
@@ -525,7 +527,7 @@ main {
         gap: calc(var(--grids-spacing-interior-spacing-x1-5, 12) * 1px);
     }
 
-    .icon-arrow-right { --icon-src: url('/media/img/firefox/flare/icons/arrow-right.svg'); }
+    .icon-arrow-right { --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-16.svg'); }
 
     .icon {
         display: inline-block;

@@ -51,7 +51,7 @@ context:
         - label: Sign Up
           link: testurl
           external: false
-          icon_name: arrow-left
+          icon_name: back
           icon_position: left
           theme_class: button-secondary
       media:
