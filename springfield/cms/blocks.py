@@ -378,16 +378,21 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
 
 
 # Element blocks
-class HeadingBlock(blocks.StructBlock):
-    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
-    class Meta:
-        icon = "title"
-        label = "Heading"
-        label_format = "{heading_text}"
-        template = "cms/blocks/heading.html"
+
+def HeadingBlock(required=True, **kwargs):
+    class _HeadingBlock(blocks.StructBlock):
+        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
+        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+        class Meta:
+            icon = "title"
+            label = "Heading"
+            label_format = "{heading_text}"
+            template = "cms/blocks/heading.html"
+
+    return _HeadingBlock(**kwargs)
 
 
 # Buttons
@@ -1558,7 +1563,7 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
-def SectionBlock2026(allow_uitour=False, *args, **kwargs):
+def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     """Factory function to create SectionBlock with appropriate button types.
 
     Args:
@@ -1568,7 +1573,7 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
 
     class _SectionBlock(blocks.StructBlock):
         settings = SectionBlockSettings()
-        heading = HeadingBlock()
+        heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),

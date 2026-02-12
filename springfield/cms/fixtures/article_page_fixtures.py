@@ -412,6 +412,169 @@ def get_theme_page_sticker_row_section():
     }
 
 
+def get_theme_hub_page_upper_content():
+    return [
+        {
+            "type": "intro",
+            "value": {
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="arkm4">Browse with features that put you first</p>',
+                    "subheading_text": '<p data-block-key="ffk5g">Most browsers were built to capture your attention and monetize your data. '
+                    "Firefox was built to give you control.</p>",
+                },
+                "buttons": [],
+            },
+            "id": "929f73bf-d056-42d5-8214-0f6f4a7390aa",
+        }
+    ]
+
+
+def get_theme_hub_illustration_cards_section():
+    articles = get_article_pages()
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "all", "anchor_id": ""},
+            "heading": {"superheading_text": "", "heading_text": "", "subheading_text": ""},
+            "content": [
+                {
+                    "type": "article_cards_list",
+                    "value": {
+                        "settings": {"card_type": "illustration_card"},
+                        "cards": [
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[0].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "1e7108e1-27ac-4fac-b71d-69f5084e1642",
+                            },
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[1].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "b711777c-cf36-42ed-8c6e-b42641ac0680",
+                            },
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[2].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "8f880527-300b-4e77-b20c-d043a84a35f8",
+                            },
+                        ],
+                    },
+                    "id": "d3fba51d-1585-4b03-b107-be0fe5e4e61d",
+                }
+            ],
+            "cta": [],
+        },
+        "id": "df30f806-68a2-4da2-9b84-0fc868f56940",
+    }
+
+
+def get_theme_hub_page_sticker_row_section():
+    buttons = get_button_variants()
+    articles = get_article_pages()
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": "all", "anchor_id": ""},
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="sx44k">Made by people on the internet, for people on the internet</p>',
+                "subheading_text": '<p data-block-key="mrour">We\'re here to give you the internet on your terms: '
+                "fast, private and actually useful.</p>",
+            },
+            "content": [
+                {
+                    "type": "article_cards_list",
+                    "value": {
+                        "settings": {"card_type": "sticker_row"},
+                        "cards": [
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[3].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "1e7108e1-27ac-4fac-b71d-69f5084e1642",
+                            },
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[0].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "fbf9cb06-303b-42a8-8ae9-d34e0dcde400",
+                            },
+                            {
+                                "type": "item",
+                                "value": {
+                                    "article": articles[1].id,
+                                    "overrides": {
+                                        "image": None,
+                                        "icon": "",
+                                        "superheading": "",
+                                        "title": "",
+                                        "description": "",
+                                        "link_label": "",
+                                    },
+                                },
+                                "id": "ae4dabc0-357d-4361-a548-dd10e6ce36e7",
+                            },
+                        ],
+                    },
+                    "id": "641b7adb-7193-4087-a3d3-49742ea362ec",
+                }
+            ],
+            "cta": [buttons["secondary"]],
+        },
+        "id": "23a1a6b7-2f1a-47cf-8e2c-b2977fc2d8e7",
+    }
+
+
 def get_article_theme_page():
     index_page = get_article_index_test_page()
     theme_page = ArticleThemePage.objects.filter(slug="test-article-theme-page").first()
@@ -426,6 +589,24 @@ def get_article_theme_page():
         get_theme_page_illustration_cards_section(),
         get_theme_page_icon_cards_section(),
         get_theme_page_sticker_row_section(),
+    ]
+    theme_page.save_revision().publish()
+    return theme_page
+
+
+def get_article_theme_hub_page():
+    index_page = get_article_index_test_page()
+    theme_page = ArticleThemePage.objects.filter(slug="test-article-theme-hub-page").first()
+    if not theme_page:
+        theme_page = ArticleThemePage(
+            title="Test Article Theme Hub Page",
+            slug="test-article-theme-hub-page",
+        )
+        index_page.add_child(instance=theme_page)
+    theme_page.upper_content = get_theme_hub_page_upper_content()
+    theme_page.content = [
+        get_theme_hub_illustration_cards_section(),
+        get_theme_hub_page_sticker_row_section(),
     ]
     theme_page.save_revision().publish()
     return theme_page
