@@ -322,6 +322,32 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         }
     }
 
+    function initDialogs() {
+        const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
+
+        if (triggerButtons.length) {
+            triggerButtons.forEach(function (buttonEl) {
+                const dialogEl = document.getElementById(
+                    buttonEl.dataset.targetId
+                );
+
+                if (dialogEl) {
+                    buttonEl.addEventListener('click', function () {
+                        dialogEl.showModal();
+                    });
+                    const closeButtonEl = dialogEl.querySelector(
+                        '.fl-dialog-close-button'
+                    );
+                    if (closeButtonEl) {
+                        closeButtonEl.addEventListener('click', function () {
+                            dialogEl.close();
+                        });
+                    }
+                }
+            });
+        }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
@@ -330,6 +356,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
             applyVideoAspectRatios();
             initVideoPlayers();
             initDownloadDropdown();
+            initDialogs();
         });
     } else {
         initNewsletterForm();
@@ -338,5 +365,6 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         applyVideoAspectRatios();
         initVideoPlayers();
         initDownloadDropdown();
+        initDialogs();
     }
 })();

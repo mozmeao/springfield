@@ -11,6 +11,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     data-cta-text="{{ analytics_text|escape }}"
     data-cta-uid="{{ analytics_id }}"
   {% endif %}
+  {% if aria_labelledby %}aria-labelledby="{{ aria_labelledby }}"{% endif %}
 >
   {% if icon_name and icon_position == "left" %}
     {% set extra_class = "fl-icon-left" %}

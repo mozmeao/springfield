@@ -1,0 +1,40 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  <button class="fl-dialog-trigger" data-target-id="sample-dialog">Open dialog</button>
+  <button class="fl-dialog-trigger" data-target-id="second-sample-dialog">Open second dialog</button>
+
+  <include:dialog id="sample-dialog">
+    <content:heading>
+      <include:heading
+        level="h1"
+        heading_text="Sample dialog"
+      />
+    </content:heading>
+
+    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet quidem voluptate deserunt molestias! Quo aliquam harum optio deserunt, animi veritatis esse eveniet autem necessitatibus, vitae quisquam minima omnis consectetur amet?</p>
+
+    <content:buttons>
+      <include:button label="Sample button" />
+    </content:buttons>
+  </include:dialog>
+
+  <include:dialog id="second-sample-dialog">
+    <content:heading>
+      <include:heading
+        level="h1"
+        heading_text="Second Sample dialog"
+      />
+    </content:heading>
+
+    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet quidem voluptate deserunt molestias! Quo aliquam harum optio deserunt, animi veritatis esse eveniet autem necessitatibus, vitae quisquam minima omnis consectetur amet?</p>
+
+    <content:buttons>
+      <include:button label="Sample button" />
+    </content:buttons>
+  </include:dialog>
+</div>

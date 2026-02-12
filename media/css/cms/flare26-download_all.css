@@ -1,0 +1,305 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* NOTE: this file is _all instead of -all to avoid being hidden by a gitignore rule */
+
+.fl-download-all .fl-intro {
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-download-all .fl-intro .fl-subheading {
+    margin-block-end: 0;
+}
+
+.fl-c-flow-wrapper {
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-layout);
+    padding-inline: var(--token-spacing-lg);
+}
+
+/* override defaults */
+.fl-c-flow-step-title,
+.fl-c-flow-selection,
+.fl-c-flow-product-title-img,
+.fl-c-flow-section a > img {
+    margin-block-end: 0;
+}
+
+.fl-c-flow-section a > img {
+    max-block-size: unset;
+}
+
+.fl-c-unstyled-list {
+    list-style: '';
+    margin-inline-start: 0;
+
+    /* override default */
+    li {
+        margin-block-end: var(--token-spacing-xs);
+    }
+}
+
+.fl-c-flow-options-heading {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-sm);
+}
+
+.fl-c-flow-section {
+    --download-all-checkmark-size: 24px;
+    display: grid;
+    gap: var(--token-spacing-md);
+    grid-template-columns:
+        [step-start] var(--download-all-checkmark-size)
+        [content-start] 1fr [content-end step-end];
+    grid-template-rows:
+        var(--token-spacing-lg)
+        [step-start] auto [step-end content-start] auto [content-end];
+    position: relative;
+}
+
+.fl-c-flow-section::before {
+    background: var(--fl-theme-divider-color);
+    content: '';
+    inline-size: 1px;
+    inset: 0 auto 0 11px;
+    position: absolute;
+    z-index: 0;
+}
+
+.fl-c-flow-section:first-child::before {
+    inset-block-start: 36px;
+}
+
+.fl-c-flow-section:last-child::before {
+    block-size: 36px;
+    inset-block-end: auto;
+}
+
+.fl-c-flow-steps {
+    counter-reset: stepCounter;
+}
+
+.fl-c-flow-steps a:not(.fl-button) {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-t-flow-step-title-counter::before {
+    content: counter(stepCounter, decimal-leading-zero) '.';
+}
+
+.fl-c-flow-step {
+    align-items: center;
+    counter-increment: stepCounter;
+    display: flex;
+    gap: var(--token-spacing-md);
+    grid-area: step;
+}
+
+.fl-c-flow-step + * {
+    border-block-end: var(--fl-theme-divider);
+    grid-area: content;
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-c-flow-step-checkbox {
+    background-color: var(--fl-theme-background);
+    block-size: var(--download-all-checkmark-size);
+    border: 1px solid var(--fl-theme-color-brand-text);
+    border-radius: var(--token-border-radius-2xs);
+    color: var(--fl-theme-color-text-inverse);
+    display: grid;
+    inline-size: var(--download-all-checkmark-size);
+    place-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.fl-c-flow-step-checkbox:not(:empty) {
+    background-color: var(--fl-theme-color-brand-text);
+}
+
+.fl-c-flow-selection {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-md);
+    justify-content: space-between;
+    line-height: 1;
+}
+
+@media (--viewport-xs) {
+    /* Divider goes across entire first section */
+    .fl-c-flow-steps {
+        border-block-start: var(--fl-theme-divider);
+    }
+}
+
+@media (--viewport-sm-up) {
+    .fl-c-flow-section {
+        --download-all-content-spacing: var(--token-spacing-2xl);
+
+        /* 153px is one-off Figma value */
+        grid-template-columns: [step-start] 153px [step-end content-start] 1fr [content-end];
+        grid-template-rows:
+            [content-start]
+            var(--download-all-content-spacing)
+            [step-start] auto [step-end] var(--download-all-content-spacing)
+            [content-end];
+        row-gap: 0;
+    }
+
+    .fl-c-flow-step + * {
+        padding-block: var(--download-all-content-spacing);
+    }
+
+    .fl-c-flow-step {
+        align-self: start;
+    }
+
+    /* Divider only goes across part of 1st section */
+    [aria-labelledby='all-product']
+        :where(.fl-c-flow-options, .fl-c-flow-selection) {
+        border-block-start: var(--fl-theme-divider);
+    }
+}
+
+@media (--viewport-below-md) {
+    .fl-c-flow-links {
+        text-align: center;
+    }
+
+    /* links will appear after the steps content on desktop
+    we need to match source order to visual order for keyboard UX */
+    .fl-t-flow-links-desktop {
+        display: none;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-c-flow-wrapper {
+        display: grid;
+        gap: var(--token-spacing-lg);
+        grid-template-columns: [steps-start] 1fr [steps-end links-start] auto [links-end];
+    }
+
+    .fl-c-flow-steps {
+        grid-area: steps;
+    }
+
+    .fl-c-flow-links {
+        grid-area: links;
+    }
+
+    /* when reading-flow has better support, we can remove this workaround */
+    .fl-t-flow-links-mobile {
+        display: none;
+    }
+}
+
+/* Product logos copied from all.scss */
+
+/* Commenting these out to align with 2026 Figma design, but easy enough to add back. */
+
+/* @supports (margin-inline-start: 1em) {
+    .c-product-list {
+        li {
+            background-repeat: no-repeat;
+            background-size: 1.5em auto;
+        }
+
+        a {
+            margin-inline-start: calc(1.5em + var(--token-spacing-sm));
+        }
+
+        .release,
+        .desktop-release,
+        .desktop-esr {
+            background-image: url('/media/protocol/img/logos/firefox/browser/logo.svg');
+        }
+
+        .desktop-beta,
+        .android-beta {
+            background-image: url('/media/protocol/img/logos/firefox/browser/beta/logo.svg');
+        }
+
+        .desktop-developer {
+            background-image: url('/media/protocol/img/logos/firefox/browser/developer/logo.svg');
+        }
+
+        .desktop-nightly,
+        .android-nightly {
+            background-image: url('/media/protocol/img/logos/firefox/browser/nightly/logo.svg');
+        }
+
+        .ios-testflight {
+            background-image: url('/media/img/logos/testflight/testflight.svg');
+        }
+    }
+} */
+
+/* Mobile QR code copied from all.scss */
+.c-mobile {
+    inline-size: fit-content;
+}
+
+.qr-code-wrapper {
+    background: var(--fl-theme-color-text-inverse);
+    border: 2px solid var(--token-color-grey-2);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow:
+        0 8px 12px 1px rgba(29, 17, 51, 0.04),
+        0 3px 16px 2px rgba(9, 32, 77, 0.12),
+        0 5px 10px -3px rgba(29, 17, 51, 0.12);
+    margin: 0 auto var(--token-spacing-xl);
+    max-inline-size: 220px;
+    padding: var(--token-spacing-lg);
+
+    svg {
+        block-size: auto;
+        max-inline-size: 100%;
+    }
+
+    figcaption {
+        color: var(--fl-theme-color-text);
+        font-weight: bold;
+        line-height: 1.125;
+        padding: 0 var(--token-spacing-lg);
+        text-align: center;
+
+        em {
+            display: block;
+        }
+    }
+}
+
+.c-store-badges {
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    text-align: center;
+
+    li {
+        display: inline-block;
+        margin: 0 var(--token-spacing-sm);
+    }
+
+    a {
+        display: inline-block;
+    }
+}
+
+/* Modal styles copied from all.scss */
+.mzp-c-modal.help-modal .mzp-c-modal-window > .mzp-c-modal-inner header {
+    border: 0;
+    clip: rect(0 0 0 0);
+    block-size: 1px;
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    /* stylelint-disable-next-line declaration-no-important */
+    position: absolute !important;
+}

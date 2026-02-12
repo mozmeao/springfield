@@ -173,3 +173,16 @@ Button - Flare 2026 Design System Buttons
 .fl-buttons .fl-button {
     margin-block-end: 0;
 }
+
+.fl-tiny-icon-button {
+    background: transparent;
+    color: var(--fl-theme-color-link);
+    margin: 0;
+    padding: 0;
+}
+
+.fl-tiny-icon-button:hover,
+.fl-tiny-icon-button:active,
+.fl-tiny-icon-button:focus {
+    color: var(--fl-theme-color-link-hover);
+}

@@ -7,34 +7,49 @@
 
 {# Choose platform #}
 
-<h2 tabindex="-1" {% if not product %} class="c-step-name t-step-disabled" aria-disabled="true" {% else %} class="c-step-name" aria-disabled="false" {% endif %}>
-  {{ ftl('firefox-all-platform-v2') }}
-  {% if product and platform %}
-    <span class="c-step-choice">{{ platform_name }}</span>
-    {% if product.slug.startswith('desktop') %}
-      <a href="{{ url('firefox.all.platforms', product_slug=product.slug) }}" class="load-content-partial c-step-icon"><img alt="{{ ftl('firefox-all-change-platform') }}" src="{{ static('protocol/img/icons/close.svg') }}" width="30" height="30"></a>
+<div tabindex="-1" aria-labelledby="all-platform" class="fl-c-flow-section c-step-name {% if not product %}t-step-disabled{% endif %}">
+  <div class="fl-c-flow-step">
+    <span class="fl-c-flow-step-checkbox">{% if product and platform %}<include:icon icon_name="checkmark" />{% endif %}</span>
+    <h2 id="all-platform" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-platform-v3') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+      {% if ftl_has_messages('firefox-all-platform-v3') %}
+        {{ ftl('firefox-all-platform-v3') }}
+      {% else %}
+        {{ ftl('firefox-all-platform-v2') }}
+      {% endif %}
+    {% if product and not platform %}
+      <button class="fl-tiny-icon-button fl-dialog-trigger" data-target-id="installer-help">
+          <include:icon icon_name="help" />
+          <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
+        </button>
     {% endif %}
-  {% elif product %}
-    <img alt="{{ ftl('firefox-all-down-arrow') }}" class="c-step-icon" src="{{ static('protocol/img/icons/arrow-down.svg') }}" width="30" height="30">
-  {% else %}
-    <img alt="{{ current_step }}" class="c-step-icon" src="{{ static('protocol/img/icons/arrow-left.svg') }}" width="30" height="30">
-  {% endif %}
+    </h2>
+  </div>
 
-  {% if product and not platform %}
-    <button class="fl-tiny-icon-button fl-dialog-trigger" data-target-id="installer-help">
-      <include:icon icon_name="help" />
-      <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
-    </button>
+  {% if platform %}
+    <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ platform_name }}
+      {% if product.slug.startswith('desktop') %}
+      <include:button
+        theme_class="button-ghost fl-button-small load-content-partial"
+        label="{{ ftl('ui-edit') }}"
+        icon_name="edit"
+        icon_position="left"
+        link="{{ url('firefox.all.platforms', product_slug=product.slug) }}"
+        aria_labelledby="all-platform all-platform-selection"
+      />
+      {% endif %}
+    </span>
   {% endif %}
-</h2>
 
 {% if product and not platform %}
-  <div class="c-step-contents">
-    <ul class="c-platform-list">
+  <div class="fl-c-flow-options">
+    <ul class="c-platform-list fl-c-unstyled-list">
       {% for platform, name in platforms %}
         <li><a href="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}" class="load-content-partial">{{ name }}</a></li>
       {% endfor %}
     </ul>
+
+
+
 
     <include:dialog id="installer-help">
      <content:heading>
@@ -84,3 +99,4 @@
   </include:dialog>
   </div>
 {% endif %}
+</div>
