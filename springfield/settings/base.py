@@ -1442,7 +1442,9 @@ _allowed_page_models = [
     "cms.WhatsNewPage",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
+    "cms.ArticleThemePage",
     "cms.HomePage",
+    "cms.DownloadIndexPage",
     "cms.DownloadPage",
     "cms.ThanksPage",
 ]
