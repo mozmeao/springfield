@@ -1,9 +1,0 @@
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-// NOTE: this is a temporary use of Protocol modal styles (for existing pages where Protocol modal JS is already used)
-// TODO: with a Flare modal component
-
-@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
-@use '~@mozilla-protocol/core/protocol/css/components/modal';

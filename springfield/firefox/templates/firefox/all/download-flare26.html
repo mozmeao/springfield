@@ -42,7 +42,7 @@
       {% if is_esr_next_version %}
         <p class="c-step-download">
           <a href="{{ download_esr_next_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
-            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_next_version) }} <include:icon icon_name="download" />
+            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_next_version) }} <include:icon icon_name="downloads" />
           </a>
         </p>
 
@@ -54,7 +54,7 @@
 
         <p>
           <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
-            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_latest_version) }} <include:icon icon_name="download" />
+            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_latest_version) }} <include:icon icon_name="downloads" />
           </a>
         </p>
 
@@ -66,7 +66,7 @@
       {# ESR latest #}
       <p class="c-step-download">
         <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
-          {{ ftl('download-button-download-now') }} <include:icon icon_name="download" />
+          {{ ftl('download-button-download-now') }} <include:icon icon_name="downloads" />
         </a>
       </p>
       {% endif %}
@@ -75,7 +75,7 @@
         <p class="c-step-download mzp-u-body-sm">{{ ftl('firefox-all-note-unsupported') }}</p>
         <p>
           <a href="{{ download_esr_115_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
-            {{ ftl('firefox-all-download-esr-115') }} <include:icon icon_name="download" />
+            {{ ftl('firefox-all-download-esr-115') }} <include:icon icon_name="downloads" />
           </a>
         </p>
       {% endif %}
@@ -83,7 +83,7 @@
       {# All other desktop releases #}
       <p class="c-step-download">
         <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
-          {{ ftl('download-button-download-now') }} <include:icon icon_name="download" />
+          {{ ftl('download-button-download-now') }} <include:icon icon_name="downloads" />
         </a>
       </p>
     {% endif %}

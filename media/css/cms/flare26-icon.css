@@ -4,6 +4,24 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* optional wrapper to place icons over a colored circle */
+.fl-icon-wrap {
+    align-items: center;
+    background: var(--fl-theme-color-icon-wrap);
+    block-size: var(--token-spacing-3xl);
+    border-radius: 50%;
+    color: var(--fl-theme-color-text-inverse);
+    display: flex;
+    inline-size: var(--token-spacing-3xl);
+    justify-content: center;
+    padding: var(--token-spacing-sm);
+}
+
+.fl-icon-wrap .fl-icon {
+    block-size: 100%;
+    inline-size: 100%;
+}
+
 .fl-icon {
     background-color: currentColor;
     block-size: 1em;

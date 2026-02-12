@@ -120,3 +120,14 @@ body.fl-modal-open {
     position: absolute;
     z-index: 0;
 }
+
+.fl-l-two-col-grid {
+    display: grid;
+    gap: var(--token-spacing-lg);
+}
+
+@media (--viewport-md-up) {
+    .fl-l-two-col-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

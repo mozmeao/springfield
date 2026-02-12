@@ -10,9 +10,13 @@
     padding-inline: var(--token-spacing-lg);
 }
 
+.fl-download-all .fl-intro .fl-subheading {
+    margin-block-end: 0;
+}
+
 .fl-c-flow-wrapper {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
+    max-inline-size: var(--token-width-desktop-layout);
     padding-inline: var(--token-spacing-lg);
 }
 
@@ -25,7 +29,7 @@
 }
 
 .fl-c-flow-section a > img {
-    max-height: unset;
+    max-block-size: unset;
 }
 
 .fl-c-unstyled-list {
@@ -54,10 +58,33 @@
     grid-template-rows:
         var(--token-spacing-lg)
         [step-start] auto [step-end content-start] auto [content-end];
+    position: relative;
+}
+
+.fl-c-flow-section::before {
+    background: var(--fl-theme-divider-color);
+    content: '';
+    inline-size: 1px;
+    inset: 0 auto 0 11px;
+    position: absolute;
+    z-index: 0;
+}
+
+.fl-c-flow-section:first-child::before {
+    inset-block-start: 36px;
+}
+
+.fl-c-flow-section:last-child::before {
+    block-size: 36px;
+    inset-block-end: auto;
 }
 
 .fl-c-flow-steps {
     counter-reset: stepCounter;
+}
+
+.fl-c-flow-steps a:not(.fl-button) {
+    color: var(--fl-theme-color-text);
 }
 
 .fl-t-flow-step-title-counter::before {
@@ -79,13 +106,16 @@
 }
 
 .fl-c-flow-step-checkbox {
+    background-color: var(--fl-theme-background);
+    block-size: var(--download-all-checkmark-size);
     border: 1px solid var(--fl-theme-color-brand-text);
     border-radius: var(--token-border-radius-2xs);
     color: var(--fl-theme-color-text-inverse);
     display: grid;
-    height: var(--download-all-checkmark-size);
+    inline-size: var(--download-all-checkmark-size);
     place-content: center;
-    width: var(--download-all-checkmark-size);
+    position: relative;
+    z-index: 1;
 }
 
 .fl-c-flow-step-checkbox:not(:empty) {
@@ -171,7 +201,10 @@
 }
 
 /* Product logos copied from all.scss */
-@supports (margin-inline-start: 1em) {
+
+/* Commenting these out to align with 2026 Figma design, but easy enough to add back. */
+
+/* @supports (margin-inline-start: 1em) {
     .c-product-list {
         li {
             background-repeat: no-repeat;
@@ -206,11 +239,11 @@
             background-image: url('/media/img/logos/testflight/testflight.svg');
         }
     }
-}
+} */
 
 /* Mobile QR code copied from all.scss */
 .c-mobile {
-    width: fit-content;
+    inline-size: fit-content;
 }
 
 .qr-code-wrapper {
@@ -222,12 +255,12 @@
         0 3px 16px 2px rgba(9, 32, 77, 0.12),
         0 5px 10px -3px rgba(29, 17, 51, 0.12);
     margin: 0 auto var(--token-spacing-xl);
-    max-width: 220px;
+    max-inline-size: 220px;
     padding: var(--token-spacing-lg);
 
     svg {
-        height: auto;
-        max-width: 100%;
+        block-size: auto;
+        max-inline-size: 100%;
     }
 
     figcaption {
@@ -244,8 +277,8 @@
 }
 
 .c-store-badges {
+    margin-block-end: 0;
     margin-inline-start: 0;
-    margin-bottom: 0;
     text-align: center;
 
     li {
@@ -262,11 +295,11 @@
 .mzp-c-modal.help-modal .mzp-c-modal-window > .mzp-c-modal-inner header {
     border: 0;
     clip: rect(0 0 0 0);
-    height: 1px;
+    block-size: 1px;
+    inline-size: 1px;
     margin: -1px;
     overflow: hidden;
     padding: 0;
     /* stylelint-disable-next-line declaration-no-important */
     position: absolute !important;
-    width: 1px;
 }

@@ -287,12 +287,6 @@
     },
     {
       "files": [
-        "css/cms/modal.scss"
-      ],
-      "name": "cms-modal"
-    },
-    {
-      "files": [
         "css/cms/flare.css"
       ],
       "name": "flare"
