@@ -6,7 +6,7 @@ context:
       link: "/"
       external: false
       theme_class: ''
-      icon_name: 'arrow-right'
+      icon_name: 'forward'
       icon_position: 'right'
     - label: "Secondary Button"
       link: "/contact"

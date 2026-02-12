@@ -23,7 +23,7 @@ context:
         - label: Learn More
           link: testurl
           external: false
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
       media:
         url: /media/img/firefox/flare/placeholder.png
@@ -46,7 +46,7 @@ context:
         - label: Learn More
           link: testurl
           external: false
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
         - label: Sign Up
           link: testurl
@@ -68,7 +68,7 @@ context:
         - label: Get Started
           link: testurl
           external: false
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
       media:
         url: /media/img/firefox/flare/placeholder.png
@@ -85,7 +85,7 @@ context:
         - label: Learn More
           link: testurl
           external: false
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
       video:
         url: https://www.youtube.com/watch?v=F-nFQryDB0s
@@ -103,7 +103,7 @@ context:
         - label: Learn More
           link: testurl
           external: false
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
       video:
         url: https://assets.mozilla.net/video/red-pandas.webm

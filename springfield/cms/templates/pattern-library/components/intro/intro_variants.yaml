@@ -13,7 +13,7 @@ context:
         - label: Learn More
           link: testurl
           external: true
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
         - label: Sign Up
           link: testurl
@@ -37,7 +37,7 @@ context:
         - label: Learn More
           link: testurl
           external: true
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
         - label: Sign Up
           link: testurl
@@ -60,7 +60,7 @@ context:
         - label: Learn More
           link: testurl
           external: true
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
         - label: Sign Up
           link: testurl
@@ -81,7 +81,7 @@ context:
         - label: Learn More
           link: testurl
           external: true
-          icon_name: arrow-right
+          icon_name: forward
           icon_position: right
         - label: Sign Up
           link: testurl
