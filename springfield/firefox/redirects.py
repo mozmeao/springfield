@@ -4,6 +4,8 @@
 
 import re
 
+from django.conf import settings
+
 from springfield.redirects.util import mobile_app_redirector, no_redirect, platform_redirector, redirect
 
 # matches only ASCII letters (ignoring case), numbers, dashes, periods, and underscores.
@@ -108,3 +110,16 @@ redirectpatterns = (
     # Bug 868182
     redirect(r"^mobile/faq/?$", firefox_mobile_faq, query=False),
 )
+
+permanent = settings.PERMANENT_CMS_REFRESH_REDIRECTS
+refresh_redirects = (
+    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=permanent),
+    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=permanent),
+    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=permanent),
+    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=permanent),
+    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=permanent),
+    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=permanent),
+)
+
+if settings.ENABLE_CMS_REFRESH_REDIRECTS:
+    redirectpatterns = redirectpatterns + refresh_redirects

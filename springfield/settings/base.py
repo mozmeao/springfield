@@ -56,6 +56,14 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
+# CMS refresh redirect controls (toggled by infra during URL/content migrations).
+# ENABLE_CMS_REFRESH_REDIRECTS turns the redirects on; defaults to false so new behavior
+# is opt-in and can be rolled out gradually. PERMANENT_CMS_REFRESH_REDIRECTS switches
+# the redirects from temporary (302) to permanent (301); defaults to false so we can
+# verify the rollout and later make redirects permanent or remove them as part of cleanup.
+ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
