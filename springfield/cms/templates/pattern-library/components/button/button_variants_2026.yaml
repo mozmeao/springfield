@@ -8,19 +8,19 @@ context:
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: ''
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'fl-button-large'
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
       - name: "Secondary"
         buttons:
@@ -28,19 +28,19 @@ context:
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'button-secondary'
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'button-secondary fl-button-large'
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
   main_grid_square:
     columns:
@@ -50,19 +50,19 @@ context:
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'fl-button-square'
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'fl-button-large fl-button-square'
             label: "Button"
             link: "/"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
       - name: "Secondary"
         buttons:
@@ -70,19 +70,19 @@ context:
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'button-secondary fl-button-square'
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
           - theme_class: 'button-secondary fl-button-large fl-button-square'
             label: "Button"
             link: "/contact"
             external: false
-            icon_name: 'arrow-right'
+            icon_name: 'forward'
             icon_position: 'right'
   stacked:
     orientation: stacked

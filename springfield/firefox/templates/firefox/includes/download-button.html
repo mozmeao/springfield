@@ -29,7 +29,8 @@
                {% elif plat.os == 'ios' %}data-cta-type="firefox_mobile"
                {% else %}data-cta-type="firefox"{% endif %}>{{ plat.os_arch_pretty or plat.os_pretty }}
               <span class="mzp-c-button-icon-end">
-                <span class="fl-icon fl-icon-downloads" aria-hidden="true"></span>
+                <!-- TODO: replace with new protocol-assets version -->
+                 <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
               </span>
               </a>
         </li>
@@ -110,7 +111,8 @@
             {% endif %}
           </strong>
           <span class="mzp-c-button-icon-end">
-            <span class="fl-icon fl-icon-downloads" aria-hidden="true"></span>
+            <!-- TODO: replace with new protocol-assets version -->
+            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
           </span>
         </a>
       </li>

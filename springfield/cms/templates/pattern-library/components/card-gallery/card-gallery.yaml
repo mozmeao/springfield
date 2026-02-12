@@ -10,7 +10,7 @@ context:
     buttons:
       - label: Learn More
         link: /learn-more/
-        icon_name: arrow-right
+        icon_name: forward
         icon_position: right
     image:
       url: /media/img/firefox/flare/placeholder-scene.png
@@ -22,7 +22,7 @@ context:
     buttons:
       - label: Learn More
         link: /learn-more/
-        icon_name: arrow-right
+        icon_name: forward
         icon_position: right
     image:
       url: /media/img/firefox/flare/placeholder-scene.png
