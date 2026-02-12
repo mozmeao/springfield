@@ -1805,3 +1805,233 @@ def test_theme_hub_page_blocks(index_page, rf):
         rendered_icon = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
         assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+
+
+def test_mobile_store_qr_code_block(index_page, rf):
+    """Test the Mobile Store QR Code block renders correctly."""
+    from springfield.cms.fixtures.mobile_store_qr_code_fixtures import get_mobile_store_qr_code_test_page, get_mobile_store_qr_code_variants
+
+    test_page = get_mobile_store_qr_code_test_page()
+    variants = get_mobile_store_qr_code_variants()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout (upper_content has blocks)
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test block in upper content (with_heading variant)
+    upper_sections = upper_section.find_all("section", class_="fl-mobile-store-qr-section")
+    assert len(upper_sections) == 1
+
+    upper_mobile_store = upper_sections[0]
+    heading_data = variants["with_heading"]["value"]["heading"]
+    heading_text = BeautifulSoup(heading_data["heading_text"], "html.parser").get_text()
+
+    # Check heading
+    heading_element = upper_mobile_store.find("h1", class_="fl-heading")
+    assert heading_element and heading_text in heading_element.get_text()
+
+    # Check QR code data attribute
+    qr_code_div = upper_mobile_store.find("div", class_="fl-qr-code")
+    assert qr_code_div
+    assert qr_code_div["data-qr-code"] == variants["with_heading"]["value"]["qr_code_data"]
+
+    # Check store buttons
+    store_buttons_div = upper_mobile_store.find("div", class_="fl-mobile-store-buttons")
+    assert store_buttons_div
+    store_buttons = store_buttons_div.find_all("a", class_="fl-store-button")
+    assert len(store_buttons) == 2  # iOS and Android
+
+    # Test blocks in lower content
+    lower_sections = lower_section.find_all("section", class_="fl-mobile-store-qr-section")
+    assert len(lower_sections) == 3  # without_heading, with_superheading_only, with_all_fields
+
+    # Test without_heading variant
+    without_heading_section = lower_sections[0]
+    qr_code_div = without_heading_section.find("div", class_="fl-qr-code")
+    assert qr_code_div
+    assert qr_code_div["data-qr-code"] == variants["without_heading"]["value"]["qr_code_data"]
+
+
+def test_freeform_2026_intro_block(index_page, rf):
+    """Test IntroBlock2026 in FreeFormPage2026."""
+    from springfield.cms.fixtures.freeform_2026_fixtures import get_intro_2026_test_page, get_intro_2026_variants
+
+    test_page = get_intro_2026_test_page()
+    variants = get_intro_2026_variants()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test intro with image in upper content
+    upper_intros = upper_section.find_all("div", class_="fl-intro")
+    assert len(upper_intros) == 1
+
+    upper_intro = upper_intros[0]
+    heading_data = variants["with_image"]["value"]["heading"]
+    heading_text = BeautifulSoup(heading_data["heading_text"], "html.parser").get_text()
+
+    heading_element = upper_intro.find("h1", class_="fl-heading")
+    assert heading_element and heading_text in heading_element.get_text()
+
+    # Check for image
+    images_element = upper_intro.find("div", class_="fl-intro-media")
+    assert images_element
+    img_tag = images_element.find("img")
+    assert img_tag
+
+    # Test intros in lower content
+    lower_intros = lower_section.find_all("div", class_="fl-intro")
+    assert len(lower_intros) == 2  # with_video, without_media
+
+
+def test_freeform_2026_section_block(index_page, rf):
+    """Test SectionBlock2026 in FreeFormPage2026."""
+    from springfield.cms.fixtures.freeform_2026_fixtures import get_section_2026_test_page, get_section_2026_variants
+
+    test_page = get_section_2026_test_page()
+    variants = get_section_2026_variants()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test section in upper content
+    upper_sections = upper_section.find_all("section", class_="fl-section")
+    assert len(upper_sections) == 1
+
+    upper_section_element = upper_sections[0]
+    heading_data = variants["with_step_cards"]["value"]["heading"]
+    assert_section_heading_attributes(upper_section_element, heading_data, 0)
+
+    # Check for step cards
+    step_cards = upper_section_element.find_all("article", class_="fl-step-card")
+    assert len(step_cards) == 3
+
+    # Test sections in lower content
+    lower_sections = lower_section.find_all("section", class_="fl-section")
+    assert len(lower_sections) == 2  # with_cards_list, without_content
+
+
+def test_freeform_2026_showcase_block(index_page, rf):
+    """Test ShowcaseBlock in FreeFormPage2026."""
+    from springfield.cms.fixtures.freeform_2026_fixtures import get_showcase_test_page
+
+    test_page = get_showcase_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test showcase in upper content
+    upper_showcases = upper_section.find_all("section", class_="fl-showcase")
+    assert len(upper_showcases) == 1
+
+    # Test showcases in lower content
+    lower_showcases = lower_section.find_all("section", class_="fl-showcase")
+    assert len(lower_showcases) == 1  # no_title
+
+
+def test_freeform_2026_card_gallery_block(index_page, rf):
+    """Test CardGalleryBlock in FreeFormPage2026."""
+    from springfield.cms.fixtures.freeform_2026_fixtures import get_card_gallery_test_page
+
+    test_page = get_card_gallery_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test card gallery in both sections
+    upper_galleries = upper_section.find_all("section", class_="fl-card-gallery")
+    assert len(upper_galleries) == 1
+
+    lower_galleries = lower_section.find_all("section", class_="fl-card-gallery")
+    assert len(lower_galleries) == 1
+
+
+def test_freeform_2026_combined(index_page, rf):
+    """Test FreeFormPage2026 with all component types."""
+    from springfield.cms.fixtures.freeform_2026_fixtures import get_freeform_2026_combined_test_page
+
+    test_page = get_freeform_2026_combined_test_page()
+
+    # Page renders
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify split page layout
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section
+    assert lower_section
+
+    # Test that all component types are present
+    intros = soup.find_all("div", class_="fl-intro")
+    assert len(intros) >= 1
+
+    sections = soup.find_all("section", class_="fl-section")
+    assert len(sections) >= 1
+
+    showcases = soup.find_all("section", class_="fl-showcase")
+    assert len(showcases) >= 1
+
+    card_galleries = soup.find_all("section", class_="fl-card-gallery")
+    assert len(card_galleries) >= 1
+
+    mobile_stores = soup.find_all("section", class_="fl-mobile-store-qr-section")
+    assert len(mobile_stores) >= 1
