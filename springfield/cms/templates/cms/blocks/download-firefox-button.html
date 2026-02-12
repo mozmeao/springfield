@@ -20,7 +20,7 @@
     {% set checkbox %}
       <label for="{{ value.settings.analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" id="{{ value.settings.analytics_id }}-default-browser" class="default-browser-checkbox">
-        {{ ftl('firefox-new-set-as-default')}}
+        {{ ftl('block-set-as-default')}}
       </label>
     {% endset %}
     {% if is_preview %}

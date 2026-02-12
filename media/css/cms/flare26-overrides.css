@@ -25,5 +25,5 @@ For now, this is a blank slate.
 }
 
 .fl-download-firefox-button .conditional-display.is-preview {
-    padding-top: var(--token-spacing-lg);
+    padding-block-start: var(--token-spacing-lg);
 }
