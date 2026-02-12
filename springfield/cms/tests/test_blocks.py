@@ -182,7 +182,7 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_previous_sibling("label", class_="default-browser-label")
+        checkbox_label = button_element.find_previous_sibling("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
