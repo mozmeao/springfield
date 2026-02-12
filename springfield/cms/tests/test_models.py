@@ -16,6 +16,7 @@ from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     SimpleRichTextPage,
     StructuralPage,
+    Tag,
 )
 from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
@@ -351,9 +352,11 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     response = index_page.specific.serve(request)
     assert response.status_code == 200
 
-    image, _, _, _ = get_placeholder_images()
+    image, dark_image, mobile_image, mobile_dark_image = get_placeholder_images()
 
     for i in range(1, 3):
+        tag = Tag.objects.create(name=f"Tag {i}", slug=f"tag-{i}", locale=index_page.locale)
+
         featured_page = ArticleDetailPageFactory(
             parent=index_page,
             title=f"Featured Article {i}",
@@ -361,6 +364,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             description=f"Description for Featured Article {i}",
             featured=True,
             image=image,
+            tag=tag,
+            sticker=dark_image,
         )
         featured_page.save()
 
@@ -378,6 +383,8 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
             description=f"Description for Article {i}",
             featured=False,
             image=image,
+            tag=tag,
+            sticker=dark_image,
         )
         article.save()
 
@@ -398,21 +405,21 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     assert "All the Articles" in soup.find("h1").text
 
     card_grids = soup.find_all("div", class_="fl-card-grid")
-    assert len(card_grids) == 1
+    assert len(card_grids) == 2
 
-    featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
+    featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
     assert len(featured_cards) == 2
     for i, card in enumerate(featured_cards):
         title = card.find("h3")
         assert f"Featured Article {i + 1}" in title.text
         assert f"Description for Featured Article {i + 1}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+        superheading = card.find(class_="fl-superheading")
+        assert superheading and f"Tag {i + 1}" in superheading.text
 
-    stacked_cards = soup.find("div", class_="fl-stacked-article-list")
-    assert stacked_cards
-    article_cards = stacked_cards.find_all(class_="fl-article-item")
-    assert len(article_cards) == 2
-    for i, card in enumerate(article_cards):
+    sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
+    assert len(sticker_cards) == 2
+    for i, card in enumerate(sticker_cards):
         title = card.find("h3")
         assert f"Article {i + 1}" in title.text
         assert f"Description for Article {i + 1}" in card.text

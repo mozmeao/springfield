@@ -4,7 +4,7 @@
 
 .fl-article-index-header {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
+    max-inline-size: var(--token-width-desktop-layout);
     padding: var(--token-spacing-3xl) var(--token-spacing-xl) 0;
 }
 
@@ -16,18 +16,18 @@
     padding-block-start: var(--token-layout-md);
 }
 
-.fl-article-page header {
+.fl-article-header {
     margin-block-end: var(--token-layout-md);
 }
 
-.fl-article-page header img {
+.fl-article-header img {
     border-radius: var(--token-spacing-lg);
-    margin-bottom: var(--token-layout-xs);
+    margin-block-end: var(--token-layout-xs);
 }
 
 .fl-article-main {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content);
+    max-inline-size: var(--token-width-desktop-content);
     padding-inline: var(--token-spacing-lg);
 }
 
@@ -67,11 +67,11 @@
         padding-block-start: var(--token-layout-lg);
     }
 
-    .fl-article-page header {
+    .fl-article-header {
         margin-block-end: var(--token-layout-lg);
     }
 
-    .fl-article-page header img {
+    .fl-article-header img {
         border-radius: var(--token-layout-xs);
     }
 }
@@ -82,23 +82,29 @@ Stacked article list
 
 .fl-stacked-article-list {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-content-lg);
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-stacked-article-list .fl-article-item {
-    border-top: 1px solid var(--token-color-soft-purple);
+    border-block-start: 1px solid var(--token-color-soft-purple);
     display: grid;
     gap: var(--token-spacing-lg);
     padding-block: var(--token-spacing-2xl);
 }
 
-.fl-stacked-article-list .fl-article-item:last-child {
-    border-bottom: 1px solid var(--token-color-soft-purple);
+.fl-article-item-header {
+    align-items: start;
+    display: flex;
+    gap: var(--token-spacing-lg);
 }
 
-.fl-stacked-article-list .fl-article-item img {
+.fl-article-item-header img {
+    inline-size: var(--token-layout-md);
     margin: 0;
-    width: var(--token-layout-lg);
+}
+
+.fl-stacked-article-list .fl-article-item:last-child {
+    border-block-end: 1px solid var(--token-color-soft-purple);
 }
 
 .fl-stacked-article-list .fl-article-item-content {
@@ -111,13 +117,87 @@ Stacked article list
     margin: 0;
 }
 
+/* =====================================================================
+Related articles
+===================================================================== */
+
+.fl-related-articles .fl-card-media {
+    align-items: center;
+    aspect-ratio: 23/14;
+    background: var(--theme-purple-card-bg-color);
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+}
+
+.fl-related-articles .fl-illustration-card {
+    gap: var(--token-spacing-lg);
+}
+
+.fl-related-articles .fl-card-media img {
+    margin: 0;
+    max-block-size: 80px;
+    max-inline-size: 80px;
+}
+
+.fl-related-articles-header {
+    align-items: baseline;
+    border-block-end: 1px solid var(--theme-purple-card-bg-color);
+    display: flex;
+    gap: var(--token-spacing-lg);
+    justify-content: space-between;
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-related-articles-header > * {
+    margin: 0;
+}
+
+.fl-related-articles .fl-card-grid {
+    align-items: end;
+}
+
+.fl-related-articles-header-link {
+    font-size: var(--fl-theme-font-size-body-2xs);
+    text-transform: uppercase;
+}
+
+@media (--viewport-xs) {
+    .fl-related-articles .fl-card-grid:has(.fl-illustration-card-default) {
+        --fl-card-grid-columns: minmax(0, 1fr);
+    }
+}
+
 @media (--viewport-md-up) {
+    .fl-stacked-article-list .fl-article-item {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .fl-stacked-article-list .fl-article-item-content {
         flex-direction: row;
     }
 
     .fl-stacked-article-list .fl-article-item-content .fl-heading {
-        max-width: 45%;
-        min-width: 45%;
+        max-inline-size: 45%;
+        min-inline-size: 45%;
+    }
+
+    .fl-related-articles .fl-card-content {
+        min-block-size: 90px; /* ensure consistent height for cards in the grid. This is three-lines tall. */
+    }
+
+    .fl-related-articles .fl-card-media img {
+        margin: 0;
+        max-block-size: 180px;
+        max-inline-size: 180px;
+    }
+
+    .fl-related-articles .fl-illustration-card:nth-child(2) .fl-card-media {
+        aspect-ratio: 8/10;
+    }
+
+    .fl-related-articles .fl-illustration-card:nth-child(1) .fl-card-media,
+    .fl-related-articles .fl-illustration-card:nth-child(4) .fl-card-media {
+        aspect-ratio: 1/1;
     }
 }

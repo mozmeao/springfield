@@ -11,10 +11,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-footer {
     background-color: var(--token-color-dark-purple);
     color: var(--token-color-white);
+    inline-size: 100%;
     margin: 0;
     margin-block-start: auto;
     padding: 0;
-    width: 100%;
 }
 
 .fl-footer a:link:not(.fl-button),
@@ -36,7 +36,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-inner {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
+    max-inline-size: var(--token-width-desktop-layout);
     padding-inline: var(--token-spacing-lg);
 }
 
@@ -78,9 +78,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 
     .fl-footer-sections-list .fl-footer-section {
+        inline-size: auto;
         margin-block-end: 0;
         padding: 0;
-        width: auto;
     }
 
     .fl-footer-sections-list .fl-footer-list:last-child {
@@ -107,8 +107,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     .fl-footer-section {
         flex: 1;
+        inline-size: calc(100% / 4 - var(--token-layout-xs) / 4);
         padding: 0 var(--token-spacing-xl);
-        width: calc(100% / 4 - var(--token-layout-xs) / 4);
     }
 
     .fl-footer-section:first-child {
@@ -193,13 +193,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     background-color: var(--token-color-white);
     background-repeat: no-repeat;
     background-size: contain;
+    block-size: 12px;
     content: '';
     display: inline-block;
-    height: 12px;
+    inline-size: 12px;
     margin-inline-start: var(--token-spacing-sm);
     mask-image: url('/media/img/icons/external.svg');
     vertical-align: baseline;
-    width: 12px;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -208,7 +208,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-footer-secondary {
     margin: 0 auto;
-    max-width: var(--token-width-desktop-layout);
+    max-inline-size: var(--token-width-desktop-layout);
     padding: var(--token-spacing-lg);
     position: relative;
     text-transform: uppercase;
@@ -233,7 +233,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     line-height: 1;
     list-style-type: none;
     margin: 0;
-    max-width: 100%;
+    max-inline-size: 100%;
     padding: 0;
 }
 
@@ -261,7 +261,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media (--viewport-below-md) {
     .fl-footer-terms li {
         display: block;
-        width: 100%;
+        inline-size: 100%;
     }
 }
 

@@ -1,17 +1,15 @@
 .fl-section {
-    padding-bottom: 48px;
-    padding-top: 48px;
+    padding-block: 48px;
 }
 
 .fl-card,
 .fl-card-gallery-card,
 .fl-buttons {
-    padding-bottom: 16px;
-    padding-top: 16px;
+    padding-block: 16px;
 }
 
 .fl-logo-fx img {
-    max-height: none;
+    max-block-size: none;
 }
 
 .fl-logo-dark,
@@ -36,15 +34,14 @@
 .fl-menu-subtitle {
     color: #666669;
     font-size: 20px;
-    margin-bottom: 8px;
-    margin-top: 0;
+    margin-block: 0 8px;
 }
 
 .fl-header-inner {
     display: flex;
     gap: 8px;
-    margin-bottom: 32px;
-    padding-top: 16px;
+    margin-block-end: 32px;
+    padding-block-start: 16px;
     position: relative;
 }
 
@@ -52,22 +49,22 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    inline-size: 100%;
     list-style: none;
     margin: 0;
     padding: 0;
-    width: 100%;
 }
 
 .fl-menu-category {
-    width: 32%;
+    inline-size: 32%;
 }
 
 .fl-menu-category + .fl-menu-category {
-    width: 40%;
+    inline-size: 40%;
 }
 
 .fl-menu-category + .fl-menu-category + .fl-menu-category {
-    width: 25%;
+    inline-size: 25%;
 }
 
 .fl-nav {
@@ -78,10 +75,10 @@
     background-color: #fff;
     border: 2px solid #eee;
     display: flex;
+    inline-size: 100%;
+    inset-block-start: 100%;
     padding: 24px;
     position: absolute;
-    top: 100%;
-    width: 100%;
 }
 
 .fl-menu-category-link a:link,
@@ -92,7 +89,7 @@
     color: #333336;
     display: inline-flex;
     gap: 4px;
-    margin-top: 8px;
+    margin-block-start: 8px;
     padding: 8px 16px;
     text-decoration: none;
 }
@@ -128,35 +125,35 @@
 .fl-show-mobile-menu {
     align-items: center;
     background-color: #7543e3;
+    block-size: 40px;
     color: white;
     display: flex;
-    height: 40px;
+    inline-size: 40px;
     justify-content: center;
     padding: 0;
-    width: 40px;
 }
 
 .fl-show-mobile-menu .fl-icon-close,
-.fl-show-mobile-menu.is-open .fl-icon-hamburger {
+.fl-show-mobile-menu.is-open .fl-icon-app-menu {
     display: none;
 }
 
 .fl-show-mobile-menu.is-open .fl-icon-close,
-.fl-show-mobile-menu .fl-icon-hamburger {
+.fl-show-mobile-menu .fl-icon-app-menu {
     display: block;
 }
 
 .fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
-    background-image: url('/media/img/firefox/flare/icons/close.svg');
+    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: 16px auto;
+    block-size: 32px;
     display: block;
     font-size: 0;
-    height: 32px;
+    inline-size: 32px;
     line-height: 0;
     margin: auto;
-    width: 32px;
 }
 
 .fl-header .download-link {
@@ -164,8 +161,7 @@
     border-radius: 40px;
     color: white;
     display: inline-block;
-    margin-bottom: auto;
-    margin-top: auto;
+    margin-block: auto;
     padding: 8px 12px;
     text-decoration: none;
 }
@@ -183,7 +179,7 @@
 .fl-header-buttons {
     display: flex;
     gap: 16px;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .fl-split-page-upper,
@@ -198,7 +194,7 @@
 }
 
 .fl-footer {
-    margin-top: 72px;
+    margin-block-start: 72px;
 }
 
 .fl-footer a:link,
@@ -235,8 +231,7 @@
 
 .fl-footer-heading {
     font-size: 16px;
-    margin-bottom: 0;
-    margin-top: 32px;
+    margin-block: 32px 0;
 }
 
 .fl-footer-list {
@@ -251,8 +246,7 @@
     gap: 8px 16px;
     list-style: none;
     margin: 0;
-    margin-bottom: 32px;
-    margin-top: 32px;
+    margin-block: 32px;
     padding: 0;
 }
 
@@ -262,7 +256,7 @@
 
 .fl-language-switcher {
     display: block;
-    padding-top: 32px;
+    padding-block-start: 32px;
 }
 
 .fl-language-switcher label {
