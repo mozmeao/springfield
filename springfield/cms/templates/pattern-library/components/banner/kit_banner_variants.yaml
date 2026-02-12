@@ -12,13 +12,13 @@ context:
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
 
@@ -34,13 +34,13 @@ context:
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
 
@@ -56,13 +56,13 @@ context:
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
 
@@ -78,13 +78,13 @@ context:
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
 
@@ -100,12 +100,12 @@ context:
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"
         - label: "Sneak Peek"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: "button-tertiary"

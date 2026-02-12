@@ -1,7 +1,7 @@
 name: "Tag"
 context:
   text: 'Tag'
-  before_icon: 'chevron-left'
+  before_icon: 'back'
   after_icon: 'forward'
   color: 'purple'
   corners: 'round'

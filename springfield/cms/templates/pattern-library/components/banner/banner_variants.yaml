@@ -28,13 +28,13 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -54,7 +54,7 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -74,7 +74,7 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -95,7 +95,7 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -126,13 +126,13 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -152,7 +152,7 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -172,7 +172,7 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
 
@@ -193,6 +193,6 @@ context:
         - label: "Learn More"
           link: "/"
           external: false
-          icon_name: "arrow-right"
+          icon_name: "forward"
           icon_position: "right"
           theme_class: ""
