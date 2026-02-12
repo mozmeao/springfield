@@ -17,10 +17,10 @@
         {{ ftl('firefox-all-platform-v2') }}
       {% endif %}
     {% if product and not platform %}
-      <a id="icon-installer-help" href="#installer-help" class="c-button-help icon-installer-help" title="{{ ftl('firefox-all-learn-about-installers')}}">
-        <include:icon icon_name="help" />
-        <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
-      </a>
+      <button class="fl-tiny-icon-button fl-dialog-trigger" data-target-id="installer-help">
+          <include:icon icon_name="help" />
+          <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
+        </button>
     {% endif %}
     </h2>
   </div>
@@ -47,43 +47,56 @@
         <li><a href="{{ url('firefox.all.locales', product_slug=product.slug, platform=platform) }}" class="load-content-partial">{{ name }}</a></li>
       {% endfor %}
     </ul>
-    <div id="installer-help" class="c-help mzp-u-modal-content">
-      <h3>{{ ftl('firefox-all-learn-about-installers')}}</h3>
-      <ul class="fl-c-unstyled-list">
+
+
+
+
+    <include:dialog id="installer-help">
+     <content:heading>
+      <include:heading
+        level="h3"
+        heading_text="{{ ftl('firefox-all-learn-about-installers')}}"
+      />
+    </content:heading>
+
+    <content:body>
+
+     <ul class="fl-c-unstyled-list">
         <li>
-          <h4 class="c-help-title">{{ ftl('firefox-all-64-bit-installers') }}</h4>
+          <h4 class="fl-heading-xs">{{ ftl('firefox-all-64-bit-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-64-bit-installer') }}
           </p>
         </li>
         <li>
-          <h4 class="c-help-title">{{ ftl('firefox-all-32-bit-installers') }}</h4>
+          <h4 class="fl-heading-xs">{{ ftl('firefox-all-32-bit-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-32-bit-installer', url='https://support.mozilla.org/kb/choosing-firefox-cpu-architecture-windows-os') }}
           </p>
         </li>
         <li>
-          <h4 class="c-help-title">{{ ftl('firefox-all-msi-installers') }}</h4>
+          <h4 class="fl-heading-xs">{{ ftl('firefox-all-msi-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-windows-installers-for') }}
           </p>
         </li>
         <li>
-          <h4 class="c-help-title">{{ ftl('firefox-all-arm64-installers') }}</h4>
+          <h4 class="fl-heading-xs">{{ ftl('firefox-all-arm64-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-arm64-installers-optimized-v2') }}
           </p>
         </li>
         {% if ftl_has_messages('firefox-all-choose-a-microsoft-store-installer') %}
         <li>
-          <h4 class="c-help-title">{{ ftl('firefox-all-microsoft-store-installers') }}</h4>
+          <h4 class="fl-heading-xs">{{ ftl('firefox-all-microsoft-store-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-microsoft-store-installer') }}
           </p>
         </li>
         {% endif %}
       </ul>
-    </div>
+      </content:body>
+  </include:dialog>
   </div>
 {% endif %}
 </div>
