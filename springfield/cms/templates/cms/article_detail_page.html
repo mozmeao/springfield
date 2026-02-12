@@ -7,7 +7,7 @@
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
 {% extends base_template %}
 
-{% block body_class %}fl-article-body {% if switch("flare26_disabled") %}disable-dark-mode{% endif %}{% endblock %}
+{% block body_class %}fl-article-body {% if not switch("flare26_enabled") %}disable-dark-mode{% endif %}{% endblock %}
 
 {% block content %}
 <div class="fl-page fl-article-page">
