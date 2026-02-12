@@ -5,7 +5,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from springfield.cms.fixtures.article_page_fixtures import get_article_pages
+from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_2026_test_index_page,
@@ -85,6 +85,9 @@ class Command(BaseCommand):
         article_pages = get_article_pages()
         for page in article_pages:
             self.stdout.write(self.style.SUCCESS(f"Article test page loaded: {page.slug}"))
+
+        article_theme_page = get_article_theme_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
 
         feature_index_page, feature_pages = load_feature_page_fixtures()
         if not no_refresh:

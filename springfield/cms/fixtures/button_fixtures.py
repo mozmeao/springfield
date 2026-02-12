@@ -37,7 +37,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "secondary",
-                    "icon": "arrow-right",
+                    "icon": "forward",
                     "icon_position": "right",
                     "analytics_id": "cfdf0d2c-7eee-49c2-8747-80450e22dbdd",
                 },
@@ -60,7 +60,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "arrow-left",
+                    "icon": "chevron-left",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
@@ -83,7 +83,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "ghost",
-                    "icon": "chat",
+                    "icon": "comment",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
@@ -147,7 +147,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "secondary",
-                    "icon": "arrow-right",
+                    "icon": "forward",
                     "icon_position": "right",
                     "analytics_id": "b4adffda-872a-4f2b-b45a-63ac7cb71e91",
                 },
@@ -170,7 +170,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "data-insights",
+                    "icon": "export-data",
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
                 },
@@ -216,7 +216,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "user",
+                    "icon": "single-user",
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
                 },
@@ -230,7 +230,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "label": "Get Firefox",
                 "settings": {
                     "theme": "",
-                    "icon": "download",
+                    "icon": "downloads",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
                     "show_default_browser_checkbox": False,
@@ -263,7 +263,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "tertiary",
-                            "icon": "arrow-left",
+                            "icon": "chevron-left",
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
                         },
@@ -286,7 +286,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "ghost",
-                            "icon": "bell",
+                            "icon": "diamond",
                             "icon_position": "left",
                             "analytics_id": "151a5822-63b4-4621-b146-4135044f21b8",
                         },
@@ -332,7 +332,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "secondary",
-                            "icon": "email",
+                            "icon": "email-shield",
                             "icon_position": "left",
                             "analytics_id": "569de137-625d-48f7-bbfb-0fe87b43da83",
                         },
@@ -355,7 +355,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "",
-                            "icon": "headphone",
+                            "icon": "plane",
                             "icon_position": "left",
                             "analytics_id": "db29813f-1941-4e78-83ac-856943e34490",
                         },

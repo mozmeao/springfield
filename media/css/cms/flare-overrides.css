@@ -55,7 +55,7 @@ specific exceptions that can't be handled by the other layers
     height: calc(var(--token-scale-12) * 1px);
 }
 
-.fl-menu-category .fl-icon-caret-down {
+.fl-menu-category .fl-icon-chevron-down {
     display: none;
 }
 
@@ -70,7 +70,7 @@ specific exceptions that can't be handled by the other layers
 }
 
 @media (--viewport-sm-up) {
-    .fl-menu-category .fl-icon-caret-down {
+    .fl-menu-category .fl-icon-chevron-down {
         display: inline-block;
     }
 

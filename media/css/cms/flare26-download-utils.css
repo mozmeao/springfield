@@ -16,12 +16,12 @@
 /* Hide the unsupported message by default */
 .fx-unsupported-message {
     display: none;
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     text-align: center;
 }
 
 .fx-unsupported-message p {
-    margin-bottom: 8px;
+    margin-block-end: 8px;
 }
 
 /* Show the Windows unsupported message if on Windows with unsupported version for Firefox */

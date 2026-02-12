@@ -116,7 +116,7 @@ def get_icon_card_variants() -> list[dict]:
             "type": "icon_card",
             "value": {
                 "settings": {"expand_link": False},
-                "icon": "copy",
+                "icon": "taskbar-move-tab",
                 "tags": tags[:3],
                 "headline": '<p data-block-key="ob9zh">Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">Choose one of the Icon options to build the card.</p>',
@@ -128,7 +128,7 @@ def get_icon_card_variants() -> list[dict]:
             "type": "icon_card",
             "value": {
                 "settings": {"expand_link": True},
-                "icon": "alert",
+                "icon": "warning",
                 "tags": tags[3:6],
                 "headline": '<p data-block-key="ob9zh">Clickable Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">Check the Expand Link option in the card settings to make the entire card clickable.</p>',
@@ -152,7 +152,7 @@ def get_icon_card_variants() -> list[dict]:
             "type": "icon_card",
             "value": {
                 "settings": {"expand_link": True},
-                "icon": "blog",
+                "icon": "edit-active",
                 "tags": tags[9:12],
                 "headline": '<p data-block-key="ob9zh">Fourth Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">All button options are available here too.</p>',

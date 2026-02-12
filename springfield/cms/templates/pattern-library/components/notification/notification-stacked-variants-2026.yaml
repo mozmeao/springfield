@@ -7,5 +7,5 @@ context:
       closable: false
     - heading: Notification Heading
       message: This is a notification with an icon
-      icon: earth
+      icon: globe
       closable: false

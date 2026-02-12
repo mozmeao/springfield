@@ -17,7 +17,7 @@
 }
 
 .fl-firefox-platform-button .fl-button {
-    width: fit-content;
+    inline-size: fit-content;
 }
 
 .fl-download-firefox-button .fl-store-button {
@@ -45,7 +45,7 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
 
 .fl-store-button img {
     margin: 0;
-    min-height: 45px;
+    min-block-size: 45px;
 }
 
 .fl-download-firefox-button {
@@ -73,17 +73,17 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
 }
 
 .fl-header .fl-icon-download-white {
-    margin-left: 4px;
+    margin-inline-start: 4px;
     vertical-align: unset;
 }
 
 .fl-nav-mobile-download-link {
     background: var(--fl-theme-background);
-    bottom: 0;
-    left: 0;
+    inline-size: 100%;
+    inset-block-end: 0;
+    inset-inline-start: 0;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
     position: fixed;
-    width: 100%;
 }
 
 .fl-nav-mobile-download-link .fl-fx-download-container {
@@ -92,8 +92,8 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
 
 .fl-nav-mobile-download-link .download-button {
     display: block;
+    inline-size: 100%;
     padding: var(--token-spacing-md);
-    width: 100%;
 }
 
 @media (--viewport-below-md) {

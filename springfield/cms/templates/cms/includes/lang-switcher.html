@@ -10,7 +10,7 @@
   <form id="lang_form" class="fl-language-switcher fl-icon-globe" method="get" action="#">
     <a class="fl-language-switcher-link" href="{{ url('base.locales') }}">{{ ftl('footer-language') }}</a>
     <label for="page-language-select">{{ ftl('footer-language') }}</label>
-    <div class="fl-language-switcher-select-wrapper fl-icon-caret-down">
+    <div class="fl-language-switcher-select-wrapper fl-icon-chevron-down">
       <select id="page-language-select" class="fl-language-switcher-select" name="lang" dir="ltr">
         {% for code, label in available_languages|dictsort -%}
           {# Don't escape the label as it may include entity references

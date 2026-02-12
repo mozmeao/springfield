@@ -10,7 +10,7 @@ context:
       - text: Feature
         color: purple
         corners: round
-        before_icon: star
+        before_icon: bookmark
         after_icon: ''
       - text: New
         color: blue

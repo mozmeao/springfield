@@ -4,7 +4,7 @@ context:
     heading_text: Card Gallery Heading
     subheading_text: This is a subheading for the card gallery component.
   main_card:
-    icon: star
+    icon: bookmark
     headline: Main Card Headline
     description: This is the description for the main card in the card gallery.
     buttons:

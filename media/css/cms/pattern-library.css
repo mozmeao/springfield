@@ -24,6 +24,10 @@
     border-top: 1px solid gray;
 }
 
+.pl-wrapper {
+    background: var(--fl-theme-background);
+}
+
 @media (min-width: 1024px) {
     .pl-wrapper {
         padding: 2rem;
