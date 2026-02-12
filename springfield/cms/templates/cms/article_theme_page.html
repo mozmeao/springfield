@@ -8,6 +8,19 @@
 
 {% block body_class %}fl-article-body{% endblock %}
 
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+
+  {% if page.upper_content|length %}
+    <include:flare26-header theme="dark" />
+  {% else %}
+    <include:flare26-header />
+  {% endif %}
+
+{% endblock %}
+
+
+
 {% block content %}
 <div class="fl-page fl-features-theme-page">
   {% if page.upper_content|length %}
