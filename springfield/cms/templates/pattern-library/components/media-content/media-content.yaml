@@ -22,7 +22,7 @@ context:
       - label: Learn More
         link: testurl
         external: false
-        icon_name: arrow-right
+        icon_name: forward
         icon_position: right
         theme_class: ''
     media:

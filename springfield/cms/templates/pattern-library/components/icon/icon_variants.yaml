@@ -92,7 +92,7 @@ context:
     - name: Chevron Down Small
       icon_name: chevron-down-small
     - name: Chevron Left
-      icon_name: chevron-left
+      icon_name: back
     - name: Chevron Right
       icon_name: chevron-right
     - name: Chevron Up
@@ -254,7 +254,7 @@ context:
     - name: List
       icon_name: list
     - name: List Arrow Left
-      icon_name: list-arrow-left
+      icon_name: list-back
     - name: Lock
       icon_name: lock
     - name: Lock Document

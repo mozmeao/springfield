@@ -4,7 +4,7 @@ context:
   label: "Primary Button"
   link: "testurl"
   external: false
-  icon_name: 'arrow-right'
+  icon_name: 'forward'
   icon_position: 'right'
   analytics_position: "section-1.button-1"
   analytics_text: "Section Heading - Primary Button"

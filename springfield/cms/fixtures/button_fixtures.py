@@ -60,7 +60,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "chevron-left",
+                    "icon": "back",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
@@ -263,7 +263,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "tertiary",
-                            "icon": "chevron-left",
+                            "icon": "back",
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
                         },
