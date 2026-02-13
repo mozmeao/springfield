@@ -12,6 +12,7 @@ from wagtail.models import Page
 
 from lib.l10n_utils import get_locale
 from springfield.cms.fixtures.article_page_fixtures import (
+    get_article_pages,
     get_article_theme_hub_page,
     get_article_theme_page,
     get_theme_hub_illustration_cards_section,
@@ -1805,3 +1806,109 @@ def test_theme_hub_page_blocks(index_page, rf):
         rendered_icon = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
         assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+
+
+def test_illustration_card_renders_featured_image_without_override(index_page, rf):
+    """When an illustration card has no image override, the article's featured_image
+    should be rendered instead of the placeholder image."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    illustration_section = sections[0]
+    illustration_cards = illustration_section.find_all("article", class_="fl-illustration-card")
+
+    articles = get_article_pages()
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Card at index 1 has overrides.image = None, so it should fall back
+    # to the article's featured_image (mobile_image for featured_article_2)
+    card_element = illustration_cards[1]
+    article = articles[1]
+    img_tag = card_element.find("img")
+
+    # Should NOT be the placeholder
+    assert img_tag["src"] != "/media/img/firefox/flare/card-placeholder.png"
+
+    # Should match the article's featured_image rendered as srcset_image
+    expected_img = image_ids[article.featured_image.id]
+    rendered_image = srcset_image(
+        expected_img,
+        "width-{200,400,600,800,1000,1200,1400}",
+        **{
+            "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
+            "width": expected_img.width,
+            "height": expected_img.height,
+            "loading": "lazy",
+        },
+    )
+    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+    assert img_tag["alt"] == image_soup["alt"]
+    assert img_tag["src"] == image_soup["src"]
+    assert img_tag["width"] == image_soup["width"]
+    assert img_tag["height"] == image_soup["height"]
+
+
+def test_sticker_row_renders_sticker_without_override(index_page, rf):
+    """When a sticker row card has no image override, the article's sticker
+    should be rendered instead of the placeholder image."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    sticker_section = sections[2]
+    sticker_row_articles = sticker_section.find_all("article", class_="fl-article-item")
+
+    articles = get_article_pages()
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
+    # so it should fall back to the article's sticker
+    card_element = sticker_row_articles[1]
+    article = articles[3]
+    sticker_element = card_element.find("img")
+
+    # Should NOT be the Firefox logo placeholder
+    assert sticker_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
+
+    # Should match the article's sticker rendered with image()
+    expected_img = image_ids[article.sticker.id]
+    rendered_icon = image(expected_img, "width-400").img_tag()
+    expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
+    assert sticker_element.prettify() == expected_soup.prettify()
+
+
+def test_icon_card_renders_article_icon_without_override(index_page, rf):
+    """When an icon card has no icon override, the article's icon
+    should be rendered instead of the default 'globe' icon."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    icon_section = sections[1]
+    icon_card_articles = icon_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+
+    articles = get_article_pages()
+
+    # Card at index 1 has overrides.icon = "" (articles[2] = regular_article_1, icon="apple"),
+    # so it should fall back to the article's icon, not the default "globe"
+    card_element = icon_card_articles[1]
+    article = articles[2]
+    icon_element = card_element.find("span", class_="fl-icon")
+    assert icon_element is not None
+    assert f"fl-icon-{article.icon}" in icon_element["class"]
+    assert "fl-icon-globe" not in icon_element["class"]

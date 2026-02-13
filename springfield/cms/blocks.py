@@ -1270,6 +1270,39 @@ class ArticleValue(blocks.StructValue):
                 return article_page.link_text
         return ""
 
+    def get_featured_image(self):
+        overrides = self.get("overrides", {})
+        if image := overrides.get("image"):
+            return image
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "featured_image"):
+                return article_page.featured_image
+        return None
+
+    def get_sticker(self):
+        overrides = self.get("overrides", {})
+        if image := overrides.get("image"):
+            return image
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "sticker"):
+                return article_page.sticker
+        return None
+
+    def get_icon(self) -> str:
+        overrides = self.get("overrides", {})
+        if icon := overrides.get("icon"):
+            return icon
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "icon") and article_page.icon:
+                return article_page.icon
+        return "globe"
+
 
 class ArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
