@@ -105,6 +105,6 @@
 }
 
 .fl-video-error p {
-    color: var(--fl-theme-color-text-primary);
+    color: var(--fl-theme-color-text);
     margin: 0;
 }
