@@ -5,7 +5,7 @@
 */
 
 .fl-intro {
-    padding: var(--token-layout-md) 0;
+    padding: var(--token-layout-md) var(--fl-section-h-padding);
     position: relative;
     text-align: center;
 }
@@ -90,6 +90,11 @@
 
 .fl-home-intro .fl-intro-content {
     display: block;
+}
+
+/* This is only for the 'features theme' page, for now. */
+.has-sitting-kit .fl-intro .fl-subheading {
+    text-wrap: balance;
 }
 
 .fl-home-intro::before {
@@ -177,7 +182,11 @@
 
 @media (--viewport-sm-up) {
     .fl-intro {
-        padding: var(--token-layout-lg) 0;
+        padding-block: var(--token-layout-lg);
+    }
+
+    .has-sitting-kit .fl-intro {
+        padding-block: var(--token-layout-xs);
     }
 
     .fl-intro.fl-intro-media-right,

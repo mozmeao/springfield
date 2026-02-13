@@ -1373,11 +1373,13 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     "LOCALE_TO_SMARTLING_LOCALE": {
         "de": "de-DE",
         "fr": "fr-FR",
+        "id": "id-ID",
         "it": "it-IT",
         "ja": "ja-JP",
         "nl": "nl-NL",
         "pl": "pl-PL",
         "ru": "ru-RU",
+        "tr": "tr-TR",
     },
     "JOB_NAME_PREFIX": config(
         "WAGTAIL_LOCALIZE_JOB_NAME_PREFIX",
