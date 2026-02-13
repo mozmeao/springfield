@@ -20,6 +20,14 @@
     max-inline-size: 848px;
 }
 
+.fl-intro-full-width .fl-intro-content {
+    max-inline-size: unset;
+}
+
+.fl-intro-vertical .fl-intro-content {
+    display: block;
+}
+
 .fl-intro-media {
     align-items: center;
     display: flex;
@@ -32,6 +40,10 @@
 
 .fl-intro-content .text {
     padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
+}
+
+.fl-intro-body {
+    padding-block-start: var(--token-spacing-lg);
 }
 
 .fl-intro .fl-heading-group {
