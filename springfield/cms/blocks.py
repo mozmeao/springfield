@@ -1242,15 +1242,21 @@ class ArticleValue(blocks.StructValue):
         if description := overrides.get("description"):
             return remove_p_tag(richtext(description))
         article_page = self.get("article")
-        return remove_p_tag(richtext(article_page.description))
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "description") and article_page.description:
+                return remove_p_tag(richtext(article_page.description))
+        return ""
 
     def get_superheading(self) -> str:
         overrides = self.get("overrides", {})
         if superheading := overrides.get("superheading"):
             return superheading
         article_page = self.get("article")
-        if article_page and article_page.tag:
-            return article_page.tag.name
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "tag") and article_page.tag:
+                return article_page.tag.name
         return ""
 
     def get_link_label(self) -> str:
@@ -1258,13 +1264,15 @@ class ArticleValue(blocks.StructValue):
         if link_label := overrides.get("link_label"):
             return link_label
         article_page = self.get("article")
-        return article_page.link_text
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "link_text") and article_page.link_text:
+                return article_page.link_text
+        return ""
 
 
 class ArticleBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        target_model="cms.ArticleDetailPage",
-    )
+    article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
     overrides = ArticleOverridesBlock(required=False)
 
     class Meta:
@@ -1341,8 +1349,10 @@ class RelatedArticleValue(blocks.StructValue):
         if superheading := overrides.get("superheading"):
             return superheading
         article_page = self.get("article")
-        if article_page and article_page.tag:
-            return article_page.tag.name
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "tag") and article_page.tag:
+                return article_page.tag.name
         return ""
 
     def get_sticker(self):
@@ -1350,13 +1360,15 @@ class RelatedArticleValue(blocks.StructValue):
         if sticker := overrides.get("sticker"):
             return sticker
         article_page = self.get("article")
-        return article_page.sticker if article_page else None
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "sticker"):
+                return article_page.sticker
+        return None
 
 
 class RelatedArticleBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        target_model="cms.ArticleDetailPage",
-    )
+    article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
     overrides = RelatedArticleOverridesBlock(required=False)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
 
