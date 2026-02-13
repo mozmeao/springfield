@@ -1754,6 +1754,12 @@ class HomeCarouselSlide(blocks.StructBlock):
 
 class HomeCarouselBlock(blocks.StructBlock):
     heading = HeadingBlock()
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
     slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
 
     class Meta:
