@@ -163,8 +163,10 @@ python manage.py dumpdata \
     cms.SpringfieldImage \
     cms.ArticleIndexPage \
     cms.ArticleDetailPage \
+    cms.ArticleThemePage \
     cms.HomePage \
     cms.DownloadPage \
+    cms.DownloadIndexPage \
     cms.ThanksPage \
     cms.DownloadFirefoxCallToActionSnippet \
     cms.BannerSnippet \

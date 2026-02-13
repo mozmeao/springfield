@@ -5,76 +5,76 @@ context:
       text: 'Tag'
       color: 'white'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: White / Soft
       text: 'Tag'
       color: 'white'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
 
     - note: Black / Round
       text: 'Tag'
       color: 'black'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: Black / Soft
       text: 'Tag'
       color: 'black'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
 
     - note: Orange / Round
       text: 'Tag'
       color: 'orange'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: Orange / Soft
       text: 'Tag'
       color: 'orange'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
 
     - note: Purple / Round
       text: 'Tag'
       color: 'purple'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: Purple / Soft
       text: 'Tag'
       color: 'purple'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
 
     - note: Blue / Round
       text: 'Tag'
       color: 'blue'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: Blue / Soft
       text: 'Tag'
       color: 'blue'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
 
     - note: Outline / Round
       text: 'Tag'
       color: 'outline'
       corners: 'round'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'
     - note: Outline / Soft
       text: 'Tag'
       color: 'outline'
       corners: 'soft'
-      before_icon: 'chevron-left'
+      before_icon: 'back'
       after_icon: 'forward'

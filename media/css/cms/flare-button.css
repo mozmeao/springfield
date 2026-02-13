@@ -100,7 +100,8 @@
     width: calc(var(--token-scale-16) * 1px);
     height: calc(var(--token-scale-16) * 1px);
     background-color: currentColor;
-    mask: url('/media/img/firefox/flare/icons/arrow-right.svg') no-repeat center/calc(var(--token-scale-16) * 1px) calc(var(--token-scale-16) * 1px);
+    mask:  no-repeat center/calc(var(--token-scale-16) * 1px) calc(var(--token-scale-16) * 1px);
+
 }
 
 .fl-button[disabled] {

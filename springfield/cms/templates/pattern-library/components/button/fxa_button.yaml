@@ -1,7 +1,7 @@
 name: "Firefox Account Button"
 context:
     label: "Sign in to Firefox Account"
-    icon_name: 'arrow-right'
+    icon_name: 'forward'
     icon_position: 'right'
     theme_class: "button-tertiary"
     utm_parameters:
