@@ -247,9 +247,12 @@ DownloadAsDefault.init = () => {
         return false;
     }
 
-    DownloadAsDefault.showCheckbox();
-    DownloadAsDefault.processAttributionRequest(true);
-    // processAttributionRequest will bind the events
+    const checkboxes = document.querySelectorAll('.default-browser-checkbox');
+    if (checkboxes.length > 0) {
+        DownloadAsDefault.showCheckbox();
+        DownloadAsDefault.processAttributionRequest(true);
+        // processAttributionRequest will bind the events
+    }
 
     return true;
 };

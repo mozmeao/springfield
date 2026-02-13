@@ -105,6 +105,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
           {{ js_bundle('stub-attribution') }}
         <!--<![endif]-->
       {% endif %}
+
+      {# Download as default needs to come after stub attribution #}
+      {{ js_bundle('download_as_default') }}
     {% endblock %}
 
     {% block js %}
