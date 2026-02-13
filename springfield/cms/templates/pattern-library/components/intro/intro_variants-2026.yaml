@@ -1,0 +1,120 @@
+name: "Intro variants 2026"
+context:
+  variants:
+    - title: Intro With Media
+      media_position: 'after'
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      fine_print: Fine print
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro With Media (Media Before)
+      media_position: 'before'
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      fine_print: Fine print
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Vertical Intro With Media (Media Before)
+      media_position: 'before'
+      vertical: true
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      fine_print: Fine print
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro Without Media
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      fine_print: Fine print
+
+    - title: Intro With Video
+      media_position: 'after'
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment: center
+        subheading_size: 3
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      fine_print: Fine print
+      video:
+        url: https://www.youtube.com/watch?v=F-nFQryDB0s
+        poster: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Video
