@@ -1,0 +1,137 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<main class="fl-main">
+  <div class="fl-section">
+    <div class="fl-section-container">
+      <include:intro media_position="before" vertical full_width>
+        <content:heading>
+          <include:heading
+            level="h1"
+            heading_text="Help shape the future of Firefox for iOS"
+            subheading_text="Sign up to test pre-release versions to make Firefox even better."
+          />
+        </content:heading>
+
+        <content:media>
+          <img src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+        </content:media>
+      </include:intro>
+    </div>
+  </div>
+
+  <div class="fl-section">
+    <div class="fl-section-container">
+      <div class="fl-newsletterform-cta" data-state="default">
+        <div class="fl-newsletterform-content">
+          <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
+            <div hidden>
+              {{ newsletter_form.newsletters|safe }}
+            </div>
+            {# test flight program is only available in english #}
+            <input type="hidden" name="lang" id="id_lang" value="en">
+            <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
+
+            <div class="fl-newsletterform-field">
+              <label class="fl-newsletterform-label" for="newsletter-email">Email</label>
+              <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" required aria-required="true" autocomplete="email" placeholder="user@example.com" data-testid="newsletter-email-input">
+            </div>
+
+            <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
+              <div class="fl-newsletterform-consent">
+                <label for="id_terms" class="fl-body fl-newsletterform-checkbox-label">
+                  <input id="id_terms" name="terms" required aria-required="true" type="checkbox" data-testid="newsletter-terms-checkbox">
+                  <span class="fl-newsletterform-checkbox-text">
+                    I have read and agree to these
+                    <a href="#terms-conditions">Terms and Conditions</a>
+                  </span>
+                </label>
+              </div>
+              <div class="fl-newsletterform-consent">
+                <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
+                  <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
+                  <span class="fl-newsletterform-checkbox-text">
+                    I'm okay with Mozilla handling my info as explained in this
+                    <a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <button class="fl-button" id="newsletter-submit" type="submit" disabled data-testid="newsletter-submit-button">Submit</button>
+
+            <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+              <ul class="fl-newsletterform-error-list">
+                <li class="error-email-invalid hidden">
+                  Please enter a valid email address
+                </li>
+                <li class="error-terms hidden">
+                  You must agree to the terms and conditions
+                </li>
+                <li class="error-privacy-policy hidden">
+                  You must agree to the privacy notice
+                </li>
+                <li class="error-try-again-later hidden">
+                  We are sorry, but there was a problem with our system. Please try again later!
+                </li>
+              </ul>
+            </div>
+          </form>
+
+          <div id="newsletter-thanks" class="fl-newsletterform-success hidden" data-testid="newsletter-thanks-message">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="40" cy="40" r="40" fill="white" />
+              <path d="M28 40L36 48L52 32" stroke="black" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" />
+            </svg>
+            <h3>Congrats!</h3>
+            <h4>You have been added to the Firefox for iOS testing program.</h4>
+            <p>
+              When test spots are available, you will receive an invitation from
+              TestFlight, Apple's App Store program that manages pre-release
+              software, to participate in the program.
+              <strong>Please accept it.</strong>
+            </p>
+            <p>Be aware that this email may be in your spam folder.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-section" id="terms-conditions">
+    <div class="fl-section-container">
+      <include:heading
+        level="h4"
+        heading_text="Terms and Conditions"
+      />
+      <ol>
+        <li>
+          <p>
+            This pre-release program ("Program") is only available in English.
+            You must be at least 18 years old or have your parent consent to your participation in the Program.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>Installation of TestFlight is required for Program participation.</strong>
+            {% with url='https://www.apple.com/legal/internet-services/itunes/testflight/sren/terms.html' %}
+            TestFlight is published by Apple and its
+            <a href="{{ url }}" rel="external">terms and conditions</a> apply.
+            {% endwith %}
+
+            When Mozilla receives data from you or TestFlight, we handle it in
+            accordance with our <a href="https://www.mozilla.org/{{ LANG }}/privacy/{{ params }}">Privacy Policy</a>.
+          </p>
+        </li>
+        <li>
+          <p>
+            You may receive emails from TestFlight or Mozilla in connection with your participation in this Program.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</main>
