@@ -10,9 +10,9 @@
 {# Issue 13019: Avoid duplicate content for English pages. #}
 {%- block page_title -%}
   {%- if LANG == 'en-US' -%}
-    Firefox for Desktop By Firefox (US)
+    Firefox for Desktop by Mozilla (US)
   {%- elif LANG == 'en-GB' -%}
-    Firefox for Desktop  By Firefox (UK)
+    Firefox for Desktop by Mozilla (UK)
   {%- else -%}
     {{ ftl('firefox-browsers-page-title-v2') }} - Firefox
   {%- endif -%}
