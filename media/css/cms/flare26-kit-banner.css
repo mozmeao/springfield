@@ -6,7 +6,6 @@
 
 .fl-banner-kit {
     --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-color-text-primary: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
     --fl-theme-color-link-visited: var(--token-color-white);
     --fl-theme-color-link-strong: var(--token-color-white);
@@ -59,7 +58,7 @@
 }
 
 .fl-banner-kit .fl-superheading {
-    color: var(--fl-theme-color-text-primary);
+    color: var(--fl-theme-color-text);
 }
 
 .fl-banner-kit-diving-in {

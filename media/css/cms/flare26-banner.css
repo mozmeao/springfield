@@ -5,9 +5,10 @@
 */
 
 .fl-banner {
-    --fl-theme-color-text-primary: var(--fl-theme-color-banner-text);
+    --fl-theme-color-text: var(--fl-theme-color-banner-text);
     align-items: center;
     border-radius: var(--token-border-radius-md);
+    color: var(--fl-theme-color-text);
     display: flex;
     justify-content: center;
     overflow: hidden;
@@ -54,11 +55,11 @@
 
 .fl-banner-outlined {
     border: 1px solid var(--token-color-black-1);
-    color: var(--fl-theme-color-text-primary);
+    color: var(--fl-theme-color-text);
 }
 
 .fl-banner-purple {
-    --fl-theme-color-text-primary: var(--token-color-white);
+    --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
     --fl-theme-color-link-visited: var(--token-color-white);
     --fl-theme-color-link-strong: var(--token-color-white);
