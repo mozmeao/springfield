@@ -32,8 +32,9 @@
 }
 
 .fl-carousel-has-kit .fl-carousel-slides::before {
-    background: url('/media/img/firefox/flare/fox-brand.svg');
-    background-size: cover;
+    background: url('/media/img/firefox/flare/fox-brand-curious.svg') bottom
+        center no-repeat;
+    background-size: contain;
     block-size: 100px;
     content: '';
     display: block;
