@@ -3,3 +3,187 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
+
+<main id="fl-page-user-privacy" class="fl-main">
+  <div class="fl-section">
+    <div class="max-width-wide-banner">
+      <include:intro media_position="right">
+        <content:heading>
+          <include:heading
+            level="h1"
+            superheading_text="Privacy & Security"
+            heading_text="How Firefox Protects Your Data"
+            subheading_text="Here’s the big picture: Firefox is built with privacy and protection as the default. We don’t know that much about you. What little we do know, we never sell. And we give you the most choice of anything on the internet to turn off the stuff that annoys you."
+          />
+        </content:heading>
+
+        <content:media>
+          <img src="/media/img/firefox/flare/2026/user-privacy/intro.png" aria-hidden />
+        </content:media>
+      </include:intro>
+
+      <div class="main-content">
+        <div class="sidebar">
+          <ul>
+            <li>
+              <a href="#privacy-online">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                Privacy Online
+              </a>
+            </li>
+            <li>
+              <a href="#tracking-protection">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                Tracking Protection
+              </a>
+            </li>
+            <li>
+              <a href="#data-control">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                Control Your Data
+              </a>
+            </li>
+            <li>
+              <a href="#advertising">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                Advertising
+              </a>
+            </li>
+            <li>
+              <a href="#built-different">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                Built Different
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="content-container">
+
+          <section id="privacy-online">
+            <img src="/media/img/firefox/flare/2026/user-privacy/fingerprint-tracking.svg" aria-hidden>
+            <h2>Your privacy always comes first.</h2>
+            <p>Unlike many other browsers where sensitive user data is routinely collected and stored, Firefox is built on the <a href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html{{ params }}#browsing-data" data-link-text="data collection pricile">principle</a> that not even Mozilla should know which websites you visit or what you do there.</p>
+            <p>For example, when you sync your history or bookmarks, Firefox has to send data to Mozilla servers so you can seamlessly access them across devices. The difference is, we use end-to-end encryption before it leaves your device, so even we can’t see what sites you’re visiting.</p>
+            <div class="link-list">
+              <a href="https://firefox-source-docs.mozilla.org/contributing/data-collection.html{{ params }}"><strong>See Firefox’s data collection guidelines</strong></a>
+            </div>
+          </section>
+
+          <section id="tracking-protection">
+            <img src="/media/img/firefox/flare/2026/user-privacy/privacy-shield.svg" aria-hidden>
+            <h2>You’re automatically protected.</h2>
+            <p>Firefox’s Enhanced Tracking Protection (ETP) and Total Cookie Protection (TCP) work together to protect you from the tracking tech that follows you from site to site, most often without your knowledge or consent. Firefox cuts off cross-site tracking right at the source by locking cookies to the site where they were created. So you stay private without needing to change a single setting.</p>
+            <div class="link-list">
+              <a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop/{{ params }}"><strong>More about Enhanced Tracking Protection</strong></a>
+              <a href="https://support.mozilla.org/en-US/kb/introducing-total-cookie-protection-standard-mode/{{ params }}"><strong>More about Total Cookie Protection</strong></a>
+            </div>
+          </section>
+
+          <section id="data-control">
+            <img src="/media/img/firefox/flare/2026/user-privacy/tab-groups.svg" aria-hidden>
+            <h2>You’re in control.</h2>
+            <p>The best way to keep your data safe is to keep it on your device. Firefox features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in Firefox, Mozilla has no access to your chats—they remain between you and the chatbot provider.</p>
+            <div class="link-list">
+              <a href="https://support.mozilla.org/en-US/kb/on-device-models/{{ params }}"><strong>More about on-device AI models</strong></a>
+              <a href="https://support.mozilla.org/en-US/kb/ai-chatbot/{{ params }}"><strong>More about AI chatbots</strong></a>
+            </div>
+          </section>
+
+          <section id="advertising">
+            <img src="/media/img/firefox/flare/2026/user-privacy/devices.svg" aria-hidden>
+            <h2>Ads? Totally up to you.</h2>
+            <p>Firefox has optional ads on the homepage to support Firefox development and Mozilla’s mission. You can turn them off if you like (and you're always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in Firefox use a privacy-first architecture which is designed to prevent advertisers from learning who you are.</p>
+            <p>And it’s worth repeating: we never sell your personal data to any advertiser. Want to go further? Go ahead and turn off ads across the web. Firefox delivers more ad blocker options than any other browser because we support Manifest v2 browser extensions.</p>
+            <div class="link-list">
+              <a href="https://support.mozilla.org/en-US/kb/sponsor-privacy/{{ params }}"><strong>More about ads and privacy</strong></a>
+            </div>
+          </section>
+
+          <section id="built-different">
+            <img src="/media/img/firefox/flare/2026/user-privacy/cursor.svg" aria-hidden>
+            <h2>Privacy is a team effort.</h2>
+            <p>We build Firefox together with contributors and software developers around the world in the service of a safe, accessible, and proudly public internet. Firefox isn’t just a clone of another popular browser – it runs on Gecko, Mozilla’s independent and open source browser engine. In addition to giving Firefox the freedom to do things differently, Gecko helps advance web standards and influence public policy.</p>
+            <div class="link-list">
+              <a href="https://firefox-source-docs.mozilla.org/overview/gecko.html{{ params }}"><strong>Get to know Gecko</strong></a>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-section">
+    <div class="max-width-wide-banner">
+      <include:banner slim="true" theme="dark-purple">
+        <content:heading>
+          <include:heading
+            level="h2"
+            heading_text="Private browsing that goes above and beyond."
+          />
+        </content:heading>
+
+        <content:body>
+          <p>
+            And when it comes to private browsing, Firefox’s Private Window mode goes way past most browsers. In addition to making sure everything you do in a Private Window is deleted when you close it, Firefox blocks  tracker scripts and content by default, keeps your unique device  identity private with advanced fingerprinting protections, and proactively tells websites not to sell or share your data.
+          </p>
+        </content:body>
+
+        <content:media>
+          <img src="/media/img/firefox/flare/2026/user-privacy/bottom-banner.png" aria-hidden />
+        </content:media>
+      </include:banner>
+    </div>
+  </div>
+
+  <div class="fl-section">
+    <div class="max-width-wide-banner">
+
+      <include:intro vertical full_width>
+        <content:heading>
+          <include:heading
+            level="h2"
+            heading_text="Firefox is built to protect you."
+            subheading_text="Take control of your data with Firefox today."
+          />
+        </content:heading>
+
+        <content:body>
+          {{ download_firefox_thanks(
+            alt_copy="Download Firefox",
+            dom_id='data-protection-download-firefox',
+            button_class='download-cta',
+            download_location='data-protection',
+            flare_styles=True,
+          ) }}
+          <include:button
+            id="privacy-settings"
+            label="Manage Your Privacy Settings"
+            theme_class="button-ghost"
+            icon_name="settings"
+            icon_position="right"
+          />
+          <include:button
+            label="Read the Firefox Privacy Notice"
+            theme_class="button-ghost"
+            icon_name="forward"
+            icon_position="right"
+            link="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}"
+          />
+        </content:body>
+      </include:intro>
+
+    </div>
+  </div>
+</main>
