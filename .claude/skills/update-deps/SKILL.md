@@ -199,7 +199,7 @@ Present a final summary:
 4. **Suggested commit message**: Draft a commit message summarizing the updates (imperative mood, short title, details in body)
 5. **Offer to commit**: Ask if the user wants to commit the changes now
 
-When committing, do NOT include Claude/Anthropic as a co-author (per project CLAUDE.md).
+When committing, do NOT include Claude/Anthropic as a co-author.
 
 ---
 
