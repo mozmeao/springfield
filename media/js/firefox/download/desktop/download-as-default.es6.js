@@ -133,6 +133,7 @@ DownloadAsDefault.handleChangeEvent = (e) => {
  */
 DownloadAsDefault.unbindEvents = () => {
     const checkboxes = document.querySelectorAll('.default-browser-checkbox');
+    const loadingSigns = document.querySelectorAll('.loading');
 
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].removeEventListener(
@@ -141,6 +142,11 @@ DownloadAsDefault.unbindEvents = () => {
             false
         );
         checkboxes[i].disabled = true;
+        checkboxes[i].style.display = 'none';
+    }
+
+    for (let i = 0; i < checkboxes.length; i++) {
+        loadingSigns[i].classList.add('show');
     }
 };
 
@@ -150,6 +156,11 @@ DownloadAsDefault.unbindEvents = () => {
  */
 DownloadAsDefault.bindEvents = () => {
     const checkboxes = document.querySelectorAll('.default-browser-checkbox');
+    const loadingSigns = document.querySelectorAll('.loading');
+
+    for (let i = 0; i < checkboxes.length; i++) {
+        loadingSigns[i].classList.remove('show');
+    }
 
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].addEventListener(
@@ -158,6 +169,7 @@ DownloadAsDefault.bindEvents = () => {
             false
         );
         checkboxes[i].disabled = false;
+        checkboxes[i].style.display = 'inline-block';
     }
 };
 
