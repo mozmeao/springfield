@@ -3,7 +3,6 @@
  License, v. 2.0. If a copy of the MPL was not distributed with this
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
-
 {% if value.settings.card_type == "sticker_row" %}
   <div class="fl-stacked-article-list">
     {% for card in value.cards %}
@@ -13,7 +12,7 @@
         link_text={{ card.get_link_label() }}
         url={{ card.article.url }}
       >
-        {% set img = card.overrides.image or card.article.sticker %}
+        {% set img = card.get_sticker() %}
         <content:icon>
           {% if img %}
             {{ image(img, "width-400") }}
@@ -29,7 +28,7 @@
     {% for card in value.cards %}
         <include:illustration-card-2026  variant="sticker">
           <content:media>
-            {% set img = card.overrides.image or card.article.sticker %}
+            {% set img = card.get_sticker() %}
             {% if img %}
               {{ image(img, "width-400") }}
             {% else %}
@@ -61,7 +60,7 @@
     {% for card in value.cards %}
         <include:illustration-card-2026 variant="icon">
           <content:media>
-            {% set icon_name = card.overrides.icon or card.article.icon or "globe" %}
+            {% set icon_name = card.get_icon() %}
             <include:icon
               icon_name="{{ icon_name }}"
               hidden="true"
@@ -89,7 +88,7 @@
     {% for card in value.cards %}
         <include:illustration-card-2026>
           <content:media>
-            {% set img = card.overrides.image or card.article.featured_image %}
+            {% set img = card.get_featured_image() %}
             {% if img %}
               {{ srcset_image(
                 img,
