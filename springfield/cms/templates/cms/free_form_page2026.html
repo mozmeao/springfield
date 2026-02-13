@@ -6,19 +6,17 @@
 
 {% extends "cms/base-flare26.html" %}
 
-{% block body_class %}fl-article-body{% endblock %}
-
 {% block content %}
-<div class="fl-page fl-features-theme-page">
+<div class="fl-page fl-freeform-2026-page">
   {% if page.upper_content|length %}
     <main class="fl-main">
       {% set ns = namespace(headings=0) %}
 
-      <div class="fl-split-page-upper has-sitting-kit">
+      <div class="fl-split-page-upper has-gradient-bottom">
         {% for block in page.upper_content %}
           {% set block_index = loop.index %}
           {% set block_type = block.block_type %}
-          {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+          {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
 
           {% if block.value.heading and block.value.heading.heading_text %}
             {% set block_level = 1 if ns.headings == 0 else 2 %}
@@ -28,7 +26,6 @@
           {% include_block block %}
         {% endfor %}
       </div>
-
 
       <div class="fl-split-page-lower">
         {% for block in page.content %}

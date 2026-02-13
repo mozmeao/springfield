@@ -1,0 +1,45 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set block_position = block_position or "mobile-store-qr" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags if value.heading and value.heading.heading_text else "Mobile Store" %}
+
+<section class="fl-section fl-mobile-store-qr-section" data-block-position="{{ block_position }}">
+  <div class="fl-container">
+    {% if value.heading and value.heading.heading_text %}
+      <div class="fl-mobile-store-qr-heading">
+        {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-2"
+          alignment_class="fl-text-align-center"
+          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag if value.heading.superheading_text else '' }}"
+          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+          subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag if value.heading.subheading_text else '' }}"
+        />
+      </div>
+    {% endif %}
+
+    <div class="fl-mobile-store-qr-content">
+      {% if value.qr_code_data %}
+        <div class="fl-mobile-store-qr-code">
+          <div class="fl-qr-code" data-qr-code="{{ value.qr_code_data }}"></div>
+        </div>
+      {% endif %}
+
+      <div class="fl-mobile-store-buttons">
+        {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+        {% set android_url = play_store_url('firefox', campaign) %}
+        {% set ios_url = app_store_url('firefox', campaign) %}
+
+        {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+        {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+      </div>
+    </div>
+  </div>
+</section>

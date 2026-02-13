@@ -30,6 +30,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
+    MobileStoreQRCodeBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -438,18 +439,82 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
 
+    upper_content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+    )
+
     content = StreamField(
         [
             ("intro", IntroBlock2026()),
-            ("section", SectionBlock2026()),
+            ("section", SectionBlock2026(require_heading=False)),
         ],
         use_json_field=True,
         default=list(),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
         FieldPanel("content"),
     ]
+
+
+class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A flexible 2026 page type with optional split layout."""
+
+    upper_content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("section", SectionBlock2026()),
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+        help_text="Optional upper content. If present, the page will use a split layout.",
+    )
+
+    content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("section", SectionBlock2026()),
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+            (
+                "banner_snippet",
+                SnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Free Form 2026 Page"
+        verbose_name_plural = "Free Form 2026 Pages"
 
 
 def _get_freeform_page_blocks(allow_uitour=False):

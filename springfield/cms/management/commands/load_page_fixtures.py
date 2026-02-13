@@ -5,7 +5,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_page
+from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_2026_test_index_page,
@@ -23,6 +23,14 @@ from springfield.cms.fixtures.card_fixtures import (
 )
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
+from springfield.cms.fixtures.freeform_2026_fixtures import (
+    get_banner_snippet_test_page,
+    get_card_gallery_test_page,
+    get_freeform_2026_combined_test_page,
+    get_intro_2026_test_page,
+    get_section_2026_test_page,
+    get_showcase_test_page,
+)
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
@@ -30,6 +38,7 @@ from springfield.cms.fixtures.inline_notification_fixtures import (
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
+from springfield.cms.fixtures.mobile_store_qr_code_fixtures import get_mobile_store_qr_code_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
@@ -88,6 +97,31 @@ class Command(BaseCommand):
 
         article_theme_page = get_article_theme_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
+
+        artcle_theme_hub_page = get_article_theme_hub_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
+
+        # Free Form 2026 pages
+        intro_2026_page = get_intro_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Intro 2026 test page loaded: {intro_2026_page.slug}"))
+
+        section_2026_page = get_section_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Section 2026 test page loaded: {section_2026_page.slug}"))
+
+        showcase_page = get_showcase_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Showcase test page loaded: {showcase_page.slug}"))
+
+        card_gallery_page = get_card_gallery_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Card Gallery test page loaded: {card_gallery_page.slug}"))
+
+        mobile_store_qr_code_page = get_mobile_store_qr_code_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Mobile Store QR Code test page loaded: {mobile_store_qr_code_page.slug}"))
+
+        banner_snippet_page = get_banner_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner Snippet test page loaded: {banner_snippet_page.slug}"))
+
+        freeform_2026_combined_page = get_freeform_2026_combined_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 Combined test page loaded: {freeform_2026_combined_page.slug}"))
 
         feature_index_page, feature_pages = load_feature_page_fixtures()
         if not no_refresh:
