@@ -4,7 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "firefox/channel/base.html" %}
+{% set base_template = "firefox/channel/base-flare26.html" if switch("flare26_enabled") else "firefox/channel/base.html" %}
+{% extends base_template %}
+
+{% from "macros-protocol.html" import callout_compact with context %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=channel-android' %}
 
