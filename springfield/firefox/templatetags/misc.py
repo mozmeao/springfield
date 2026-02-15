@@ -21,6 +21,8 @@ from product_details import product_details
 
 from springfield.base.sanitization import strip_all_tags
 from springfield.base.templatetags.helpers import static, urlparams
+from springfield.base.urlresolvers import reverse
+from springfield.base.waffle import switch
 
 ALL_FX_PLATFORMS = ("windows", "linux", "mac", "android", "ios")
 
@@ -738,3 +740,182 @@ def fxa_button(
         optional_attributes=optional_attributes,
         inner_html=inner_html,
     )
+
+# VPN ==================================================================
+
+
+VPN_12_MONTH_PLAN = "12-month"
+
+
+def _vpn_get_available_plans(country_code, lang, bundle_monitor_relay=False):
+    """
+    Get subscription plan IDs using country_code and page language.
+    Defaults to "US" if no matching country code is found.
+    Each country also has a default language if no match is found.
+    """
+
+    if bundle_monitor_relay:
+        country_plans = settings.VPN_MONITOR_RELAY_BUNDLE_PRICING.get(country_code, settings.VPN_MONITOR_RELAY_BUNDLE_PRICING["US"])
+    else:
+        country_plans = settings.VPN_VARIABLE_PRICING.get(country_code, settings.VPN_VARIABLE_PRICING["US"])
+
+    return country_plans.get(lang, country_plans.get("default"))
+
+
+def _vpn_get_ga_data(selected_plan):
+    id = selected_plan.get("id")
+    analytics = selected_plan.get("analytics")
+
+    ga_data = (
+        f"{{"
+        f"'id' : '{id}',"
+        f"'brand' : '{analytics.get('brand')}',"
+        f"'plan' : '{analytics.get('plan')}',"
+        f"'period' : '{analytics.get('period')}',"
+        f"'price' : '{analytics.get('price')}',"
+        f"'discount' : '{analytics.get('discount')}',"
+        f"'currency' : '{analytics.get('currency')}'"
+        f"}}"
+    )
+
+    return ga_data
+
+
+@library.global_function
+@jinja2.pass_context
+def vpn_subscribe_link(
+    ctx,
+    entrypoint,
+    link_text,
+    plan=VPN_12_MONTH_PLAN,
+    class_name=None,
+    country_code=None,
+    lang=None,
+    optional_parameters=None,
+    optional_attributes=None,
+    bundle_monitor_relay=False,
+):
+    """
+    Render a vpn.mozilla.org subscribe link with required params for FxA authentication.
+
+    Examples
+    ========
+
+    In Template
+    -----------
+
+        {{ vpn_subscribe_link(entrypoint='www.mozilla.org-vpn-product-page',
+                              link_text='Get Mozilla VPN',
+                              country_code=country_code,
+                              lang=LANG) }}
+    """
+
+    if bundle_monitor_relay:
+        product_id = settings.VPN_MONITOR_RELAY_BUNDLE_PRODUCT_ID
+    else:
+        product_id = settings.VPN_PRODUCT_ID
+
+    available_plans = _vpn_get_available_plans(country_code, lang, bundle_monitor_relay)
+    selected_plan = available_plans.get(plan, VPN_12_MONTH_PLAN)
+    plan_id = selected_plan.get("id")
+
+    if switch("vpn-subplat-next"):
+        product_id = settings.VPN_PRODUCT_ID_NEXT
+        plan_slug = "yearly" if plan == VPN_12_MONTH_PLAN else "monthly"
+
+        # For testing/QA we support a test 'daily' API endpoint on the staging API only
+        # We only want to override the monthly VPN option when in QA mode; annual remains unchanged
+        # https://mozilla-hub.atlassian.net/browse/VPN-6985
+        if plan_slug == "monthly" and settings.VPN_SUBSCRIPTION_USE_DAILY_MODE__QA_ONLY:
+            plan_slug = "daily"
+
+        if bundle_monitor_relay:
+            product_id = "privacyprotectionplan"
+            plan_slug = "yearly"
+
+        product_url = f"{settings.VPN_SUBSCRIPTION_URL_NEXT}{product_id}/{plan_slug}/landing/"
+    else:
+        product_url = f"{settings.VPN_SUBSCRIPTION_URL}subscriptions/products/{product_id}?plan={plan_id}"
+
+    if "analytics" in selected_plan:
+        if class_name is None:
+            class_name = ""
+        class_name += " ga-begin-checkout"
+        if optional_attributes is None:
+            optional_attributes = {}
+        optional_attributes["data-ga-item"] = _vpn_get_ga_data(selected_plan)
+
+    return _vpn_product_link(product_url, entrypoint, link_text, class_name, optional_parameters, optional_attributes)
+
+
+def _vpn_product_link(product_url, entrypoint, link_text, class_name=None, optional_parameters=None, optional_attributes=None):
+    separator = "&" if "?" in product_url else "?"
+    client_id = settings.VPN_CLIENT_ID
+    href = f"{product_url}{separator}entrypoint={entrypoint}&form_type=button&service={client_id}&utm_source={entrypoint}&utm_medium=referral"
+
+    if optional_parameters:
+        params = "&".join(f"{param}={val}" for param, val in optional_parameters.items())
+        href += f"&{params}"
+
+    css_class = "js-fxa-product-cta-link js-fxa-product-button"
+    attrs = ""
+
+    if optional_attributes:
+        attrs += " ".join(f'{attr}="{val}"' for attr, val in optional_attributes.items())
+
+        # If there's a `data-cta-position` attribute for GA, also pass that as a query param to vpn.m.o.
+        position = optional_attributes.get("data-cta-position", None)
+
+        if position:
+            href += f"&data_cta_position={position}"
+
+    if class_name:
+        css_class += f" {class_name}"
+
+    markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{link_text}</a>'
+
+    return Markup(markup)
+
+
+@library.global_function
+@jinja2.pass_context
+def vpn_product_referral_link(
+    ctx,
+    referral_id="",
+    link_to_pricing_page=False,
+    page_anchor="",
+    link_text=None,
+    is_cta_button_styled=True,
+    class_name=None,
+    optional_attributes=None,
+    optional_parameters=None,
+):
+    """
+    Render link to the /products/vpn/ landing page with referral attribution markup
+
+    Examples
+    ========
+
+    In Template
+    -----------
+
+        {{ vpn_product_referral_link(referral_id='navigation', link_text='Get Mozilla VPN') }}
+    """
+
+    href = reverse("products.vpn.pricing") if link_to_pricing_page else reverse("products.vpn.landing")
+    css_class = "mzp-c-button js-fxa-product-referral-link" if is_cta_button_styled else "js-fxa-product-referral-link"
+    attrs = f'data-referral-id="{referral_id}" '
+
+    if optional_attributes:
+        attrs += " ".join(f'{attr}="{val}"' for attr, val in optional_attributes.items())
+
+    if optional_parameters:
+        params = "&".join(f"{param}={val}" for param, val in optional_parameters.items())
+        href += f"?{params}"
+
+    if class_name:
+        css_class += f" {class_name}"
+
+    markup = f'<a href="{href}{page_anchor}" class="{css_class}" {attrs}>{link_text}</a>'
+
+    return Markup(markup)
