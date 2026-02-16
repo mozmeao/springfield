@@ -78,7 +78,9 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
         }
 
         if (
-            typeof window.cms.Flare26.initDialogs !== 'undefined' &&
+            window.cms &&
+            window.cms.Flare26 &&
+            window.cms.Flare26.initDialogs &&
             (installerHelpIcon || browserHelpIcon)
         ) {
             window.cms.Flare26.initDialogs();
