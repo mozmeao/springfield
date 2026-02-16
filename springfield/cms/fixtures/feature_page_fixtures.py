@@ -786,7 +786,22 @@ def get_feature_page(slug: str, image_ids: dict[str, int], publish: bool = True)
         page.featured_image_id = image_ids[featured_image_key]
 
     # Build content blocks (handles both image and video placeholders)
-    page.content = build_content_blocks(page_data["content"], image_ids)
+    # Before building new blocks, extract existing UUIDs by position so that
+    # wagtail-localize segment context paths (which embed block UUIDs) remain
+    # stable across fixture re-runs, preserving existing translations.
+    existing_uuids = []
+    if page.content:
+        for block in page.content.raw_data:
+            existing_uuids.append(block.get("id"))
+
+    new_blocks = build_content_blocks(page_data["content"], image_ids)
+
+    # Carry forward existing UUIDs where blocks match by position
+    for i, block in enumerate(new_blocks):
+        if i < len(existing_uuids) and existing_uuids[i]:
+            block["id"] = existing_uuids[i]
+
+    page.content = new_blocks
 
     if publish:
         page.save_revision().publish()
