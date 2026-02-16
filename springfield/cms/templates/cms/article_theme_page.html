@@ -8,22 +8,72 @@
 
 {% block body_class %}fl-article-body{% endblock %}
 
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+
+  {% if page.upper_content|length %}
+    <include:flare26-header theme="dark" />
+  {% else %}
+    <include:flare26-header />
+  {% endif %}
+
+{% endblock %}
+
+
+
 {% block content %}
 <div class="fl-page fl-features-theme-page">
-  <main class="fl-main has-gradient-bottom">
-    {% set ns = namespace(headings=0) %}
-    {% for block in page.content %}
-      {% set block_index = loop.index %}
-      {% set block_type = block.block_type %}
-      {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+  {% if page.upper_content|length %}
+    <main class="fl-main">
+      {% set ns = namespace(headings=0) %}
 
-      {% if block.value.heading and block.value.heading.heading_text %}
-        {% set block_level = 1 if ns.headings == 0 else 2 %}
-        {% set ns.headings = ns.headings + 1 %}
-      {% endif %}
+      <div class="fl-split-page-upper has-sitting-kit">
+        {% for block in page.upper_content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
 
-      {% include_block block %}
-    {% endfor %}
-  </main>
+          {% if block.value.heading and block.value.heading.heading_text %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% include_block block %}
+        {% endfor %}
+      </div>
+
+
+      <div class="fl-split-page-lower">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = 'lower-block-' ~ block_index ~ "-" ~ block_type %}
+
+          {% if block.value.heading and block.value.heading.heading_text %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    </main>
+  {% else %}
+    <main class="fl-main has-gradient-bottom">
+      {% set ns = namespace(headings=0) %}
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = 'block-' ~ block_index ~ "-" ~ block_type %}
+
+        {% if block.value.heading and block.value.heading.heading_text %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </main>
+  {% endif %}
 </div>
 {% endblock %}

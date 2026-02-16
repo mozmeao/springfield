@@ -92,7 +92,8 @@ body.fl-modal-open {
     z-index: 0;
 }
 
-.has-gradient-bottom::before {
+.has-gradient-bottom::before,
+.has-sitting-kit::before {
     --gradient-height: 60vh;
     background-image: radial-gradient(
         var(--token-color-light-purple) 0%,
@@ -129,5 +130,32 @@ body.fl-modal-open {
 @media (--viewport-md-up) {
     .fl-l-two-col-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.has-sitting-kit {
+    --kit-img: url('/media/img/firefox/flare/forward-facing-kit.svg');
+    --kit-img-size: min(40%, 120px) auto;
+    --kit-img-position: 50% 100%;
+    padding-block-end: var(--token-layout-md);
+}
+
+.has-sitting-kit::after {
+    background-image: var(--kit-img);
+    background-position: var(--kit-img-position);
+    background-repeat: no-repeat;
+    background-size: var(--kit-img-size);
+    block-size: 100%;
+    content: '';
+    inline-size: 100%;
+    inset: auto 0 0;
+    position: absolute;
+    z-index: 0;
+}
+
+@media (--viewport-lg-up) {
+    .has-sitting-kit {
+        --kit-img-position: calc(100% - 130px) 100%;
+        padding-block-end: var(--token-layout-xs);
     }
 }

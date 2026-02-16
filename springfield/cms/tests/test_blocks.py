@@ -12,7 +12,12 @@ from wagtail.models import Page
 
 from lib.l10n_utils import get_locale
 from springfield.cms.fixtures.article_page_fixtures import (
+    get_article_pages,
+    get_article_theme_hub_page,
     get_article_theme_page,
+    get_theme_hub_illustration_cards_section,
+    get_theme_hub_page_sticker_row_section,
+    get_theme_hub_page_upper_content,
     get_theme_page_icon_cards_section,
     get_theme_page_illustration_cards_section,
     get_theme_page_intro,
@@ -180,6 +185,14 @@ def assert_download_button_attributes(
         assert button_element["data-cta-position"] == cta_position
     if cta_text:
         assert button_element["data-cta-text"] == cta_text
+
+    if settings.get("show_default_browser_checkbox"):
+        checkbox_label = button_element.find_previous_sibling("label", class_="default-browser-label hidden")
+        assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
+        id_ = f"{settings['analytics_id']}-default-browser"
+        assert checkbox_label["for"] == id_
+        checkbox = checkbox_label.find("input", {"type": "checkbox", "class": "default-browser-checkbox"})
+        assert checkbox and checkbox["id"] == id_
 
 
 def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
@@ -1687,3 +1700,223 @@ def test_theme_page_blocks(index_page, rf):
         rendered_icon = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
         assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+
+
+def test_theme_hub_page_blocks(index_page, rf):
+    page = get_article_theme_hub_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    content = response.content
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Verify the split-page layout exists
+    upper_section = soup.find("div", class_="fl-split-page-upper")
+    lower_section = soup.find("div", class_="fl-split-page-lower")
+    assert upper_section, "Upper section should exist when upper_content has blocks"
+    assert lower_section, "Lower section should exist when upper_content has blocks"
+
+    # Test Upper Content - Intro Block
+    upper_content_data = get_theme_hub_page_upper_content()
+    assert len(upper_content_data) == 1, "Upper content should have 1 intro block"
+
+    intro_div = upper_section.find("div", class_="fl-intro")
+    assert intro_div, "Intro block should be in upper section"
+
+    intro_data = upper_content_data[0]
+    assert_section_heading_attributes(
+        section_element=intro_div,
+        heading_data=intro_data["value"]["heading"],
+        index=0,
+    )
+
+    # Test Lower Content - Sections
+    sections = lower_section.find_all("section", class_="fl-section")
+    assert len(sections) == 2, "Lower content should have 2 sections"
+
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Illustration Cards Section (first section in lower content)
+    illustration_section_data = get_theme_hub_illustration_cards_section()
+    illustration_section = sections[0]
+
+    assert illustration_section.find(class_="fl-card-grid")
+    illustration_card_articles = illustration_section.find_all("article", class_="fl-illustration-card")
+    illustration_card_articles_data = illustration_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(illustration_card_articles) == len(illustration_card_articles_data)
+
+    for i, article_data in enumerate(illustration_card_articles_data):
+        card_element = illustration_card_articles[i]
+        article_id = article_data["value"]["article"]
+        article = ArticleDetailPage.objects.get(id=article_id)
+        overrides = article_data["value"].get("overrides", {})
+
+        assert_article_card_attributes(
+            card_element=card_element,
+            article=article,
+            card_data=article_data,
+            card_list_type="illustration_card",
+        )
+
+        image_id = overrides.get("image") or article.featured_image.id
+        img = image_ids[image_id]
+        rendered_image = srcset_image(
+            img,
+            "width-{200,400,600,800,1000,1200,1400}",
+            **{
+                "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
+                "width": img.width,
+                "height": img.height,
+                "loading": "lazy",
+            },
+        )
+        img_tag = card_element.find("img")
+        image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+        assert img_tag["alt"] == image_soup["alt"]
+        assert img_tag["loading"] == image_soup["loading"]
+        assert img_tag["width"] == image_soup["width"]
+        assert img_tag["height"] == image_soup["height"]
+        assert img_tag["src"] == image_soup["src"]
+
+    # Sticker Row Section (second section in lower content)
+    sticker_row_section_data = get_theme_hub_page_sticker_row_section()
+    sticker_row_section = sections[1]
+
+    assert_section_heading_attributes(
+        section_element=sticker_row_section,
+        heading_data=sticker_row_section_data["value"]["heading"],
+        index=1,
+    )
+
+    assert sticker_row_section and sticker_row_section.find(class_="fl-stacked-article-list")
+    sticker_row_articles = sticker_row_section.find_all("article", class_="fl-article-item")
+    sticker_row_articles_data = sticker_row_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(sticker_row_articles) == len(sticker_row_articles_data)
+
+    for i, article_data in enumerate(sticker_row_articles_data):
+        card_element = sticker_row_articles[i]
+        article_id = article_data["value"]["article"]
+        article = ArticleDetailPage.objects.get(id=article_id)
+        overrides = article_data["value"].get("overrides", {})
+
+        assert_article_card_attributes(
+            card_element=card_element,
+            article=article,
+            card_data=article_data,
+            card_list_type="sticker_row",
+        )
+
+        image_id = overrides.get("image") or article.sticker.id
+        img = image_ids[image_id]
+        rendered_icon = image(img, "width-400").img_tag()
+        sticker_element = card_element.find("img")
+        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+
+
+def test_illustration_card_renders_featured_image_without_override(index_page, rf):
+    """When an illustration card has no image override, the article's featured_image
+    should be rendered instead of the placeholder image."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    illustration_section = sections[0]
+    illustration_cards = illustration_section.find_all("article", class_="fl-illustration-card")
+
+    articles = get_article_pages()
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Card at index 1 has overrides.image = None, so it should fall back
+    # to the article's featured_image (mobile_image for featured_article_2)
+    card_element = illustration_cards[1]
+    article = articles[1]
+    img_tag = card_element.find("img")
+
+    # Should NOT be the placeholder
+    assert img_tag["src"] != "/media/img/firefox/flare/card-placeholder.png"
+
+    # Should match the article's featured_image rendered as srcset_image
+    expected_img = image_ids[article.featured_image.id]
+    rendered_image = srcset_image(
+        expected_img,
+        "width-{200,400,600,800,1000,1200,1400}",
+        **{
+            "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
+            "width": expected_img.width,
+            "height": expected_img.height,
+            "loading": "lazy",
+        },
+    )
+    image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
+    assert img_tag["alt"] == image_soup["alt"]
+    assert img_tag["src"] == image_soup["src"]
+    assert img_tag["width"] == image_soup["width"]
+    assert img_tag["height"] == image_soup["height"]
+
+
+def test_sticker_row_renders_sticker_without_override(index_page, rf):
+    """When a sticker row card has no image override, the article's sticker
+    should be rendered instead of the placeholder image."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    sticker_section = sections[2]
+    sticker_row_articles = sticker_section.find_all("article", class_="fl-article-item")
+
+    articles = get_article_pages()
+    images = get_placeholder_images()
+    image_ids = {img.id: img for img in images}
+
+    # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
+    # so it should fall back to the article's sticker
+    card_element = sticker_row_articles[1]
+    article = articles[3]
+    sticker_element = card_element.find("img")
+
+    # Should NOT be the Firefox logo placeholder
+    assert sticker_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
+
+    # Should match the article's sticker rendered with image()
+    expected_img = image_ids[article.sticker.id]
+    rendered_icon = image(expected_img, "width-400").img_tag()
+    expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
+    assert sticker_element.prettify() == expected_soup.prettify()
+
+
+def test_icon_card_renders_article_icon_without_override(index_page, rf):
+    """When an icon card has no icon override, the article's icon
+    should be rendered instead of the default 'globe' icon."""
+    page = get_article_theme_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    sections = soup.find_all("section", class_="fl-section")
+    icon_section = sections[1]
+    icon_card_articles = icon_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+
+    articles = get_article_pages()
+
+    # Card at index 1 has overrides.icon = "" (articles[2] = regular_article_1, icon="apple"),
+    # so it should fall back to the article's icon, not the default "globe"
+    card_element = icon_card_articles[1]
+    article = articles[2]
+    icon_element = card_element.find("span", class_="fl-icon")
+    assert icon_element is not None
+    assert f"fl-icon-{article.icon}" in icon_element["class"]
+    assert "fl-icon-globe" not in icon_element["class"]
