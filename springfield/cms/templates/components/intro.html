@@ -4,10 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_position="after" anchor_id=""  #}
+{# props media_position="after" anchor_id="" vertical="" full_width="" #}
 
 <div
-  class="fl-intro{% if contents.media %} fl-intro-has-media{% endif %}{% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}"
+  class="
+    fl-intro
+    {% if contents.media %} fl-intro-has-media{% endif %}
+    {% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}
+    {% if vertical %}fl-intro-vertical{% endif %}
+    {% if full_width %}fl-intro-full-width{% endif %}
+  "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   <div class="fl-intro-content">
@@ -15,6 +21,11 @@
     {% if contents.actions %}
       <div class="fl-intro-actions">
         {{ contents.actions }}
+      </div>
+    {% endif %}
+    {% if contents.body %}
+      <div class="fl-intro-body">
+        {{ contents.body }}
       </div>
     {% endif %}
     {% if contents.fine_print %}

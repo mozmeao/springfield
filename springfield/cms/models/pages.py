@@ -438,16 +438,26 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
 
+    upper_content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+    )
+
     content = StreamField(
         [
             ("intro", IntroBlock2026()),
-            ("section", SectionBlock2026()),
+            ("section", SectionBlock2026(require_heading=False)),
         ],
         use_json_field=True,
         default=list(),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
         FieldPanel("content"),
     ]
 
