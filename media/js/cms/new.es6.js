@@ -6,7 +6,14 @@
 
 import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
+// Create namespace
+if (typeof window.cms === 'undefined') {
+    window.cms = {};
+}
+
 (function () {
+    const Flare26 = {};
+
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
         const formDetails = document.getElementById('newsletter-details');
@@ -322,7 +329,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         }
     }
 
-    function initDialogs() {
+    Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
         if (triggerButtons.length) {
@@ -346,7 +353,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                 }
             });
         }
-    }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
@@ -356,7 +363,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
             applyVideoAspectRatios();
             initVideoPlayers();
             initDownloadDropdown();
-            initDialogs();
+            Flare26.initDialogs();
         });
     } else {
         initNewsletterForm();
@@ -365,6 +372,8 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         applyVideoAspectRatios();
         initVideoPlayers();
         initDownloadDropdown();
-        initDialogs();
+        Flare26.initDialogs();
     }
+
+    window.cms.Flare26 = Flare26;
 })();

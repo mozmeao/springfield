@@ -73,6 +73,13 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
             }
         }
 
+        if (
+            typeof window.cms.Flare26.initDialogs !== 'undefined' &&
+            (installerHelpIcon || browserHelpIcon)
+        ) {
+            window.cms.Flare26.initDialogs();
+        }
+
         // event tracking for GA4
         if (downloadButtons) {
             for (let i = 0; i < downloadButtons.length; ++i) {
