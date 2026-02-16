@@ -153,7 +153,8 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
                     const isVisible =
                         rect.top >= 0 && rect.top < window.innerHeight;
                     if (!isVisible) {
-                        targetHeader.scrollIntoView();
+                        // avoid hiding content beneath fixed nav
+                        targetHeader.scrollIntoView({ block: 'center' });
                     }
                     // .focus() scroll is buggy
                     targetHeader.focus({ preventScroll: true });
