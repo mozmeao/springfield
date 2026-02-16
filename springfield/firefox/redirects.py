@@ -36,8 +36,8 @@ def validate_param_value(param: str | None) -> str | None:
 
 
 def mobile_app(request, *args, **kwargs):
-    product = request.GET.get("product")
-    campaign = request.GET.get("campaign")
+    product = request.GET.get("product") or request.GET.get("p")
+    campaign = request.GET.get("campaign") or request.GET.get("c")
 
     if product not in {"firefox", "focus", "klar"}:
         product = "firefox"
@@ -51,8 +51,8 @@ redirectpatterns = (
     redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
-    # https://github.com/mozilla/bedrock/issues/14172
-    redirect(r"^browsers/mobile/app/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
+    # issue 765, https://github.com/mozilla/bedrock/issues/14172
+    redirect(r"^(qr|browsers/mobile/app)/?$", mobile_app, cache_timeout=0, query=False, permanent=False),
     # issue 222
     redirect(r"^os/?$", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", permanent=True),
     redirect(r"^desktop/?$", "firefox.browsers.desktop.index", permanent=False),
