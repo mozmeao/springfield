@@ -99,21 +99,41 @@
 {% set feedback_url='https://connect.mozilla.org/' %}
 {% set bugzilla_url='https://bugzilla.mozilla.org/enter_bug.cgi' %}
 {% block content %}
-<main>
+<main class="{% if switch('flare26_enabled') %}fl-main{% endif %}">
   <article id="main-content">
 
     {% block notes_header %}
     <header class="notes-head">
+      {% if not primary_heading %}
+        {% if product_name == 'Firefox Beta' %}
+            {% set primary_heading = 'Firefox Beta and Developer Edition <br> Release Notes'|safe %}
+        {% else %}
+          {% set primary_heading = '{0} <br> Release Notes'|f(product_name)|safe %}
+        {% endif %}
+      {% endif %}
+      {% set call_out_desc = 'Release Notes tell you what’s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
+      {% block top_download_buttons %}
+        {{ download_button_primary }}
+      {% endblock %}
+      {% if switch('flare26_enabled') %}
+        <include:intro vertical full-width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-md"
+              heading_text="{{ primary_heading }}"
+              subheading_text="{{ call_out_desc | safe }}"
+            />
+          </content:heading>
+          {% if download_button_primary %}
+          <content:actions>
+            {{ download_button_primary }}
+          </content:actions>
+          {% endif %}
+        </include:intro>
+      {% else %}
       <div class="intro">
         <div class="container">
-          {% if not primary_heading %}
-            {% if product_name == 'Firefox Beta' %}
-              {% set primary_heading = 'Firefox Beta and Developer Edition <br> Release Notes'|safe %}
-            {% else %}
-              {% set primary_heading = '{0} <br> Release Notes'|f(product_name)|safe %}
-            {% endif %}
-          {% endif %}
-          {% set call_out_desc = 'Release Notes tell you what’s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
           {% call callout(
             heading_level=1,
             title=primary_heading,
@@ -127,13 +147,12 @@
           ) %}
             {% if download_button_primary %}
               <div class="c-download-cta">
-              {% block top_download_buttons %}
-                {{ download_button_primary }}
-              {% endblock %}
+                {{ top_download_buttons }}
               </div>
             {% endif %}
           {% endcall %}
       </div>
+      {% endif %}
 
       {% if release.version %}
       {% block notes_heading_secondary %}

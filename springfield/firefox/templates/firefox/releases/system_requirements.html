@@ -24,9 +24,22 @@
 {% endblock %}
 
 {% block content %}
-  <main class="mzp-l-content mzp-t-content-md">
-    <h1 class="c-page-title">Firefox System Requirements</h1>
-    <h2 class="c-version-title">{{ release.product }} {{ channel_name }} {{ version }}</h2>
+  <main class="mzp-l-content mzp-t-content-md {% if switch('flare26_enabled') %}fl-main{% endif %}">
+    {% if switch('flare26_enabled') %}
+      <include:heading
+        level="h1"
+        heading_size="fl-heading-md"
+        heading_text="Firefox System Requirements"
+      />
+      <include:heading
+        level="h2"
+        heading_size="fl-heading-lg"
+        heading_text="{{ release.product ~ ' ' ~ channel_name ~ ' ' ~ version }}"
+      />
+    {% else %}
+      <h1 class="c-page-title">Firefox System Requirements</h1>
+      <h2 class="c-version-title">{{ release.product }} {{ channel_name }} {{ version }}</h2>
+    {% endif %}
 
     <div class="mzp-c-article">
       {{ release.system_requirements|safe }}
