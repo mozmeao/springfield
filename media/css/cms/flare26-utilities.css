@@ -31,6 +31,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     text-align: end;
 }
 
+.fl-u-font-medium {
+    font-weight: var(--token-font-weight-medium);
+}
+
+.fl-u-text-uppercase {
+    text-transform: uppercase;
+}
+
 .hidden {
     display: none;
 }

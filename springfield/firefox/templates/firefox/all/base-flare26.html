@@ -4,19 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
+{% extends "cms/base-flare26.html" %}
 
-{%- block page_title -%}
+{% block page_title %}
   {{ ftl('firefox-all-download-the-firefox-v2') }}
-{%- endblock -%}
+{% endblock %}
 
 {%- block page_desc -%}
   {{ ftl('firefox-all-everyone-deserves-access-v2') }}
 {%- endblock -%}
-
-{% block page_css %}
- {{ css_bundle('firefox_all') }}
-{% endblock %}
 
 {% block canonical_urls %}
   {% if product %}
@@ -33,9 +29,6 @@
   {% endwith %}
 {% endblock %}
 
-{% set campaign = "firefox-all" %}
-{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
-
 
 {% if product and platform %}
   {% set current_step = ftl('firefox-all-choose-language') %}
@@ -46,7 +39,7 @@
 {% endif %}
 
 {% block content %}
-  {% include 'firefox/all/includes/main.html' %}
+  {% include 'firefox/all/includes/main-flare26.html' %}
 {% endblock %}
 
 {% block js %}

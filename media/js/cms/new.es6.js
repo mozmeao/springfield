@@ -6,7 +6,14 @@
 
 import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
+// Create namespace
+if (typeof window.cms === 'undefined') {
+    window.cms = {};
+}
+
 (function () {
+    const Flare26 = {};
+
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
         const formDetails = document.getElementById('newsletter-details');
@@ -322,6 +329,32 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         }
     }
 
+    Flare26.initDialogs = () => {
+        const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
+
+        if (triggerButtons.length) {
+            triggerButtons.forEach(function (buttonEl) {
+                const dialogEl = document.getElementById(
+                    buttonEl.dataset.targetId
+                );
+
+                if (dialogEl) {
+                    buttonEl.addEventListener('click', function () {
+                        dialogEl.showModal();
+                    });
+                    const closeButtonEl = dialogEl.querySelector(
+                        '.fl-dialog-close-button'
+                    );
+                    if (closeButtonEl) {
+                        closeButtonEl.addEventListener('click', function () {
+                            dialogEl.close();
+                        });
+                    }
+                }
+            });
+        }
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
@@ -330,6 +363,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
             applyVideoAspectRatios();
             initVideoPlayers();
             initDownloadDropdown();
+            Flare26.initDialogs();
         });
     } else {
         initNewsletterForm();
@@ -338,5 +372,8 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         applyVideoAspectRatios();
         initVideoPlayers();
         initDownloadDropdown();
+        Flare26.initDialogs();
     }
+
+    window.cms.Flare26 = Flare26;
 })();
