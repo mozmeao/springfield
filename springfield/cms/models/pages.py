@@ -299,6 +299,12 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_utm_campaign(self):
         return "firefox-download-thanks"
 
+    def get_template(self, request, *args, **kwargs):
+        if request.GET.get("s") == "direct":
+            return "cms/thanks_page__direct.html"
+
+        return "cms/thanks_page.html"
+
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
