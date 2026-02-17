@@ -32,6 +32,10 @@
     text-decoration: none;
 }
 
+.fl-subnav a[aria-current='page'] {
+    font-weight: bold;
+}
+
 .fl-subnav a:hover {
     text-decoration: underline;
 }

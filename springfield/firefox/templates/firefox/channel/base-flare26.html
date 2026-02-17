@@ -24,9 +24,13 @@
   </div>
 
   <ul class="fl-subnav-list">
-    <li><a href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop') }}</a></li>
-    <li><a href="{{ url('firefox.channel.android') }}">{{ ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android') }}</a></li>
-    <li><a href="{{ url('firefox.channel.ios') }}">{{ ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios') }}</a></li>
+    <li>
+      <a
+        href="{{ url('firefox.channel.desktop') }}"
+        {% if request.path == url('firefox.channel.desktop') %}aria-current="page"{% endif %}
+        >{{ ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop') }}</a></li>
+    <li><a href="{{ url('firefox.channel.android') }}"{% if request.path == url('firefox.channel.android') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android') }}</a></li>
+    <li><a href="{{ url('firefox.channel.ios') }}"{% if request.path == url('firefox.channel.ios') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios') }}</a></li>
   </ul>
 </nav>
 
