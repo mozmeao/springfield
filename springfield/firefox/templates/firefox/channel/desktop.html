@@ -22,7 +22,7 @@
 {% block page_og_desc %}{{ self.page_desc() }}{% endblock %}
 
 {% block channels %}
-<section id="beta" class="mzp-is-anchor-link">
+<section id="beta" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-beta'),
     desc=ftl('firefox-channel-test-about-to-be-released'),
@@ -35,7 +35,8 @@
     {{ download_firefox('beta', platform='desktop', force_direct=True, force_full_installer=True, alt_copy=ftl('download-button-download'), dom_id="desktop-beta-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <ul>
       <li><a href="{{ firefox_url('desktop', 'notes', 'beta') }}">{{ ftl('firefox-channel-release-notes') }}</a></li>
       <li>
@@ -56,9 +57,10 @@
       {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://connect.mozilla.org/') }}
     </p>
   </div>
+  </div>
 </section>
 
-<section id="developer" class="mzp-is-anchor-link">
+<section id="developer" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-developer-edition'),
     desc=ftl('firefox-channel-build-test-scale-and-more'),
@@ -70,7 +72,8 @@
 
     {{ download_firefox('alpha', platform='desktop', force_direct=True, alt_copy=ftl('download-button-download'), dom_id="desktop-developer-download") }}
   {% endcall %}
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <p class="show-linux">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox" rel="external noopener"
      data-cta-text="Get help with your installation"') }}</p>
     <ul>
@@ -91,9 +94,10 @@
     {% endif %}
     </p>
   </div>
+</div>
 </section>
 
-<section id="nightly" class="mzp-is-anchor-link">
+<section id="nightly" class="fl-section mzp-is-anchor-link">
     {% call callout_compact(
       title=ftl('firefox-channel-nightly'),
       desc=ftl('firefox-channel-get-a-sneak-peek-at-our', fallback='firefox-channel-test-brand-new-features'),
@@ -106,7 +110,8 @@
       {{ download_firefox('nightly', platform='desktop', force_direct=True, alt_copy=ftl('download-button-download'), dom_id="desktop-nightly-download") }}
     {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <p class="show-linux">{{ ftl('download-button-using-debian',
       attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox" rel="external noopener"
        data-cta-text="Get help with your installation"') }}</p>
@@ -130,5 +135,6 @@
     </p>
     <p>{{ ftl('firefox-channel-nightly-update-one-or-more-times') }}</p>
   </div>
+</div>
 </section>
 {% endblock %}

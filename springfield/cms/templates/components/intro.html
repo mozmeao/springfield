@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_position="after" anchor_id="" vertical="" full_width="" #}
+{# props media_position="after" anchor_id="" vertical="" full_width="" slim="" #}
 
 <div
   class="
@@ -13,6 +13,7 @@
     {% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}
     {% if vertical %}fl-intro-vertical{% endif %}
     {% if full_width %}fl-intro-full-width{% endif %}
+    {% if slim %}is-slim{% endif %}
   "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >

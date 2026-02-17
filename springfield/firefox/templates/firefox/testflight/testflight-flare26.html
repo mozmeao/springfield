@@ -5,27 +5,23 @@
 #}
 
 <main class="fl-main">
-  <div class="fl-section">
-    <div class="fl-section-container">
-      <include:intro media_position="before" vertical full_width>
-        <content:heading>
-          <include:heading
-            level="h1"
-            heading_text="Help shape the future of Firefox for iOS"
-            subheading_text="Sign up to test pre-release versions to make Firefox even better."
-          />
-        </content:heading>
+  <include:intro media_position="before" vertical full_width slim>
+      <content:heading>
+        <include:heading
+          level="h1"
+          heading_text="Help shape the future of Firefox for iOS"
+          subheading_text="Sign up to test pre-release versions to make Firefox even better."
+        />
+      </content:heading>
 
-        <content:media>
-          <img src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
-        </content:media>
-      </include:intro>
-    </div>
-  </div>
+      <content:media>
+        <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+      </content:media>
+    </include:intro>
 
   <div class="fl-section">
-    <div class="fl-section-container">
-      <div class="fl-newsletterform-cta" data-state="default">
+    <div class="fl-section-container is-narrow">
+      <div class="fl-newsletterform-cta is-ios" data-state="default">
         <div class="fl-newsletterform-content">
           <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
             <div hidden>
@@ -102,7 +98,8 @@
   </div>
 
   <div class="fl-section" id="terms-conditions">
-    <div class="fl-section-container">
+    <div class="fl-section-container is-narrow">
+      <div>
       <include:heading
         level="h4"
         heading_text="Terms and Conditions"
@@ -132,6 +129,7 @@
           </p>
         </li>
       </ol>
+    </div>
     </div>
   </div>
 </main>

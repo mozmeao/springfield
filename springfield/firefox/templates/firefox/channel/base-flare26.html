@@ -6,64 +6,86 @@
 
 {% extends "cms/base-flare26.html" %}
 
+
 {% block page_title %}{{ self.page_title() }}{% endblock %}
 
+{% block flare_header %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
 {% block content %}
-<nav>
-  <a href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
-  <ul>
+<nav class="fl-subnav fl-force-dark-theme">
+  <div class="fl-subnav-heading-wrap">
+    <a class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
+    <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
+      <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+      <i class="fl-icon fl-icon-chevron-down"></i>
+    </button>
+  </div>
+
+  <ul class="fl-subnav-list">
     <li><a href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop') }}</a></li>
     <li><a href="{{ url('firefox.channel.android') }}">{{ ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android') }}</a></li>
     <li><a href="{{ url('firefox.channel.ios') }}">{{ ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios') }}</a></li>
   </ul>
 </nav>
-<main class="fl-main">
-  <div class="fl-section">
-    <div class="fl-section-container">
-      <include:intro media_position="before" vertical full_width>
-        <content:heading>
-          <include:heading
-            level="h1"
-            heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
-            subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
-          />
-        </content:heading>
 
-        <content:media>
-          <img src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
-        </content:media>
-      </include:intro>
+<main class="fl-main has-gradient-bottom fl-channel-page">
+  <div class="fl-split-page-upper has-gradient-bottom">
+    <div class="fl-section zero-v-pad">
+      <div class="fl-section-container">
+        <include:intro media_position="before" vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
+              subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
     </div>
   </div>
+
+  <section class="fl-split-page-lower">
 
   {% block channels %}{% endblock %}
 
-  <div class="fl-section">
-    <div class="fl-section-container">
-      <include:intro media_position="before" vertical full_width>
-        <content:heading>
-          <include:heading
-            level="h2"
-            heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
-            subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
-          />
-        </content:heading>
+  <include:intro vertical full_width>
+      <content:heading>
+        <i class="fl-icon fl-icon-warning-fill fl-channel-warning-icon"></i>
+      <include:heading
+        level="h2"
+        heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
+        subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+      />
+      </content:heading>
 
-        <content:media>
-          <img src="/media/img/icons/warning.svg" aria-hidden />
-        </content:media>
+      <content:body>
+        <div class="fl-buttons">
+        <include:button
+          label="{{ ftl('firefox-channel-file-a-bug-now') }}"
+          theme_class="button-ghost"
+          link="https://bugzilla.mozilla.org/enter_bug.cgi"
+        />
 
-        <content:body>
-          <ul>
-            <li><a href="https://bugzilla.mozilla.org/enter_bug.cgi">{{ ftl('firefox-channel-file-a-bug-now') }}</a></li>
-            <li><a href="https://support.mozilla.org/kb/contributors-guide-writing-good-bug">{{ ftl('firefox-channel-tips-for-filing-a-bug') }}</a></li>
-          </ul>
-        </content:body>
-      </include:intro>
-    </div>
-  </div>
+        <include:button
+          label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
+          theme_class="button-ghost"
+          link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
+        />
+        </div>
+      </content:body>
+    </include:intro>
+  </section>
+</main>
 
-  <div class="fl-section">
+
+<div class="fl-section">
     <div class="fl-section-container">
       <include:newsletter-form>
         <include:heading
@@ -74,5 +96,8 @@
       </include:newsletter-form>
     </div>
   </div>
-</main>
 {% endblock %}
+
+{% block js %}
+{{ js_bundle('flare-subnav') }}
+{% endblock js %}

@@ -30,10 +30,15 @@
     brand_type='logo',
     brand_size='xl') %}
 
-    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta">{{ ftl('firefox-channel-sign-up-now') }}</a>
-    <small class="learn-more">
-      <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
-    </small>
+    <div class="{% if switch('flare26_enabled') %}fl-channel-cta{% endif %}">
+    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta {% if switch('flare26_enabled') %}fl-button {% endif %}">
+      {{ ftl('firefox-channel-sign-up-now') }}</a>
+    <p>
+      <small class="learn-more">
+        <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
+      </small>
+    </p>
+  </div>
   {% endcall %}
 </section>
 {% endblock %}

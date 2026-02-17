@@ -61,10 +61,10 @@
     {# ESR download buttons to display on unsupported systems: issue 13317 #}
     {% include 'firefox/includes/download-unsupported.html' %}
   {% endif %}
-  <ul class="download-list">
+  <ul class="download-list {% if switch('flare26_enabled') %}fl-download-list{% endif %}">
     {% for plat in builds %}
       <li class="os_{{ plat.os }}{% if plat.arch %} {{ plat.arch }}{% endif %}">
-        <a class="download-link button {{ button_class }} mzp-c-button mzp-t-product ga-product-download"
+        <a class="download-link button {{ button_class }} {% if switch('flare26_enabled') %}fl-button{% else %}mzp-c-button mzp-t-product ga-product-download{% endif %}"
            id="{{ id }}-{{ plat.os }}"
            href="{{ plat.download_link }}"{% if plat.download_link_direct %}
            data-direct-link="{{ plat.download_link_direct }}"{% endif %}

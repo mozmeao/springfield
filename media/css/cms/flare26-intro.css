@@ -10,6 +10,10 @@
     text-align: center;
 }
 
+.fl-intro.is-slim {
+    padding: var(--token-layout-sm) var(--fl-section-h-padding);
+}
+
 .fl-intro > * {
     margin: 0 auto;
 }
@@ -185,6 +189,11 @@
         padding-block: var(--token-layout-lg);
     }
 
+    .fl-intro.is-slim {
+        padding-block: var(--token-layout-sm);
+    }
+
+    .fl-channel-page .fl-intro:first-child,
     .has-sitting-kit .fl-intro {
         padding-block: var(--token-layout-xs);
     }

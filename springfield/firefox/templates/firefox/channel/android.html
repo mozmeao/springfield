@@ -38,7 +38,8 @@
     {{ download_firefox('beta', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-beta-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <ul>
       <li>
         <a href="{{ firefox_url('android', 'all', 'beta') }}">
@@ -58,6 +59,7 @@
       {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://connect.mozilla.org/') }}
     </p>
   </div>
+</div>
 </section>
 
 <section id="nightly" class="mzp-is-anchor-link">
@@ -73,7 +75,8 @@
     {{ download_firefox('nightly', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-nightly-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <ul>
       <li><a rel="external" href="https://blog.nightly.mozilla.org/">{{ ftl('firefox-channel-nightly-blog') }}</a></li>
       <li><a href="{{ firefox_url('android', 'all', 'nightly') }}">{{ ftl('firefox-channel-all-languages-and-builds') }}</a></li>
@@ -88,5 +91,6 @@
     </p>
     <p>{{ ftl('firefox-channel-nightly-update-one-or-more-times') }}</p>
   </div>
+</div>
 </section>
 {% endblock %}
