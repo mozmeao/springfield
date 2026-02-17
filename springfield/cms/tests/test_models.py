@@ -17,6 +17,7 @@ from springfield.cms.models import (
     SimpleRichTextPage,
     StructuralPage,
     Tag,
+    ThanksPage,
 )
 from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
@@ -523,3 +524,26 @@ def test_springfield_locale_get_active_falls_back_to_default():
         # Should fall back to en-US
         assert active_locale.id == default_locale.id
         assert active_locale.language_code == "en-US"
+
+
+def test_thanks_page_get_template_default(rf):
+    page = ThanksPage()
+    request = rf.get("/thanks/")
+    assert page.get_template(request) == "cms/thanks_page.html"
+
+
+def test_thanks_page_get_template_direct(rf):
+    page = ThanksPage()
+    request = rf.get("/thanks/?s=direct")
+    assert page.get_template(request) == "cms/thanks_page__direct.html"
+
+
+@pytest.mark.parametrize(
+    "s_value",
+    ["other", "", "DIRECT"],
+    ids=["other", "empty", "uppercase"],
+)
+def test_thanks_page_get_template_ignores_other_s_values(rf, s_value):
+    page = ThanksPage()
+    request = rf.get(f"/thanks/?s={s_value}")
+    assert page.get_template(request) == "cms/thanks_page.html"
