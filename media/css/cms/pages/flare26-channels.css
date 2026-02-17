@@ -29,8 +29,9 @@
 
 .fl-channel-header {
     display: grid;
-    gap: var(--token-layout-lg);
+    gap: var(--token-spacing-md);
     margin-block-end: var(--token-spacing-xl);
+    padding-inline: 0;
 }
 
 .fl-channel-notes ul {
@@ -61,11 +62,14 @@
 
 @media (--viewport-md-up) {
     .fl-channel-header {
+        gap: var(--token-spacing-xl);
         grid-template-columns: 3fr 1fr;
+        padding-inline: var(--fl-section-h-padding);
     }
 
+    /* logo size (96px) plus gap (32px) plus padding (24) */
     .fl-channel-notes {
-        padding-inline-start: 128px; /* logo size (96px) plus gap (32px) */
+        padding-inline-start: 152px;
     }
 }
 
