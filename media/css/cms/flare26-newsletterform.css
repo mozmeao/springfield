@@ -46,7 +46,7 @@
 }
 
 .fl-newsletterform-content {
-    color: var(--token-color-white);
+    color: var(--fl-theme-color-text);
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-lg);
@@ -112,7 +112,7 @@
     block-size: 44px;
     border: 1px solid var(--fl-theme-form-field-border-color);
     border-radius: 12px;
-    color: var(--fl-theme-color-text);
+    color: var(--token-color-black-4);
     inline-size: 100%;
     outline: none;
     padding: 0 var(--token-spacing-lg);
@@ -128,7 +128,7 @@
     background-color: var(--token-color-purple);
     border: 0;
     border-radius: 200px;
-    color: var(--token-color-white);
+    color: var(--fl-theme-color-text);
     cursor: pointer;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-headline);
@@ -166,6 +166,7 @@
 
 .fl-newsletterform-checkbox-label {
     align-items: flex-start;
+    color: var(--fl-theme-color-text);
     cursor: pointer;
     display: flex;
     flex-direction: row;
@@ -177,7 +178,7 @@
 .fl-newsletterform-checkbox-label input[type='checkbox'] {
     appearance: none;
     -webkit-appearance: none;
-    background: var(--token-color-white);
+    background: var(--fl-theme-background);
     block-size: 19px;
     border: 1px solid var(--token-color-grey-3);
     border-radius: 5px;
@@ -205,7 +206,7 @@
 
 .fl-newsletterform-checkbox-label input[type='checkbox']:checked::after {
     block-size: 9px;
-    border: 2px solid var(--token-color-white);
+    border: 2px solid var(--fl-theme-color-text);
     border-block-start: 0;
     border-inline-start: 0;
     content: '';
@@ -222,7 +223,7 @@
 }
 
 .fl-newsletterform-checkbox-label input[type='checkbox']:hover {
-    border-color: var(--token-color-purple);
+    border-color: var(--fl-theme-color-link-hover);
 }
 
 .fl-newsletterform-error {
