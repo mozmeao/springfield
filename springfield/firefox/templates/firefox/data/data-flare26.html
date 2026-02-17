@@ -160,6 +160,8 @@
         </content:heading>
 
         <content:body>
+          <div class="fl-buttons is-horizontal">
+
           {{ download_firefox_thanks(
             alt_copy="Download Firefox",
             dom_id='data-protection-download-firefox',
@@ -167,20 +169,23 @@
             download_location='data-protection',
             flare_styles=True,
           ) }}
-          <include:button
-            id="privacy-settings"
-            label="Manage Your Privacy Settings"
-            theme_class="button-ghost"
-            icon_name="settings"
-            icon_position="right"
-          />
-          <include:button
-            label="Read the Firefox Privacy Notice"
-            theme_class="button-ghost"
-            icon_name="forward"
-            icon_position="right"
-            link="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}"
-          />
+
+
+            <include:button
+              id="privacy-settings"
+              label="Manage Your Privacy Settings"
+              theme_class="button-ghost"
+              icon_name="settings"
+              icon_position="right"
+            />
+            <include:button
+              label="Read the Firefox Privacy Notice"
+              theme_class="button-ghost"
+              icon_name="forward"
+              icon_position="right"
+              link="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}"
+            />
+          </div>
         </content:body>
       </include:intro>
 

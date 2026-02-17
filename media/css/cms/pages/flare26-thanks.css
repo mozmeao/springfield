@@ -14,9 +14,8 @@
     text-align: center;
 }
 
-.fl-download-support .fl-linux-deb-text {
-    margin-block-start: var(--token-spacing-md);
-    text-align: center;
+.fl-download-all-link {
+    margin-block-start: var(--token-spacing-lg);
 }
 
 .fl-show-auto-download-notification {

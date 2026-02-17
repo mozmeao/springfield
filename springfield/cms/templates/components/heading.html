@@ -11,14 +11,16 @@
         {{ superheading_text }}
       </p>
     {% endif %}
-    <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
-      {{ heading_text }}
-    </{{ level|default('h2') }}>
+    {% if heading_text %}
+      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
+        {{ heading_text }}
+      </{{ level|default('h2') }}>
+    {% endif %}
     {% if subheading_text %}
       <p class="fl-subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
     {% endif %}
   </hgroup>
-{% else %}
+{% elif heading_text %}
   <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
     {{ heading_text }}
   </{{ level|default('h2') }}>

@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import StubAttributionConsent from '../../base/stub-attribution/stub-attribution-consent.es6';
 import TrackProductDownload from '../../base/datalayer-productdownload.es6';
 import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
 
@@ -20,7 +21,10 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
         const installerHelpIcon = document.querySelectorAll(
             '.icon-installer-help'
         );
-        const downloadButtons = document.querySelectorAll('.download-link');
+        // We don't want to include nav download button
+        const downloadButtons = document.querySelectorAll(
+            '#outer-wrapper .download-link'
+        );
 
         function showHelpModal(modalContent, modalTitle, eventLabel) {
             MzpModal.createModal(this, modalContent, {
@@ -73,8 +77,14 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
             }
         }
 
-        // event tracking for GA4
-        if (downloadButtons) {
+        // init stub attribution & event tracking for GA4
+        if (downloadButtons && downloadButtons.length > 0) {
+            if (StubAttributionConsent) {
+                // We cannot rely on DOM ready as this section is partially fetched
+                // This flow is scheduled for refactoring: https://github.com/mozmeao/springfield/issues/258
+                StubAttributionConsent.init();
+            }
+
             for (let i = 0; i < downloadButtons.length; ++i) {
                 const downloadButton = downloadButtons[i];
                 downloadButton.addEventListener(
@@ -128,7 +138,17 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
                     '.c-step-name:not(.t-step-disabled)'
                 );
                 const targetHeader = activeHeaders[activeHeaders.length - 1];
-                targetHeader.focus({ preventScroll: true });
+                if (targetHeader) {
+                    // if not already in view, scroll into view
+                    const rect = targetHeader.getBoundingClientRect();
+                    const isVisible =
+                        rect.top >= 0 && rect.top < window.innerHeight;
+                    if (!isVisible) {
+                        targetHeader.scrollIntoView();
+                    }
+                    // .focus() scroll is buggy
+                    targetHeader.focus({ preventScroll: true });
+                }
             })
             .catch((error) => {
                 throw new Error(
