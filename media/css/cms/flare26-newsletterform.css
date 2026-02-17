@@ -128,7 +128,7 @@
     background-color: var(--token-color-purple);
     border: 0;
     border-radius: 200px;
-    color: var(--fl-theme-color-text);
+    color: var(--token-color-white);
     cursor: pointer;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-headline);
