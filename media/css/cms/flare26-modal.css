@@ -1,0 +1,38 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-dialog {
+    background: var(--fl-theme-background);
+    border: 0 none;
+    border-radius: var(--token-border-radius-md);
+    box-shadow: 0 4px 16px rgba(21, 20, 26, 0.2);
+    color: var(--fl-theme-color-text);
+    display: none;
+    flex-direction: column;
+    inline-size: 90%;
+    margin: 10vmin auto 0;
+    max-inline-size: var(--token-width-desktop-content);
+    padding: var(--fl-section-v-padding);
+}
+
+.fl-dialog[open] {
+    display: flex;
+}
+
+.fl-dialog::backdrop {
+    background: var(--token-color-black-4-72);
+}
+
+.fl-dialog-close-button {
+    background: none;
+    border: none;
+    color: var(--fl-theme-color-text);
+    cursor: pointer;
+    font-size: 16px;
+    inset-block-start: var(--token-spacing-lg);
+    inset-inline-end: var(--token-spacing-lg);
+    position: absolute;
+}

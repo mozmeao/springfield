@@ -1,0 +1,47 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block page_title %}
+  {{ ftl('firefox-all-download-the-firefox-v2') }}
+{% endblock %}
+
+{%- block page_desc -%}
+  {{ ftl('firefox-all-everyone-deserves-access-v2') }}
+{%- endblock -%}
+
+{% block canonical_urls %}
+  {% if product %}
+    {# do not index or follow child pages, we prefer people visit more user friendly pages from search results bedrock/16104 #}
+    <meta name="robots" content="none">
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block site_header %}
+  {% with hide_nav_cta=True %}
+    {% include 'includes/navigation/navigation.html' %}
+  {% endwith %}
+{% endblock %}
+
+
+{% if product and platform %}
+  {% set current_step = ftl('firefox-all-choose-language') %}
+{% elif product %}
+  {% set current_step = ftl('firefox-all-choose-platform') %}
+{% else %}
+  {% set current_step = ftl('firefox-all-choose-browser') %}
+{% endif %}
+
+{% block content %}
+  {% include 'firefox/all/includes/main-flare26.html' %}
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('firefox_all') }}
+{% endblock %}
