@@ -24,12 +24,25 @@
 {% block body_class %}{{ super() }} mzp-t-firefox{% endblock %}
 
 {% block content %}
-  <main id="main-content" class="mzp-l-content">
+  <main id="main-content" class="mzp-l-content {% if switch('flare26_enabled') %}fl-main{% endif %}">
     <a href="{{ url('firefox') }}">
       <span class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox">Firefox</span>
     </a>
-    <h1>Firefox Releases</h1>
-    <p>Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it.</p>
+    {% if switch('flare26_enabled') %}
+        <include:intro vertical full-width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-md"
+              heading_text="Firefox Releases"
+              subheading_text="Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it."
+            />
+          </content:heading>
+        </include:intro>
+      {% else %}
+        <h1>Firefox Releases</h1>
+        <p>Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it.</p>
+      {% endif %}
     <ol reversed class="c-release-list">
       {% for int_version, versions in releases -%}
       <li>
