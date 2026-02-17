@@ -7,7 +7,8 @@
 {% from "macros.html" import sub_nav with context %}
 {% from "macros-protocol.html" import callout, callout_compact %}
 
-{% extends "base-protocol.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
+{% extends base_template %}
 
 {# product_name is the product and channel together. Example: Firefox for Android Beta. #}
 {# product_name may be over-ridden with more appropriate content to avoid bad names like: Firefox Release Release #}
@@ -47,12 +48,13 @@
 {% block body_class %}mzp-t-firefox {{ theme_class }}{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('protocol-callout') }}
-  {{ css_bundle('protocol-article') }}
-  {{ css_bundle('firefox_releasenotes') }}
-
-  {% if switch('release-notes-newsletter-banner', ['en']) %}
-    {{ css_bundle('firefox-newsletter-banner') }}
+  {% if not switch("flare26_enabled") %}
+    {{ css_bundle('firefox_releasenotes') }}
+    {{ css_bundle('protocol-callout') }}
+    {{ css_bundle('protocol-article') }}
+    {% if switch('release-notes-newsletter-banner', ['en']) %}
+      {{ css_bundle('firefox-newsletter-banner') }}
+    {% endif %}
   {% endif %}
 {% endblock %}
 
