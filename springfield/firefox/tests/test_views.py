@@ -905,10 +905,11 @@ class TestDownloadRedirect(TestCase):
         assert resp["Location"] == "/download/windows/?utm_source=foo&utm_medium=bar"
 
     @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
-    def test_vary_header_present(self):
+    def test_not_cached_by_cdn(self):
         req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
         resp = download_redirect(req)
-        assert "User-Agent" in resp["Vary"]
+        assert "no-store" in resp["Cache-Control"]
+        assert "private" in resp["Cache-Control"]
 
     @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=False)
     def test_switch_off_redirects_to_homepage(self):

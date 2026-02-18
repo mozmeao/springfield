@@ -11,8 +11,8 @@ from django.conf import settings
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
-from django.views.decorators.vary import vary_on_headers
 
 import querystringsafe_base64
 from product_details import product_details
@@ -486,7 +486,7 @@ def detect_download_platform(user_agent):
 
 
 @require_safe
-@vary_on_headers("User-Agent")
+@never_cache
 def download_redirect(request):
     """Redirect /download/ to the appropriate platform-specific download page.
 
