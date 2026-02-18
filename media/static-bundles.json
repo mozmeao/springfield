@@ -496,6 +496,12 @@
     },
     {
       "files": [
+        "js/cms/flare-subnav.es6.js"
+      ],
+      "name": "flare-subnav"
+    },
+    {
+      "files": [
         "js/cms/flare-lang-switcher.es6.js"
       ],
       "name": "flare-lang-switcher"

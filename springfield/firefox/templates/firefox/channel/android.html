@@ -4,7 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "firefox/channel/base.html" %}
+{% set base_template = "firefox/channel/base-flare26.html" if switch("flare26_enabled") else "firefox/channel/base.html" %}
+{% extends base_template %}
+
+{% from "macros-protocol.html" import callout_compact with context %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=channel-android' %}
 
@@ -22,7 +25,7 @@
 {% block page_og_desc %}{{ self.page_desc() }}{% endblock %}
 
 {% block channels %}
-<section id="beta" class="mzp-is-anchor-link">
+<section id="beta" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-beta'),
     desc=ftl('firefox-channel-try-the-latest-android-features'),
@@ -35,7 +38,8 @@
     {{ download_firefox('beta', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-beta-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <ul>
       <li>
         <a href="{{ firefox_url('android', 'all', 'beta') }}">
@@ -55,9 +59,10 @@
       {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://connect.mozilla.org/') }}
     </p>
   </div>
+</div>
 </section>
 
-<section id="nightly" class="mzp-is-anchor-link">
+<section id="nightly" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-nightly'),
     desc=ftl('firefox-channel-check-out-new-android-features'),
@@ -70,7 +75,8 @@
     {{ download_firefox('nightly', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-nightly-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content {% if switch('flare26_enabled') %}fl-section-container is-narrow fl-channel-notes{% endif %}">
+    <div>
     <ul>
       <li><a rel="external" href="https://blog.nightly.mozilla.org/">{{ ftl('firefox-channel-nightly-blog') }}</a></li>
       <li><a href="{{ firefox_url('android', 'all', 'nightly') }}">{{ ftl('firefox-channel-all-languages-and-builds') }}</a></li>
@@ -85,5 +91,6 @@
     </p>
     <p>{{ ftl('firefox-channel-nightly-update-one-or-more-times') }}</p>
   </div>
+</div>
 </section>
 {% endblock %}

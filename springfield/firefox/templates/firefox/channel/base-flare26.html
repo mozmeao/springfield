@@ -1,0 +1,107 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+
+{% block page_title %}{{ self.page_title() }}{% endblock %}
+
+{% block flare_header %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
+{% block content %}
+<nav class="fl-subnav fl-force-dark-theme">
+  <div class="fl-subnav-heading-wrap">
+    <a class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
+    <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
+      <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+      <i class="fl-icon fl-icon-chevron-down"></i>
+    </button>
+  </div>
+
+  <ul class="fl-subnav-list">
+    <li>
+      <a
+        href="{{ url('firefox.channel.desktop') }}"
+        {% if request.path == url('firefox.channel.desktop') %}aria-current="page"{% endif %}
+        >{{ ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop') }}</a></li>
+    <li><a href="{{ url('firefox.channel.android') }}"{% if request.path == url('firefox.channel.android') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android') }}</a></li>
+    <li><a href="{{ url('firefox.channel.ios') }}"{% if request.path == url('firefox.channel.ios') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios') }}</a></li>
+  </ul>
+</nav>
+
+<main class="fl-main has-gradient-bottom fl-channel-page">
+  <div class="fl-split-page-upper has-gradient-bottom">
+    <div class="fl-section zero-v-pad">
+      <div class="fl-section-container">
+        <include:intro media_position="before" vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
+              subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+  <section class="fl-split-page-lower">
+
+  {% block channels %}{% endblock %}
+
+  <include:intro vertical full_width>
+      <content:heading>
+        <i class="fl-icon fl-icon-warning-fill fl-channel-warning-icon"></i>
+      <include:heading
+        level="h2"
+        heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
+        subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+      />
+      </content:heading>
+
+      <content:body>
+        <div class="fl-buttons">
+        <include:button
+          label="{{ ftl('firefox-channel-file-a-bug-now') }}"
+          theme_class="button-ghost"
+          link="https://bugzilla.mozilla.org/enter_bug.cgi"
+        />
+
+        <include:button
+          label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
+          theme_class="button-ghost"
+          link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
+        />
+        </div>
+      </content:body>
+    </include:intro>
+  </section>
+</main>
+
+
+<div class="fl-section fl-force-dark-theme">
+    <div class="fl-section-container">
+      <include:newsletter-form>
+        <include:heading
+          level="h2"
+          heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
+          subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
+        />
+      </include:newsletter-form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+{{ js_bundle('flare-subnav') }}
+{% endblock js %}
