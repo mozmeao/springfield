@@ -86,3 +86,12 @@ class ArticleDetailPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.ArticleDetailPage
+
+
+class ArticleThemePageFactory(wagtail_factories.PageFactory):
+    title = "Test Article Theme Page"
+    live = True
+    slug = "article-theme"
+
+    class Meta:
+        model = models.ArticleThemePage

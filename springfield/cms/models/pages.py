@@ -325,11 +325,10 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        all_articles = [
-            page.specific
-            for page in self.get_children().live().public().order_by("-first_published_at")
-            if isinstance(page.specific, ArticleDetailPage)
-        ]
+        children_or_sibling_pages = (
+            (self.get_children() | self.get_siblings(inclusive=False)).live().public().order_by("-first_published_at").distinct()
+        )
+        all_articles = [page.specific for page in children_or_sibling_pages if isinstance(page.specific, ArticleDetailPage)]
 
         featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
         list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]

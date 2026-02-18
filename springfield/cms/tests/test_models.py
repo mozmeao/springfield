@@ -22,6 +22,7 @@ from springfield.cms.models import (
 from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
     ArticleIndexPageFactory,
+    ArticleThemePageFactory,
     FreeFormPageFactory,
     LocaleFactory,
     StructuralPageFactory,
@@ -470,6 +471,60 @@ def test_article_detail_content(minimal_site, rf):
     assert "This is the content of the test article. With a link to the Index Page" in content.text
     link = content.find("a")
     assert link["href"].endswith(index_page.url)
+
+
+def test_article_index_page_shows_sibling_and_child_articles(minimal_site, rf):
+    """ArticleIndexPage should include ArticleDetailPages that are siblings
+    (co-children of an ArticleThemePage) as well as its own children."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    theme_page = ArticleThemePageFactory(parent=root_page, slug="theme", title="Article Theme")
+    theme_page.save()
+
+    index_page = ArticleIndexPageFactory(
+        parent=theme_page,
+        slug="articles",
+        title="All the Articles",
+        other_articles_heading="<p>More Articles</p>",
+    )
+    index_page.save()
+
+    image, _, _, _ = get_placeholder_images()
+
+    sibling_featured = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-featured",
+        title="Sibling Featured Article",
+        featured=True,
+        image=image,
+    )
+    sibling_featured.save()
+
+    sibling_article = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-article",
+        title="Sibling Article",
+        featured=False,
+        image=image,
+    )
+    sibling_article.save()
+
+    child_article = ArticleDetailPageFactory(
+        parent=index_page,
+        slug="child-article",
+        title="Child Article",
+        featured=False,
+        image=image,
+    )
+    child_article.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert sibling_featured in context["featured_articles"]
+    assert sibling_article in context["list_articles"]
+    assert child_article in context["list_articles"]
 
 
 @pytest.mark.parametrize(
