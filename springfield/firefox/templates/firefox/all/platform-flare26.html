@@ -17,7 +17,7 @@
         {{ ftl('firefox-all-platform-v2') }}
       {% endif %}
     {% if product and not platform %}
-      <button class="fl-tiny-icon-button fl-dialog-trigger" data-target-id="installer-help">
+      <button id="icon-installer-help" class="fl-tiny-icon-button fl-dialog-trigger" data-target-id="installer-help">
           <include:icon icon_name="help" />
           <span class="visually-hidden">{{ ftl('firefox-all-get-help') }}</span>
         </button>

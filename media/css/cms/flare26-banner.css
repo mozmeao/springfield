@@ -243,6 +243,18 @@
     padding: var(--token-layout-xs) var(--token-layout-2xs);
 }
 
+/* These two together make a while border around the last banner on the page. Used on /channel/desktop */
+.fl-main:has(.fl-split-page-lower > .fl-banner:last-child) {
+    padding-block-end: var(--token-spacing-lg);
+}
+
+.fl-split-page-lower > .fl-banner:last-child {
+    border-radius: calc(
+        var(--token-border-radius-xl) - var(--token-spacing-lg)
+    );
+    margin-inline: var(--token-spacing-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-banner {
         align-items: initial;

@@ -32,6 +32,10 @@ h2.fl-heading,
     line-height: 0.9;
 }
 
+h2.fl-heading.fl-heading-sm {
+    font-variation-settings: unset;
+}
+
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
     border-radius: var(--token-border-radius-md);
@@ -110,6 +114,7 @@ h2.fl-heading,
 
 .fl-heading-sm {
     font-size: var(--fl-theme-font-size-heading-sm);
+    font-variation-settings: unset;
 }
 
 .fl-heading-xs {

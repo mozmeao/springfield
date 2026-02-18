@@ -1,9 +1,21 @@
+.fl-main.fl-page-user-privacy {
+    padding-block-end: 0;
+}
+
 .fl-page-user-privacy .fl-section:first-child {
     padding-block-start: 0;
 }
 
+/* faking the bottom of .fl-main because position:sticky and overflow: hidden don't play nicely together. */
 .fl-page-user-privacy .fl-section:last-child {
-    padding-block-end: 0;
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    overflow: hidden;
+    padding-block: 0 var(--fl-theme-main-border-radius);
+}
+
+.fl-page-user-privacy .fl-section:last-child .fl-intro {
+    padding-block: 0;
 }
 
 .fl-page-user-privacy .main-content {
@@ -64,10 +76,6 @@
     margin-block-end: var(--token-spacing-lg);
 }
 
-.fl-page-user-privacy .fl-section:last-child .fl-intro {
-    padding-block: 0;
-}
-
 /* only include cta if UITour JS runs */
 #privacy-settings {
     display: none;
@@ -85,6 +93,7 @@ body.data-uitour #privacy-settings {
         padding-block-start: var(
             --token-layout-lg
         ); /* vertically align with text on the side */
+        position: relative;
     }
 
     .fl-page-user-privacy .main-content .sidebar {
