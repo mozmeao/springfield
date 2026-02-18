@@ -104,7 +104,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --cloud-background-gradient: linear-gradient(
         180deg,
         #fff44f 0%,
@@ -255,7 +255,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
 
