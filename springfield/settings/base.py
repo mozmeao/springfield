@@ -11,7 +11,7 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django.conf.locale import LANG_INFO  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
+from django.conf.locale import LANG_INFO
 from django.utils.functional import lazy
 
 import dj_database_url
@@ -152,6 +152,9 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = "en-US"
+
+# Add a fallback for zh-CN, which doesn't exist in core Django
+LANG_INFO["zh-CN"] = {"fallback": ["zh-hans"]}
 
 # Languages using BiDi (right-to-left) layout. Overrides/extends Django default.
 LANGUAGES_BIDI = ["ar", "ar-dz", "fa", "he", "skr", "ur"]
