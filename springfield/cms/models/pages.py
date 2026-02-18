@@ -341,7 +341,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    parent_page_types = ["cms.ArticleIndexPage"]
+    parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
 
     featured = models.BooleanField(
         default=False,
