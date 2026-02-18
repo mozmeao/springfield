@@ -485,6 +485,7 @@ def detect_download_platform(user_agent):
     return None
 
 
+@require_safe
 @vary_on_headers("User-Agent")
 def download_redirect(request):
     """Redirect /download/ to the appropriate platform-specific download page.
