@@ -263,7 +263,7 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background:;
+    background: var(--fl-theme-form-field-background);
     block-size: 44px;
     border: 1px solid var(--fl-theme-form-field-border-color);
     border-radius: 12px;
