@@ -67,6 +67,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'pages/flare26-thanks.css' layer(page);
 @import 'pages/flare26-user-privacy.css' layer(page);
 @import 'pages/flare26-channels.css' layer(page);
+@import 'pages/flare26-cookie-settings.css' layer(page);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);
