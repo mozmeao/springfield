@@ -83,6 +83,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
 
     /* Divider */
+    --fl-theme-divider-color: var(--token-color-light-purple);
+    --fl-subtle-border-color: var(--token-color-grey-2);
     --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
 
     /* Dark mode support */
@@ -169,6 +171,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-light-purple);
+    --fl-subtle-border-color: var(--token-color-purple);
 
     /* Navigation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
@@ -239,6 +242,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-icon-wrap: var(--token-color-purple);
     --token-color-error-text-color: var(--token-color-secondary-red);
 
+    /* Divider color */
+    --fl-theme-divider-color: var(--token-color-light-purple);
+    --fl-subtle-border-color: var(--token-color-grey-2);
+    --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
+
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
     --fl-menu-separator-color: var(--token-color-grey-2);
@@ -304,6 +312,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
         /* Divider color */
         --fl-theme-divider-color: var(--token-color-light-purple);
+        --fl-subtle-border-color: var(--token-color-purple);
 
         /* Navigiation menu */
         --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');

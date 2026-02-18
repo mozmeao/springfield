@@ -4,14 +4,8 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-page-cookie-settings .fl-section:first-child {
-    padding-block-start: 0;
-}
-
 .fl-page-cookie-settings .cookie-consent-form {
-    border-block-start: 2px solid var(--fl-menu-separator-color);
     margin-block: var(--token-spacing-2xl);
-    padding-block-start: var(--token-spacing-2xl);
 }
 
 .fl-page-cookie-settings .cookie-consent-form ul {
@@ -31,8 +25,8 @@
 
 .fl-page-cookie-settings .cookie-summary-title {
     font-family: var(--token-font-family-mozilla-text);
-    font-size: var(--fl-theme-font-size-body-lg);
-    font-weight: var(--token-font-weight-regular);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-semibold);
     margin: 0;
 }
 

@@ -148,7 +148,7 @@ button:hover,
 
 /* Details/Summary accordion */
 details {
-    border-block-end: 1px solid var(--fl-menu-separator-color);
+    border-block-end: 1px solid var(--fl-subtle-border-color);
 }
 
 summary {

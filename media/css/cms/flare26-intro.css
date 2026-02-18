@@ -62,7 +62,7 @@
     text-transform: uppercase;
 }
 
-.fl-intro .fl-heading {
+.fl-intro .fl-heading:not([class*='fl-heading-']) {
     font-size: var(--fl-theme-font-size-heading-md);
 }
 

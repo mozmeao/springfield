@@ -6,33 +6,29 @@
 
 {% from "privacy/includes/macros.html" import consent_cookie_control with context %}
 
-<main class="fl-main fl-page-cookie-settings">
-  <div class="fl-section">
-    <div class="fl-section-container is-narrow">
+<main class="fl-main fl-page-cookie-settings has-gradient-bottom">
+      <include:intro vertical>
+    <!-- TODO: v2 FTL string that accepts icon variable, which changes with product selection -->
+    <content:heading>
+    <include:heading
+          level="h1"
+          heading_size="fl-heading-xl"
+          heading_text="{{ ftl('cookie-settings-page-title') }}"
+        />
+      </content:heading>
+      <content:body>
+      <p>{{ ftl('cookie-settings-explainer') }}</p>
+      <p>{{ ftl('cookie-settings-page-intro-v2') }}</p>
+      </content:body>
+  </include:intro>
 
-      <nav aria-label="breadcrumb" class="fl-breadcrumb is-hidden">
-        <ol class="fl-breadcrumb-list">
-          <li class="fl-breadcrumb-item">
-            <a href="#">{{ ftl('cookie-settings-breadcrumb-link') }}</a>
-          </li>
-          <li aria-current="page" class="fl-breadcrumb-item">
-            {{ ftl('cookie-settings-page-title') }}
-          </li>
-        </ol>
-      </nav>
-
-      <header class="cookie-consent-header">
-        <h1>{{ ftl('cookie-settings-page-title') }}</h1>
-        <p>{{ ftl('cookie-settings-explainer') }}</p>
-        <p>{{ ftl('cookie-settings-page-intro-v2') }}</p>
-      </header>
-
+  <div class="fl-section-container is-narrow">
       <form class="cookie-consent-form">
-        <h2>{{ ftl('cookie-settings-how-mozilla-heading') }}</h2>
+        <h2 class="fl-heading-md">{{ ftl('cookie-settings-how-mozilla-heading') }}</h2>
 
         <ul>
           <li class="cookie-category">
-            <h3 class="cookie-category-title">
+            <h3 class="fl-heading-sm cookie-category-title">
               {{ ftl('cookie-settings-category-necessary-heading') }}
             </h3>
 
@@ -61,7 +57,7 @@
             </details>
           </li>
           <li class="cookie-category">
-            <h3 class="cookie-category-title">
+            <h3 class="fl-heading-sm cookie-category-title">
               {{ ftl('cookie-settings-category-preference-heading') }}
             </h3>
 
@@ -94,7 +90,7 @@
             </details>
           </li>
           <li class="cookie-category">
-            <h3 class="cookie-category-title">
+            <h3 class="fl-heading-sm cookie-category-title">
               {{ ftl('cookie-settings-category-analytics-heading') }}
             </h3>
 
@@ -142,7 +138,7 @@
       </form>
 
       <section class="cookie-settings-section">
-        <h2>{{ ftl('cookie-settings-privacy-heading') }}</h2>
+        <h2 class="">{{ ftl('cookie-settings-privacy-heading') }}</h2>
 
         <p>{{ ftl('cookie-settings-privacy-desc') }}</p>
 
@@ -154,5 +150,6 @@
       </section>
 
     </div>
+  </div>
   </div>
 </main>
