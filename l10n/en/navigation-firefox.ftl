@@ -44,3 +44,4 @@ navigation-data-protection = Data Protection
 ## Download
 
 navigation-download = Download
+navigation-download-firefox = Download { -brand-name-firefox }
