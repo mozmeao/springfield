@@ -4,10 +4,6 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-page-cookie-settings .cookie-consent-form {
-    margin-block: var(--token-spacing-2xl);
-}
-
 .fl-page-cookie-settings .cookie-consent-form ul {
     list-style: none;
     margin: 0;

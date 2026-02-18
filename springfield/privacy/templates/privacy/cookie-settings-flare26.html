@@ -7,7 +7,7 @@
 {% from "privacy/includes/macros.html" import consent_cookie_control with context %}
 
 <main class="fl-main fl-page-cookie-settings has-gradient-bottom">
-      <include:intro vertical>
+  <include:intro vertical slim>
     <!-- TODO: v2 FTL string that accepts icon variable, which changes with product selection -->
     <content:heading>
     <include:heading
@@ -22,7 +22,8 @@
       </content:body>
   </include:intro>
 
-  <div class="fl-section-container is-narrow">
+  <section class="fl-section">
+    <div class="fl-section-container is-narrow">
       <form class="cookie-consent-form">
         <h2 class="fl-heading-md">{{ ftl('cookie-settings-how-mozilla-heading') }}</h2>
 
@@ -150,6 +151,5 @@
       </section>
 
     </div>
-  </div>
-  </div>
+  </section>
 </main>
