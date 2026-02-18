@@ -1,0 +1,142 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* TODO: move pill styles to component, theme variables */
+.fl-c-pill {
+    border-radius: var(--token-border-radius-sm);
+    color: var(--token-color-black);
+    display: inline-block;
+    font-size: var(--token-font-size-sm);
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1;
+    padding: var(--token-spacing-md) var(--token-spacing-lg);
+    text-decoration: none; /* reset links */
+}
+
+.fl-t-pill-primary {
+    background-color: var(--token-color-soft-purple-2);
+
+    &:hover,
+    &:focus {
+        background-color: var(--token-color-light-purple);
+        color: var(--token-color-white);
+    }
+
+    &:active {
+        background-color: var(--token-color-link-purple);
+        color: var(--token-color-white);
+    }
+}
+
+.fl-t-pill-secondary {
+    background-color: transparent;
+    border: 1px solid var(--token-color-light-purple);
+
+    &:hover,
+    &:focus {
+        background-color: var(--token-color-light-purple);
+        color: var(--token-color-white);
+    }
+
+    &:active {
+        background-color: var(--token-color-link-purple);
+        border-color: var(--token-color-light-purple);
+        color: var(--token-color-white);
+    }
+}
+
+.fl-c-releases-list {
+    --releases-list-padding: var(--token-spacing-lg) * 2;
+    margin-inline: auto;
+    max-inline-size: min(
+        (100% - var(--releases-list-padding)),
+        var(--token-width-desktop-content-lg)
+    );
+
+    /* Copied from protocol default */
+    ol,
+    & {
+        list-style: none;
+    }
+}
+
+.fl-c-releases-list-minor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-md) var(--token-spacing-sm);
+}
+
+/* applying Protocol clearfix mixin: https://github.com/mozilla/protocol/blob/d20837b673633ea2587e0290ce2e3354d32e1f79/assets/sass/protocol/includes/mixins/_utils.scss#L10 */
+.fl-releases::after {
+    block-size: 0;
+    clear: both;
+    content: '';
+    display: block;
+    visibility: hidden;
+}
+
+.fl-c-releases-list li::after {
+    block-size: 0;
+    clear: both;
+    content: '';
+    display: block;
+    visibility: hidden;
+}
+
+/* Copied layout from releases-index.scss, lightly updated for Flare
+NOTE: this should be refactored to remove float layout */
+.c-release-list {
+    line-height: 2;
+
+    &,
+    ol {
+        margin-block-end: 0; /* Flare default override */
+    }
+
+    li {
+        border-block-start: var(--fl-theme-divider);
+        margin-block-end: 0; /* Flare default override */
+        padding: var(--token-spacing-md) 0;
+
+        &:first-child {
+            border-block-start-width: 0;
+        }
+
+        strong {
+            float: inline-start;
+            inline-size: 6em;
+        }
+
+        ol {
+            margin-inline-start: 6em;
+
+            li {
+                border: 0 none;
+                padding: 0;
+            }
+        }
+    }
+}
+
+/* Protocol newsletter banner styles
+(building on existing banner _base.scss and newsletter-firefox.scss) */
+
+/* TODO: replace with Flare banner equivalent */
+
+/* TODO: make sure X is always clickable */
+.c-banner-inner.mzp-l-content {
+    --releases-list-padding: var(--token-spacing-lg) * 2;
+    margin-inline: auto;
+    max-inline-size: min(
+        (100% - var(--releases-list-padding)),
+        var(--token-width-desktop-content-lg)
+    );
+}
+
+/* hide banner after close click */
+[data-firefox-newsletter-banner-closed='true'] #newsletter-banner {
+    display: none;
+}
