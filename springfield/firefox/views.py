@@ -8,10 +8,11 @@ from collections import OrderedDict
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import Http404, HttpResponsePermanentRedirect, JsonResponse
+from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.views.decorators.http import require_safe
+from django.views.decorators.vary import vary_on_headers
 
 import querystringsafe_base64
 from product_details import product_details
@@ -456,6 +457,61 @@ class DownloadThanksView(L10nTemplateView):
                 template = "firefox/download/basic/thanks.html"
 
         return [template]
+
+
+# Platform detection patterns for /download/ redirect.
+# Order matters: Android and ChromeOS UAs contain "Linux",
+# and iOS UAs can contain "Mac OS X", so check mobile/specific
+# platforms before generic desktop ones.
+_DOWNLOAD_PLATFORM_PATTERNS = (
+    (re.compile(r"\b(iPhone|iPad|iPod)\b", re.I), "ios"),
+    (re.compile(r"\bAndroid\b", re.I), "android"),
+    (re.compile(r"\bCrOS\b", re.I), "chromebook"),
+    (re.compile(r"\bWindows\b", re.I), "windows"),
+    (re.compile(r"\bMacintosh\b", re.I), "mac"),
+    (re.compile(r"\bLinux\b", re.I), "linux"),
+)
+
+
+def detect_download_platform(user_agent):
+    """Detect the download platform from a User-Agent string.
+
+    Returns one of 'windows', 'mac', 'linux', 'android', 'ios',
+    'chromebook', or None if the platform cannot be determined.
+    """
+    for pattern, platform in _DOWNLOAD_PLATFORM_PATTERNS:
+        if pattern.search(user_agent):
+            return platform
+    return None
+
+
+@vary_on_headers("User-Agent")
+def download_redirect(request):
+    """Redirect /download/ to the appropriate platform-specific download page.
+
+    When the PLATFORM_DOWNLOAD_REDIRECTION switch is off, falls back to
+    redirecting to the homepage (matching the legacy redirects.py behaviour).
+    """
+    if not waffle.switch("PLATFORM_DOWNLOAD_REDIRECTION"):
+        return HttpResponseRedirect(reverse("firefox"))
+
+    ua = request.headers.get("User-Agent", "")
+    platform = detect_download_platform(ua)
+
+    base = request.path
+    if not base.endswith("/"):
+        base += "/"
+
+    if platform:
+        redirect_url = f"{base}{platform}/"
+    else:
+        redirect_url = f"{base}all/"
+
+    qs = request.META.get("QUERY_STRING", "")
+    if qs:
+        redirect_url = f"{redirect_url}?{qs}"
+
+    return HttpResponseRedirect(redirect_url)
 
 
 class DownloadView(L10nTemplateView):

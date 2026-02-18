@@ -10,11 +10,14 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.test.client import RequestFactory
 
+import pytest
 import querystringsafe_base64
 from pyquery import PyQuery as pq
+from waffle.testutils import override_switch
 
 from springfield.base.tests import TestCase
 from springfield.firefox import views
+from springfield.firefox.views import detect_download_platform, download_redirect
 
 
 @override_settings(
@@ -768,3 +771,148 @@ class TestWhatsNew(TestCase):
                 assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
 
     # end URL routing tests
+
+
+@pytest.mark.parametrize(
+    "ua, expected",
+    (
+        # Windows
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0", "windows"),
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "windows"),
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0", "windows"),
+        # macOS
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "mac"),
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0", "mac"),
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15", "mac"),
+        # Linux
+        ("Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0", "linux"),
+        ("Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "linux"),
+        # Android
+        ("Mozilla/5.0 (Android 14; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0", "android"),
+        ("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36", "android"),
+        # iOS
+        (
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+            "ios",
+        ),
+        ("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1", "ios"),
+        (
+            (
+                "Mozilla/5.0 (iPod touch; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 "
+                "(KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+            ),
+            "ios",
+        ),
+        # ChromeOS
+        ("Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "chromebook"),
+        # Unknown / empty
+        ("", None),
+        ("SomeUnknownBot/1.0", None),
+    ),
+    ids=[
+        "windows-firefox",
+        "windows-chrome",
+        "windows-edge",
+        "mac-chrome",
+        "mac-firefox",
+        "mac-safari",
+        "linux-firefox",
+        "linux-chrome",
+        "android-firefox",
+        "android-chrome",
+        "ios-iphone",
+        "ios-ipad",
+        "ios-ipod",
+        "chromeos",
+        "empty-ua",
+        "unknown-bot",
+    ],
+)
+def test_detect_download_platform(ua, expected):
+    assert detect_download_platform(ua) == expected
+
+
+@pytest.mark.django_db
+class TestDownloadRedirect(TestCase):
+    def setUp(self):
+        self.rf = RequestFactory()
+
+    def _request(self, path="/download/", ua="", query=""):
+        url = f"{path}?{query}" if query else path
+        return self.rf.get(url, HTTP_USER_AGENT=ua)
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_windows_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gecko/20100101 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/windows/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_mac_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/mac/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_linux_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/linux/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_android_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Android 14; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/android/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_ios_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/ios/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_chromebook_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) Chrome/125.0.0.0 Safari/537.36")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/chromebook/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_unknown_ua_redirects_to_all(self):
+        req = self._request(ua="")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/all/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_locale_prefix_preserved(self):
+        req = self._request(path="/en-US/download/", ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/en-US/download/windows/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_query_string_preserved(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)", query="utm_source=foo&utm_medium=bar")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/windows/?utm_source=foo&utm_medium=bar"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_vary_header_present(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert "User-Agent" in resp["Vary"]
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=False)
+    def test_switch_off_redirects_to_homepage(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/en-US/"
