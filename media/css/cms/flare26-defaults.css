@@ -146,6 +146,47 @@ button:hover,
     color: var(--token-color-white);
 }
 
+/* Details/Summary accordion */
+details {
+    border-block-end: 1px solid var(--fl-menu-separator-color);
+}
+
+summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding-block: var(--token-spacing-lg);
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::marker {
+    content: '';
+}
+
+summary::after {
+    background-color: currentColor;
+    block-size: 1em;
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: 1em;
+    margin-inline-start: var(--token-spacing-lg);
+    -webkit-mask: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
+        no-repeat center / 1em 1em;
+    mask: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
+        no-repeat center / 1em 1em;
+    transition: transform var(--token-transition-fast);
+}
+
+details[open] > summary::after {
+    transform: rotate(180deg);
+}
+
 /* Use theme color for table borders */
 th,
 td {
