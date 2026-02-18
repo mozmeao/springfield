@@ -41,7 +41,8 @@ navigation-blog = Blog
 navigation-newsletter = Newsletter
 navigation-compare = Compare
 navigation-podcast = Podcast
-navigation-data-protection = Protection
+navigation-data-protection = Data Protection
+navigation-protection = Protection
 navigation-control = Control
 navigation-focus = Focus
 
