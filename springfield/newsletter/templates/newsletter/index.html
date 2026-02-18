@@ -59,6 +59,7 @@
 
 {% block content %}
 {% if switch('flare26_enabled') %}
+<main class="fl-main has-gradient-bottom newsletter-page">
   <include:newsletter-form>
     <include:heading
       level="h2"
@@ -66,6 +67,7 @@
       subheading_text="Get how-tos, advice and news to make your Firefox experience work best for you."
     />
   </include:newsletter-form>
+</main>
 {% else %}
   <main>
     <div class="section-intro">
