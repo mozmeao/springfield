@@ -101,14 +101,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --card-border-color: var(--token-color-soft-purple);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
-    --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
+    --theme-yellow-card-bg-color: var(--token-color-purple);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --cloud-background-gradient: linear-gradient(
         180deg,
-        #fff44f 0%,
-        #ffb84a 100%
+        rgba(255, 240, 79, 1) 0%,
+        rgba(255, 186, 74, 1) 100%
     );
 
     /* Navigiation menu */
@@ -193,11 +193,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* homepage card grid styles */
     --theme-purple-card-bg-color: var(--token-color-purple);
     --theme-purple-card-bullet-color: var(--token-color-light-purple);
-    --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+    --theme-yellow-card-bg-color: var(--token-color-dark-purple-2);
     --cloud-background-gradient: linear-gradient(
         180deg,
-        var(--token-color-medium-purple) 0%,
-        var(--token-color-purple) 100%
+        rgba(44, 12, 85, 1) 0%,
+        rgba(60, 17, 111, 1)
     );
 
     /* Notifications */
@@ -258,6 +258,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
+    --cloud-background-gradient: linear-gradient(
+        180deg,
+        rgba(255, 240, 79, 1) 0%,
+        rgba(255, 186, 74, 1) 100%
+    );
 
     /* Notifications */
 
@@ -326,11 +331,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* homepage card grid styles */
         --theme-purple-card-bg-color: var(--token-color-purple);
         --theme-purple-card-bullet-color: var(--token-color-light-purple);
-        --theme-yellow-card-bg-color: var(--token-color-medium-purple);
+        --theme-yellow-card-bg-color: var(--token-color-dark-purple-2);
         --cloud-background-gradient: linear-gradient(
             180deg,
-            var(--token-color-medium-purple) 0%,
-            var(--token-color-purple) 100%
+            rgba(44, 12, 85, 1) 0%,
+            rgba(60, 17, 111, 1)
         );
 
         /* Notifications */

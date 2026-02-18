@@ -27,6 +27,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-black-4-72: rgba(21, 20, 26, 0.72);
     --token-color-black-4-90: rgba(21, 20, 26, 0.9);
     --token-color-dark-purple: rgb(33, 3, 64);
+    --token-color-dark-purple-2: rgba(20, 2, 38, 1);
     --token-color-dark-purple-22: rgba(33, 3, 64, 0.22);
     --token-color-dark-purple-30: rgba(33, 3, 64, 0.3);
     --token-color-dark-purple-50: rgba(33, 3, 64, 0.4);
