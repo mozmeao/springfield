@@ -37,6 +37,7 @@ navigation-add-ons = Add-ons
 navigation-all-downloads = All Downloads
 navigation-learn = Learn
 navigation-blog = Blog
+navigation-newsletter = Newsletter
 navigation-compare = Compare
 navigation-podcast = Podcast
 navigation-data-protection = Data Protection

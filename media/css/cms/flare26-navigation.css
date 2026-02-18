@@ -241,6 +241,10 @@
     max-inline-size: var(--token-width-desktop-layout);
 }
 
+.fl-menu-panel-content .fl-icon {
+    color: var(--token-color-nav-icon-purple);
+}
+
 .fl-menu-panel-content ul,
 .fl-menu-panel-content li {
     margin: 0;
