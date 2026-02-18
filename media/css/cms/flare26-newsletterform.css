@@ -228,18 +228,25 @@
 
 .fl-newsletterform-error {
     align-self: start;
+    inline-size: 100%;
     padding-inline-start: var(--token-spacing-lg);
+    text-align: center;
 }
 
 .fl-newsletterform-error-list {
-    color: var(--token-color-soft-magenta);
+    color: var(--token-color-error-text-color);
+    list-style: none;
     margin: 0 auto;
-    padding: 0;
+    padding: var(--token-spacing-md);
+}
+
+.fl-newsletterform-error-list li {
+    margin-block-end: 0;
 }
 
 .fl-newsletterform-input[aria-invalid='true'] {
-    border-color: var(--token-color-soft-magenta);
-    box-shadow: 0 0 0 3px var(--token-color-soft-magenta-20);
+    border-color: var(--token-color-error-text-color);
+    box-shadow: 0 0 0 3px var(--token-color-error-text-color);
 }
 
 .fl-newsletterform-select-arrow {

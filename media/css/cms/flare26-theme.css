@@ -24,6 +24,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-background: var(--token-color-white);
     --fl-theme-body-background: var(--token-color-dark-purple);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-soft-purple);
@@ -167,6 +168,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
+    --token-color-error-text-color: var(--token-color-soft-magenta);
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-light-purple);
@@ -238,6 +240,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-background: var(--token-color-white);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
@@ -300,6 +303,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
         --fl-theme-color-link: var(--token-color-soft-purple-4);
         --fl-theme-color-link-hover: var(--token-color-white);
+        --token-color-error-text-color: var(--token-color-soft-magenta);
 
         /* Divider color */
         --fl-theme-divider-color: var(--token-color-light-purple);
