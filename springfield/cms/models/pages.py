@@ -299,6 +299,12 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_utm_campaign(self):
         return "firefox-download-thanks"
 
+    def get_template(self, request, *args, **kwargs):
+        if request.GET.get("s") == "direct":
+            return "cms/thanks_page__direct.html"
+
+        return "cms/thanks_page.html"
+
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
@@ -438,16 +444,26 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
 
+    upper_content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+    )
+
     content = StreamField(
         [
             ("intro", IntroBlock2026()),
-            ("section", SectionBlock2026()),
+            ("section", SectionBlock2026(require_heading=False)),
         ],
         use_json_field=True,
         default=list(),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
         FieldPanel("content"),
     ]
 

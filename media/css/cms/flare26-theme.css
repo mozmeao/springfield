@@ -23,6 +23,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Background colors */
     --fl-theme-background: var(--token-color-white);
     --fl-theme-body-background: var(--token-color-dark-purple);
+    --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
+
+    /* Divider color */
+    --fl-theme-divider-color: var(--token-color-soft-purple);
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
@@ -80,6 +85,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Shadows */
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
 
+    /* Divider */
+    --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
+
     /* Dark mode support */
     color-scheme: light dark;
 
@@ -96,7 +104,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --cloud-background-gradient: linear-gradient(
         180deg,
         #fff44f 0%,
@@ -142,6 +150,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-green-color: var(--token-color-black-4);
     --notification-green-border-color: var(--token-color-secondary-green);
     --notification-green-icon-bg: var(--token-color-secondary-green);
+
+    /* form fields. For now, only newsletter signups. */
+    --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
+    --fl-theme-form-field-border-color: var(--token-color-black-1);
+    --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -149,10 +162,16 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 .fl-force-dark-theme {
     /* Main theme */
     --fl-theme-color-text: var(--token-color-white);
+    --fl-theme-color-text-inverse: var(--token-color-dark-purple);
     --fl-theme-background: var(--token-color-dark-purple);
+    --fl-theme-color-icon-wrap: var(--token-color-soft-purple-3);
     --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
+    --token-color-error-text-color: var(--token-color-soft-magenta);
+
+    /* Divider color */
+    --fl-theme-divider-color: var(--token-color-light-purple);
 
     /* Navigation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
@@ -208,12 +227,20 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-green-color: var(--token-color-white);
     --notification-green-border-color: var(--token-color-secondary-green);
     --notification-green-icon-bg: var(--token-color-soft-green);
+
+    /* form fields. */
+    --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
+    --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
+    --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
 }
 
 .fl-force-light-theme {
     /* Main theme */
     --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-background: var(--token-color-white);
+    --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
@@ -228,7 +255,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
 
@@ -259,16 +286,27 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-green-color: var(--token-color-black-4);
     --notification-green-border-color: var(--token-color-secondary-green);
     --notification-green-icon-bg: var(--token-color-secondary-green);
+
+    /* form fields. */
+    --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
+    --fl-theme-form-field-border-color: var(--token-color-black-1);
+    --fl-theme-form-field-border-color-focus: var(--token-color-black-2);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         /* Main theme */
         --fl-theme-color-text: var(--token-color-white);
+        --fl-theme-color-text-inverse: var(--token-color-dark-purple);
         --fl-theme-background: var(--token-color-dark-purple);
+        --fl-theme-color-icon-wrap: var(--token-color-soft-purple-3);
         --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
         --fl-theme-color-link: var(--token-color-soft-purple-4);
         --fl-theme-color-link-hover: var(--token-color-white);
+        --token-color-error-text-color: var(--token-color-soft-magenta);
+
+        /* Divider color */
+        --fl-theme-divider-color: var(--token-color-light-purple);
 
         /* Navigiation menu */
         --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
@@ -324,6 +362,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --notification-green-color: var(--token-color-white);
         --notification-green-border-color: var(--token-color-secondary-green);
         --notification-green-icon-bg: var(--token-color-soft-green);
+
+        /* form fields. */
+        --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
+        --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
+        --fl-theme-form-field-border-color-focus: rgba(255, 255, 255, 0.8);
     }
 }
 

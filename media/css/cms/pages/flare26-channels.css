@@ -1,0 +1,403 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Note: I kept the download button logic to avoid markup revision for launch.
+    TODO: This should be refactored to use the same download logic as the download page.
+
+    Also note that I've reused the old macros, but added flare conditionals so it's clear
+    what should be refactored away here.
+*/
+
+.fl-brand-icon,
+.fl-brand-icon-wrap img {
+    block-size: 96px;
+    inline-size: 96px;
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-brand-icon-wrap {
+    flex: 1 0 auto;
+}
+
+.fl-channel-row {
+    display: flex;
+    gap: var(--token-spacing-2xl);
+}
+
+.fl-channel-header {
+    display: grid;
+    gap: var(--token-spacing-md);
+    margin-block-end: var(--token-spacing-xl);
+    padding-inline: 0;
+}
+
+.fl-channel-notes ul {
+    list-style-type: none;
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+}
+
+.fl-download-list {
+    margin: 0;
+    padding: 0;
+}
+
+.fl-channel-cta {
+    align-content: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    justify-self: center;
+    text-align: center;
+}
+
+.fl-icon.fl-channel-warning-icon {
+    color: var(--fl-theme-illustration-icon-bg);
+    font-size: 84px;
+    margin: 0 auto var(--token-spacing-lg);
+}
+
+@media (--viewport-md-up) {
+    .fl-channel-header {
+        gap: var(--token-spacing-xl);
+        grid-template-columns: 3fr 1fr;
+        padding-inline: var(--fl-section-h-padding);
+    }
+
+    /* logo size (96px) plus gap (32px) plus padding (24) */
+    .fl-channel-notes {
+        padding-inline-start: 152px;
+    }
+}
+
+/* This code is from the old system, converted to CSS and pasted in for channels */
+
+/* download button and related containers */
+
+ul.download-list {
+    list-style-type: none;
+}
+
+ul.download-list li {
+    margin-inline-start: 0;
+}
+
+ul.download-list strong {
+    font-weight: bold;
+}
+
+.download-dumb ul {
+    list-style: none;
+}
+
+.download-dumb ul li {
+    display: inline-block;
+    margin: 20px 0 0;
+}
+
+.download-dumb ul li .button {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-inline-start: 3px;
+    padding: 6px 10px;
+}
+
+.download-other {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.download-other a:link,
+.download-other a:visited {
+    color: #999;
+}
+
+.download-other a:hover,
+.download-other a:focus,
+.download-other a:active {
+    color: #999;
+    text-decoration: underline;
+}
+
+/* !important used for strict download link enforcement */
+/* stylelint-disable declaration-no-important, selector-class-pattern  */
+
+/* Product download buttons */
+.download-button {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.download-button .ios-download,
+.download-button .unrecognized-download,
+.download-button .nojs-download {
+    display: none;
+}
+
+/* OS detection */
+.download-button .os_win64,
+.download-button .os_win64-msi,
+.download-button .os_win64-aarch64,
+.download-button .os_linux,
+.download-button .os_linux64,
+.download-button .os_linux64-aarch64,
+.android .download-button-desktop,
+.download-button .os_win,
+.download-button .os_win-msi,
+.download-button .os_osx,
+.download-button .os_android,
+.download-button .os_ios,
+.no-js .download-list,
+.other .download-list {
+    display: none !important;
+}
+
+.linux .download-button .os_linux,
+.linux .download-button .os_linux64,
+.linux .download-button .os_linux64-aarch64,
+.windows .download-button .os_win,
+.osx .download-button .os_osx,
+.android .download-button .os_android,
+.download-button-android .os_android,
+.android .download-button-desktop .download-list,
+.download-button-ios .os_ios,
+.ios .download-button .os_ios,
+.ios .download-button .ios-download,
+.ios .download-button-desktop .download-list,
+.other .download-button-android .download-list {
+    display: block !important;
+}
+
+/* add spacing between displayed buttons */
+.download-list {
+    display: grid;
+    gap: var(--token-spacing-md);
+}
+
+/* 64-bit UA detection for Firefox Beta on Windows (issue #10194) */
+.windows.x64 .download-button-beta .os_win {
+    display: none !important;
+}
+
+.windows.x64 .download-button-beta .os_win64 {
+    display: block !important;
+}
+
+.download-list .linux {
+    margin-block-end: var(--token-spacing-md);
+}
+
+/* Platform specific Firefox download macros (bedrock issue #12192) */
+.firefox-platform-button .download-link.os_linux64 {
+    margin-block-end: var(
+        --token-spacing-sm
+    ); /* allow spacing between macro Linux buttons ('download-list' buttons get spacing from grid) */
+}
+
+.linux .firefox-platform-button .download-link.os_linux64,
+.linux .firefox-platform-button .download-link.os_linux64-aarch64 {
+    display: inline-block;
+}
+
+.firefox-platform-button .c-linux-debian {
+    margin-block-start: var(--token-spacing-md);
+}
+
+.firefox-platform-button .c-linux-debian br {
+    display: none;
+}
+
+@media (--viewport-md-up) {
+    .firefox-platform-button .c-linux-debian br {
+        display: inline;
+    }
+}
+
+/* All linux download links (issue 648) */
+.linux .download-link {
+    text-wrap: balance; /* TODO: update with https://github.com/mozilla/protocol/issues/1119 */
+}
+
+/* Conditional Firefox download buttons on unsupported
+   operating system versions (issue #13317) */
+.fx-unsupported-message {
+    display: none !important;
+    text-align: center;
+}
+
+.fx-unsupported-message .fx-unsupported-message-all-link {
+    display: block;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fx-unsupported-message .fx-unsupported-message-all-link a:link,
+.fx-unsupported-message .fx-unsupported-message-all-link a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fx-unsupported-message .fx-unsupported-message-all-link a:hover,
+.fx-unsupported-message .fx-unsupported-message-all-link a:active,
+.fx-unsupported-message .fx-unsupported-message-all-link a:focus {
+    text-decoration: underline;
+}
+
+.fx-unsupported-message .download-link {
+    text-align: center;
+}
+
+/* Split component styling */
+.fx-unsupported .mzp-c-split .fx-unsupported-message,
+.fx-unsupported .mzp-c-split .fx-privacy-link,
+.fx-unsupported .mzp-c-split .mzp-c-button-download-privacy-link {
+    text-align: start;
+}
+
+.fx-unsupported
+    .mzp-c-split.mzp-l-split-center-on-sm-md
+    .fx-unsupported-message,
+.fx-unsupported .mzp-c-split.mzp-l-split-center-on-sm-md .fx-privacy-link,
+.fx-unsupported
+    .mzp-c-split.mzp-l-split-center-on-sm-md
+    .mzp-c-button-download-privacy-link {
+    text-align: center;
+}
+
+@media (--viewport-md-up) {
+    .fx-unsupported
+        .mzp-c-split.mzp-l-split-center-on-sm-md
+        .fx-unsupported-message,
+    .fx-unsupported .mzp-c-split.mzp-l-split-center-on-sm-md .fx-privacy-link,
+    .fx-unsupported
+        .mzp-c-split.mzp-l-split-center-on-sm-md
+        .mzp-c-button-download-privacy-link {
+        text-align: start;
+    }
+}
+
+/* Callout styling */
+.fx-unsupported .mzp-c-callout-compact .fx-unsupported-message,
+.fx-unsupported .mzp-c-callout-compact .fx-privacy-link,
+.fx-unsupported .mzp-c-callout-compact .mzp-c-button-download-privacy-link {
+    text-align: start;
+}
+
+.windows.fx-unsupported,
+.osx.fx-unsupported {
+    /* Hide Firefox desktop download buttons */
+}
+
+.windows.fx-unsupported .c-button-download-thanks-link,
+.windows.fx-unsupported .download-button .download-list,
+.osx.fx-unsupported .c-button-download-thanks-link,
+.osx.fx-unsupported .download-button .download-list {
+    display: none !important;
+}
+
+/* Keep showing Firefox mobile download buttons */
+.windows.fx-unsupported .download-button-android .download-list,
+.windows.fx-unsupported .download-button-ios .download-list,
+.osx.fx-unsupported .download-button-android .download-list,
+.osx.fx-unsupported .download-button-ios .download-list {
+    display: block !important;
+}
+
+/* Hide Firefox download button in the navigation as there's
+   too little space to display messaging. */
+.windows.fx-unsupported
+    .c-navigation
+    .c-navigation-shoulder
+    .c-button-download-thanks,
+.osx.fx-unsupported
+    .c-navigation
+    .c-navigation-shoulder
+    .c-button-download-thanks {
+    display: none !important;
+}
+
+/* Hide Firefox Win64 ESR download button by default. */
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win64,
+.osx.fx-unsupported .fx-unsupported-message.win .download-link.os_win64 {
+    display: none !important;
+}
+
+/* Show unsupported message with Firefox ESR download button. */
+.windows.fx-unsupported .download-button .fx-unsupported-message.win,
+.windows.fx-unsupported .c-button-download-thanks .fx-unsupported-message.win,
+.windows.fx-unsupported
+    .firefox-platform-button-windows
+    .fx-unsupported-message.win {
+    display: block !important;
+}
+
+/* Show Firefox Win32 ESR download buttons for 64-bit CPUs. */
+.windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win {
+    display: inline-block !important;
+}
+
+/* Hide Windows platform specific buttons. */
+.windows.fx-unsupported
+    .firefox-platform-button-windows
+    .firefox-platform-button {
+    display: none;
+}
+
+/* Show Firefox Win64 ESR download buttons for 64-bit CPUs. */
+.windows.fx-unsupported.x64
+    .fx-unsupported-message.win
+    .download-link.os_win64 {
+    display: inline-block !important;
+}
+
+/* Hide Firefox Win32 ESR download buttons for 64-bit CPUs. */
+.windows.fx-unsupported.x64 .fx-unsupported-message.win .download-link.os_win {
+    display: none !important;
+}
+
+/* Show unsupported message with Firefox ESR download button. */
+.osx.fx-unsupported .download-button .fx-unsupported-message.mac,
+.osx.fx-unsupported .c-button-download-thanks .fx-unsupported-message.mac,
+.osx.fx-unsupported .firefox-platform-button-mac .fx-unsupported-message.mac {
+    display: block !important;
+}
+
+/* Hide Mac platform specific buttons. */
+.osx.fx-unsupported .firefox-platform-button-mac .firefox-platform-button {
+    display: none;
+}
+
+.android .download-button-desktop .nojs-download,
+.ios .download-button-desktop .nojs-download,
+.no-js .download-button .nojs-download {
+    display: block;
+}
+
+.other .download-button .unrecognized-download {
+    display: block;
+}
+
+/* stylelint-enable */
+
+/* Microsoft Store badge */
+.download-ms-store-badge {
+    display: inline-block;
+}
+
+.download-ms-store-badge .ms-store-badge-img {
+    margin: 0;
+}
+
+/* Download Icon
+ * Hack to ensure only component authored margin is applied
+ * https://github.com/mozmeao/springfield/pull/238#issuecomment-2954261185
+ */
+.download-link .mzp-c-button-icon-end img {
+    /* stylelint-disable-next-line declaration-no-important */
+    margin-block-end: 0 !important;
+}

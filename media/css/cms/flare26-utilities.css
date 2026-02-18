@@ -14,6 +14,11 @@ This is imported into both the legacy and modern stylesheets so the
 style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 ===================================================================== */
 
+.max-width-wide-banner {
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
 .text-left {
     text-align: start;
 }
@@ -24,6 +29,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .text-right {
     text-align: end;
+}
+
+.fl-u-font-medium {
+    font-weight: var(--token-font-weight-medium);
+}
+
+.fl-u-text-uppercase {
+    text-transform: uppercase;
 }
 
 .hidden {

@@ -1,0 +1,150 @@
+.fl-main.fl-page-user-privacy {
+    padding-block-end: 0;
+}
+
+.fl-page-user-privacy .fl-section:first-child {
+    padding-block-start: 0;
+}
+
+/* faking the bottom of .fl-main because position:sticky and overflow: hidden don't play nicely together. */
+.fl-page-user-privacy .fl-section:last-child {
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    overflow: hidden;
+    padding-block: 0 var(--fl-theme-main-border-radius);
+}
+
+.fl-page-user-privacy .fl-section:last-child .fl-intro {
+    padding-block: 0;
+}
+
+.fl-page-user-privacy .main-content {
+    border-block-start: 2px solid var(--fl-menu-separator-color);
+    padding-block: calc(var(--token-layout-md) / 2);
+    padding-inline: 0;
+}
+
+.fl-page-user-privacy .main-content section {
+    margin-block-end: var(--token-layout-md);
+}
+
+.fl-page-user-privacy .main-content section:last-of-type {
+    margin-block-end: 0;
+}
+
+.fl-page-user-privacy .main-content section img {
+    margin-block-end: var(--token-spacing-2xl);
+}
+
+.fl-page-user-privacy .main-content section h2 {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
+.fl-page-user-privacy .main-content .sidebar {
+    display: none;
+}
+
+.fl-page-user-privacy .main-content .sidebar ul {
+    font-family: var(--token-font-family-mozilla-headline);
+    font-weight: var(--token-font-weight-semibold);
+    list-style: none;
+    margin: 0;
+}
+
+.fl-page-user-privacy .content-container a {
+    --fl-theme-color-link: var(--fl-theme-color-text);
+}
+
+.fl-page-user-privacy .link-list a {
+    display: block;
+}
+
+.fl-page-user-privacy .fl-banner h2 {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
+.fl-page-user-privacy .fl-fx-download-container {
+    display: inline-flex;
+}
+
+.fl-page-user-privacy .fl-privacy-link {
+    display: none;
+    margin: 0;
+}
+
+.fl-page-user-privacy .fl-intro-body .fl-button {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+/* only include cta if UITour JS runs */
+#privacy-settings {
+    display: none;
+}
+
+body.data-uitour #privacy-settings {
+    display: inline-block;
+}
+
+@media (--viewport-md-up) {
+    .fl-page-user-privacy .main-content {
+        display: flex;
+        gap: var(--token-layout-md);
+        justify-content: space-between;
+        padding-block-start: var(
+            --token-layout-lg
+        ); /* vertically align with text on the side */
+        position: relative;
+    }
+
+    .fl-page-user-privacy .main-content .sidebar {
+        align-self: start;
+        display: inline-block;
+        inset-block-start: var(--token-layout-lg);
+        position: sticky;
+    }
+
+    .fl-page-user-privacy .main-content .sidebar li {
+        margin-block-end: var(--token-spacing-xl);
+        min-inline-size: max-content;
+    }
+
+    .fl-page-user-privacy .main-content .sidebar li.current {
+        font-weight: 600;
+    }
+
+    .fl-page-user-privacy
+        .main-content
+        .sidebar
+        li.current
+        a
+        .table-content-icon {
+        color: var(--token-color-light-purple);
+    }
+
+    .fl-page-user-privacy .main-content .sidebar li a {
+        align-items: center;
+        color: var(--fl-theme-color-text);
+        display: flex;
+        gap: var(--token-spacing-lg);
+        justify-content: flex-start;
+        text-decoration: none;
+        transition: all 100ms ease-in-out;
+    }
+
+    .fl-page-user-privacy
+        .main-content
+        .sidebar
+        li.current
+        + li.current
+        a:hover
+        .table-content-icon,
+    .fl-page-user-privacy
+        .main-content
+        .sidebar
+        li.current
+        + li.current
+        a:active
+        .table-content-icon {
+        color: var(--token-color-light-purple);
+    }
+}

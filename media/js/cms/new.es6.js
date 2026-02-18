@@ -6,17 +6,25 @@
 
 import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
+// Create namespace
+if (typeof window.cms === 'undefined') {
+    window.cms = {};
+}
+
 (function () {
+    const Flare26 = {};
+
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
         const formDetails = document.getElementById('newsletter-details');
-        const checkbox = document.getElementById('newsletter-privacy');
+        const privacyCheckbox = document.getElementById('newsletter-privacy');
+        const termsCheckbox = document.getElementById('id_terms');
         const submit = document.getElementById('newsletter-submit');
 
         const include_country = document.getElementById('id_country') !== null;
         const include_language = document.getElementById('id_lang') !== null;
 
-        if (!emailInput || !formDetails || !checkbox || !submit) {
+        if (!emailInput || !formDetails || !privacyCheckbox || !submit) {
             return;
         }
 
@@ -58,18 +66,23 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
                 !include_language ||
                 (document.getElementById('id_lang') &&
                     document.getElementById('id_lang').value !== '');
-            const consentValid = checkbox.checked;
+            const privacyValid = privacyCheckbox.checked;
+            const termsValid = !termsCheckbox || termsCheckbox.checked;
 
             submit.disabled = !(
                 emailValid &&
                 countryValid &&
                 languageValid &&
-                consentValid
+                privacyValid &&
+                termsValid
             );
         }
 
         emailInput.addEventListener('input', sync);
-        checkbox.addEventListener('change', sync);
+        privacyCheckbox.addEventListener('change', sync);
+        if (termsCheckbox) {
+            termsCheckbox.addEventListener('change', sync);
+        }
 
         if (include_country && document.getElementById('id_country')) {
             document
@@ -322,6 +335,32 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         }
     }
 
+    Flare26.initDialogs = () => {
+        const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
+
+        if (triggerButtons.length) {
+            triggerButtons.forEach(function (buttonEl) {
+                const dialogEl = document.getElementById(
+                    buttonEl.dataset.targetId
+                );
+
+                if (dialogEl) {
+                    buttonEl.addEventListener('click', function () {
+                        dialogEl.showModal();
+                    });
+                    const closeButtonEl = dialogEl.querySelector(
+                        '.fl-dialog-close-button'
+                    );
+                    if (closeButtonEl) {
+                        closeButtonEl.addEventListener('click', function () {
+                            dialogEl.close();
+                        });
+                    }
+                }
+            });
+        }
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
@@ -330,6 +369,7 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
             applyVideoAspectRatios();
             initVideoPlayers();
             initDownloadDropdown();
+            Flare26.initDialogs();
         });
     } else {
         initNewsletterForm();
@@ -338,5 +378,8 @@ import VideoEngagement from '../base/datalayer-videoengagement.es6';
         applyVideoAspectRatios();
         initVideoPlayers();
         initDownloadDropdown();
+        Flare26.initDialogs();
     }
+
+    window.cms.Flare26 = Flare26;
 })();

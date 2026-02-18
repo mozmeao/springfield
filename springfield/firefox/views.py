@@ -19,6 +19,7 @@ from product_details import product_details
 from lib import l10n_utils
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
+from springfield.base import waffle
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import (
     firefox_android,
@@ -281,8 +282,14 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     platform_name = None
     locale_name = None
     download_url = None
+
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        template_name = "firefox/all/includes/main.html"
+        if waffle.switch("FLARE26_ENABLED"):
+            template_name = "firefox/all/includes/main-flare26.html"
+        else:
+            template_name = "firefox/all/includes/main.html"
+    elif waffle.switch("FLARE26_ENABLED"):
+        template_name = "firefox/all/base-flare26.html"
     else:
         template_name = "firefox/all/base.html"
 

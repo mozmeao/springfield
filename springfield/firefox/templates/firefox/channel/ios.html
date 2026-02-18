@@ -4,7 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "firefox/channel/base.html" %}
+{% set base_template = "firefox/channel/base-flare26.html" if switch("flare26_enabled") else "firefox/channel/base.html" %}
+{% extends base_template %}
+
+{% from "macros-protocol.html" import callout_compact with context %}
 
 {% block page_title %}
   {{ ftl('firefox-channel-try-new-features-in-a-pre-release', fallback='firefox-channel-download-and-test-future') }}
@@ -17,7 +20,7 @@
 {% block page_og_desc %}{{ self.page_desc() }}{% endblock %}
 
 {% block channels %}
-<section id="testflight" class="mzp-is-anchor-link">
+<section id="testflight" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-test-flight'),
     desc=ftl('firefox-channel-test-beta-versions-of-firefox-ios'),
@@ -27,10 +30,15 @@
     brand_type='logo',
     brand_size='xl') %}
 
-    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta">{{ ftl('firefox-channel-sign-up-now') }}</a>
-    <small class="learn-more">
-      <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
-    </small>
+    <div class="{% if switch('flare26_enabled') %}fl-channel-cta{% endif %}">
+    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta {% if switch('flare26_enabled') %}fl-button {% endif %}">
+      {{ ftl('firefox-channel-sign-up-now') }}</a>
+    <p>
+      <small class="learn-more">
+        <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
+      </small>
+    </p>
+  </div>
   {% endcall %}
 </section>
 {% endblock %}

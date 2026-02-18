@@ -378,16 +378,21 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
 
 
 # Element blocks
-class HeadingBlock(blocks.StructBlock):
-    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
-    class Meta:
-        icon = "title"
-        label = "Heading"
-        label_format = "{heading_text}"
-        template = "cms/blocks/heading.html"
+
+def HeadingBlock(required=True, **kwargs):
+    class _HeadingBlock(blocks.StructBlock):
+        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
+        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+        class Meta:
+            icon = "title"
+            label = "Heading"
+            label_format = "{heading_text}"
+            template = "cms/blocks/heading.html"
+
+    return _HeadingBlock(**kwargs)
 
 
 # Buttons
@@ -530,10 +535,50 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def DownloadFirefoxButtonSettings(themes=None, **kwargs):
+    themes = themes or BUTTON_THEME_CHOICES.keys()
+
+    class _DownloadFirefoxButtonSettings(blocks.StructBlock):
+        theme = blocks.ChoiceBlock(
+            choices=[(theme, BUTTON_THEME_CHOICES[theme]) for theme in themes],
+            required=len(themes) == 1,
+            inline_form=True,
+        )
+        icon_position = blocks.ChoiceBlock(
+            choices=(("left", "Left"), ("right", "Right")),
+            default="right",
+            label="Icon Position",
+            inline_form=True,
+        )
+        icon = IconChoiceBlock(required=False)
+        analytics_id = UUIDBlock(
+            label="Analytics ID",
+            help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+            required=False,
+        )
+        show_default_browser_checkbox = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Show 'Set as default browser' checkbox to Windows users. Attention! This will affect all download buttons on the page.",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            label_format = (
+                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
+                "Show Default Browser Checkbox: {show_default_browser_checkbox}",
+            )
+            form_classname = "compact-form struct-block"
+
+    return _DownloadFirefoxButtonSettings(**kwargs)
+
+
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+        settings = DownloadFirefoxButtonSettings(themes=themes)
         label = blocks.CharBlock(label="Button Text", default="Get Firefox")
-        settings = BaseButtonSettings(themes=themes)
 
         class Meta:
             label = "Download Firefox Button"
@@ -1213,6 +1258,11 @@ class ArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom link label to override the article's original call to action text.",
     )
+    link = LinkBlock(
+        required=False,
+        verbose_name="Link override",
+        help_text="Optional custom link to override the article's original call to action link. Note: This field is meant to be temporary.",
+    )
 
     class Meta:
         icon = "cog"
@@ -1237,15 +1287,21 @@ class ArticleValue(blocks.StructValue):
         if description := overrides.get("description"):
             return remove_p_tag(richtext(description))
         article_page = self.get("article")
-        return remove_p_tag(richtext(article_page.description))
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "description") and article_page.description:
+                return remove_p_tag(richtext(article_page.description))
+        return ""
 
     def get_superheading(self) -> str:
         overrides = self.get("overrides", {})
         if superheading := overrides.get("superheading"):
             return superheading
         article_page = self.get("article")
-        if article_page and article_page.tag:
-            return article_page.tag.name
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "tag") and article_page.tag:
+                return article_page.tag.name
         return ""
 
     def get_link_label(self) -> str:
@@ -1253,13 +1309,57 @@ class ArticleValue(blocks.StructValue):
         if link_label := overrides.get("link_label"):
             return link_label
         article_page = self.get("article")
-        return article_page.link_text
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "link_text") and article_page.link_text:
+                return article_page.link_text
+        return ""
+
+    def get_featured_image(self):
+        overrides = self.get("overrides", {})
+        if image := overrides.get("image"):
+            return image
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "featured_image"):
+                return article_page.featured_image
+        return None
+
+    def get_sticker(self):
+        overrides = self.get("overrides", {})
+        if image := overrides.get("image"):
+            return image
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "sticker"):
+                return article_page.sticker
+        return None
+
+    def get_icon(self) -> str:
+        overrides = self.get("overrides", {})
+        if icon := overrides.get("icon"):
+            return icon
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "icon") and article_page.icon:
+                return article_page.icon
+        return "globe"
+
+    def get_link_url(self) -> str:
+        overrides = self.get("overrides", {})
+        if link := overrides.get("link"):
+            url = link.get_url()
+            if url:
+                return url
+        article_page = self.get("article")
+        return article_page.url if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        target_model="cms.ArticleDetailPage",
-    )
+    article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
     overrides = ArticleOverridesBlock(required=False)
 
     class Meta:
@@ -1336,8 +1436,10 @@ class RelatedArticleValue(blocks.StructValue):
         if superheading := overrides.get("superheading"):
             return superheading
         article_page = self.get("article")
-        if article_page and article_page.tag:
-            return article_page.tag.name
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "tag") and article_page.tag:
+                return article_page.tag.name
         return ""
 
     def get_sticker(self):
@@ -1345,13 +1447,15 @@ class RelatedArticleValue(blocks.StructValue):
         if sticker := overrides.get("sticker"):
             return sticker
         article_page = self.get("article")
-        return article_page.sticker if article_page else None
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "sticker"):
+                return article_page.sticker
+        return None
 
 
 class RelatedArticleBlock(blocks.StructBlock):
-    article = blocks.PageChooserBlock(
-        target_model="cms.ArticleDetailPage",
-    )
+    article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
     overrides = RelatedArticleOverridesBlock(required=False)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
 
@@ -1558,7 +1662,7 @@ def SectionBlock(allow_uitour=False, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
-def SectionBlock2026(allow_uitour=False, *args, **kwargs):
+def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     """Factory function to create SectionBlock with appropriate button types.
 
     Args:
@@ -1568,7 +1672,7 @@ def SectionBlock2026(allow_uitour=False, *args, **kwargs):
 
     class _SectionBlock(blocks.StructBlock):
         settings = SectionBlockSettings()
-        heading = HeadingBlock()
+        heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
@@ -1754,6 +1858,12 @@ class HomeCarouselSlide(blocks.StructBlock):
 
 class HomeCarouselBlock(blocks.StructBlock):
     heading = HeadingBlock()
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
     slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
 
     class Meta:

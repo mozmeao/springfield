@@ -14,6 +14,10 @@
     padding-block-start: calc(var(--fl-section-v-padding) * 2);
 }
 
+.fl-section.zero-v-pad {
+    padding-block: 0;
+}
+
 .fl-section-container {
     container-type: inline-size;
     display: flex;
@@ -25,7 +29,7 @@
 }
 
 .fl-section-container.is-narrow {
-    max-inline-size: 900px;
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-heading-group {

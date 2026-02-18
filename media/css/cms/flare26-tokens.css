@@ -42,6 +42,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-cream: rgb(252, 245, 240);
     --token-color-soft-purple: rgb(241, 231, 248);
     --token-color-soft-purple-2: rgb(228, 215, 252);
+    --token-color-soft-purple-3: rgb(223, 201, 255);
     --token-color-soft-purple-4: rgb(199, 168, 255);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
@@ -135,6 +136,7 @@ Static values extracted from Figma that do not change based on context.
     --token-border-radius-sm: 24px;
     --token-border-radius-md: 48px;
     --token-border-radius-lg: 80px;
+    --token-border-radius-xl-half: 64px;
     --token-border-radius-xl: 128px;
 
     /* Width and viewport variables */

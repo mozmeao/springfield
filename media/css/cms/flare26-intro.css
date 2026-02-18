@@ -5,9 +5,13 @@
 */
 
 .fl-intro {
-    padding: var(--token-layout-md) 0;
+    padding: var(--token-layout-md) var(--fl-section-h-padding);
     position: relative;
     text-align: center;
+}
+
+.fl-intro.is-slim {
+    padding: var(--token-layout-sm) var(--fl-section-h-padding);
 }
 
 .fl-intro > * {
@@ -15,13 +19,25 @@
 }
 
 .fl-intro-content {
+    align-items: center;
+    display: flex;
     max-inline-size: 848px;
+}
+
+.fl-intro-full-width .fl-intro-content {
+    max-inline-size: unset;
+}
+
+.fl-intro-vertical .fl-intro-content {
+    display: block;
 }
 
 .fl-intro-media {
     align-items: center;
     display: flex;
     justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-intro-content .fl-buttons {
@@ -32,17 +48,59 @@
     padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
 }
 
+.fl-intro-body {
+    padding-block-start: var(--token-spacing-lg);
+}
+
 .fl-intro .fl-heading-group {
     margin-block-end: var(--token-layout-3xs);
 }
 
+.fl-intro .fl-superheading {
+    color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-font-size-subheading-xs);
+    text-transform: uppercase;
+}
+
+.fl-intro .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
 .fl-intro .fl-subheading {
     font-size: var(--fl-theme-font-size-body-sm);
-    margin-block: 0 var(--token-layout-sm);
+}
+
+.fl-intro-actions {
+    margin-block-start: var(--token-spacing-2xl);
+}
+
+.fl-intro.fl-intro-media-right,
+.fl-intro.fl-intro-media-left {
+    display: grid;
+    gap: var(--token-layout-xs);
+    grid-template-columns: 1fr;
+}
+
+.fl-intro.fl-intro-media-left .fl-intro-media {
+    order: -1;
+}
+
+.fl-intro.fl-intro-media-right .fl-intro-media > *,
+.fl-intro.fl-intro-media-left .fl-intro-media > * {
+    border-radius: var(--token-border-radius-md);
 }
 
 .fl-home-intro {
     position: relative;
+}
+
+.fl-home-intro .fl-intro-content {
+    display: block;
+}
+
+/* This is only for the 'features theme' page, for now. */
+.has-sitting-kit .fl-intro .fl-subheading {
+    text-wrap: balance;
 }
 
 .fl-home-intro::before {
@@ -121,19 +179,40 @@
     margin-block: var(--token-spacing-lg);
 }
 
-.fl-intro-actions {
-    margin-block-start: var(--token-spacing-2xl);
-}
-
 .fl-home-intro .fl-subheading {
     margin: 0 auto;
+    margin-block: 0 var(--token-layout-sm);
     max-inline-size: 48ch;
     text-wrap: balance;
 }
 
+/* todo: these selectors shouldn't exist. There ought to be
+   options on the intro component. For example, see the `.is-slim`
+   variant. On the other hand, maybe this is an abuse of a
+   component called "intro". We can discuss post-launch. */
+.fl-channel-page .fl-split-page-lower .fl-intro:last-child,
+.fl-page-user-privacy .fl-section:last-child .fl-intro {
+    padding-block: 0;
+}
+
 @media (--viewport-sm-up) {
     .fl-intro {
-        padding: var(--token-layout-lg) 0;
+        padding-block: var(--token-layout-lg);
+    }
+
+    .fl-intro.is-slim {
+        padding-block: var(--token-layout-sm);
+    }
+
+    .fl-channel-page .fl-intro:first-child,
+    .has-sitting-kit .fl-intro {
+        padding-block: var(--token-layout-xs);
+    }
+
+    .fl-intro.fl-intro-media-right,
+    .fl-intro.fl-intro-media-left {
+        grid-template-columns: 1fr 1fr;
+        text-align: start;
     }
 
     .fl-home-intro {

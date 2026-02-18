@@ -57,7 +57,6 @@ import { createFocusTrap } from 'focus-trap';
     }
 
     // Menu panels
-
     const menuCategories = document.querySelectorAll('.fl-menu-category');
 
     // mouse is being used

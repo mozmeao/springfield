@@ -114,19 +114,40 @@
     heading_level: Number indicating heading level for title text. Should be based on semantic meaning, not presentational styling.
 #}
 {% macro callout_compact(title, desc=None, class=None, heading_level=2, brand=False, brand_product=None, brand_type=None, brand_size=None, brand_text=None) -%}
-<section class="mzp-c-callout mzp-l-compact {% if class %}{{ class }}{% endif %}">
+<section class="mzp-c-callout mzp-l-compact {% if class %}{{ class }}{% endif %} {% if switch("flare26_enabled") %}fl-section-container is-narrow{% endif %}">
 
-  <div class="mzp-l-content mzp-t-content-lg">
-    <div class="mzp-c-callout-content {% if brand %}mzp-c-callout-content-has-brand{% endif %}">
-      {% if brand %}<div class="mzp-t-callout-compact-brand mzp-c-{{ brand_type }} mzp-t-{{ brand_type }}-{{ brand_size }} mzp-t-product-{{ brand_product }}">{{ brand_text }}</div>{% endif %}
+  <div class="{% if switch("flare26_enabled") %}fl-channel-header{% else %}mzp-l-content mzp-t-content-lg{% endif %}">
+    <div class="mzp-c-callout-content {% if brand %}mzp-c-callout-content-has-brand{% endif %} {% if switch("flare26_enabled") %}fl-channel-row{% endif %}">
+      {% if brand %}
+      {% if switch("flare26_enabled") %}
+      <div class="fl-brand-icon-wrap">
+        {% if brand_product == 'beta' %}
+        {{ resp_img(
+          url='img/logos/firefox/firefox-logo-beta.svg',
+        ) }}
+        {% elif brand_product == 'nightly' %}
+        {{ resp_img(
+          url='img/logos/firefox/firefox-logo-nightly.svg',
+        ) }}
+          {% elif brand_product == 'developer' %}
+        {{ resp_img(
+          url='img/logos/firefox/firefox-logo-developer.svg',
+        ) }}
+          {% endif %}
+      </div>
+
+      {% else %}
+        <div class="mzp-t-callout-compact-brand mzp-c-{{ brand_type }} mzp-t-{{ brand_type }}-{{ brand_size }} mzp-t-product-{{ brand_product }}">{{ brand_text }}</div>
+      {% endif %}
+      {% endif %}
       <div class="mzp-c-callout-container">
-        <h{{ heading_level }} class="mzp-c-callout-title">{{ title }}</h{{ heading_level }}>
+        <h{{ heading_level }} class="{% if switch("flare26_enabled") %}fl-heading fl-heading-sm{% else %}mzp-c-callout-title{% endif %}">{{ title }}</h{{ heading_level }}>
         {% if desc %}
-        <p class="mzp-c-callout-desc">{{ desc }}</p>
+        <p class="{% if switch("flare26_enabled") %}fl-body-md{% else %}mzp-c-callout-desc{% endif %}">{{ desc }}</p>
         {% endif %}
       </div>
     </div>
-    <div class="mzp-c-callout-cta">
+    <div class="mzp-c-callout-cta {% if switch('flare26_enabled') %}fl-channel-cta{% endif %}">
       <div class="mzp-c-callout-cta-container">
         {{ caller() }}
       </div>
