@@ -32,6 +32,8 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-intro-content .fl-buttons {

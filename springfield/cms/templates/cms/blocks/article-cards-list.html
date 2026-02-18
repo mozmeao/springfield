@@ -10,7 +10,7 @@
         title={{ card.get_title() }}
         description={{ card.get_description()|safe }}
         link_text={{ card.get_link_label() }}
-        url={{ card.article.url }}
+        url={{ card.get_link_url() }}
       >
         {% set img = card.get_sticker() %}
         <content:icon>
@@ -47,7 +47,7 @@
             {{ card.get_description()|safe }}
           </content:body>
           <content:buttons>
-            <a href="{{ card.article.url }}">
+            <a href="{{ card.get_link_url() }}">
               {{ card.get_link_label() }}
             </a>
           </content:buttons>
@@ -76,7 +76,7 @@
             {{ card.get_description()|safe }}
           </content:body>
           <content:buttons>
-            <a href="{{ card.article.url }}">
+            <a href="{{ card.get_link_url() }}">
               {{ card.get_link_label() }}
             </a>
           </content:buttons>
@@ -118,7 +118,7 @@
             {{ card.get_description()|safe }}
           </content:body>
           <content:buttons>
-            <a href="{{ card.article.url }}">
+            <a href="{{ card.get_link_url() }}">
               {{ card.get_link_label() }}
             </a>
           </content:buttons>
