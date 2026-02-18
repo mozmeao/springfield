@@ -326,7 +326,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request)
 
         children_or_sibling_pages = (
-            (self.get_children() | self.get_siblings(inclusive=False)).live().public().order_by("-first_published_at").distinct()
+            (self.get_children() | self.get_siblings(inclusive=False)).live().public().order_by("-first_published_at")
         )
         all_articles = [page.specific for page in children_or_sibling_pages if isinstance(page.specific, ArticleDetailPage)]
 
