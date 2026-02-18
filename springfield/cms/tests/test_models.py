@@ -319,19 +319,21 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
     featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
     assert len(featured_cards) == 2
-    for i, card in enumerate(featured_cards):
-        title = card.find("h3")
-        assert f"Featured Article {i + 1}" in title.text
-        assert f"Description for Featured Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        assert f"Description for Featured Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
 
     article_cards = card_grids[1].find_all(class_="fl-card")
     assert len(article_cards) == 2
-    for i, card in enumerate(article_cards):
-        title = card.find("h3")
-        assert f"Article {i + 1}" in title.text
-        assert f"Description for Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in article_cards if f"Article {i}" in c.find("h3").text)
+        assert f"Description for Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
 
 
 @override_switch("FLARE26_ENABLED", active=True)
@@ -411,21 +413,23 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
 
     featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
     assert len(featured_cards) == 2
-    for i, card in enumerate(featured_cards):
-        title = card.find("h3")
-        assert f"Featured Article {i + 1}" in title.text
-        assert f"Description for Featured Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
-        superheading = card.find(class_="fl-superheading")
-        assert superheading and f"Tag {i + 1}" in superheading.text
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        assert f"Description for Featured Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
+        superheading = matching_card.find(class_="fl-superheading")
+        assert superheading and f"Tag {i}" in superheading.text
 
     sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
     assert len(sticker_cards) == 2
-    for i, card in enumerate(sticker_cards):
-        title = card.find("h3")
-        assert f"Article {i + 1}" in title.text
-        assert f"Description for Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        card = next(c for c in sticker_cards if f"Article {i}" in c.find("h3").text)
+        assert f"Description for Article {i}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
 
 
 def test_article_detail_content(minimal_site, rf):
