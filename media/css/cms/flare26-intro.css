@@ -186,6 +186,15 @@
     text-wrap: balance;
 }
 
+/* todo: these selectors shouldn't exist. There ought to be
+   options on the intro component. For example, see the `.is-slim`
+   variant. On the other hand, maybe this is an abuse of a
+   component called "intro". We can discuss post-launch. */
+.fl-channel-page .fl-split-page-lower .fl-intro:last-child,
+.fl-page-user-privacy .fl-section:last-child .fl-intro {
+    padding-block: 0;
+}
+
 @media (--viewport-sm-up) {
     .fl-intro {
         padding-block: var(--token-layout-lg);

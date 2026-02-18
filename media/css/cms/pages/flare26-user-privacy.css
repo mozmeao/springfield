@@ -76,11 +76,6 @@
     margin-block-end: var(--token-spacing-lg);
 }
 
-.fl-channel-page .fl-split-page-lower .fl-intro:last-child,
-.fl-page-user-privacy .fl-section:last-child .fl-intro {
-    padding-block: 0;
-}
-
 /* only include cta if UITour JS runs */
 #privacy-settings {
     display: none;
