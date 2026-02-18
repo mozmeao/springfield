@@ -4,7 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends 'base-protocol.html' %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
+{% extends base_template %}
 
 {% if LAND == 'de' %}
   {% set page_title_copy = 'Entfalte das volle Potential von Firefox' %}
@@ -47,66 +48,81 @@
 {% block body_class %}{{ super() }} newsletter-mozilla{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('protocol-newsletter') }}
-  {{ css_bundle('newsletter-firefox') }}
+  {% if not switch('flare26_enabled') %}
+    {{ css_bundle('protocol-newsletter') }}
+    {{ css_bundle('newsletter-firefox') }}
+  {% endif %}
 {% endblock %}
 
 {% block site_header %}{% endblock %}
+{% block flare_header %}{% endblock %}
 
 {% block content %}
-<main>
-  <div class="section-intro">
-    <div class="intro-image-container mzp-l-content">
-      {% if LANG in ['de', 'fr'] and variation == '2' %}
-        {{ resp_img(
-          url='img/newsletter/firefox/eu/typing-500.jpg',
-          srcset={
-            'img/newsletter/firefox/eu/typing-500.jpg': '500w',
-            'img/newsletter/firefox/eu/typing-1000.jpg': '1000w'
-          },
-          sizes={
-            '(min-width: 600px)': 'calc(100vw - 50px)',
-            'default': '500px'
-          },
-          optional_attributes={
-            'class': 'intro-image',
-            'width': '500',
-            'height': '250'
-          }
-        ) }}
-      {% elif LANG == 'en-US' and variation == '2' %}
-        <img class="intro-image" src="{{ static('img/newsletter/firefox/na/features.svg') }}" width="600" height="300" alt="">
-      {% else %}
-        <img class="intro-image" src="{{ static('img/newsletter/firefox/fox-tail.svg') }}" width="556" height="278" alt="">
-      {% endif %}
+{% if switch('flare26_enabled') %}
+  <include:newsletter-form>
+    <include:heading
+      level="h2"
+      heading_text="Keep up with all things Firefox"
+      subheading_text="Get how-tos, advice and news to make your Firefox experience work best for you."
+    />
+  </include:newsletter-form>
+{% else %}
+  <main>
+    <div class="section-intro">
+      <div class="intro-image-container mzp-l-content">
+        {% if LANG in ['de', 'fr'] and variation == '2' %}
+          {{ resp_img(
+            url='img/newsletter/firefox/eu/typing-500.jpg',
+            srcset={
+              'img/newsletter/firefox/eu/typing-500.jpg': '500w',
+              'img/newsletter/firefox/eu/typing-1000.jpg': '1000w'
+            },
+            sizes={
+              '(min-width: 600px)': 'calc(100vw - 50px)',
+              'default': '500px'
+            },
+            optional_attributes={
+              'class': 'intro-image',
+              'width': '500',
+              'height': '250'
+            }
+          ) }}
+        {% elif LANG == 'en-US' and variation == '2' %}
+          <img class="intro-image" src="{{ static('img/newsletter/firefox/na/features.svg') }}" width="600" height="300" alt="">
+        {% else %}
+          <img class="intro-image" src="{{ static('img/newsletter/firefox/fox-tail.svg') }}" width="556" height="278" alt="">
+        {% endif %}
+      </div>
     </div>
-  </div>
 
-  <section class="section-subscribe">
-    <header class="section-main-header mzp-l-content mzp-t-firefox">
-      <h1 class="page-title">{{ page_title_copy }}</h1>
-      <p class="tagline">{{ page_desc_copy }}</p>
-    </header>
-    <div class="section-newsletter-form mzp-l-content mzp-t-content-sm">
-      {% if ftl_has_messages('multi-newsletter-form-title', 'multi-newsletter-form-desc', 'multi-newsletter-form-checkboxes-legend') %}
-        {{ email_newsletter_form(
-          newsletters='mozilla-and-you',
-          include_title=False,
-          button_class='button-dark'
-        )}}
-      {% else %}
-        {{ email_newsletter_form(
-          newsletters='mozilla-and-you',
-          include_title=False,
-          spinner_color='#3a304b',
-          button_class='mzp-t-product mzp-t-lg'
-        )}}
-      {% endif %}
-    </div>
-  </section>
-</main>
+    <section class="section-subscribe">
+      <header class="section-main-header mzp-l-content mzp-t-firefox">
+        <h1 class="page-title">{{ page_title_copy }}</h1>
+        <p class="tagline">{{ page_desc_copy }}</p>
+      </header>
+      <div class="section-newsletter-form mzp-l-content mzp-t-content-sm">
+        {% if ftl_has_messages('multi-newsletter-form-title', 'multi-newsletter-form-desc', 'multi-newsletter-form-checkboxes-legend') %}
+          {{ email_newsletter_form(
+            newsletters='mozilla-and-you',
+            include_title=False,
+            button_class='button-dark'
+          )}}
+        {% else %}
+          {{ email_newsletter_form(
+            newsletters='mozilla-and-you',
+            include_title=False,
+            spinner_color='#3a304b',
+            button_class='mzp-t-product mzp-t-lg'
+          )}}
+        {% endif %}
+      </div>
+    </section>
+  </main>
+{% endif %}
 {% endblock %}
 
 {% block js %}
-  {{ js_bundle('newsletter') }}
+  {% if not switch('flare26_enabled') %}
+    {{ js_bundle('newsletter') }}
+  {% endif %}
 {% endblock %}
