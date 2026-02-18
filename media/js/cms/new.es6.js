@@ -17,13 +17,14 @@ if (typeof window.cms === 'undefined') {
     function initNewsletterForm() {
         const emailInput = document.getElementById('newsletter-email');
         const formDetails = document.getElementById('newsletter-details');
-        const checkbox = document.getElementById('newsletter-privacy');
+        const privacyCheckbox = document.getElementById('newsletter-privacy');
+        const termsCheckbox = document.getElementById('id_terms');
         const submit = document.getElementById('newsletter-submit');
 
         const include_country = document.getElementById('id_country') !== null;
         const include_language = document.getElementById('id_lang') !== null;
 
-        if (!emailInput || !formDetails || !checkbox || !submit) {
+        if (!emailInput || !formDetails || !privacyCheckbox || !submit) {
             return;
         }
 
@@ -65,18 +66,23 @@ if (typeof window.cms === 'undefined') {
                 !include_language ||
                 (document.getElementById('id_lang') &&
                     document.getElementById('id_lang').value !== '');
-            const consentValid = checkbox.checked;
+            const privacyValid = privacyCheckbox.checked;
+            const termsValid = !termsCheckbox || termsCheckbox.checked;
 
             submit.disabled = !(
                 emailValid &&
                 countryValid &&
                 languageValid &&
-                consentValid
+                privacyValid &&
+                termsValid
             );
         }
 
         emailInput.addEventListener('input', sync);
-        checkbox.addEventListener('change', sync);
+        privacyCheckbox.addEventListener('change', sync);
+        if (termsCheckbox) {
+            termsCheckbox.addEventListener('change', sync);
+        }
 
         if (include_country && document.getElementById('id_country')) {
             document

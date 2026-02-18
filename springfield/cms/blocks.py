@@ -1258,6 +1258,11 @@ class ArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom link label to override the article's original call to action text.",
     )
+    link = LinkBlock(
+        required=False,
+        verbose_name="Link override",
+        help_text="Optional custom link to override the article's original call to action link. Note: This field is meant to be temporary.",
+    )
 
     class Meta:
         icon = "cog"
@@ -1342,6 +1347,15 @@ class ArticleValue(blocks.StructValue):
             if hasattr(article_page, "icon") and article_page.icon:
                 return article_page.icon
         return "globe"
+
+    def get_link_url(self) -> str:
+        overrides = self.get("overrides", {})
+        if link := overrides.get("link"):
+            url = link.get_url()
+            if url:
+                return url
+        article_page = self.get("article")
+        return article_page.url if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):

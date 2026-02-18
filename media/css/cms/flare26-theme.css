@@ -24,9 +24,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-background: var(--token-color-white);
     --fl-theme-body-background: var(--token-color-dark-purple);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
-
-    /* Divider color */
-    --fl-theme-divider-color: var(--token-color-soft-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
@@ -103,7 +101,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --cloud-background-gradient: linear-gradient(
         180deg,
         #fff44f 0%,
@@ -167,6 +165,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
+    --token-color-error-text-color: var(--token-color-soft-magenta);
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-light-purple);
@@ -238,6 +237,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-background: var(--token-color-white);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Navigiation menu */
     --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-2026.svg');
@@ -252,7 +252,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
 
@@ -300,6 +300,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-color-brand-text: var(--token-color-soft-purple-4);
         --fl-theme-color-link: var(--token-color-soft-purple-4);
         --fl-theme-color-link-hover: var(--token-color-white);
+        --token-color-error-text-color: var(--token-color-soft-magenta);
 
         /* Divider color */
         --fl-theme-divider-color: var(--token-color-light-purple);
