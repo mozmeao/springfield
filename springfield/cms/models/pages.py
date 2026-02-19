@@ -8,7 +8,7 @@ from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
@@ -205,6 +205,30 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         related_name="download_page_featured_images",
     )
+    featured_image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the featured image.",
+    )
+    featured_image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the featured image.",
+    )
+    featured_image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the featured image.",
+    )
     content = StreamField(
         [
             ("section", SectionBlock2026()),
@@ -227,6 +251,19 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("subheading"),
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("featured_image_dark_mode"),
+                        FieldPanel("featured_image_mobile"),
+                        FieldPanel("featured_image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Featured Image Variants",
+            classname="collapsed",
+        ),
         FieldPanel("content"),
     ]
 
@@ -353,6 +390,30 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="A portrait-oriented image used in featured article cards.",
     )
+    featured_image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode variant of the featured image.",
+    )
+    featured_image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional mobile variant of the featured image.",
+    )
+    featured_image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the featured image.",
+    )
     tag = models.ForeignKey(
         "cms.Tag",
         null=True,
@@ -371,6 +432,30 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="A sticker image used in article cards.",
+    )
+    sticker_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode variant of the sticker.",
+    )
+    sticker_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional mobile variant of the sticker.",
+    )
+    sticker_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the sticker.",
     )
     icon = models.CharField(
         max_length=50,
@@ -396,6 +481,30 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the article image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the article image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the article image.",
+    )
     content = StreamField(
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
@@ -419,7 +528,33 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("featured"),
                 FieldPanel("tag"),
                 FieldPanel("featured_image"),
+                MultiFieldPanel(
+                    [
+                        FieldRowPanel(
+                            [
+                                FieldPanel("featured_image_dark_mode"),
+                                FieldPanel("featured_image_mobile"),
+                                FieldPanel("featured_image_dark_mode_mobile"),
+                            ]
+                        )
+                    ],
+                    heading="Featured Image Variants",
+                    classname="collapsed",
+                ),
                 FieldPanel("sticker"),
+                MultiFieldPanel(
+                    [
+                        FieldRowPanel(
+                            [
+                                FieldPanel("sticker_dark_mode"),
+                                FieldPanel("sticker_mobile"),
+                                FieldPanel("sticker_dark_mode_mobile"),
+                            ]
+                        )
+                    ],
+                    heading="Sticker Variants",
+                    classname="collapsed",
+                ),
                 FieldPanel(
                     "icon",
                     widget=ThumbnailRadioSelect(
@@ -434,6 +569,19 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             heading="Index Page Settings",
         ),
         FieldPanel("image"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                )
+            ],
+            heading="Article Image Variants",
+            classname="collapsed",
+        ),
         FieldPanel("content"),
         FieldPanel("related_articles"),
     ]

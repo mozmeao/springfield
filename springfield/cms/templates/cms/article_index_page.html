@@ -39,7 +39,28 @@
                   </content:heading>
                   <content:sticker>
                     {% if article.sticker %}
-                      {{ image(article.sticker, "width-400") }}
+                      <div class="image-variants-display">
+                        {%- set sticker_classes -%}
+                          {%- if article.sticker_dark_mode %}display-light {% endif -%}
+                          {%- if article.sticker_mobile or article.sticker_dark_mode_mobile %}display-sm-up{% endif -%}
+                        {%- endset -%}
+                        {{ image(article.sticker, "width-400", class=sticker_classes) }}
+                        {% if article.sticker_mobile %}
+                          {%- set sticker_mobile_classes -%}
+                            {%- if article.sticker_dark_mode_mobile %}display-light {% endif -%}display-xs
+                          {%- endset -%}
+                          {{ image(article.sticker_mobile, "width-400", class=sticker_mobile_classes) }}
+                        {% endif %}
+                        {% if article.sticker_dark_mode_mobile %}
+                          {{ image(article.sticker_dark_mode_mobile, "width-400", class="display-dark display-xs") }}
+                        {% endif %}
+                        {% if article.sticker_dark_mode %}
+                          {%- set sticker_dark_classes -%}
+                            display-dark{%- if article.sticker_dark_mode_mobile or article.sticker_mobile %} display-sm-up{% endif -%}
+                          {%- endset -%}
+                          {{ image(article.sticker_dark_mode, "width-400", class=sticker_dark_classes) }}
+                        {% endif %}
+                      </div>
                     {% else %}
                       <img src="/media/img/firefox/flare/independence-sticker.png" alt="" aria-hidden />
                     {% endif %}
@@ -52,20 +73,59 @@
                 <include:illustration-card expand_link="true">
                   <content:media>
                     {% if article.featured_image %}
-                      {{ srcset_image(
-                          article.featured_image,
-                          "width-{200,400,600,800,1000,1200,1400}",
-                          sizes="
-                            (min-width: 768px) 50vw,
-                            (min-width: 1440px) 680px,
-                            100vw
-                          ",
-                          width=article.featured_image.width,
-                          loading="lazy",
+                      <div class="image-variants-display">
+                        {%- set default_classes -%}
+                          {%- if article.featured_image_dark_mode %}display-light {% endif -%}
+                          {%- if article.featured_image_mobile or article.featured_image_dark_mode_mobile %}display-sm-up{% endif -%}
+                        {%- endset -%}
+                        {{ srcset_image(
+                            article.featured_image,
+                            "width-{200,400,600,800,1000,1200,1400}",
+                            sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                            width=article.featured_image.width,
+                            loading="lazy",
+                            class=default_classes,
                         ) }}
-                      {% else %}
-                        <img src="/media/img/firefox/flare/placeholder.png" alt="" />
-                      {% endif %}
+                        {% if article.featured_image_mobile %}
+                          {%- set mobile_classes -%}
+                            {%- if article.featured_image_dark_mode_mobile %}display-light {% endif -%}display-xs
+                          {%- endset -%}
+                          {{ srcset_image(
+                              article.featured_image_mobile,
+                              "width-{200,400,600,800,1000,1200,1400}",
+                              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                              width=article.featured_image_mobile.width,
+                              loading="lazy",
+                              class=mobile_classes,
+                          ) }}
+                        {% endif %}
+                        {% if article.featured_image_dark_mode_mobile %}
+                          {{ srcset_image(
+                              article.featured_image_dark_mode_mobile,
+                              "width-{200,400,600,800,1000,1200,1400}",
+                              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                              width=article.featured_image_dark_mode_mobile.width,
+                              loading="lazy",
+                              class="display-dark display-xs",
+                          ) }}
+                        {% endif %}
+                        {% if article.featured_image_dark_mode %}
+                          {%- set dark_classes -%}
+                            display-dark{%- if article.featured_image_dark_mode_mobile or article.featured_image_mobile %} display-sm-up{% endif -%}
+                          {%- endset -%}
+                          {{ srcset_image(
+                              article.featured_image_dark_mode,
+                              "width-{200,400,600,800,1000,1200,1400}",
+                              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                              width=article.featured_image_dark_mode.width,
+                              loading="lazy",
+                              class=dark_classes,
+                          ) }}
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <img src="/media/img/firefox/flare/placeholder.png" alt="" />
+                    {% endif %}
                   </content:media>
                   <content:heading>
                     <h3 class="fl-heading fl-heading-size-3">
@@ -103,7 +163,28 @@
                 <include:illustration-card-2026 expand_link="true" variant="sticker">
                   <content:media>
                     {% if article.sticker %}
-                      {{ image(article.sticker, "width-400") }}
+                      <div class="image-variants-display">
+                        {%- set sticker_classes -%}
+                          {%- if article.sticker_dark_mode %}display-light {% endif -%}
+                          {%- if article.sticker_mobile or article.sticker_dark_mode_mobile %}display-sm-up{% endif -%}
+                        {%- endset -%}
+                        {{ image(article.sticker, "width-400", class=sticker_classes) }}
+                        {% if article.sticker_mobile %}
+                          {%- set sticker_mobile_classes -%}
+                            {%- if article.sticker_dark_mode_mobile %}display-light {% endif -%}display-xs
+                          {%- endset -%}
+                          {{ image(article.sticker_mobile, "width-400", class=sticker_mobile_classes) }}
+                        {% endif %}
+                        {% if article.sticker_dark_mode_mobile %}
+                          {{ image(article.sticker_dark_mode_mobile, "width-400", class="display-dark display-xs") }}
+                        {% endif %}
+                        {% if article.sticker_dark_mode %}
+                          {%- set sticker_dark_classes -%}
+                            display-dark{%- if article.sticker_dark_mode_mobile or article.sticker_mobile %} display-sm-up{% endif -%}
+                          {%- endset -%}
+                          {{ image(article.sticker_dark_mode, "width-400", class=sticker_dark_classes) }}
+                        {% endif %}
+                      </div>
                     {% else %}
                       <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" aria-hidden />
                     {% endif %}
