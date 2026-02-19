@@ -4,8 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "base-protocol.html" %}
 
 {% from "macros-protocol.html" import callout, callout_compact %}
 
@@ -17,29 +16,14 @@
 {% block body_class %}mzp-t-firefox mzp-t-{{ channel_name|lower }}{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
-    {{ css_bundle('protocol-callout') }}
-    {{ css_bundle('firefox_system_requirements') }}
-  {% endif %}
+  {{ css_bundle('protocol-callout') }}
+  {{ css_bundle('firefox_system_requirements') }}
 {% endblock %}
 
 {% block content %}
-  <main class="mzp-l-content mzp-t-content-md {% if switch('flare26_enabled') %}fl-main{% endif %}">
-    {% if switch('flare26_enabled') %}
-      <include:heading
-        level="h1"
-        heading_size="fl-heading-md"
-        heading_text="Firefox System Requirements"
-      />
-      <include:heading
-        level="h2"
-        heading_size="fl-heading-lg"
-        heading_text="{{ release.product ~ ' ' ~ channel_name ~ ' ' ~ version }}"
-      />
-    {% else %}
-      <h1 class="c-page-title">Firefox System Requirements</h1>
-      <h2 class="c-version-title">{{ release.product }} {{ channel_name }} {{ version }}</h2>
-    {% endif %}
+  <main class="mzp-l-content mzp-t-content-md">
+    <h1 class="c-page-title">Firefox System Requirements</h1>
+    <h2 class="c-version-title">{{ release.product }} {{ channel_name }} {{ version }}</h2>
 
     <div class="mzp-c-article">
       {{ release.system_requirements|safe }}
