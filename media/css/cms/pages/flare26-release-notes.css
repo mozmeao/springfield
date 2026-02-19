@@ -60,11 +60,8 @@
     }
 }
 
-/* TODO: handle when no pagination */
-
-/* NOTE: this pagination component appears at bottom of page too */
-.fl-c-release-notes-summary + .c-release-pagination {
-    margin-block-start: 48px;
+.fl-c-release-notes-summary {
+    margin-block-end: var(--token-layout-xs);
 }
 
 .fl-c-release-notes-pagination-heading {
@@ -80,8 +77,8 @@
 .fl-c-release-notes-content {
     .fl-l-release-notes-with-sidebar {
         border-block-start: var(--fl-theme-divider);
-        padding-block-start: 48px;
-        scroll-margin-block-start: 88px;
+        padding-block-start: var(--token-layout-xs);
+        scroll-margin-block-start: var(--token-layout-md);
     }
 }
 
@@ -205,9 +202,9 @@ video[autoplay] {
 
 .mzp-l-article > ul > li:not(:last-child) {
     border-block-end: var(--fl-theme-divider);
-    margin-block-end: 32px;
-    padding-block-end: 32px;
-    scroll-margin-block-start: 88px;
+    margin-block-end: var(--token-layout-2xs);
+    padding-block-end: var(--token-layout-2xs);
+    scroll-margin-block-start: var(--token-layout-md);
 }
 
 .mzp-l-article > ul {
@@ -217,11 +214,12 @@ video[autoplay] {
 }
 
 .mzp-l-article > ul > li:last-child {
-    margin-block-end: 48px;
+    margin-block-end: var(--token-layout-xs);
+}
 
-    * {
-        margin-block-end: 0;
-    }
+/* avoid doubling-up margin from divider line */
+.release-note-content > *:last-child {
+    margin-block-end: 0;
 }
 
 /* pagination */
