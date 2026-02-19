@@ -23,6 +23,8 @@ from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
     ArticleIndexPageFactory,
     ArticleThemePageFactory,
+    DownloadIndexPageFactory,
+    DownloadPageFactory,
     FreeFormPageFactory,
     LocaleFactory,
     StructuralPageFactory,
@@ -606,3 +608,347 @@ def test_thanks_page_get_template_ignores_other_s_values(rf, s_value):
     page = ThanksPage()
     request = rf.get(f"/thanks/?s={s_value}")
     assert page.get_template(request) == "cms/thanks_page.html"
+
+
+# ---- Image variant CSS class tests ----
+#
+# These tests verify that model-level image variant fields produce the correct
+# CSS display classes in the rendered HTML.
+def _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes):
+    """Assert img tags inside an image-variants-display container carry the expected CSS classes.
+
+    Pass None for a variant to assert it is absent.  Class strings use space-separated
+    BS4 multi-class matching, e.g. "display-dark display-sm-up".
+    """
+    if primary_classes:
+        assert container.find("img", class_=primary_classes), f"Primary img missing expected classes: '{primary_classes}'"
+
+    if dark_classes:
+        dark_img = container.find("img", class_=dark_classes)
+        assert dark_img is not None, f"Dark-mode desktop img missing expected classes: '{dark_classes}'"
+        # The dark-mode desktop image must never appear on mobile-sized viewports.
+        assert "display-xs" not in (dark_img.get("class") or []), "Dark-mode desktop img must not carry display-xs"
+
+    if mobile_classes:
+        assert container.find("img", class_=mobile_classes), f"Mobile img missing expected classes: '{mobile_classes}'"
+
+    if dark_mobile_classes:
+        assert container.find("img", class_=dark_mobile_classes), f"Dark-mode mobile img missing expected classes: '{dark_mobile_classes}'"
+
+
+_IMAGE_VARIANT_PARAMS = pytest.mark.parametrize(
+    "has_dark, has_mobile, has_dark_mobile, primary_classes, dark_classes, mobile_classes, dark_mobile_classes",
+    [
+        pytest.param(
+            True,
+            False,
+            False,
+            "display-light",  # primary: light-mode only, unrestricted size
+            "display-dark",  # dark: dark-mode only, unrestricted size
+            None,  # mobile: absent
+            None,  # dark-mobile: absent
+            id="dark-only",
+        ),
+        pytest.param(
+            False,
+            True,
+            False,
+            "display-sm-up",  # primary: shown on sm-and-up only
+            None,  # dark: absent
+            "display-xs",  # mobile: shown on xs only
+            None,  # dark-mobile: absent
+            id="mobile-only",
+        ),
+        pytest.param(
+            True,
+            True,
+            False,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up (must NOT be just "display-dark")
+            "display-xs",  # mobile: xs only (serves as fallback on dark mobile too)
+            None,  # dark-mobile: absent
+            id="dark-and-mobile",
+        ),
+        pytest.param(
+            True,
+            True,
+            True,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up
+            "display-light display-xs",  # mobile: light-mode, xs only
+            "display-dark display-xs",  # dark-mobile: dark-mode, xs only
+            id="all-variants",
+        ),
+        pytest.param(
+            False,
+            False,
+            False,
+            None,  # primary: no CSS classes (unrestricted, no variants to conflict with)
+            None,  # dark: absent
+            None,  # mobile: absent
+            None,  # dark-mobile: absent
+            id="primary-only",
+        ),
+        pytest.param(
+            False,
+            False,
+            True,
+            "display-sm-up",  # primary: restricted to sm-and-up because dark-mobile covers xs
+            None,  # dark: absent
+            None,  # mobile: absent (mobile variant not set, only dark-mobile is)
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="dark-mobile-only",
+        ),
+        pytest.param(
+            True,
+            False,
+            True,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up (dark-mobile triggers sm-up)
+            None,  # mobile: absent
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="dark-and-dark-mobile",
+        ),
+        pytest.param(
+            False,
+            True,
+            True,
+            "display-sm-up",  # primary: sm-and-up (mobile variant covers xs)
+            None,  # dark: absent
+            "display-light display-xs",  # mobile: light-mode xs only
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="mobile-and-dark-mobile",
+        ),
+    ],
+)
+
+
+@_IMAGE_VARIANT_PARAMS
+@override_switch("FLARE26_ENABLED", active=True)
+def test_article_detail_page_image_variants(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """ArticleDetailPage.image and its variants are rendered with correct CSS classes."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="Articles",
+        other_articles_heading="<p>Other Articles</p>",
+    )
+    index_page.save()
+
+    kwargs = dict(parent=index_page, title="Test Article", slug="test-article", image=image)
+    if has_dark:
+        kwargs["image_dark_mode"] = dark_image
+    if has_mobile:
+        kwargs["image_mobile"] = mobile_image
+    if has_dark_mobile:
+        kwargs["image_dark_mode_mobile"] = dark_mobile_image
+
+    article_page = ArticleDetailPageFactory(**kwargs)
+    article_page.save()
+
+    request = rf.get(article_page.relative_url(minimal_site))
+    response = article_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    container = soup.find("div", class_="image-variants-display")
+    assert container is not None, "Expected image-variants-display container in article detail page"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(container.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+@_IMAGE_VARIANT_PARAMS
+@override_switch("FLARE26_ENABLED", active=True)
+def test_article_index_page_sticker_variants_flare26(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """ArticleDetailPage sticker variants are rendered with correct CSS classes on the index page (flare26)."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="Articles",
+        other_articles_heading="<p>Other Articles</p>",
+    )
+    index_page.save()
+
+    sticker_kwargs = dict(sticker=image)
+    if has_dark:
+        sticker_kwargs["sticker_dark_mode"] = dark_image
+    if has_mobile:
+        sticker_kwargs["sticker_mobile"] = mobile_image
+    if has_dark_mobile:
+        sticker_kwargs["sticker_dark_mode_mobile"] = dark_mobile_image
+
+    featured_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Featured Article",
+        slug="featured-article",
+        featured=True,
+        image=image,
+        **sticker_kwargs,
+    )
+    featured_page.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    # The featured card section is the first fl-card-grid.
+    featured_grid = soup.find("div", class_="fl-card-grid")
+    assert featured_grid is not None
+
+    featured_card = featured_grid.find(class_="fl-sticker-card")
+    assert featured_card is not None, "Expected a fl-sticker-card in the featured grid"
+
+    container = featured_card.find("div", class_="image-variants-display")
+    assert container is not None, "Expected image-variants-display in sticker card"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(container.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+@_IMAGE_VARIANT_PARAMS
+@override_switch("FLARE26_ENABLED", active=False)
+def test_article_index_page_featured_image_variants(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """ArticleDetailPage featured_image variants are rendered with correct CSS classes on the index page (non-flare26)."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="Articles",
+        other_articles_heading="<p>Other Articles</p>",
+    )
+    index_page.save()
+
+    featured_image_kwargs = dict(featured_image=image)
+    if has_dark:
+        featured_image_kwargs["featured_image_dark_mode"] = dark_image
+    if has_mobile:
+        featured_image_kwargs["featured_image_mobile"] = mobile_image
+    if has_dark_mobile:
+        featured_image_kwargs["featured_image_dark_mode_mobile"] = dark_mobile_image
+
+    featured_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Featured Article",
+        slug="featured-article",
+        featured=True,
+        image=image,
+        **featured_image_kwargs,
+    )
+    featured_page.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    featured_grid = soup.find("div", class_="fl-card-grid")
+    assert featured_grid is not None
+
+    featured_card = featured_grid.find(class_="fl-illustration-card")
+    assert featured_card is not None, "Expected a fl-illustration-card in the featured grid"
+
+    container = featured_card.find("div", class_="image-variants-display")
+    assert container is not None, "Expected image-variants-display in illustration card"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(container.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+@_IMAGE_VARIANT_PARAMS
+def test_download_page_featured_image_variants(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """DownloadPage.featured_image variants are rendered with correct CSS classes."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    download_index = DownloadIndexPageFactory(parent=root_page, slug="download-index")
+    download_index.save()
+
+    featured_image_kwargs = dict(featured_image=image)
+    if has_dark:
+        featured_image_kwargs["featured_image_dark_mode"] = dark_image
+    if has_mobile:
+        featured_image_kwargs["featured_image_mobile"] = mobile_image
+    if has_dark_mobile:
+        featured_image_kwargs["featured_image_dark_mode_mobile"] = dark_mobile_image
+
+    download_page = DownloadPageFactory(
+        parent=download_index,
+        slug="windows",
+        platform="windows",
+        **featured_image_kwargs,
+    )
+    download_page.save()
+
+    request = rf.get(download_page.relative_url(minimal_site))
+    response = download_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    container = soup.find("div", class_="fl-download-intro-featured-image")
+    assert container is not None, "Expected fl-download-intro-featured-image section"
+
+    variants_div = container.find("div", class_="image-variants-display")
+    assert variants_div is not None, "Expected image-variants-display inside featured image section"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(variants_div.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(variants_div, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
