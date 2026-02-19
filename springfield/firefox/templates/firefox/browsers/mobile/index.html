@@ -7,7 +7,8 @@
 {% from "macros.html" import google_play_button, fxa_email_form with context %}
 {% from "macros-protocol.html" import split with context %}
 
-{% extends "base-protocol.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-protocol.html" %}
+{% extends base_template %}
 
 {% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
 {% set android_url = play_store_url('firefox', 'firefox-browsers-mobile') %}
@@ -21,6 +22,7 @@
 {% block body_class %}{{ super() }} mobile-overview{% endblock %}
 
 {% block page_css %}
+{% if not switch("flare26_enabled") %}
   {{ css_bundle('protocol-split') }}
   {{ css_bundle('protocol-emphasis-box')}}
   {{ css_bundle('firefox-mobile-index') }}
@@ -28,15 +30,169 @@
   {% if show_firefox_app_store_banner %}
     {{ css_bundle('firefox-app-store-banner') }}
   {% endif %}
+
+{% endif %}
 {% endblock %}
 
 {% block page_banner %}
   {% if show_firefox_app_store_banner %}
-    {% include 'includes/banners/mobile/firefox-app-store.html' %}
+    {% if switch("flare26_enabled") %}
+      {% include 'includes/banners/mobile/firefox-app-store.html' %}
+    {% else %}
+      {% include 'includes/banners/mobile/firefox-app-store.html' %}
+    {% endif %}
   {% endif %}
 {% endblock %}
 
 {% block content %}
+{% if switch("flare26_enabled") %}
+{# this will use freeform2026 template once it heads to the CMS. #}
+<div class="fl-page fl-freeform-2026-page">
+  <main class="fl-main">
+    <div class="fl-split-page-upper has-gradient-bottom">
+      {# new 'mobile store qr code' section #}
+      {% from "macros.html" import google_play_button, apple_app_store_button with context %}
+      <section class="fl-section fl-mobile-store-qr-section" data-block-position="mobile-store-qr">
+        <div class="fl-container">
+            <div class="fl-mobile-store-qr-heading">
+              <include:heading
+                level="h1"
+                heading_size="fl-heading-size-2"
+                alignment_class="fl-text-align-center"
+                heading_text="{% if LANG == 'en-US' %}Firefox on your phone{% else %}{{ ftl('browsers-mobile-go-your-own-way') }}{% endif %}"
+                subheading_text="{% if LANG == 'en-US' %}The browser you trust, built for life on the go. {% else %}{{ ftl('browsers-mobile-firefox-mobile-adapts-to-you') }}{% endif %}"
+              />
+            </div>
+
+          <div class="fl-mobile-store-qr-content">
+            <div class="fl-mobile-store-qr-code" role="img" aria-label="QR Code">
+              {{ qrcode('https://www.mozilla.org/firefox/browsers/mobile/app/?product=firefox&campaign=whatsnew-143', 12) }}
+            </div>
+            <div class="fl-mobile-store-buttons">
+              {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+              {% set android_url = play_store_url('firefox', campaign) %}
+              {% set ios_url = app_store_url('firefox', campaign) %}
+
+              {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
+              {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
+            </div>
+
+
+            <img class="display-xs-and-sm fl-mobile-store-mobile-img" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
+
+
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-container">
+          <include:cards-list>
+            <include:card>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_size="fl-heading-xs"
+                  heading_text="{{ ftl('browsers-mobile-firefox-for-android') }}"
+                />
+              </content:heading>
+              <content:body>
+                <p>{{ ftl('browsers-mobile-infinitely-customizable-private') }}</p>
+
+              </content:body>
+              <content:buttons>
+                {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
+                <p><a class="learn-more-link" href="{{ url('firefox.browsers.mobile.android') }}" data-cta-text="Android Learn More">{{ ftl('ui-learn-more') }}</a></p>
+              </content:buttons>
+            </include:card>
+
+            <include:card>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_size="fl-heading-xs"
+                  heading_text="{{ ftl('browsers-mobile-firefox-for-ios') }}"
+                />
+              </content:heading>
+              <content:body>
+                <p>{{ ftl('browsers-mobile-get-enhanced-tracking-protection') }}</p>
+              </content:body>
+
+                <content:buttons>
+                  <div id="ios-download">
+                    {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
+                  </div>
+                <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.ios') }}" data-cta-text="iOS Learn More">{{ ftl('ui-learn-more') }}</a>
+                </content:buttons>
+            </include:card>
+
+            <include:card>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_size="fl-heading-xs"
+                  heading_text="{{ ftl('browsers-mobile-firefox-focus') }}"
+                />
+              </content:heading>
+              <content:body>
+                <p>{{ ftl('browsers-mobile-looking-for-a-streamlined') }}</p>
+
+                <div class="fl-buttons is-stacked auto-width-buttons" id="ios-download">
+                  <include:button
+                    label="{% if LANG == 'en-US' %}Download Android{% else %}{{ ftl('browsers-mobile-android') }}{% endif %}"
+                    link="{{ play_store_url('focus', 'firefox-browsers-mobile') }}"
+                    data-cta-text="Download - Android (Focus)"
+                    data-cta-type="firefox_focus"
+                    rel="external noopener"
+                    classes="ga-product-download"
+                    icon_name="downloads"
+                    icon_position="right"
+
+                  />
+                  <include:button
+                    label="{% if LANG == 'en-US' %}Download iOS{% else %}{{ ftl('browsers-mobile-ios') }}{% endif %}"
+                    link="{{ app_store_url('focus', 'firefox-browsers-mobile') }}"
+
+                    rel="external noopener"
+                    class="ga-product-download"
+                    data-cta-text="Download - iOS (Focus)"
+                    data-cta-type="firefox_focus"
+                    icon_name="downloads"
+                    icon_position="right"
+                  />
+                </div>
+                <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.focus') }}" data-cta-text="Focus Learn More">{{ ftl('ui-learn-more') }}</a>
+              </content:body>
+            </include:card>
+
+          </include:cards-list>
+        </div>
+      </section>
+
+
+    </div>
+  </main>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% else %}
+{# legacy design elements #}
 <main>
   {% call split(
     image=resp_img('img/firefox/browsers/mobile/hero-500.jpg',
@@ -141,11 +297,15 @@
   </section>
 
   {% include 'firefox/includes/mozilla-account-promo.html' %}
-
-</main>
+  </main>
+  {% endif %}
 {% endblock %}
 
+
+
+
 {% block js %}
+  {# todo: test if this stuff is necessary for the flare page #}
   {{ js_bundle('fxa_form') }}
   {{ js_bundle('firefox-mobile-index') }}
 
