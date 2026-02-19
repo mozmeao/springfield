@@ -1,0 +1,45 @@
+.fl-page-developer .fl-section:last-child {
+    padding-block-end: 0;
+}
+
+.fl-page-developer .fl-main {
+    padding-block-end: 0;
+}
+
+.fl-page-developer .fl-main .fl-section:last-child {
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    overflow: hidden;
+    padding-block-end: var(--fl-theme-main-border-radius);
+}
+
+.fl-page-developer .fl-intro .fl-buttons {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-page-developer .fl-developer-feedback-note {
+    font-size: var(--fl-theme-font-size-body-2xs);
+}
+
+.fl-page-developer .fl-engage-grid {
+    display: grid;
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr;
+    padding: 0 var(--token-layout-2xs);
+}
+
+.fl-page-developer .fl-highlights .fl-card-grid,
+.fl-page-developer .fl-developer-features .fl-card-grid {
+    grid-template-columns: 1fr;
+}
+
+@media (--viewport-sm-up) {
+    .fl-page-developer .fl-highlights .fl-card-grid,
+    .fl-page-developer .fl-engage-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-page-developer .fl-developer-features .fl-card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
