@@ -88,6 +88,7 @@
 .fl-c-release-notes-heading {
     align-items: center;
     display: flex;
+    font-size: 1.5rem; /* 24px - static */
     gap: var(--token-spacing-sm);
 }
 
