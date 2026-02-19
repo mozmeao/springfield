@@ -213,7 +213,9 @@
           </div>
         </div>
         {% endif %}
-      {% include "firefox/releases/partials/notes_pagination.html" %}
+        {% with location = 'top' %}
+          {% include "firefox/releases/partials/notes_pagination.html" %}
+        {% endwith %}
       {% endblock %}
       {% endif %}
     </header>
@@ -590,7 +592,9 @@
     </section>
     {% endif %}
 
-    {% include "firefox/releases/partials/notes_pagination.html" %}
+    {% with location = 'bottom' %}
+      {% include "firefox/releases/partials/notes_pagination.html" %}
+    {% endwith %}
 
     {% if not switch('flare26_enabled') %}
       {% block releasenotes_footer %}

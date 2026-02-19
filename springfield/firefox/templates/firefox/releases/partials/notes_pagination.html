@@ -5,7 +5,7 @@
 #}
 
     {% if pagination and (pagination.previous or pagination.next) %}
-    <nav class="c-release-pagination mzp-l-content fl-l-release-notes-wrapper" aria-label="Release notes pagination">
+    <nav class="c-release-pagination mzp-l-content fl-l-release-notes-wrapper" aria-label="Release notes pagination — {{ location }}">
       <ul class="c-release-pagination-list">
         {% if pagination.previous %}
         <li class="c-release-pagination-item c-release-pagination-previous">
