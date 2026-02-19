@@ -97,7 +97,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         {% set analytics_position = "pre-footer-cta-form" %}
         {% set analytics_id = pre_footer_cta_form.analytics_id %}
           <include:conditional-display condition="is-firefox">
-            <include:newsletter-form>
+            <include:newsletter-form theme="dark">
               <include:heading
                 level="h2"
                 heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"

@@ -321,3 +321,7 @@
     display: block;
     margin: 0 auto;
 }
+
+.newsletter-page .fl-newsletterform-cta {
+    padding-block-start: var(--token-layout-xl);
+}
