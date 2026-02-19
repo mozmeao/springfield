@@ -25,9 +25,9 @@
 {# Issue 13019: Avoid duplicate content for English pages. #}
 {%- block page_title_full -%}
   {%- if LANG == 'en-US' -%}
-    Get Firefox for iOS (iPhone and iPad) — Mozilla (US)
+    Get Firefox for iOS (iPhone and iPad) by Mozilla (US)
   {%- elif LANG == 'en-GB' -%}
-    Download Firefox for iOS (iPhone and iPad) — Mozilla (UK)
+    Download Firefox for iOS (iPhone and iPad) by Mozilla (UK)
   {%- else -%}
     {{ ftl('mobile-ios-firefox-browser-ios') }} - Mozilla
   {%- endif -%}
