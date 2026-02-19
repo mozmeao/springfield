@@ -66,7 +66,7 @@ slugs.forEach((slug) => {
 
                 // show an error message because the email is invalid
                 await expect(errorMessage).not.toBeVisible();
-                await emailField.fill('invalid-email');
+                await emailField.fill('invalid@email');
                 await countryField.selectOption('us');
                 await privacyCheckbox.click();
                 await submitButton.click();
