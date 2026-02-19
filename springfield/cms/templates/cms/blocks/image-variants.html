@@ -8,15 +8,10 @@
 {% set widths = widths or "width-{200,400,600,800,1000,1200,1400}" %}
 {% set break_at = break_at or "sm" %}
 
+{% set classes = image_variant_classes(value.settings.dark_mode_image, value.settings.mobile_image, value.settings.dark_mode_mobile_image, break_at=break_at) %}
+
 <div class="image-variants-display">
 {# Default/desktop light mode image #}
-  {%- set default_display_classes -%}
-    {% if value.settings.dark_mode_image %}display-light {% endif %}
-    {% if value.settings.mobile_image or value.settings.dark_mode_mobile_image %}
-    {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
-    {% endif %}
-  {%- endset -%}
-
 {{ srcset_image(
     value.image,
     widths,
@@ -24,15 +19,11 @@
     width=value.image.width,
     height=value.image.height,
     loading="lazy",
-    class=default_display_classes,
+    class=classes.primary,
 ) }}
 
 {# Light mode mobile image #}
 {% if value.settings.mobile_image %}
-  {%- set mobile_classes -%}
-    {% if value.settings.dark_mode_mobile_image %}display-light {% endif %}
-    {% if break_at == "md" %}display-xs-and-sm{% else %}display-xs{% endif %}
-  {%- endset -%}
   {{ srcset_image(
       value.settings.mobile_image,
       widths,
@@ -40,16 +31,12 @@
       width=value.settings.mobile_image.width,
       height=value.settings.mobile_image.height,
       loading="lazy",
-      class=mobile_classes,
+      class=classes.mobile,
   ) }}
 {% endif %}
 
 {# Dark mode mobile image #}
 {% if value.settings.dark_mode_mobile_image %}
-  {%- set dark_mobile_classes -%}
-    display-dark {% if break_at == "md" %}display-xs-and-sm{% else %}display-xs{% endif %}
-  {%- endset -%}
-
   {{ srcset_image(
       value.settings.dark_mode_mobile_image,
       widths,
@@ -57,19 +44,12 @@
       width=value.settings.dark_mode_mobile_image.width,
       height=value.settings.dark_mode_mobile_image.height,
       loading="lazy",
-      class=dark_mobile_classes,
+      class=classes.dark_mode_mobile,
   ) }}
 {% endif %}
 
 {# Dark mode desktop image #}
 {% if value.settings.dark_mode_image %}
-{%- set dark_desktop_classes -%}
-  display-dark
-  {% if value.settings.dark_mode_mobile_image or value.settings.mobile_image %}
-    {% if break_at == "md" %}display-md-up{% else %}display-sm-up{% endif %}
-  {% endif %}
-{%- endset -%}
-
   {{ srcset_image(
       value.settings.dark_mode_image,
       widths,
@@ -77,7 +57,7 @@
       width=value.settings.dark_mode_image.width,
       height=value.settings.dark_mode_image.height,
       loading="lazy",
-      class=dark_desktop_classes,
+      class=classes.dark_mode,
   ) }}
 {% endif %}
 </div>

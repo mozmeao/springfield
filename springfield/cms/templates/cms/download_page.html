@@ -74,12 +74,9 @@
         <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
       {% endif %}
       {% if page.featured_image %}
+      {% set classes = image_variant_classes(page.featured_image_dark_mode, page.featured_image_mobile, page.featured_image_dark_mode_mobile) %}
       <div class="fl-download-intro-featured-image">
         <div class="image-variants-display">
-          {%- set default_classes -%}
-            {%- if page.featured_image_dark_mode %}display-light {% endif -%}
-            {%- if page.featured_image_mobile or page.featured_image_dark_mode_mobile %}display-sm-up{% endif -%}
-          {%- endset -%}
           {{ srcset_image(
               page.featured_image,
               "width-{200,400,600,800,1000,1200,1400}",
@@ -87,12 +84,9 @@
               width=page.featured_image.width,
               height=page.featured_image.height,
               loading="lazy",
-              class=default_classes,
+              class=classes.primary,
           ) }}
           {% if page.featured_image_mobile %}
-            {%- set mobile_classes -%}
-              {%- if page.featured_image_dark_mode_mobile %}display-light {% endif -%}display-xs
-            {%- endset -%}
             {{ srcset_image(
                 page.featured_image_mobile,
                 "width-{200,400,600,800,1000,1200,1400}",
@@ -100,7 +94,7 @@
                 width=page.featured_image_mobile.width,
                 height=page.featured_image_mobile.height,
                 loading="lazy",
-                class=mobile_classes,
+                class=classes.mobile,
             ) }}
           {% endif %}
           {% if page.featured_image_dark_mode_mobile %}
@@ -111,13 +105,10 @@
                 width=page.featured_image_dark_mode_mobile.width,
                 height=page.featured_image_dark_mode_mobile.height,
                 loading="lazy",
-                class="display-dark display-xs",
+                class=classes.dark_mode_mobile,
             ) }}
           {% endif %}
           {% if page.featured_image_dark_mode %}
-            {%- set dark_classes -%}
-              display-dark{%- if page.featured_image_dark_mode_mobile or page.featured_image_mobile %} display-sm-up{% endif -%}
-            {%- endset -%}
             {{ srcset_image(
                 page.featured_image_dark_mode,
                 "width-{200,400,600,800,1000,1200,1400}",
@@ -125,7 +116,7 @@
                 width=page.featured_image_dark_mode.width,
                 height=page.featured_image_dark_mode.height,
                 loading="lazy",
-                class=dark_classes,
+                class=classes.dark_mode,
             ) }}
           {% endif %}
         </div>

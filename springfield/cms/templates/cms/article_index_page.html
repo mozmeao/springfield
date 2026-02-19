@@ -39,26 +39,17 @@
                   </content:heading>
                   <content:sticker>
                     {% if article.sticker %}
+                      {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
                       <div class="image-variants-display">
-                        {%- set sticker_classes -%}
-                          {%- if article.sticker_dark_mode %}display-light {% endif -%}
-                          {%- if article.sticker_mobile or article.sticker_dark_mode_mobile %}display-sm-up{% endif -%}
-                        {%- endset -%}
-                        {{ image(article.sticker, "width-400", class=sticker_classes) }}
+                        {{ image(article.sticker, "width-400", class=classes.primary) }}
                         {% if article.sticker_mobile %}
-                          {%- set sticker_mobile_classes -%}
-                            {%- if article.sticker_dark_mode_mobile %}display-light {% endif -%}display-xs
-                          {%- endset -%}
-                          {{ image(article.sticker_mobile, "width-400", class=sticker_mobile_classes) }}
+                          {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode_mobile %}
-                          {{ image(article.sticker_dark_mode_mobile, "width-400", class="display-dark display-xs") }}
+                          {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode %}
-                          {%- set sticker_dark_classes -%}
-                            display-dark{%- if article.sticker_dark_mode_mobile or article.sticker_mobile %} display-sm-up{% endif -%}
-                          {%- endset -%}
-                          {{ image(article.sticker_dark_mode, "width-400", class=sticker_dark_classes) }}
+                          {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
                         {% endif %}
                       </div>
                     {% else %}
@@ -73,30 +64,24 @@
                 <include:illustration-card expand_link="true">
                   <content:media>
                     {% if article.featured_image %}
+                      {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
                       <div class="image-variants-display">
-                        {%- set default_classes -%}
-                          {%- if article.featured_image_dark_mode %}display-light {% endif -%}
-                          {%- if article.featured_image_mobile or article.featured_image_dark_mode_mobile %}display-sm-up{% endif -%}
-                        {%- endset -%}
                         {{ srcset_image(
                             article.featured_image,
                             "width-{200,400,600,800,1000,1200,1400}",
                             sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
                             width=article.featured_image.width,
                             loading="lazy",
-                            class=default_classes,
+                            class=classes.primary,
                         ) }}
                         {% if article.featured_image_mobile %}
-                          {%- set mobile_classes -%}
-                            {%- if article.featured_image_dark_mode_mobile %}display-light {% endif -%}display-xs
-                          {%- endset -%}
                           {{ srcset_image(
                               article.featured_image_mobile,
                               "width-{200,400,600,800,1000,1200,1400}",
                               sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
                               width=article.featured_image_mobile.width,
                               loading="lazy",
-                              class=mobile_classes,
+                              class=classes.mobile,
                           ) }}
                         {% endif %}
                         {% if article.featured_image_dark_mode_mobile %}
@@ -106,20 +91,17 @@
                               sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
                               width=article.featured_image_dark_mode_mobile.width,
                               loading="lazy",
-                              class="display-dark display-xs",
+                              class=classes.dark_mode_mobile,
                           ) }}
                         {% endif %}
                         {% if article.featured_image_dark_mode %}
-                          {%- set dark_classes -%}
-                            display-dark{%- if article.featured_image_dark_mode_mobile or article.featured_image_mobile %} display-sm-up{% endif -%}
-                          {%- endset -%}
                           {{ srcset_image(
                               article.featured_image_dark_mode,
                               "width-{200,400,600,800,1000,1200,1400}",
                               sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
                               width=article.featured_image_dark_mode.width,
                               loading="lazy",
-                              class=dark_classes,
+                              class=classes.dark_mode,
                           ) }}
                         {% endif %}
                       </div>
@@ -163,26 +145,17 @@
                 <include:illustration-card-2026 expand_link="true" variant="sticker">
                   <content:media>
                     {% if article.sticker %}
+                      {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
                       <div class="image-variants-display">
-                        {%- set sticker_classes -%}
-                          {%- if article.sticker_dark_mode %}display-light {% endif -%}
-                          {%- if article.sticker_mobile or article.sticker_dark_mode_mobile %}display-sm-up{% endif -%}
-                        {%- endset -%}
-                        {{ image(article.sticker, "width-400", class=sticker_classes) }}
+                        {{ image(article.sticker, "width-400", class=classes.primary) }}
                         {% if article.sticker_mobile %}
-                          {%- set sticker_mobile_classes -%}
-                            {%- if article.sticker_dark_mode_mobile %}display-light {% endif -%}display-xs
-                          {%- endset -%}
-                          {{ image(article.sticker_mobile, "width-400", class=sticker_mobile_classes) }}
+                          {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode_mobile %}
-                          {{ image(article.sticker_dark_mode_mobile, "width-400", class="display-dark display-xs") }}
+                          {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode %}
-                          {%- set sticker_dark_classes -%}
-                            display-dark{%- if article.sticker_dark_mode_mobile or article.sticker_mobile %} display-sm-up{% endif -%}
-                          {%- endset -%}
-                          {{ image(article.sticker_dark_mode, "width-400", class=sticker_dark_classes) }}
+                          {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
                         {% endif %}
                       </div>
                     {% else %}
