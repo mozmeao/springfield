@@ -21,6 +21,7 @@ Button - Flare 2026 Design System Buttons
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: 600;
     gap: var(--token-spacing-md);
+    line-height: 1;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     text-decoration: none;
     transition:
@@ -38,24 +39,15 @@ Button - Flare 2026 Design System Buttons
     background-color: var(--token-color-purple);
 }
 
-/* Button variants - Secondary (outlined) */
-.fl-button.button-secondary {
-    background-color: var(--token-color-white);
-    border: 2px solid var(--token-color-light-purple);
-    color: var(--token-color-black-4);
-}
+/* TODO: For launch, I'm combining the secondary and ghost styles.
+The names were an artifact of the previous system, and both were slightly off.
+At present, we're not using a third button anywhere, but Figma has a third variation.
+I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially a
+"Neutral (Tertiary)" if necessary. */
 
+.fl-button.button-secondary,
 .fl-button.button-secondary:hover,
-.fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-link-purple);
-    color: var(--token-color-link-purple);
-}
-
-.fl-button.button-secondary:active {
-    color: var(--token-color-purple);
-}
-
+.fl-button.button-secondary:active,
 .fl-button.button-ghost,
 .fl-button.button-ghost:hover,
 .fl-button.button-ghost:active {
@@ -64,9 +56,12 @@ Button - Flare 2026 Design System Buttons
     color: var(--fl-theme-color-text, var(--token-color-black-4));
 }
 
+.fl-button.button-secondary:hover,
+.fl-button.button-secondary:active,
 .fl-button.button-ghost:hover,
 .fl-button.button-ghost:active {
-    background-color: var(--token-color-black-16);
+    background-color: var(--token-color-light-purple);
+    color: var(--token-color-white);
 }
 
 .fl-button.button-link,
@@ -106,12 +101,13 @@ Button - Flare 2026 Design System Buttons
 /* Button fills - Outline */
 .fl-button-outline {
     background-color: transparent;
-    border: 2px solid currentColor;
+    border: 2px solid var(--fl-theme-color-text);
     color: var(--fl-theme-color-text);
 }
 
 .fl-button-outline:hover {
-    color: var(--token-color-light-purple);
+    background-color: var(--fl-theme-color-text);
+    color: var(--fl-theme-color-text-inverse);
 }
 
 /* Button fills - Text */
