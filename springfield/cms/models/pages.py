@@ -325,14 +325,12 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
-        all_articles = [
-            page.specific
-            for page in self.get_children().live().public().order_by("-first_published_at")
-            if isinstance(page.specific, ArticleDetailPage)
-        ]
+        child_ids = self.get_children().live().public().values_list("pk", flat=True)
+        sibling_ids = self.get_siblings(inclusive=False).live().public().values_list("pk", flat=True)
+        all_articles = ArticleDetailPage.objects.filter(pk__in=[*child_ids, *sibling_ids]).order_by("-first_published_at")
 
-        featured_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and page.featured]
-        list_articles = [page for page in all_articles if isinstance(page, ArticleDetailPage) and not page.featured]
+        featured_articles = [page for page in all_articles if page.featured]
+        list_articles = [page for page in all_articles if not page.featured]
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
@@ -341,7 +339,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    parent_page_types = ["cms.ArticleIndexPage"]
+    parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
 
     featured = models.BooleanField(
         default=False,

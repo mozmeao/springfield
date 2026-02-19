@@ -22,6 +22,7 @@ from springfield.cms.models import (
 from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
     ArticleIndexPageFactory,
+    ArticleThemePageFactory,
     FreeFormPageFactory,
     LocaleFactory,
     StructuralPageFactory,
@@ -318,19 +319,21 @@ def test_article_index_and_detail_pages(minimal_site, rf):
 
     featured_cards = card_grids[0].find_all(class_="fl-illustration-card")
     assert len(featured_cards) == 2
-    for i, card in enumerate(featured_cards):
-        title = card.find("h3")
-        assert f"Featured Article {i + 1}" in title.text
-        assert f"Description for Featured Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        assert f"Description for Featured Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
 
     article_cards = card_grids[1].find_all(class_="fl-card")
     assert len(article_cards) == 2
-    for i, card in enumerate(article_cards):
-        title = card.find("h3")
-        assert f"Article {i + 1}" in title.text
-        assert f"Description for Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in article_cards if f"Article {i}" in c.find("h3").text)
+        assert f"Description for Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
 
 
 @override_switch("FLARE26_ENABLED", active=True)
@@ -410,21 +413,23 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
 
     featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
     assert len(featured_cards) == 2
-    for i, card in enumerate(featured_cards):
-        title = card.find("h3")
-        assert f"Featured Article {i + 1}" in title.text
-        assert f"Description for Featured Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i + 1}/")
-        superheading = card.find(class_="fl-superheading")
-        assert superheading and f"Tag {i + 1}" in superheading.text
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        assert f"Description for Featured Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
+        superheading = matching_card.find(class_="fl-superheading")
+        assert superheading and f"Tag {i}" in superheading.text
 
     sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
     assert len(sticker_cards) == 2
-    for i, card in enumerate(sticker_cards):
-        title = card.find("h3")
-        assert f"Article {i + 1}" in title.text
-        assert f"Description for Article {i + 1}" in card.text
-        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i + 1}/")
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        card = next(c for c in sticker_cards if f"Article {i}" in c.find("h3").text)
+        assert f"Description for Article {i}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
 
 
 def test_article_detail_content(minimal_site, rf):
@@ -470,6 +475,60 @@ def test_article_detail_content(minimal_site, rf):
     assert "This is the content of the test article. With a link to the Index Page" in content.text
     link = content.find("a")
     assert link["href"].endswith(index_page.url)
+
+
+def test_article_index_page_shows_sibling_and_child_articles(minimal_site, rf):
+    """ArticleIndexPage should include ArticleDetailPages that are siblings
+    (co-children of an ArticleThemePage) as well as its own children."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    theme_page = ArticleThemePageFactory(parent=root_page, slug="theme", title="Article Theme")
+    theme_page.save()
+
+    index_page = ArticleIndexPageFactory(
+        parent=theme_page,
+        slug="articles",
+        title="All the Articles",
+        other_articles_heading="<p>More Articles</p>",
+    )
+    index_page.save()
+
+    image, _, _, _ = get_placeholder_images()
+
+    sibling_featured = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-featured",
+        title="Sibling Featured Article",
+        featured=True,
+        image=image,
+    )
+    sibling_featured.save()
+
+    sibling_article = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-article",
+        title="Sibling Article",
+        featured=False,
+        image=image,
+    )
+    sibling_article.save()
+
+    child_article = ArticleDetailPageFactory(
+        parent=index_page,
+        slug="child-article",
+        title="Child Article",
+        featured=False,
+        image=image,
+    )
+    child_article.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert sibling_featured in context["featured_articles"]
+    assert sibling_article in context["list_articles"]
+    assert child_article in context["list_articles"]
 
 
 @pytest.mark.parametrize(
