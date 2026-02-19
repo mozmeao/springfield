@@ -52,11 +52,10 @@
     {{ css_bundle('firefox_releasenotes') }}
     {{ css_bundle('protocol-callout') }}
     {{ css_bundle('protocol-article') }}
-  {% endif %}
-
-  {% if switch('release-notes-newsletter-banner', ['en']) %}
+    {% if switch('release-notes-newsletter-banner', ['en']) %}
       {{ css_bundle('firefox-newsletter-banner') }}
     {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% set channel_name = '' if release.channel == 'Release' else release.channel %}
@@ -560,58 +559,72 @@
     {% endif %}
     </section>
 
-    {% if not switch('flare26_enabled') %}
-    {% call callout_compact(
-      title=download_title,
-      class='mzp-t-firefox mzp-t-background-secondary ' + header_class,
-      brand=True,
-      brand_product=brand_product,
-      brand_type='logo',
-      brand_size='lg'
-    ) %}
-      {{ download_button_secondary }}
-    {% endcall %}
+    {% if switch('flare26_enabled') %}
+    <include:section>
+      <content:heading>
+          <include:heading
+            heading_text="{{ download_title }}"
+            alignment_class="text-center"
+          />
+        </content:heading>
+        <content:cta>
+          {{ download_button_secondary }}
+        </content:cta>
+      </include:section>
+    {% else %}
+        {% call callout_compact(
+        title=download_title,
+        class='mzp-t-firefox mzp-t-background-secondary ' + header_class,
+        brand=True,
+        brand_product=brand_product,
+        brand_type='logo',
+        brand_size='lg'
+      ) %}
+        {{ download_button_secondary }}
+      {% endcall %}
+    {% endif %}
 
-    {% if download_all_link %}
-    <section class="all-download">
+    {% if download_all_link and not switch('flare26_enabled') %}
+    <section class="all-download fl-l-release-notes-wrapper text-center">
       <a href="{{ download_all_link }}">All {{ product_name }} downloads</a>
     </section>
     {% endif %}
 
     {% include "firefox/releases/partials/notes_pagination.html" %}
 
-    {% block releasenotes_footer %}
-    <footer class="c-release-footer fl-c-release-notes-pre-footer">
-      <div class="mzp-l-content">
-        <div class="c-release-footer-col">
-          <h2>Need help or want to leave feedback?</h2>
-          <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
-          <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
+    {% if not switch('flare26_enabled') %}
+      {% block releasenotes_footer %}
+      <footer class="c-release-footer">
+        <div class="mzp-l-content">
+          <div class="c-release-footer-col">
+            <h2>Need help or want to leave feedback?</h2>
+            <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
+            <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
+          </div>
+          <div class="c-release-footer-col">
+            <h2>Get Involved</h2>
+            <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
+            <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
+          </div>
+          <div class="c-release-footer-col">
+            <h2>Other Resources</h2>
+            {% block extra_resources %}{% endblock %}
+            <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
+            <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
+            <a rel="external" href="https://blog.mozilla.org/press/kits/">Press Kit</a>
+            <a rel="external" href="https://blog.mozilla.org">Mozilla and Firefox News</a>
+            <a href="{{ url('firefox.enterprise.index') }}">Firefox Extended Support Release</a>
+            <a href="{{ url('firefox.releases.index') }}">All Firefox for Desktop Releases</a>
+            <a href="{{ url('firefox.more.index') }}">Learn more about Firefox</a>
+          </div>
         </div>
-        <div class="c-release-footer-col">
-          <h2>Get Involved</h2>
-          <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
-          <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
-        </div>
-        <div class="c-release-footer-col">
-          <h2>Other Resources</h2>
-          {% block extra_resources %}{% endblock %}
-          <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
-          <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
-          <a rel="external" href="https://blog.mozilla.org/press/kits/">Press Kit</a>
-          <a rel="external" href="https://blog.mozilla.org">Mozilla and Firefox News</a>
-          <a href="{{ url('firefox.enterprise.index') }}">Firefox Extended Support Release</a>
-          <a href="{{ url('firefox.releases.index') }}">All Firefox for Desktop Releases</a>
-          <a href="{{ url('firefox.more.index') }}">Learn more about Firefox</a>
-        </div>
-      </div>
-    </footer>
-    {% endblock %}
+      </footer>
+      {% endblock %}
     {% endif %}
 </article>
 </main>
 
-{% if switch('release-notes-newsletter-banner', ['en']) %}
+{% if switch('release-notes-newsletter-banner', ['en']) and not switch('flare26-enabled') %}
   {# Give newsletter landmark a separate aria identifier to the pencil banner: https://github.com/mozilla/bedrock/issues/15958 #}
   {% with aria_label = 'Newsletter' %}
     {% include 'includes/banners/firefox-newsletter.html' %}
@@ -683,9 +696,11 @@
 {% endmacro %}
 
 {% block js %}
-  {% if switch('release-notes-newsletter-banner', ['en']) %}
-    {{ js_bundle('firefox-newsletter-banner') }}
+  {% if switch('flare26_enabled') %}
+    {{ js_bundle('flare-subnav') }}
+  {% else %}
+    {% if switch('release-notes-newsletter-banner', ['en']) %}
+      {{ js_bundle('firefox-newsletter-banner') }}
+    {% endif %}
   {% endif %}
-
-  {% if switch('flare26_enabled') %}{{ js_bundle('flare-subnav') }}{% endif %}
 {% endblock %}
