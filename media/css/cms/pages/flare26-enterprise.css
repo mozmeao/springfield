@@ -1,0 +1,63 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+main.fl-2026-enterprise {
+    background-color: var(--fl-theme-background);
+}
+
+.fl-superheading {
+    display: flex;
+    justify-content: center;
+}
+
+.fl-2026-enterprise-support h2 {
+    margin: 0 auto;
+}
+
+.fl-2026-enterprise-protection {
+    margin: 60px auto;
+    max-inline-size: 60%;
+    text-align: center;
+}
+
+.fl-2026-enterprise-documentation {
+    color: var(--fl-theme-color-brand-text);
+}
+
+.fl-card-grid {
+    margin: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding: 0 var(--token-layout-sm);
+}
+
+.fl-section-download {
+    margin: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding: 0 var(--token-layout-xs);
+}
+
+.fl-section-download h2.fl-heading {
+    margin: 60px auto;
+    text-align: center;
+}
+
+.fl-section-download .fl-body {
+    padding-block-end: 60px;
+}
+
+.mzp-c-menu-list-item,
+.mzp-c-menu-list-item button {
+    margin-block-end: 0;
+}
+
+.mzp-c-menu-list-title > button {
+    margin-block-end: 0;
+    margin: 0;
+}
+
+.is-details .mzp-c-menu-list-list {
+    margin: 0;
+}
