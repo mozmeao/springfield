@@ -24,7 +24,7 @@
 {% block body_id %}firefox{% endblock %}
 
 {% block site_header %}
-  {% with hide_nav_download_button=True and switch("flare26_enabled") %}
+  {% with hide_nav_download_button=True %}
     {% include 'includes/navigation/navigation.html' %}
   {% endwith %}
 {% endblock %}
@@ -322,7 +322,7 @@
           </div>
 
           <div class="enterprise-download-support">
-            <h4 class="{% if switch("flare26_enabled") %}fl-heading{% endif %}enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h4>
+            <h4 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h4>
             <ul class="mzp-u-list-styled">
               <li><a href="https://support.mozilla.org/kb/deploy-firefox-msi-installers/{{ params }}">{{ ftl('firefox-enterprise-msi-installers') }}</a></li>
               <li><a href="https://support.mozilla.org/kb/legacy-browser-support-extension-windows/{{ params }}">{{ ftl('firefox-enterprise-legacy-browser-support') }}</a></li>
