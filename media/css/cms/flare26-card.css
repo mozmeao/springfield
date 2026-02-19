@@ -540,7 +540,6 @@ Illustration Card
     display: flex;
     inline-size: var(--media-size);
     justify-content: center;
-    margin-block-end: var(--token-spacing-lg);
     min-block-size: var(--media-size);
     min-inline-size: var(--media-size);
     padding: var(--media-padding);
