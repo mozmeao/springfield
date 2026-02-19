@@ -83,7 +83,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
 
     /* Divider */
-    --fl-theme-divider-color: var(--token-color-light-purple);
+    --fl-theme-divider-color: var(--token-color-soft-purple);
     --fl-subtle-border-color: var(--token-color-grey-2);
     --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
 
@@ -243,7 +243,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --token-color-error-text-color: var(--token-color-secondary-red);
 
     /* Divider color */
-    --fl-theme-divider-color: var(--token-color-light-purple);
+    --fl-theme-divider-color: var(--token-color-soft-purple);
     --fl-subtle-border-color: var(--token-color-grey-2);
     --fl-theme-divider: 1px solid var(--fl-theme-divider-color);
 
