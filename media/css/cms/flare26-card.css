@@ -75,7 +75,8 @@ Card Grid - Flare 2026 Design System Cards
     }
 
     /* ...unless there are only three, and then it gets a special treatment. */
-    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-card:nth-child(3):last-child) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         inline-size: 100%;
         margin-inline: auto;
@@ -159,6 +160,14 @@ Basic Card
     gap: unset;
     margin: 0;
     padding: 0;
+}
+
+.fl-card a:not(.fl-button) {
+    color: var(--token-color-light-purple);
+}
+
+.fl-card a:not(.fl-button):hover {
+    color: var(--token-color-purple);
 }
 
 /* =====================================================================

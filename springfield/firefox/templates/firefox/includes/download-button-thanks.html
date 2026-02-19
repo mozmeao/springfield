@@ -26,7 +26,12 @@
         extra_class="fl-icon-right" />
     {% else %}
       <span class="mzp-c-button-icon-end">
+        {% if switch("flare26_enabled") %}
         <span class="fl-icon fl-icon-downloads" aria-hidden="true"></span>
+        {% else %}
+        <!-- TODO: replace with new protocol-assets version -->
+        <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
+        {% endif %}
       </span>
     {% endif %}
   </a>

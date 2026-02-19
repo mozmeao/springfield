@@ -1,0 +1,66 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-mobile-store-qr-section,
+.mobile-overview .fl-split-page-upper {
+    padding-block-end: 0;
+}
+
+.fl-mobile-store-qr-section {
+    text-align: center;
+}
+
+.fl-mobile-store-buttons {
+    display: flex;
+    gap: var(--token-layout-3xs);
+    justify-content: center;
+    margin-block-start: var(--fl-section-v-padding);
+}
+
+.ios .fl-mobile-store-buttons .android-download,
+.android .fl-mobile-store-buttons .ios-download {
+    display: none;
+}
+
+.fl-mobile-store-mobile-img {
+    display: block;
+    margin-block: var(--fl-section-v-padding) 0;
+}
+
+.fl-mobile-store-qr-code {
+    align-items: center;
+    aspect-ratio: 636 / 493;
+    background: url('/media/img/firefox/flare/kit-qr.png') bottom center
+        no-repeat transparent;
+    background-size: contain;
+    display: none;
+    inline-size: 100%;
+    justify-content: center;
+    margin: var(--token-layout-sm) auto 0;
+    max-inline-size: 636px;
+    position: relative;
+}
+
+.fl-mobile-store-qr-code svg {
+    block-size: auto;
+    inline-size: 45%;
+    inset: 29% auto auto 25%;
+    position: absolute;
+}
+
+.fl-mobile-store-qr-code svg rect[fill='white'] {
+    fill: transparent;
+}
+
+@media (--viewport-sm-up) {
+    .fl-mobile-store-buttons {
+        display: none;
+    }
+
+    .fl-mobile-store-qr-code {
+        display: flex;
+    }
+}

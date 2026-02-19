@@ -162,11 +162,16 @@ Button - Flare 2026 Design System Buttons
     inline-size: 100%;
 }
 
+.fl-buttons.is-stacked.auto-width-buttons .fl-button {
+    inline-size: auto;
+    margin-inline-end: auto;
+}
+
 .fl-buttons > * {
     display: inline-flex;
 }
 
-.fl-buttons.is-stacked > * {
+.fl-buttons.is-stacked:not(.auto-width-buttons) > * {
     inline-size: 100%;
 }
 
