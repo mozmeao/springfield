@@ -61,3 +61,7 @@ main.fl-2026-enterprise {
 .is-details .mzp-c-menu-list-list {
     margin: 0;
 }
+
+.is-details .mzp-c-menu-list-list.is-closed {
+    display: none
+}
