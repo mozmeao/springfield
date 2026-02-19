@@ -33,12 +33,7 @@
 <main class="{% if switch("flare26_enabled") %}fl-2026-enterprise{% endif %}">
   {% if switch("flare26_enabled") %}
     {% set superheading_text %}
-      <img
-          src="/media/protocol/img/logos/firefox/browser/logo-word-hor.svg"
-          alt="Firefox"
-          width="434"
-          height="80"
-      />
+      <span class="fl-logo-fx"></span>
     {% endset %}
     <include:intro media_position="after" vertical="true">
     <content:heading>
@@ -72,7 +67,7 @@
       <include:heading
         level="h2"
         heading_text="{{ ftl('firefox-enterprise-support-for-organizations') }}"
-        heading_size="heading-size-2"
+        heading_size="fl-heading-size-2"
         alignment_class=""
         subheading_text="{{ ftl('firefox-enterprise-early-access-is') }}"
         subheading_size="fl-subheading-4"
@@ -85,6 +80,7 @@
         link="https://qsurvey.mozilla.com/s3/firefox-support-plan?src=firefox-enterprise-cta"
         theme_class="button-tertiary"
         external="false"
+        alignment_class="fl-2026-enterprise-support"
       />
     </content:actions>
   </include:kit-banner>
@@ -291,7 +287,7 @@
   </div>
 {% endif %}
 <div class="mzp-l-content">
-    <section id="download" class="{% if switch("flare26_enabled") %}fl-section{% else %}enterprise-section enterprise-download{% endif %}">
+    <section id="download" class="{% if switch("flare26_enabled") %}fl-section fl-section-download{% else %}enterprise-section enterprise-download{% endif %}">
       <h2 class="{% if switch("flare26_enabled") %}fl-heading{% else %}enterprise-section-title{% endif %}">{{ ftl('firefox-enterprise-enterprise-downloads') }}</h2>
 
       <div class="enterprise-download-lists">

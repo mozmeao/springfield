@@ -360,39 +360,3 @@ $color-charcoal: #333336;
     @include text-title-2xs;
 }
 
-// * -------------------------------------------------------------------------- */
-// Flare specific styles
-main.fl-2026-enterprise {
-    background-color: $color-white;
-}
-
-.fl-superheading {
-    display: flex;
-    justify-content: center;
-}
-
-.fl-2026-enterprise-protection {
-    max-width: 60%;
-    text-align: center;
-    margin: 60px auto;
-}
-
-.fl-2026-enterprise-documentation {
-    color: var(--token-color-black);
-}
-
-h2.fl-heading {
-    text-align: center;
-    margin: 60px auto;
-}
-
-.fl-card-grid {
-    max-width: var(--token-width-desktop-wide-banner);
-    margin: auto;
-}
-
-#download {
-    max-width: var(--token-width-desktop-wide-banner);
-    margin: auto;
-    padding: 0 var(--token-layout-xs);
-}
