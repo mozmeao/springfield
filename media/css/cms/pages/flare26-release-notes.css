@@ -125,13 +125,22 @@
 }
 
 @media (--viewport-md-up) {
-    /* Essentially recreating Protocol sidebar with sidebar start (inline-start) */
+    /* Essentially recreating Protocol sidebar with sidebar */
     .fl-l-release-notes-with-sidebar {
         column-gap: var(--token-spacing-lg);
         display: grid;
         grid-template-columns:
             [sidebar-start] var(--release-notes-sidebar-inline-size)
             [sidebar-end main-start] 1fr [main-end];
+
+        &.fl-t-sidebar-end {
+            grid-template-columns:
+                [main-start] 1fr
+                [main-end sidebar-start] var(
+                    --release-notes-sidebar-inline-size
+                )
+                [sidebar-end];
+        }
     }
 
     .fl-l-release-notes-sidebar {
