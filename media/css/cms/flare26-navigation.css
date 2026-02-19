@@ -241,6 +241,10 @@
     max-inline-size: var(--token-width-desktop-layout);
 }
 
+.fl-menu-panel-content .fl-icon {
+    color: var(--token-color-nav-icon-purple);
+}
+
 .fl-menu-panel-content ul,
 .fl-menu-panel-content li {
     margin: 0;
@@ -438,7 +442,8 @@
         inline-size: auto;
     }
 
-    .fl-menu-close-button {
+    /* close buttons is only displayed when keyboard nav is being used */
+    .fl-nav-menu:has(*:focus-visible) .fl-menu-close-button {
         display: block;
     }
 
