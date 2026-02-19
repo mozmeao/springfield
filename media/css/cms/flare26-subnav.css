@@ -41,7 +41,10 @@
 }
 
 .fl-subnav-heading {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-sm);
     font-weight: bold;
+    margin-block-end: 0;
 }
 
 .fl-subnav-list {
