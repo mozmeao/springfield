@@ -304,6 +304,7 @@ video[autoplay] {
         }
 
         details {
+            border-block-end: none;
             padding: 0 var(--token-spacing-md);
 
             p {
@@ -312,7 +313,7 @@ video[autoplay] {
             }
 
             summary {
-                color: var(--release-notes-text-color-secondary);
+                color: var(--token-color-black-4);
                 cursor: pointer;
                 display: block;
                 font-size: var(--fl-theme-font-size-body-2xs);
@@ -320,7 +321,17 @@ video[autoplay] {
                 padding: 0 0 var(--token-spacing-xs);
                 position: static;
                 text-decoration: underline;
+
+                &::after {
+                    margin-inline-start: 0;
+                }
             }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            background-color: var(--token-color-soft-purple-2);
+            border-color: var(--token-color-soft-purple-2);
+            color: var(--token-color-black-4);
         }
     }
 
