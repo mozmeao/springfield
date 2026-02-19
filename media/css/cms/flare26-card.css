@@ -197,7 +197,12 @@ Sticker Card
     transform: translateY(-2px);
 }
 
+.fl-sticker-card .fl-heading {
+    color: var(--token-color-black-4);
+}
+
 .fl-sticker-card .fl-heading-group {
+    color: var(--token-color-black-4);
     gap: unset;
     margin: 0;
     padding: 0;
