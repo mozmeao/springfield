@@ -60,6 +60,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     overflow: hidden;
 }
 
+.center-margin {
+    margin-inline: auto;
+}
+
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
    simple here by ensuring these classes only exist when they're needed.
    See the image-variants.html template for conditionals that say

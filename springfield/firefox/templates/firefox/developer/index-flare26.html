@@ -4,14 +4,14 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-page-developer">
-  <main class="fl-main">
+  <main class="fl-main fl-page-developer has-gradient-bottom">
     <div class="fl-section">
-      <div class="fl-section-container is-narrow">
+      <div class="fl-section-container is-medium-width">
         <include:intro media_position="before" vertical full_width>
           <content:heading>
             <include:heading
               level="h1"
+              heading_size="fl-heading-size-1"
               heading_text="{{ ftl('firefox-developer-firefox-developer-edition') }}"
               subheading_text="{{ ftl('firefox-developer-welcome-to-your-new-favorite') }}"
             />
@@ -39,35 +39,28 @@
             </p>
           </content:body>
         </include:intro>
-      </div>
-    </div>
 
-    <div class="fl-section">
-      <div class="fl-section-container">
-        <include:intro vertical media_position="right">
+        <include:media-content media_after>
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-lg"
               superheading_text="{{ ftl('firefox-developer-firefox-developer-edition') }}"
               heading_text="{{ ftl('firefox-developer-made-for-developers') }}"
             />
           </content:heading>
-
-          <content:media>
-            <img src="/media/img/firefox/developer/stylo-engine.svg" aria-hidden />
-          </content:media>
-
           <content:body>
             <p>{{ ftl('firefox-developer-all-the-latest-v2') }}</p>
             <p>{{ ftl('firefox-developer-a-separate-profile') }}</p>
             <p>{{ ftl('firefox-developer-preferences-tailored') }}</p>
           </content:body>
-        </include:intro>
-      </div>
-    </div>
+          <content:media>
+            <img src="/media/img/firefox/developer/stylo-engine.svg" aria-hidden />
+          </content:media>
+        </include:media-content>
 
-    <div class="fl-section fl-highlights">
-      <div class="fl-section-container is-narrow">
+
+
         <include:cards-list>
           <include:illustration-card-2026 expand_link>
             <content:media>
@@ -109,9 +102,6 @@
               </a>
             </content:body>
           </include:illustration-card-2026>
-        </include:cards-list>
-
-        <include:cards-list>
           <include:illustration-card-2026 expand_link>
             <content:media>
               <img src="/media/img/firefox/developer/hero-cssgrid-ani.gif"
@@ -154,11 +144,11 @@
         </include:cards-list>
       </div>
     </div>
-
-    <div class="fl-section fl-developer-features end-of-page has-gradient-bottom">
-      <div class="fl-section-container is-narrow">
+    <div class="fl-section fl-developer-features end-of-page">
+      <div class="fl-section-container is-medium-width">
         <include:heading
           level="h2"
+          heading_size="fl-heading-lg"
           alignment_class="text-center"
           superheading_text="{{ ftl('firefox-developer-design-code-test') }}"
           heading_text="{{ ftl('firefox-developer-build-and-perfect') }}"
@@ -337,10 +327,7 @@
         </include:cards-list>
       </div>
     </div>
-  </main>
-
-  <div class="fl-force-dark-theme">
-    <div class="fl-section is-narrow">
+    <div class="fl-section is-narrow fl-force-dark-theme">
       <div class="fl-section-container">
         <include:newsletter-form newsletters='app-dev' theme="dark">
           <include:heading
@@ -353,60 +340,52 @@
     </div>
 
     <div class="fl-section">
-      <div class="fl-section-container is-narrow">
-        <div class="fl-engage-grid">
-          <div class="fl-engage-item">
-            <img src="/media/img/firefox/developer/icon-speak.svg" width="64" loading="lazy" aria-hidden />
+      <div class="fl-section-container">
+        <include:cards-list>
+          <include:card>
+            <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-xs"
               heading_text="{{ ftl('firefox-developer-speak-up') }}"
-              subheading_text="{{ ftl('firefox-developer-feedback-makes-us') }}"
             />
-            <a href="https://discourse.mozilla.org/c/devtools">{{ ftl('firefox-developer-join-the-convo') }}</a>
-          </div>
+            </content:heading>
+            <content:sticker>
+              <img src="/media/img/firefox/developer/icon-speak.svg" width="64" loading="lazy" aria-hidden />
+            </content:sticker>
+            <content:body>
+              <p>{{ ftl('firefox-developer-feedback-makes-us') }}</p>
+            </content:body>
+            <content:buttons>
+              <include:button
+                link="https://discourse.mozilla.org/c/devtools"
+                label="{{ ftl('firefox-developer-join-the-convo') }}"
+              />
+            </content:buttons>
+          </include:card>
 
-          <div class="fl-engage-item">
-            <img src="/media/img/firefox/developer/icon-involved.svg" width="64" loading="lazy" aria-hidden />
+          <include:card>
+            <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-xs"
               heading_text="{{ ftl('firefox-developer-get-involved') }}"
-              subheading_text="{{ ftl('firefox-developer-help-build-the-last') }}"
             />
-            <a href="https://firefox-dev.tools/">{{ ftl('firefox-developer-start-now') }}</a>
-          </div>
-        </div>
+            </content:heading>
+            <content:sticker>
+              <img src="/media/img/firefox/developer/icon-involved.svg" width="64" loading="lazy" aria-hidden />
+            </content:sticker>
+            <content:body>
+              <p>{{ ftl('firefox-developer-help-build-the-last') }}</p>
+            </content:body>
+            <content:buttons>
+              <include:button
+                link="https://firefox-dev.tools/"
+                label="{{ ftl('firefox-developer-start-now') }}"
+              />
+            </content:buttons>
+          </include:card>
+        </include:cards-list>
       </div>
     </div>
-
-    <div class="fl-section">
-      <div class="fl-section-container is-narrow">
-        <include:intro slim vertical full_width media_position="before">
-          <content:heading>
-            <include:heading
-              level="h2"
-              heading_text="{{ ftl('firefox-developer-download-the-firefox-browser') }}"
-            />
-          </content:heading>
-
-          <content:body>
-            <div class="fl-buttons is-horizontal">
-              {{ download_firefox_thanks(
-                alt_copy=ftl('firefox-developer-firefox-developer-edition'),
-                dom_id='footer-download',
-                button_class='download-cta',
-                download_location='footer cta',
-                flare_styles=True,
-              ) }}
-            </div>
-          </content:body>
-
-          <content:media>
-            <img src="/media/img/firefox/developer/browser.png"
-              srcset="/media/img/firefox/developer/browser-high-res.png 2x"
-              aria-hidden />
-          </content:media>
-        </include:intro>
-      </div>
-    </div>
-  </div>
-</div>
+  </main>
