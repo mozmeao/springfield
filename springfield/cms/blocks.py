@@ -840,16 +840,6 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{headline}"
             template = "cms/blocks/media-content.html"
 
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
-
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image, not both.")
-            return cleaned_data
-
     return _MediaContentBlock(*args, **kwargs)
 
 
@@ -1838,16 +1828,6 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/sections/banner.html"
             label = "Banner"
             label_format = "{heading}"
-
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
-
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image/QR code, not both.")
-            return cleaned_data
 
     return _BannerBlock(*args, **kwargs)
 
