@@ -42,10 +42,9 @@
   {% endif %}
 {% endblock %}
 
-{% block site_header %}
-  {% with hide_nav_download_button=True %}
-    {% include 'includes/navigation/navigation.html' %}
-  {% endwith %}
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header theme="dark" />
 {% endblock %}
 
 {% block content %}
