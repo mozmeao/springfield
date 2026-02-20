@@ -32,6 +32,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);
+    --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
+    --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -103,7 +105,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
+    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --cloud-background-gradient: linear-gradient(
         180deg,
         #fff44f 0%,
@@ -158,6 +160,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* User privacy sidebar */
     --sidebar-text-color: var(--token-color-grey-3);
     --sidebar-selected-text-color: var(--token-color-black-4);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -242,6 +245,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* User privacy sidebar */
     --sidebar-text-color: var(--token-color-soft-purple-4);
     --sidebar-selected-text-color: var(--token-color-white);
+
+    /* buttons are mostly the same for both dark and light mode. */
+    --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
+    --fl-subnav-bg: var(--token-gradient-subnav-dark);
 }
 
 .fl-force-light-theme {
@@ -270,7 +277,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Cards */
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
-    --fl-theme-illustration-icon-bg: var(--token-color-secondary-orange);
+    --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
 
@@ -310,6 +317,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* User privacy sidebar */
     --sidebar-text-color: var(--token-color-grey-3);
     --sidebar-selected-text-color: var(--token-color-black-4);
+
+    /* buttons */
+    --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -394,6 +405,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* User privacy sidebar */
         --sidebar-text-color: var(--token-color-soft-purple-4);
         --sidebar-selected-text-color: var(--token-color-white);
+
+        /* buttons are mostly the same for both dark and light mode. */
+        --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
+        --fl-subnav-bg: var(--token-gradient-subnav-dark);
     }
 }
 

@@ -70,6 +70,10 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'pages/flare26-user-privacy.css' layer(page);
 @import 'pages/flare26-channels.css' layer(page);
 @import 'pages/flare26-cookie-settings.css' layer(page);
+@import 'pages/flare26-releases.css' layer(page);
+@import 'pages/flare26-system-requirements.css' layer(page);
+@import 'pages/flare26-developer-edition.css' layer(page);
+@import 'pages/flare26-year-in-review.css' layer(page);
 @import 'pages/flare26-enterprise.css' layer(page);
 @import 'pages/flare26-release-notes.css' layer(page);
 @import 'pages/flare26-mobile-pages.css' layer(page);

@@ -4,64 +4,82 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
+{% extends base_template %}
 
 {% block page_title %}Firefox Release Notes{% endblock %}
 {% block page_desc %}Release notes for each version of Firefox.{% endblock %}
 {% block body_id %}firefox-releases-index{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('firefox_releases_index') }}
-
-  {% if switch('release-notes-newsletter-banner', ['en']) %}
-    {{ css_bundle('firefox-newsletter-banner') }}
+  {% if not switch("flare26_enabled") %}
+    {{ css_bundle('firefox_releases_index') }}
+    {% if switch('release-notes-newsletter-banner', ['en']) %}
+      {{ css_bundle('firefox-newsletter-banner') }}
+    {% endif %}
   {% endif %}
 {% endblock %}
 
 {% block body_class %}{{ super() }} mzp-t-firefox{% endblock %}
 
 {% block content %}
-  <main id="main-content" class="mzp-l-content">
-    <a href="{{ url('firefox') }}">
-      <span class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox">Firefox</span>
-    </a>
-    <h1>Firefox Releases</h1>
-    <p>Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it.</p>
-    <ol reversed class="c-release-list">
+  <main id="main-content" class="mzp-l-content {% if switch('flare26_enabled') %}fl-releases fl-main{% endif %}">
+    {% if switch('flare26_enabled') %}
+        <!-- TODO: change logo according to product -->
+        {% set intro_heading = 'Firefox <span class="fl-fx-logo">‍</span> Releases' %}
+        <!-- TODO: fix heading 2xl being overridden by intro heading -->
+        <include:intro vertical>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-2xl"
+              heading_text="{{ intro_heading | safe }}"
+              subheading_text="Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it."
+            />
+          </content:heading>
+        </include:intro>
+      {% else %}
+        <a href="{{ url('firefox') }}">
+          <span class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox">Firefox</span>
+        </a>
+        <h1>Firefox Releases</h1>
+        <p>Firefox release notes are specific to each version of the application. Select your version from the list below to see the release notes for it.</p>
+      {% endif %}
+    <ol reversed class="c-release-list fl-c-releases-list">
       {% for int_version, versions in releases -%}
       <li>
-        <strong>{{ get_link(int_version, versions.major) }}</strong>
+        <strong>{% if switch('flare26_enabled') %}{{ get_flare_link(int_version, versions.major, 'primary') }}{% else %}{{ get_link(int_version, versions.major) }}{% endif %}</strong>
         {% if versions.minor -%}
-        <ol>
+        <ol class="fl-c-releases-list-minor">
           {% for version in versions.minor -%}
-          <li>{{ get_link(int_version, version) }}</li>
+          <li>{% if switch('flare26_enabled') %}{{ get_flare_link(int_version, version, 'secondary') }}{% else %}{{ get_link(int_version, version) }}{% endif %}</li>
           {% endfor -%}
         </ol>
         {% endif -%}
       </li>
       {% endfor -%}
       <li>
-        <strong><a href="/firefox/releases/0.1.html">0.1</a></strong>
-        <ol>
-          <li><a href="/firefox/releases/0.2.html">0.2</a></li>
-          <li><a href="/firefox/releases/0.3.html">0.3</a></li>
-          <li><a href="/firefox/releases/0.4.html">0.4</a></li>
-          <li><a href="/firefox/releases/0.5.html">0.5</a></li>
-          <li><a href="/firefox/releases/0.6.html">0.6</a></li>
-          <li><a href="/firefox/releases/0.6.1.html">0.6.1</a></li>
-          <li><a href="/firefox/releases/0.7.html">0.7</a></li>
-          <li><a href="/firefox/releases/0.7.1.html">0.7.1</a></li>
-          <li><a href="/firefox/releases/0.8.html">0.8</a></li>
-          <li><a href="/firefox/releases/0.9.html">0.9</a></li>
-          <li><a href="/firefox/releases/0.9.1.html">0.9.1/0.9.2</a></li>
-          <li><a href="/firefox/releases/0.9.3.html">0.9.3</a></li>
-          <li><a href="/firefox/releases/0.10.html">1.0 Preview Release</a></li>
+        <strong><a class="fl-c-pill fl-t-pill-primary" href="/firefox/releases/0.1.html">0.1{% if switch('flare26_enabled') %}.0{% endif %}</a></strong>
+        <ol class="fl-c-releases-list-minor">
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.2.html">0.2</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.3.html">0.3</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.4.html">0.4</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.5.html">0.5</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.6.html">0.6</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.6.1.html">0.6.1</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.7.html">0.7</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.7.1.html">0.7.1</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.8.html">0.8</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.9.html">0.9</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.9.1.html">0.9.1/0.9.2</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.9.3.html">0.9.3</a></li>
+          <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.10.html">1.0 Preview Release</a></li>
         </ol>
       </li>
     </ol>
   </main>
 
-  {% if switch('release-notes-newsletter-banner', ['en']) %}
+  {% if switch('release-notes-newsletter-banner', ['en']) and not switch('flare26-enabled')%}
     {# Give newsletter landmark a separate aria identifier to the pencil banner: https://github.com/mozilla/bedrock/issues/15958 #}
     {% with aria_label = 'Newsletter' %}
       {% include 'includes/banners/firefox-newsletter.html' %}
@@ -77,8 +95,19 @@
   {%- endif -%}
 {% endmacro %}
 
+{% macro get_flare_link(int_version, version, theme) %}
+  <!-- Add .0 for primary (Major) release text. Link must remain in versions.major format -->
+  {%- if int_version < 2 -%}
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/releases/{{ version }}.html">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
+  {%- else -%}
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
+  {%- endif -%}
+{% endmacro %}
+
 {% block js %}
+{% if not switch("flare26_enabled") %}
   {% if switch('release-notes-newsletter-banner', ['en']) %}
     {{ js_bundle('firefox-newsletter-banner') }}
   {% endif %}
+{% endif %}
 {% endblock %}

@@ -506,3 +506,9 @@
         margin-inline-end: 0;
     }
 }
+
+@media (pointer: coarse) and (--viewport-md-up) {
+    .fl-nav-menu .fl-menu-close-button {
+        display: block;
+    }
+}

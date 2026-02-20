@@ -11,14 +11,9 @@
 }
 
 .fl-subnav {
-    background: linear-gradient(
-        90deg,
-        var(--token-color-dark-purple) 0%,
-        var(--token-color-purple) 50%,
-        var(--token-color-dark-purple) 100%
-    );
+    background: var(--fl-subnav-bg);
     display: block;
-    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    padding: var(--token-spacing-md) var(--fl-section-h-padding);
     position: relative;
 }
 
@@ -95,7 +90,7 @@
         display: flex;
         gap: var(--token-spacing-md);
         justify-content: space-between;
-        padding: var(--token-spacing-xl) var(--token-spacing-md);
+        padding: var(--token-spacing-xl) var(--fl-section-h-padding);
     }
 
     .fl-subnav-toggle {
