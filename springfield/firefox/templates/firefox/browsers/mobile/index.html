@@ -78,8 +78,8 @@
               {% set android_url = play_store_url('firefox', campaign) %}
               {% set ios_url = app_store_url('firefox', campaign) %}
 
-              {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
-              {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
+              {{ google_play_button(href=android_url, id="android-download", class_name="fl-store-button android-download") }}
+              {{ apple_app_store_button(href=ios_url, id="ios-download", class_name="fl-store-button ios-download") }}
             </div>
             <img class="display-xs-and-sm fl-mobile-store-mobile-img" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
           </div>
