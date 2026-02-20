@@ -197,7 +197,7 @@
     -webkit-appearance: none;
     background: var(--fl-theme-background);
     block-size: 19px;
-    border: 1px solid var(--token-color-grey-3);
+    border: 1px solid var(--token-color-light-purple);
     border-radius: 5px;
     cursor: pointer;
     flex-shrink: 0;
@@ -216,14 +216,19 @@
     text-align: start;
 }
 
+.fl-newsletterform-checkbox-label input[type='checkbox']:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .fl-newsletterform-checkbox-label input[type='checkbox']:checked {
-    background: #f60;
-    border-color: #f60;
+    background: var(--token-color-light-purple);
+    border-color: var(--token-color-light-purple);
 }
 
 .fl-newsletterform-checkbox-label input[type='checkbox']:checked::after {
     block-size: 9px;
-    border: 2px solid var(--fl-theme-color-text);
+    border: 2px solid var(--token-color-white);
     border-block-start: 0;
     border-inline-start: 0;
     content: '';
