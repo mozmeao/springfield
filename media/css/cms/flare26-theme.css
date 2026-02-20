@@ -28,12 +28,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
+    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -196,7 +199,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
     --content-dark-mode-only: '';
     --fl-sticker-card-bg: var(--token-color-soft-purple);
-    --fl-theme-surface-card-gradient: transparent;
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
 
     /* homepage card grid styles */
@@ -249,6 +253,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-purple);
+    --fl-theme-button-bg-primary-disabled-color: var(
+        --token-color-soft-purple-4
+    );
 }
 
 .fl-force-light-theme {
@@ -280,6 +288,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
 
     /* Notifications */
 
@@ -321,6 +331,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
+    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -354,7 +366,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-step-card-index-bg: var(--token-color-dark-purple);
         --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
         --content-dark-mode-only: '';
-        --fl-theme-surface-card-gradient: transparent;
+        --fl-theme-surface-card-gradient: var(--token-gradient-light);
+        --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
 
         /* homepage card grid styles */
@@ -409,6 +422,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
+        --fl-theme-button-bg-primary-disabled-bg: var(
+            --token-color-soft-purple-2
+        );
+        --fl-theme-button-bg-primary-disabled-color: var(
+            --token-color-soft-purple-4
+        );
     }
 }
 

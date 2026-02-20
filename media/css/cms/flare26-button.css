@@ -21,6 +21,7 @@ Button - Flare 2026 Design System Buttons
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: 600;
     gap: var(--token-spacing-md);
+    justify-content: center;
     line-height: 1;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     text-decoration: none;
@@ -132,9 +133,10 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
 /* Disabled state */
 .fl-button:disabled,
 .fl-button[disabled] {
-    background-color: var(--token-color-soft-purple);
-    color: var(--token-color-link-purple);
+    background-color: var(--fl-theme-button-bg-primary-disabled-bg);
+    color: var(--fl-theme-button-bg-primary-disabled-color);
     cursor: not-allowed;
+    opacity: 1;
 }
 
 /* Button icons */
