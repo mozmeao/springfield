@@ -147,7 +147,7 @@ Basic Card
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
-    color: var(--token-color-black-4);
+    color: var(--fl-theme-color-text);
     padding: var(--token-spacing-2xl);
     position: relative;
     transition:
@@ -164,6 +164,23 @@ Basic Card
     gap: unset;
     margin: 0;
     padding: 0;
+}
+
+/* .fl-card a:not(.fl-button) {
+    color: var(--token-color-light-purple);
+}
+
+.fl-card a:not(.fl-button):hover {
+    color: var(--token-color-purple);
+} */
+
+.fl-card .fl-buttons {
+    margin-block-start: var(--token-spacing-xl);
+}
+
+.fl-card .learn-more-link {
+    display: block;
+    margin-block: var(--token-spacing-md);
 }
 
 /* =====================================================================
