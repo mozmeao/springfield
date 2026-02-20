@@ -7,31 +7,30 @@
 <main class="fl-main fl-mobile-subpage">
 
   <div class="fl-split-page-upper end-of-page has-gradient-bottom">
-    <div class="fl-section">
-      <div class="fl-section-container">
-        <include:intro slim vertical media_position="right">
-          <content:heading>
-            <img src="/media/protocol/img/logos/firefox/browser/logo-word-hor-white.svg" aria-hidden />
-            <include:heading
-              level="h1"
-              heading_text="{{ ftl('mobile-android-short-cut-the-internet') }}"
-              subheading_text="{{ ftl('mobile-android-see-all-your-open-tabs') }}"
-            />
-          </content:heading>
+    <div class="fl-section-container">
+      <include:intro slim vertical media_position="right">
+        <content:heading>
+          <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/logo-word-hor-white.svg" aria-hidden />
+          <include:heading
+            level="h1"
+            heading_size="fl-heading-size-1"
+            heading_text="{{ ftl('mobile-android-short-cut-the-internet') }}"
+            subheading_text="{{ ftl('mobile-android-see-all-your-open-tabs') }}"
+          />
+        </content:heading>
 
-          <content:actions>
-            <div class="fl-mobile-download-buttons">
-              {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
-            </div>
-          </content:actions>
+        <content:actions>
+          <div class="fl-mobile-download-buttons">
+            {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+          </div>
+        </content:actions>
 
-          <content:media>
-            <div class="fl-card fl-mobile-download-form">
-              {% include 'firefox/browsers/mobile/includes/s2d-android.html' %}
-            </div>
-          </content:media>
-        </include:intro>
-      </div>
+        <content:media>
+          <div class="fl-card fl-mobile-download-form">
+            {% include 'firefox/browsers/mobile/includes/s2d-android.html' %}
+          </div>
+        </content:media>
+      </include:intro>
     </div>
   </div>
 

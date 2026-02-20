@@ -11,9 +11,10 @@
       <div class="fl-section-container">
         <include:intro slim vertical media_position="right">
           <content:heading>
-            <img src="/media/protocol/img/logos/firefox/browser/{% if LANG=='de' %}klar{% else %}focus{% endif %}/logo-word-hor-white.svg" aria-hidden />
+            <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/{% if LANG=='de' %}klar{% else %}focus{% endif %}/logo-word-hor-white.svg" aria-hidden />
             <include:heading
               level="h1"
+              heading_size="fl-heading-size-1"
               heading_text="{{ ftl('mobile-focus-simply-private-mobile') }}"
               subheading_text="{{ ftl('mobile-focus-firefox-focus-dedicated-with-v2') }}"
             />

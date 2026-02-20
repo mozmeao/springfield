@@ -1,5 +1,7 @@
 /* stylelint-disable selector-id-pattern */
 
+/* todo: fix over-reliance on body classes */
+
 .fl-mobile-subpage #playStoreLink-primary img,
 .fl-mobile-subpage #playStoreLink-footer img {
     min-block-size: 45px;
@@ -9,11 +11,58 @@
     background-color: var(--theme-purple-card-bg-color);
 }
 
-.fl-mobile-subpage .fl-section:first-child {
+.fl-mobile-subpage,
+.fl-mobile-subpage .fl-section:first-child,
+.fl-mobile-subpage .fl-split-page-lower {
+    overflow: hidden;
     padding-block: 0;
 }
 
-.fl-mobile-subpage .fl-mobile-download-form {
+.fl-mobile-subpage .fl-split-page-upper .fl-subheading {
+    font-size: var(--fl-theme-font-size-body-md);
+}
+
+.fl-mobile-subpage .fl-split-page-lower .fl-subheading {
+    max-inline-size: 47ch;
+    text-wrap: balance;
+}
+
+.fl-mobile-subpage .fl-intro:not(.fl-intro-has-media) .fl-subheading {
+    margin-inline: auto;
+}
+
+.fl-mobile-download-form {
+    text-align: center;
+}
+
+.fl-mobile-download-form .mzp-c-field-label {
+    display: block;
+    font-size: var(--fl-theme-font-size-body-md);
+    font-weight: var(--token-font-weight-semibold);
+    margin-block-end: var(--token-spacing-sm);
+    text-align: center;
+}
+
+.fl-mobile-download-form .qr-code-wrapper {
+    margin: 0;
+}
+
+.fl-mobile-download-form .qr-code-wrapper svg {
+    margin-block-end: 0;
+}
+
+.fl-mobile-download-form .qr-code-wrapper svg rect {
+    fill: transparent;
+}
+
+.fl-mobile-download-form .qr-code-wrapper svg path {
+    fill: var(--fl-theme-color-text);
+}
+
+.fl-mobile-download-form .mzp-c-button-info {
+    font-size: var(--fl-theme-font-size-body-xs);
+    margin-block-start: var(--token-spacing-sm);
+    max-inline-size: 38ch;
     text-align: center;
 }
 
@@ -28,4 +77,28 @@
 .fl-mobile-subpage .fl-mobile-download-buttons img {
     margin: 0;
     min-block-size: 45px;
+}
+
+.fl-mobile-subpage .fl-intro-media > img {
+    border-radius: 0;
+    max-inline-size: 40vw;
+}
+
+.heading-logo {
+    display: block;
+    inline-size: 100%;
+    margin-block-end: var(--token-spacing-xl);
+    margin-inline: auto;
+    max-inline-size: 180px;
+}
+
+@media (--viewport-sm-up) {
+    .heading-logo {
+        margin-inline: 0;
+        max-inline-size: 280px;
+    }
+
+    .fl-mobile-subpage .fl-intro-media {
+        max-inline-size: unset;
+    }
 }

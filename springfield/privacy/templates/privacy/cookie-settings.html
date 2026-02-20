@@ -20,11 +20,7 @@
 
 {% block site_header %}
   {% with hide_nav_cta=True %}
-    {% if switch('flare26_enabled') %}
       <include:flare26-header />
-    {% else %}
-      {% include 'includes/navigation/navigation.html' %}
-    {% endif %}
   {% endwith %}
 {% endblock %}
 
