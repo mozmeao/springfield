@@ -7,6 +7,7 @@ import pytest
 from pages.firefox.enterprise.landing import EnterprisePage
 
 
+@pytest.mark.skip("This needs Flare26 update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_primary_download_links_are_displayed(base_url, selenium):
