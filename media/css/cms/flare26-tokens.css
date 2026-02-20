@@ -78,9 +78,11 @@ Static values extracted from Figma that do not change based on context.
         #ae49ec 0%,
         #210340 100%
     );
-    --token-gradient-subnav: linear-gradient(0deg,
-                var(--token-color-dark-purple) 0%,
-                #3a0f6e 100%);
+    --token-gradient-subnav: linear-gradient(
+        0deg,
+        var(--token-color-dark-purple) 0%,
+        #3a0f6e 100%
+    );
 
     /* Light and dark gradients */
     --token-gradient-light: linear-gradient(
