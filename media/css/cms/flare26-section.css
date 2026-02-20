@@ -32,6 +32,10 @@
     max-inline-size: var(--token-width-desktop-content-lg);
 }
 
+.fl-section-container.is-medium-width {
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
 .fl-heading,
 .fl-heading-group {
     color: var(--fl-theme-color-text);
