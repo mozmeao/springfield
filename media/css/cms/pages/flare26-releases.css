@@ -12,21 +12,22 @@
     font-size: var(--token-font-size-sm);
     font-weight: var(--token-font-weight-medium);
     line-height: 1;
-    padding: var(--token-spacing-md) var(--token-spacing-lg);
+    padding: var(--token-spacing-sm) var(--token-spacing-lg);
     text-decoration: none; /* reset links */
 }
 
 .fl-t-pill-primary {
-    background-color: var(--token-color-soft-purple-2);
+    background-color: var(--fl-theme-pill-bg-color-primary);
+    color: var(--fl-theme-color-text);
 
     &:hover,
     &:focus {
-        background-color: var(--token-color-light-purple);
+        background-color: var(--fl-theme-pill-bg-color-hover);
         color: var(--token-color-white);
     }
 
     &:active {
-        background-color: var(--token-color-link-purple);
+        background-color: var(--fl-theme-pill-bg-color-hover);
         color: var(--token-color-white);
     }
 }
@@ -76,23 +77,6 @@
     gap: var(--token-spacing-md) var(--token-spacing-sm);
 }
 
-/* applying Protocol clearfix mixin: https://github.com/mozilla/protocol/blob/d20837b673633ea2587e0290ce2e3354d32e1f79/assets/sass/protocol/includes/mixins/_utils.scss#L10 */
-.fl-releases::after {
-    block-size: 0;
-    clear: both;
-    content: '';
-    display: block;
-    visibility: hidden;
-}
-
-.fl-c-releases-list li::after {
-    block-size: 0;
-    clear: both;
-    content: '';
-    display: block;
-    visibility: hidden;
-}
-
 /* Copied layout from releases-index.scss, lightly updated for Flare
 NOTE: this should be refactored to remove float layout */
 .c-release-list {
@@ -105,6 +89,8 @@ NOTE: this should be refactored to remove float layout */
 
     li {
         border-block-start: var(--fl-theme-divider);
+        display: flex;
+        gap: var(--token-spacing-xs);
         margin-block-end: 0; /* Flare default override */
         padding: var(--token-spacing-md) 0;
 
@@ -113,13 +99,12 @@ NOTE: this should be refactored to remove float layout */
         }
 
         strong {
-            float: inline-start;
-            inline-size: 6em;
+            display: block;
+            flex-shrink: 0;
+            min-inline-size: 6em;
         }
 
         ol {
-            margin-inline-start: 6em;
-
             li {
                 border: 0 none;
                 padding: 0;
