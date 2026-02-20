@@ -152,6 +152,41 @@
 {% else %}
   {% set current_page = request.path %}
 {% endif %}
+{% if switch ('flare26_enabled') %}
+  <nav class="c-sub-navigation fl-subnav fl-force-dark-theme" aria-labelledby="c-sub-navigation-title">
+    <div class="c-sub-navigation-content fl-subnav-heading-wrap">
+      <h2 id="c-sub-navigation-title" class="c-sub-navigation-title fl-subnav-heading">
+        {% if title.href %}
+          <a href="{{ title.href }}" data-link-position="subnav" {% if title.cta_name %}data-link-text="{{ title.cta_name }}"{% endif %}>
+            {% if title.icon %}<img class="c-sub-navigation-icon" src="{{ title.icon }}" width="24" height="24" alt="">{% endif %}
+            {{ title.text }}
+          </a>
+        {% else %}
+          {% if title.icon %}<img class="c-sub-navigation-icon" src="{{ title.icon }}" width="24" height="24" alt="">{% endif %}
+          {{ title.text }}
+        {% endif %}
+      </h2>
+      <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
+        <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+        <i class="fl-icon fl-icon-chevron-down"></i>
+      </button>
+    </div>
+    <ul class="c-sub-navigation-list is-details is-closed fl-subnav-list" data-testid="sub-navigation-menu">
+      {% for link in links %}
+      <li class="c-sub-navigation-item">
+        <a
+          href="{{ link.href }}"
+          data-link-position="subnav"
+          data-link-text="{{ link.cta_name }}"
+          {% if current_page == link.href %} aria-current="page"{% endif %}
+        >
+          {{ link.text }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+</nav>
+{% else %}
 <nav class="c-sub-navigation" aria-labelledby="c-sub-navigation-title">
   <div class="mzp-l-content">
     <div class="c-sub-navigation-content">
@@ -186,6 +221,7 @@
     </div>
   </div>
 </nav>
+{% endif %}
 {%- endmacro %}
 
 {% macro video_modal_embed(id='', title='', image='', start='0', cta_title=ftl('ui-watch-the-video')) -%}

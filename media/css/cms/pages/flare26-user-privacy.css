@@ -6,12 +6,16 @@
     padding-block-start: 0;
 }
 
+.fl-page-user-privacy .fl-section.has-gradient-bottom::before {
+    --gradient-height: 30vh;
+}
+
 /* faking the bottom of .fl-main because position:sticky and overflow: hidden don't play nicely together. */
 .fl-page-user-privacy .fl-section:last-child {
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     overflow: hidden;
-    padding-block: 0 var(--fl-theme-main-border-radius);
+    padding-block-end: var(--fl-theme-main-border-radius);
 }
 
 .fl-page-user-privacy .fl-section:last-child .fl-intro {

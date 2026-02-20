@@ -35,6 +35,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     font-weight: var(--token-font-weight-medium);
 }
 
+.fl-u-font-semibold {
+    font-weight: var(--token-font-weight-semibold);
+}
+
 .fl-u-text-uppercase {
     text-transform: uppercase;
 }
@@ -54,6 +58,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     white-space: nowrap;
     clip: rect(0 0 0 0);
     overflow: hidden;
+}
+
+.center-margin {
+    margin-inline: auto;
 }
 
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
