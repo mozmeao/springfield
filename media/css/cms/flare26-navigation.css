@@ -233,8 +233,11 @@
 
 .fl-menu-panel .fl-button {
     display: block;
-    font-family: var(--token-font-family-mozilla-headline);
     text-align: center;
+}
+
+.fl-menu-panel .fl-button:hover {
+    text-decoration: none;
 }
 
 .fl-menu-panel-content {
@@ -501,5 +504,11 @@
 
     .fl-menu-panel-content-column:last-child {
         margin-inline-end: 0;
+    }
+}
+
+@media (pointer: coarse) and (--viewport-md-up) {
+    .fl-nav-menu .fl-menu-close-button {
+        display: block;
     }
 }

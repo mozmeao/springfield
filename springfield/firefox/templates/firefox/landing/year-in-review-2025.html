@@ -4,7 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
+{% extends base_template %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
@@ -18,163 +19,11 @@
 {% block body_class %}yir-2025{% endblock %}
 
 {% block content %}
-  <main>
-    <section class="mzp-c-callout c-intro">
-        <div class="mzp-l-content mzp-t-content-md">
-            <div class="mzp-c-callout-content">
-                <div class="mzp-t-callout-brand mzp-c-logo mzp-t-logo-xl mzp-t-product-firefox"></div>
-                <h1 class="mzp-c-callout-title mzp-u-title-xl">We don’t keep tabs on what you do</h1>
-                <div class="mzp-c-callout-desc">
-                    <p>
-                      A year in review needs personal data.
-                    </p>
-                    <p>Firefox is designed to protect your privacy instead.
-                      </p>
-                    <p>So, there’s no personalized recap here &mdash; just a thank you for choosing a browser that puts
-                      people first and treats privacy as a principle, not a perk. 🫶
-                    </p>
-                    <div class="is-firefox-show is-firefox-not-default-show">
-                      <a
-                        id="set-as-default-button"
-                        class="mzp-c-button mzp-t-product mzp-t-primary mzp-t-xl"
-                        href="{{ url('firefox.default.thanks') }}"
-                        data-cta-text="Make Firefox my default browser"
-                        data-cta-position="primary"
-                        role="button"
-                        aria-label="Make Firefox my default browser"
-                        >
-                        Make Firefox my default browser
-                      </a>
-                    </div>
-                    <div class="is-not-firefox-show">
-                      {{ download_firefox_thanks() }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {# TITLE + PICTO COMPONENTS IN ONE SECTION #}
-    <section class="mzp-l-content mzp-t-content-xl c-protect" aria-label="Firefox 2025 highlights">
-      <h2 class="mzp-c-section-heading">Firefox 2025 year in review</h2>
-
-      <div class="mzp-l-columns mzp-t-columns-three mzp-t-picto">
-
-        {# Stat 1 – trackers blocked (shield icon) #}
-        <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image">
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
-              alt="Shield."
-              width="60"
-              height="70"
-            >
-          </div>
-
-          <h3 class="mzp-c-picto-heading">
-            <div class="mzp-u-title-sm">1+ trillion</div>
-            trackers blocked
-          </h3>
-
-          <div class="mzp-c-picto-body">
-            <p>
-              Firefox automatically blocks trackers to stop companies from following you around the web.
-            </p>
-            <p>
-              <a href="https://www.firefox.com/en-US/user-privacy/" class="mzp-c-cta-link">
-                {{ ftl('ui-learn-more') }}
-              </a>
-            </p>
-          </div>
-        </section>
-
-        {# Stat 2 – users protected (heart icon) #}
-        <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image">
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
-              alt="Heart."
-              width="79"
-              height="70"
-            >
-          </div>
-
-          <h3 class="mzp-c-picto-heading">
-            <div class="mzp-u-title-sm">200+ million</div>
-            people protected
-          </h3>
-
-          <div class="mzp-c-picto-body">
-            <p>
-              Our browser is built around you. We've been putting people over profits for more than 20 years.
-            </p>
-            <p>
-              <a href="{{ url('firefox.features.private') }}" class="mzp-c-cta-link">
-                {{ ftl('ui-learn-more') }}
-              </a>
-            </p>
-          </div>
-        </section>
-
-        {# Stat 3 – new features (update icon) #}
-        <section class="mzp-c-picto">
-          <div class="mzp-c-picto-image">
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
-              alt="Lightning."
-              width="36"
-              height="70"
-            >
-          </div>
-
-          <h3 class="mzp-c-picto-heading">
-            <div class="mzp-u-title-sm">110</div>
-            new features
-          </h3>
-
-          <div class="mzp-c-picto-body">
-            <p>
-              You spoke, and we listened. This year we built many ideas submitted by the community,
-              with even more on the way.
-            </p>
-            <p>
-              <a href="https://blog.mozilla.org/en/firefox/firefox-2025-updates/" class="mzp-c-cta-link">
-                {{ ftl('ui-learn-more') }}
-              </a>
-            </p>
-          </div>
-        </section>
-
-      </div>
-    </section>
-
-    {# DEFAULT CTA #}
-    <section class="mzp-c-callout mzp-t-background-secondary is-firefox-default-hide">
-        <div class="mzp-l-content mzp-t-content-lg">
-            <div class="mzp-c-callout-content">
-                <h2 class="mzp-c-callout-title">This year, put your privacy protection on autopilot</h2>
-                <div class="mzp-c-callout-desc">
-                  <div class="is-firefox-show">
-                      <a
-                        id="set-as-default-button-end"
-                        class="mzp-c-button mzp-t-product mzp-t-primary"
-                        href="{{ url('firefox.default.thanks') }}"
-                        data-cta-text="Make Firefox my default browser"
-                        data-cta-position="secondary"
-                        role="button"
-                        aria-label="Make Firefox my default browser"
-                      >
-                        Make Firefox my default browser
-                      </a>
-                    </div>
-                    <div class="is-not-firefox-show">
-                      {{ download_firefox_thanks() }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-  </main>
+  {% if switch("flare26_enabled") %}
+    {% include "firefox/landing/year-in-review-2025-flare26.html" %}
+  {% else %}
+    {% include "firefox/landing/year-in-review-2025-protocol.html" %}
+  {% endif %}
 {% endblock %}
 
 {% block js %}

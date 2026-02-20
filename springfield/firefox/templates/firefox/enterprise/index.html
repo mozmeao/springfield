@@ -30,24 +30,27 @@
 {% endblock %}
 
 {% block content %}
-<main class="{% if switch("flare26_enabled") %}fl-2026-enterprise{% endif %}">
+<main class="{% if switch("flare26_enabled") %}fl-main has-gradient-bottom fl-2026-enterprise{% endif %}">
   {% if switch("flare26_enabled") %}
     {% set superheading_text %}
       <span class="fl-logo-fx"></span>
     {% endset %}
-    <include:intro media_position="after" vertical="true">
-    <content:heading>
-      <include:heading
-        level="h1"
-        heading_text="{{ftl('firefox-enterprise-use-as-your-enterprise-browser')}}"
-        superheading_text="{{ superheading_text }}"
-        subheading_text="{{ ftl('firefox-enterprise-secure-at-scale') }}"
-        subheading_size="3"
-        alignment_class="text-center"
-    />
-    </content:heading>
-    <content:actions>
-      <include:button
+
+    <div class="fl-section-container">
+    <include:intro slim vertical media_position="right">
+      <content:heading>
+        <include:heading
+          level="h1"
+          superheading_text="{{superheading_text}}"
+          heading_size="fl-heading-size-1"
+          heading_text="{{ftl('firefox-enterprise-use-as-your-enterprise-browser')}}"
+          subheading_text="{{ ftl('firefox-enterprise-secure-at-scale') }}"
+        />
+      </content:heading>
+
+      <content:actions>
+        <include:button
+        id="primary-download-button"
         label="{{ ftl('download-button-download') }}"
         link="#download"
         theme_class=""
@@ -56,12 +59,15 @@
         icon_position="right"
       />
      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}" class="mzp-c-button-download-privacy-link">{{ ftl('download-button-firefox-privacy-notice') }}</a>
-    </content:actions>
+      </content:actions>
 
-    <content:media>
-      <include:image url="{{ static('img/firefox/enterprise/fx-browser-img.svg') }}" alt="" />
-    </content:media>
-  </include:intro>
+      <content:media>
+        <include:image url="{{ static('img/firefox/enterprise/fx-browser-img.svg') }}" alt="" />
+      </content:media>
+    </include:intro>
+  </div>
+
+
     <include:kit-banner>
     <content:heading>
       <include:heading
@@ -92,7 +98,7 @@
       alignment_class="text-center fl-2026-enterprise-protection"
   />
   <include:cards-list>
-    <include:sticker-card-2026
+    <include:card
       expand_link="false"
     >
       <content:heading>
@@ -109,8 +115,8 @@
       <content:body>
         {{ ftl('firefox-enterprise-open-source-transparency') }}
       </content:body>
-    </include:sticker-card-2026>
-    <include:sticker-card-2026
+    </include:card>
+    <include:card
       expand_link="false"
     >
       <content:heading>
@@ -127,8 +133,8 @@
       <content:body>
         {{ ftl('firefox-enterprise-install-packages-policies') }}
       </content:body>
-    </include:sticker-card-2026>
-    <include:sticker-card-2026
+    </include:card>
+    <include:card
       expand_link="false"
     >
       <content:heading>
@@ -145,18 +151,17 @@
       <content:body>
         {{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}
       </content:body>
-    </include:sticker-card-2026>
+    </include:card>
   </include:cards-list>
   <include:banner
       theme="outlined"
       media_after="false"
     >
-
       <content:heading>
         <include:heading
           level="h2"
           heading_text="{{ ftl('firefox-enterprise-support-for-organizations-documentation') }}"
-          heading_size=""
+          heading_size="fl-heading-lg"
           alignment_class="fl-2026-enterprise-documentation"
           superheading_text=""
           subheading_text="{{ ftl('firefox-enterprise-support-for-organizations-is') }}"
