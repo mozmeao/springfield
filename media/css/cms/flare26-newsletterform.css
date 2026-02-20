@@ -17,6 +17,11 @@
     padding-block: 0;
 }
 
+.fl-newsletterform-cta.fl-force-dark-theme {
+    background-color: var(--token-color-dark-purple);
+    border-radius: var(--token-border-radius-md);
+}
+
 @media (--viewport-md-up) {
     .fl-newsletterform-cta {
         align-items: center;
@@ -107,7 +112,10 @@
     font-weight: var(--token-font-weight-medium);
 }
 
-.fl-newsletterform .fl-newsletterform-input {
+/* todo: find protocol classes and remove. Added for /browsers/mobile/android */
+.fl-newsletterform .fl-newsletterform-input,
+.fl-newsletterform .fl-newsletterform-select,
+.fl-newsletterform .mzp-c-field-control {
     background: var(--fl-theme-form-field-background);
     block-size: 44px;
     border: 1px solid var(--fl-theme-form-field-border-color);
@@ -118,7 +126,8 @@
     padding: 0 var(--token-spacing-lg);
 }
 
-.fl-newsletterform-input:focus {
+.fl-newsletterform-input:focus,
+.fl-newsletterform .mzp-c-field-control:focus {
     border-color: var(--fl-theme-form-field-border-color-focus);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
@@ -320,4 +329,8 @@
 .fl-newsletterform-success svg {
     display: block;
     margin: 0 auto;
+}
+
+.newsletter-page .fl-newsletterform-cta {
+    padding-block-start: var(--token-layout-xl);
 }

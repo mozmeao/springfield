@@ -177,10 +177,10 @@
 }
 
 .fl-menu-category .fl-icon-chevron-down {
+    margin-block-end: var(--token-spacing-xs);
     transform: scale(0.8);
     transform-origin: center;
     transition: transform 0.1s ease;
-    vertical-align: bottom;
 }
 
 .fl-menu-category.is-active .fl-icon-chevron-down {
@@ -233,12 +233,19 @@
 
 .fl-menu-panel .fl-button {
     display: block;
-    font-family: var(--token-font-family-mozilla-headline);
     text-align: center;
+}
+
+.fl-menu-panel .fl-button:hover {
+    text-decoration: none;
 }
 
 .fl-menu-panel-content {
     max-inline-size: var(--token-width-desktop-layout);
+}
+
+.fl-menu-panel-content .fl-icon {
+    color: var(--token-color-nav-icon-purple);
 }
 
 .fl-menu-panel-content ul,
@@ -438,7 +445,8 @@
         inline-size: auto;
     }
 
-    .fl-menu-close-button {
+    /* close buttons is only displayed when keyboard nav is being used */
+    .fl-nav-menu:has(*:focus-visible) .fl-menu-close-button {
         display: block;
     }
 
@@ -496,5 +504,11 @@
 
     .fl-menu-panel-content-column:last-child {
         margin-inline-end: 0;
+    }
+}
+
+@media (pointer: coarse) and (--viewport-md-up) {
+    .fl-nav-menu .fl-menu-close-button {
+        display: block;
     }
 }

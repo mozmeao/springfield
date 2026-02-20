@@ -26,45 +26,45 @@
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.features.fingerprinting') }}"
-              data-link-text="Fingerprint Blocking"
-              data-link-position="topnav - fingerprinting"
+              href="/features/protection/"
+              data-link-text="Protection"
+              data-link-position="topnav - protection"
             >
-              <span class="fl-icon fl-nav-icon-fingerprint"></span>
-              {{ ftl('navigation-fingerprint-blocking') }}
+              <span class="fl-icon fl-nav-icon-lock"></span>
+              {{ ftl('navigation-protection') }}
             </a>
           </li>
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.features.adblocker') }}"
-              data-link-text="Ad Tracker Blocking"
-              data-link-position="topnav - antitracking"
+              href="/features/control/"
+              data-link-text="Control"
+              data-link-position="topnav - control"
             >
-              <span class="fl-icon fl-nav-icon-shield-checkmark"></span>
-              {{ ftl('navigation-ad-tracker-blocking') }}
+              <span class="fl-icon fl-icon-cursor-arrow"></span>
+              {{ ftl('navigation-control') }}
             </a>
           </li>
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.features.private-browsing') }}"
-              data-link-text="Private Browsing Mode"
-              data-link-position="topnav - privatebrowsing"
+              href="/features/focus/"
+              data-link-text="Focus"
+              data-link-position="topnav - focus"
             >
-              <span class="fl-icon fl-nav-icon-private-mode"></span>
-              {{ ftl('navigation-private-browsing') }}
+              <span class="fl-icon fl-icon-search"></span>
+              {{ ftl('navigation-focus') }}
             </a>
           </li>
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.features.password-manager') }}"
-              data-link-text="Free Password Manager"
-              data-link-position="topnav - passwords"
+              href="/features/"
+              data-link-text="About Firefox features"
+              data-link-position="topnav - about firefox features"
             >
-              <span class="fl-icon fl-nav-icon-key"></span>
-              {{ ftl('navigation-password-manager') }}
+              {{ ftl('navigation-about-firefox-features') }}
+              <span class="fl-icon fl-icon-forward"></span>
             </a>
           </li>
         </ul>
@@ -73,8 +73,9 @@
 
         <include:button
           theme_class="button-ghost"
+          size_class="fl-button-small"
           label="{{ ftl('navigation-features-all') }}"
-          link="{{ url('firefox.features.index') }}"
+          link="/features/all/"
         />
       </div>
     </div>

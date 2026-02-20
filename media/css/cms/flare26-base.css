@@ -318,3 +318,14 @@ td {
         interpolate-size: allow-keywords;
     }
 }
+
+/* Animations */
+@keyframes fl-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

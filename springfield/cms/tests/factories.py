@@ -86,3 +86,32 @@ class ArticleDetailPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.ArticleDetailPage
+
+
+class ArticleThemePageFactory(wagtail_factories.PageFactory):
+    title = "Test Article Theme Page"
+    live = True
+    slug = "article-theme"
+
+    class Meta:
+        model = models.ArticleThemePage
+
+
+class DownloadIndexPageFactory(wagtail_factories.PageFactory):
+    title = "Test Download Index Page"
+    live = True
+    slug = "download-index"
+
+    class Meta:
+        model = models.DownloadIndexPage
+
+
+class DownloadPageFactory(wagtail_factories.PageFactory):
+    title = "Test Download Page"
+    live = True
+    slug = "download"
+    platform = "windows"
+    subheading = "<p>Test subheading</p>"
+
+    class Meta:
+        model = models.DownloadPage

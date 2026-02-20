@@ -316,7 +316,6 @@ CONDITIONAL_DISPLAY_CHOICES = [
 
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
-UITOUR_BUTTON_CHOICES = ((UITOUR_BUTTON_NEW_TAB, "Open New Tab"),)
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
@@ -568,7 +567,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             label = "Settings"
             label_format = (
                 "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
-                "Show Default Browser Checkbox: {show_default_browser_checkbox}",
+                "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
 
@@ -841,16 +840,6 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{headline}"
             template = "cms/blocks/media-content.html"
 
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
-
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image, not both.")
-            return cleaned_data
-
     return _MediaContentBlock(*args, **kwargs)
 
 
@@ -1063,7 +1052,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Cards List"
-            label_format = "Cards List - {heading}"
+            label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
 
@@ -1082,7 +1071,7 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Step Cards List"
-            label_format = "Step Cards - {heading}"
+            label_format = "Step Cards List"
 
     return _StepCardListBlock(*args, **kwargs)
 
@@ -1142,7 +1131,7 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/step-cards-list-2026.html"
             label = "Step Cards List"
-            label_format = "Step Cards - {heading}"
+            label_format = "Step Cards List"
 
     return _StepCardListBlock(*args, **kwargs)
 
@@ -1226,7 +1215,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Cards List"
-            label_format = "Cards List - {heading}"
+            label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
 
@@ -1397,14 +1386,19 @@ class ArticleCardsListBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/article-cards-list.html"
         label = "Article Cards List"
-        label_format = "{heading}"
+        label_format = "Article Cards List"
 
 
 class RelatedArticleOverridesBlock(blocks.StructBlock):
+    image = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
+    )
     sticker = ImageChooserBlock(
         required=False,
         help_text="Optional custom sticker image to override the article's sticker.",
     )
+    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     superheading = blocks.CharBlock(
         required=False,
         help_text="Optional custom superheading to override the article's tag.",
@@ -1413,6 +1407,20 @@ class RelatedArticleOverridesBlock(blocks.StructBlock):
         features=HEADING_TEXT_FEATURES,
         required=False,
         help_text="Optional custom title to override the article's title.",
+    )
+    description = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional custom description to override the article's description.",
+    )
+    link_label = blocks.CharBlock(
+        required=False,
+        help_text="Optional custom link label to override the article's call to action text.",
+    )
+    link = LinkBlock(
+        required=False,
+        verbose_name="Link override",
+        help_text="Optional custom link to override the article's call to action link.",
     )
 
     class Meta:
@@ -1431,6 +1439,19 @@ class RelatedArticleValue(blocks.StructValue):
         article_page = self.get("article")
         return article_page.title if article_page else ""
 
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        overrides = self.get("overrides", {})
+        if description := overrides.get("description"):
+            return remove_p_tag(richtext(description))
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "description") and article_page.description:
+                return remove_p_tag(richtext(article_page.description))
+        return ""
+
     def get_superheading(self) -> str:
         overrides = self.get("overrides", {})
         if superheading := overrides.get("superheading"):
@@ -1442,6 +1463,28 @@ class RelatedArticleValue(blocks.StructValue):
                 return article_page.tag.name
         return ""
 
+    def get_link_label(self) -> str:
+        overrides = self.get("overrides", {})
+        if link_label := overrides.get("link_label"):
+            return link_label
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "link_text") and article_page.link_text:
+                return article_page.link_text
+        return ""
+
+    def get_featured_image(self):
+        overrides = self.get("overrides", {})
+        if image := overrides.get("image"):
+            return image
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "featured_image"):
+                return article_page.featured_image
+        return None
+
     def get_sticker(self):
         overrides = self.get("overrides", {})
         if sticker := overrides.get("sticker"):
@@ -1452,6 +1495,26 @@ class RelatedArticleValue(blocks.StructValue):
             if hasattr(article_page, "sticker"):
                 return article_page.sticker
         return None
+
+    def get_icon(self) -> str:
+        overrides = self.get("overrides", {})
+        if icon := overrides.get("icon"):
+            return icon
+        article_page = self.get("article")
+        if article_page:
+            article_page = article_page.specific
+            if hasattr(article_page, "icon") and article_page.icon:
+                return article_page.icon
+        return "globe"
+
+    def get_link_url(self) -> str:
+        overrides = self.get("overrides", {})
+        if link := overrides.get("link"):
+            url = link.get_url()
+            if url:
+                return url
+        article_page = self.get("article")
+        return article_page.url if article_page else ""
 
 
 class RelatedArticleBlock(blocks.StructBlock):
@@ -1473,7 +1536,7 @@ class RelatedArticlesListBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/related-articles-list.html"
         label = "Related Articles List"
-        label_format = "{heading}"
+        label_format = "Related Articles List"
 
 
 # Section blocks
@@ -1600,6 +1663,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
             min_num=0,
             max_num=2,
             required=False,
@@ -1766,16 +1830,6 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
             label = "Banner"
             label_format = "{heading}"
 
-        def clean(self, value):
-            cleaned_data = super().clean(value)
-            image = cleaned_data.get("image")
-            qr_code = cleaned_data.get("qr_code")
-            video = cleaned_data.get("video")
-
-            if video and (qr_code or image):
-                raise ValidationError("Please, either provide a video or an image/QR code, not both.")
-            return cleaned_data
-
     return _BannerBlock(*args, **kwargs)
 
 
@@ -1901,7 +1955,7 @@ class ShowcaseBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
-        label_format = "{heading}"
+        label_format = "{headline}"
 
 
 class CardGalleryCard(blocks.StructBlock):
