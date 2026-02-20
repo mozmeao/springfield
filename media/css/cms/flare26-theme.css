@@ -154,6 +154,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
+
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-grey-3);
+    --sidebar-selected-text-color: var(--token-color-black-4);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -234,6 +238,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
+
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-soft-purple-4);
+    --sidebar-selected-text-color: var(--token-color-white);
 }
 
 .fl-force-light-theme {
@@ -298,6 +306,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-black-2);
+
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-grey-3);
+    --sidebar-selected-text-color: var(--token-color-black-4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -378,6 +390,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
         --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
         --fl-theme-form-field-border-color-focus: rgba(255, 255, 255, 0.8);
+
+        /* User privacy sidebar */
+        --sidebar-text-color: var(--token-color-soft-purple-4);
+        --sidebar-selected-text-color: var(--token-color-white);
     }
 }
 

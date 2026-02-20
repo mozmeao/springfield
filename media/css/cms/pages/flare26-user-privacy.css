@@ -112,18 +112,19 @@ body.data-uitour #privacy-settings {
         font-weight: 600;
     }
 
+    .fl-page-user-privacy .main-content .sidebar li.current a,
     .fl-page-user-privacy
         .main-content
         .sidebar
         li.current
         a
         .table-content-icon {
-        color: var(--token-color-light-purple);
+        color: var(--sidebar-selected-text-color);
     }
 
     .fl-page-user-privacy .main-content .sidebar li a {
         align-items: center;
-        color: var(--fl-theme-color-text);
+        color: var(--sidebar-text-color);
         display: flex;
         gap: var(--token-spacing-lg);
         justify-content: flex-start;
