@@ -23,6 +23,10 @@ from springfield.cms.fixtures.card_fixtures import (
 )
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
+from springfield.cms.fixtures.freeformpage_2026 import (
+    get_freeform_page_2026_test_page,
+    get_mobile_store_qr_code_test_page,
+)
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
@@ -71,6 +75,12 @@ class Command(BaseCommand):
 
         home_page = get_home_test_page()
         self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
+
+        mobile_store_qr_code_page = get_mobile_store_qr_code_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Mobile Store QR Code test page loaded: {mobile_store_qr_code_page.slug}"))
+
+        freeform_2026_page = get_freeform_page_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 test page loaded: {freeform_2026_page.slug}"))
 
         download_pages = get_download_pages()
         for download_page in download_pages.values():
