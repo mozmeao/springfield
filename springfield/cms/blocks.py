@@ -1052,7 +1052,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Cards List"
-            label_format = "Cards List - {heading}"
+            label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
 
@@ -1071,7 +1071,7 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Step Cards List"
-            label_format = "Step Cards - {heading}"
+            label_format = "Step Cards List"
 
     return _StepCardListBlock(*args, **kwargs)
 
@@ -1131,7 +1131,7 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/step-cards-list-2026.html"
             label = "Step Cards List"
-            label_format = "Step Cards - {heading}"
+            label_format = "Step Cards List"
 
     return _StepCardListBlock(*args, **kwargs)
 
@@ -1215,7 +1215,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         class Meta:
             template = "cms/blocks/cards-list.html"
             label = "Cards List"
-            label_format = "Cards List - {heading}"
+            label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
 
@@ -1386,7 +1386,7 @@ class ArticleCardsListBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/article-cards-list.html"
         label = "Article Cards List"
-        label_format = "{heading}"
+        label_format = "Article Cards List"
 
 
 class RelatedArticleOverridesBlock(blocks.StructBlock):
@@ -1536,7 +1536,7 @@ class RelatedArticlesListBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/related-articles-list.html"
         label = "Related Articles List"
-        label_format = "{heading}"
+        label_format = "Related Articles List"
 
 
 # Section blocks
@@ -1954,7 +1954,7 @@ class ShowcaseBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/sections/showcase.html"
         label = "Showcase"
-        label_format = "{heading}"
+        label_format = "{headline}"
 
 
 class CardGalleryCard(blocks.StructBlock):
