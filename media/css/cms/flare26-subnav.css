@@ -11,9 +11,9 @@
 }
 
 .fl-subnav {
-    background: var(--token-gradient-subnav);
+    background: var(--fl-subnav-bg);
     display: block;
-    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    padding: var(--token-spacing-md) var(--fl-section-h-padding);
     position: relative;
 }
 
@@ -90,7 +90,7 @@
         display: flex;
         gap: var(--token-spacing-md);
         justify-content: space-between;
-        padding: var(--token-spacing-xl) var(--token-spacing-md);
+        padding: var(--token-spacing-xl) var(--fl-section-h-padding);
     }
 
     .fl-subnav-toggle {

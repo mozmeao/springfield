@@ -137,6 +137,11 @@ Card Grid - Flare 2026 Design System Cards
     text-decoration: underline;
 }
 
+.fl-body a {
+    color: var(--fl-theme-color-text);
+    text-decoration: none;
+}
+
 /* =====================================================================
 Basic Card
 ===================================================================== */
@@ -215,7 +220,12 @@ Sticker Card
     transform: translateY(-2px);
 }
 
+.fl-sticker-card .fl-heading {
+    color: var(--token-color-black-4);
+}
+
 .fl-sticker-card .fl-heading-group {
+    color: var(--token-color-black-4);
     gap: unset;
     margin: 0;
     padding: 0;
@@ -553,7 +563,6 @@ Illustration Card
     display: flex;
     inline-size: var(--media-size);
     justify-content: center;
-    margin-block-end: var(--token-spacing-lg);
     min-block-size: var(--media-size);
     min-inline-size: var(--media-size);
     padding: var(--media-padding);

@@ -17,6 +17,11 @@
     padding-block: 0;
 }
 
+.fl-newsletterform-cta.fl-force-dark-theme {
+    background-color: var(--token-color-dark-purple);
+    border-radius: var(--token-border-radius-md);
+}
+
 @media (--viewport-md-up) {
     .fl-newsletterform-cta {
         align-items: center;
