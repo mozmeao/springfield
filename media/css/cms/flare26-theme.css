@@ -19,6 +19,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-link: var(--token-color-link-purple);
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+    --fl-theme-accent-color: var(--fl-theme-color-link);
 
     /* Background colors */
     --fl-theme-background: var(--token-color-white);
@@ -28,12 +29,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
+    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -156,6 +160,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
+
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-grey-3);
+    --sidebar-selected-text-color: var(--token-color-black-4);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
@@ -192,7 +200,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
     --content-dark-mode-only: '';
     --fl-sticker-card-bg: var(--token-color-soft-purple);
-    --fl-theme-surface-card-gradient: transparent;
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
 
     /* homepage card grid styles */
@@ -238,9 +247,17 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
 
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-soft-purple-4);
+    --sidebar-selected-text-color: var(--token-color-white);
+
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-purple);
+    --fl-theme-button-bg-primary-disabled-color: var(
+        --token-color-soft-purple-4
+    );
 }
 
 .fl-force-light-theme {
@@ -272,6 +289,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
     --fl-sticker-card-bg: var(--token-color-soft-purple);
+    --fl-theme-surface-card-gradient: var(--token-gradient-light);
+    --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
 
     /* Notifications */
 
@@ -306,9 +325,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-black-2);
 
+    /* User privacy sidebar */
+    --sidebar-text-color: var(--token-color-grey-3);
+    --sidebar-selected-text-color: var(--token-color-black-4);
+
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
+    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
+    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -342,7 +367,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-step-card-index-bg: var(--token-color-dark-purple);
         --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
         --content-dark-mode-only: '';
-        --fl-theme-surface-card-gradient: transparent;
+        --fl-theme-surface-card-gradient: var(--token-gradient-light);
+        --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
 
         /* homepage card grid styles */
@@ -390,9 +416,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
         --fl-theme-form-field-border-color-focus: rgba(255, 255, 255, 0.8);
 
+        /* User privacy sidebar */
+        --sidebar-text-color: var(--token-color-soft-purple-4);
+        --sidebar-selected-text-color: var(--token-color-white);
+
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
+        --fl-theme-button-bg-primary-disabled-bg: var(
+            --token-color-soft-purple-2
+        );
+        --fl-theme-button-bg-primary-disabled-color: var(
+            --token-color-soft-purple-4
+        );
     }
 }
 
