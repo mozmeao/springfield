@@ -310,7 +310,7 @@
 }
 
 .fl-newsletterform-select:hover {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: var(--fl-theme-form-field-border-color-focus);
 }
 
 .fl-newsletterform-select:focus {
