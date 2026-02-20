@@ -1,0 +1,34 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-breadcrumb {
+    padding-block: var(--token-spacing-lg);
+}
+
+.fl-breadcrumb.is-hidden {
+    display: none;
+}
+
+.fl-breadcrumb-list {
+    display: flex;
+    gap: var(--token-spacing-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-breadcrumb-item {
+    margin: 0;
+}
+
+.fl-breadcrumb-item a {
+    color: var(--fl-theme-color-link);
+}
+
+.fl-breadcrumb-item + .fl-breadcrumb-item::before {
+    content: '\2192';
+    margin-inline-end: var(--token-spacing-xs);
+}

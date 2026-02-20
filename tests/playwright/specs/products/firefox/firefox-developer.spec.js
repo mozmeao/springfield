@@ -218,17 +218,20 @@ test.describe(
             const newsletterPrivacyCheckbox = page.getByTestId(
                 'newsletter-privacy-checkbox'
             );
+
+            const newsletterCountrySelect = page.getByTestId(
+                'newsletter-country-select'
+            );
             const newsletterSubmitButton = page.getByTestId(
                 'newsletter-submit-button'
             );
 
             await openPage(url, page, browserName);
 
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
             await newsletterEmailInput.fill('success@example.com');
+            await newsletterCountrySelect.selectOption('us');
             await newsletterPrivacyCheckbox.click();
+
             await newsletterSubmitButton.click();
             await expect(newsletterForm).not.toBeVisible();
             await expect(newsletterThanksMessage).toBeVisible();
@@ -244,6 +247,9 @@ test.describe(
             const newsletterEmailInput = page.getByTestId(
                 'newsletter-email-input'
             );
+            const newsletterCountrySelect = page.getByTestId(
+                'newsletter-country-select'
+            );
             const newsletterPrivacyCheckbox = page.getByTestId(
                 'newsletter-privacy-checkbox'
             );
@@ -253,11 +259,10 @@ test.describe(
 
             await openPage(url, page, browserName);
 
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
-            await newsletterEmailInput.fill('failure@example.com');
+            await newsletterEmailInput.fill('failure@example');
+            await newsletterCountrySelect.selectOption('us');
             await newsletterPrivacyCheckbox.click();
+
             await newsletterSubmitButton.click();
             await expect(newsletterErrorMessage).toBeVisible();
             await expect(newsletterThanksMessage).not.toBeVisible();

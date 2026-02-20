@@ -101,7 +101,9 @@ CookieSettingsForm.bindEvents = () => {
  * Binds click event for previous page link to go back in history.
  */
 CookieSettingsForm.initBreadCrumbLinks = () => {
-    const breadCrumbLinks = document.querySelector('.mzp-c-breadcrumb');
+    const breadCrumbLinks = document.querySelector(
+        '.mzp-c-breadcrumb, .fl-breadcrumb'
+    );
 
     if (!breadCrumbLinks) {
         return;

@@ -10,8 +10,9 @@
     background: var(--fl-theme-color-icon-wrap);
     block-size: var(--token-spacing-3xl);
     border-radius: 50%;
-    color: var(--fl-theme-color-text-inverse);
+    color: var(--fl-theme-color-icon, var(--fl-theme-color-text-inverse));
     display: flex;
+    flex-shrink: 0;
     inline-size: var(--token-spacing-3xl);
     justify-content: center;
     padding: var(--token-spacing-sm);

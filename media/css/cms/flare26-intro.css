@@ -24,12 +24,25 @@
     max-inline-size: 848px;
 }
 
+.fl-intro .fl-heading,
+.fl-intro .fl-heading-group {
+    inline-size: 100%;
+}
+
 .fl-intro-full-width .fl-intro-content {
     max-inline-size: unset;
 }
 
 .fl-intro-vertical .fl-intro-content {
     display: block;
+}
+
+.fl-intro-vertical.fl-intro.fl-intro-media-left .fl-intro-content,
+.fl-intro-vertical.fl-intro.fl-intro-media-right .fl-intro-content {
+    align-items: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .fl-intro-media {
@@ -62,7 +75,7 @@
     text-transform: uppercase;
 }
 
-.fl-intro .fl-heading {
+.fl-intro .fl-heading:not([class*='fl-heading-']) {
     font-size: var(--fl-theme-font-size-heading-md);
 }
 
