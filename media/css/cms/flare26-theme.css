@@ -156,7 +156,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
-    --fl-subnav-bg: var(--token-color-grey-1);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -240,12 +240,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
-    --fl-subnav-bg: linear-gradient(
-        90deg,
-        var(--token-color-dark-purple) 0%,
-        var(--token-color-purple) 50%,
-        var(--token-color-dark-purple) 100%
-    );
+    --fl-subnav-bg: var(--token-gradient-subnav-dark);
 }
 
 .fl-force-light-theme {
@@ -313,7 +308,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
-    --fl-subnav-bg: var(--token-color-grey-1);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -397,12 +392,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
-        --fl-subnav-bg: linear-gradient(
-            90deg,
-            var(--token-color-dark-purple) 0%,
-            var(--token-color-purple) 50%,
-            var(--token-color-dark-purple) 100%
-        );
+        --fl-subnav-bg: var(--token-gradient-subnav-dark);
     }
 }
 
