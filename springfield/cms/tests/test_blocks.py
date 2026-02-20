@@ -509,7 +509,12 @@ def test_intro_block(index_page, placeholder_images, rf):
         if media_value:
             if media_value["type"] == "image":
                 images_element = intro_element.find("div", class_="fl-intro-media")
-                assert_image_variants_attributes(images_element=images_element, images_value=media_value["value"])
+                assert_image_variants_attributes(
+                    images_element=images_element,
+                    images_value=media_value["value"],
+                    sizes="(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw",
+                    widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                )
 
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")

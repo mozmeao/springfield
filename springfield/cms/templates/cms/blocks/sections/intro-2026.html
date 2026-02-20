@@ -22,6 +22,8 @@
   </content:actions>
   {% if value.media %}
     <content:media>
+      {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
+      {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
       {% for block in value.media %}
         {% include_block block %}
       {% endfor %}
