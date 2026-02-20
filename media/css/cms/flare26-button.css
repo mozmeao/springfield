@@ -31,11 +31,11 @@ Button - Flare 2026 Design System Buttons
     white-space: nowrap;
 }
 
-.fl-button:hover {
+.fl-button:hover:not(:disabled) {
     background-color: var(--token-color-link-purple);
 }
 
-.fl-button:active {
+.fl-button:active:not(:disabled) {
     background-color: var(--token-color-purple);
 }
 
