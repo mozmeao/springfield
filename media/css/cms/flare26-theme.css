@@ -32,6 +32,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* Button palette */
     --fl-theme-button-primary: var(--token-color-link-purple);
+    --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
+    --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -154,6 +156,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 /* todo: when we build a proper dark mode, copy these up to a :root selector */
@@ -234,6 +237,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
     --fl-theme-form-field-border-color-focus: var(--token-color-light-purple);
+
+    /* buttons are mostly the same for both dark and light mode. */
+    --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
+    --fl-subnav-bg: var(--token-gradient-subnav-dark);
 }
 
 .fl-force-light-theme {
@@ -298,6 +305,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
     --fl-theme-form-field-border-color: var(--token-color-black-1);
     --fl-theme-form-field-border-color-focus: var(--token-color-black-2);
+
+    /* buttons */
+    --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
+    --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -378,6 +389,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
         --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
         --fl-theme-form-field-border-color-focus: rgba(255, 255, 255, 0.8);
+
+        /* buttons are mostly the same for both dark and light mode. */
+        --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
+        --fl-subnav-bg: var(--token-gradient-subnav-dark);
     }
 }
 
