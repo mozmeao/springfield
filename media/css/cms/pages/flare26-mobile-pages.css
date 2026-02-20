@@ -1,0 +1,31 @@
+/* stylelint-disable selector-id-pattern */
+
+.fl-mobile-subpage #playStoreLink-primary img,
+.fl-mobile-subpage #playStoreLink-footer img {
+    min-block-size: 45px;
+}
+
+.fl-mobile-subpage .fl-section:nth-child(2n) {
+    background-color: var(--theme-purple-card-bg-color);
+}
+
+.fl-mobile-subpage .fl-section:first-child {
+    padding-block: 0;
+}
+
+.fl-mobile-subpage .fl-mobile-download-form {
+    text-align: center;
+}
+
+.fl-mobile-subpage .fl-mobile-download-buttons {
+    margin: 0;
+}
+
+.fl-mobile-subpage .fl-mobile-download-buttons li {
+    list-style: none;
+}
+
+.fl-mobile-subpage .fl-mobile-download-buttons img {
+    margin: 0;
+    min-block-size: 45px;
+}
