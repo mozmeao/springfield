@@ -4,6 +4,7 @@
 
 import os
 import re
+from types import SimpleNamespace
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from django.conf import settings
@@ -18,6 +19,61 @@ from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
 from springfield.cms.models.pages import BASE_UTM_PARAMETERS
 from springfield.firefox.templatetags.misc import fxa_button
+
+
+@library.global_function
+def image_variant_classes(dark_mode=None, mobile=None, dark_mode_mobile=None, break_at="sm"):
+    """Compute CSS display classes for a set of image variants.
+
+    Pass the variant image objects (or None when absent).  Returns a SimpleNamespace
+    whose attributes hold the class string for each position:
+
+        .primary        — default/desktop light-mode image
+        .dark_mode      — dark-mode desktop image
+        .mobile         — light-mode mobile image
+        .dark_mode_mobile — dark-mode mobile image
+
+    The classes ensure exactly one image is visible per viewport / colour-scheme
+    combination.  The optional ``break_at`` argument controls the desktop breakpoint:
+    ``"sm"`` (default) uses ``display-sm-up`` / ``display-xs``;
+    ``"md"`` uses ``display-md-up`` / ``display-xs-and-sm``.
+
+    Usage in templates::
+
+        {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+        {{ srcset_image(page.image, ..., class=classes.primary) }}
+        {% if page.image_dark_mode %}
+          {{ srcset_image(page.image_dark_mode, ..., class=classes.dark_mode) }}
+        {% endif %}
+    """
+    has_dark = dark_mode is not None
+    has_mobile = mobile is not None
+    has_dark_mobile = dark_mode_mobile is not None
+
+    size_up = f"display-{break_at}-up"
+    size_xs = "display-xs-and-sm" if break_at == "md" else "display-xs"
+
+    primary_parts = []
+    if has_dark:
+        primary_parts.append("display-light")
+    if has_mobile or has_dark_mobile:
+        primary_parts.append(size_up)
+
+    dark_parts = ["display-dark"]
+    if has_mobile or has_dark_mobile:
+        dark_parts.append(size_up)
+
+    mobile_parts = []
+    if has_dark_mobile:
+        mobile_parts.append("display-light")
+    mobile_parts.append(size_xs)
+
+    return SimpleNamespace(
+        primary=" ".join(primary_parts),
+        dark_mode=" ".join(dark_parts),
+        mobile=" ".join(mobile_parts),
+        dark_mode_mobile=f"display-dark {size_xs}",
+    )
 
 
 @library.filter

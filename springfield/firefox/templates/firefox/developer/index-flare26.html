@@ -23,13 +23,7 @@
 
           <content:body>
             <div class="fl-buttons is-horizontal">
-              {{ download_firefox_thanks(
-                alt_copy=ftl('firefox-developer-firefox-developer-edition'),
-                dom_id='intro-download',
-                button_class='download-cta',
-                download_location='primary cta',
-                flare_styles=True,
-              ) }}
+              {{ download_firefox('alpha', platform='desktop', dom_id='intro-download', download_location='primary cta') }}
             </div>
             <p class="show-linux">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
             data-cta-text="Get help with your installation"')}}</p>
@@ -386,6 +380,20 @@
             </content:buttons>
           </include:card>
         </include:cards-list>
+
+        <include:banner>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              heading_text="{{ ftl('firefox-developer-download-the-firefox-browser') }}"
+            />
+          </content:heading>
+          <content:actions>
+
+      {{ download_firefox('alpha', platform='desktop', dom_id='footer-download', download_location='footer cta') }}
+          </content:actions>
+        </include:banner>
       </div>
     </div>
   </main>
