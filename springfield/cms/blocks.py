@@ -567,7 +567,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             label = "Settings"
             label_format = (
                 "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
-                "Show Default Browser Checkbox: {show_default_browser_checkbox}",
+                "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
 
