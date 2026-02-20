@@ -11,12 +11,7 @@
 }
 
 .fl-subnav {
-    background: linear-gradient(
-        90deg,
-        var(--token-color-dark-purple) 0%,
-        var(--token-color-purple) 50%,
-        var(--token-color-dark-purple) 100%
-    );
+    background: var(--token-gradient-subnav);
     display: block;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     position: relative;
