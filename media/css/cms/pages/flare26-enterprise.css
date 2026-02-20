@@ -10,7 +10,16 @@ main.fl-2026-enterprise {
 
 .fl-2026-enterprise .fl-superheading {
     display: flex;
-    justify-content: center;
+    justify-content: start;
+}
+
+.fl-2026-enterprise .heading-logo {
+    display: block;
+    inline-size: auto;
+    margin-block-end: var(--token-spacing-xl);
+    margin-inline: auto;
+    max-block-size: 60px;
+    max-inline-size: 100%;
 }
 
 .fl-2026-enterprise-support h2 {
@@ -27,7 +36,46 @@ main.fl-2026-enterprise {
     color: var(--fl-theme-color-brand-text);
 }
 
-.fl-2026-enterprise .fl-card-grid {
+/*  reordering where the sticker lives on this card,
+    to avoid gremlins elsewhere by revising the dom.
+*/
+.fl-2026-enterprise .fl-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-2026-enterprise .fl-card .fl-card-sticker {
+    --fl-card-sticker-size: 80px;
+    margin: 0;
+    order: 1;
+    padding-block-end: var(--token-spacing-xl);
+}
+
+.fl-2026-enterprise .fl-card .fl-card-heading-group {
+    order: 2;
+}
+
+.fl-2026-enterprise .fl-card .fl-body {
+    order: 3;
+}
+
+.fl-2026-enterprise .fl-banner {
+    border-radius: var(--token-border-radius-lg);
+    margin-block: var(--fl-section-v-padding);
+    padding-block: var(--fl-section-v-padding);
+}
+
+.fl-2026-enterprise .fl-banner .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-lg);
+}
+
+.fl-2026-enterprise .mzp-u-list-styled {
+    list-style: none;
+    margin-inline: 0;
+    padding-inline: 0;
+}
+
+.fl-card-grid {
     margin: auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
     padding: 0 var(--token-layout-sm);
@@ -60,4 +108,15 @@ main.fl-2026-enterprise {
 
 .is-details .mzp-c-menu-list-list {
     margin: 0;
+}
+
+.is-details .mzp-c-menu-list-list.is-closed {
+    display: none;
+}
+
+@media (--viewport-sm-up) {
+    .fl-2026-enterprise .heading-logo {
+        margin-inline: 0;
+        max-block-size: 80px;
+    }
 }
