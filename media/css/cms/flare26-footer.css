@@ -65,6 +65,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 @media (--viewport-below-lg) {
+    .fl-footer-section-lang-select {
+            max-width: fit-content;
+    }
+
     .fl-footer-sections-list-mobile {
         border-block-end: transparent;
         border-color: transparent;
