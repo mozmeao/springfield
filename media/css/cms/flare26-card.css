@@ -175,6 +175,15 @@ Basic Card
     color: var(--token-color-purple);
 }
 
+.fl-card .fl-buttons {
+    margin-block-start: var(--token-spacing-xl);
+}
+
+.fl-card .learn-more-link {
+    display: block;
+    margin-block: var(--token-spacing-md);
+}
+
 /* =====================================================================
 Sticker Card
 ===================================================================== */

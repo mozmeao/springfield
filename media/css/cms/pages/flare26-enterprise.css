@@ -27,7 +27,7 @@ main.fl-2026-enterprise {
     color: var(--fl-theme-color-brand-text);
 }
 
-.fl-card-grid {
+.fl-2026-enterprise .fl-card-grid {
     margin: auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
     padding: 0 var(--token-layout-sm);

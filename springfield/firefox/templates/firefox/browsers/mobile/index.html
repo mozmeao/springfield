@@ -44,11 +44,16 @@
   {% endif %}
 {% endblock %}
 
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
 {% block content %}
 {% if switch("flare26_enabled") %}
 {# this will use freeform2026 template once it heads to the CMS. #}
 <div class="fl-page fl-freeform-2026-page">
-  <main class="fl-main">
+  <main class="fl-main has-gradient-bottom">
     <div class="fl-split-page-upper has-gradient-bottom">
       {# new 'mobile store qr code' section #}
       {% from "macros.html" import google_play_button, apple_app_store_button with context %}
@@ -76,18 +81,95 @@
               {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
               {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
             </div>
-
-
             <img class="display-xs-and-sm fl-mobile-store-mobile-img" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
-
-
           </div>
         </div>
       </section>
     </div>
-    <div class="fl-split-page-lower">
-      <section class="fl-section">
-        <div class="fl-container">
+    <div class="fl-split-page-lower no-gap">
+      {% if LANG == 'en-US' %}
+      {# this section doesn't exist in the CMS or translations yet, so this is English-only for launch. #}
+      <include:section anchor_id="download-cards">
+        <content:heading>
+          <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              alignment_class="text-center"
+              heading_text="A better way to browse on mobile."
+            />
+        </content:heading>
+        <content:content>
+
+
+        <div class="fl-mediacontent is-narrow fl-mediacontent-feature">
+
+            <div class="fl-mediacontent-media" aria-hidden="true">
+              <img src="{{ static('img/firefox/flare/kit-in-mirror.png') }}" alt="Fox looking in the mirror." />
+            </div>
+
+          <div class="fl-mediacontent-content">
+              <div class="fl-body">
+                <ul class="icon-text-list">
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-private-mode-fill" aria-hidden="true"></span>
+                    </span>
+                    Private by default. Protection without extra setup.
+                  </li>
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-lightbulb" aria-hidden="true"></span>
+                    </span>
+                    Less noise, more focus. Clear clutter with Reader Mode.
+                  </li>
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-synced-tabs" aria-hidden="true"></span>
+                    </span>
+                    Your stuff, everywhere. Sync tabs, passwords, bookmarks.
+                  </li>
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-shield" aria-hidden="true"></span>
+                    </span>
+                    Trackers, blocked. Cut down on invisible following.
+                  </li>
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-tab-group" aria-hidden="true"></span>
+                    </span>
+                    Make it yours. Shape Firefox around how you browse.
+                  </li>
+                  <li>
+                    <span class="fl-icon-wrap">
+                      <span class="fl-icon fl-icon-footprints-true" aria-hidden="true"></span>
+                    </span>
+                    Fast and reliable. Built to keep up as you move.
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+
+
+
+
+        </content:content>
+      </include:section>
+      {% endif %}
+      <div class="display-md-up">
+      <include:section anchor_id="mobile-download-cards">
+        <content:heading>
+          {% if LANG == 'en-US' %}
+          <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              alignment_class="text-center"
+              heading_text="Find the Firefox that fits you."
+            />
+            {% endif %}
+        </content:heading>
+        <content:content>
           <include:cards-list>
             <include:card>
               <content:heading>
@@ -98,7 +180,13 @@
                 />
               </content:heading>
               <content:body>
-                <p>{{ ftl('browsers-mobile-infinitely-customizable-private') }}</p>
+                <p>
+                  {% if LANG == 'en-US' %}
+                  Private by default, with more ways to make Firefox your own on Android.
+                  {% else %}
+                  {{ ftl('browsers-mobile-infinitely-customizable-private') }}
+                  {% endif %}
+                </p>
 
               </content:body>
               <content:buttons>
@@ -116,14 +204,18 @@
                 />
               </content:heading>
               <content:body>
-                <p>{{ ftl('browsers-mobile-get-enhanced-tracking-protection') }}</p>
+                <p>
+                  {% if LANG == 'en-US' %}
+                  A more private way to browse on iPhone and iPad, with built-in tracking protection.
+                  {% else %}
+                  {{ ftl('browsers-mobile-get-enhanced-tracking-protection') }}
+                  {% endif %}
+                </p>
               </content:body>
 
                 <content:buttons>
-                  <div id="ios-download">
-                    {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
-                  </div>
-                <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.ios') }}" data-cta-text="iOS Learn More">{{ ftl('ui-learn-more') }}</a>
+                  {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
+                  <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.ios') }}" data-cta-text="iOS Learn More">{{ ftl('ui-learn-more') }}</a>
                 </content:buttons>
             </include:card>
 
@@ -136,41 +228,112 @@
                 />
               </content:heading>
               <content:body>
-                <p>{{ ftl('browsers-mobile-looking-for-a-streamlined') }}</p>
+                <p>
+                  {% if LANG == 'en-US' %}
+                  A fast, minimal browser that clears your history when you’re done.
+                  {% else %}
+                  {{ ftl('browsers-mobile-looking-for-a-streamlined') }}
+                  {% endif %}
+                </p>
 
                 <div class="fl-buttons is-stacked auto-width-buttons" id="ios-download">
-                  <include:button
-                    label="{% if LANG == 'en-US' %}Download Android{% else %}{{ ftl('browsers-mobile-android') }}{% endif %}"
-                    link="{{ play_store_url('focus', 'firefox-browsers-mobile') }}"
+                  <a
+                    href="{{ play_store_url('focus', 'firefox-browsers-mobile') }}"
+                    class="fl-button fl-button-small ga-product-download"
                     data-cta-text="Download - Android (Focus)"
                     data-cta-type="firefox_focus"
                     rel="external noopener"
-                    classes="ga-product-download"
-                    icon_name="downloads"
-                    icon_position="right"
-
-                  />
-                  <include:button
-                    label="{% if LANG == 'en-US' %}Download iOS{% else %}{{ ftl('browsers-mobile-ios') }}{% endif %}"
-                    link="{{ app_store_url('focus', 'firefox-browsers-mobile') }}"
-
+                   >
+                   {% if LANG == 'en-US' %}Download Android{% else %}{{ ftl('browsers-mobile-android') }}{% endif %}
+                   <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
+                  </a>
+                  <a
+                    class="fl-button fl-button-small ga-product-download"
+                    href="{{ app_store_url('focus', 'firefox-browsers-mobile') }}"
                     rel="external noopener"
-                    class="ga-product-download"
                     data-cta-text="Download - iOS (Focus)"
                     data-cta-type="firefox_focus"
-                    icon_name="downloads"
-                    icon_position="right"
-                  />
+                  >
+                    {% if LANG == 'en-US' %}Download iOS{% else %}{{ ftl('browsers-mobile-ios') }}{% endif %}
+                    <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
+                  </a>
+                  <a
+                    class="learn-more-link"
+                    href="{{ url('firefox.browsers.mobile.focus') }}"
+                    data-cta-text="Focus Learn More"
+                  >
+                    {{ ftl('ui-learn-more') }}
+                  </a>
                 </div>
-                <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.focus') }}" data-cta-text="Focus Learn More">{{ ftl('ui-learn-more') }}</a>
+
               </content:body>
             </include:card>
-
           </include:cards-list>
-        </div>
-      </section>
+        </content:content>
+      </include:section>
+      </div>
 
+      <div class="display-xs-and-sm">
+        <include:section>
+          <content:content>
+              <include:conditional-display condition="android">
+                <include:card>
+                  <content:heading>
+                    <include:heading
+                      level="h3"
+                      heading_size="fl-heading-xl fl-heading-condensed"
+                      alignment_class="text-center"
+                      heading_text="{% if LANG == 'en-US' %}Download the latest Firefox.{% else %}{{ ftl('browsers-mobile-firefox-for-android') }}{% endif %}"
+                    />
+                  </content:heading>
+                  <content:body>
+                    <p class="text-center">
+                      {% if LANG == 'en-US' %}
+                      Private by default, with more ways to make Firefox your own on Android.
+                      {% else %}
+                      {{ ftl('browsers-mobile-infinitely-customizable-private') }}
+                      {% endif %}
+                    </p>
 
+                  </content:body>
+                  <content:buttons>
+                    <div class="center-margin">
+                    {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
+                    </div>
+                  </content:buttons>
+                </include:card>
+              </include:conditional-display>
+
+              <include:conditional-display condition="ios">
+                <include:card>
+                  <content:heading>
+                    <include:heading
+                      level="h3"
+                      heading_size="fl-heading-xl fl-heading-condensed"
+                      alignment_class="text-center"
+                      heading_text="{% if LANG == 'en-US' %}Download the latest Firefox.{% else %}{{ ftl('browsers-mobile-firefox-for-ios') }}{% endif %}"
+                    />
+                  </content:heading>
+                  <content:body>
+                    <p class="text-center">
+                      {% if LANG == 'en-US' %}
+                      A more private way to browse on iPhone and iPad, with built-in tracking protection.
+                      {% else %}
+                      {{ ftl('browsers-mobile-get-enhanced-tracking-protection') }}
+                      {% endif %}
+                    </p>
+                  </content:body>
+
+                    <content:buttons>
+                      <div class="center-margin">
+                      {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
+                      </div>
+                    </content:buttons>
+                </include:card>
+              </include:conditional-display>
+          </content:content>
+        </include:section>
+      </div>
     </div>
   </main>
 </div>
@@ -300,8 +463,6 @@
   </main>
   {% endif %}
 {% endblock %}
-
-
 
 
 {% block js %}
