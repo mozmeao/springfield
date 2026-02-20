@@ -158,11 +158,16 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
     inline-size: 100%;
 }
 
+.fl-buttons.is-stacked.auto-width-buttons .fl-button {
+    inline-size: auto;
+    margin-inline-end: auto;
+}
+
 .fl-buttons > * {
     display: inline-flex;
 }
 
-.fl-buttons.is-stacked > * {
+.fl-buttons.is-stacked:not(.auto-width-buttons) > * {
     inline-size: 100%;
 }
 
