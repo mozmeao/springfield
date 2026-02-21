@@ -903,6 +903,15 @@ class PlatformViewWindows(L10nTemplateView):
     activation_files = ["firefox/download/download", "firefox/download/platform"]
 
 
+class MobileBrowsersView(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/browsers/mobile/index.html": ["firefox/browsers/mobile/index"],
+    }
+
+    def get_template_names(self):
+        return ["firefox/browsers/mobile/index.html"]
+
+
 def detect_channel(version):
     match = re.match(r"\d{1,3}", version)
     if match:
