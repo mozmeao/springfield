@@ -50,3 +50,13 @@ jobs:
           files: python_coverage/coverage.xml
           fail_ci_if_error: false  # optional (default = false)
           verbose: true  # optional (default = false)
+
+  test-python-more:  # This is a preview `test-ci` to replace the previous `test-image` over time
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}  # Only run the extra release checks on PRs for now
+    steps:
+      - uses: actions/checkout@v6
+      - name: "Run Python tests (on Docker) with extra release service build"
+        run: |
+            make clean test-ci
+        timeout-minutes: 60
