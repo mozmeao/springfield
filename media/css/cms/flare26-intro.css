@@ -112,13 +112,13 @@
 }
 
 .fl-home-intro .fl-heading-size-1 {
-    margin-block-start: calc(var(--token-scale-40) * 1px);
+    margin-block-start: var(--token-layout-xs);
 }
 
 /* This is only for the 'features theme' page, for now. */
 .has-sitting-kit .fl-intro .fl-subheading {
+    margin: var(--token-layout-md-half) auto;
     text-wrap: balance;
-    margin: calc(var(--token-scale-40) * 1px) auto;
 }
 
 .fl-home-intro::before {
@@ -194,12 +194,11 @@
 }
 
 .fl-home-intro .fl-heading {
-    margin-block: var(--token-spacing-lg);
+    margin-block: var(--token-layout-2xs);
 }
 
 .fl-home-intro .fl-subheading {
-    margin: 0 auto;
-    margin-block: 0 var(--token-layout-sm);
+    margin: var(--token-layout-md-half) auto;
     max-inline-size: 48ch;
     text-wrap: balance;
 }
@@ -248,6 +247,6 @@
     }
 
     .fl-home-intro .fl-subheading {
-        margin: calc(var(--token-scale-48) * 1px) auto;
+        margin: var(--token-layout-xs) auto;
     }
 }
