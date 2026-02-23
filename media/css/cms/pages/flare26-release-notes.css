@@ -33,6 +33,7 @@
 }
 
 .fl-banner-kit {
+    --kit-img: url('/media/img/firefox/flare/fox-brand-curious.svg');
     border-radius: var(--fl-theme-main-border-radius);
     border-start-end-radius: 0;
     border-start-start-radius: 0;
@@ -147,6 +148,10 @@
 }
 
 @media (--viewport-md-up) {
+    .fl-banner-kit {
+        --kit-img-size: 30% auto;
+    }
+
     /* Essentially recreating Protocol sidebar with sidebar */
     .fl-l-release-notes-with-sidebar {
         column-gap: var(--token-spacing-lg);
@@ -206,6 +211,12 @@
     .fl-l-release-notes-pre-footer-columns {
         grid-template-columns: repeat(3, 1fr);
         padding: var(--token-layout-md);
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-banner-kit {
+        --kit-img-size: 25% auto;
     }
 }
 
