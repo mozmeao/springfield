@@ -167,6 +167,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --sidebar-text-color: var(--token-color-grey-3);
     --sidebar-selected-text-color: var(--token-color-black-4);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
+    --fl-subnav-toggle-bg: var(--token-color-white);
 }
 
 .fl-split-page-upper,
@@ -261,6 +262,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
+    --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
 }
 
 .fl-force-light-theme {
@@ -337,6 +339,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
+    --fl-subnav-toggle-bg: var(--token-color-white);
     --button-bg-color-disabled: var(--token-color-soft-purple-2);
     --button-text-color-disabled: var(--token-color-link-purple);
 }
@@ -431,6 +434,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
+        --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
         --button-bg-color-disabled: var(--token-color-soft-purple-2);
         --button-text-color-disabled: var(--token-color-soft-purple-4);
     }
