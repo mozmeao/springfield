@@ -342,6 +342,10 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
         return "cms/thanks_page.html"
 
+    @property
+    def noindex(self):
+        return True
+
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
@@ -699,3 +703,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_utm_campaign(self):
         return f"whatsnew-{self.version}"
+
+    @property
+    def noindex(self):
+        return True
