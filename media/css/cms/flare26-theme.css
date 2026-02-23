@@ -130,6 +130,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --content-dark-mode-only: unset;
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-light-purple);
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
@@ -220,6 +221,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     );
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-soft-purple-4);
 
     /* base/purple */
     --notification-bg: var(--token-color-purple);
@@ -298,6 +300,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-light-purple);
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
@@ -388,6 +391,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         );
 
         /* Notifications */
+        --windows-icon-color: var(--token-color-soft-purple-4);
 
         /* base/purple */
         --notification-bg: var(--token-color-purple);

@@ -74,6 +74,10 @@
     font-size: 24px;
 }
 
+.fl-windows-disclaimer-logo {
+    color: var(--windows-icon-color);
+}
+
 .fl-notification-red {
     --notification-bg: var(--notification-red-bg);
     --notification-color: var(--notification-red-color);
