@@ -111,9 +111,14 @@
     display: block;
 }
 
+.fl-home-intro .fl-heading-size-1 {
+    margin-block-start: calc(var(--token-scale-40) * 1px);
+}
+
 /* This is only for the 'features theme' page, for now. */
 .has-sitting-kit .fl-intro .fl-subheading {
     text-wrap: balance;
+    margin: calc(var(--token-scale-40) * 1px) auto;
 }
 
 .fl-home-intro::before {
@@ -240,5 +245,9 @@
         --banner-kit-right-position: calc(50% - 198px);
         --banner-kit-bottom-position: -522px;
         --banner-kit-width: 1050px;
+    }
+
+    .fl-home-intro .fl-subheading {
+        margin: calc(var(--token-scale-48) * 1px) auto;
     }
 }

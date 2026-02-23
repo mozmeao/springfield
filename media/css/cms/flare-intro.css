@@ -87,17 +87,7 @@
     margin-bottom: calc(var(--token-scale-24) * 1px);
 }
 
-.fl-heading-size-1 {
-    margin-block-start: calc(var(--token-scale-40) * 1px);
-}
-
 .fl-intro .fl-subheading {
-    margin: calc(var(--token-scale-40) * 1px) auto;
-    font-size: var(--fl-theme-font-size-base);
-}
-
-@media (--viewport-md-up) {
-    .fl-intro .fl-subheading {
-        margin: calc(var(--token-scale-48) * 1px) auto;
-    }
+    margin-top: 0;
+    margin-bottom: calc(var(--token-scale-64) * 1px);
 }
