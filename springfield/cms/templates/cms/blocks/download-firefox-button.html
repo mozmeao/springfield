@@ -16,21 +16,6 @@
 #}
 
 <div class="fl-download-firefox-button c-button-download-thanks" id="{{ value.settings.analytics_id }}">
-  {% if value.settings.show_default_browser_checkbox %}
-    {% set checkbox %}
-      <label for="{{ value.settings.analytics_id }}-default-browser" class="default-browser-label hidden">
-        <input type="checkbox" id="{{ value.settings.analytics_id }}-default-browser" class="default-browser-checkbox">
-        {{ ftl('block-set-as-default')}}
-      </label>
-    {% endset %}
-    {% if is_preview %}
-      <include:conditional-display condition="windows">
-        {{ checkbox }}
-      </include:conditional-display>
-    {% else %}
-      {{ checkbox }}
-    {% endif %}
-  {% endif %}
   <a href="{{ download_firefox_thanks_link['transition_url'] }}"
      class="download-link fl-button {{ value.theme_class() }} "
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
@@ -55,6 +40,21 @@
       />
     {% endif %}
   </a>
+  {% if value.settings.show_default_browser_checkbox %}
+    {% set checkbox %}
+      <label for="{{ value.settings.analytics_id }}-default-browser" class="default-browser-label hidden">
+        <input type="checkbox" id="{{ value.settings.analytics_id }}-default-browser" class="default-browser-checkbox">
+        {{ ftl('block-set-as-default')}}
+      </label>
+    {% endset %}
+    {% if is_preview %}
+      <include:conditional-display condition="windows">
+        {{ checkbox }}
+      </include:conditional-display>
+    {% else %}
+      {{ checkbox }}
+    {% endif %}
+  {% endif %}
 
   {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
   {% set ios_url = app_store_url('firefox', campaign) %}
