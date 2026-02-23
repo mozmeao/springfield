@@ -105,3 +105,11 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request = self._patch_request_for_springfield(request)
         request.is_preview = True
         return self._render_with_fluent_string_support(request, *args, **kwargs)
+
+    @property
+    def og_title(self):
+        return self.seo_title or self.title or "Firefox"
+
+    @property
+    def og_description(self):
+        return self.search_description

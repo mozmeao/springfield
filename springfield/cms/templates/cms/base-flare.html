@@ -13,7 +13,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block extra_meta %}{% endblock %}
 
-    <title>{% block page_title %}{{ page.title if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
+    <title>{% block page_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
+    <meta name="description" content="{% filter striptags %}{% block page_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
 
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
