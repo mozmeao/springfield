@@ -18,7 +18,7 @@ Card Grid - Flare 2026 Design System Cards
 
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
-    --fl-card-sticker-size: 60px;
+    --fl-card-sticker-size: 120px;
     display: grid;
     gap: var(--fl-card-grid-gap);
     grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
