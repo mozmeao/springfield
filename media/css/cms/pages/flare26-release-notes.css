@@ -149,7 +149,8 @@
 
 @media (--viewport-md-up) {
     .fl-banner-kit {
-        --kit-img-size: 30% auto;
+        --kit-img-size: 25% auto;
+        --kit-img-position: bottom right 10%;
     }
 
     /* Essentially recreating Protocol sidebar with sidebar */
@@ -211,12 +212,6 @@
     .fl-l-release-notes-pre-footer-columns {
         grid-template-columns: repeat(3, 1fr);
         padding: var(--token-layout-md);
-    }
-}
-
-@media (--viewport-lg-up) {
-    .fl-banner-kit {
-        --kit-img-size: 25% auto;
     }
 }
 
