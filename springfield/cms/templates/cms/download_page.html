@@ -20,8 +20,11 @@
   <main class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <h1 class="fl-heading fl-heading-size-1">
-        <span class="fl-fx-logo">‍</span><br>
+        {% if LANG.startswith('en-') %}
+        Download <span class="fl-fx-logo">‍</span> Firefox for
+        {% else %}
         {{ ftl('firefox-new-download-firefox') }}
+        {% endif %}
       </h1>
       <div class="fl-platform-dropdown-wrapper">
         <div class="fl-platform-dropdown">

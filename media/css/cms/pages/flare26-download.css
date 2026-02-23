@@ -14,8 +14,9 @@
 }
 
 .fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    block-size: 0.8em;
     display: inline-block;
-    margin-block-end: 0.25em;
+    inline-size: 0.8em;
 }
 
 .fl-download-intro .fl-subheading {

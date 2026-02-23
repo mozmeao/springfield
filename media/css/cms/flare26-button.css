@@ -152,7 +152,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     border-radius: var(--token-border-radius-2xs);
 }
 
-/* Button fills - Outline */
+/* Button fills - Outline. TODO: refactor these away, but double-check
+   that they're not in use in the CMS. */
 .fl-button-outline {
     background-color: transparent;
     border: 2px solid var(--fl-theme-color-text);
