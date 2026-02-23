@@ -26,20 +26,20 @@
     }
 }
 
-.notes-head > .fl-banner-container {
+/* .notes-head > .fl-banner-container {
     margin: 0;
     min-inline-size: 100%;
     padding: 0;
-}
+} */
 
-.fl-banner-kit {
+/* .fl-banner-kit {
     --kit-img: url('/media/img/firefox/flare/fox-brand-curious.svg');
     border-radius: var(--fl-theme-main-border-radius);
     border-start-end-radius: 0;
     border-start-start-radius: 0;
     margin: 0 0 var(--token-layout-lg);
     padding: var(--token-layout-md) 0 var(--token-layout-lg);
-}
+} */
 
 .fl-heading-group {
     margin-block-end: var(--token-layout-xs);
