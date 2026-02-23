@@ -51,6 +51,7 @@
 
       {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
 
+      <div class="download-page-actions">
       {% if page.platform == "mac" %}
         {{ firefox_download_desktop_button_mac(flare_styles=True) }}
       {% elif page.platform == "windows" %}
@@ -72,6 +73,7 @@
           {{ ftl('browsers-chromebook-get-firefox-desktop') }}
         </a>
       {% endif %}
+      </div>
 
       {% if page.intro_footer_text %}
         <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>

@@ -200,6 +200,7 @@ svg {
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
     max-inline-size: 100%;
+    vertical-align: middle; /* when images are reset to inline, remove bottom padding */
 }
 
 /* Very likely to be icons within links or buttons */

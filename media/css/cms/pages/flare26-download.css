@@ -38,6 +38,11 @@
     padding-inline: var(--fl-section-h-padding);
 }
 
+/* if no paragraph above, give some extra padding to the featured image. */
+.download-page-actions + .fl-download-intro-featured-image {
+    padding-block-start: var(--token-layout-xs);
+}
+
 .fl-download-intro-featured-image img {
     inline-size: 810px;
     margin-block-end: -4px;
