@@ -92,7 +92,8 @@
       'text': ftl('sub-navigation-ios'),
       'href': url('firefox.notes', platform='ios'),
       'cta_name': "iOS"
-    }]
+    }],
+    force_dark_theme=True
   ) }}
 {% endblock %}
 
@@ -103,123 +104,124 @@
   <article id="main-content">
 
     {% block notes_header %}
-    <header class="notes-head">
-      {% if not primary_heading %}
-        {% if product_name == 'Firefox Beta' %}
-            {% set primary_heading = 'Firefox Beta and Developer Edition <br> Release Notes'|safe %}
-        {% else %}
-          {% set primary_heading = '{0} <br> Release Notes'|f(product_name)|safe %}
-        {% endif %}
-      {% endif %}
-      {% set call_out_desc = 'Release Notes tell you what’s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
-      {% if switch('flare26_enabled') %}
-        <include:intro vertical full-width media_position="before">
-          <content:heading>
-            <include:heading
-              level="h1"
-              heading_size="fl-heading-xl"
-              heading_text="{{ primary_heading }}"
-              subheading_text="{{ call_out_desc | safe }}"
-            />
-          </content:heading>
-          {% if download_button_primary %}
-          <content:actions>
-            <div class="c-download-cta">
-              {{ download_button_primary }}
-            </div>
-          </content:actions>
+      <header class="notes-head">
+        {% if not primary_heading %}
+          {% if product_name == 'Firefox Beta' %}
+              {% set primary_heading = 'Firefox Beta and Developer Edition <br> Release Notes'|safe %}
+          {% else %}
+            {% set primary_heading = '{0} <br> Release Notes'|f(product_name)|safe %}
           {% endif %}
-          <content:media>
-            <div class="fl-c-release-notes-logo">
-              {% if brand_product == 'firefox' %}
-                {{ resp_img(
-                url='img/logos/firefox/firefox-logo.svg',
-              ) }}
-              {% elif brand_product == 'beta' %}
-              {{ resp_img(
-                url='img/logos/firefox/firefox-logo-beta.svg',
-              ) }}
-              {% elif brand_product == 'nightly' %}
-              {{ resp_img(
-                url='img/logos/firefox/firefox-logo-nightly.svg',
-              ) }}
-                {% endif %}
-            </div>
-          </content:media>
-        </include:intro>
-      {% else %}
-      <div class="intro">
-        <div class="container">
-          {% call callout(
-            heading_level=1,
-            title=primary_heading,
-            desc=call_out_desc|safe,
-            class='mzp-t-firefox mzp-t-background-tertiary ' + header_class,
-            include_cta=True,
-            brand=True,
-            brand_product=brand_product,
-            brand_type='logo',
-            brand_size='lg',
-          ) %}
+        {% endif %}
+        {% set call_out_desc = 'Release Notes tell you what’s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
+        {% if switch('flare26_enabled') %}
+          <include:kit-banner theme="filled-small">
+            <content:heading>
+              <include:heading
+                level="h1"
+                heading_size="fl-heading-xl"
+                heading_text="{{ primary_heading }}"
+                subheading_text="{{ call_out_desc | safe }}"
+              />
+            </content:heading>
+
             {% if download_button_primary %}
+            <content:actions>
               <div class="c-download-cta">
                 {{ download_button_primary }}
               </div>
+            </content:actions>
             {% endif %}
-          {% endcall %}
-      </div>
-      {% endif %}
-
-      {% if release.version %}
-      {% block notes_heading_secondary %}
-        {% if switch('flare26_enabled') %}
-          <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-c-release-notes-summary fl-l-release-notes-wrapper fl-l-release-notes-with-sidebar">
-          <h2 class="c-release-summary fl-c-release-summary-sidebar fl-l-release-notes-sidebar">
-            <span class="c-release-version fl-c-release-version fl-heading fl-heading-lg">{{ release.version }}</span>
-            <span class="c-release-product fl-c-release-product fl-heading fl-heading-xs fl-u-font-semibold">{{ release.product }} {{ release.channel }}</span>
-          </h2>
-          {% if release.is_public %}
-            <p class="c-release-date fl-c-release-date fl-l-release-notes-sidebar">{{ release.release_date|l10n_format_date }}</p>
-          {% endif %}
-          <div class="mzp-l-main mzp-l-article fl-c-release-summary-details fl-c-release-notes-main">
-            {% if release.is_public %}
-              <div class="c-release-first-title fl-heading fl-heading-xs fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
-              <div class="c-release-first-text">{{ release.text|safe }}</div>
-            {% else %}
-              <h2 class="c-release-draft-title fl-heading fl-heading-xs">We’re still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
-              {% block flare_extra_draft_description %}{% endblock %}
-            {% endif %}
-          </div>
-        </div>
+            <content:media>
+              <div class="fl-c-release-notes-logo">
+                {% if brand_product == 'firefox' %}
+                  {{ resp_img(
+                  url='img/logos/firefox/firefox-logo.svg',
+                ) }}
+                {% elif brand_product == 'beta' %}
+                {{ resp_img(
+                  url='img/logos/firefox/firefox-logo-beta.svg',
+                ) }}
+                {% elif brand_product == 'nightly' %}
+                {{ resp_img(
+                  url='img/logos/firefox/firefox-logo-nightly.svg',
+                ) }}
+                  {% endif %}
+              </div>
+            </content:media>
+          </include:kit-banner>
         {% else %}
-        <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left">
-          <div class="mzp-l-sidebar">
-            <h2 class="c-release-summary">
-              <span class="c-release-version">{{ release.version }}</span>
-              <span class="c-release-product">{{ release.product }} {{ release.channel }}</span>
-            </h2>
-            {% if release.is_public %}
-              <p class="c-release-date">{{ release.release_date|l10n_format_date }}</p>
-            {% endif %}
-          </div>
-          <div class="mzp-l-main mzp-l-article">
-            {% if release.is_public %}
-              <div class="c-release-first-title">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
-              <div class="c-release-first-text">{{ release.text|safe }}</div>
-            {% else %}
-              <h2 class="c-release-draft-title">We’re still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
-              {% block extra_draft_description %}{% endblock %}
-            {% endif %}
-          </div>
+        <div class="intro">
+          <div class="container">
+            {% call callout(
+              heading_level=1,
+              title=primary_heading,
+              desc=call_out_desc|safe,
+              class='mzp-t-firefox mzp-t-background-tertiary ' + header_class,
+              include_cta=True,
+              brand=True,
+              brand_product=brand_product,
+              brand_type='logo',
+              brand_size='lg',
+            ) %}
+              {% if download_button_primary %}
+                <div class="c-download-cta">
+                  {{ download_button_primary }}
+                </div>
+              {% endif %}
+            {% endcall %}
         </div>
         {% endif %}
-        {% with location = 'top' %}
-          {% include "firefox/releases/partials/notes_pagination.html" %}
-        {% endwith %}
-      {% endblock %}
-      {% endif %}
-    </header>
-  {% endblock %}
+
+        {% if release.version %}
+        {% block notes_heading_secondary %}
+          {% if switch('flare26_enabled') %}
+            <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-c-release-notes-summary fl-l-release-notes-wrapper fl-l-release-notes-with-sidebar">
+            <h2 class="c-release-summary fl-c-release-summary-sidebar fl-l-release-notes-sidebar">
+              <span class="c-release-version fl-c-release-version fl-heading fl-heading-lg">{{ release.version }}</span>
+              <span class="c-release-product fl-c-release-product fl-heading fl-heading-xs fl-u-font-semibold">{{ release.product }} {{ release.channel }}</span>
+            </h2>
+            {% if release.is_public %}
+              <p class="c-release-date fl-c-release-date fl-l-release-notes-sidebar">{{ release.release_date|l10n_format_date }}</p>
+            {% endif %}
+            <div class="mzp-l-main mzp-l-article fl-c-release-summary-details fl-c-release-notes-main">
+              {% if release.is_public %}
+                <div class="c-release-first-title fl-heading fl-heading-xs fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
+                <div class="c-release-first-text">{{ release.text|safe }}</div>
+              {% else %}
+                <h2 class="c-release-draft-title fl-heading fl-heading-xs">We’re still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
+                {% block flare_extra_draft_description %}{% endblock %}
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left">
+            <div class="mzp-l-sidebar">
+              <h2 class="c-release-summary">
+                <span class="c-release-version">{{ release.version }}</span>
+                <span class="c-release-product">{{ release.product }} {{ release.channel }}</span>
+              </h2>
+              {% if release.is_public %}
+                <p class="c-release-date">{{ release.release_date|l10n_format_date }}</p>
+              {% endif %}
+            </div>
+            <div class="mzp-l-main mzp-l-article">
+              {% if release.is_public %}
+                <div class="c-release-first-title">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
+                <div class="c-release-first-text">{{ release.text|safe }}</div>
+              {% else %}
+                <h2 class="c-release-draft-title">We’re still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
+                {% block extra_draft_description %}{% endblock %}
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% with location = 'top' %}
+            {% include "firefox/releases/partials/notes_pagination.html" %}
+          {% endwith %}
+        {% endblock %}
+        {% endif %}
+      </header>
+    {% endblock %}
 
     <section class="c-release-notes fl-c-release-notes-content fl-l-release-notes-wrapper">
     {% if release.is_public and release_notes %}

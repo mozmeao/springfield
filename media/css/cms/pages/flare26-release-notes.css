@@ -26,6 +26,24 @@
     }
 }
 
+.notes-head > .fl-banner-container {
+    margin: 0;
+    min-inline-size: 100%;
+    padding: 0;
+}
+
+.fl-banner-kit {
+    border-radius: var(--fl-theme-main-border-radius);
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+    margin: 0 0 var(--token-layout-lg);
+    padding: var(--token-layout-md) 0 var(--token-layout-lg);
+}
+
+.fl-heading-group {
+    margin-block-end: var(--token-layout-xs);
+}
+
 .fl-l-release-notes-wrapper {
     margin-inline: auto;
     max-inline-size: min(
