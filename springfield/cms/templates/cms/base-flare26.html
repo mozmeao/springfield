@@ -21,7 +21,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <meta property="og:site_name" content="Firefox">
     <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
     <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
-    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{% if page and page.og_image %}{% set img = image(page.og_image, "width-1200") %}{{ img.url }}{% else %}{{ static('protocol/img/logos/firefox/browser/og.png') }}{% endif %}{% endblock %}{% endfilter %}">
+    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{% if page and page.og_image %}{% set img = image(page.og_image, "width-1200") %}{{ img.url }}{% else %}{{ static('img/firefox/flare/og.png') }}{% endif %}{% endblock %}{% endfilter %}">
     <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox'  }}{% endblock %}{% endfilter %}">
     <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
     <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
