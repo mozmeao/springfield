@@ -21,6 +21,7 @@
 .fl-intro-content {
     align-items: center;
     display: flex;
+    flex-direction: column;
     max-inline-size: 848px;
 }
 
@@ -84,7 +85,7 @@
 }
 
 .fl-intro-actions {
-    margin-block-start: var(--token-spacing-2xl);
+    margin-block: var(--token-spacing-2xl);
 }
 
 .fl-intro.fl-intro-media-right,
