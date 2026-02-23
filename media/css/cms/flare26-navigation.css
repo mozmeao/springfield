@@ -479,15 +479,15 @@
         display: block;
         inset-block-start: var(--fl-navigation-menu-height);
         inset-inline-start: 50%;
-        max-inline-size: 400px;
         min-inline-size: 300px;
         overflow: hidden;
         position: absolute;
         transform: translateX(-50%);
     }
 
-    .fl-menu-category.is-active #fl-menu-panel-features {
-        max-inline-size: 344px;
+    /* TODO: try to fix this in a way that doesn't use transform */
+    [dir='rtl'] .fl-menu-category.is-active .fl-menu-panel {
+        transform: translateX(50%);
     }
 
     .fl-menu-panel-content {

@@ -54,8 +54,8 @@
 }
 
 .fl-banner-outlined {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
     border: 1px solid var(--token-color-black-1);
-    color: var(--fl-theme-color-text);
 }
 
 .fl-banner-purple {
