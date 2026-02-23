@@ -1,0 +1,205 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<main class="fl-main fl-mobile-subpage">
+
+  <div class="fl-split-page-upper end-of-page has-gradient-bottom">
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim vertical media_position="right">
+          <content:heading>
+            <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/logo-word-hor-white.svg" aria-hidden />
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-size-1"
+              heading_text="{{ ftl('mobile-ios-get-to-your-go-to') }}"
+              subheading_text="{{ ftl('mobile-ios-see-your-open-tabs') }}"
+            />
+          </content:heading>
+
+          <content:actions>
+            <div class="fl-mobile-download-buttons">
+              {{ apple_app_store_button(href=ios_url) }}
+            </div>
+          </content:actions>
+
+          <content:media>
+            <div class="fl-card fl-mobile-download-form">
+              {% include 'firefox/browsers/mobile/includes/s2d-ios.html' %}
+            </div>
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-split-page-lower">
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-make-firefox-your') }}"
+              subheading_text="{{ ftl('mobile-ios-now-iphone-and') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/make-firefox-your-default-browser.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-fast-private-secure') }}"
+              subheading_text="{{ ftl('mobile-ios-keep-whats-personal') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/fast-private-secure.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-stay-private-online') }}"
+              subheading_text="{{ ftl('mobile-ios-firefox-gives-you') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/stay-private-online.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-your-browsing-history') }}"
+              subheading_text="{{ ftl('mobile-ios-if-you-want') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/your-browser-history-is-history.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-get-more-firefox') }}"
+              subheading_text="{{ ftl('mobile-ios-add-firefox-across-v2') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/get-more-firefox-in-your-life.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-find-it-all') }}"
+              subheading_text="{{ ftl('mobile-ios-get-search-suggestions') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/find-it-all-faster.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-own-your-home') }}"
+              subheading_text="{{ ftl('mobile-ios-get-to-the-parts') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/keep-tabs-on-all-those-tabs.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-discover-more-of') }}"
+              subheading_text="{{ ftl('mobile-ios-open-a-new-v2', 'mobile-ios-open-a-new') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/ios/discover-more-of-what-you-love.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-ios-about-mozilla') }}"
+              subheading_text="{{ ftl('mobile-ios-mozilla-exists-to-v2', 'mobile-ios-mozilla-exists-to') }}"
+            />
+          </content:heading>
+
+          <content:actions>
+            <div class="fl-mobile-download-buttons">
+              {{ apple_app_store_button(href=ios_url, id='appStoreLink-footer') }}
+            </div>
+          </content:actions>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+</main>

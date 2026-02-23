@@ -27,3 +27,11 @@ For now, this is a blank slate.
 .fl-download-firefox-button .conditional-display.is-preview {
     padding-block-start: var(--token-spacing-lg);
 }
+
+.show-linux {
+    display: none;
+}
+
+.linux .show-linux {
+    display: block;
+}

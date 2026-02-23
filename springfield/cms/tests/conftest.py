@@ -13,6 +13,16 @@ from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFac
 User = get_user_model()
 
 
+@pytest.fixture(autouse=True)
+def clear_waffle_cache():
+    """Clear waffle's cache before each test so that switch overrides created by
+    @override_switch are not shadowed by stale cache entries."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+
+
 @pytest.fixture
 def minimal_site(
     client,

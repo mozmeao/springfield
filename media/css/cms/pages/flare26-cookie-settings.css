@@ -1,0 +1,71 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-page-cookie-settings .cookie-consent-form ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-page-cookie-settings .cookie-consent-form input {
+    margin: 0;
+    padding: 0;
+}
+
+.fl-page-cookie-settings .cookie-category {
+    margin-block: var(--token-layout-3xs) var(--token-layout-xs);
+}
+
+.fl-page-cookie-settings .cookie-summary-title {
+    font-family: var(--token-font-family-mozilla-text);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-semibold);
+    margin: 0;
+}
+
+.fl-page-cookie-settings .cookie-control {
+    margin-block: var(--token-spacing-sm);
+    position: relative;
+}
+
+.fl-page-cookie-settings .cookie-control-label {
+    display: inline-block;
+    margin-block-start: var(--token-spacing-lg);
+    margin-inline-end: var(--token-spacing-lg);
+}
+
+.fl-page-cookie-settings .cookie-settings-section {
+    clear: both;
+    margin-block-end: var(--token-layout-xs);
+}
+
+.fl-page-cookie-settings .cookie-consent-form-submit .fl-button {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-page-cookie-settings .cookie-consent-form-submit-success {
+    animation: fl-fade-in 200ms ease-in forwards;
+}
+
+@media (--viewport-md-up) {
+    .fl-page-cookie-settings .cookie-category-title {
+        display: inline-block;
+        margin-inline-end: var(--token-spacing-lg);
+    }
+
+    .fl-page-cookie-settings .cookie-control {
+        float: inline-end;
+    }
+
+    .fl-page-cookie-settings .cookie-control-label {
+        display: inline;
+        margin-inline: var(--token-spacing-lg) 0;
+    }
+
+    .fl-page-cookie-settings .cookie-consent-form-submit {
+        text-align: end;
+    }
+}

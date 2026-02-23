@@ -1,0 +1,143 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<main class="fl-main fl-mobile-subpage">
+
+  <div class="fl-split-page-upper end-of-page has-gradient-bottom">
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim vertical media_position="right">
+          <content:heading>
+            <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/{% if LANG=='de' %}klar{% else %}focus{% endif %}/logo-word-hor-white.svg" aria-hidden />
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-size-1"
+              heading_text="{{ ftl('mobile-focus-simply-private-mobile') }}"
+              subheading_text="{{ ftl('mobile-focus-firefox-focus-dedicated-with-v2') }}"
+            />
+          </content:heading>
+
+          <content:actions>
+            <ul class="fl-mobile-download-buttons">
+              <li class="android">
+                {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+              </li>
+              <li class="ios">
+                {{ apple_app_store_button(href=ios_url, id='appStoreLink-primary') }}
+              </li>
+            </ul>
+          </content:actions>
+
+          <content:media>
+            <div class="fl-card fl-mobile-download-form">
+              {% include 'firefox/browsers/mobile/includes/s2d-focus.html' %}
+            </div>
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-split-page-lower">
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-focus-delete-your-history') }}"
+              subheading_text="{{ ftl('mobile-focus-easily-erase-your') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/focus/disappear-your-history.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-focus-take-private-mode') }}"
+              subheading_text="{{ ftl('mobile-focus-private-browsing-on-v2') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/focus/take-private-mode-to-the-next-level.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="left">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-focus-tracking-protection') }}"
+              subheading_text="{{ ftl('mobile-focus-firefox-focus-blocks') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/focus/tracking-protection.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim media_position="right">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-focus-see-it-all') }}"
+              subheading_text="{{ ftl('mobile-focus-focus-removes-trackers-v3') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img src="/media/img/firefox/browsers/mobile/focus/see-it-all-faster.svg" aria-hidden />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:intro slim vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_text="{{ ftl('mobile-focus-made-by-mozilla') }}"
+              subheading_text="{{ ftl('mobile-focus-we-believe-everyone') }}"
+            />
+          </content:heading>
+
+          <content:actions>
+            <ul class="fl-mobile-download-buttons">
+              <li class="android">
+                {{ google_play_button(href=android_url, id='playStoreLink-footer') }}
+              </li>
+              <li class="ios">
+                {{ apple_app_store_button(href=ios_url, id='appStoreLink-footer') }}
+              </li>
+            </ul>
+          </content:actions>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+</main>

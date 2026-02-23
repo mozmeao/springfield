@@ -187,7 +187,7 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_previous_sibling("label", class_="default-browser-label hidden")
+        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
@@ -242,7 +242,7 @@ def assert_image_variants_attributes(
     images_element: BeautifulSoup,
     images_value: dict,
     sizes: str = "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw",
-    widths: str = "width-{200,400,600,800,1000,1200,1400}",
+    widths: str = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
     break_at: str = "sm",
 ):
     """
@@ -509,7 +509,12 @@ def test_intro_block(index_page, placeholder_images, rf):
         if media_value:
             if media_value["type"] == "image":
                 images_element = intro_element.find("div", class_="fl-intro-media")
-                assert_image_variants_attributes(images_element=images_element, images_value=media_value["value"])
+                assert_image_variants_attributes(
+                    images_element=images_element,
+                    images_value=media_value["value"],
+                    sizes="(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw",
+                    widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                )
 
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
@@ -983,7 +988,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
             images_element = card_element.find("div", class_="image-variants-display")
             assert images_element
 
-            spec = "width-{200,400,600,800,1000,1200,1400}"
+            spec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}"
             sizes = "(min-width: 768px) 50vw, (min-width: 1024px) 30vw, (min-width: 1440px) 500px, 100vw"
 
             img_tag = images_element.find("img", class_="display-light")
@@ -1618,7 +1623,7 @@ def test_theme_page_blocks(index_page, rf):
         img = image_ids[image_id]
         rendered_image = srcset_image(
             img,
-            "width-{200,400,600,800,1000,1200,1400}",
+            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
             **{
                 "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
                 "width": img.width,
@@ -1765,7 +1770,7 @@ def test_theme_hub_page_blocks(index_page, rf):
         img = image_ids[image_id]
         rendered_image = srcset_image(
             img,
-            "width-{200,400,600,800,1000,1200,1400}",
+            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
             **{
                 "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
                 "width": img.width,
@@ -1847,7 +1852,7 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
     expected_img = image_ids[article.featured_image.id]
     rendered_image = srcset_image(
         expected_img,
-        "width-{200,400,600,800,1000,1200,1400}",
+        "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
         **{
             "sizes": "(min-width: 768px) 50vw, (min-width: 1440px) 680px,100vw",
             "width": expected_img.width,

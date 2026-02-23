@@ -59,6 +59,11 @@ body.fl-modal-open {
     position: relative;
 }
 
+.fl-split-page-lower.no-gap,
+.fl-split-page-upper.no-gap {
+    gap: 0;
+}
+
 .fl-main.has-gradient-bottom .fl-split-page-lower {
     background: transparent;
 }

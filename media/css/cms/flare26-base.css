@@ -71,6 +71,7 @@ html {
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    accent-color: var(--fl-theme-accent-color);
     color: white;
 }
 
@@ -316,5 +317,16 @@ td {
     html {
         /* stylelint-disable-next-line property-no-unknown */
         interpolate-size: allow-keywords;
+    }
+}
+
+/* Animations */
+@keyframes fl-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
     }
 }

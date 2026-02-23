@@ -57,7 +57,7 @@
     {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
     {% set analytics_position = "pre-footer-cta-form" %}
     {% set analytics_id = pre_footer_cta_form.analytics_id %}
-    <include:newsletter-form>
+    <include:newsletter-form theme="dark">
       <include:heading
         level="h2"
         heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"

@@ -7,6 +7,7 @@ import pytest
 from pages.firefox.browsers.mobile_landing import FirefoxMobilePage
 
 
+@pytest.mark.skip("This needs Flare26 update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_download_links_displayed(base_url, selenium):

@@ -64,7 +64,7 @@
   <ul class="download-list {% if switch('flare26_enabled') %}fl-download-list{% endif %}">
     {% for plat in builds %}
       <li class="os_{{ plat.os }}{% if plat.arch %} {{ plat.arch }}{% endif %}">
-        <a class="download-link button {{ button_class }} {% if switch('flare26_enabled') %}fl-button{% else %}mzp-c-button mzp-t-product ga-product-download{% endif %}"
+        <a class="download-link button {{ button_class }} {% if switch('flare26_enabled') %}fl-button{% else %}mzp-c-button mzp-t-product{% endif %} ga-product-download"
            id="{{ id }}-{{ plat.os }}"
            href="{{ plat.download_link }}"{% if plat.download_link_direct %}
            data-direct-link="{{ plat.download_link_direct }}"{% endif %}

@@ -73,16 +73,55 @@
       {% if page.intro_footer_text %}
         <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
       {% endif %}
+      {% if page.featured_image %}
+      {% set classes = image_variant_classes(page.featured_image_dark_mode, page.featured_image_mobile, page.featured_image_dark_mode_mobile) %}
       <div class="fl-download-intro-featured-image">
-        {{ srcset_image(
-            page.featured_image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="(min-width: 900px) 810px, 100vw",
-            width=page.featured_image.width,
-            height=page.featured_image.height,
-            loading="lazy",
-        ) }}
+        <div class="image-variants-display">
+          {{ srcset_image(
+              page.featured_image,
+              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+              sizes="(min-width: 900px) 810px, 100vw",
+              width=page.featured_image.width,
+              height=page.featured_image.height,
+              loading="lazy",
+              class=classes.primary,
+          ) }}
+          {% if page.featured_image_mobile %}
+            {{ srcset_image(
+                page.featured_image_mobile,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_mobile.width,
+                height=page.featured_image_mobile.height,
+                loading="lazy",
+                class=classes.mobile,
+            ) }}
+          {% endif %}
+          {% if page.featured_image_dark_mode_mobile %}
+            {{ srcset_image(
+                page.featured_image_dark_mode_mobile,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_dark_mode_mobile.width,
+                height=page.featured_image_dark_mode_mobile.height,
+                loading="lazy",
+                class=classes.dark_mode_mobile,
+            ) }}
+          {% endif %}
+          {% if page.featured_image_dark_mode %}
+            {{ srcset_image(
+                page.featured_image_dark_mode,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_dark_mode.width,
+                height=page.featured_image_dark_mode.height,
+                loading="lazy",
+                class=classes.dark_mode,
+            ) }}
+          {% endif %}
+        </div>
       </div>
+      {% endif %}
     </section>
 
     <section class="fl-split-page-lower">
@@ -111,7 +150,7 @@
     {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
     {% set analytics_position = "pre-footer-cta-form" %}
     {% set analytics_id = pre_footer_cta_form.analytics_id %}
-    <include:newsletter-form>
+    <include:newsletter-form theme="dark">
       <include:heading
         level="h2"
         heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"

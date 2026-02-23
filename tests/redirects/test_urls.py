@@ -37,7 +37,6 @@ def test_404_url(base_url):
 @pytest.mark.parametrize(
     "url",
     [
-        "/download/",
         "/os/",
     ],
 )

@@ -4,8 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-(function () {
-    'use strict';
+import MzpDetails from '@mozilla-protocol/core/protocol/js/details';
 
-    window.MzpDetails.init('.mzp-c-menu-list-title');
-})();
+window.MzpDetails = MzpDetails;
+window.MzpDetails.init('.mzp-c-menu-list-title');

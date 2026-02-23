@@ -30,12 +30,12 @@
           <li>
             <a
               class="fl-nav-link"
-              href="https://blog.mozilla.org/en/category/firefox/{{params}}"
-              data-link-text="Blog"
-              data-link-position="topnav - blog"
+              href="{{ url('firefox.user-privacy') }}"
+              data-link-text="Data Protection"
+              data-link-position="topnav - data protection"
             >
-              <span class="fl-icon fl-nav-icon-reader-view"></span>
-              {{ ftl('navigation-blog') }}
+              <span class="fl-icon fl-nav-icon-lock"></span>
+              {{ ftl('navigation-data-protection') }}
             </a>
           </li>
           <li>
@@ -52,23 +52,50 @@
           <li>
             <a
               class="fl-nav-link"
-              href="https://www.youtube.com/@firefox/podcasts{{params}}"
-              data-link-text="Podcast"
-              data-link-position="topnav - podcast"
+              href="https://blog.mozilla.org/en/category/firefox/{{params}}"
+              data-link-text="Blog"
+              data-link-position="topnav - blog"
             >
-              <span class="fl-icon fl-nav-icon-microphone"></span>
-              {{ ftl('navigation-podcast') }}
+              <span class="fl-icon fl-nav-icon-reader-view"></span>
+              {{ ftl('navigation-blog') }}
             </a>
           </li>
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.user-privacy') }}"
-              data-link-text="Data Protection"
-              data-link-position="topnav - data protection"
+              href="https://www.youtube.com/@firefox/podcasts{{params}}"
+              data-link-text="Podcast"
+              data-link-position="topnav - podcast"
             >
-              <span class="fl-icon fl-nav-icon-lock"></span>
-              {{ ftl('navigation-data-protection') }}
+              <span class="fl-icon fl-icon-microphone-true"></span>
+              {{ ftl('navigation-podcast') }}
+            </a>
+          </li>
+        </ul>
+
+        <span class="fl-nav-separator"></span>
+
+        <ul>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('newsletter') }}"
+              data-link-text="Newsletter"
+              data-link-position="topnav - newsletter"
+            >
+              <span class="fl-icon fl-icon-notifications-true"></span>
+              {{ ftl('navigation-newsletter') }}
+            </a>
+          </li>
+          <li>
+            <a
+              class="fl-nav-link"
+              href="{{ url('firefox.notes') }}"
+              data-link-text="Release Notes"
+              data-link-position="topnav - release notes"
+            >
+              <span class="fl-icon fl-nav-icon-reader-view"></span>
+              {{ ftl('navigation-release-notes') }}
             </a>
           </li>
         </ul>

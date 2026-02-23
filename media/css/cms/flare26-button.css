@@ -21,6 +21,8 @@ Button - Flare 2026 Design System Buttons
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: 600;
     gap: var(--token-spacing-md);
+    justify-content: center;
+    line-height: 1;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     text-decoration: none;
     transition:
@@ -30,60 +32,62 @@ Button - Flare 2026 Design System Buttons
     white-space: nowrap;
 }
 
-.fl-button:hover {
+.fl-button:hover:not(:disabled) {
     background-color: var(--token-color-link-purple);
 }
 
-.fl-button:active {
+.fl-button:active:not(:disabled) {
     background-color: var(--token-color-purple);
+    border-color: var(--token-color-purple);
+    outline: none;
 }
 
-/* Button variants - Secondary (outlined) */
-.fl-button.button-secondary {
-    background-color: var(--token-color-white);
-    border: 2px solid var(--token-color-light-purple);
-    color: var(--token-color-black-4);
+.fl-button:focus {
+    background-color: var(--token-color-light-purple);
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
 }
 
-.fl-button.button-secondary:hover,
-.fl-button.button-secondary:active {
-    background-color: var(--token-color-white);
-    border-color: var(--token-color-link-purple);
-    color: var(--token-color-link-purple);
-}
+/* TODO: For launch, I'm combining the secondary and ghost styles.
+The names were an artifact of the previous system, and both were slightly off.
+At present, we're not using a third button anywhere, but Figma has a third variation.
+I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially a
+"Neutral (Tertiary)" if necessary. */
 
-.fl-button.button-secondary:active {
-    color: var(--token-color-purple);
-}
-
-.fl-button.button-ghost,
-.fl-button.button-ghost:hover,
-.fl-button.button-ghost:active {
+.fl-button.button-secondary,
+.fl-button.button-ghost {
     background-color: transparent;
     border: 2px solid var(--token-color-light-purple);
     color: var(--fl-theme-color-text, var(--token-color-black-4));
 }
 
-.fl-button.button-ghost:hover,
-.fl-button.button-ghost:active {
-    background-color: var(--token-color-black-16);
+.fl-button.button-secondary:hover:not(:disabled),
+.fl-button.button-ghost:hover:not(:disabled) {
+    background-color: var(--token-color-light-purple);
+    color: var(--token-color-white);
 }
 
-.fl-button.button-link,
-.fl-button.button-link:hover,
-.fl-button.button-link:active {
+.fl-button.button-secondary:active:not(:disabled),
+.fl-button.button-ghost:active:not(:disabled) {
+    background-color: var(--token-color-link-purple);
+    border-color: var(--token-color-link-purple);
+    color: var(--token-color-white);
+}
+
+.fl-button.button-secondary:focus,
+.fl-button.button-ghost:focus {
     background-color: transparent;
-    border: none;
-    color: var(--fl-theme-color-link);
-    font-size: var(--token-font-size-sm);
-    font-weight: var(--token-font-weight-regular);
-    padding: 0;
-    text-decoration: underline;
+    color: var(--fl-theme-color-text, var(--token-color-black-4));
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
 }
 
-.fl-button.button-link:hover,
-.fl-button.button-link:active {
-    color: var(--fl-theme-color-link-hover);
+.fl-button.button-secondary:disabled,
+.fl-button.button-ghost:disabled {
+    background-color: transparent;
+    border: 2px solid var(--token-color-light-purple);
+    color: var(--token-color-light-purple);
+    cursor: not-allowed;
 }
 
 /* Button sizes */
@@ -106,12 +110,13 @@ Button - Flare 2026 Design System Buttons
 /* Button fills - Outline */
 .fl-button-outline {
     background-color: transparent;
-    border: 2px solid currentColor;
+    border: 2px solid var(--fl-theme-color-text);
     color: var(--fl-theme-color-text);
 }
 
 .fl-button-outline:hover {
-    color: var(--token-color-light-purple);
+    background-color: var(--fl-theme-color-text);
+    color: var(--fl-theme-color-text-inverse);
 }
 
 /* Button fills - Text */
@@ -128,8 +133,10 @@ Button - Flare 2026 Design System Buttons
 /* Disabled state */
 .fl-button:disabled,
 .fl-button[disabled] {
+    background-color: var(--fl-theme-button-bg-primary-disabled-bg);
+    color: var(--fl-theme-button-bg-primary-disabled-color);
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 1;
 }
 
 /* Button icons */
@@ -162,11 +169,16 @@ Button - Flare 2026 Design System Buttons
     inline-size: 100%;
 }
 
+.fl-buttons.is-stacked.auto-width-buttons .fl-button {
+    inline-size: auto;
+    margin-inline-end: auto;
+}
+
 .fl-buttons > * {
     display: inline-flex;
 }
 
-.fl-buttons.is-stacked > * {
+.fl-buttons.is-stacked:not(.auto-width-buttons) > * {
     inline-size: 100%;
 }
 

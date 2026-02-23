@@ -1,0 +1,399 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+  <main class="fl-main fl-page-developer has-gradient-bottom">
+    <div class="fl-section">
+      <div class="fl-section-container is-medium-width">
+        <include:intro media_position="before" vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-size-1"
+              heading_text="{{ ftl('firefox-developer-firefox-developer-edition') }}"
+              subheading_text="{{ ftl('firefox-developer-welcome-to-your-new-favorite') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img class="fl-brand-icon" src="/media/img/firefox/releasenotes/developer-quantum-high-res.png" aria-hidden />
+          </content:media>
+
+          <content:body>
+            <div class="fl-buttons is-horizontal">
+              {{ download_firefox('alpha', platform='desktop', dom_id='intro-download', download_location='primary cta') }}
+            </div>
+            <p class="show-linux">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
+            data-cta-text="Get help with your installation"')}}</p>
+            <p class="fl-developer-feedback-note">
+              {{ ftl('firefox-developer-firefox-developer-edition-sends') }}
+              <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
+            </p>
+          </content:body>
+        </include:intro>
+
+        <include:media-content media_after>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              superheading_text="{{ ftl('firefox-developer-firefox-developer-edition') }}"
+              heading_text="{{ ftl('firefox-developer-made-for-developers') }}"
+            />
+          </content:heading>
+          <content:body>
+            <p>{{ ftl('firefox-developer-all-the-latest-v2') }}</p>
+            <p>{{ ftl('firefox-developer-a-separate-profile') }}</p>
+            <p>{{ ftl('firefox-developer-preferences-tailored') }}</p>
+          </content:body>
+          <content:media>
+            <img src="/media/img/firefox/developer/stylo-engine.svg" aria-hidden />
+          </content:media>
+        </include:media-content>
+
+
+
+        <include:cards-list>
+          <include:illustration-card-2026 expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/hero-inactive-css.png"
+                srcset="/media/img/firefox/developer/hero-inactive-css-high-res.png 2x"
+                alt="{{ ftl('firefox-developer-inactive-css') }}"
+                loading="lazy" width="560" height="280" />
+            </content:media>
+            <content:heading>
+                <include:heading
+                  level="h2"
+                  superheading_text="{{ ftl('firefox-developer-new-tools') }}"
+                  heading_text="{{ ftl('firefox-developer-inactive-css') }}"
+                />
+            </content:heading>
+            <content:body>
+              <a href="https://hacks.mozilla.org/2019/10/firefox-70-a-bountiful-release-for-all/#developertools" rel="external">
+                <p>{{ ftl('firefox-developer-firefox-devtools-now-grays-out') }}</p>
+              </a>
+            </content:body>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/hero-debugger-ani.gif"
+                alt="{{ ftl('firefox-developer-firefox-devtools') }}"
+                loading="lazy" width="560" height="280" />
+            </content:media>
+            <content:heading>
+                <include:heading
+                  level="h2"
+                  superheading_text="{{ ftl('firefox-developer-new-tools') }}"
+                  heading_text="{{ ftl('firefox-developer-firefox-devtools') }}"
+                />
+            </content:heading>
+            <content:body>
+              <a href="https://mozilladevelopers.github.io/playground/debugger/" rel="external">
+                <p>{{ ftl('firefox-developer-the-new-firefox-devtools') }}</p>
+              </a>
+            </content:body>
+          </include:illustration-card-2026>
+          <include:illustration-card-2026 expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/hero-cssgrid-ani.gif"
+                alt="{{ ftl('firefox-developer-master-css-grid') }}"
+                loading="lazy" width="560" height="280" />
+            </content:media>
+            <content:heading>
+                <include:heading
+                  level="h2"
+                  superheading_text="{{ ftl('firefox-developer-master-innovative-features') }}"
+                  heading_text="{{ ftl('firefox-developer-master-css-grid') }}"
+                />
+            </content:heading>
+            <content:body>
+              <a href="https://mozilladevelopers.github.io/playground/css-grid/" rel="external">
+                <p>{{ ftl('firefox-developer-firefox-is-the-only-browser') }}</p>
+              </a>
+            </content:body>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/hero-fonts.gif"
+                alt="{{ ftl('firefox-developer-fonts-panel') }}"
+                loading="lazy" width="560" height="280" />
+            </content:media>
+            <content:heading>
+                <include:heading
+                  level="h2"
+                  superheading_text="{{ ftl('firefox-developer-faster-innovation') }}"
+                  heading_text="{{ ftl('firefox-developer-fonts-panel') }}"
+                />
+            </content:heading>
+            <content:body>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/how_to/edit_fonts/" rel="external">
+                <p>{{ ftl('firefox-developer-the-new-fonts-panel') }}</p>
+              </a>
+            </content:body>
+          </include:illustration-card-2026>
+        </include:cards-list>
+      </div>
+    </div>
+    <div class="fl-section fl-developer-features end-of-page">
+      <div class="fl-section-container is-medium-width">
+        <include:heading
+          level="h2"
+          heading_size="fl-heading-lg"
+          alignment_class="text-center"
+          superheading_text="{{ ftl('firefox-developer-design-code-test') }}"
+          heading_text="{{ ftl('firefox-developer-build-and-perfect') }}"
+        />
+
+        <include:cards-list>
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-inspector.svg" width="202" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-inspector') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-inspect-and-refine') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/" rel="external">
+                {{ ftl('firefox-developer-learn-about-page-inspector') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-console.svg" width="182" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-console') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-track-css') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/web_console/" rel="external">
+                {{ ftl('firefox-developer-learn-about-web-console') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-debugger.svg" width="202" height="110" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-debugger') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-powerful-javascript') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/debugger/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-debugger') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-network.svg" width="232" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-network') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-monitor-network-requests') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/network_monitor/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-newtork-monitor') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-storage.svg" width="134" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-storage-panel') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-add-modify-remove') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/storage_inspector/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-storage') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-responsive-mode.svg" width="194" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-responsive-design-mode') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-test-sites-emulated') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/responsive_design_mode/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-responsive') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-visual-editing.svg" width="112" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-visual-editing') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-fine-tuning-animations') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://hacks.mozilla.org/2015/11/developer-edition-44-creative-tools-and-more" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-visual-editing') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-performance.svg" width="202" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-performance') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-unblock-bottlenecks') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/performance/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-performance') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-memory.svg" width="116" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-memory') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-find-memory-leaks') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/memory/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-memory') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+
+          <include:illustration-card-2026 variant="sticker" expand_link>
+            <content:media>
+              <img src="/media/img/firefox/developer/feature-style-editor.svg" width="116" height="124" loading="lazy" aria-hidden />
+            </content:media>
+            <content:heading>
+              <h3>{{ ftl('firefox-developer-style-editor') }}</h3>
+            </content:heading>
+            <content:body>
+              <p>{{ ftl('firefox-developer-edit-and-manage') }}</p>
+            </content:body>
+            <content:buttons>
+              <a href="https://firefox-source-docs.mozilla.org/devtools-user/style_editor/" rel="external">
+                {{ ftl('firefox-developer-learn-more-about-style') }}
+              </a>
+            </content:buttons>
+          </include:illustration-card-2026>
+        </include:cards-list>
+      </div>
+    </div>
+    <div class="fl-section is-narrow fl-force-dark-theme">
+      <div class="fl-section-container">
+        <include:newsletter-form newsletters='app-dev' theme="dark">
+          <include:heading
+            level="h2"
+            heading_text="Get the most out of Firefox Developer Edition"
+            subheading_text="Learn about Dev Edition and subscribe to the Mozilla Developer Newsletter."
+          />
+        </include:newsletter-form>
+      </div>
+    </div>
+
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:cards-list>
+          <include:card>
+            <content:heading>
+            <include:heading
+              level="h3"
+              heading_size="fl-heading-xs"
+              heading_text="{{ ftl('firefox-developer-speak-up') }}"
+            />
+            </content:heading>
+            <content:sticker>
+              <img src="/media/img/firefox/developer/icon-speak.svg" width="64" loading="lazy" aria-hidden />
+            </content:sticker>
+            <content:body>
+              <p>{{ ftl('firefox-developer-feedback-makes-us') }}</p>
+            </content:body>
+            <content:buttons>
+              <include:button
+                link="https://discourse.mozilla.org/c/devtools"
+                label="{{ ftl('firefox-developer-join-the-convo') }}"
+              />
+            </content:buttons>
+          </include:card>
+
+          <include:card>
+            <content:heading>
+            <include:heading
+              level="h3"
+              heading_size="fl-heading-xs"
+              heading_text="{{ ftl('firefox-developer-get-involved') }}"
+            />
+            </content:heading>
+            <content:sticker>
+              <img src="/media/img/firefox/developer/icon-involved.svg" width="64" loading="lazy" aria-hidden />
+            </content:sticker>
+            <content:body>
+              <p>{{ ftl('firefox-developer-help-build-the-last') }}</p>
+            </content:body>
+            <content:buttons>
+              <include:button
+                link="https://firefox-dev.tools/"
+                label="{{ ftl('firefox-developer-start-now') }}"
+              />
+            </content:buttons>
+          </include:card>
+        </include:cards-list>
+
+        <include:banner>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              heading_text="{{ ftl('firefox-developer-download-the-firefox-browser') }}"
+            />
+          </content:heading>
+          <content:actions>
+
+      {{ download_firefox('alpha', platform='desktop', dom_id='footer-download', download_location='footer cta') }}
+          </content:actions>
+        </include:banner>
+      </div>
+    </div>
+  </main>

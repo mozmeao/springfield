@@ -699,7 +699,7 @@
     },
     {
       "files": [
-        "js/firefox/enterprise/landing.js"
+        "js/firefox/enterprise/landing.es6.js"
       ],
       "name": "firefox-enterprise"
     },

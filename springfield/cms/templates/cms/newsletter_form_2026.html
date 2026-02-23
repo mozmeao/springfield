@@ -7,7 +7,7 @@
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
 {% if not success %}
-  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
+  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate data-testid="newsletter-form">
     {% if not is_multi_newsletter_form %}
       <div hidden>
         {{ form.newsletters|safe }}
@@ -22,7 +22,7 @@
       {% else %}
         {% set placeholder = ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') %}
       {% endif %}
-      <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" />
+      <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" data-testid="newsletter-email-input" />
     </div>
 
     {% if not include_language %}
@@ -33,7 +33,7 @@
       {% if include_country %}
         <div class="fl-newsletterform-field">
           <label for="{{ form.country.id_for_label }}" class="fl-newsletterform-label">{{ form.country.label }}</label>
-          <select class="fl-newsletterform-select" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}">
+          <select class="fl-newsletterform-select" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}" data-testid="newsletter-country-select">
             <option value="" disabled selected>{{ ftl('newsletter-form-please-select-country') }}</option>
             {% for choice in form.country.field.choices %}
             {% if choice.0 %}
@@ -77,13 +77,14 @@
       {% endif %}
       <div class="fl-newsletterform-consent">
         <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
-          <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true">
+          <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
           <span class="fl-newsletterform-checkbox-text">{{ legal_links | safe }} {{ ftl('newsletter-form-we-will-only-send-firefox-v2') }}</span>
         </label>
       </div>
     </div>
     <button
      id="newsletter-submit"
+     data-testid="newsletter-submit-button"
      class="fl-button"
      type="submit"
      disabled

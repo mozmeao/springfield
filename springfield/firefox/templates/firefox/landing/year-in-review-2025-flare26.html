@@ -1,0 +1,165 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+
+<main class="fl-main fl-page-year-in-review has-gradient-bottom">
+  <div class="fl-section c-intro">
+    <div class="fl-section-container is-narrow">
+      <include:intro media_position="before" vertical full_width slim>
+        <content:heading>
+          <include:heading
+            level="h1"
+            heading_size="fl-heading-size-1"
+            heading_text="We don't keep tabs on what you do"
+          />
+        </content:heading>
+
+        <content:media>
+          <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+        </content:media>
+
+        <content:body>
+          <p>A year in review needs personal data.</p>
+          <p>Firefox is designed to protect your privacy instead.</p>
+          <p>So, there's no personalized recap here &mdash; just a thank you for choosing a browser that puts
+            people first and treats privacy as a principle, not a perk. 🫶
+          </p>
+          <div class="is-firefox-show is-firefox-not-default-show">
+            <div class="fl-buttons is-horizontal">
+              <a
+                id="set-as-default-button"
+                class="fl-button"
+                href="{{ url('firefox.default.thanks') }}"
+                data-cta-text="Make Firefox my default browser"
+                data-cta-position="primary"
+                role="button"
+                aria-label="Make Firefox my default browser"
+              >
+                Make Firefox my default browser
+              </a>
+            </div>
+          </div>
+          <div class="is-not-firefox-show">
+            <div class="fl-buttons is-horizontal">
+              {{ download_firefox_thanks(flare_styles=True) }}
+            </div>
+          </div>
+        </content:body>
+      </include:intro>
+    </div>
+  </div>
+
+  <div class="fl-section" aria-label="Firefox 2025 highlights">
+    <div class="fl-section-container is-narrow">
+      <include:heading
+        level="h2"
+        heading_size="fl-heading-lg"
+        alignment_class="text-center"
+        heading_text="Firefox 2025 year in review"
+      />
+
+      <include:cards-list>
+        <include:illustration-card-2026 variant="sticker">
+          <content:media>
+            <img
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
+              alt="Shield."
+              width="60"
+              height="70"
+            />
+          </content:media>
+          <content:heading>
+            <include:heading
+              level="h3"
+              heading_text="1+ trillion trackers blocked"
+            />
+          </content:heading>
+          <content:body>
+            <p>Firefox automatically blocks trackers to stop companies from following you around the web.</p>
+          </content:body>
+          <content:buttons>
+            <a href="https://www.firefox.com/en-US/user-privacy/">
+              {{ ftl('ui-learn-more') }}
+            </a>
+          </content:buttons>
+        </include:illustration-card-2026>
+
+        <include:illustration-card-2026 variant="sticker">
+          <content:media>
+            <img
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
+              alt="Heart."
+              width="79"
+              height="70"
+            />
+          </content:media>
+          <content:heading>
+            <include:heading
+              level="h3"
+              heading_text="200+ million people protected"
+            />
+          </content:heading>
+          <content:body>
+            <p>Our browser is built around you. We've been putting people over profits for more than 20 years.</p>
+          </content:body>
+          <content:buttons>
+            <a href="{{ url('firefox.features.private') }}">
+              {{ ftl('ui-learn-more') }}
+            </a>
+          </content:buttons>
+        </include:illustration-card-2026>
+
+        <include:illustration-card-2026 variant="sticker">
+          <content:media>
+            <img
+              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
+              alt="Lightning."
+              width="36"
+              height="70"
+            />
+          </content:media>
+          <content:heading>
+            <include:heading
+              level="h3"
+              heading_text="110 new features"
+            />
+          </content:heading>
+          <content:body>
+            <p>You spoke, and we listened. This year we built many ideas submitted by the community,
+              with even more on the way.</p>
+          </content:body>
+          <content:buttons>
+            <a href="https://blog.mozilla.org/en/firefox/firefox-2025-updates/">
+              {{ ftl('ui-learn-more') }}
+            </a>
+          </content:buttons>
+        </include:illustration-card-2026>
+      </include:cards-list>
+    </div>
+  </div>
+
+  <include:conditional-display condition="not-firefox">
+    <div class="fl-section" aria-label="Firefox 2025 highlights">
+      <div class="fl-section-container">
+        <include:banner slim="true">
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              heading_text="This year, put your privacy protection on autopilot"
+            />
+          </content:heading>
+
+          <content:actions>
+            <div class="fl-buttons is-horizontal">
+            {{ download_firefox_thanks(flare_styles=True) }}
+          </div>
+          </content:actions>
+        </include:banner>
+      </div>
+    </div>
+  </include:conditional-display>
+</main>
