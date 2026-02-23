@@ -235,38 +235,36 @@
                   {{ ftl('browsers-mobile-looking-for-a-streamlined') }}
                   {% endif %}
                 </p>
-
-                <div class="fl-buttons is-stacked auto-width-buttons" id="ios-download">
-                  <a
-                    href="{{ play_store_url('focus', 'firefox-browsers-mobile') }}"
-                    class="fl-button fl-button-small ga-product-download"
-                    data-cta-text="Download - Android (Focus)"
-                    data-cta-type="firefox_focus"
-                    rel="external noopener"
-                   >
-                   {% if LANG == 'en-US' %}Download Android{% else %}{{ ftl('browsers-mobile-android') }}{% endif %}
-                   <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
-                  </a>
-                  <a
-                    class="fl-button fl-button-small ga-product-download"
-                    href="{{ app_store_url('focus', 'firefox-browsers-mobile') }}"
-                    rel="external noopener"
-                    data-cta-text="Download - iOS (Focus)"
-                    data-cta-type="firefox_focus"
-                  >
-                    {% if LANG == 'en-US' %}Download iOS{% else %}{{ ftl('browsers-mobile-ios') }}{% endif %}
-                    <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
-                  </a>
-                  <a
-                    class="learn-more-link"
-                    href="{{ url('firefox.browsers.mobile.focus') }}"
-                    data-cta-text="Focus Learn More"
-                  >
-                    {{ ftl('ui-learn-more') }}
-                  </a>
-                </div>
-
               </content:body>
+              <content:buttons>
+                    <a
+                      href="{{ play_store_url('focus', 'firefox-browsers-mobile') }}"
+                      class="fl-button fl-button-small ga-product-download"
+                      data-cta-text="Download - Android (Focus)"
+                      data-cta-type="firefox_focus"
+                      rel="external noopener"
+                    >
+                    {% if LANG == 'en-US' %}Download Android{% else %}{{ ftl('browsers-mobile-android') }}{% endif %}
+                    <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
+                    </a>
+                    <a
+                      class="fl-button fl-button-small ga-product-download"
+                      href="{{ app_store_url('focus', 'firefox-browsers-mobile') }}"
+                      rel="external noopener"
+                      data-cta-text="Download - iOS (Focus)"
+                      data-cta-type="firefox_focus"
+                    >
+                      {% if LANG == 'en-US' %}Download iOS{% else %}{{ ftl('browsers-mobile-ios') }}{% endif %}
+                      <span class="fl-icon fl-icon-right fl-icon-downloads" aria-hidden="true"></span>
+                    </a>
+                    <a
+                      class="learn-more-link"
+                      href="{{ url('firefox.browsers.mobile.focus') }}"
+                      data-cta-text="Focus Learn More"
+                    >
+                      {{ ftl('ui-learn-more') }}
+                    </a>
+                </content:buttons>
             </include:card>
           </include:cards-list>
         </content:content>
