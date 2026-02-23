@@ -90,4 +90,5 @@
 .fl-intro .fl-subheading {
     margin-top: 0;
     margin-bottom: calc(var(--token-scale-64) * 1px);
+    font-size: var(--fl-theme-font-size-base);
 }
