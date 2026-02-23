@@ -34,6 +34,7 @@ Card Grid - Flare 2026 Design System Cards
 @media (--viewport-sm-up) {
     /* for most instances, tablet size gets two-wide cards */
     .fl-card-grid {
+        --fl-card-sticker-size: 160px;
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
 

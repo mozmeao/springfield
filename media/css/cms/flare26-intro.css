@@ -107,6 +107,10 @@
     position: relative;
 }
 
+.fl-home-intro .fl-intro {
+    padding-block-end: var(--token-layout-sm);
+}
+
 .fl-home-intro .fl-intro-content {
     display: block;
 }
