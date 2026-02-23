@@ -3,10 +3,12 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.db import models
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
+from wagtail.admin.panels import FieldPanel
 from wagtail.models import Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 
@@ -35,6 +37,18 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     """
 
     ftl_files = None
+
+    og_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text="Image displayed when this page is shared on social media. Recommended size: 1200×630 pixels (PNG).",
+    )
+
+    promote_panels = WagtailBasePage.promote_panels + [
+        FieldPanel("og_image"),
+    ]
 
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
     # every localized variant of the page and shouldn't get sent for translation.
