@@ -26,6 +26,15 @@
     }
 }
 
+.notes-head {
+    text-align: center;
+}
+
+.fl-heading-group {
+    margin: 0 auto var(--token-layout-xs);
+    max-inline-size: 60%;
+}
+
 .fl-l-release-notes-wrapper {
     margin-inline: auto;
     max-inline-size: min(
@@ -36,6 +45,7 @@
 
 .fl-c-release-notes-logo {
     inline-size: 55px; /* use rems? */
+    margin: auto;
 }
 
 .fl-c-release-version {

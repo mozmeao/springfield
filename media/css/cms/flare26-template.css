@@ -49,6 +49,18 @@ body.fl-modal-open {
     z-index: 1;
 }
 
+.fl-split-page-upper.has-curious-kit::after {
+    background: url('/media/img/firefox/flare/fox-brand-curious.svg') bottom
+        center no-repeat;
+    background-size: contain;
+    block-size: 120px;
+    content: '';
+    display: block;
+    inline-size: 240px;
+    inset: auto 10vw 0 auto;
+    position: absolute;
+}
+
 .fl-split-page-lower {
     background-color: var(--fl-theme-background);
     color: var(--fl-theme-color-text);
