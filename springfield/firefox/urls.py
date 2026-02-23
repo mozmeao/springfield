@@ -118,7 +118,7 @@ urlpatterns = (
     page(
         "landing/ios-summarizer/",
         "firefox/landing/ios-summarizer.html",
-        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
+        ftl_files=["firefox/summarizer/ios", "firefox/browsers/mobile/ios"],
     ),
     page(
         "compare/",
