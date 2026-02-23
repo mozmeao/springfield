@@ -106,14 +106,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --card-border-color: var(--token-color-soft-purple);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
+    --theme-dark-purple-card-bg-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
-    --cloud-background-gradient: linear-gradient(
+    --callout-background-gradient: linear-gradient(
         180deg,
-        #fff44f 0%,
-        #ffb84a 100%
+        #fff04f 0%,
+        #ffba4a 84%
     );
 
     /* Navigiation menu */
@@ -208,10 +209,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-purple-card-bg-color: var(--token-color-purple);
     --theme-purple-card-bullet-color: var(--token-color-light-purple);
     --theme-yellow-card-bg-color: var(--token-color-medium-purple);
-    --cloud-background-gradient: linear-gradient(
-        180deg,
-        var(--token-color-medium-purple) 0%,
-        var(--token-color-purple) 100%
+
+    /* ommiting this one because we use the 'force'
+       class on light mode for the text.
+    --theme-dark-purple-card-bg-color: var(--token-color-dark-purple-2); */
+    --callout-background-gradient: linear-gradient(
+        265.1deg,
+        #2c0c55 0%,
+        #3c116f 100%
     );
 
     /* Notifications */
@@ -375,10 +380,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --theme-purple-card-bg-color: var(--token-color-purple);
         --theme-purple-card-bullet-color: var(--token-color-light-purple);
         --theme-yellow-card-bg-color: var(--token-color-medium-purple);
-        --cloud-background-gradient: linear-gradient(
-            180deg,
-            var(--token-color-medium-purple) 0%,
-            var(--token-color-purple) 100%
+        --theme-dark-purple-card-bg-color: var(--token-color-dark-purple-2);
+        --callout-background-gradient: linear-gradient(
+            265.1deg,
+            #2c0c55 0%,
+            #3c116f 100%
         );
 
         /* Notifications */
