@@ -26,10 +26,9 @@
     }
 }
 
-.notes-head  {
-    text-align: center
+.notes-head {
+    text-align: center;
 }
-
 
 .fl-heading-group {
     margin: 0 auto var(--token-layout-xs);
