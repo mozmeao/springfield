@@ -136,7 +136,8 @@
 
 {% macro sub_nav(
   title,
-  links
+  links,
+  force_dark_theme=False
 ) -%}
 {% if 'releasenotes' in request.path %}
   {# Map notes permalink to nav items for highlighting as current. #}
@@ -153,7 +154,7 @@
   {% set current_page = request.path %}
 {% endif %}
 {% if switch ('flare26_enabled') %}
-  <nav class="c-sub-navigation fl-subnav fl-force-dark-theme" aria-labelledby="c-sub-navigation-title">
+  <nav class="c-sub-navigation fl-subnav {% if force_dark_theme %}fl-force-dark-theme{% endif %}" aria-labelledby="c-sub-navigation-title">
     <div class="c-sub-navigation-content fl-subnav-heading-wrap">
       <h2 id="c-sub-navigation-title" class="c-sub-navigation-title fl-subnav-heading">
         {% if title.href %}

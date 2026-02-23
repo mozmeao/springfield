@@ -149,7 +149,7 @@ Basic Card
 .fl-card {
     align-items: stretch;
     backdrop-filter: blur(7.5px);
-    background: var(--fl-theme-surface-card-gradient);
+    background: var(--fl-theme-default-card-bg);
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);

@@ -13,7 +13,7 @@ import springfield.cms.models.pages
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0047_articlethemepage_upper_content"),
+        ("cms", "0048_add_image_variants_to_page_fks"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

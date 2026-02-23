@@ -21,6 +21,7 @@ Button - Flare 2026 Design System Buttons
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: 600;
     gap: var(--token-spacing-md);
+    justify-content: center;
     line-height: 1;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
     text-decoration: none;
@@ -31,12 +32,20 @@ Button - Flare 2026 Design System Buttons
     white-space: nowrap;
 }
 
-.fl-button:hover {
+.fl-button:hover:not(:disabled) {
     background-color: var(--token-color-link-purple);
 }
 
-.fl-button:active {
+.fl-button:active:not(:disabled) {
     background-color: var(--token-color-purple);
+    border-color: var(--token-color-purple);
+    outline: none;
+}
+
+.fl-button:focus {
+    background-color: var(--token-color-light-purple);
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
 }
 
 /* TODO: For launch, I'm combining the secondary and ghost styles.
@@ -46,39 +55,39 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
 "Neutral (Tertiary)" if necessary. */
 
 .fl-button.button-secondary,
-.fl-button.button-secondary:hover,
-.fl-button.button-secondary:active,
-.fl-button.button-ghost,
-.fl-button.button-ghost:hover,
-.fl-button.button-ghost:active {
+.fl-button.button-ghost {
     background-color: transparent;
     border: 2px solid var(--token-color-light-purple);
     color: var(--fl-theme-color-text, var(--token-color-black-4));
 }
 
-.fl-button.button-secondary:hover,
-.fl-button.button-secondary:active,
-.fl-button.button-ghost:hover,
-.fl-button.button-ghost:active {
+.fl-button.button-secondary:hover:not(:disabled),
+.fl-button.button-ghost:hover:not(:disabled) {
     background-color: var(--token-color-light-purple);
     color: var(--token-color-white);
 }
 
-.fl-button.button-link,
-.fl-button.button-link:hover,
-.fl-button.button-link:active {
-    background-color: transparent;
-    border: none;
-    color: var(--fl-theme-color-link);
-    font-size: var(--token-font-size-sm);
-    font-weight: var(--token-font-weight-regular);
-    padding: 0;
-    text-decoration: underline;
+.fl-button.button-secondary:active:not(:disabled),
+.fl-button.button-ghost:active:not(:disabled) {
+    background-color: var(--token-color-link-purple);
+    border-color: var(--token-color-link-purple);
+    color: var(--token-color-white);
 }
 
-.fl-button.button-link:hover,
-.fl-button.button-link:active {
-    color: var(--fl-theme-color-link-hover);
+.fl-button.button-secondary:focus,
+.fl-button.button-ghost:focus {
+    background-color: transparent;
+    color: var(--fl-theme-color-text, var(--token-color-black-4));
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
+}
+
+.fl-button.button-secondary:disabled,
+.fl-button.button-ghost:disabled {
+    background-color: transparent;
+    border: 2px solid var(--token-color-light-purple);
+    color: var(--token-color-light-purple);
+    cursor: not-allowed;
 }
 
 /* Button sizes */
@@ -124,8 +133,10 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
 /* Disabled state */
 .fl-button:disabled,
 .fl-button[disabled] {
+    background-color: var(--fl-theme-button-bg-primary-disabled-bg);
+    color: var(--fl-theme-button-bg-primary-disabled-color);
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 1;
 }
 
 /* Button icons */

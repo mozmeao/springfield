@@ -133,30 +133,17 @@
 }
 
 .fl-newsletterform .fl-button {
-    align-items: center;
-    background-color: var(--token-color-purple);
-    border: 0;
-    border-radius: 200px;
-    color: var(--token-color-white);
-    cursor: pointer;
-    display: inline-flex;
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-heading-2xs);
-    font-weight: var(--token-font-weight-semibold);
     inline-size: 100%;
-    justify-content: center;
-    line-height: 1.1;
-    padding: var(--token-spacing-lg) var(--token-spacing-xl);
-    text-decoration: none;
-    transition: background-color var(--token-transition-fast);
-}
-
-.fl-newsletterform .fl-button:hover {
-    background-color: var(--token-color-link-purple);
 }
 
 .fl-newsletterform .fl-button:focus {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+    background-color: var(--token-color-light-purple);
+    outline: 2px solid var(--token-color-light-purple);
+    outline-offset: 2px;
+}
+
+.fl-newsletterform .fl-button:active:not(:disabled) {
+    background-color: var(--token-color-purple);
     outline: none;
 }
 
@@ -189,7 +176,7 @@
     -webkit-appearance: none;
     background: var(--fl-theme-background);
     block-size: 19px;
-    border: 1px solid var(--token-color-grey-3);
+    border: 1px solid var(--token-color-light-purple);
     border-radius: 5px;
     cursor: pointer;
     flex-shrink: 0;
@@ -208,14 +195,19 @@
     text-align: start;
 }
 
+.fl-newsletterform-checkbox-label input[type='checkbox']:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .fl-newsletterform-checkbox-label input[type='checkbox']:checked {
-    background: #f60;
-    border-color: #f60;
+    background: var(--token-color-light-purple);
+    border-color: var(--token-color-light-purple);
 }
 
 .fl-newsletterform-checkbox-label input[type='checkbox']:checked::after {
     block-size: 9px;
-    border: 2px solid var(--fl-theme-color-text);
+    border: 2px solid var(--token-color-white);
     border-block-start: 0;
     border-inline-start: 0;
     content: '';
@@ -297,7 +289,7 @@
 }
 
 .fl-newsletterform-select:hover {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: var(--fl-theme-form-field-border-color-focus);
 }
 
 .fl-newsletterform-select:focus {

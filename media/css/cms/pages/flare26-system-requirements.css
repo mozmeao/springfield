@@ -1,0 +1,18 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.fl-system-requirements-body {
+    --releases-list-padding: var(--token-spacing-lg) * 2;
+    margin-inline: auto;
+    max-inline-size: min(
+        (100% - var(--releases-list-padding)),
+        var(--token-width-desktop-content)
+    );
+
+    hr {
+        margin-block: var(--token-layout-xs);
+    }
+}
