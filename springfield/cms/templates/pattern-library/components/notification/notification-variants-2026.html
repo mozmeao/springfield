@@ -31,6 +31,33 @@
         </div>
       {% endfor %}
     </div>
+
+
+    <h4>Dark Notification variants with reverse icon</h4>
+    <div class="pl-row" style="display: flex; flex-direction: column; gap: 16px;">
+      {% for color in colors %}
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for notification in notifications %}
+              <div>
+                <include:notification
+                  color="{{ color }}"
+                  icon="{{ notification.icon }}"
+                  closable="{{ notification.closable }}"
+                  reverse_icon
+                >
+                  <content:heading>
+                    <p>{{ notification.heading }}</p>
+                  </content:heading>
+                  <p>{{ notification.message }}</p>
+                </include:notification>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 
   <div class="fl-split-page-lower">
@@ -46,6 +73,33 @@
                   color="{{ color }}"
                   icon="{{ notification.icon }}"
                   closable="{{ notification.closable }}"
+                >
+                  <content:heading>
+                    <p>{{ notification.heading }}</p>
+                  </content:heading>
+                  <p>{{ notification.message }}</p>
+                </include:notification>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+    <h4>Light Notification variants with reverse icon</h4>
+    <div class="pl-row"  style="display: flex; flex-direction: column; gap: 16px;">
+      {% for color in colors %}
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for notification in notifications %}
+              <div>
+                <include:notification
+                  color="{{ color }}"
+                  icon="{{ notification.icon }}"
+                  closable="{{ notification.closable }}"
+                  reverse_icon
                 >
                   <content:heading>
                     <p>{{ notification.heading }}</p>

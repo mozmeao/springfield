@@ -26,7 +26,7 @@
       {% if is_preview %}
         <span class="preview-indicator">Condition: windows or mac</span>
       {% endif %}
-      <include:notification color="green">
+      <include:notification color="purple" icon="information-fill" closable>
         {# fallback_url is replaced by the platform download link via JS, but if
             something fails the user should still get a link to a working download path. #}
         {% set fallback_href = firefox_url('desktop', 'all') %}

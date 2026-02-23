@@ -16,17 +16,18 @@
 }
 
 .fl-notification {
-    align-items: stretch;
+    align-items: center;
     background: var(--notification-bg);
     border: 1px solid var(--notification-border-color);
     border-radius: var(--token-spacing-sm);
+    box-shadow: var(--notification-box-shadow);
     color: var(--notification-color);
     display: flex;
     flex-direction: row;
     gap: var(--token-spacing-lg);
     margin: var(--token-spacing-sm) 0;
     margin-inline: var(--token-spacing-lg);
-    max-inline-size: 560px;
+    max-inline-size: var(--token-width-desktop-content-lg);
     min-block-size: 48px;
     overflow: hidden;
     padding: var(--token-spacing-xl);
@@ -46,14 +47,19 @@
 .fl-notification-icon-section {
     align-items: center;
     align-self: stretch;
-    background: var(--notification-icon-bg);
-    block-size: 40px;
+    background: transparent;
     border-radius: var(--token-spacing-md);
-    color: var(--notification-icon-color);
+    color: var(--notification-color);
     display: flex;
     flex-shrink: 0;
-    inline-size: 40px;
     justify-content: center;
+}
+
+.fl-notification.fl-notification-reverse-icon .fl-notification-icon-section {
+    background: var(--notification-icon-bg);
+    block-size: 40px;
+    color: var(--notification-icon-color);
+    inline-size: 40px;
 }
 
 .fl-notification.fl-notification-dark .fl-notification-icon-section {
