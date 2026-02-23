@@ -10,7 +10,11 @@ main.fl-2026-enterprise {
 
 .fl-2026-enterprise .fl-superheading {
     display: flex;
-    justify-content: start;
+    justify-content: center;
+}
+
+.fl-2026-enterprise .fl-intro-actions {
+    margin-inline: auto;
 }
 
 .fl-2026-enterprise .heading-logo {
@@ -20,6 +24,26 @@ main.fl-2026-enterprise {
     margin-inline: auto;
     max-block-size: 60px;
     max-inline-size: 100%;
+}
+
+.fl-2026-enterprise .fl-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-2026-enterprise .fl-card-sticker {
+    margin: 0 auto var(--token-spacing-lg) 0;
+    max-block-size: 60px;
+    max-inline-size: 60px;
+    order: 1;
+}
+
+.fl-2026-enterprise .fl-card-heading-group {
+    order: 2;
+}
+
+.fl-2026-enterprise .fl-body {
+    order: 3;
 }
 
 .fl-2026-enterprise-support h2 {
@@ -43,7 +67,7 @@ main.fl-2026-enterprise {
 .fl-2026-enterprise .fl-card-grid {
     margin: auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
-    padding: 0 var(--token-layout-sm);
+    padding: 0 var(--fl-section-h-padding);
 }
 
 .fl-section-download {
@@ -80,6 +104,10 @@ main.fl-2026-enterprise {
 }
 
 @media (--viewport-sm-up) {
+    .fl-2026-enterprise .fl-superheading {
+        justify-content: start;
+    }
+
     .fl-2026-enterprise .heading-logo {
         margin-inline: 0;
         max-block-size: 80px;
