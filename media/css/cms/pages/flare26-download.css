@@ -26,6 +26,7 @@
 
 .fl-download-intro-featured-image {
     padding-block-start: var(--token-spacing-md);
+    padding-inline: var(--fl-section-h-padding);
 }
 
 .fl-download-intro-featured-image img {
