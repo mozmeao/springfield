@@ -14,7 +14,6 @@ from wagtail.models import Locale, Page, Site
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
-    FreeFormPage2026,
     SimpleRichTextPage,
     StructuralPage,
     Tag,
