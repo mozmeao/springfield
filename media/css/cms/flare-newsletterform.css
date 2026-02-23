@@ -139,8 +139,8 @@
 }
 
 .fl-section-subscribe .fl-button:active {
-    background: var(--fl-theme-button-primary-active-bg);
-    color: var(--fl-theme-button-primary-active-text);
+    background: var(--button-bg-color-active-bg);
+    color: var(--button-bg-color-active-text);
 }
 
 .fl-section-subscribe .fl-newsletterform-error-list {

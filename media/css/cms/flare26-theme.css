@@ -32,12 +32,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
-    /* Button palette */
-    --fl-theme-button-primary: var(--token-color-link-purple);
+    /* Button palette
+       Note: most button variables are in the button file, as they are
+       heavily overriden, and it's easiest to see them all in one place. */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
-    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -170,7 +169,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-subnav-bg: var(--token-gradient-subnav-light);
 }
 
-/* todo: when we build a proper dark mode, copy these up to a :root selector */
 .fl-split-page-upper,
 .fl-force-dark-theme {
     /* Main theme */
@@ -263,10 +261,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-purple);
-    --fl-theme-button-bg-primary-disabled-color: var(
-        --token-color-soft-purple-4
-    );
+    --button-bg-color-disabled: var(--token-color-purple);
+    --button-text-color-disabled: var(--token-color-soft-purple-4);
 }
 
 .fl-force-light-theme {
@@ -343,8 +339,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
-    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
+    --button-bg-color-disabled: var(--token-color-soft-purple-2);
+    --button-text-color-disabled: var(--token-color-link-purple);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -437,12 +433,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
-        --fl-theme-button-bg-primary-disabled-bg: var(
-            --token-color-soft-purple-2
-        );
-        --fl-theme-button-bg-primary-disabled-color: var(
-            --token-color-soft-purple-4
-        );
+        --button-bg-color-disabled: var(--token-color-soft-purple-2);
+        --button-text-color-disabled: var(--token-color-soft-purple-4);
     }
 }
 

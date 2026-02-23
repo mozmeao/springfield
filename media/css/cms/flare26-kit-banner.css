@@ -5,10 +5,6 @@
 */
 
 .fl-banner-kit {
-    --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-color-link: var(--token-color-white);
-    --fl-theme-color-link-visited: var(--token-color-white);
-    --fl-theme-color-link-strong: var(--token-color-white);
     --kit-img: none; /* These are added with a utility class below. */
     --kit-banner-padding-bottom: var(--token-layout-3xs);
     --kit-img-size: min(90%, 400px) auto;
@@ -41,7 +37,7 @@
     display: block;
     inline-size: 100%;
     margin: 0 auto;
-    max-inline-size: min(740px, 100%);
+    max-inline-size: min(600px, 100%);
     overflow-wrap: break-word;
     text-wrap: balance;
     word-break: normal;
@@ -193,17 +189,6 @@
         inset-block-end: 20px;
         inset-inline-start: 49.5%;
         max-inline-size: 270px;
-    }
-
-    .fl-banner-kit .fl-banner-content .fl-heading {
-        max-inline-size: min(790px, 100%);
-    }
-}
-
-/* Exception: Hardcoded media query to avoid 741-775px container width range that causes imbalanced text wrapping. Only set max-width here, no other styles should be added inside this media query. */
-@media (min-width: 1100px) and (max-width: 1200px) {
-    .fl-banner-kit .fl-banner-content .fl-heading {
-        max-inline-size: min(740px, 100%);
     }
 }
 

@@ -192,48 +192,6 @@
     z-index: 2;
 }
 
-.fl-banner-purple .fl-button:not([class*='button-']),
-.fl-banner-dark-purple .fl-button:not([class*='button-']) {
-    border-color: var(--token-color-white);
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button:not([class*='button-']):hover,
-.fl-banner-purple .fl-button:not([class*='button-']):focus,
-.fl-banner-purple .fl-button:not([class*='button-']):active,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):hover,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):focus,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):active {
-    background-color: var(--token-color-cream);
-    border-color: var(--token-color-black-1);
-    color: var(--token-color-dark-purple);
-}
-
-.fl-banner-purple .fl-button.button-ghost,
-.fl-banner-dark-purple .fl-button.button-ghost {
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button.button-ghost:hover,
-.fl-banner-purple .fl-button.button-ghost:focus,
-.fl-banner-purple .fl-button.button-ghost:active,
-.fl-banner-dark-purple .fl-button.button-ghost:hover,
-.fl-banner-dark-purple .fl-button.button-ghost:focus,
-.fl-banner-dark-purple .fl-button.button-ghost:active {
-    background-color: var(--token-color-black-16);
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button.button-secondary:hover,
-.fl-banner-purple .fl-button.button-secondary:focus,
-.fl-banner-purple .fl-button.button-secondary:active,
-.fl-banner-dark-purple .fl-button.button-secondary:hover,
-.fl-banner-dark-purple .fl-button.button-secondary:focus,
-.fl-banner-dark-purple .fl-button.button-secondary:active {
-    background: var(--token-color-purple);
-    color: var(--token-color-white);
-}
-
 .fl-banner-slim.fl-banner-container {
     padding: 0;
 }
