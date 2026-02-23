@@ -9,7 +9,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   <head>
     <meta charset="utf-8">
-    <meta name="robots" content="noindex,follow">
+    {% include 'includes/transcend-consent.html' %}
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block extra_meta %}{% endblock %}
 
@@ -58,6 +59,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% include 'cms/includes/footer.html' %}
       {% endblock %}
     </div>
+
+    {# Issue 8444 #}
+    {% block sentry_client %}
+      {% if settings.SENTRY_FRONTEND_DSN and switch('sentry-js') %}
+        <!--[if !IE]><!-->
+          {# Sentry only runs on evergreen browsers so we exclude it from IE. #}
+          {{ js_bundle('sentry') }}
+        <!--<![endif]-->
+      {% endif %}
+    {% endblock %}
 
     {% block site_js %}
     {{ js_bundle('lib') }}
