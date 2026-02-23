@@ -26,23 +26,14 @@
     }
 }
 
-/* .notes-head > .fl-banner-container {
-    margin: 0;
-    min-inline-size: 100%;
-    padding: 0;
-} */
+.notes-head  {
+    text-align: center
+}
 
-/* .fl-banner-kit {
-    --kit-img: url('/media/img/firefox/flare/fox-brand-curious.svg');
-    border-radius: var(--fl-theme-main-border-radius);
-    border-start-end-radius: 0;
-    border-start-start-radius: 0;
-    margin: 0 0 var(--token-layout-lg);
-    padding: var(--token-layout-md) 0 var(--token-layout-lg);
-} */
 
 .fl-heading-group {
-    margin-block-end: var(--token-layout-xs);
+    margin: 0 auto var(--token-layout-xs);
+    max-inline-size: 60%;
 }
 
 .fl-l-release-notes-wrapper {
@@ -55,6 +46,7 @@
 
 .fl-c-release-notes-logo {
     inline-size: 55px; /* use rems? */
+    margin: auto;
 }
 
 .fl-c-release-version {
@@ -148,11 +140,6 @@
 }
 
 @media (--viewport-md-up) {
-    .fl-banner-kit {
-        --kit-img-size: 25% auto;
-        --kit-img-position: bottom right 10%;
-    }
-
     /* Essentially recreating Protocol sidebar with sidebar */
     .fl-l-release-notes-with-sidebar {
         column-gap: var(--token-spacing-lg);
