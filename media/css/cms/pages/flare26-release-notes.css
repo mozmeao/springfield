@@ -34,8 +34,8 @@
 
 .fl-banner-kit {
     border-radius: var(--fl-theme-main-border-radius);
-    border-start-start-radius: 0;
     border-start-end-radius: 0;
+    border-start-start-radius: 0;
     margin: 0 0 var(--token-layout-lg);
     padding: var(--token-layout-md) 0 var(--token-layout-lg);
 }
