@@ -422,11 +422,13 @@ Step Cards List - With Kit variant
 
 .fl-step-card .fl-heading {
     font-size: var(--token-spacing-lg);
+    font-variation-settings: unset;
     font-weight: var(--token-font-weight-semibold);
     letter-spacing: 0;
     line-height: 1.1;
     margin: 0;
-    text-wrap: auto;
+    text-align: center;
+    text-wrap: balance;
 }
 
 /* Decorative Kit (Figma): only on the last card */
