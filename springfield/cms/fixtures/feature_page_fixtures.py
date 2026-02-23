@@ -38,7 +38,7 @@ from django.core.files.images import ImageFile
 
 from wagtail.models import Locale, Site
 
-from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, ArticleThemePage, SpringfieldImage
 
 # =============================================================================
 # Image Definitions
@@ -362,33 +362,68 @@ def build_content_blocks(content: str, image_ids: dict[str, int]) -> list[dict]:
 # =============================================================================
 
 
+def get_features_theme_page(publish: bool = True) -> ArticleThemePage:
+    """
+    Get or create the ArticleThemePage at /features/.
+
+    This page serves as the parent for the features ArticleIndexPage and all
+    feature ArticleDetailPages, which are siblings of each other under this page.
+    """
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    source_locale = Locale.objects.get(language_code="en-US")
+
+    theme_page = ArticleThemePage.objects.filter(
+        slug="features",
+        locale=source_locale,
+        path__startswith=root_page.path,
+        depth=root_page.depth + 1,
+    ).first()
+    if not theme_page:
+        theme_page = ArticleThemePage(
+            slug="features",
+            locale=source_locale,
+            # From: features-index-firefox-browser-features
+            title="Firefox browser features",
+        )
+        root_page.add_child(instance=theme_page)
+
+    if publish:
+        theme_page.save_revision().publish()
+    else:
+        theme_page.live = False
+        theme_page.has_unpublished_changes = True
+        theme_page.save_revision()
+        theme_page.save()
+    return theme_page
+
+
 def get_features_index_page(publish: bool = True) -> ArticleIndexPage:
     """
-    Get or create the ArticleIndexPage at /features/.
+    Get or create the ArticleIndexPage at /features/features-index/.
 
-    This page serves as the parent for all feature ArticleDetailPages
-    and displays them in a card layout.
+    This page is a sibling of the feature ArticleDetailPages — both are children
+    of the features ArticleThemePage. The index page's get_context() gathers its
+    siblings (the detail pages) as the article listing.
 
     Content matches FTL strings from index-2023.ftl:
     - features-index-firefox-browser-features: "Firefox browser features"
     - features-index-firefox-is-the-fast-lightweight: "Firefox is the fast,
       lightweight, privacy-focused browser that works across all your devices."
     """
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
+    theme_page = get_features_theme_page(publish=publish)
     source_locale = Locale.objects.get(language_code="en-US")
 
-    # Filter by locale to avoid finding pages in other locales
+    # Filter by locale and parent to avoid finding pages in other locales
     index_page = ArticleIndexPage.objects.filter(
-        slug="features",
+        slug="features-index",
         locale=source_locale,
-        # Get the ArticleIndexPage that is a direct child of the root page
-        path__startswith=root_page.path,
-        depth=root_page.depth + 1,
+        path__startswith=theme_page.path,
+        depth=theme_page.depth + 1,
     ).first()
     if not index_page:
         index_page = ArticleIndexPage(
-            slug="features",
+            slug="features-index",
             locale=source_locale,
             # From: features-index-firefox-browser-features
             title="Firefox browser features",
@@ -397,7 +432,7 @@ def get_features_index_page(publish: bool = True) -> ArticleIndexPage:
             other_articles_heading="Do more with Firefox",
             other_articles_subheading="",
         )
-        root_page.add_child(instance=index_page)
+        theme_page.add_child(instance=index_page)
 
     if publish:
         index_page.save_revision().publish()
@@ -761,16 +796,16 @@ def get_feature_page(slug: str, image_ids: dict[str, int], publish: bool = True)
         raise ValueError(f"Unknown feature page slug: {slug}")
 
     page_data = FEATURE_PAGES[slug]
-    index_page = get_features_index_page(publish=publish)
+    theme_page = get_features_theme_page(publish=publish)
 
     # Filter by parent to avoid finding pages in other locales/parents
-    page = ArticleDetailPage.objects.child_of(index_page).filter(slug=slug).first()
+    page = ArticleDetailPage.objects.child_of(theme_page).filter(slug=slug).first()
     if not page:
         page = ArticleDetailPage(
             slug=slug,
             title=page_data["title"],
         )
-        index_page.add_child(instance=page)
+        theme_page.add_child(instance=page)
 
     # Update page content
     page.title = page_data["title"]
@@ -850,13 +885,17 @@ def load_feature_page_fixtures(publish: bool = True):
     image_ids = import_feature_images()
     print(f"  Imported {len(image_ids)} images")
 
-    # Create index page
+    # Create theme page (parent of both the index page and all detail pages)
+    theme_page = get_features_theme_page(publish=publish)
+    print(f"Created/updated ArticleThemePage: {theme_page.url}")
+
+    # Create index page (sibling of the detail pages, child of the theme page)
     index_page = get_features_index_page(publish=publish)
     print(f"Created/updated ArticleIndexPage: {index_page.url}")
 
-    # Create all feature pages with images
+    # Create all feature pages with images (children of the theme page)
     pages = get_all_feature_pages(image_ids, publish=publish)
     for page in pages:
         print(f"Created/updated ArticleDetailPage: {page.url}")
 
-    return index_page, pages
+    return theme_page, index_page, pages
