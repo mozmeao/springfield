@@ -14,6 +14,7 @@ from wagtail.models import Locale, Page, Site
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
+    FreeFormPage2026,
     SimpleRichTextPage,
     StructuralPage,
     Tag,
@@ -23,6 +24,7 @@ from springfield.cms.tests.factories import (
     ArticleDetailPageFactory,
     ArticleIndexPageFactory,
     ArticleThemePageFactory,
+    FreeFormPage2026Factory,
     FreeFormPageFactory,
     LocaleFactory,
     StructuralPageFactory,
@@ -242,6 +244,19 @@ def test_freeform_page(minimal_site, rf):
 
     _relative_url = page.relative_url(minimal_site)
     assert _relative_url == "/en-US/freeform-page/"
+
+    request = rf.get(_relative_url)
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_freeform_page_2026(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
+    page.save()
+
+    _relative_url = page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/freeform-2026-page/"
 
     request = rf.get(_relative_url)
     response = page.specific.serve(request)

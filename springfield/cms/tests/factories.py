@@ -95,3 +95,12 @@ class ArticleThemePageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.ArticleThemePage
+
+
+class FreeFormPage2026Factory(wagtail_factories.PageFactory):
+    title = "Test FreeFormPage2026"
+    live = True
+    slug = "freeform-2026-page"
+
+    class Meta:
+        model = models.FreeFormPage2026
