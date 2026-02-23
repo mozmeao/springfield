@@ -37,10 +37,9 @@ body.fl-modal-open {
 }
 
 .fl-split-page-upper {
-    --section-border-radius: var(--token-border-radius-lg);
     background: var(--token-color-dark-purple);
-    border-end-end-radius: var(--section-border-radius);
-    border-end-start-radius: var(--section-border-radius);
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
     color: var(--fl-theme-color-text);
     inline-size: 100%;
     overflow: hidden;
