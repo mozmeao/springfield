@@ -111,10 +111,6 @@
     display: block;
 }
 
-.fl-home-intro .fl-heading-size-1 {
-    margin-block-start: var(--token-layout-xs);
-}
-
 /* This is only for the 'features theme' page, for now. */
 .has-sitting-kit .fl-intro .fl-subheading {
     margin: var(--token-layout-md-half) auto;
