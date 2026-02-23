@@ -261,8 +261,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
-    --button-bg-color-disabled: var(--token-color-purple);
-    --button-text-color-disabled: var(--token-color-soft-purple-4);
 }
 
 .fl-force-light-theme {
