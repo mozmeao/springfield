@@ -127,3 +127,8 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     @property
     def og_description(self):
         return self.search_description
+
+    @property
+    def noindex(self):
+        """By default, don't add the robots meta tag to CMS pages, but allow child classes to override this if needed."""
+        return False

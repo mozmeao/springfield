@@ -16,6 +16,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <title>{% block page_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
     <meta name="description" content="{% filter striptags %}{% block page_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
     <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{% if page and page.og_image %}{% set img = image(page.og_image, "width-1200") %}{{ img.url }}{% else %}{{ static('protocol/img/logos/firefox/browser/og.png') }}{% endif %}{% endblock %}{% endfilter %}">
+    {# "noindex" pages should not have the canonical or hreflang tags #}
+    {% block canonical_urls %}{% if page is defined and page.noindex %}<meta name="robots" content="noindex,follow">{% else %}{% include 'includes/canonical-url.html' %}{% endif %}{% endblock %}
 
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
