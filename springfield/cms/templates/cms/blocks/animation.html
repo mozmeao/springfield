@@ -4,10 +4,11 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set img = image(value.poster, "width-800") %}
+{% set poster = image(value.poster, "width-800") %}
 
 <include:animation
   video_url="{{ value.video_url }}"
-  alt="{{ alt }}"
-  poster="{{ img.url }}"
+  alt="{{ value.alt }}"
+  poster="{{ poster.url }}"
+  playback="{{ value.playback }}"
 />

@@ -141,7 +141,21 @@ def get_intro_variants() -> list[dict]:
                 "media": [videos["animation"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with Animation</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with Animation (Autoplay loop)</p>',
+                    "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
+                },
+                "buttons": [buttons["primary"]],
+            },
+            "id": "gbjweiof-26db-45eb-862f-e0e87a9c9736",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "media": [videos["animation_autoplay_once"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
+                    "heading_text": '<p data-block-key="uzief">Intro with Animation (Autoplay once)</p>',
                     "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
                 },
                 "buttons": [buttons["primary"]],

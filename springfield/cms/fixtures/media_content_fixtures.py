@@ -110,14 +110,29 @@ def get_media_content_variants() -> list[dict]:
                 "settings": {"media_after": False},
                 "media": [videos["animation"]],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Animation + Content After</p>',
+                "headline": '<p data-block-key="4h9nd">Animation Autoplay Loop</p>',
                 "tags": tags[:3],
-                "content": '<p data-block-key="4fkrh">Add an Animation instead of an image as the media element.</p>',
+                "content": '<p data-block-key="4fkrh">Animation with autoplay loop (default). Plays continuously.</p>',
                 "buttons": [
                     buttons["ghost"],
                 ],
             },
             "id": "7e56b431-f30f-43c9-8fed-3b74f50873f2",
+        },
+        {
+            "type": "media_content",
+            "value": {
+                "settings": {"media_after": False},
+                "media": [videos["animation_autoplay_once"]],
+                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
+                "headline": '<p data-block-key="4h9nd">Animation Autoplay Once</p>',
+                "tags": tags[:3],
+                "content": '<p data-block-key="4fkrh">Animation with autoplay once. Plays on load then shows poster and play button.</p>',
+                "buttons": [
+                    buttons["ghost"],
+                ],
+            },
+            "id": "a7262a66-eefb-4ae1-90ae-ab85a1e4acf5",
         },
         {
             "type": "media_content",

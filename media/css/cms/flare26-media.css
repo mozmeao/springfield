@@ -95,6 +95,33 @@
     position: absolute;
 }
 
+/* Animation component with playback modes */
+.fl-animation video {
+    opacity: 0;
+    transition:
+        opacity 0.4s ease,
+        visibility 0.4s;
+    visibility: hidden;
+}
+
+.fl-animation .fl-video-play {
+    opacity: 1;
+    transition:
+        opacity 0.4s ease,
+        visibility 0.4s;
+}
+
+.fl-animation.fl-animation-playing video {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fl-animation.fl-animation-playing .fl-video-play {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
 .fl-video-error {
     align-items: center;
     display: flex;
