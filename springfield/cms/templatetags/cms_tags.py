@@ -17,6 +17,7 @@ from jinja2 import pass_context
 from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
+from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.pages import BASE_UTM_PARAMETERS
 from springfield.firefox.templatetags.misc import fxa_button
 
@@ -123,6 +124,39 @@ def add_utm_parameters(context: dict, value: str) -> str:
             new_query_string = urlencode(query, doseq=True)
             return urlunparse(parsed_url._replace(query=new_query_string))
     return value
+
+
+@pass_context
+@library.filter
+def locale_aware_link_url(context, link_value) -> str | None:
+    """
+    Returns a locale-aware URL for a LinkBlock (URLValue) object.
+
+    Currently, the LinkBlock returns locale-unaware URLs for page links, so
+    a user is given links in the locale that the page was created in. For example,
+    if the page was created in the en-US locale, then all LinkBlocks to pages on
+    that page are shown to the en-US translations of the page, which can be
+    confusing for users in non-en-US locales.
+
+    For internal page links, this function finds the translated version of the
+    target page in the currently active locale. It falls back to the original
+    page URL if no translation exists.
+    All other link types (custom_url, email, anchor, phone, file) use the
+    standard get_url() method.
+    """
+    link_to = link_value.get("link_to")
+
+    if link_to == "page":
+        page = link_value.get("page")
+        if page:
+            try:
+                locale = SpringfieldLocale.get_active()
+                return page.get_translation(locale).url
+            except Exception:
+                return page.url
+        return None
+
+    return link_value.get_url()
 
 
 @library.filter
