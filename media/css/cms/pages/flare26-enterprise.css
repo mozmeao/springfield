@@ -120,4 +120,9 @@ main.fl-2026-enterprise {
         margin-inline: 0;
         max-block-size: 80px;
     }
+
+    .fl-2026-enterprise .fl-intro-actions {
+        margin-inline: 0 auto;
+        text-align: start;
+    }
 }
