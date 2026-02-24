@@ -26,6 +26,11 @@
     }
 }
 
+/* override default gap in favour of section-specific spacing */
+.fl-t-section-no-gap {
+    --fl-section-v-padding: 0;
+}
+
 .notes-head {
     text-align: center;
 }
@@ -36,6 +41,7 @@
 }
 
 .fl-l-release-notes-wrapper {
+    inline-size: 100%;
     margin-inline: auto;
     max-inline-size: min(
         (100% - var(--release-notes-padding)),
