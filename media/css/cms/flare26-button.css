@@ -8,13 +8,27 @@
 Button - Flare 2026 Design System Buttons
 ===================================================================== */
 
+:root {
+    /* default purple/primary button styles */
+    --button-bg-color: var(--token-color-light-purple);
+    --button-border-color: transparent;
+    --button-text-color: var(--token-color-white);
+    --button-text-color-hover: var(--button-text-color);
+    --button-bg-color-hover: var(--token-color-link-purple);
+    --button-bg-color-active: var(--token-color-purple);
+    --button-bg-color-disabled: var(--token-color-soft-purple-2);
+    --button-border-color-disabled: var(--button-bg-color-disabled);
+    --button-text-color-disabled: var(--token-color-link-purple);
+    --button-color-focus-outline: var(--token-color-light-purple);
+}
+
 /* Base button styles */
 .fl-button {
     align-items: center;
-    background-color: var(--token-color-light-purple);
-    border: none;
+    background-color: var(--button-bg-color);
+    border: 2px solid var(--button-border-color);
     border-radius: var(--token-border-radius-xl);
-    color: var(--token-color-white);
+    color: var(--button-text-color);
     cursor: pointer;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-body);
@@ -32,62 +46,99 @@ Button - Flare 2026 Design System Buttons
     white-space: nowrap;
 }
 
-.fl-button:hover:not(:disabled) {
-    background-color: var(--token-color-link-purple);
+/* Disabled state */
+.fl-button:disabled,
+.fl-button[disabled] {
+    background-color: var(--button-bg-color-disabled);
+    border-color: var(--button-border-color-disabled);
+    color: var(--button-text-color-disabled);
+    cursor: not-allowed;
+    opacity: 1;
 }
 
-.fl-button:active:not(:disabled) {
-    background-color: var(--token-color-purple);
-    border-color: var(--token-color-purple);
+/* stylelint-disable-next-line selector-not-notation */
+.fl-button:not(:disabled, [disabled]):hover {
+    background-color: var(--button-bg-color-hover);
+    color: var(--button-text-color-hover);
+}
+
+/* stylelint-disable-next-line selector-not-notation */
+.fl-button:not(:disabled, [disabled]):active {
+    background-color: var(--button-bg-color-active);
+    border-color: var(--button-bg-color-active);
     outline: none;
 }
 
 .fl-button:focus {
-    background-color: var(--token-color-light-purple);
-    outline: 2px solid var(--token-color-light-purple);
+    outline: 2px solid var(--button-color-focus-outline);
     outline-offset: 2px;
 }
 
-/* TODO: For launch, I'm combining the secondary and ghost styles.
-The names were an artifact of the previous system, and both were slightly off.
-At present, we're not using a third button anywhere, but Figma has a third variation.
-I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially a
-"Neutral (Tertiary)" if necessary. */
+/* TODO:
+Modifier names were an artifact of the previous system.
+I propose we move to "Filled (Primary)", "Outline (Secondary)", and
+"Neutral (Tertiary)" */
+.fl-button.button-secondary {
+    --button-bg-color: transparent;
+    --button-border-color: var(--token-color-light-purple);
+    --button-text-color: var(--fl-theme-color-text);
+    --button-bg-color-hover: var(--token-color-light-purple);
+    --button-text-color-hover: var(--token-color-white);
+    --button-bg-color-active: var(--token-color-link-purple);
+    --button-bg-color-disabled: transparent;
+    --button-border-color-disabled: var(--token-color-soft-purple);
+    --button-text-color-disabled: var(--fl-theme-color-text);
+}
 
-.fl-button.button-secondary,
 .fl-button.button-ghost {
-    background-color: transparent;
-    border: 2px solid var(--token-color-light-purple);
-    color: var(--fl-theme-color-text, var(--token-color-black-4));
+    --button-bg-color: transparent;
+    --button-text-color: var(--token-color-black-4);
+    --button-border-color: var(--button-text-color);
+    --button-bg-color-hover: var(--button-text-color);
+    --button-text-color-hover: var(--token-color-white);
+    --button-bg-color-active: var(--token-color-black-2);
+    --button-bg-color-disabled: var(--token-color-grey-3);
+    --button-border-color-disabled: var(--button-bg-color-disabled);
+    --button-text-color-disabled: var(--token-color-white);
 }
 
-.fl-button.button-secondary:hover:not(:disabled),
-.fl-button.button-ghost:hover:not(:disabled) {
-    background-color: var(--token-color-light-purple);
-    color: var(--token-color-white);
+@media (prefers-color-scheme: dark) {
+    :root {
+        --button-bg-color-disabled: var(--token-color-purple);
+        --button-border-color-disabled: var(--button-bg-color-disabled);
+        --button-text-color-disabled: var(--token-color-soft-purple-4);
+    }
+
+    .fl-button.button-secondary {
+        --button-border-color-disabled: var(--token-color-light-purple);
+        --button-text-color-disabled: var(--token-color-soft-purple-5);
+    }
+
+    .fl-button.button-ghost {
+        --button-text-color: var(--token-color-white);
+        --button-text-color-hover: var(--token-color-dark-purple);
+        --button-bg-color-active: var(--token-color-grey-2);
+        --button-bg-color-disabled: transparent;
+        --button-border-color-disabled: var(--token-color-light-purple);
+        --button-text-color-disabled: var(--token-color-soft-purple-5);
+    }
 }
 
-.fl-button.button-secondary:active:not(:disabled),
-.fl-button.button-ghost:active:not(:disabled) {
-    background-color: var(--token-color-link-purple);
-    border-color: var(--token-color-link-purple);
-    color: var(--token-color-white);
+/* copy of the dark query above for theme classes. */
+.fl-split-page-upper .fl-button.button-secondary,
+.fl-force-dark-theme .fl-button.button-secondary {
+    --button-border-color-disabled: var(--token-color-light-purple);
+    --button-text-color-disabled: var(--token-color-soft-purple-5);
 }
 
-.fl-button.button-secondary:focus,
-.fl-button.button-ghost:focus {
-    background-color: transparent;
-    color: var(--fl-theme-color-text, var(--token-color-black-4));
-    outline: 2px solid var(--token-color-light-purple);
-    outline-offset: 2px;
-}
-
-.fl-button.button-secondary:disabled,
-.fl-button.button-ghost:disabled {
-    background-color: transparent;
-    border: 2px solid var(--token-color-light-purple);
-    color: var(--token-color-light-purple);
-    cursor: not-allowed;
+.fl-split-page-upper .fl-button.button-ghost,
+.fl-force-dark-theme .fl-button.button-ghost {
+    --button-text-color: var(--token-color-white);
+    --button-text-color-hover: var(--token-color-dark-purple);
+    --button-bg-color-active: var(--token-color-grey-2);
+    --button-bg-color-disabled: transparent;
+    --button-border-color-disabled: var(--token-color-light-purple);
+    --button-text-color-disabled: var(--token-color-soft-purple-5);
 }
 
 /* Button sizes */
@@ -107,7 +158,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
     border-radius: var(--token-border-radius-2xs);
 }
 
-/* Button fills - Outline */
+/* Button fills - Outline. TODO: refactor these away, but double-check
+   that they're not in use in the CMS. */
 .fl-button-outline {
     background-color: transparent;
     border: 2px solid var(--fl-theme-color-text);
@@ -122,21 +174,12 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and potentially 
 /* Button fills - Text */
 .fl-button-text {
     background-color: transparent;
-    color: var(--fl-theme-button-primary);
+    color: var(--button-bg-color);
     padding-inline: 0;
 }
 
 .fl-button-text:hover {
     text-decoration: underline;
-}
-
-/* Disabled state */
-.fl-button:disabled,
-.fl-button[disabled] {
-    background-color: var(--fl-theme-button-bg-primary-disabled-bg);
-    color: var(--fl-theme-button-bg-primary-disabled-color);
-    cursor: not-allowed;
-    opacity: 1;
 }
 
 /* Button icons */

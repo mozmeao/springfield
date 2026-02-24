@@ -27,12 +27,12 @@
 .fl-button:hover, .fl-button:focus {
     background: var(--fl-theme-color-text-primary);
     border-color: var(--fl-theme-color-text-primary);
-    color: var(--fl-theme-button-primary-hover-text);
+    color: var(--button-bg-color-hover-text);
 }
 
 .fl-button:active {
-    background: var(--fl-theme-button-primary-active-bg);
-    color: var(--fl-theme-button-primary-active-text);
+    background: var(--button-bg-color-active-bg);
+    color: var(--button-bg-color-active-text);
 }
 
 .fl-button.button-secondary {

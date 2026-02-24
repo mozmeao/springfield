@@ -67,4 +67,8 @@
     .fl-mobile-store-qr-code {
         display: flex;
     }
+
+    .fl-mobile-store-mobile-img {
+        display: none;
+    }
 }

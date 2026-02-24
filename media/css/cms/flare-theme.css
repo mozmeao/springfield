@@ -44,9 +44,9 @@ runtime conditions. Design tokens live in flare-tokens.css.
     --fl-theme-color-link-strong: var(--token-blue-blue);
 
     /* Button palette */
-    --fl-theme-button-primary-hover-text: var(--token-neutrals-white);
-    --fl-theme-button-primary-active-bg: var(--token-neutrals-black);
-    --fl-theme-button-primary-active-text: var(--token-neutrals-ash);
+    --button-bg-color-hover-text: var(--token-neutrals-white);
+    --button-bg-color-active-bg: var(--token-neutrals-black);
+    --button-bg-color-active-text: var(--token-neutrals-ash);
     --fl-theme-button-secondary-hover-bg: var(--token-blue-dark-blue);
     --fl-theme-button-secondary-active-bg: var(--token-blue-medium-blue);
     --fl-theme-button-secondary-active-text: var(--token-neutrals-white);
@@ -153,9 +153,9 @@ runtime conditions. Design tokens live in flare-tokens.css.
         --fl-theme-color-link-strong: var(--token-blue-light-blue);
 
         /* Button palette */
-        --fl-theme-button-primary-hover-text: var(--token-neutrals-black);
-        --fl-theme-button-primary-active-bg: var(--token-neutrals-white);
-        --fl-theme-button-primary-active-text: var(--token-neutrals-charcoal);
+        --button-bg-color-hover-text: var(--token-neutrals-black);
+        --button-bg-color-active-bg: var(--token-neutrals-white);
+        --button-bg-color-active-text: var(--token-neutrals-charcoal);
         --fl-theme-button-secondary-hover-bg: var(--token-blue-medium-blue);
         --fl-theme-button-secondary-active-bg: var(--token-blue-dark-blue);
         --fl-theme-button-secondary-active-text: var(--token-neutrals-ash);

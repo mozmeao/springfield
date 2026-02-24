@@ -30,6 +30,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-dark-purple-22: rgba(33, 3, 64, 0.22);
     --token-color-dark-purple-30: rgba(33, 3, 64, 0.3);
     --token-color-dark-purple-50: rgba(33, 3, 64, 0.4);
+    --token-color-dark-purple-2: rgb(21, 2, 38);
     --token-color-purple: rgb(58, 15, 110);
     --token-color-medium-purple: rgb(76, 36, 137);
     --token-color-link-purple: rgb(97, 50, 188);
@@ -44,6 +45,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-soft-purple-2: rgb(228, 216, 252);
     --token-color-soft-purple-3: rgb(223, 201, 255);
     --token-color-soft-purple-4: rgb(199, 168, 255);
+    --token-color-soft-purple-5: rgb(174, 138, 255);
     --token-color-soft-purple-64: rgba(241, 231, 248, 0.64);
     --token-color-soft-magenta: rgb(255, 234, 254);
     --token-color-soft-magenta-20: rgba(255, 234, 254, 0.2);

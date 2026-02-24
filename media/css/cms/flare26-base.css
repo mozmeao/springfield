@@ -89,9 +89,14 @@ body {
         sans-serif;
     font-weight: 400;
     margin: 0 auto;
+    /* stylelint-disable-next-line csstools/use-logical */
+    max-width: 100%;
     max-inline-size: 100%;
     min-block-size: 100vh;
+    padding: 0;
     text-rendering: optimizeLegibility;
+    /* stylelint-disable-next-line csstools/use-logical */
+    width: 700px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -200,6 +205,7 @@ svg {
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
     max-inline-size: 100%;
+    vertical-align: middle; /* when images are reset to inline, remove bottom padding */
 }
 
 /* Very likely to be icons within links or buttons */

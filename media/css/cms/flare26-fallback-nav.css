@@ -1,15 +1,17 @@
+/* stylelint-disable csstools/use-logical */
+
 .fl-section {
-    padding-block: 48px;
+    padding: 48px 0;
 }
 
 .fl-card,
 .fl-card-gallery-card,
 .fl-buttons {
-    padding-block: 16px;
+    padding: 16px 0;
 }
 
 .fl-logo-fx img {
-    max-block-size: none;
+    max-width: none;
 }
 
 .fl-logo-dark,
@@ -34,14 +36,14 @@
 .fl-menu-subtitle {
     color: #666669;
     font-size: 20px;
-    margin-block: 0 8px;
+    margin-bottom: 8px;
+    margin-top: 0;
 }
 
 .fl-header-inner {
     display: flex;
-    gap: 8px;
-    margin-block-end: 32px;
-    padding-block-start: 16px;
+    margin-bottom: 32px;
+    padding-top: 16px;
     position: relative;
 }
 
@@ -49,22 +51,22 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    inline-size: 100%;
     list-style: none;
     margin: 0;
     padding: 0;
+    width: 100%;
 }
 
 .fl-menu-category {
-    inline-size: 32%;
+    width: 32%;
 }
 
 .fl-menu-category + .fl-menu-category {
-    inline-size: 40%;
+    width: 40%;
 }
 
 .fl-menu-category + .fl-menu-category + .fl-menu-category {
-    inline-size: 25%;
+    width: 25%;
 }
 
 .fl-nav {
@@ -75,10 +77,10 @@
     background-color: #fff;
     border: 2px solid #eee;
     display: flex;
-    inline-size: 100%;
-    inset-block-start: 100%;
     padding: 24px;
     position: absolute;
+    top: 100%;
+    width: 100%;
 }
 
 .fl-menu-category-link a:link,
@@ -89,7 +91,7 @@
     color: #333336;
     display: inline-flex;
     gap: 4px;
-    margin-block-start: 8px;
+    margin-top: 8px;
     padding: 8px 16px;
     text-decoration: none;
 }
@@ -125,12 +127,15 @@
 .fl-show-mobile-menu {
     align-items: center;
     background-color: #7543e3;
-    block-size: 40px;
+    border-radius: 30px;
     color: white;
     display: flex;
-    inline-size: 40px;
+    height: 40px;
     justify-content: center;
-    padding: 0;
+    margin-left: 10px;
+    min-width: 40px;
+    padding: 0 16px;
+    width: auto;
 }
 
 .fl-show-mobile-menu .fl-icon-close,
@@ -148,12 +153,17 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: 16px auto;
-    block-size: 32px;
     display: block;
     font-size: 0;
-    inline-size: 32px;
     line-height: 0;
     margin: auto;
+    min-width: 32px;
+    width: 32px;
+}
+
+.fl-show-mobile-menu-content {
+    align-items: center;
+    display: flex;
 }
 
 .fl-header .download-link {
@@ -161,7 +171,7 @@
     border-radius: 40px;
     color: white;
     display: inline-block;
-    margin-block: auto;
+    margin: auto 0;
     padding: 8px 12px;
     text-decoration: none;
 }
@@ -178,8 +188,7 @@
 
 .fl-header-buttons {
     display: flex;
-    gap: 16px;
-    margin-inline-start: auto;
+    margin-left: auto;
 }
 
 .fl-split-page-upper,
@@ -194,7 +203,7 @@
 }
 
 .fl-footer {
-    margin-block-start: 72px;
+    margin-top: 72px;
 }
 
 .fl-footer a:link,
@@ -231,7 +240,8 @@
 
 .fl-footer-heading {
     font-size: 16px;
-    margin-block: 32px 0;
+    margin-bottom: 0;
+    margin-top: 32px;
 }
 
 .fl-footer-list {
@@ -246,7 +256,8 @@
     gap: 8px 16px;
     list-style: none;
     margin: 0;
-    margin-block: 32px;
+    margin-bottom: 32px;
+    margin-top: 32px;
     padding: 0;
 }
 
@@ -256,7 +267,7 @@
 
 .fl-language-switcher {
     display: block;
-    padding-block-start: 32px;
+    padding-top: 32px;
 }
 
 .fl-language-switcher label {
