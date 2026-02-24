@@ -1635,8 +1635,8 @@ def test_home_pre_footer_cta(index_page, rf):
     # so we only validate the remainder
     assert strip_host(link_element["href"]) == strip_host(add_utm_parameters(context, pre_footer_cta.link))
     assert link_element["data-cta-position"] == "pre-footer-cta"
-    assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
-    assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
+    assert link_element["data-cta-text"] == "Download Firefox"
+    assert link_element["data-cta-uid"] == "features-footer-download"
 
 
 # Articles
