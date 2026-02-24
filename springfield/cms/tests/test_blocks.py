@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from urllib.parse import urlparse, urlunparse
+
 from django.template.loader import render_to_string
 
 import pytest
@@ -66,6 +68,10 @@ from springfield.firefox.templatetags.misc import fxa_button
 pytestmark = [
     pytest.mark.django_db,
 ]
+
+
+def strip_host(url):
+    return urlunparse(urlparse(url)._replace(scheme="", netloc=""))
 
 
 @pytest.fixture
@@ -1624,7 +1630,10 @@ def test_home_pre_footer_cta(index_page, rf):
     assert link_element
 
     assert link_element.get_text().strip() == pre_footer_cta.label.strip()
-    assert link_element["href"] == add_utm_parameters(context, pre_footer_cta.link)
+
+    # data might be pointing the link to a different host,
+    # so we only validate the remainder
+    assert strip_host(link_element["href"]) == strip_host(add_utm_parameters(context, pre_footer_cta.link))
     assert link_element["data-cta-position"] == "pre-footer-cta"
     assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
     assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
