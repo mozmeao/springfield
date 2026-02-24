@@ -10,10 +10,15 @@
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
+    display: none;
     inset: auto var(--token-spacing-lg) var(--token-spacing-lg);
     padding: var(--token-spacing-2xl);
     position: fixed;
     z-index: 5;
+}
+
+.fl-consent-banner p {
+    margin: 0;
 }
 
 .fl-consent-banner.is-visible {
@@ -28,5 +33,5 @@
 .fl-consent-banner-content .fl-buttons {
     align-items: center;
     justify-content: center;
-    margin-block: var(--token-spacing-2xl);
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
 }
