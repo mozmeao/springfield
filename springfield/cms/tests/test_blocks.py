@@ -153,7 +153,7 @@ def assert_download_button_attributes(
 
     assert label in button_element.get_text()
     assert "download-link" in button_element["class"]
-    assert button_element["href"] == "/thanks/"
+    assert button_element["href"] == "/en-US/thanks/"
 
     assert "c-button-download-thanks" in button_element.parent["class"]
     assert button_data["value"]["settings"]["analytics_id"] == button_element.parent["id"]
