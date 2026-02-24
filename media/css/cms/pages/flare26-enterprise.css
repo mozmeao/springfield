@@ -8,6 +8,10 @@ main.fl-2026-enterprise {
     background-color: var(--fl-theme-background);
 }
 
+.fl-2026-enterprise .fl-body a {
+    text-decoration: underline;
+}
+
 .fl-2026-enterprise .fl-superheading {
     display: flex;
     justify-content: center;
