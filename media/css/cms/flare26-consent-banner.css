@@ -9,6 +9,7 @@
     border: 2px solid var(--fl-subtle-border-color);
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
     inset: auto var(--token-spacing-lg) var(--token-spacing-lg);
     padding: var(--token-spacing-2xl);
     position: fixed;
