@@ -5,13 +5,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <div class="fl-pre-footer-cta">
-  <a
-    href="{{ link|add_utm_parameters }}"
-    class="fl-pre-footer-cta-button"
-    {% if analytics_text %}
-      data-cta-position="{{ analytics_position }}"
-      data-cta-text="{{ analytics_text|escape }}"
-      data-cta-uid="{{ analytics_id }}"
-    {% endif %}
-  >{{ label }}</a>
+  {{ download_firefox_thanks(
+      alt_copy=label,
+      dom_id='features-footer-download',
+      download_location='footer',
+      button_class='fl-pre-footer-cta-button',
+      flare_styles=True
+  ) }}
 </div>

@@ -50,6 +50,10 @@
     background-color: var(--token-color-link-purple);
 }
 
+.fl-pre-footer-cta-button.download-link .fl-icon {
+    display: none;
+}
+
 @media (--viewport-md-up) {
     .fl-pre-footer-cta {
         --kit-size: 180px;
