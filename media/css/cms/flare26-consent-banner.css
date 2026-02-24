@@ -14,12 +14,19 @@
     padding: var(--token-spacing-2xl);
     pointer-events: none;
     position: fixed;
+    transform: translateY(100%);
+    transition:
+        opacity 0.4s cubic-bezier(0.2, 0, 0.2, 1),
+        transform 0.4s cubic-bezier(0.2, 0, 0.2, 1),
+        overlay 0.4s allow-discrete;
+    transition-behavior: allow-discrete;
     z-index: 5;
 }
 
 .fl-consent-banner.is-visible {
     display: block;
     opacity: 1;
+    transform: translateY(0);
 }
 
 .fl-consent-banner-content {
