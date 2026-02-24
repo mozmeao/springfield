@@ -35,7 +35,7 @@
     text-align: center;
 }
 
-.fl-heading-group {
+.fl-release-notes .fl-heading-group {
     margin: 0 auto var(--token-layout-xs);
     max-inline-size: 60%;
 }
