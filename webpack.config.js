@@ -42,6 +42,7 @@ function getBundles() {
 }
 
 module.exports = {
+    target: ['web', 'es5'],
     entry: () => getBundles(),
     output: {
         filename: 'js/[name].js',
@@ -59,7 +60,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.es6\.js$/,
+                test: /\.js$/,
                 include: path.resolve(__dirname, 'media'),
                 exclude: /node_modules/,
                 use: {
@@ -69,6 +70,37 @@ module.exports = {
                             [
                                 '@babel/preset-env',
                                 {
+                                    useBuiltIns: 'usage',
+                                    corejs: '3.48',
+                                    targets: {
+                                        ie: '10'
+                                    }
+                                }
+                            ]
+                        ]
+                    }
+                }
+            },
+            {
+                test: /\.m?js$/,
+                include: [
+                    /node_modules\/@sentry/,
+                    /node_modules\/@mozmeao/,
+                    /node_modules\/embla-carousel/,
+                    /node_modules\/focus-trap/,
+                    /node_modules\/tabbable/,
+                    /node_modules\/headroom\.js/
+                ],
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        sourceType: 'unambiguous',
+                        presets: [
+                            [
+                                '@babel/preset-env',
+                                {
+                                    useBuiltIns: 'usage',
+                                    corejs: '3.48',
                                     targets: {
                                         ie: '10'
                                     }
