@@ -12,6 +12,8 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
+from springfield.cms.utils import locale_aware_page_url
+
 HEADING_TEXT_FEATURES = [
     "bold",
     "italic",
@@ -1351,11 +1353,13 @@ class ArticleValue(blocks.StructValue):
     def get_link_url(self) -> str:
         overrides = self.get("overrides", {})
         if link := overrides.get("link"):
+            if link.get("link_to") == "page" and link.get("page"):
+                return locale_aware_page_url(link.get("page"))
             url = link.get_url()
             if url:
                 return url
         article_page = self.get("article")
-        return article_page.url if article_page else ""
+        return locale_aware_page_url(article_page) if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
@@ -1521,11 +1525,13 @@ class RelatedArticleValue(blocks.StructValue):
     def get_link_url(self) -> str:
         overrides = self.get("overrides", {})
         if link := overrides.get("link"):
+            if link.get("link_to") == "page" and link.get("page"):
+                return locale_aware_page_url(link.get("page"))
             url = link.get_url()
             if url:
                 return url
         article_page = self.get("article")
-        return article_page.url if article_page else ""
+        return locale_aware_page_url(article_page) if article_page else ""
 
 
 class RelatedArticleBlock(blocks.StructBlock):
