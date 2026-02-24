@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Locale
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
@@ -1348,14 +1349,18 @@ class ArticleValue(blocks.StructValue):
                 return article_page.icon
         return "globe"
 
-    def get_link_url(self) -> str:
+    def get_link_url(self, locale_str=None) -> str:
         overrides = self.get("overrides", {})
-        if link := overrides.get("link"):
-            url = link.get_url()
-            if url:
-                return url
-        article_page = self.get("article")
-        return article_page.url if article_page else ""
+        overrides_link = overrides.get("link")
+        if overrides_link and overrides_link.get_url():
+            return overrides_link.get_url()
+        if article_page := self.get("article"):
+            if locale_str:
+                if locale := Locale.objects.filter(language_code=locale_str).first():
+                    translation = article_page.get_translation_or_none(locale)
+                    return translation.url if translation else article_page.url
+            return article_page.url
+        return ""
 
 
 class ArticleBlock(blocks.StructBlock):
@@ -1446,7 +1451,9 @@ class RelatedArticleValue(blocks.StructValue):
 
         overrides = self.get("overrides", {})
         if title := overrides.get("title"):
-            return remove_p_tag(richtext(title))
+            title = remove_p_tag(richtext(title))
+            if title:
+                return title
         article_page = self.get("article")
         return article_page.title if article_page else ""
 
@@ -1518,14 +1525,18 @@ class RelatedArticleValue(blocks.StructValue):
                 return article_page.icon
         return "globe"
 
-    def get_link_url(self) -> str:
+    def get_link_url(self, locale_str=None) -> str:
         overrides = self.get("overrides", {})
-        if link := overrides.get("link"):
-            url = link.get_url()
-            if url:
-                return url
-        article_page = self.get("article")
-        return article_page.url if article_page else ""
+        overrides_link = overrides.get("link")
+        if overrides_link and overrides_link.get_url():
+            return overrides_link.get_url()
+        if article_page := self.get("article"):
+            if locale_str:
+                if locale := Locale.objects.filter(language_code=locale_str).first():
+                    translation = article_page.get_translation_or_none(locale)
+                    return translation.url if translation else article_page.url
+            return article_page.url
+        return ""
 
 
 class RelatedArticleBlock(blocks.StructBlock):
