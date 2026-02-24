@@ -103,6 +103,12 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 @media (prefers-color-scheme: dark) {
+    :root {
+        --button-bg-color-disabled: var(--token-color-purple);
+        --button-border-color-disabled: var(--button-bg-color-disabled);
+        --button-text-color-disabled: var(--token-color-soft-purple-4);
+    }
+
     .fl-button.button-secondary {
         --button-border-color-disabled: var(--token-color-light-purple);
         --button-text-color-disabled: var(--token-color-soft-purple-5);
