@@ -111,36 +111,38 @@
 
             {% block notes_header %}
               <header class="notes-head">
-                <div class="fl-c-release-notes-logo">
-                  {% if brand_product == 'firefox' %}
+                {% if switch('flare26_enabled') %}
+                  <div class="fl-c-release-notes-logo">
+                    {% if brand_product == 'firefox' %}
+                      {{ resp_img(
+                      url='img/logos/firefox/firefox-logo.svg',
+                      optional_attributes={
+                        "width": 55,
+                        "height": 55,
+                        "loading": "eager"
+                      }
+                    ) }}
+                    {% elif brand_product == 'beta' %}
                     {{ resp_img(
-                    url='img/logos/firefox/firefox-logo.svg',
-                    optional_attributes={
-                      "width": 55,
-                      "height": 55,
-                      "loading": "eager"
-                    }
-                  ) }}
-                  {% elif brand_product == 'beta' %}
-                  {{ resp_img(
-                    url='img/logos/firefox/firefox-logo-beta.svg',
-                    optional_attributes={
-                      "width": 55,
-                      "height": 55,
-                      "loading": "eager"
-                    }
-                  ) }}
-                  {% elif brand_product == 'nightly' %}
-                  {{ resp_img(
-                    url='img/logos/firefox/firefox-logo-nightly.svg',
-                    optional_attributes={
-                      "width": 55,
-                      "height": 55,
-                      "loading": "eager"
-                    }
-                  ) }}
-                  {% endif %}
-                </div>
+                      url='img/logos/firefox/firefox-logo-beta.svg',
+                      optional_attributes={
+                        "width": 55,
+                        "height": 55,
+                        "loading": "eager"
+                      }
+                    ) }}
+                    {% elif brand_product == 'nightly' %}
+                    {{ resp_img(
+                      url='img/logos/firefox/firefox-logo-nightly.svg',
+                      optional_attributes={
+                        "width": 55,
+                        "height": 55,
+                        "loading": "eager"
+                      }
+                    ) }}
+                    {% endif %}
+                  </div>
+                {% endif %}
                 {% if not primary_heading %}
                   {% if product_name == 'Firefox Beta' %}
                       {% set primary_heading = 'Firefox Beta and Developer Edition <br> Release Notes'|safe %}
