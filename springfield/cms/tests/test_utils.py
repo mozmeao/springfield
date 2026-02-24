@@ -3,6 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+from unittest import mock
+
 import pytest
 from wagtail.coreutils import get_dummy_request
 from wagtail.models import Locale, Page
@@ -11,6 +13,7 @@ from springfield.cms.utils import (
     get_cms_locales_for_path,
     get_locales_for_cms_page,
     get_page_for_request,
+    locale_aware_page_url,
 )
 
 pytestmark = [pytest.mark.django_db]
@@ -146,3 +149,53 @@ def test_get_cms_locales_for_path(
     if get_page_for_request_should_return_a_page:
         mock_get_page_for_request.assert_called_once_with(request=request)
         mock_get_locales_for_cms_page.assert_called_once_with(page=page)
+
+
+# ---------------------------------------------------------------------------
+# locale_aware_page_url
+# ---------------------------------------------------------------------------
+
+
+def test_locale_aware_page_url_returns_translated_url(tiny_localized_site):
+    """Returns the translated URL when the active locale has a translation."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = locale_aware_page_url(en_us_page)
+
+    assert url == "/fr/test-page/"
+
+
+def test_locale_aware_page_url_falls_back_when_no_translation(tiny_localized_site):
+    """Falls back to the page's own URL when no translation exists for the active locale."""
+    # fr_grandchild exists only in fr — it has no pt-BR counterpart
+    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
+    assert Page.objects.filter(locale__language_code="pt-BR", slug="grandchild-page").exists() is False
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-BR"):
+        url = locale_aware_page_url(fr_grandchild)
+
+    assert url == fr_grandchild.url
+
+
+def test_locale_aware_page_url_unchanged_when_page_already_in_active_locale(tiny_localized_site):
+    """Returns the page's own URL when it is already in the active locale."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="test-page")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = locale_aware_page_url(fr_page)
+
+    assert url == fr_page.url
+
+
+def test_locale_aware_page_url_falls_back_when_get_active_raises(tiny_localized_site):
+    """Falls back to page.url when SpringfieldLocale.get_active() raises an exception."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = locale_aware_page_url(en_us_page)
+
+    assert url == en_us_page.url
