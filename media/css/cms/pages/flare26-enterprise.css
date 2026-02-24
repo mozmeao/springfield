@@ -12,6 +12,10 @@ main.fl-2026-enterprise {
     text-decoration: underline;
 }
 
+.fl-2026-enterprise .fl-body a:hover {
+    text-decoration: none;
+}
+
 .fl-2026-enterprise .fl-superheading {
     display: flex;
     justify-content: center;
