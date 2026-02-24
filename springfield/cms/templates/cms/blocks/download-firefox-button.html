@@ -7,7 +7,7 @@
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
 {% set block_text = block_text ~ " - " ~ value.label %}
-{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link(locale_in_transition=true) %}
 {% set icon_name = value.settings.icon %}
 
 {#
