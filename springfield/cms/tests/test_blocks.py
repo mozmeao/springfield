@@ -448,15 +448,11 @@ def assert_animation_attributes(animation_element: BeautifulSoup, animation_data
         img = video.find("img", class_="fl-video-poster")
         assert img and img["src"] == image_url
         assert img["alt"] == alt
-    else:
+    elif playback == "autoplay_once":
         # Should render .fl-animation container with play button and video
         assert "fl-animation" in animation_element.get("class", [])
-        assert animation_element["data-playback"] == playback
-
-        if playback == "autoplay_once":
-            assert "fl-animation-playing" in animation_element.get("class", [])
-        else:
-            assert "fl-animation-playing" not in animation_element.get("class", [])
+        assert "fl-animation-playing" in animation_element.get("class", [])
+        assert animation_element["data-playback"] == "autoplay_once"
 
         button = animation_element.find("button", class_="js-animation-play")
         assert button and button["aria-label"] == alt

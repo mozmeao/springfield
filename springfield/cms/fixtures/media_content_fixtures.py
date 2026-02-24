@@ -122,21 +122,6 @@ def get_media_content_variants() -> list[dict]:
         {
             "type": "media_content",
             "value": {
-                "settings": {"media_after": True},
-                "media": [videos["animation_click"]],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Animation Click to Play</p>',
-                "tags": tags[:3],
-                "content": '<p data-block-key="4fkrh">Animation with click to play. Shows poster and play button. Reverts after playing.</p>',
-                "buttons": [
-                    buttons["ghost"],
-                ],
-            },
-            "id": "f9d5678e-f0a6-47aa-bdea-ef13583f4f15",
-        },
-        {
-            "type": "media_content",
-            "value": {
                 "settings": {"media_after": False},
                 "media": [videos["animation_autoplay_once"]],
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',

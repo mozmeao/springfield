@@ -769,11 +769,10 @@ class AnimationBlock(blocks.StructBlock):
         choices=[
             ("autoplay_loop", "Autoplay (loop)"),
             ("autoplay_once", "Autoplay (play once)"),
-            ("click", "Click to play"),
         ],
         default="autoplay_loop",
         label="Playback",
-        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops. Click to play shows a play button.",
+        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
         inline_form=True,
     )
 

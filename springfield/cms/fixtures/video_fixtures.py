@@ -35,16 +35,6 @@ def get_video_variants():
             },
             "id": "36a5f8ee-f971-4498-9ede-d74e89e83b1d",
         },
-        "animation_click": {
-            "type": "animation",
-            "value": {
-                "video_url": "https://assets.mozilla.net/video/red-pandas.webm",
-                "alt": "Describe the video here.",
-                "poster": settings.PLACEHOLDER_IMAGE_ID,
-                "playback": "click",
-            },
-            "id": "c51d8984-fe50-4641-b74f-22b38bb0f823",
-        },
         "animation_autoplay_once": {
             "type": "animation",
             "value": {

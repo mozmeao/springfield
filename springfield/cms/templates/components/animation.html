@@ -18,8 +18,8 @@
     <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-poster" />
   </video>
 </div>
-{% else %}
-<div class="fl-video fl-animation{% if playback == 'autoplay_once' %} fl-animation-playing{% endif %}" data-playback="{{ playback }}" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+{% elif playback == "autoplay_once" %}
+<div class="fl-video fl-animation fl-animation-playing" data-playback="autoplay_once" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
   <button
     class="fl-video-play js-animation-play"
     aria-label="{{ alt|default('Play animation') }}"
