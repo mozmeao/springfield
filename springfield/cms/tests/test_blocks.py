@@ -422,6 +422,59 @@ def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
         assert img and img["src"] == image_url
 
 
+def assert_animation_attributes(animation_element: BeautifulSoup, animation_data: dict):
+    """
+    Compares the rendered animation element with the expected animation data.
+    """
+    video_url = animation_data["value"]["video_url"]
+    alt = animation_data["value"]["alt"]
+    poster_id = animation_data["value"]["poster"]
+    playback = animation_data["value"].get("playback", "autoplay_loop")
+
+    image_obj = SpringfieldImage.objects.get(id=poster_id)
+    image_url = image_obj.get_rendition("width-800").url
+
+    if playback == "autoplay_loop":
+        # Should render a simple <video autoplay muted loop>
+        video = animation_element.find("video")
+        assert video
+        assert video.has_attr("autoplay")
+        assert video.has_attr("muted")
+        assert video.has_attr("loop")
+        assert video.has_attr("playsinline")
+        assert video["poster"] == image_url
+        source = video.find("source")
+        assert source and source["src"] == video_url
+        img = video.find("img", class_="fl-video-poster")
+        assert img and img["src"] == image_url
+        assert img["alt"] == alt
+    else:
+        # Should render .fl-animation container with play button and video
+        assert "fl-animation" in animation_element.get("class", [])
+        assert animation_element["data-playback"] == playback
+
+        if playback == "autoplay_once":
+            assert "fl-animation-playing" in animation_element.get("class", [])
+        else:
+            assert "fl-animation-playing" not in animation_element.get("class", [])
+
+        button = animation_element.find("button", class_="js-animation-play")
+        assert button and button["aria-label"] == alt
+
+        img = button.find("img", class_="fl-video-poster")
+        assert img and img["src"] == image_url
+
+        video = animation_element.find("video")
+        assert video
+        assert video.has_attr("muted")
+        assert video.has_attr("playsinline")
+        assert not video.has_attr("autoplay")
+        assert not video.has_attr("loop")
+        assert video["poster"] == image_url
+        source = video.find("source")
+        assert source and source["src"] == video_url
+
+
 def test_inline_notifications(index_page, rf):
     notifications = get_inline_notification_variants()
     test_page = get_inline_notification_test_page()
@@ -519,6 +572,10 @@ def test_intro_block(index_page, placeholder_images, rf):
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media_value)
+
+            if media_value["type"] == "animation":
+                animation_div = intro_element.find("div", class_="fl-video")
+                assert_animation_attributes(animation_div, media_value)
 
         if video := intro["value"].get("video"):
             video = video[0]
@@ -652,6 +709,10 @@ def test_media_content_block(index_page, placeholder_images, rf):
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
             assert_video_attributes(video_div, media_value)
+
+        elif media_value["type"] == "animation":
+            animation_div = div.find("div", class_="fl-video")
+            assert_animation_attributes(animation_div, media_value)
 
         # Tags
         tags = media_content["value"]["tags"]
@@ -1163,6 +1224,9 @@ def test_banner_block(index_page, placeholder_images, rf):
             elif media["type"] == "video":
                 video_div = banner_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media)
+            elif media["type"] == "animation":
+                animation_div = banner_element.find("div", class_="fl-video")
+                assert_animation_attributes(animation_div, media)
             elif media["type"] == "qr_code":
                 assert "has-qr-code" in media_element["class"]
                 assert media_element.find("div", class_="fl-banner-qr").find("svg")

@@ -765,9 +765,21 @@ class AnimationBlock(blocks.StructBlock):
     )
     alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the animation is played.")
+    playback = blocks.ChoiceBlock(
+        choices=[
+            ("autoplay_loop", "Autoplay (loop)"),
+            ("autoplay_once", "Autoplay (play once)"),
+            ("click", "Click to play"),
+        ],
+        default="autoplay_loop",
+        label="Playback",
+        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops. Click to play shows a play button.",
+        inline_form=True,
+    )
 
     class Meta:
         label = "Animation"
+        label_format = "Animation - {video_url}"
         template = "cms/blocks/animation.html"
 
 

@@ -4,8 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props video_url, poster, alt, aspect_ratio="" #}
+{# props video_url, poster, alt, aspect_ratio="", playback="autoplay_loop" #}
 
+{% if playback == "autoplay_loop" %}
 <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
   <video
     autoplay muted loop
@@ -13,7 +14,32 @@
     playsinline
     preload="metadata"
   >
-    <source src="{{ video_url }}">
+    <source src="{{ video_url }}" type="video/webm">
     <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-poster" />
   </video>
 </div>
+{% else %}
+<div class="fl-video fl-animation{% if playback == 'autoplay_once' %} fl-animation-playing{% endif %}" data-playback="{{ playback }}" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
+  <button
+    class="fl-video-play js-animation-play"
+    aria-label="{{ alt|default('Play animation') }}"
+    type="button"
+  >
+    <img src="{{ poster }}" alt="" class="fl-video-poster" />
+    <span class="fl-video-play-icon" aria-hidden="true">
+      <svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
+        <path d="M17.887 13.951 35.472 24 17.887 34.049z" fill="#fff"/>
+      </svg>
+    </span>
+  </button>
+  <video
+    muted
+    playsinline
+    preload="metadata"
+    poster="{{ poster }}"
+  >
+    <source src="{{ video_url }}" type="video/webm">
+  </video>
+</div>
+{% endif %}
