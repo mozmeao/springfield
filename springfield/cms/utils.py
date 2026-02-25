@@ -14,20 +14,6 @@ from springfield.base.i18n import split_path_and_normalize_language
 logger = logging.getLogger(__name__)
 
 
-def locale_aware_page_url(page) -> str:
-    """
-    Returns the URL of ``page`` translated into the currently active locale.
-    Falls back to ``page.url`` if no translation exists for the active locale.
-    """
-    from springfield.cms.models.locale import SpringfieldLocale
-
-    try:
-        locale = SpringfieldLocale.get_active()
-        return page.get_translation(locale).url
-    except Exception:
-        return page.url
-
-
 def get_page_for_request(*, request):
     """For the given HTTPRequest (and its path) find the corresponding Wagtail
     page, if one exists"""
