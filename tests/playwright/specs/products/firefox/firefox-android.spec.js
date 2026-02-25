@@ -16,6 +16,11 @@ test.describe(
         tag: '@firefox'
     },
     () => {
+        test.skip(
+            true,
+            "The new Download Firefox Android page at /download/android/ doesn't have a send to device form"
+        );
+
         test.beforeEach(async ({ page, browserName }) => {
             await openPage(url, page, browserName);
         });

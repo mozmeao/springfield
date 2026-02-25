@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/browsers/mobile/ios/';
+const url = '/en-US/download/ios/';
 
 test.describe(
     `${url} page`,
@@ -16,6 +16,11 @@ test.describe(
         tag: '@firefox'
     },
     () => {
+        test.skip(
+            true,
+            "The new Download Firefox iOS page at /download/ios/ doesn't have a send to device form"
+        );
+
         test.beforeEach(async ({ page, browserName }) => {
             await openPage(url, page, browserName);
         });

@@ -20,7 +20,7 @@
             />
         </a>
         {% if not no_menu %}
-        <nav class="fl-nav">
+        <nav class="fl-nav" data-testid="fl-navigation-menu-items">
             <ul class="fl-nav-menu">
                 {% include 'cms/includes/flare26-menus/browser.html' %}
                 {% include 'cms/includes/flare26-menus/features.html' %}
@@ -34,7 +34,7 @@
           <div class="fl-header-main-download-button">
             {% include 'cms/includes/nav-cta.html' %}
           </div>
-          <button class="fl-show-mobile-menu" type="button">
+          <button class="fl-show-mobile-menu" type="button" data-testid="fl-navigation-menu-button">
             <span class="fl-show-mobile-menu-content">
               <span class="fl-icon fl-icon-app-menu"></span>
               <span class="fl-icon fl-icon-close"></span>

@@ -12,13 +12,14 @@
     class="fl-menu-title"
     aria-haspopup="true"
     aria-controls="fl-menu-panel-resources"
+    data-testid="fl-navigation-link-resources"
   >
     <h2>
       {{ ftl('navigation-resources') }}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </h2>
   </a>
-  <div class="fl-menu-panel" id="fl-menu-panel-resources">
+  <div class="fl-menu-panel" id="fl-menu-panel-resources" data-testid="fl-navigation-menu-resources">
     <button class="fl-menu-close-button">
       <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
     </button>
@@ -33,6 +34,7 @@
               href="{{ url('firefox.user-privacy') }}"
               data-link-text="Data Protection"
               data-link-position="topnav - data protection"
+              data-testid="fl-navigation-menu-link-data-protection"
             >
               <span class="fl-icon fl-nav-icon-lock"></span>
               {{ ftl('navigation-data-protection') }}

@@ -22,10 +22,10 @@ test.describe(
 
         test('Navigation menu hover', async ({ page }) => {
             const resourceLink = page.getByTestId(
-                'm24-navigation-link-resources'
+                'fl-navigation-link-resources'
             );
             const resourceMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
+                'fl-navigation-menu-resources'
             );
 
             // Hover over Firefox link
@@ -35,22 +35,23 @@ test.describe(
 
         test('Navigation link click', async ({ page }) => {
             const resourceLink = page.getByTestId(
-                'm24-navigation-link-resources'
+                'fl-navigation-link-resources'
             );
             const resourceMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
+                'fl-navigation-menu-resources'
             );
             const firefoxMenuLink = page.getByTestId(
-                'm24-navigation-menu-link-firefox-desktop'
+                'fl-navigation-menu-link-data-protection'
             );
 
             // Hover over Firefox link
             await resourceLink.hover();
             await expect(resourceMenu).toBeVisible();
+            await expect(firefoxMenuLink).toBeVisible();
 
-            // Click Firefox desktop link
+            // Click data protection link
             await firefoxMenuLink.click();
-            await page.waitForURL('/en-US/browsers/desktop/', {
+            await page.waitForURL('/en-US/user-privacy/', {
                 waitUntil: 'commit'
             });
 
@@ -74,21 +75,19 @@ test.describe(
 
         test('Navigation open / close click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'm24-navigation-menu-button'
+                'fl-navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'm24-navigation-menu-items'
+                'fl-navigation-menu-items'
             );
-            const resourcesMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
-            );
+            const browserMenu = page.getByTestId('fl-navigation-menu-browser');
 
             // Open navigation menu
             await navigationMenuButton.click();
             await expect(navigationMenuItems).toBeVisible();
 
-            // Resources menu should be open by default
-            await expect(resourcesMenu).toBeVisible();
+            // Browser menu should be open by default
+            await expect(browserMenu).toBeVisible();
 
             // Close navigation menu
             await navigationMenuButton.click();
@@ -97,22 +96,23 @@ test.describe(
 
         test('Navigation link click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'm24-navigation-menu-button'
+                'fl-navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'm24-navigation-menu-items'
+                'fl-navigation-menu-items'
             );
             const firefoxMenuLink = page.getByTestId(
-                'm24-navigation-menu-link-firefox-desktop'
+                'fl-navigation-menu-link-mobile'
             );
 
             // Open navigation menu
             await navigationMenuButton.click();
             await expect(navigationMenuItems).toBeVisible();
+            await expect(firefoxMenuLink).toBeVisible();
 
-            // Click firefox desktop link
+            // Click mobile link
             await firefoxMenuLink.click();
-            await page.waitForURL('/en-US/browsers/desktop/', {
+            await page.waitForURL('/en-US/browsers/mobile/', {
                 waitUntil: 'commit'
             });
 

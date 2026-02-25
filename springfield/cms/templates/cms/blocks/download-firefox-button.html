@@ -19,10 +19,10 @@
   <a href="{{ download_firefox_thanks_link['transition_url'] }}"
      class="download-link fl-button {{ value.theme_class() }} "
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
-     data-testid="{{ block_position }}"
      data-cta-text="{{ block_text }}"
      data-cta-position="{{ block_position }}"
      data-cta-uid="{{ value.settings.analytics_id }}"
+     data-testid="download-button-thanks"
   >
     {% if value.settings.icon and value.settings.icon_position == "left" %}
       <include:icon
