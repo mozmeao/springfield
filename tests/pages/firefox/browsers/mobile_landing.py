@@ -5,21 +5,17 @@
 from selenium.webdriver.common.by import By
 
 from pages.base import BasePage
-from pages.regions.menu_list import MenuList
 
 
 class FirefoxMobilePage(BasePage):
     _URL_TEMPLATE = "/{locale}/browsers/mobile/"
 
-    _android_download_link_locator = (By.ID, "android-download")
-    _ios_download_link_locator = (By.ID, "ios-download")
-    _focus_menu_list_locator = (By.ID, "menu-focus-wrapper")
+    _android_download_link_locator = (By.CSS, "[href*='play.google.com'][data-cta-type='firefox_mobile']")
+    _ios_download_link_locator = (By.CSS, "[href*='apps.apple.com'][data-cta-type='firefox_mobile']")
+    _focus_android_download_link_locator = (By.CSS, "[href*='play.google.com'][data-cta-type='firefox_focus']")
+    _focus_ios_download_link_locator = (By.CSS, "[href*='apps.apple.com'][data-cta-type='firefox_focus']")
 
     @property
-    def focus_menu_list(self):
-        el = self.find_element(*self._focus_menu_list_locator)
-        return MenuList(self, root=el)
-
     @property
     def is_android_download_link_displayed(self):
         return self.is_element_displayed(*self._android_download_link_locator)
@@ -27,3 +23,11 @@ class FirefoxMobilePage(BasePage):
     @property
     def is_ios_download_link_displayed(self):
         return self.is_element_displayed(*self._ios_download_link_locator)
+
+    @property
+    def is_focus_android_download_link_displayed(self):
+        return self.is_element_displayed(*self._focus_android_download_link_locator)
+
+    @property
+    def is_focus_ios_download_link_displayed(self):
+        return self.is_element_displayed(*self._focus_ios_download_link_locator)
