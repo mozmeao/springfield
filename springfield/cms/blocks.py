@@ -11,10 +11,11 @@ from django.utils.translation import gettext_lazy as _
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail_link_block.blocks import LinkBlock
+from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from springfield.base.i18n import split_path_and_normalize_language
+from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.utils import locale_aware_page_url
 
 HEADING_TEXT_FEATURES = [
@@ -464,6 +465,27 @@ def BaseButtonSettings(themes=None, **kwargs):
     return _BaseButtonSettings(**kwargs)
 
 
+class SpringfieldLinkBlockURLValue(URLValue):
+    def get_url(self):
+        """
+        Override the get_url() method to:
+            - provide logic for returning a locale-appropriate relative_url
+        """
+        link_to = self.get("link_to")
+
+        if link_to == "relative_url":
+            path = self.get(link_to)
+            if path:
+                try:
+                    locale = SpringfieldLocale.get_active()
+                    return f"/{locale.language_code}/{path.lstrip('/')}"
+                except Exception:
+                    return path
+            return path
+
+        return super().get_url()
+
+
 class SpringfieldLinkBlock(LinkBlock):
     """
     Extends LinkBlock with a ``relative_url`` link type.
@@ -502,6 +524,9 @@ class SpringfieldLinkBlock(LinkBlock):
             "a page, please select 'Page', instead of 'Relative URL'."
         ),
     )
+
+    class Meta:
+        value_class = SpringfieldLinkBlockURLValue
 
     def clean(self, value):
         # Full override of LinkBlock.clean() required: that method has a

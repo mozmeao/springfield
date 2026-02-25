@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from unittest import mock
+
 from django.template.loader import render_to_string
 
 import pytest
@@ -2044,3 +2046,52 @@ def test_springfield_link_block_clean_locale_validation_only_applies_to_relative
     """Locale-prefix validation does not apply to other link types."""
     result = SpringfieldLinkBlock().clean(_springfield_link_data("custom_url", custom_url="/en-US/features/"))
     assert result["custom_url"] == "/en-US/features/"
+
+
+def _springfield_link_value(link_to, **fields):
+    """Build a real URLValue via SpringfieldLinkBlock.to_python() for use in tests."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "relative_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return SpringfieldLinkBlock().to_python(data)
+
+
+def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
+    """Prepends the active locale to the stored path."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        cleaned_data = SpringfieldLinkBlock().clean(link_value)
+        url = cleaned_data.get_url()
+
+    assert url == "/fr/features/"
+
+
+def test_springfield_link_block_relative_url_falls_back_when_get_active_raises(minimal_site):
+    """Falls back to the raw path when SpringfieldLocale.get_active() raises an exception."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        cleaned_data = SpringfieldLinkBlock().clean(link_value)
+        url = cleaned_data.get_url()
+
+    assert url == "/features/"
+
+
+def test_springfield_link_block_relative_url_empty_returns_empty():
+    """Returns an empty string when no path is stored."""
+    link_value = _springfield_link_value("relative_url", relative_url="")
+
+    assert link_value.get_url() == ""
