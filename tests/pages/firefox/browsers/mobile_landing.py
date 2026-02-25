@@ -16,7 +16,6 @@ class FirefoxMobilePage(BasePage):
     _focus_ios_download_link_locator = (By.CSS, "[href*='apps.apple.com'][data-cta-type='firefox_focus']")
 
     @property
-    @property
     def is_android_download_link_displayed(self):
         return self.is_element_displayed(*self._android_download_link_locator)
 
