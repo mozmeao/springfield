@@ -367,7 +367,7 @@ video[autoplay] {
         display: flex;
 
         .release-note-progressive-rollout-indicator {
-            margin-inline-start: var(--token-spacing-lg);
+            margin: 0 var(--token-layout-2xs);
             max-inline-size: 210px;
             min-inline-size: 210px;
         }
