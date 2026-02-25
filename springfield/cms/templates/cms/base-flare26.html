@@ -78,7 +78,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     </main>
     {% endblock %}
 
-
     {% block pre_footer %}
 
       {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
@@ -118,6 +117,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       <include:flare26-footer />
     {% endblock %}
 
+    {% block consent_banner %}
+      {% include 'includes/banners/consent-banner-flare26.html' %}
+    {% endblock %}
+
+
     {# Issue 8444 #}
     {% block sentry_client %}
       {% if settings.SENTRY_FRONTEND_DSN and switch('sentry-js') %}
@@ -135,6 +139,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
+    {% endblock %}
+
+    {% block consent_banner_js %}
+    <!--[if IE 9]><!-->
+      {# Consent banner is shown to all evergreen browsers plus IE9 and above #}
+      {{ js_bundle('consent-banner') }}
+    <!--<![endif]-->
     {% endblock %}
 
     {% block stub_attribution %}
