@@ -6,11 +6,14 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
+from django.urls import Resolver404, resolve
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
@@ -562,9 +565,23 @@ class SpringfieldLinkBlock(LinkBlock):
             errors[url_type] = ErrorList(["You need to add a {} link".format(url_type.replace("_", " "))])
         elif url_type == "relative_url":
             path = clean_values.get("relative_url", "")
+            # If the relative URL has a locale prefix, raise an error.
             lang_code, _, _ = split_path_and_normalize_language(path)
             if lang_code:
                 errors["relative_url"] = ErrorList(["Do not include a locale prefix (e.g. use /features/ not /en-US/features/)."])
+            else:
+                # Raise an error if either:
+                #  - the relative URL does not exist on the site, or
+                #  - the relative URL matches a Wagtail Page URL
+                error_msg = "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+                try:
+                    path_to_check = f"/en-US/{path.lstrip('/')}"
+                    with translation.override("en-US"):
+                        match = resolve(path_to_check)
+                    if match.func == wagtail_serve:
+                        errors["relative_url"] = ErrorList([error_msg])
+                except Resolver404:
+                    errors["relative_url"] = ErrorList([error_msg])
         if not errors:
             try:
                 url_default_values.pop(url_type, None)

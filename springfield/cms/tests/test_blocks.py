@@ -2042,6 +2042,28 @@ def test_springfield_link_block_clean_empty_relative_url_raises():
     assert "relative_url" in exc_info.value.block_errors
 
 
+def test_springfield_link_block_clean_rejects_nonexistent_relative_url():
+    """clean() raises when the relative_url path does not resolve at all."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/not/a/valid/path!/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_clean_rejects_wagtail_page_url(minimal_site):
+    """clean() raises when the relative_url path resolves to Wagtail's catch-all, not a static page."""
+    # minimal_site creates a SimpleRichTextPage at /test-page/ (a Wagtail-only URL)
+    assert Page.objects.filter(slug="test-page").exists() is True
+
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/test-page/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
 def test_springfield_link_block_clean_locale_validation_only_applies_to_relative_url():
     """Locale-prefix validation does not apply to other link types."""
     result = SpringfieldLinkBlock().clean(_springfield_link_data("custom_url", custom_url="/en-US/features/"))
