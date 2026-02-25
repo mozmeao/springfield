@@ -10,10 +10,10 @@ from pages.base import BasePage
 class FirefoxMobilePage(BasePage):
     _URL_TEMPLATE = "/{locale}/browsers/mobile/"
 
-    _android_download_link_locator = (By.CSS, "[href*='play.google.com'][data-cta-type='firefox_mobile']")
-    _ios_download_link_locator = (By.CSS, "[href*='apps.apple.com'][data-cta-type='firefox_mobile']")
-    _focus_android_download_link_locator = (By.CSS, "[href*='play.google.com'][data-cta-type='firefox_focus']")
-    _focus_ios_download_link_locator = (By.CSS, "[href*='apps.apple.com'][data-cta-type='firefox_focus']")
+    _android_download_link_locator = (By.CSS_SELECTOR, "[href*='play.google.com'][data-cta-type='firefox_mobile']")
+    _ios_download_link_locator = (By.CSS_SELECTOR, "[href*='apps.apple.com'][data-cta-type='firefox_mobile']")
+    _focus_android_download_link_locator = (By.CSS_SELECTOR, "[href*='play.google.com'][data-cta-type='firefox_focus']")
+    _focus_ios_download_link_locator = (By.CSS_SELECTOR, "[href*='apps.apple.com'][data-cta-type='firefox_focus']")
 
     @property
     def is_android_download_link_displayed(self):
