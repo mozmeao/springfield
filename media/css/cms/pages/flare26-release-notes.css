@@ -373,3 +373,15 @@ video[autoplay] {
         }
     }
 }
+
+html.not-firefox .fl-c-release-notes-pre-footer {
+    display: none;
+}
+
+html.not-firefox .fl-download-section-container {
+    display: block;
+}
+
+html.is-firefox .fl-download-section-container {
+    display: none;
+}
