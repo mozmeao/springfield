@@ -156,6 +156,16 @@ def locale_aware_link_url(context, link_value) -> str | None:
                 return page.url
         return None
 
+    if link_to == "relative_url":
+        path = link_value.get("relative_url")
+        if path:
+            try:
+                locale = SpringfieldLocale.get_active()
+                return f"/{locale.language_code}/{path.lstrip('/')}"
+            except Exception:
+                return path
+        return path
+
     return link_value.get_url()
 
 

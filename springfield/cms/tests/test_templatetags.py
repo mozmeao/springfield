@@ -12,6 +12,7 @@ from wagtail.models import Page
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
+from springfield.cms.blocks import SpringfieldLinkBlock
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
@@ -36,6 +37,23 @@ def _link_value(link_to, **fields):
     }
     data.update(fields)
     return LinkBlock().to_python(data)
+
+
+def _springfield_link_value(link_to, **fields):
+    """Build a real URLValue via SpringfieldLinkBlock.to_python() for use in tests."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "relative_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return SpringfieldLinkBlock().to_python(data)
 
 
 def test_remove_p_tag():
@@ -271,3 +289,34 @@ def test_locale_aware_link_url_page_falls_back_when_get_active_raises(tiny_local
         url = locale_aware_link_url({}, link_value)
 
     assert url == en_us_page.url
+
+
+@pytest.mark.django_db
+def test_locale_aware_link_url_relative_url_prepends_active_locale(tiny_localized_site):
+    """Prepends the active locale to the stored path."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = locale_aware_link_url({}, link_value)
+
+    assert url == "/fr/features/"
+
+
+def test_locale_aware_link_url_relative_url_falls_back_when_get_active_raises():
+    """Falls back to the raw path when SpringfieldLocale.get_active() raises."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = locale_aware_link_url({}, link_value)
+
+    assert url == "/features/"
+
+
+def test_locale_aware_link_url_relative_url_empty_returns_empty():
+    """Returns an empty string when no path is stored."""
+    link_value = _springfield_link_value("relative_url", relative_url="")
+
+    assert locale_aware_link_url({}, link_value) == ""
