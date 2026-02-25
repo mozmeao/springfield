@@ -1234,10 +1234,14 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
 # Article Cards
 
 
-class ArticleOverridesBlock(blocks.StructBlock):
+class BaseArticleOverridesBlock(blocks.StructBlock):
     image = ImageChooserBlock(
         required=False,
-        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
+        help_text="Optional custom image to override the article's featured image.",
+    )
+    sticker = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom sticker image to override the article's sticker.",
     )
     icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     superheading = blocks.CharBlock(
@@ -1270,14 +1274,17 @@ class ArticleOverridesBlock(blocks.StructBlock):
         label = "Overrides"
 
 
-class ArticleValue(blocks.StructValue):
+class BaseArticleValue(blocks.StructValue):
+    def get_article(self):
+        return self["article"].localized
+
     def get_title(self) -> str:
         from springfield.cms.templatetags.cms_tags import remove_p_tag
 
         overrides = self.get("overrides", {})
         if title := overrides.get("title"):
             return remove_p_tag(richtext(title))
-        article_page = self.get("article")
+        article_page = self.get_article()
         return article_page.title if article_page else ""
 
     def get_description(self) -> str:
@@ -1286,7 +1293,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if description := overrides.get("description"):
             return remove_p_tag(richtext(description))
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "description") and article_page.description:
@@ -1297,7 +1304,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if superheading := overrides.get("superheading"):
             return superheading
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "tag") and article_page.tag:
@@ -1308,7 +1315,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if link_label := overrides.get("link_label"):
             return link_label
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "link_text") and article_page.link_text:
@@ -1319,7 +1326,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if image := overrides.get("image"):
             return image
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "featured_image"):
@@ -1328,9 +1335,9 @@ class ArticleValue(blocks.StructValue):
 
     def get_sticker(self):
         overrides = self.get("overrides", {})
-        if image := overrides.get("image"):
-            return image
-        article_page = self.get("article")
+        if sticker := overrides.get("sticker"):
+            return sticker
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "sticker"):
@@ -1341,7 +1348,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if icon := overrides.get("icon"):
             return icon
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "icon") and article_page.icon:
@@ -1354,19 +1361,19 @@ class ArticleValue(blocks.StructValue):
             url = link.get_url()
             if url:
                 return url
-        article_page = self.get("article")
+        article_page = self.get_article()
         return article_page.url if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
-    overrides = ArticleOverridesBlock(required=False)
+    overrides = BaseArticleOverridesBlock(required=False)
 
     class Meta:
         label = "Article"
         label_format = "{article}"
         form_classname = "compact-form struct-block"
-        value_class = ArticleValue
+        value_class = BaseArticleValue
 
 
 class ArticlesListSettings(blocks.StructBlock):
@@ -1400,144 +1407,16 @@ class ArticleCardsListBlock(blocks.StructBlock):
         label_format = "Article Cards List"
 
 
-class RelatedArticleOverridesBlock(blocks.StructBlock):
-    image = ImageChooserBlock(
-        required=False,
-        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
-    )
-    sticker = ImageChooserBlock(
-        required=False,
-        help_text="Optional custom sticker image to override the article's sticker.",
-    )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
-    superheading = blocks.CharBlock(
-        required=False,
-        help_text="Optional custom superheading to override the article's tag.",
-    )
-    title = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom title to override the article's title.",
-    )
-    description = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom description to override the article's description.",
-    )
-    link_label = blocks.CharBlock(
-        required=False,
-        help_text="Optional custom link label to override the article's call to action text.",
-    )
-    link = LinkBlock(
-        required=False,
-        verbose_name="Link override",
-        help_text="Optional custom link to override the article's call to action link.",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Overrides"
-
-
-class RelatedArticleValue(blocks.StructValue):
-    def get_title(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
-        overrides = self.get("overrides", {})
-        if title := overrides.get("title"):
-            return remove_p_tag(richtext(title))
-        article_page = self.get("article")
-        return article_page.title if article_page else ""
-
-    def get_description(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
-        overrides = self.get("overrides", {})
-        if description := overrides.get("description"):
-            return remove_p_tag(richtext(description))
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "description") and article_page.description:
-                return remove_p_tag(richtext(article_page.description))
-        return ""
-
-    def get_superheading(self) -> str:
-        overrides = self.get("overrides", {})
-        if superheading := overrides.get("superheading"):
-            return superheading
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
-        return ""
-
-    def get_link_label(self) -> str:
-        overrides = self.get("overrides", {})
-        if link_label := overrides.get("link_label"):
-            return link_label
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "link_text") and article_page.link_text:
-                return article_page.link_text
-        return ""
-
-    def get_featured_image(self):
-        overrides = self.get("overrides", {})
-        if image := overrides.get("image"):
-            return image
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "featured_image"):
-                return article_page.featured_image
-        return None
-
-    def get_sticker(self):
-        overrides = self.get("overrides", {})
-        if sticker := overrides.get("sticker"):
-            return sticker
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "sticker"):
-                return article_page.sticker
-        return None
-
-    def get_icon(self) -> str:
-        overrides = self.get("overrides", {})
-        if icon := overrides.get("icon"):
-            return icon
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "icon") and article_page.icon:
-                return article_page.icon
-        return "globe"
-
-    def get_link_url(self) -> str:
-        overrides = self.get("overrides", {})
-        if link := overrides.get("link"):
-            url = link.get_url()
-            if url:
-                return url
-        article_page = self.get("article")
-        return article_page.url if article_page else ""
-
-
 class RelatedArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
-    overrides = RelatedArticleOverridesBlock(required=False)
+    overrides = BaseArticleOverridesBlock(required=False)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
 
     class Meta:
         label = "Related Article"
         label_format = "{article}"
         form_classname = "compact-form struct-block"
-        value_class = RelatedArticleValue
+        value_class = BaseArticleValue
         template = "cms/blocks/related-article-card.html"
 
 

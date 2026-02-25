@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/features/';
+const url = '/sv-SE/features/';
 const slugs = [
     'adblocker',
     'add-ons',
