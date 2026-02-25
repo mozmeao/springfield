@@ -195,3 +195,8 @@ th,
 td {
     border-color: var(--token-color-black-4);
 }
+
+::selection {
+    background-color: var(--fl-theme-selection-background);
+    color: var(--fl-theme-color-text);
+}
