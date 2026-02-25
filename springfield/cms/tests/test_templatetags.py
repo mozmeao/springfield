@@ -1,22 +1,16 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-from unittest import mock
-
 from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Page
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
-from springfield.cms.blocks import SpringfieldLinkBlock
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
-    locale_aware_link_url,
     remove_p_tag,
     remove_tags,
     richtext,
@@ -37,23 +31,6 @@ def _link_value(link_to, **fields):
     }
     data.update(fields)
     return LinkBlock().to_python(data)
-
-
-def _springfield_link_value(link_to, **fields):
-    """Build a real URLValue via SpringfieldLinkBlock.to_python() for use in tests."""
-    data = {
-        "link_to": link_to,
-        "page": None,
-        "file": None,
-        "custom_url": "",
-        "relative_url": "",
-        "anchor": "",
-        "email": "",
-        "phone": "",
-        "new_window": False,
-    }
-    data.update(fields)
-    return SpringfieldLinkBlock().to_python(data)
 
 
 def test_remove_p_tag():
@@ -219,104 +196,3 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
         expected_url = original_url
     expected_html = f'<p>Check out <a href="{expected_url}">this page</a>.</p>'
     assert BeautifulSoup(output_html, "html.parser") == BeautifulSoup(expected_html, "html.parser")
-
-
-# ---------------------------------------------------------------------------
-# locale_aware_link_url
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize(
-    "link_to, fields, expected_url",
-    [
-        ("custom_url", {"custom_url": "https://example.com/page/"}, "https://example.com/page/"),
-        ("email", {"email": "test@example.com"}, "mailto:test@example.com"),
-        ("anchor", {"anchor": "section"}, "#section"),
-        ("phone", {"phone": "+1234567890"}, "tel:+1234567890"),
-    ],
-)
-def test_locale_aware_link_url_delegates_for_non_page_types(link_to, fields, expected_url):
-    """For all non-page link types, locale_aware_link_url() returns link_value.get_url()."""
-    link_value = _link_value(link_to, **fields)
-
-    assert locale_aware_link_url({}, link_value) == expected_url
-
-
-def test_locale_aware_link_url_page_is_none_returns_none():
-    """Returns None when link_to is 'page' but no page object is set."""
-    link_value = _link_value("page")
-
-    assert locale_aware_link_url({}, link_value) is None
-
-
-@pytest.mark.django_db
-def test_locale_aware_link_url_page_returns_translated_url(tiny_localized_site):
-    """Returns the translated page URL when the active locale has a translation."""
-    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
-    link_value = _link_value("page", page=en_us_page.pk)
-
-    with mock.patch("django.utils.translation.get_language", return_value="fr"):
-        url = locale_aware_link_url({}, link_value)
-
-    assert url == "/fr/test-page/"
-
-
-@pytest.mark.django_db
-def test_locale_aware_link_url_page_falls_back_when_no_translation(tiny_localized_site):
-    """Falls back to the page's own URL when the active locale has no translation."""
-    # fr_grandchild exists only in fr — it has no pt-BR counterpart
-    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
-    assert Page.objects.filter(locale__language_code="pt-BR", slug="grandchild-page").exists() is False
-
-    link_value = _link_value("page", page=fr_grandchild.pk)
-
-    with mock.patch("django.utils.translation.get_language", return_value="pt-BR"):
-        url = locale_aware_link_url({}, link_value)
-
-    assert url == fr_grandchild.url
-
-
-@pytest.mark.django_db
-def test_locale_aware_link_url_page_falls_back_when_get_active_raises(tiny_localized_site):
-    """Falls back to page.url when SpringfieldLocale.get_active() raises."""
-    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
-    link_value = _link_value("page", page=en_us_page.pk)
-
-    with mock.patch(
-        "springfield.cms.models.locale.SpringfieldLocale.get_active",
-        side_effect=Exception("simulated locale failure"),
-    ):
-        url = locale_aware_link_url({}, link_value)
-
-    assert url == en_us_page.url
-
-
-@pytest.mark.django_db
-def test_locale_aware_link_url_relative_url_prepends_active_locale(tiny_localized_site):
-    """Prepends the active locale to the stored path."""
-    link_value = _springfield_link_value("relative_url", relative_url="/features/")
-
-    with mock.patch("django.utils.translation.get_language", return_value="fr"):
-        url = locale_aware_link_url({}, link_value)
-
-    assert url == "/fr/features/"
-
-
-def test_locale_aware_link_url_relative_url_falls_back_when_get_active_raises():
-    """Falls back to the raw path when SpringfieldLocale.get_active() raises."""
-    link_value = _springfield_link_value("relative_url", relative_url="/features/")
-
-    with mock.patch(
-        "springfield.cms.models.locale.SpringfieldLocale.get_active",
-        side_effect=Exception("simulated locale failure"),
-    ):
-        url = locale_aware_link_url({}, link_value)
-
-    assert url == "/features/"
-
-
-def test_locale_aware_link_url_relative_url_empty_returns_empty():
-    """Returns an empty string when no path is stored."""
-    link_value = _springfield_link_value("relative_url", relative_url="")
-
-    assert locale_aware_link_url({}, link_value) == ""

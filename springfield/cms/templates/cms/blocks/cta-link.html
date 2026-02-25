@@ -5,7 +5,7 @@
 #}
 
 <a class="fl-section-cta-link"
-  href="{{ value.link|locale_aware_link_url|add_utm_parameters }}"
+  href="{{ value.link.get_url()|add_utm_parameters }}"
   {% if value.link.new_window %}target="_blank" rel="external noopener"{% endif %}
   data-cta-position="{{ block_position }}"
   data-cta-text="{{ block_text + " - " + value.label }}"
