@@ -182,6 +182,19 @@ h2.fl-heading.fl-heading-sm {
     letter-spacing: 0.24px;
 }
 
+.fl-heading a:link,
+.fl-heading a:visited,
+.fl-heading a:hover,
+.fl-heading a:active {
+    color: var(--fl-theme-color-text);
+    text-decoration: none;
+}
+
+.fl-heading a:hover,
+.fl-heading a:active {
+    text-decoration: underline;
+}
+
 /* These styles need to match the ones from media/js/cms/wagtailadmin-fx-logo.js
 which implements the rich text feature that adds the Firefox Logo to the CMS */
 span.fl-fx-logo {
