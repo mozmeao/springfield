@@ -6,11 +6,13 @@ from django.template.loader import render_to_string
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Page
 
 from lib.l10n_utils import get_locale
+from springfield.cms.blocks import SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -1985,3 +1987,60 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     assert icon_element is not None
     assert f"fl-icon-{article.icon}" in icon_element["class"]
     assert "fl-icon-globe" not in icon_element["class"]
+
+
+# ---------------------------------------------------------------------------
+# SpringfieldLinkBlock
+# ---------------------------------------------------------------------------
+
+
+def _springfield_link_data(link_to, **fields):
+    """Build a raw data dict for SpringfieldLinkBlock.clean()."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "relative_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return data
+
+
+def test_springfield_link_block_clean_accepts_valid_relative_url():
+    """clean() passes for a locale-free path."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/features/"))
+    assert result["relative_url"] == "/features/"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/en-US/features/",
+        "/fr/features/",
+        "/pt-BR/features/",
+        "/de/features/",
+    ],
+)
+def test_springfield_link_block_clean_rejects_locale_prefixed_url(path):
+    """clean() raises when the relative_url value begins with a locale prefix."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=path))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_empty_relative_url_raises():
+    """clean() raises when link_to is relative_url but no path is provided."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=""))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_locale_validation_only_applies_to_relative_url():
+    """Locale-prefix validation does not apply to other link types."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("custom_url", custom_url="/en-US/features/"))
+    assert result["custom_url"] == "/en-US/features/"

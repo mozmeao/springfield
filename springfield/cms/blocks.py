@@ -5,6 +5,8 @@
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
+from django.forms.utils import ErrorList
+from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
@@ -12,6 +14,7 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
+from springfield.base.i18n import split_path_and_normalize_language
 from springfield.cms.utils import locale_aware_page_url
 
 HEADING_TEXT_FEATURES = [
@@ -461,6 +464,85 @@ def BaseButtonSettings(themes=None, **kwargs):
     return _BaseButtonSettings(**kwargs)
 
 
+class SpringfieldLinkBlock(LinkBlock):
+    """
+    Extends LinkBlock with a ``relative_url`` link type.
+
+    LinkBlock works well, but we also want to give CMS users a relative_url
+    option, where they can type in a relative URL to a page on the site.
+    The reason for this extra field is to allow CMS users to link to static pages,
+    while also rendering those links in the appropriate locale for end users.
+    For example, a CMS user may link to the /features/ page, and an end user
+    browsing in en-US would see a link to /en-US/features/, while a user
+    browsing in es-ES would see a link to /es-ES/features/.
+    """
+
+    link_to = blocks.ChoiceBlock(
+        choices=[
+            ("page", _("Page")),
+            ("file", _("File")),
+            ("custom_url", _("Custom URL")),
+            ("relative_url", _("Relative URL")),
+            ("email", _("Email")),
+            ("anchor", _("Anchor")),
+            ("phone", _("Phone")),
+        ],
+        required=False,
+        classname="link_choice_type_selector",
+        label=_("Link to"),
+    )
+    relative_url = blocks.CharBlock(
+        required=False,
+        classname="relative_url_link",
+        label=_("Relative URL"),
+        help_text=_(
+            "Site-relative path without a locale prefix, e.g. /features/ — the "
+            "locale is added automatically. Note: the Relative URL is meant for "
+            "linking to static pages (not managed here). If you are linking to "
+            "a page, please select 'Page', instead of 'Relative URL'."
+        ),
+    )
+
+    def clean(self, value):
+        # Full override of LinkBlock.clean() required: that method has a
+        # hardcoded url_default_values dict, so we cannot inject relative_url
+        # into it without rewriting the method. Without this override,
+        # relative_url would not be cleared when a different link type is chosen.
+        clean_values = blocks.StructBlock.clean(self, value)
+        errors = {}
+
+        url_default_values = {
+            "page": None,
+            "file": None,
+            "custom_url": "",
+            "relative_url": "",
+            "anchor": "",
+            "email": "",
+            "phone": "",
+        }
+        url_type = clean_values.get("link_to")
+
+        if url_type != "" and clean_values.get(url_type) in [None, ""]:
+            errors[url_type] = ErrorList(["You need to add a {} link".format(url_type.replace("_", " "))])
+        elif url_type == "relative_url":
+            path = clean_values.get("relative_url", "")
+            lang_code, _, _ = split_path_and_normalize_language(path)
+            if lang_code:
+                errors["relative_url"] = ErrorList(["Do not include a locale prefix (e.g. use /features/ not /en-US/features/)."])
+        if not errors:
+            try:
+                url_default_values.pop(url_type, None)
+                for field in url_default_values:
+                    clean_values[field] = url_default_values[field]
+            except KeyError:
+                errors[url_type] = ErrorList(["Enter a valid link type"])
+
+        if errors:
+            raise blocks.StreamBlockValidationError(block_errors=errors, non_block_errors=ErrorList([]))
+
+        return clean_values
+
+
 def ButtonBlock(themes=None, **kwargs):
     """Factory function to create ButtonBlock with specified themes.
 
@@ -471,7 +553,7 @@ def ButtonBlock(themes=None, **kwargs):
     class _ButtonBlock(blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         label = blocks.CharBlock(label="Button Text")
-        link = LinkBlock()
+        link = SpringfieldLinkBlock()
 
         class Meta:
             template = "cms/blocks/button.html"
@@ -639,7 +721,7 @@ class CTASettings(blocks.StructBlock):
 class CTABlock(blocks.StructBlock):
     settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
-    link = LinkBlock()
+    link = SpringfieldLinkBlock()
 
     class Meta:
         label = "Link"
