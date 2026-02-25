@@ -19,6 +19,9 @@ Card Grid - Flare 2026 Design System Cards
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
     --fl-card-sticker-size: 120px;
+
+    /* Skip rendering (including backdrop-filter) for off-screen cards. */
+    content-visibility: auto;
     display: grid;
     gap: var(--fl-card-grid-gap);
     grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
@@ -156,14 +159,29 @@ Basic Card
     color: var(--fl-theme-color-text);
     padding: var(--token-spacing-2xl);
     position: relative;
-    transition:
-        transform var(--token-transition-base),
-        box-shadow var(--token-transition-base);
+    transition: transform var(--token-transition-base);
+}
+
+/* Transitioning box-shadow causes a repaint every frame. Instead, we place
+   the hover shadow on a ::after pseudo-element and transition its opacity —
+   opacity is composited on the GPU with zero repaint cost. */
+.fl-card::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
 }
 
 .fl-card:hover {
-    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
     transform: translateY(-2px);
+}
+
+.fl-card:hover::after {
+    opacity: 1;
 }
 
 .fl-card .fl-heading-group {
@@ -189,6 +207,16 @@ Basic Card
     margin-block: var(--token-spacing-md);
 }
 
+/* Drop backdrop-filter for users who prefer reduced transparency or motion —
+   both are signals that the OS is running in a low-power or accessibility mode. */
+@media (prefers-reduced-transparency: reduce),
+    (prefers-reduced-motion: reduce) {
+    .fl-card,
+    .fl-sticker-card {
+        backdrop-filter: none;
+    }
+}
+
 /* =====================================================================
 Sticker Card
 ===================================================================== */
@@ -210,14 +238,28 @@ Sticker Card
         var(--token-spacing-3xl);
     position: relative;
     text-align: center;
-    transition:
-        transform var(--token-transition-base),
-        box-shadow var(--token-transition-base);
+    transition: transform var(--token-transition-base);
+}
+
+/* Same opacity-shadow technique as .fl-card::after — avoids per-frame repaints
+   that transitioning box-shadow directly would cause. */
+.fl-sticker-card::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
 }
 
 .fl-sticker-card:hover {
-    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
     transform: translateY(-2px);
+}
+
+.fl-sticker-card:hover::after {
+    opacity: 1;
 }
 
 .fl-sticker-card .fl-heading {
