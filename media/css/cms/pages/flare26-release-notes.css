@@ -318,7 +318,7 @@ video[autoplay] {
         border: 2px solid var(--token-color-grey-2);
         border-radius: var(--token-border-radius-2xs);
         inline-size: 210px;
-        margin: auto;
+        margin: var(--token-layout-2xs) auto 0;
         padding: var(--token-spacing-sm) 0;
         text-align: center;
 
