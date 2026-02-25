@@ -2095,3 +2095,53 @@ def test_springfield_link_block_relative_url_empty_returns_empty():
     link_value = _springfield_link_value("relative_url", relative_url="")
 
     assert link_value.get_url() == ""
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_returns_locale_aware_url(tiny_localized_site):
+    """Returns the translated page URL when the active locale has a translation."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = link_value.get_url()
+
+    fr_page = Page.objects.get(locale__language_code="fr", slug="test-page")
+    assert url == fr_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_get_active_raises(tiny_localized_site):
+    """Falls back to the page's own URL when SpringfieldLocale.get_active() raises."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = link_value.get_url()
+
+    assert url == en_us_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_no_translation_exists(tiny_localized_site):
+    """Falls back to the page's own URL when no translation exists for the active locale."""
+    # fr_grandchild exists only in fr — it has no pt-BR counterpart
+    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
+    assert Page.objects.filter(locale__language_code="pt-BR", slug="grandchild-page").exists() is False
+
+    link_value = _springfield_link_value("page", page=fr_grandchild.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-BR"):
+        url = link_value.get_url()
+
+    assert url == fr_grandchild.url
+
+
+def test_springfield_link_block_page_none_returns_none():
+    """Returns None when no page is stored."""
+    link_value = _springfield_link_value("page", page=None)
+
+    assert link_value.get_url() is None

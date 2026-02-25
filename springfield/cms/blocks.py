@@ -470,6 +470,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
         """
         Override the get_url() method to:
             - provide logic for returning a locale-appropriate relative_url
+            - provide logic for returning a locale-appropriate page URL
         """
         link_to = self.get("link_to")
 
@@ -482,6 +483,16 @@ class SpringfieldLinkBlockURLValue(URLValue):
                 except Exception:
                     return path
             return path
+
+        if link_to == "page":
+            page = self.get("page")
+            if page:
+                try:
+                    locale = SpringfieldLocale.get_active()
+                    return page.get_translation(locale).url
+                except Exception:
+                    return page.url
+            return None
 
         return super().get_url()
 
