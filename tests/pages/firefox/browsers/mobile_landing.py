@@ -12,8 +12,6 @@ class FirefoxMobilePage(BasePage):
 
     _android_download_link_locator = (By.CSS_SELECTOR, "[href*='play.google.com'][data-cta-type='firefox_mobile']")
     _ios_download_link_locator = (By.CSS_SELECTOR, "[href*='apps.apple.com'][data-cta-type='firefox_mobile']")
-    _focus_android_download_link_locator = (By.CSS_SELECTOR, "[href*='play.google.com'][data-cta-type='firefox_focus']")
-    _focus_ios_download_link_locator = (By.CSS_SELECTOR, "[href*='apps.apple.com'][data-cta-type='firefox_focus']")
 
     @property
     def is_android_download_link_displayed(self):
@@ -22,11 +20,3 @@ class FirefoxMobilePage(BasePage):
     @property
     def is_ios_download_link_displayed(self):
         return self.is_element_displayed(*self._ios_download_link_locator)
-
-    @property
-    def is_focus_android_download_link_displayed(self):
-        return self.is_element_displayed(*self._focus_android_download_link_locator)
-
-    @property
-    def is_focus_ios_download_link_displayed(self):
-        return self.is_element_displayed(*self._focus_ios_download_link_locator)
