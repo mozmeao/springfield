@@ -144,11 +144,20 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery-card-figure {
     padding-block-end: 0;
-    padding-inline-start: var(--gallery-card-padding);
+    padding-inline: var(--gallery-card-padding);
 }
 
 .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
-    padding-inline-end: var(--gallery-card-padding);
+    padding-inline: var(--gallery-card-padding);
+}
+
+.fl-card-gallery-secondary-card .fl-card-gallery-card-figure img {
+    object-fit: contain;
+    object-position: bottom center;
+}
+
+.fl-card-gallery-main-card .fl-card-gallery-card-figure {
+    padding-inline-end: 0;
 }
 
 .fl-card-gallery-card-figure img {
@@ -189,10 +198,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     .fl-card-gallery-secondary-card {
         grid-area: secondary;
         grid-template-rows: auto var(--gallery-secondary-image-height);
-    }
-
-    .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
-        padding-inline-end: 0;
     }
 
     .fl-card-gallery-card-figure img {

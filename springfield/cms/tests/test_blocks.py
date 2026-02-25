@@ -1878,11 +1878,11 @@ def test_theme_hub_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_sticker = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
-        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+        assert sticker_element.prettify() == BeautifulSoup(rendered_sticker, "html.parser").find("img").prettify()
 
 
 def test_illustration_card_renders_featured_image_without_override(index_page, rf):
@@ -1952,7 +1952,11 @@ def test_sticker_row_renders_sticker_without_override(index_page, rf):
     # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
     # so it should fall back to the article's sticker
     card_element = sticker_row_articles[1]
-    article = articles[3]
+
+    section_data = get_theme_page_sticker_row_section()
+    card_data = section_data["value"]["content"][0]["value"]["cards"][1]
+    article_ids = {article.id: article for article in articles}
+    article = article_ids[card_data["value"]["article"]]
     sticker_element = card_element.find("img")
 
     # Should NOT be the Firefox logo placeholder
