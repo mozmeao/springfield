@@ -241,3 +241,9 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 .fl-tiny-icon-button:focus {
     color: var(--fl-theme-color-link-hover);
 }
+
+/* UI Tour buttons are hidden by default and revealed via JS
+   after confirming UITour is responding (see ui-tour-buttons.js). */
+.ui-tour {
+    display: none;
+}
