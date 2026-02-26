@@ -34,7 +34,6 @@ def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
         defaults={
             "locale": locale,
             "label": "Get Firefox",
-            "link": "https://firefox.com/thanks/",
             "analytics_id": "123e4567-e89b-12d3-a456-426614174000",
         },
     )

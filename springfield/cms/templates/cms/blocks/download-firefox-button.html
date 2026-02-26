@@ -4,61 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% from "macros.html" import google_play_button, apple_app_store_button with context %}
-
-{% set block_text = block_text ~ " - " ~ value.label %}
-{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set cta_text = block_text ~ " - " ~ value.label %}
 {% set icon_name = value.settings.icon %}
 
-{#
-  Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
-  media/js/base/mozilla-utils.js
-#}
-
-<div class="fl-download-firefox-button c-button-download-thanks" id="{{ value.settings.analytics_id }}">
-  <a href="{{ download_firefox_thanks_link['transition_url'] }}"
-     class="download-link fl-button {{ value.theme_class() }} "
-     data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
-     data-testid="{{ block_position }}"
-     data-cta-text="{{ block_text }}"
-     data-cta-position="{{ block_position }}"
-     data-cta-uid="{{ value.settings.analytics_id }}"
-  >
-    {% if value.settings.icon and value.settings.icon_position == "left" %}
-      <include:icon
-        icon_name="{{ value.settings.icon }}"
-        hidden=true
-        extra_class="fl-icon-left"
-      />
-    {% endif %}
-    {{ value.label }}
-    {% if value.settings.icon and value.settings.icon_position == "right" %}
-      <include:icon
-        icon_name="{{ value.settings.icon }}"
-        hidden=true
-        extra_class="fl-icon-right"
-      />
-    {% endif %}
-  </a>
-  {% if value.settings.show_default_browser_checkbox %}
-    {% set checkbox %}
-      <label for="{{ value.settings.analytics_id }}-default-browser" class="default-browser-label hidden">
-        <input type="checkbox" id="{{ value.settings.analytics_id }}-default-browser" class="default-browser-checkbox">
-        {{ ftl('block-set-as-default')}}
-      </label>
-    {% endset %}
-    {% if is_preview %}
-      <include:conditional-display condition="windows">
-        {{ checkbox }}
-      </include:conditional-display>
-    {% else %}
-      {{ checkbox }}
-    {% endif %}
-  {% endif %}
-
-  {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
-  {% set ios_url = app_store_url('firefox', campaign) %}
-  {% set android_url = play_store_url('firefox', campaign) %}
-  {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
-  {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
-</div>
+<include:download-firefox-button
+  analytics_id="{{ value.settings.analytics_id }}"
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  cta_text="{{ cta_text }}"
+  block_position="{{ block_position }}"
+  icon_position="{{ value.settings.icon_position }}"
+  icon_name="{{ value.settings.icon }}"
+  show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox }}"
+  show_store_button=true
+/>
