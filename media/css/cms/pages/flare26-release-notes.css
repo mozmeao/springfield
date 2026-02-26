@@ -318,7 +318,7 @@ video[autoplay] {
         border: 2px solid var(--token-color-grey-2);
         border-radius: var(--token-border-radius-2xs);
         inline-size: 210px;
-        margin: auto;
+        margin: var(--token-layout-2xs) auto 0;
         padding: var(--token-spacing-sm) 0;
         text-align: center;
 
@@ -367,9 +367,21 @@ video[autoplay] {
         display: flex;
 
         .release-note-progressive-rollout-indicator {
-            margin-inline-start: var(--token-spacing-lg);
+            margin: 0 var(--token-layout-2xs);
             max-inline-size: 210px;
             min-inline-size: 210px;
         }
     }
+}
+
+html.not-firefox .fl-c-release-notes-pre-footer {
+    display: none;
+}
+
+html.not-firefox .fl-download-section-container {
+    display: block;
+}
+
+html.is-firefox .fl-download-section-container {
+    display: none;
 }

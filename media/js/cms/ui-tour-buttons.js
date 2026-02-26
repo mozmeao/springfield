@@ -4,9 +4,39 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+function showUITourElements() {
+    'use strict';
+    const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+    ).matches;
+    const uiTourElements = document.querySelectorAll('.ui-tour');
+
+    // Make all elements visible in the layout first.
+    uiTourElements.forEach((element) => {
+        element.style.display = '';
+    });
+
+    if (prefersReducedMotion) {
+        return;
+    }
+
+    // Fade in: set initial opacity and transition, trigger one reflow,
+    // then set final opacity on all elements.
+    uiTourElements.forEach((element) => {
+        element.style.opacity = '0';
+        element.style.transition = 'opacity 0.3s ease';
+    });
+    // Single reflow to batch the display/opacity changes.
+    document.body.offsetHeight; // eslint-disable-line no-unused-expressions
+    uiTourElements.forEach((element) => {
+        element.style.opacity = '1';
+    });
+}
+
 function init() {
     'use strict';
     Mozilla.UITour.ping(() => {
+        showUITourElements();
         // Find any buttons that should open a new tab.
         const openNewTabButtons = document.querySelectorAll(
             '.ui-tour-open-new-tab'
@@ -158,20 +188,10 @@ function init() {
     });
 }
 
-function hideUITourElements() {
-    'use strict';
-    const uiTourElements = document.querySelectorAll('.ui-tour');
-    uiTourElements.forEach((element) => {
-        element.style.display = 'none';
-    });
-}
-
 if (
     typeof window.Mozilla.Client !== 'undefined' &&
     typeof window.Mozilla.UITour !== 'undefined' &&
     window.Mozilla.Client.isFirefoxDesktop
 ) {
     init();
-} else {
-    hideUITourElements();
 }

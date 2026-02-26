@@ -3,16 +3,19 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from urllib.parse import urlparse, urlunparse
+from unittest import mock
 
 from django.template.loader import render_to_string
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Page
 
 from lib.l10n_utils import get_locale
+from springfield.cms.blocks import SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -1883,11 +1886,11 @@ def test_theme_hub_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_sticker = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
-        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+        assert sticker_element.prettify() == BeautifulSoup(rendered_sticker, "html.parser").find("img").prettify()
 
 
 def test_illustration_card_renders_featured_image_without_override(index_page, rf):
@@ -1957,7 +1960,11 @@ def test_sticker_row_renders_sticker_without_override(index_page, rf):
     # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
     # so it should fall back to the article's sticker
     card_element = sticker_row_articles[1]
-    article = articles[3]
+
+    section_data = get_theme_page_sticker_row_section()
+    card_data = section_data["value"]["content"][0]["value"]["cards"][1]
+    article_ids = {article.id: article for article in articles}
+    article = article_ids[card_data["value"]["article"]]
     sticker_element = card_element.find("img")
 
     # Should NOT be the Firefox logo placeholder
@@ -1994,3 +2001,167 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     assert icon_element is not None
     assert f"fl-icon-{article.icon}" in icon_element["class"]
     assert "fl-icon-globe" not in icon_element["class"]
+
+
+# ---------------------------------------------------------------------------
+# SpringfieldLinkBlock
+# ---------------------------------------------------------------------------
+
+
+def _springfield_link_data(link_to, **fields):
+    """Build a raw data dict for SpringfieldLinkBlock.clean()."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "relative_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return data
+
+
+def test_springfield_link_block_clean_accepts_valid_relative_url():
+    """clean() passes for a locale-free path."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/features/"))
+    assert result["relative_url"] == "/features/"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/en-US/features/",
+        "/fr/features/",
+        "/pt-BR/features/",
+        "/de/features/",
+    ],
+)
+def test_springfield_link_block_clean_rejects_locale_prefixed_url(path):
+    """clean() raises when the relative_url value begins with a locale prefix."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=path))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_empty_relative_url_raises():
+    """clean() raises when link_to is relative_url but no path is provided."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=""))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_rejects_nonexistent_relative_url():
+    """clean() raises when the relative_url path does not resolve at all."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/not/a/valid/path!/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_clean_rejects_wagtail_page_url(minimal_site):
+    """clean() raises when the relative_url path resolves to Wagtail's catch-all, not a static page."""
+    # minimal_site creates a SimpleRichTextPage at /test-page/ (a Wagtail-only URL)
+    assert Page.objects.filter(slug="test-page").exists() is True
+
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/test-page/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
+def test_springfield_link_block_clean_locale_validation_only_applies_to_relative_url():
+    """Locale-prefix validation does not apply to other link types."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("custom_url", custom_url="/en-US/features/"))
+    assert result["custom_url"] == "/en-US/features/"
+
+
+def _springfield_link_value(link_to, **fields):
+    """Build a SpringfieldLinkBlockURLValue via SpringfieldLinkBlock.to_python()."""
+    return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
+
+
+def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
+    """Prepends the active locale to the stored path."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = link_value.get_url()
+
+    assert url == "/fr/features/"
+
+
+def test_springfield_link_block_relative_url_falls_back_when_get_active_raises():
+    """Falls back to the raw path when SpringfieldLocale.get_active() raises an exception."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = link_value.get_url()
+
+    assert url == "/features/"
+
+
+def test_springfield_link_block_relative_url_empty_returns_empty():
+    """Returns an empty string when no path is stored."""
+    link_value = _springfield_link_value("relative_url", relative_url="")
+
+    assert link_value.get_url() == ""
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_returns_locale_aware_url(tiny_localized_site):
+    """Returns the translated page URL when the active locale has a translation."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = link_value.get_url()
+
+    fr_page = Page.objects.get(locale__language_code="fr", slug="test-page")
+    assert url == fr_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_get_active_raises(tiny_localized_site):
+    """Falls back to the page's own URL when SpringfieldLocale.get_active() raises."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = link_value.get_url()
+
+    assert url == en_us_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_no_translation_exists(tiny_localized_site):
+    """Falls back to the page's own URL when no translation exists for the active locale."""
+    # fr_grandchild exists only in fr — it has no pt-BR counterpart
+    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
+    assert Page.objects.filter(locale__language_code="pt-BR", slug="grandchild-page").exists() is False
+
+    link_value = _springfield_link_value("page", page=fr_grandchild.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-BR"):
+        url = link_value.get_url()
+
+    assert url == fr_grandchild.url
+
+
+def test_springfield_link_block_page_none_returns_none():
+    """Returns None when no page is stored."""
+    link_value = _springfield_link_value("page", page=None)
+
+    assert link_value.get_url() is None
