@@ -23,7 +23,9 @@ test.describe(
         });
 
         test('Footer language change', async ({ page }) => {
-            const languageSelect = page.getByTestId('footer-language-select');
+            const languageSelect = page
+                .getByTestId('footer-language-select')
+                .filter({ visible: true });
 
             // Assert default language is English
             await expect(languageSelect).toHaveValue('en-US');
@@ -36,7 +38,9 @@ test.describe(
 
             // Assert page language is now German
             await expect(
-                page.getByTestId('footer-language-select')
+                page
+                    .getByTestId('footer-language-select')
+                    .filter({ visible: true })
             ).toHaveValue('de');
         });
     }
