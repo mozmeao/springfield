@@ -9,7 +9,7 @@ from django.db import models
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField
-from wagtail.models import PreviewableMixin, TranslatableMixin
+from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 
@@ -31,12 +31,22 @@ class FluentPreviewableMixin(PreviewableMixin):
         return context
 
 
-class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
+class BaseDraftQueryset(models.QuerySet):
+    def live(self):
+        return self.filter(live=True)
+
+    def not_live(self):
+        return self.filter(live=False)
+
+
+class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin, DraftStateMixin, RevisionMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
     label = models.CharField(max_length=255, default="Get Firefox")
     link = models.URLField(max_length=255, blank=True)
     analytics_id = models.UUIDField(default=uuid4)
+
+    objects = BaseDraftQueryset.as_manager()
 
     panels = [
         FieldPanel("label"),
@@ -58,12 +68,14 @@ class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(PreFooterCTASnippet)
 
 
-class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
+class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin, DraftStateMixin, RevisionMixin, models.Model):
     """A snippet for the Newsletter sign-up form at the bottom of pages."""
 
     heading = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading = RichTextField(features=HEADING_TEXT_FEATURES)
     analytics_id = models.UUIDField(default=uuid4)
+
+    objects = BaseDraftQueryset.as_manager()
 
     panels = [
         FieldPanel("heading"),
@@ -87,7 +99,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(PreFooterCTAFormSnippet)
 
 
-class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMixin):
+class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
     heading = RichTextField(
@@ -110,6 +122,8 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
         FieldPanel("image"),
     ]
 
+    objects = BaseDraftQueryset.as_manager()
+
     class Meta(TranslatableMixin.Meta):
         verbose_name = "Download Firefox Call To Action Snippet"
         verbose_name_plural = "Download Firefox Call To Action Snippets"
@@ -126,7 +140,7 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
 register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
-class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
+class BannerSnippet(FluentPreviewableMixin, TranslatableMixin, DraftStateMixin, RevisionMixin, models.Model):
     """A snippet to render a banner with a QR code."""
 
     kit_theme = models.BooleanField(default=False, help_text="Use the Kit theme for this banner.")
@@ -145,6 +159,8 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
         max_num=2,
     )
     qr_code = models.CharField(blank=True)
+
+    objects = BaseDraftQueryset.as_manager()
 
     panels = [
         FieldPanel("kit_theme"),
@@ -170,11 +186,13 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(BannerSnippet)
 
 
-class Tag(TranslatableMixin, models.Model):
+class Tag(TranslatableMixin, DraftStateMixin, RevisionMixin, models.Model):
     """A tag for categorizing articles."""
 
     name = models.CharField()
     slug = models.SlugField()
+
+    objects = BaseDraftQueryset.as_manager()
 
     panels = [
         TitleFieldPanel("name"),

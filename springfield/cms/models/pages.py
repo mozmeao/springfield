@@ -590,6 +590,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("related_articles"),
     ]
 
+    def get_tag(self):
+        if self.tag and self.tag.localized and self.tag.localized.live:
+            return self.tag.localized
+        return None
+
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""

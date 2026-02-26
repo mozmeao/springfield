@@ -1443,8 +1443,8 @@ class BaseArticleValue(blocks.StructValue):
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
+            if tag := article_page.get_tag():
+                return tag.name
         return ""
 
     def get_link_label(self) -> str:
