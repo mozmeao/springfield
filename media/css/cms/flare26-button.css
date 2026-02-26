@@ -244,6 +244,6 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
 /* UI Tour buttons are hidden by default and revealed via JS
    after confirming UITour is responding (see ui-tour-buttons.js). */
-.ui-tour {
+.ui-tour.is-hidden {
     display: none;
 }
