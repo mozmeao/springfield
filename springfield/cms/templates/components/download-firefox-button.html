@@ -54,9 +54,11 @@
     {% endif %}
   {% endif %}
 
-  {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
-  {% set ios_url = app_store_url('firefox', campaign) %}
-  {% set android_url = play_store_url('firefox', campaign) %}
-  {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
-  {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+  {% if show_store_button %}
+    {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+    {% set ios_url = app_store_url('firefox', campaign) %}
+    {% set android_url = play_store_url('firefox', campaign) %}
+    {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
+    {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+  {% endif %}
 </div>
