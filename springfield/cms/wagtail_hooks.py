@@ -47,7 +47,7 @@ def global_admin_css():
 
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
-    return format_html('<script src="{}"></script>', static("js/cms/wagtailadmin-link-block.js"))
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
 
 
 class FXAEntityElementHandler(InlineEntityElementHandler):
