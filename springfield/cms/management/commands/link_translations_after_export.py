@@ -79,17 +79,32 @@ class Command(BaseCommand):
                 "editor will show untranslated strings."
             ),
         )
+        parser.add_argument(
+            "--page_ids",
+            help=(
+                "Comma-separated list of page IDs to process. Each ID's full translation "
+                "group (source + all translated copies) is included. If omitted, all "
+                "multi-locale page groups are processed."
+            ),
+        )
 
     def handle(self, *args, **options):
         dry_run = options["dry_run"]
         skip_strings = options["skip_string_translations"]
+
+        page_ids_filter = None
+        if options["page_ids"]:
+            try:
+                page_ids_filter = {int(pk) for pk in options["page_ids"].split(",")}
+            except ValueError:
+                raise SystemExit("ERROR: --page_ids must be a comma-separated list of integers, e.g. --page_ids 1,2,3")
 
         if dry_run:
             self.stdout.write(self.style.WARNING("DRY RUN — no changes will be made."))
 
         totals = {"sources": 0, "translations": 0, "string_translations": 0, "errors": 0}
 
-        self._process_pages(dry_run, skip_strings, totals)
+        self._process_pages(dry_run, skip_strings, totals, page_ids_filter)
         self._process_snippets(dry_run, skip_strings, totals)
 
         self.stdout.write(
@@ -101,7 +116,7 @@ class Command(BaseCommand):
             )
         )
 
-    def _process_pages(self, dry_run, skip_strings, totals):
+    def _process_pages(self, dry_run, skip_strings, totals, page_ids_filter=None):
         self.stdout.write("Processing pages...")
 
         # Group page ids by translation_key. We fetch id+translation_key+locale_id
@@ -118,7 +133,11 @@ class Command(BaseCommand):
             if len({locale_id for _, locale_id in entries}) > 1
         ]
 
-        self.stdout.write(f"  Found {len(multi_locale_keys)} multi-locale page groups.")
+        if page_ids_filter:
+            multi_locale_keys = [(tk, ids) for tk, ids in multi_locale_keys if page_ids_filter.intersection(ids)]
+            self.stdout.write(f"  Found {len(multi_locale_keys)} multi-locale page groups matching --page_ids filter.")
+        else:
+            self.stdout.write(f"  Found {len(multi_locale_keys)} multi-locale page groups.")
 
         if not multi_locale_keys:
             return
