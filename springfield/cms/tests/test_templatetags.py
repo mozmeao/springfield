@@ -1,12 +1,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
 from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
+from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
@@ -15,6 +15,22 @@ from springfield.cms.templatetags.cms_tags import (
     remove_tags,
     richtext,
 )
+
+
+def _link_value(link_to, **fields):
+    """Build a real URLValue via LinkBlock.to_python() for use in tests."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return LinkBlock().to_python(data)
 
 
 def test_remove_p_tag():
