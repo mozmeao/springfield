@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -375,6 +376,23 @@ def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
     return value
+
+
+class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
+    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+
+    def _localize(self, instance):
+        if instance and hasattr(instance, "localized") and instance.localized:
+            instance = instance.localized
+            if hasattr(instance, "live") and not instance.live:
+                return None
+        return instance
+
+    def to_python(self, value):
+        return self._localize(super().to_python(value))
+
+    def bulk_to_python(self, values):
+        return [self._localize(instance) for instance in super().bulk_to_python(values)]
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
