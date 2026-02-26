@@ -35,7 +35,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
     label = models.CharField(max_length=255, default="Get Firefox")
-    analytics_id = models.UUIDField(default=uuid4)
+    analytics_id = models.CharField(default=uuid4)
 
     panels = [
         FieldPanel("label"),

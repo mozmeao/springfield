@@ -41,7 +41,7 @@
   {% if show_default_browser_checkbox %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
-        <input type="checkbox" id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
+        <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
         {{ ftl('block-set-as-default')}}
       </label>
     {% endset %}
