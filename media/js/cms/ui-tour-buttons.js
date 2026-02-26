@@ -11,22 +11,22 @@ function showUITourElements() {
     ).matches;
     const uiTourElements = document.querySelectorAll('.ui-tour');
 
-    // Make all elements visible in the layout first.
-    uiTourElements.forEach((element) => {
-        element.style.display = '';
-    });
-
     if (prefersReducedMotion) {
+        // Show immediately without transition.
+        uiTourElements.forEach((element) => {
+            element.classList.remove('is-hidden');
+        });
         return;
     }
 
-    // Fade in: set initial opacity and transition, trigger one reflow,
-    // then set final opacity on all elements.
+    // Fade in: make visible at zero opacity, trigger one reflow,
+    // then transition to full opacity.
     uiTourElements.forEach((element) => {
         element.style.opacity = '0';
         element.style.transition = 'opacity 0.3s ease';
+        element.classList.remove('is-hidden');
     });
-    // Single reflow to batch the display/opacity changes.
+    // Single reflow to commit the opacity: 0 state before animating.
     document.body.offsetHeight; // eslint-disable-line no-unused-expressions
     uiTourElements.forEach((element) => {
         element.style.opacity = '1';
