@@ -303,36 +303,3 @@ td {
     padding: 0.5rem 0.75rem;
     vertical-align: top;
 }
-
-/* Disables animations for people who prefer reduced motion */
-/* stylelint-disable declaration-no-important */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-/* stylelint-enable declaration-no-important */
-
-/* Enables CSS transitions for size keywords like 'auto' */
-@media (prefers-reduced-motion: no-preference) {
-    html {
-        /* stylelint-disable-next-line property-no-unknown */
-        interpolate-size: allow-keywords;
-    }
-}
-
-/* Animations */
-@keyframes fl-fade-in {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
