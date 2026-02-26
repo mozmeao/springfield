@@ -591,10 +591,14 @@
         </section>
       </div>
 
+      {% with location = 'bottom' %}
+        {% include "firefox/releases/partials/notes_pagination.html" %}
+      {% endwith %}
 
       {% if switch('flare26_enabled') %}
-      <include:section>
-        <content:heading>
+      <div class="fl-download-section-container">
+        <include:section>
+          <content:heading>
             <include:heading
               heading_text="{{ download_title }}"
               alignment_class="text-center"
@@ -604,6 +608,7 @@
             {{ download_button_secondary }}
           </content:cta>
         </include:section>
+      </div>
       {% else %}
           {% call callout_compact(
           title=download_title,
@@ -616,16 +621,6 @@
           {{ download_button_secondary }}
         {% endcall %}
       {% endif %}
-
-      {% if download_all_link and not switch('flare26_enabled') %}
-      <section class="all-download fl-l-release-notes-wrapper text-center">
-        <a href="{{ download_all_link }}">All {{ product_name }} downloads</a>
-      </section>
-      {% endif %}
-
-      {% with location = 'bottom' %}
-        {% include "firefox/releases/partials/notes_pagination.html" %}
-      {% endwith %}
 
       {% if not switch('flare26_enabled') %}
         {% block releasenotes_footer %}
@@ -659,13 +654,6 @@
     </article>
   </main>
 </div>
-{% if switch('release-notes-newsletter-banner', ['en']) and not switch('flare26-enabled') %}
-  {# Give newsletter landmark a separate aria identifier to the pencil banner: https://github.com/mozilla/bedrock/issues/15958 #}
-  {% with aria_label = 'Newsletter' %}
-    {% include 'includes/banners/firefox-newsletter.html' %}
-  {% endwith %}
-{% endif %}
-
 {% endblock %}
 
 {% block pre_footer %}
