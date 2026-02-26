@@ -152,6 +152,10 @@ Basic Card
 .fl-card {
     align-items: stretch;
     backdrop-filter: blur(7.5px);
+    /* Prevents flickering in Chrome on macOS when backdrop-filter
+       is recomposited during hover transform transitions. */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     background: var(--fl-theme-default-card-bg);
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
@@ -224,6 +228,10 @@ Sticker Card
 .fl-sticker-card {
     align-items: stretch;
     backdrop-filter: blur(7.5px);
+    /* Prevents flickering in Chrome on macOS when backdrop-filter
+       is recomposited during hover transform transitions. */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     background: var(--fl-theme-surface-card-gradient);
     block-size: auto;
     border-radius: var(--token-border-radius-md);
