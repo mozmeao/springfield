@@ -147,6 +147,6 @@
 
 /* UI Tour buttons are hidden by default and revealed via JS
    after confirming UITour is responding (see ui-tour-buttons.js). */
-.ui-tour {
+.ui-tour.is-hidden {
     display: none;
 }
