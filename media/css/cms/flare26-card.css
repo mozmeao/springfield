@@ -233,9 +233,8 @@ Sticker Card
     flex-direction: column;
     gap: var(--token-spacing-xl);
     justify-content: flex-start;
-    min-block-size: 480px;
-    padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
-        var(--token-spacing-3xl);
+    min-block-size: 316px;
+    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
     position: relative;
     text-align: center;
     transition: transform var(--token-transition-base);
@@ -506,6 +505,10 @@ Step Cards List - With Kit variant
 }
 
 @media (--viewport-md-up) {
+    .fl-sticker-card {
+        min-block-size: 480px;
+    }
+
     .fl-card-grid.fl-step-cards-with-kit {
         gap: var(--token-layout-lg) var(--token-layout-3xs);
     }

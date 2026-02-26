@@ -26,11 +26,6 @@
     --fl-card-grid-gap: var(--token-spacing-lg);
 }
 
-.fl-home-body .fl-sticker-card {
-    min-block-size: 316px;
-    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
-}
-
 .fl-home-body .fl-section:has(.fl-card-gallery) {
     padding-block-end: 0;
 }
@@ -48,10 +43,6 @@
 
     .fl-home-body .fl-card-grid {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .fl-home-body .fl-sticker-card {
-        min-block-size: 480px;
     }
 }
 
