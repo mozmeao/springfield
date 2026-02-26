@@ -96,13 +96,9 @@ body.fl-modal-open {
 
 .has-gradient-top::before {
     --gradient-height: 44vh;
-    background-image: radial-gradient(
-        var(--token-color-light-purple) 0%,
-        var(--token-color-dark-purple) 50%
-    );
+    background-image: var(--token-gradient-blurred-bg);
     block-size: var(--gradient-height);
     content: var(--content-dark-mode-only);
-    filter: blur(200px);
     inset: calc(var(--gradient-height) / -2) -30vw auto;
     position: absolute;
     z-index: 0;
@@ -111,13 +107,9 @@ body.fl-modal-open {
 .has-gradient-bottom::before,
 .has-sitting-kit::before {
     --gradient-height: 60vh;
-    background-image: radial-gradient(
-        var(--token-color-light-purple) 0%,
-        var(--token-color-dark-purple) 50%
-    );
+    background-image: var(--token-gradient-blurred-bg);
     block-size: var(--gradient-height);
     content: var(--content-dark-mode-only);
-    filter: blur(200px);
     inset: auto -40vw calc(var(--gradient-height) / -2);
     position: absolute;
     z-index: 0;
@@ -125,13 +117,9 @@ body.fl-modal-open {
 
 .has-gradient-bottom-100-always::before {
     --gradient-height: 100vh;
-    background-image: radial-gradient(
-        var(--token-color-light-purple) 0%,
-        var(--token-color-dark-purple) 50%
-    );
+    background-image: var(--token-gradient-blurred-bg);
     block-size: var(--gradient-height);
     content: '';
-    filter: blur(200px);
     inset: 0;
     inset-block-start: calc(100% - 25vh);
     position: absolute;

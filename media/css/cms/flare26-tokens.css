@@ -91,6 +91,21 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-grey-2) 100%
     );
 
+    /* using manual OCLCH copies of copies var(--token-color-light-purple)
+       and var(--token-color-dark-purple), plus some tweaking of the color stops
+       to mimic the effect I was getting with a blur filter. */
+    --token-gradient-blurred-bg: radial-gradient(
+        oklch(53.618% 0.2266 291.092deg) 0%,
+        oklch(50.1% 0.214 292deg) 8%,
+        oklch(44.8% 0.196 293.7deg) 18%,
+        oklch(37.5% 0.17 295.5deg) 30%,
+        oklch(30% 0.143 297.1deg) 42%,
+        oklch(24.2% 0.122 298.3deg) 54%,
+        oklch(21.9% 0.112 299deg) 68%,
+        oklch(21.3% 0.107 299.3deg) 82%,
+        oklch(21.027% 0.105 299.458deg) 100%
+    );
+
     /* Light and dark gradients */
     --token-gradient-light: linear-gradient(
         180deg,
