@@ -95,11 +95,11 @@ body.fl-modal-open {
 }
 
 .has-gradient-top::before {
-    --gradient-height: 44vh;
+    --gradient-height: 70vh;
     background-image: var(--token-gradient-blurred-bg);
     block-size: var(--gradient-height);
     content: var(--content-dark-mode-only);
-    inset: calc(var(--gradient-height) / -2) -30vw auto;
+    inset: calc(var(--gradient-height) / -1.5) -30vw auto;
     position: absolute;
     z-index: 0;
 }
