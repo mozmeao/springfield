@@ -434,6 +434,13 @@ class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
 
+    def get_translatable_segments(self, value):
+        # UUIDs are analytics IDs, not user-facing content — exclude from translation.
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
 
 def BaseButtonSettings(themes=None, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
