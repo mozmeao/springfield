@@ -164,9 +164,10 @@
                     {% endif %}
                   </content:media>
                   <content:heading>
-                    {% if article.get_tag() %}
+                    {% set tag = article.get_tag() %}
+                    {% if tag %}
                       <p class="fl-superheading">
-                        {{ article.get_tag().name }}
+                        {{ tag.name }}
                       </p>
                     {% endif %}
                     <h3 class="fl-heading fl-heading-size-3">

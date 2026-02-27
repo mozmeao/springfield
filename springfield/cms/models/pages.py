@@ -590,8 +590,8 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     def get_tag(self):
-        if self.tag and self.tag.localized and self.tag.localized.live:
-            return self.tag.localized
+        if self.tag:
+            return self.tag.get_localized()
         return None
 
 
