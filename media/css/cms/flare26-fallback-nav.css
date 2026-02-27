@@ -69,16 +69,18 @@
     width: 25%;
 }
 
-.fl-nav {
+.fl-nav,
+.fl-show-mobile-menu {
     display: none;
 }
 
 .fl-nav.is-open {
     background-color: #fff;
     border: 2px solid #eee;
-    display: flex;
+    /* stylelint-disable-next-line */
+    display: flex !important;
+    margin-bottom: 24px;
     padding: 24px;
-    position: absolute;
     top: 100%;
     width: 100%;
 }
@@ -124,43 +126,6 @@
     text-decoration: underline;
 }
 
-.fl-show-mobile-menu {
-    align-items: center;
-    background-color: #7543e3;
-    border-radius: 30px;
-    color: white;
-    display: flex;
-    height: 40px;
-    justify-content: center;
-    margin-left: 10px;
-    min-width: 40px;
-    padding: 0 16px;
-    width: auto;
-}
-
-.fl-show-mobile-menu .fl-icon-close,
-.fl-show-mobile-menu.is-open .fl-icon-app-menu {
-    display: none;
-}
-
-.fl-show-mobile-menu.is-open .fl-icon-close,
-.fl-show-mobile-menu .fl-icon-app-menu {
-    display: block;
-}
-
-.fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
-    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 16px auto;
-    display: block;
-    font-size: 0;
-    line-height: 0;
-    margin: auto;
-    min-width: 32px;
-    width: 32px;
-}
-
 .fl-show-mobile-menu-content {
     align-items: center;
     display: flex;
@@ -178,10 +143,7 @@
 
 .fl-header .download-link:hover,
 .fl-header .download-link:focus,
-.fl-header .download-link:active,
-.fl-show-mobile-menu:hover,
-.fl-show-mobile-menu:focus,
-.fl-show-mobile-menu:active {
+.fl-header .download-link:active {
     background-color: #6132bc;
     color: white;
 }
@@ -276,4 +238,8 @@
 
 .fl-language-switcher button {
     padding: 4px 8px;
+}
+
+.fl-show-auto-download-notification {
+    display: none;
 }
