@@ -41,7 +41,7 @@ class BaseDraftQueryset(models.QuerySet):
         return self.filter(live=False)
 
 
-class BaseDraftTranslatableSnippetMixin(FluentPreviewableMixin, TranslatableMixin, DraftStateMixin, RevisionMixin):
+class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, RevisionMixin):
     """A base mixin for snippets that are translatable and have draft state and revision history."""
 
     objects = BaseDraftQueryset.as_manager()
@@ -61,7 +61,7 @@ class BaseDraftTranslatableSnippetMixin(FluentPreviewableMixin, TranslatableMixi
         return instance
 
 
-class PreFooterCTASnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
     label = models.CharField(max_length=255, default="Get Firefox")
@@ -86,7 +86,7 @@ class PreFooterCTASnippet(BaseDraftTranslatableSnippetMixin, models.Model):
 register_snippet(PreFooterCTASnippet)
 
 
-class PreFooterCTAFormSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the Newsletter sign-up form at the bottom of pages."""
 
     heading = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -115,7 +115,7 @@ class PreFooterCTAFormSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
 register_snippet(PreFooterCTAFormSnippet)
 
 
-class DownloadFirefoxCallToActionSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
     heading = RichTextField(
@@ -154,7 +154,7 @@ class DownloadFirefoxCallToActionSnippet(BaseDraftTranslatableSnippetMixin, mode
 register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
-class BannerSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a banner with a QR code."""
 
     kit_theme = models.BooleanField(default=False, help_text="Use the Kit theme for this banner.")
