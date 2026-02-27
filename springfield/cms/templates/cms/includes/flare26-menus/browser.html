@@ -80,12 +80,14 @@
 
         <span class="fl-nav-separator"></span>
 
-        <include:button
-          theme_class="button-ghost"
-          size_class="fl-button-small"
-          label="{{ ftl('navigation-download-firefox') }}"
-          link="{{ url('firefox.download') }}"
-        />
+        {{
+          download_firefox_thanks(
+            alt_copy=ftl('navigation-get-firefox'),
+            dom_id='nav-download-firefox',
+            download_location='nav',
+            flare_styles=True,
+            button_class="button-ghost fl-button-small"
+          ) }}
       </div>
     </div>
   </div>

@@ -299,6 +299,14 @@
     z-index: 1;
 }
 
+.fl-menu-panel-content .fl-fx-download-container .fl-button {
+    inline-size: 100%;
+}
+
+.fl-menu-panel-content .fl-fx-download-container .fl-button .fl-icon {
+    display: none;
+}
+
 /* ================================================
    Media Queries - Mobile (max-width: 899px)
    ================================================ */

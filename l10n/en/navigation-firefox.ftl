@@ -45,8 +45,3 @@ navigation-data-protection = Data Protection
 navigation-protection = Protection
 navigation-control = Control
 navigation-focus = Focus
-
-## Download
-
-navigation-download = Download
-navigation-download-firefox = Download { -brand-name-firefox }
