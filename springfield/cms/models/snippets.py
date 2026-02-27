@@ -115,7 +115,7 @@ class PreFooterCTAFormSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
 register_snippet(PreFooterCTAFormSnippet)
 
 
-class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMixin, models.Model):
+class DownloadFirefoxCallToActionSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
     heading = RichTextField(
@@ -138,9 +138,7 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
         FieldPanel("image"),
     ]
 
-    objects = BaseDraftQueryset.as_manager()
-
-    class Meta(TranslatableMixin.Meta):
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Download Firefox Call To Action Snippet"
         verbose_name_plural = "Download Firefox Call To Action Snippets"
 
