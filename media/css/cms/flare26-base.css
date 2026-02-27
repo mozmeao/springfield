@@ -303,3 +303,8 @@ td {
     padding: 0.5rem 0.75rem;
     vertical-align: top;
 }
+
+.fl-ie-only {
+    /* stylelint-disable-next-line */
+    display: none !important;
+}
