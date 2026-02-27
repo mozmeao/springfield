@@ -21,15 +21,12 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
-            const downloadDiscoverButton =
-                page.getByTestId('download-discover');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
 
             await openPage(url, page, browserName);
-
-            // Assert download buttons are visible.
             await expect(downloadButton).toBeVisible();
-            await expect(downloadDiscoverButton).toBeVisible();
 
             // Click primary download button.
             await downloadButton.click();
@@ -52,9 +49,9 @@ test.describe(
         });
 
         test('Download Firefox (Linux)', async ({ page, browserName }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
-            const downloadDiscoverButton =
-                page.getByTestId('download-discover');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
 
             test.skip(
                 browserName === 'webkit',
@@ -69,10 +66,7 @@ test.describe(
                 )
             });
             await page.goto(url + '?automation=true');
-
-            // Assert download buttons are visible.
             await expect(downloadButton).toBeVisible();
-            await expect(downloadDiscoverButton).toBeVisible();
 
             // Click primary download button.
             await downloadButton.click();
@@ -123,9 +117,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
-            const downloadDiscoverButton =
-                page.getByTestId('download-discover');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
 
             const downloadOsxUnsupported = page.locator(
                 'css=#download-button-thanks .fx-unsupported-message.mac .download-link'
@@ -161,9 +155,8 @@ test.describe(
                 });
                 await page.goto(url + '?automation=true');
 
-                // Assert regular download buttons are not displayed.
+                // Assert regular download button is not displayed.
                 await expect(downloadButton).not.toBeVisible();
-                await expect(downloadDiscoverButton).not.toBeVisible();
 
                 // Assert Firefox ESR mac download button is displayed.
                 await expect(downloadOsxUnsupported).toBeVisible();
@@ -186,9 +179,8 @@ test.describe(
                 });
                 await page.goto(url + '?automation=true');
 
-                // Assert regular download buttons are not displayed.
+                // Assert regular download button is not displayed.
                 await expect(downloadButton).not.toBeVisible();
-                await expect(downloadDiscoverButton).not.toBeVisible();
 
                 // Assert Firefox ESR windows download button is displayed.
                 await expect(downloadWinUnsupported64bit).toBeVisible();

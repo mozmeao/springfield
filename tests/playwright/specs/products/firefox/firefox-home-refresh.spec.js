@@ -21,9 +21,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
-            // const downloadDiscoverButton =
-            //     page.getByTestId('download-discover');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
 
             await openPage(url, page, browserName);
 
@@ -52,7 +52,9 @@ test.describe(
         });
 
         test('Download Firefox (Linux)', async ({ page, browserName }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
             // const downloadDiscoverButton =
             //     page.getByTestId('download-discover');
 
@@ -124,7 +126,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId('download-button-thanks');
+            const downloadButton = page.getByTestId(
+                'upper-block-1-intro.button-1'
+            );
             // const downloadDiscoverButton =
             //     page.getByTestId('download-discover');
 
