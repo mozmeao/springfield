@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -377,6 +378,26 @@ def validate_video_url(value):
     return value
 
 
+class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
+    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+
+    def _localize(self, instance):
+        if instance and hasattr(instance, "get_localized"):
+            instance = instance.get_localized()
+        return instance
+
+    def to_python(self, value):
+        return self._localize(super().to_python(value))
+
+    def bulk_to_python(self, values):
+        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+
+    def clean(self, value):
+        if value and not value.live:
+            raise ValidationError("The selected snippet is not published.")
+        return super().clean(value)
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
         choices = choices or ICON_CHOICES
@@ -433,6 +454,13 @@ class BaseButtonValue(blocks.StructValue):
 class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
+
+    def get_translatable_segments(self, value):
+        # UUIDs are analytics IDs, not user-facing content — exclude from translation.
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
 
 
 def BaseButtonSettings(themes=None, **kwargs):
@@ -1443,8 +1471,8 @@ class BaseArticleValue(blocks.StructValue):
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
+            if tag := article_page.get_tag():
+                return tag.name
         return ""
 
     def get_link_label(self) -> str:
