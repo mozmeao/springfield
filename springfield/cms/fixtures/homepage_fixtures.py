@@ -137,6 +137,7 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Download Firefox</p>',
+                        "mobile_headline": '<p data-block-key="g34sa">Install Firefox</p>',
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -152,6 +153,7 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Select what you want to bring with you</p>',
+                        "mobile_headline": "",
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -167,6 +169,7 @@ def get_home_carousel():
                     "type": "item",
                     "value": {
                         "headline": '<p data-block-key="v9evz">Click import</p>',
+                        "mobile_headline": "",
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {

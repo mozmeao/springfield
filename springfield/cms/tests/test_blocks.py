@@ -1395,7 +1395,16 @@ def test_home_carousel_block(index_page, placeholder_images, rf):
     for slide_index, slide in enumerate(slides):
         control_element = control_elements[slide_index]
         assert control_element
-        assert control_element.get_text().strip() == BeautifulSoup(slide["value"]["headline"], "html.parser").get_text().strip()
+        if slide["value"]["mobile_headline"]:
+            mobile_headline = control_element.find("span", class_="display-xs")
+            headline = control_element.find("span", class_="display-sm-up")
+            assert (
+                mobile_headline
+                and mobile_headline.get_text().strip() == BeautifulSoup(slide["value"]["mobile_headline"], "html.parser").get_text().strip()
+            )
+            assert headline and headline.get_text().strip() == BeautifulSoup(slide["value"]["headline"], "html.parser").get_text().strip()
+        else:
+            assert control_element.get_text().strip() == BeautifulSoup(slide["value"]["headline"], "html.parser").get_text().strip()
 
         slide_element = slide_elements[slide_index]
         assert slide_element

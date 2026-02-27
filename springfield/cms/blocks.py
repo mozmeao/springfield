@@ -1961,6 +1961,7 @@ class HomeIntroBlock(blocks.StructBlock):
 
 class HomeCarouselSlide(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    mobile_headline = blocks.RichTextBlock(required=False, features=HEADING_TEXT_FEATURES, help_text="Optional mobile copy")
     image = ImageVariantsBlock()
 
 

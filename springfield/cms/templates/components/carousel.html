@@ -20,7 +20,14 @@
             <li
               class="fl-carousel-control-item {% if loop.first %}active{% endif %}"
             >
-              <span class="fl-carousel-control-item-text">{{ item.headline }}</span>
+              <span class="fl-carousel-control-item-text">
+                {% if item.mobile_headline %}
+                  <span class="display-xs">{{ item.mobile_headline }}</span>
+                  <span class="display-sm-up">{{ item.headline }}</span>
+                {% else %}
+                  {{ item.headline }}
+                {% endif %}
+              </span>
             </li>
           {% endfor %}
         </ol>

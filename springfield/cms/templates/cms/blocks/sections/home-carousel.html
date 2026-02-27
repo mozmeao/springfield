@@ -13,6 +13,7 @@
   {% endset %}
   {% set _ = items.append({
     "headline": item.headline|richtext|remove_p_tag,
+    "mobile_headline": item.mobile_headline|richtext|remove_p_tag if item.mobile_headline else "",
     "image": image_html,
   }) %}
 {% endfor %}
