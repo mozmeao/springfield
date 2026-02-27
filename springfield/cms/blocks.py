@@ -392,6 +392,11 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
     def bulk_to_python(self, values):
         return [self._localize(instance) for instance in super().bulk_to_python(values)]
 
+    def clean(self, value):
+        if value and not value.live:
+            raise ValidationError("The selected snippet is not published.")
+        return super().clean(value)
+
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
