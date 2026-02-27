@@ -22,6 +22,10 @@
     padding-block-start: 0;
 }
 
+.fl-home-body .fl-card-grid {
+    --fl-card-grid-gap: var(--token-spacing-lg);
+}
+
 .fl-home-body .fl-section:has(.fl-card-gallery) {
     padding-block-end: 0;
 }
