@@ -541,6 +541,15 @@ class SpringfieldLinkBlock(LinkBlock):
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
 
+    def __init__(self, *args, **kwargs):
+        """Override __init__() to put relative_url field right after custom_url field."""
+        super().__init__(*args, **kwargs)
+        items = list(self.child_blocks.items())
+        keys = [k for k, _ in items]
+        relative_url_item = items.pop(keys.index("relative_url"))
+        items.insert(keys.index("custom_url") + 1, relative_url_item)
+        self.child_blocks = dict(items)
+
     def clean(self, value):
         # Full override of LinkBlock.clean() required: that method has a
         # hardcoded url_default_values dict, so we cannot inject relative_url
