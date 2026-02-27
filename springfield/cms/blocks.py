@@ -382,10 +382,8 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
     """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
 
     def _localize(self, instance):
-        if instance and hasattr(instance, "localized") and instance.localized:
-            instance = instance.localized
-            if hasattr(instance, "live") and not instance.live:
-                return None
+        if instance and hasattr(instance, "get_localized"):
+            instance = instance.get_localized()
         return instance
 
     def to_python(self, value):
