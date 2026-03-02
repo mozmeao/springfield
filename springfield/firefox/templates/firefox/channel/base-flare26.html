@@ -14,9 +14,9 @@
 {% endblock %}
 
 {% block content %}
-<nav class="fl-subnav fl-force-dark-theme">
+<nav class="fl-subnav fl-force-dark-theme" aria-labelledby="fl-subnav-heading">
   <div class="fl-subnav-heading-wrap">
-    <a class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
+    <a id="fl-subnav-heading" class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
     <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
       <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
       <i class="fl-icon fl-icon-chevron-down"></i>
