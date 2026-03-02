@@ -24,7 +24,7 @@ test.describe(
 
         test('should not have any detectable a11y issues', async ({ page }) => {
             const results = await scanPageElement(page, subNavigationLocator);
-            createReport('component', 'sub-navigation-mobile', results);
+            createReport('component', 'sub-navigation-desktop', results);
             expect(results.violations.length).toEqual(0);
         });
     }
@@ -43,10 +43,8 @@ test.describe(
         });
 
         test('should not have any detectable a11y issues', async ({ page }) => {
-            const subNavigationToggle = page.getByTestId(
-                'sub-navigation-mobile-toggle'
-            );
-            const subNavigationMenu = page.getByTestId('sub-navigation-menu');
+            const subNavigationToggle = page.getByTestId('fl-subnav-toggle');
+            const subNavigationMenu = page.getByTestId('fl-subnav-list');
 
             // Open sub-navigation menu
             await expect(subNavigationMenu).not.toBeVisible();

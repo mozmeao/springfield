@@ -49,8 +49,6 @@ import { createFocusTrap } from 'focus-trap';
                     el.classList.add('is-open');
                 });
                 document.body.classList.add('fl-modal-open');
-                mobileNavEl.setAttribute('role', 'dialog');
-                mobileNavEl.setAttribute('aria-modal', 'true');
                 trap.activate();
             }
         });
