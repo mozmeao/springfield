@@ -27,8 +27,6 @@ import { createFocusTrap } from 'focus-trap';
                     el.classList.remove('is-open');
                 });
                 document.body.classList.remove('fl-modal-open');
-                subnavListEl.removeAttribute('role');
-                subnavListEl.removeAttribute('aria-modal');
                 trap.deactivate();
             } else {
                 elements.forEach(function (el) {
