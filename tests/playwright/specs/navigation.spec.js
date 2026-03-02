@@ -24,9 +24,7 @@ test.describe(
             const resourceLink = page.getByTestId(
                 'fl-navigation-link-resources'
             );
-            const resourceMenu = page.getByTestId(
-                'fl-navigation-menu-resources'
-            );
+            const resourceMenu = page.getByTestId('navigation-menu-resources');
 
             // Hover over Firefox link
             await resourceLink.hover();
@@ -37,9 +35,7 @@ test.describe(
             const resourceLink = page.getByTestId(
                 'fl-navigation-link-resources'
             );
-            const resourceMenu = page.getByTestId(
-                'fl-navigation-menu-resources'
-            );
+            const resourceMenu = page.getByTestId('navigation-menu-resources');
             const firefoxMenuLink = page.getByTestId(
                 'fl-navigation-menu-link-data-protection'
             );
