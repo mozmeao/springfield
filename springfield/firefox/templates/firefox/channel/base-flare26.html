@@ -89,7 +89,7 @@
 </main>
 
 
-<aside class="fl-section fl-force-dark-theme">
+<aside class="fl-section fl-force-dark-theme" aria-labelledby="fl-newsletter">
     <div class="fl-section-container">
       <include:newsletter-form theme="dark">
         <include:heading
@@ -97,6 +97,7 @@
           heading_size="fl-heading-size-3"
           heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
           subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
+          id="fl-newsletter"
         />
       </include:newsletter-form>
     </div>
