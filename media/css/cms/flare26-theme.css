@@ -169,6 +169,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --sidebar-selected-text-color: var(--token-color-black-4);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
     --fl-subnav-toggle-bg: var(--token-color-white);
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-black-1);
 }
 
 .fl-split-page-upper,
@@ -265,6 +268,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
     --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-grey-1);
 }
 
 .fl-force-light-theme {
@@ -345,6 +351,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-subnav-toggle-bg: var(--token-color-white);
     --button-bg-color-disabled: var(--token-color-soft-purple-2);
     --button-text-color-disabled: var(--token-color-link-purple);
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-black-1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -441,6 +450,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
         --button-bg-color-disabled: var(--token-color-soft-purple-2);
         --button-text-color-disabled: var(--token-color-soft-purple-4);
+
+        /* Release notes */
+        --release-notes-text-color-secondary: var(--token-color-grey-1);
     }
 }
 

@@ -128,8 +128,8 @@ ul.download-list strong {
 
 /* Product download buttons */
 .download-button {
-    display: inline-flex;
-    vertical-align: top;
+    display: flex;
+    flex-direction: column;
 }
 
 .download-button .ios-download,
