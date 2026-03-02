@@ -36,7 +36,7 @@ GTMSnippet.setGtagConsentDefaults = () => {
 
     if (hasPref) {
         setGtagAdsConsentMode(cookie.analytics, 'default');
-        setGtagAnalyticsConsentMode(cookie.analytics);
+        setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
         setGtagAdsConsentMode(false, 'default');
         setGtagAnalyticsConsentMode(
