@@ -21,9 +21,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             await openPage(url, page, browserName);
             await expect(downloadButton).toBeVisible();
@@ -49,9 +49,9 @@ test.describe(
         });
 
         test('Download Firefox (Linux)', async ({ page, browserName }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             test.skip(
                 browserName === 'webkit',
@@ -117,9 +117,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             const downloadOsxUnsupported = page.locator(
                 '.fl-home-intro .fx-unsupported-message.mac .download-link'

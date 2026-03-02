@@ -21,15 +21,14 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             await openPage(url, page, browserName);
 
-            // Assert download buttons are visible.
+            // Assert download button is visible.
             await expect(downloadButton).toBeVisible();
-            // await expect(downloadDiscoverButton).toBeVisible();
 
             // Click primary download button.
             await downloadButton.click();
@@ -52,11 +51,9 @@ test.describe(
         });
 
         test('Download Firefox (Linux)', async ({ page, browserName }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
-            // const downloadDiscoverButton =
-            //     page.getByTestId('download-discover');
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             test.skip(
                 browserName === 'webkit',
@@ -72,9 +69,8 @@ test.describe(
             });
             await page.goto(url + '?automation=true');
 
-            // Assert download buttons are visible.
+            // Assert download button is visible.
             await expect(downloadButton).toBeVisible();
-            // await expect(downloadDiscoverButton).toBeVisible();
 
             // Click primary download button.
             await downloadButton.click();
@@ -126,9 +122,9 @@ test.describe(
             page,
             browserName
         }) => {
-            const downloadButton = page.getByTestId(
-                'upper-block-1-intro.button-1'
-            );
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
             const downloadOsxUnsupported = page.locator(
                 '.fl-home-intro .fx-unsupported-message.mac .download-link'
