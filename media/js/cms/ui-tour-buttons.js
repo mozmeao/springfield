@@ -4,9 +4,39 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+function showUITourElements() {
+    'use strict';
+    const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+    ).matches;
+    const uiTourElements = document.querySelectorAll('.ui-tour');
+
+    if (prefersReducedMotion) {
+        // Show immediately without transition.
+        uiTourElements.forEach((element) => {
+            element.classList.remove('is-hidden');
+        });
+        return;
+    }
+
+    // Fade in: make visible at zero opacity, trigger one reflow,
+    // then transition to full opacity.
+    uiTourElements.forEach((element) => {
+        element.style.opacity = '0';
+        element.style.transition = 'opacity 0.3s ease';
+        element.classList.remove('is-hidden');
+    });
+    // Single reflow to commit the opacity: 0 state before animating.
+    document.body.offsetHeight; // eslint-disable-line no-unused-expressions
+    uiTourElements.forEach((element) => {
+        element.style.opacity = '1';
+    });
+}
+
 function init() {
     'use strict';
     Mozilla.UITour.ping(() => {
+        showUITourElements();
         // Find any buttons that should open a new tab.
         const openNewTabButtons = document.querySelectorAll(
             '.ui-tour-open-new-tab'
@@ -158,20 +188,10 @@ function init() {
     });
 }
 
-function hideUITourElements() {
-    'use strict';
-    const uiTourElements = document.querySelectorAll('.ui-tour');
-    uiTourElements.forEach((element) => {
-        element.style.display = 'none';
-    });
-}
-
 if (
     typeof window.Mozilla.Client !== 'undefined' &&
     typeof window.Mozilla.UITour !== 'undefined' &&
     window.Mozilla.Client.isFirefoxDesktop
 ) {
     init();
-} else {
-    hideUITourElements();
 }

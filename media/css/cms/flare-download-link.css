@@ -19,8 +19,8 @@
     display: none;
 }
 
-html.android .fl-download-firefox-button .download-link,
-html.ios .fl-download-firefox-button .download-link {
+html.android .fl-download-firefox-button:has(.fl-store-button) .download-link,
+html.ios .fl-download-firefox-button:has(.fl-store-button) .download-link {
     display: none;
 }
 
