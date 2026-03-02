@@ -21,9 +21,7 @@ test.describe(
         });
 
         test('Navigation menu hover', async ({ page }) => {
-            const resourceLink = page.getByTestId(
-                'fl-navigation-link-resources'
-            );
+            const resourceLink = page.getByTestId('navigation-link-resources');
             const resourceMenu = page.getByTestId('navigation-menu-resources');
 
             // Hover over Firefox link
@@ -32,12 +30,10 @@ test.describe(
         });
 
         test('Navigation link click', async ({ page }) => {
-            const resourceLink = page.getByTestId(
-                'fl-navigation-link-resources'
-            );
+            const resourceLink = page.getByTestId('navigation-link-resources');
             const resourceMenu = page.getByTestId('navigation-menu-resources');
             const firefoxMenuLink = page.getByTestId(
-                'fl-navigation-menu-link-data-protection'
+                'navigation-menu-link-data-protection'
             );
 
             // Hover over Firefox link
@@ -71,12 +67,12 @@ test.describe(
 
         test('Navigation open / close click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'fl-navigation-menu-button'
+                'navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'fl-navigation-menu-items'
+                'navigation-menu-items'
             );
-            const browserMenu = page.getByTestId('fl-navigation-menu-browser');
+            const browserMenu = page.getByTestId('navigation-menu-browser');
 
             // Open navigation menu
             await navigationMenuButton.click();
@@ -92,13 +88,13 @@ test.describe(
 
         test('Navigation link click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'fl-navigation-menu-button'
+                'navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'fl-navigation-menu-items'
+                'navigation-menu-items'
             );
             const firefoxMenuLink = page.getByTestId(
-                'fl-navigation-menu-link-mobile'
+                'navigation-menu-link-mobile'
             );
 
             // Open navigation menu
