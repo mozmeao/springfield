@@ -46,6 +46,14 @@
     justify-content: center;
 }
 
+.fl-intro-vertical .fl-buttons {
+    align-items: center;
+}
+
+.fl-intro-vertical .fl-buttons > * {
+    block-size: fit-content;
+}
+
 .fl-intro-media {
     align-items: center;
     display: flex;
