@@ -93,10 +93,12 @@ GTMSnippet.isFirefoxLandingGet = () => {
 GTMSnippet.handleConsent = (e) => {
     const hasConsent = e.detail.analytics;
 
+    // update gtag consent according to pref
+    setGtagAdsConsentMode(hasConsent);
+    setGtagAnalyticsConsentMode(hasConsent);
+
     if (hasConsent) {
         GTMSnippet.loadSnippet();
-        setGtagAdsConsentMode(hasConsent);
-        setGtagAnalyticsConsentMode(hasConsent);
         window.removeEventListener(
             'mozConsentStatus',
             GTMSnippet.handleConsent,
