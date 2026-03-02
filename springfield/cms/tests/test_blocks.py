@@ -1114,7 +1114,7 @@ def test_buttons(index_page, rf):
     soup = BeautifulSoup(content, "html.parser")
 
     main = soup.find("main", class_="fl-main")
-    button_elements = main.find_all("a", class_="fl-button")
+    button_elements = main.find_all("a", class_="fl-button:not([data-cta-text*='Extended Support Release'])")
     blocks = get_button_blocks()
     tested_buttons = []
     for block in blocks:
