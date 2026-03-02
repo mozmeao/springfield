@@ -129,32 +129,18 @@ test.describe(
             const downloadButton = page.getByTestId(
                 'upper-block-1-intro.button-1'
             );
-            // const downloadDiscoverButton =
-            //     page.getByTestId('download-discover');
 
             const downloadOsxUnsupported = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.mac .download-link'
+                '.fl-home-intro .fx-unsupported-message.mac .download-link'
             );
 
             const downloadWinUnsupported64bit = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.win .download-link.os_win64'
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win64'
             );
 
             const downloadWinUnsupported32bit = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.win .download-link.os_win'
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win'
             );
-
-            // const downloadDiscoverOsxUnsupported = page.locator(
-            //     'css=#download-discover .fx-unsupported-message.mac .download-link'
-            // );
-
-            // const downloadDiscoverWinUnsupported64bit = page.locator(
-            //     'css=#download-discover .fx-unsupported-message.win .download-link.os_win64'
-            // );
-
-            // const downloadDiscoverWinUnsupported32bit = page.locator(
-            //     'css=#download-discover .fx-unsupported-message.win .download-link.os_win'
-            // );
 
             if (browserName === 'webkit') {
                 // Set macOS 10.14 UA strings.
@@ -168,7 +154,6 @@ test.describe(
 
                 // Assert regular download buttons are not displayed.
                 await expect(downloadButton).not.toBeVisible();
-                // await expect(downloadDiscoverButton).not.toBeVisible();
 
                 // Assert Firefox ESR mac download button is displayed.
                 await expect(downloadOsxUnsupported).toBeVisible();
@@ -176,11 +161,6 @@ test.describe(
                     'href',
                     /\?product=firefox-esr115-latest-ssl&os=osx/
                 );
-                // await expect(downloadDiscoverOsxUnsupported).toBeVisible();
-                // await expect(downloadDiscoverOsxUnsupported).toHaveAttribute(
-                //     'href',
-                //     /\?product=firefox-esr115-latest-ssl&os=osx/
-                // );
             } else {
                 // Set Windows 8.1 UA strings (64-bit).
                 await page.addInitScript({
@@ -206,22 +186,6 @@ test.describe(
                     'href',
                     /\?product=firefox-esr115-latest-ssl&os=win/
                 );
-                // await expect(downloadDiscoverWinUnsupported64bit).toBeVisible();
-                // await expect(
-                //     downloadDiscoverWinUnsupported64bit
-                // ).toHaveAttribute(
-                //     'href',
-                //     /\?product=firefox-esr115-latest-ssl&os=win64/
-                // );
-                // await expect(
-                //     downloadDiscoverWinUnsupported32bit
-                // ).not.toBeVisible();
-                // await expect(
-                //     downloadDiscoverWinUnsupported32bit
-                // ).toHaveAttribute(
-                //     'href',
-                //     /\?product=firefox-esr115-latest-ssl&os=win/
-                // );
             }
         });
     }

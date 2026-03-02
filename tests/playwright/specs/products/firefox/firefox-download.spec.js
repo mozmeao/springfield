@@ -122,27 +122,15 @@ test.describe(
             );
 
             const downloadOsxUnsupported = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.mac .download-link'
+                '.fl-home-intro .fx-unsupported-message.mac .download-link'
             );
 
             const downloadWinUnsupported64bit = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.win .download-link.os_win64'
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win64'
             );
 
             const downloadWinUnsupported32bit = page.locator(
-                'css=#download-button-thanks .fx-unsupported-message.win .download-link.os_win'
-            );
-
-            const downloadDiscoverOsxUnsupported = page.locator(
-                'css=#download-discover .fx-unsupported-message.mac .download-link'
-            );
-
-            const downloadDiscoverWinUnsupported64bit = page.locator(
-                'css=#download-discover .fx-unsupported-message.win .download-link.os_win64'
-            );
-
-            const downloadDiscoverWinUnsupported32bit = page.locator(
-                'css=#download-discover .fx-unsupported-message.win .download-link.os_win'
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win'
             );
 
             if (browserName === 'webkit') {
@@ -161,11 +149,6 @@ test.describe(
                 // Assert Firefox ESR mac download button is displayed.
                 await expect(downloadOsxUnsupported).toBeVisible();
                 await expect(downloadOsxUnsupported).toHaveAttribute(
-                    'href',
-                    /\?product=firefox-esr115-latest-ssl&os=osx/
-                );
-                await expect(downloadDiscoverOsxUnsupported).toBeVisible();
-                await expect(downloadDiscoverOsxUnsupported).toHaveAttribute(
                     'href',
                     /\?product=firefox-esr115-latest-ssl&os=osx/
                 );
@@ -190,22 +173,6 @@ test.describe(
                 );
                 await expect(downloadWinUnsupported32bit).not.toBeVisible();
                 await expect(downloadWinUnsupported32bit).toHaveAttribute(
-                    'href',
-                    /\?product=firefox-esr115-latest-ssl&os=win/
-                );
-                await expect(downloadDiscoverWinUnsupported64bit).toBeVisible();
-                await expect(
-                    downloadDiscoverWinUnsupported64bit
-                ).toHaveAttribute(
-                    'href',
-                    /\?product=firefox-esr115-latest-ssl&os=win64/
-                );
-                await expect(
-                    downloadDiscoverWinUnsupported32bit
-                ).not.toBeVisible();
-                await expect(
-                    downloadDiscoverWinUnsupported32bit
-                ).toHaveAttribute(
                     'href',
                     /\?product=firefox-esr115-latest-ssl&os=win/
                 );
