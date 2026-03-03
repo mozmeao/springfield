@@ -11,6 +11,7 @@ from wagtail.models import Locale, Page
 
 from springfield.cms.tests.factories import LocaleFactory
 from springfield.cms.utils import (
+    find_fallback_page_for_locale,
     get_cms_locales_for_path,
     get_locales_for_cms_page,
     get_page_for_request,
@@ -214,6 +215,72 @@ def test_get_locales_for_cms_page__absent_fallback_locales_setting_adds_nothing(
     )
     # get_locales_for_cms_page() results match the translations' locale codes.
     assert sorted(get_locales_for_cms_page(en_us_test_page)) == sorted(translation_locales)
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_page_when_found(tiny_localized_site):
+    """Returns the live page from the fallback locale's tree."""
+    # The pt-BR page for this URL exists; this is the expected result.
+    expected_result = Page.objects.get(locale__language_code="pt-BR", slug="test-page")
+
+    result = find_fallback_page_for_locale("pt-PT", "test-page/")
+    assert expected_result == result
+    assert result.locale.language_code == "pt-BR"
+
+
+@pytest.mark.parametrize(
+    "url_path",
+    [
+        ("/test-page"),  # left slash
+        ("test-page/"),  # right slash
+        ("/test-page/"),  # left and right slash
+        ("test-page"),  # no slash
+    ],
+)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__url_path_normalized(tiny_localized_site, url_path):
+    """Leading/trailing slashes in url_path are stripped before the lookup."""
+    expected_result = Page.objects.get(locale__language_code="pt-BR", slug="test-page")
+    assert find_fallback_page_for_locale("pt-PT", url_path) == expected_result
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_none_when_page_not_found(tiny_localized_site):
+    """Returns None when no live page exists at the constructed URL path."""
+    assert find_fallback_page_for_locale("pt-PT", "does-not-exist/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_none_when_locale_not_in_fallback_locales(tiny_localized_site):
+    """Returns None for a locale_code not listed in FALLBACK_LOCALES."""
+    # es-AR is not in FALLBACK_LOCALES, so the function returns None
+    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_db_record(tiny_localized_site):
+    """Returns None when the fallback locale has no Locale DB record."""
+    assert not Locale.objects.filter(language_code="es-MX").exists()
+    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_page_tree(tiny_localized_site):
+    """Returns None when the fallback Locale record exists but has no page tree."""
+    LocaleFactory(language_code="es-MX")
+    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_find_fallback_page_for_locale__returns_none_with_empty_fallback_locales(tiny_localized_site):
+    """Returns None when FALLBACK_LOCALES is empty."""
+    assert find_fallback_page_for_locale("pt-PT", "test-page/") is None
+
+
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locales_absent(tiny_localized_site, settings):
+    """Returns None when FALLBACK_LOCALES is absent from settings."""
+    del settings.FALLBACK_LOCALES
+    assert find_fallback_page_for_locale("pt-PT", "test-page/") is None
 
 
 @pytest.mark.parametrize(

@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Subquery
 from django.http import Http404
 
-from wagtail.models import Locale, Page
+from wagtail.models import Locale, Page, Site
 
 from springfield.base.i18n import split_path_and_normalize_language
 
@@ -34,6 +34,38 @@ def get_page_for_request(*, request):
         page = None
 
     return page
+
+
+def find_fallback_page_for_locale(locale_code, url_path):
+    """
+    For an alias locale (e.g. 'es-AR'), find the corresponding live page
+    in the fallback locale's page tree (e.g. 'es-MX').
+    url_path is the bare path without locale prefix (normalized internally).
+    Returns a Page instance or None.
+    """
+    fallback_locale_code = getattr(settings, "FALLBACK_LOCALES", {}).get(locale_code)
+    if not fallback_locale_code:
+        return None
+
+    try:
+        fallback_locale = Locale.objects.get(language_code=fallback_locale_code)
+    except Locale.DoesNotExist:
+        return None
+
+    # Resolve the locale root page via the default site — avoids hard-coding slug conventions.
+    site = Site.objects.filter(is_default_site=True).select_related("root_page").first()
+    if not site:
+        return None
+    try:
+        locale_root = site.root_page.get_translation(fallback_locale)
+    except Exception:
+        return None
+
+    # Normalize here; caller passes raw sub_path to avoid double normalization.
+    _url_path = url_path.strip("/") + "/"
+    full_url_path = f"{locale_root.url_path}{_url_path}"
+
+    return Page.objects.live().filter(url_path=full_url_path).first()
 
 
 def get_locales_for_cms_page(page):
