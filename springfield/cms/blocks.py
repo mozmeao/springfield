@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
+from django.forms.widgets import CheckboxSelectMultiple
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -307,20 +308,27 @@ ICON_CHOICES = [
     ("xr-true", "XR True"),
 ]
 
-CONDITIONAL_DISPLAY_CHOICES = [
-    ("all", "All Users"),
-    ("is-firefox", "Firefox Users"),
-    ("not-firefox", "Non Firefox Users"),
-    ("state-fxa-supported-signed-in", "Signed-in Users"),
-    ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("osx", "macOS Users"),
-    ("linux", "Linux Users"),
-    ("windows", "Windows Users"),
-    ("windows-10-plus", "Windows 10+ Users"),
-    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
-    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
-    ("unsupported", "Unsupported OS Users"),
-    ("other-os", "Other OS Users"),  # iOS, Android, Other
+PLATFORM_CHOICES = [
+    ("osx", "macOS"),
+    ("linux", "Linux"),
+    ("windows", "Windows"),
+    ("windows-10-plus", "Windows 10+"),
+    ("android", "Android"),
+    ("ios", "iOS"),
+    ("other-os", "Other OS"),
+    ("unsupported", "Unsupported OS"),
+]
+
+FIREFOX_CHOICES = [
+    ("", "No restriction"),
+    ("is-firefox", "Firefox only"),
+    ("not-firefox", "Non-Firefox only"),
+]
+
+AUTH_CHOICES = [
+    ("", "No restriction"),
+    ("state-fxa-supported-signed-in", "Signed-in only"),
+    ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
 
 
@@ -403,6 +411,36 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+
+
+class ConditionalDisplayBlock(blocks.StructBlock):
+    platforms = blocks.MultipleChoiceBlock(
+        choices=PLATFORM_CHOICES,
+        required=False,
+        help_text="Show to specific platforms. Leave empty to show to all platforms.",
+        widget=CheckboxSelectMultiple,
+    )
+    firefox = blocks.ChoiceBlock(
+        choices=FIREFOX_CHOICES,
+        default="",
+        required=False,
+        label="Firefox",
+        help_text="Filter by Firefox browser. Leave empty for no restriction.",
+    )
+    auth_state = blocks.ChoiceBlock(
+        choices=AUTH_CHOICES,
+        default="",
+        required=False,
+        label="Login state",
+        help_text="Filter by login state. Leave empty for no restriction.",
+    )
+
+    class Meta:
+        label = "Conditional Display"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
+        icon = "eye"
+        collapsed = True
+        form_classname = "compact-form struct-block"
 
 
 # Element blocks
@@ -1036,11 +1074,8 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1048,7 +1083,7 @@ class BaseCardSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
+        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1631,11 +1666,8 @@ class InlineNotificationSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Show close button",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1643,7 +1675,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1741,11 +1773,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
 
 
 class SectionBlockSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1757,7 +1786,7 @@ class SectionBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1854,11 +1883,8 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Place media after text content on desktop.",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1870,7 +1896,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1908,11 +1934,8 @@ class KitBannerSettings(blocks.StructBlock):
         default="filled",
         inline_form=True,
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1924,7 +1947,7 @@ class KitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -2062,11 +2085,8 @@ class CardGalleryBlock(blocks.StructBlock):
 
 
 class HomeKitBannerSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -2078,7 +2098,7 @@ class HomeKitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
