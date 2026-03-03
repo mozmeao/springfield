@@ -18,21 +18,12 @@ import { createFocusTrap } from 'focus-trap';
     if (buttonEl && subnavListEl) {
         buttonEl.addEventListener('click', function (e) {
             e.preventDefault();
-            const mobileSubnavIsOpen =
-                e.currentTarget.classList.contains('is-open');
-            const elements = [e.currentTarget, subnavListEl];
 
-            if (mobileSubnavIsOpen) {
-                elements.forEach(function (el) {
-                    el.classList.remove('is-open');
-                });
-                document.body.classList.remove('fl-modal-open');
+            if (e.currentTarget.getAttribute('aria-expanded') === 'true') {
+                buttonEl.setAttribute('aria-expanded', 'false');
                 trap.deactivate();
             } else {
-                elements.forEach(function (el) {
-                    el.classList.add('is-open');
-                });
-                document.body.classList.add('fl-modal-open');
+                buttonEl.setAttribute('aria-expanded', 'true');
                 trap.activate();
             }
         });

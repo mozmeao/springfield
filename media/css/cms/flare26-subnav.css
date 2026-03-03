@@ -4,17 +4,14 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-subnav-heading-wrap {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-}
-
 .fl-subnav {
+    align-items: center;
     background: var(--fl-subnav-bg);
-    display: block;
+    display: flex;
+    gap: var(--token-spacing-md);
+    justify-content: space-between;
     padding: var(--token-spacing-md) var(--fl-section-h-padding);
-    position: relative;
+    position: relative; /* required for fl-subnav-list dropdown on mobile screen */
 }
 
 .fl-subnav > * {
@@ -56,7 +53,7 @@
     z-index: 3;
 }
 
-.fl-subnav-list.is-open {
+:where(.fl-subnav-toggle[aria-expanded='true']) + .fl-subnav-list {
     border-block-end: 2px solid var(--fl-subtle-border-color);
     display: flex;
 }
@@ -76,16 +73,12 @@
     text-decoration: underline;
 }
 
-.fl-subnav-toggle.is-open i {
+.fl-subnav-toggle:where([aria-expanded='true']) i {
     transform: rotate(180deg);
 }
 
 @media (--viewport-md-up) {
     .fl-subnav {
-        align-items: center;
-        display: flex;
-        gap: var(--token-spacing-md);
-        justify-content: space-between;
         padding: var(--token-spacing-xl) var(--fl-section-h-padding);
     }
 
@@ -93,8 +86,7 @@
         display: none;
     }
 
-    .fl-subnav-list,
-    .fl-subnav-list.is-open {
+    .fl-subnav-list {
         background: transparent;
         border: none;
         display: flex;

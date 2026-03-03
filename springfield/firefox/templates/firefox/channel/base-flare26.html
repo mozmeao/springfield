@@ -15,13 +15,11 @@
 
 {% block content %}
 <nav class="fl-subnav fl-force-dark-theme" aria-labelledby="fl-subnav-heading">
-  <div class="fl-subnav-heading-wrap">
-    <a id="fl-subnav-heading" class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
-    <button data-testid="fl-subnav-toggle" class="fl-subnav-toggle" aria-expanded="false">
-      <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
-      <i class="fl-icon fl-icon-chevron-down"></i>
-    </button>
-  </div>
+  <a id="fl-subnav-heading" class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
+  <button data-testid="fl-subnav-toggle" class="fl-subnav-toggle" aria-expanded="false">
+    <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+    <i class="fl-icon fl-icon-chevron-down"></i>
+  </button>
 
   <ul class="fl-subnav-list" data-testid="fl-subnav-list">
     <li>
