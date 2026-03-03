@@ -18,6 +18,7 @@ from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
+from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
 
@@ -1493,7 +1494,7 @@ class BaseArticleValue(blocks.StructValue):
             article_page = article_page.specific
             if hasattr(article_page, "link_text") and article_page.link_text:
                 return article_page.link_text
-        return ""
+        return ftl("ui-learn-more", ftl_files=["ui"])
 
     def get_featured_image(self):
         overrides = self.get("overrides", {})
