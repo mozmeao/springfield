@@ -114,7 +114,7 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
     # a page from the fallback es-MX locale), the user-facing locale is the
     # alias (es-AR), but the content locale is the fallback locale (es-MX).
     # Use locale_in_url for URL prefix comparisons to avoid spurious redirects.
-    locale_in_url = getattr(request, "locale", locale)
+    locale_in_url = getattr(request, "locale", locale) or locale
 
     # is this a non-locale page?
     name_prefix = request.path_info.split("/", 2)[1]

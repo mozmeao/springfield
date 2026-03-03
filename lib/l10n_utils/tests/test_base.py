@@ -250,6 +250,61 @@ class TestL10nTemplateView(TestCase):
 
 
 @pytest.mark.parametrize(
+    "locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected",
+    (
+        # When content_locale is set, it is preferred.
+        (True, "es-AR", True, "es-MX", "en-US", "es-MX"),
+        (False, "", True, "es-MX", "en-US", "es-MX"),
+        # If content_locale is not set, then locale is preferred.
+        (True, "es-AR", False, "", "en-US", "es-AR"),
+        # If content_locale is not set and locale is not set, settings.LANGUAGE_CODE is used.
+        (False, "", False, "", "en-US", "en-US"),
+    ),
+)
+def test_get_locale_prefernce_order(locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected):
+    """
+    Test the order of preference that get_locale() uses to determine the value to return.
+
+    The order should be:
+      1. request.content_locale
+      2. request.locale
+      3. settings.LANGUAGE_CODE
+    """
+    request = RequestFactory().get("/es-AR/some/page/")
+    if locale_is_set:
+        request.locale = locale_value
+    if content_locale_is_set:
+        request.locale = content_locale_value
+
+    with override_settings(LANGUAGE_CODE=language_code_settting):
+        result = l10n_utils.get_locale(request)
+
+    assert result == expected
+
+
+@patch.object(l10n_utils, "django_render")
+def test_render_does_not_redirect_when_content_locale_differs_from_url_locale(render_mock):
+    """render() must not redirect to content_locale URL when serving alias-locale fallback.
+
+    When content_locale is 'es-MX' but the URL prefix is 'es-AR', render() must serve
+    the response without redirecting to /es-MX/.... The fix uses locale_in_url (es-AR)
+    rather than locale (es-MX) in the redirect prefix check so the URL prefix always
+    matches and no redirect is issued.
+    """
+    from django.http import HttpResponse
+
+    render_mock.return_value = HttpResponse()
+    request = RequestFactory().get("/es-AR/download/")
+    request.locale = "es-AR"
+    request.content_locale = "es-MX"
+
+    response = l10n_utils.render(request, "some.html", {"active_locales": ["es-MX"]})
+
+    assert response.status_code == 200
+    render_mock.assert_called_once()
+
+
+@pytest.mark.parametrize(
     "translations, accept_languages, expected",
     (
         # Anything with a 'en-US' translation and 'en' root accept languages, goes to 'en-US'.
