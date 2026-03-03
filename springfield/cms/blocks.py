@@ -1996,7 +1996,22 @@ class HomeCarouselSlide(blocks.StructBlock):
     image = ImageVariantsBlock()
 
 
+class HomeCarouselSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class HomeCarouselBlock(blocks.StructBlock):
+    settings = HomeCarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
