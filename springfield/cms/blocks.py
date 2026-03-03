@@ -519,7 +519,24 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if page:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return page.get_translation(locale).url
+                    try:
+                        return page.get_translation(locale).url
+                    except Exception:
+                        # This means that there is no translation for this locale.
+                        # In case this is rendered as a fallback page (the user
+                        # requested /es-AR/somepage, but that page doesn't exist
+                        # in the es-AR locale, so the user is served the content
+                        # from the es-MX locale's somepage at the /es-AR/somepage URL),
+                        # we want to make sure that the URL we return here matches
+                        # the requested locale. For example, for a page link to
+                        # the /features/control/ page, we want to return
+                        # /es-AR/features/control/ (not /es-MX/features/control/).
+                        fallback_url = page.url
+                        if fallback_url:
+                            parts = fallback_url.lstrip("/").split("/", 1)
+                            if len(parts) == 2:
+                                return f"/{locale.language_code}/{parts[1]}"
+                        return fallback_url
                 except Exception:
                     return page.url
             return None
