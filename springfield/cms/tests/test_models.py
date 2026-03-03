@@ -587,6 +587,56 @@ def test_springfield_locale_get_active_falls_back_to_default():
         assert active_locale.language_code == "en-US"
 
 
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_springfield_locale_get_active_uses_fallback_locale_when_alias_has_no_db_record():
+    """
+    When the active language is an alias locale with no Locale DB record,
+    get_active() resolves to the fallback locale rather than the site default.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    assert not Locale.objects.filter(language_code="es-AR").exists()
+
+    with mock.patch("django.utils.translation.get_language", return_value="es-AR"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == es_mx_locale.id
+    assert active_locale.language_code == "es-MX"
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_springfield_locale_get_active_uses_alias_locale_record_when_it_exists():
+    """
+    When the active language is an alias locale AND its Locale DB record exists
+    (the normal case after the data migration), get_active() returns the alias
+    Locale directly — the FALLBACK_LOCALES path is not reached.
+    """
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+    LocaleFactory(language_code="es-MX")
+
+    with mock.patch("django.utils.translation.get_language", return_value="es-AR"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == es_ar_locale.id
+    assert active_locale.language_code == "es-AR"
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_springfield_locale_get_active_falls_back_to_default_when_both_alias_and_fallback_locale_records_are_absent():
+    """
+    When neither the alias Locale record nor the fallback Locale record exists,
+    get_active() still falls back to the site default (en-US).
+    """
+    assert not Locale.objects.filter(language_code="es-AR").exists()
+    assert not Locale.objects.filter(language_code="es-MX").exists()
+    default_locale = Locale.objects.get(language_code="en-US")
+
+    with mock.patch("django.utils.translation.get_language", return_value="es-AR"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == default_locale.id
+    assert active_locale.language_code == "en-US"
+
+
 def test_thanks_page_get_template_default(rf):
     page = ThanksPage()
     request = rf.get("/thanks/")
