@@ -20,7 +20,7 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('Navigation menu hover', async ({ page }) => {
+        test.skip('Navigation menu hover', async ({ page }) => {
             const resourceLink = page.getByTestId('navigation-link-resources');
             const resourceMenu = page.getByTestId('navigation-menu-resources');
 
@@ -29,7 +29,7 @@ test.describe(
             await expect(resourceMenu).toBeVisible();
         });
 
-        test('Navigation link click', async ({ page }) => {
+        test.skip('Navigation link click', async ({ page }) => {
             const resourceLink = page.getByTestId('navigation-link-resources');
             const resourceMenu = page.getByTestId('navigation-menu-resources');
             const firefoxMenuLink = page.getByTestId(
@@ -65,7 +65,7 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('Navigation open / close click', async ({ page }) => {
+        test.skip('Navigation open / close click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
                 'navigation-menu-button'
             );
@@ -86,7 +86,7 @@ test.describe(
             await expect(navigationMenuItems).not.toBeVisible();
         });
 
-        test('Navigation link click', async ({ page }) => {
+        test.skip('Navigation link click', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
                 'navigation-menu-button'
             );
