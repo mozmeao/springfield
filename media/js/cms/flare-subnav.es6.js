@@ -4,16 +4,33 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Sticky header
-import { createFocusTrap } from 'focus-trap';
-
 (function () {
     // Subnav menu
     const buttonEl = document.querySelector('.fl-subnav-toggle');
     const subnavListEl = document.querySelector('.fl-subnav-list');
-    const trap = createFocusTrap(subnavListEl, {
-        allowOutsideClick: true
-    });
+
+    const handleKeyboardNavigation = () => {
+        // close if we tab back from first element
+        buttonEl.addEventListener('keydown', function (event) {
+            if (event.key === 'Tab' && event.shiftKey) {
+                buttonEl.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        const subnavLinks = document.querySelectorAll('.fl-subnav-list a');
+
+        if (subnavLinks.length > 0) {
+            // close if we tab forward from last element
+            subnavLinks[subnavLinks.length - 1].addEventListener(
+                'keydown',
+                function (event) {
+                    if (event.key === 'Tab' && !event.shiftKey) {
+                        buttonEl.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            );
+        }
+    };
 
     if (buttonEl && subnavListEl) {
         buttonEl.addEventListener('click', function (e) {
@@ -21,10 +38,10 @@ import { createFocusTrap } from 'focus-trap';
 
             if (e.currentTarget.getAttribute('aria-expanded') === 'true') {
                 buttonEl.setAttribute('aria-expanded', 'false');
-                trap.deactivate();
             } else {
                 buttonEl.setAttribute('aria-expanded', 'true');
-                trap.activate();
+
+                handleKeyboardNavigation();
             }
         });
     }
