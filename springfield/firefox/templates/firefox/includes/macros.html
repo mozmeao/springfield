@@ -18,7 +18,7 @@
   <div class="firefox-platform-button-windows">
     <div class="c-button-download-thanks {% if flare_styles %}fl-firefox-platform-button{% else %}firefox-platform-button{% endif %}">
       {% set btn_class = "fl-button" if flare_styles else "mzp-t-xl mzp-c-button mzp-t-product" %}
-      <a class="download_link c-button-download-thanks-link {{ class_name }} {{ btn_class }} ga-product-download"
+      <a class="download-link c-button-download-thanks-link {{ class_name }} {{ btn_class }} ga-product-download"
         id="{{ id }}"
         href="{{ settings.BOUNCER_URL }}?product=firefox-stub&os={{ os }}&lang={{ LANG }}"
         data-download-version="{{ os }}"
@@ -66,7 +66,7 @@
   <div class="firefox-platform-button-mac">
     <div class="c-button-download-thanks {% if flare_styles %}fl-firefox-platform-button{% else %}firefox-platform-button{% endif %}">
       {% set btn_class = "fl-button" if flare_styles else "mzp-t-xl mzp-c-button mzp-t-product" %}
-      <a class="download_link c-button-download-thanks-link os_osx {{ btn_class }} ga-product-download"
+      <a class="download-link c-button-download-thanks-link os_osx {{ btn_class }} ga-product-download"
         id="{{ id }}" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=osx&lang={{ download_lang }}"
         data-download-version="osx"
         data-cta-text="Download Now"
@@ -114,7 +114,7 @@
   <div class="firefox-platform-button-linux">
     <div class="c-button-download-thanks {% if flare_styles %}fl-firefox-platform-button{% else %}firefox-platform-button{% endif %}">
       {% set btn_class = "fl-button" if flare_styles else "mzp-t-xl mzp-c-button mzp-t-product" %}
-      <a class="download_link c-button-download-thanks-link os_linux64 {{ btn_class }} ga-product-download" id="{{ id }}-64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Download for Linux 64-bit" data-cta-position="{{ position }}" data-testid="{{ id }}-64">
+      <a class="download-link c-button-download-thanks-link os_linux64 {{ btn_class }} ga-product-download" id="{{ id }}-64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Download for Linux 64-bit" data-cta-position="{{ position }}" data-testid="{{ id }}-64">
         <strong class="download-title">
           {{ ftl('download-button-linux-64-v2') }}
         </strong>
@@ -131,7 +131,7 @@
           </span>
         {% endif %}
       </a>
-      <a class="download_link c-button-download-thanks-link os_linux64-aarch64 {{ btn_class}} ga-product-download" id="{{ id }}-64-aarch64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Download for Linux ARM64/AArch64" data-cta-position="{{ position }}" data-testid="{{ id }}-64-aarch64">
+      <a class="download-link c-button-download-thanks-link os_linux64-aarch64 {{ btn_class }} ga-product-download" id="{{ id }}-64-aarch64" href="{{ settings.BOUNCER_URL }}?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Download for Linux ARM64/AArch64" data-cta-position="{{ position }}" data-testid="{{ id }}-64-aarch64">
         <strong class="download-title">
           {{ ftl('download-button-linux-arm64') }}
         </strong>
