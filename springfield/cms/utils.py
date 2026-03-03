@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Subquery
 from django.http import Http404
@@ -55,7 +56,17 @@ def get_locales_for_cms_page(page):
         # when there's no draft and no potential for aliases, etc, the above lookup will fail
         pass
 
-    return locales_available_via_cms
+    # Expand with alias locales from FALLBACK_LOCALES reverse map.
+    # e.g. if es-MX is in the list, also add es-AR and es-CL.
+    alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in locales_available_via_cms]
+
+    seen = set()
+    result = []
+    for lc in locales_available_via_cms + alias_additions:
+        if lc not in seen:
+            seen.add(lc)
+            result.append(lc)
+    return result
 
 
 def get_cms_locales_for_path(request):
