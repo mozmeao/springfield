@@ -12,6 +12,7 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 from wagtail.models import Page
 
 from springfield.base.i18n import normalize_language
+from springfield.cms.utils import find_fallback_page_for_locale
 
 logger = logging.getLogger(__name__)
 
@@ -42,15 +43,41 @@ class CMSLocaleFallbackMiddleware:
             # which means it didn't match any Django URLs, and didn't match
             # a CMS page for the current locale+path combination in the URL.
 
+            _path = request.path.lstrip("/")
+            lang_prefix, _, sub_path = _path.partition("/")
+
+            # Check if the requested locale is a configured alias locale (e.g. es-AR → es-MX).
+            # If so, try to find and serve the fallback locale's page inline — no redirect.
+            # This means that the URL will be whatever the user requested (for example,
+            # /es-AR/somepage), but the page content will come from the fallback locale
+            # page (for example, the /es-MX/somepage Page).
+            if lang_prefix in getattr(settings, "FALLBACK_LOCALES", {}):
+                fallback_page = find_fallback_page_for_locale(lang_prefix, sub_path)
+                if fallback_page:
+                    # Never transparently serve view-restricted pages — redirect to the
+                    # canonical URL instead so Wagtail's restriction enforcement fires there.
+                    if fallback_page.get_view_restrictions():
+                        return HttpResponseRedirect(fallback_page.url)
+
+                    specific_page = fallback_page.specific
+                    request.content_locale = settings.FALLBACK_LOCALES[lang_prefix]
+                    # Note: we intentionally do NOT call translation.activate(request.content_locale)
+                    # here, even though it would make SpringfieldLocale.get_active() resolve
+                    # to the fallback locale's Wagtail Locale object.
+                    # The reason: Django's LocalePrefixPattern.language_prefix reads
+                    # translation.get_language() directly, so activating a different
+                    # locale (e.g. es-MX while serving /es-AR/) would cause all url()
+                    # template calls to generate links with the wrong locale prefix (es-MX).
+                    # Setting request.content_locale carries the fallback locale
+                    # into the render pipeline without disturbing URL generation.
+                    return specific_page.serve(request)
+                # Fallback page not found — fall through to Accept-Language redirect logic.
+
             # Let's see if there is an alternative version available in a
             # different locale that the user would actually like to see.
             # And failing that, if we have it in the default locale, we can
             # fall back to that (which is consistent with what we do with
             # Fluent-based hard-coded pages).
-
-            _path = request.path.lstrip("/")
-            lang_prefix, _, sub_path = _path.partition("/")
-            # (There will be a language-code prefix, thanks to earlier i18n middleware)
 
             # Is the requested path available in other languages, checked in
             # order of user preference?
