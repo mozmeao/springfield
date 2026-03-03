@@ -155,23 +155,21 @@
 {% endif %}
 {% if switch ('flare26_enabled') %}
   <nav class="c-sub-navigation fl-subnav {% if force_dark_theme %}fl-force-dark-theme{% endif %}" aria-labelledby="c-sub-navigation-title">
-    <div class="c-sub-navigation-content fl-subnav-heading-wrap">
-      <h2 id="c-sub-navigation-title" class="c-sub-navigation-title fl-subnav-heading">
-        {% if title.href %}
-          <a href="{{ title.href }}" data-link-position="subnav" {% if title.cta_name %}data-link-text="{{ title.cta_name }}"{% endif %}>
-            {% if title.icon %}<img class="c-sub-navigation-icon" src="{{ title.icon }}" width="24" height="24" alt="">{% endif %}
-            {{ title.text }}
-          </a>
-        {% else %}
+    <h2 id="c-sub-navigation-title" class="c-sub-navigation-title fl-subnav-heading">
+      {% if title.href %}
+        <a href="{{ title.href }}" data-link-position="subnav" {% if title.cta_name %}data-link-text="{{ title.cta_name }}"{% endif %}>
           {% if title.icon %}<img class="c-sub-navigation-icon" src="{{ title.icon }}" width="24" height="24" alt="">{% endif %}
           {{ title.text }}
-        {% endif %}
-      </h2>
-      <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
-        <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
-        <i class="fl-icon fl-icon-chevron-down"></i>
-      </button>
-    </div>
+        </a>
+      {% else %}
+        {% if title.icon %}<img class="c-sub-navigation-icon" src="{{ title.icon }}" width="24" height="24" alt="">{% endif %}
+        {{ title.text }}
+      {% endif %}
+    </h2>
+    <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
+      <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+      <i class="fl-icon fl-icon-chevron-down"></i>
+    </button>
     <ul class="c-sub-navigation-list is-details is-closed fl-subnav-list" data-testid="sub-navigation-menu">
       {% for link in links %}
       <li class="c-sub-navigation-item">

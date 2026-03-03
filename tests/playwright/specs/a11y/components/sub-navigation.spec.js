@@ -48,8 +48,16 @@ test.describe(
 
             // Open sub-navigation menu
             await expect(subNavigationMenu).not.toBeVisible();
+            await expect(subNavigationToggle).toHaveAttribute(
+                'aria-expanded',
+                'false'
+            );
             await subNavigationToggle.click();
             await expect(subNavigationMenu).toBeVisible();
+            await expect(subNavigationToggle).toHaveAttribute(
+                'aria-expanded',
+                'true'
+            );
 
             const results = await scanPageElement(page, subNavigationLocator);
             createReport('component', 'sub-navigation-mobile', results);
