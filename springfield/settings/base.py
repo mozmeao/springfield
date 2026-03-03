@@ -380,9 +380,11 @@ CANONICAL_LOCALES = {
 # but sometimes it would be better to offer another locale as fallback. This map
 # specifies such cases.
 FALLBACK_LOCALES = {
-    "es-AR": "es-ES",
-    "es-CL": "es-ES",
-    "es-MX": "es-ES",
+    "es-AR": "es-MX",
+    "es-CL": "es-MX",
+    "pt-PT": "pt-BR",
+    "en-GB": "en-US",
+    "en-CA": "en-US",
 }
 
 
@@ -1310,6 +1312,8 @@ def lazy_wagtail_langs():
         ("en-CA", "English (Canada)"),
         ("de", "German"),
         ("fr", "French"),
+        ("es-AR", "Spanish (Argentina)"),
+        ("es-CL", "Spanish (Chile)"),
         ("es-ES", "Spanish (Spain)"),
         ("es-MX", "Spanish (México)"),
         ("it", "Italian"),
@@ -1317,6 +1321,7 @@ def lazy_wagtail_langs():
         ("nl", "Dutch (Netherlands)"),
         ("pl", "Polish"),
         ("pt-BR", "Portuguese (Brazil)"),
+        ("pt-PT", "Portuguese (Portugal)"),
         ("ru", "Russian"),
         ("zh-CN", "Chinese (China-Simplified)"),
         ("id", "Indonesian"),
