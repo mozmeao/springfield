@@ -47,19 +47,11 @@ class SpringfieldLocale(WagtailLocale):
                 logger.warning(f"[SpringfieldLocale.get_active] Normalization returned None, using original: {language_code}")
                 return cls.objects.get(language_code=language_code)
         except cls.DoesNotExist:
+            # Fall back to default locale
             from django.conf import settings
 
-            # Before falling back to the site default, check whether the active
-            # language is an alias locale with a configured fallback (e.g. es-AR
-            # → es-MX). This logic is called when the alias Locale DB record
-            # does not exist.
-            active_code = normalized_code or language_code
-            fallback_code = getattr(settings, "FALLBACK_LOCALES", {}).get(active_code)
-            if fallback_code:
-                try:
-                    return cls.objects.get(language_code=fallback_code)
-                except cls.DoesNotExist:
-                    pass
-
-            logger.warning(f"[SpringfieldLocale.get_active] Locale not found for '{active_code}', falling back to default: {settings.LANGUAGE_CODE}")
+            logger.warning(
+                f"[SpringfieldLocale.get_active] Locale not found for '{normalized_code or language_code}', "
+                f"falling back to default: {settings.LANGUAGE_CODE}"
+            )
             return cls.objects.get(language_code=settings.LANGUAGE_CODE)
