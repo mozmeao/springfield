@@ -1,9 +1,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from django.conf import settings
 from django.urls import path, re_path
 
 import springfield.releasenotes.views
+from lib.l10n_utils import L10nTemplateView
 from springfield.base.util import page
 from springfield.cms.decorators import prefer_cms
 from springfield.firefox import views
@@ -102,13 +105,7 @@ urlpatterns = (
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
     page("browsers/mobile/", "firefox/browsers/mobile/index.html", ftl_files=["firefox/browsers/mobile/index"]),
-    page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
-    page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
     page("browsers/mobile/focus/", "firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-    path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
-    path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
-    path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
-    page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
     page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
     page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
     # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
@@ -205,3 +202,35 @@ urlpatterns = (
     page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
     path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
 )
+
+if settings.ENABLE_CMS_REFRESH_REDIRECTS:
+    urlpatterns += (
+        path(
+            "download/android/",
+            prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"])),
+            name="firefox.browsers.mobile.android",
+        ),
+        path(
+            "download/ios/",
+            prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"])),
+            name="firefox.browsers.mobile.ios",
+        ),
+        path(
+            "download/focus/",
+            prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"])),
+            name="firefox.browsers.mobile.focus",
+        ),
+        path("download/linux/", prefer_cms(views.PlatformViewLinux.as_view()), name="firefox.browsers.desktop.linux"),
+        path("download/mac/", prefer_cms(views.PlatformViewMac.as_view()), name="firefox.browsers.desktop.mac"),
+        path("download/windows/", prefer_cms(views.PlatformViewWindows.as_view()), name="firefox.browsers.desktop.windows"),
+    )
+else:
+    urlpatterns += (
+        page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
+        page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
+        page("browsers/mobile/focus/", "firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+        path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
+        path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
+        path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
+        page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
+    )
