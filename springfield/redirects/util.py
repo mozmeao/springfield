@@ -242,8 +242,10 @@ def redirect(
         args = [x or "" for x in args]
 
         # If it's a callable, call it and get the url out.
+        # Use a pre-computed value from the outer wrapper if available,
+        # to avoid calling the callable twice per request.
         if callable(to):
-            to_value = to(request, *args, **kwargs)
+            to_value = getattr(request, "_redirect_to_value", None) or to(request, *args, **kwargs)
         else:
             to_value = to
 
@@ -315,11 +317,13 @@ def redirect(
         _decorated_view = _view
 
         def _view(request, *args, **kwargs):
-            # Peek at the callable's return value before hitting decorators.
+            # Compute the callable's return value once before hitting decorators.
             cleaned_kwargs = {k: v or "" for k, v in kwargs.items()}
             cleaned_args = [x or "" for x in args]
-            if to(request, *cleaned_args, **cleaned_kwargs) is None:
+            to_value = to(request, *cleaned_args, **cleaned_kwargs)
+            if to_value is None:
                 return None
+            request._redirect_to_value = to_value
             return _decorated_view(request, *args, **kwargs)
 
     return re_path(pattern, _view, name=name)
