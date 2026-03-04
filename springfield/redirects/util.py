@@ -241,8 +241,9 @@ def redirect(
         kwargs = {k: v or "" for k, v in kwargs.items()}
         args = [x or "" for x in args]
 
-        # If it's a callable, get the pre-computed value stashed by the
-        # outer wrapper (which also handles the None/skip case).
+        # If it's a callable, use the pre-computed value from the
+        # _skip_none_redirect decorator (which already called to() and
+        # checked for None). Otherwise use the static `to` value.
         if callable(to):
             to_value = request._redirect_to_value
         else:
@@ -295,6 +296,25 @@ def redirect(
 
         return redirect_class(redirect_url)
 
+    # When `to` is callable, insert a decorator at the front of the chain
+    # that calls `to()` once and short-circuits on None (before cache/vary
+    # decorators that expect an HttpResponse).
+    if callable(to):
+
+        def _skip_none_redirect(view_func):
+            def wrapper(request, *args, **kwargs):
+                cleaned_kwargs = {k: v or "" for k, v in kwargs.items()}
+                cleaned_args = [x or "" for x in args]
+                to_value = to(request, *cleaned_args, **cleaned_kwargs)
+                if to_value is None:
+                    return None
+                request._redirect_to_value = to_value
+                return view_func(request, *args, **kwargs)
+
+            return wrapper
+
+        view_decorators.insert(0, _skip_none_redirect)
+
     # Apply decorators
     try:
         # Decorators should be applied in reverse order so that input
@@ -304,21 +324,6 @@ def redirect(
             _view = decorator(_view)
     except TypeError:
         log.exception("decorators not iterable or does not contain callable items")
-
-    if callable(to):
-        # Wrap the decorated view so that a None return from the callable
-        # `to` bypasses decorators (which expect an HttpResponse).
-        _decorated_view = _view
-
-        def _view(request, *args, **kwargs):
-            # Compute the callable's return value once before hitting decorators.
-            cleaned_kwargs = {k: v or "" for k, v in kwargs.items()}
-            cleaned_args = [x or "" for x in args]
-            to_value = to(request, *cleaned_args, **cleaned_kwargs)
-            if to_value is None:
-                return None
-            request._redirect_to_value = to_value
-            return _decorated_view(request, *args, **kwargs)
 
     return re_path(pattern, _view, name=name)
 
