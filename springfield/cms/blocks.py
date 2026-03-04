@@ -1106,6 +1106,26 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     return _MediaContentBlock(*args, **kwargs)
 
 
+class IconListItemBlock(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List Item"
+        label_format = "{text}"
+
+
+class IconListWithImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    list_items = blocks.ListBlock(IconListItemBlock())
+
+    class Meta:
+        label = "Icon List with Image"
+        label_format = "Icon List with Image"
+        template = "cms/blocks/icon-list-with-image.html"
+
+
 # Cards
 
 
@@ -1875,6 +1895,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
             ],
             required=False,
         )
