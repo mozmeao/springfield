@@ -27,7 +27,7 @@
     <div class="fl-mobile-store-qr-content">
       {% if value.qr_code_data %}
         <div class="fl-mobile-store-qr-code">
-          <div class="fl-qr-code" data-qr-code="{{ value.qr_code_data }}"></div>
+          {{ qrcode(value.qr_code_data, 12) }}
         </div>
       {% endif %}
 

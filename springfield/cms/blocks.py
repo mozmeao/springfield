@@ -1476,6 +1476,33 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     return _IllustrationCardBlock(*args, **kwargs)
 
 
+def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create OutlinedCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _OutlinedCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/outlined-card.html"
+            label = "Outlined Card"
+            label_format = "Outlined Card - {headline}"
+
+    return _OutlinedCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1489,6 +1516,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
             ]
         )
 
