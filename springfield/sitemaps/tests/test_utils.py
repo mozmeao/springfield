@@ -4,6 +4,8 @@
 
 from unittest.mock import patch
 
+from django.test import override_settings
+
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
@@ -216,6 +218,34 @@ def test_get_wagtail_urls__ensure_locale_codes_not_stripped(dummy_wagtail_pages)
 
     urls = get_wagtail_urls()
     assert urls["/test-page/fr-child-pagefr/"] == ["fr"]
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_wagtail_urls__alias_locale_pages_excluded(dummy_wagtail_pages):
+    """
+    Alias locale URLs that would be served via fallback are not included in the sitemap.
+
+    pt-PT is configured as an alias for pt-BR. If a pt-PT page doesn't exist in
+    Wagtail, the middleware would serve pt-BR content at the pt-PT URL — but that
+    URL must not appear in the sitemap, because it is not the canonical URL for
+    that content. Only the pt-BR URL should be indexed.
+    """
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    # Create a pt-PT root page so the locale tree exists, but do NOT create a
+    # pt-PT child-page — simulating the fallback scenario.
+    site = Site.objects.get(is_default_site=True)
+    pt_pt_root = site.root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = True
+    pt_pt_root.save()
+
+    urls = get_wagtail_urls()
+
+    # pt-BR child page exists and should be in the sitemap.
+    assert "pt-BR" in urls["/test-page/child-page/"]
+    # pt-PT child page does not exist, so it must not appear — even though the
+    # middleware would serve pt-BR content at the pt-PT URL.
+    assert "pt-PT" not in urls["/test-page/child-page/"]
 
 
 @patch("springfield.sitemaps.utils.get_static_urls")
