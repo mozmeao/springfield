@@ -46,7 +46,7 @@
       </label>
     {% endset %}
     {% if is_preview %}
-      <include:conditional-display condition="windows">
+      <include:conditional-display platform_conditions="{{ ['windows'] }}">
         {{ checkbox }}
       </include:conditional-display>
     {% else %}

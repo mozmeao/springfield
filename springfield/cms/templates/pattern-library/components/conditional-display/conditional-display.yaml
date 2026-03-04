@@ -1,58 +1,104 @@
 name: Conditional Display
 context:
   variants:
-    - name: All Users
-      condition: all
+    - name: All Users (no conditions)
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
       contents: |
-        <p>No condition class is applied to this content.</p>
+        <p>No condition classes are applied. Content is shown to all users.</p>
     - name: Firefox Users
-      condition: is-firefox
-      html_class:
-      body_class: is-firefox
+      platform_conditions: []
+      firefox_condition: is-firefox
+      auth_state_condition: null
+      html_class: is-firefox
+      body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-is-firefox</b>
           will be displayed if wrapped in class <b>.is-firefox</b>.</p>
     - name: Non-Firefox Users
-      condition: not-firefox
+      platform_conditions: []
+      firefox_condition: not-firefox
+      auth_state_condition: null
       html_class: not-firefox
       body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-not-firefox</b>
           will be displayed if wrapped in class <b>.not-firefox</b>.</p>
     - name: Signed-in Users
-      condition: state-fxa-supported-signed-in
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: state-fxa-supported-signed-in
       html_class:
       body_class: state-fxa-supported-signed-in
       contents: |
         <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-in</b>
           will be displayed if wrapped in class <b>.state-fxa-supported-signed-in</b>.</p>
     - name: Signed-out Users
-      condition: state-fxa-supported-signed-out
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: state-fxa-supported-signed-out
       html_class:
       body_class: state-fxa-supported-signed-out
       contents: |
         <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-out</b>
           will be displayed if wrapped in class <b>.state-fxa-supported-signed-out</b>.</p>
     - name: Windows 10+ Users
-      condition: windows-10-plus
+      platform_conditions:
+        - windows-10-plus
       html_class: windows-10-plus
       body_class:
       contents: |
         <p>Content with class <b>.conditional-display.condition-windows-10-plus</b>
           will be displayed if wrapped in class <b>.windows-10-plus</b>.</p>
-    - name: Signed-in Windows 10+ Users
-      condition: windows-10-plus-signed-in
-      html_class: windows-10-plus
-      body_class: state-fxa-supported-signed-in
+    - name: macOS or Linux Users (multiple platforms)
+      platform_conditions:
+        - osx
+        - linux
+      firefox_condition: null
+      auth_state_condition: null
+      html_class: osx linux
+      body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-windows-10-plus-signed-in</b>
-        will be displayed if wrapped in classes <b>.windows-10-plus</b> and
-        <b>.state-fxa-supported-signed-in</b>.</p>
-    - name: Signed-out Windows 10+ Users
-      condition: windows-10-plus-signed-out
-      html_class: windows-10-plus
-      body_class: state-fxa-supported-signed-out
+        <p>Content is shown when <em>any</em> of the selected platform classes are present.
+          Content with class <b>.conditional-display.condition-osx.condition-linux</b>
+          will be displayed if wrapped in class <b>.osx</b> or <b>.linux</b>.</p>
+    - name: macOS or Linux Users (multiple platforms) and Firefox Users
+      platform_conditions:
+        - osx
+        - linux
+      firefox_condition: is-firefox
+      auth_state_condition: null
+      html_class: linux is-firefox
+      body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-windows-10-plus-signed-out</b>
-        will be displayed if wrapped in classes <b>.windows-10-plus</b> and
-        <b>.state-fxa-supported-signed-out</b>.</p>
+        <p>Content is shown when <em>any</em> of the selected platform classes are present and the user is on Firefox.
+          Content with class <b>.conditional-display.condition-osx.condition-linux</b> wrapping content with class
+          <b>.conditional-display.condition-is-firefox</b> will be displayed if wrapped in class
+          <b>.osx</b> or <b>.linux</b> and <b>.is-firefox</b>.</p>
+    - name: macOS or Linux Users (multiple platforms) and Firefox Users
+      platform_conditions:
+        - osx
+        - linux
+      firefox_condition: is-firefox
+      auth_state_condition: null
+      html_class: linux is-firefox
+      body_class:
+      contents: |
+        <p>Content is shown when <em>any</em> of the selected platform classes are present and the user is on Firefox.
+          Content with class <b>.conditional-display.condition-osx.condition-linux</b> wrapping content with class
+          <b>.conditional-display.condition-is-firefox</b> will be displayed if wrapped in class
+          <b>.osx</b> or <b>.linux</b> and <b>.is-firefox</b>.</p>
+    - name: Android or iOS Users (multiple platforms) and Not Firefox Users
+      platform_conditions:
+        - android
+        - ios
+      firefox_condition: not-firefox
+      auth_state_condition: null
+      html_class: android not-firefox
+      body_class:
+      contents: |
+        <p>Content is shown when <em>any</em> of the selected platform classes are present and the user is not on Firefox.
+          Content with class <b>.conditional-display.condition-android.condition-ios</b> wrapping content with class
+          <b>.conditional-display.condition-not-firefox</b> will be displayed if wrapped in class
+          <b>.android</b> or <b>.ios</b> and <b>.not-firefox</b>.</p>
