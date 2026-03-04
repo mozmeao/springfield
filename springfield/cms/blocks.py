@@ -518,7 +518,10 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if path:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return f"/{locale.language_code}/{path.lstrip('/')}"
+                    # To make sure we return the URL prefixed with the user-facing locale,
+                    # we reconstruct the URL using the URL-facing locale prefix.
+                    active_lang = normalize_language(translation.get_language()) or locale.language_code
+                    return f"/{active_lang}/{path.lstrip('/')}"
                 except Exception:
                     return path
             return path

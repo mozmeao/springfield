@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 
 from lib.l10n_utils import get_locale
 from springfield.cms.blocks import SpringfieldLinkBlock
@@ -2096,6 +2096,48 @@ def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_si
         url = link_value.get_url()
 
     assert url == "/fr/features/"
+
+
+@pytest.mark.django_db
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_link_block_relative_url_uses_url_locale_when_alias_has_no_db_record():
+    """Returns /{alias_locale}/{path} when the alias locale has no Locale DB record.
+
+    When pt-PT has no Locale DB record,the relative_url must still use the
+    URL-facing locale (pt-PT) as the prefix.
+    """
+    # The fallback locale exists in the DB (pt-BR is a canonical locale).
+    LocaleFactory(language_code="pt-BR")
+    # The alias locale does not exist.
+    assert Locale.objects.filter(language_code="pt-PT").exists() is False
+
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-PT"):
+        url = link_value.get_url()
+
+    assert url == "/pt-PT/features/"
+
+
+@pytest.mark.django_db
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_springfield_link_block_relative_url_uses_url_locale_when_alias_and_fallback_have_no_db_record():
+    """Returns /{alias_locale}/{path} when neither the alias nor the fallback locale has a DB record.
+
+    When es-CL has no Locale DB record and its fallback (es-MX) also has no Locale
+    DB record, the relative_url must still use the URL-facing locale (es-CL).
+    """
+    # The fallback locale does not exist.
+    assert Locale.objects.filter(language_code="es-MX").exists() is False
+    # The alias locale does not exist.
+    assert Locale.objects.filter(language_code="es-CL").exists() is False
+
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="es-CL"):
+        url = link_value.get_url()
+
+    assert url == "/es-CL/features/"
 
 
 def test_springfield_link_block_relative_url_falls_back_when_get_active_raises():
