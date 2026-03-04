@@ -91,9 +91,9 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 @media (--viewport-sm-up) {
     .display-sm-up {
-        /* using two values here because these utilitites are important in legacy fallback mode. */
+        /* using two values here because these utilities are important in legacy fallback mode. */
         display: block;
-        display: unset;
+        display: revert;
     }
 
     .display-xs {
@@ -104,7 +104,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 @media (--viewport-md-up) {
     .display-md-up {
         display: block;
-        display: unset;
+        display: revert;
     }
 
     .display-xs-and-sm {
@@ -183,7 +183,7 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .conditional-display.is-preview {
     display: block;
-    display: unset;
+    display: revert;
     outline: red dashed 2px;
     outline-offset: -2px;
     position: relative;
@@ -203,64 +203,64 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .is-firefox .conditional-display.condition-is-firefox {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .not-firefox .conditional-display.condition-not-firefox {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .state-fxa-supported-signed-in
     .conditional-display.condition-state-fxa-supported-signed-in {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .state-fxa-supported-signed-out
     .conditional-display.condition-state-fxa-supported-signed-out {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .android .conditional-display.condition-android {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .ios .conditional-display.condition-ios {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .linux:not(.fx-unsupported) .conditional-display.condition-linux {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .osx:not(.fx-unsupported) .conditional-display.condition-osx {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .windows:not(.fx-unsupported) .conditional-display.condition-windows {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .windows-10-plus .conditional-display.condition-windows-10-plus {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .other .conditional-display.condition-other {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 .conditional-display.condition-unknown {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 html.linux .conditional-display.condition-unknown:not(.is-preview),
@@ -275,15 +275,15 @@ html.android .conditional-display.condition-unknown:not(.is-preview) {
 
 html:not(.fx-unsupported) .conditional-display.condition-supported {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 html.fx-unsupported .conditional-display.condition-unsupported {
     display: block;
-    display: unset;
+    display: revert;
 }
 
 html.other .conditional-display.condition-other-os {
     display: block;
-    display: unset;
+    display: revert;
 }
