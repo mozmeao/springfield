@@ -32,6 +32,15 @@
         }
     };
 
+    const handleOutsideClick = () => {
+        document.addEventListener('click', (event) => {
+            // close if we detect a click outside the subnav
+            if (!event.target.closest('.fl-subnav')) {
+                buttonEl.setAttribute('aria-expanded', 'false');
+            }
+        });
+    };
+
     if (buttonEl && subnavListEl) {
         buttonEl.addEventListener('click', function (e) {
             e.preventDefault();
@@ -42,6 +51,7 @@
                 buttonEl.setAttribute('aria-expanded', 'true');
 
                 handleKeyboardNavigation();
+                handleOutsideClick();
             }
         });
     }
