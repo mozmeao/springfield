@@ -398,3 +398,25 @@ class TestRedirectUrlPattern(TestCase):
         resp = middleware.process_request(self.rf.get("/editor/midasdemo/securityprefs.html%3C/span%3E%3C/a%3E%C2%A0"))
         assert resp.status_code == 301
         assert resp["Location"] == "http://www-archive.mozilla.org/editor/midasdemo/securityprefs.html%C2%A0"
+
+    def test_callable_returning_none(self):
+        """When a callable `to` returns None, the view should return None (skip redirect)."""
+
+        def maybe_redirect(request, *args, **kwargs):
+            return None
+
+        pattern = redirect(r"^the/dude$", maybe_redirect)
+        request = self.rf.get("the/dude")
+        response = pattern.callback(request)
+        assert response is None
+
+    def test_callable_returning_none_middleware_passthrough(self):
+        """Middleware should pass through when the redirect view returns None."""
+
+        def maybe_redirect(request, *args, **kwargs):
+            return None
+
+        resolver = get_resolver([redirect(r"^the/dude/$", maybe_redirect)])
+        middleware = RedirectsMiddleware(get_response=HttpResponse, resolver=resolver)
+        resp = middleware.process_request(self.rf.get("/the/dude/"))
+        assert resp is None

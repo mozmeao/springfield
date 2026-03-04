@@ -86,6 +86,8 @@ class CMSLocaleFallbackMiddleware:
             # language code into the root of the page tree for each separate locale - eg:
             # * /home/test-path/to/a/page for en-US
             # * /home-fr/test-path/to/a/page for French
+            #
+            # Note: this same convention is used in cms.redirects._cms_page_exists
 
             possible_url_path_patterns = []
             for locale_code in ranked_locales:

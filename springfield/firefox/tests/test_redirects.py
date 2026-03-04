@@ -110,7 +110,8 @@ def _get_refresh_middleware():
         ("/browsers/desktop/chromebook/", "/download/chromebook/"),
     ),
 )
-def test_refresh_redirect_destinations(source, destination, permanent):
+@patch("springfield.cms.redirects._cms_page_exists", return_value=True)
+def test_refresh_redirect_destinations(mock_exists, source, destination, permanent):
     rf = RequestFactory()
     with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
         middleware = _get_refresh_middleware()
@@ -127,7 +128,8 @@ def test_refresh_redirect_destinations(source, destination, permanent):
         ("/browsers/desktop/mac/?utm_source=foo&utm_medium=bar", "/download/mac/?utm_source=foo&utm_medium=bar"),
     ),
 )
-def test_refresh_redirect_preserves_querystrings(source, destination, permanent):
+@patch("springfield.cms.redirects._cms_page_exists", return_value=True)
+def test_refresh_redirect_preserves_querystrings(mock_exists, source, destination, permanent):
     rf = RequestFactory()
     with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
         middleware = _get_refresh_middleware()
@@ -141,13 +143,36 @@ def test_refresh_redirect_preserves_querystrings(source, destination, permanent)
     "locale",
     ("en-US", "de", "fr"),
 )
-def test_refresh_redirect_locale_handling(locale, permanent):
+@patch("springfield.cms.redirects._cms_page_exists", return_value=True)
+def test_refresh_redirect_locale_handling(mock_exists, locale, permanent):
     rf = RequestFactory()
     with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
         middleware = _get_refresh_middleware()
         resp = middleware.process_request(rf.get(f"/{locale}/browsers/desktop/windows/"))
     assert resp.status_code == (301 if permanent else 302)
     assert resp["location"] == f"/{locale}/download/windows/"
+
+
+@pytest.mark.parametrize(
+    "source",
+    (
+        "/browsers/desktop/windows/",
+        "/browsers/desktop/mac/",
+        "/browsers/desktop/linux/",
+        "/browsers/mobile/android/",
+        "/browsers/mobile/ios/",
+        "/browsers/desktop/chromebook/",
+    ),
+)
+@pytest.mark.parametrize("locale", ("sv-SE", "ko", "th"))
+@patch("springfield.cms.redirects._cms_page_exists", return_value=False)
+def test_refresh_redirect_non_cms_locale_passes_through(mock_exists, source, locale):
+    """Non-CMS locales should pass through without redirecting."""
+    rf = RequestFactory()
+    with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=False):
+        middleware = _get_refresh_middleware()
+        resp = middleware.process_request(rf.get(f"/{locale}{source}"))
+    assert resp is None
 
 
 def test_refresh_redirects_not_in_redirectpatterns_when_disabled():

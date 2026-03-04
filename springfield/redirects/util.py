@@ -171,7 +171,9 @@ def redirect(
     pattern: the regex against which to match the requested URL.
     to: either a url name that `reverse` will find, a url that will simply be returned,
         or a function that will be given the request and url captures, and return the
-        destination.
+        destination. When `to` is a callable, returning None signals that the redirect
+        should be skipped — the view returns None and the redirect middleware passes the
+        request through to normal URL resolution.
     permanent: boolean whether to send a 301 or 302 response.
     locale_prefix: automatically prepend `pattern` with a regex for an optional locale
         in the url. This locale (or None) will show up in captured kwargs as 'locale'.
@@ -245,6 +247,11 @@ def redirect(
         else:
             to_value = to
 
+        # A callable returning None means "skip this redirect" — the
+        # redirect middleware will pass the request through to Django.
+        if to_value is None:
+            return None
+
         if to_value.startswith("/") or HTTP_RE.match(to_value):
             redirect_url = to_value
         else:
@@ -301,6 +308,19 @@ def redirect(
             _view = decorator(_view)
     except TypeError:
         log.exception("decorators not iterable or does not contain callable items")
+
+    if callable(to):
+        # Wrap the decorated view so that a None return from the callable
+        # `to` bypasses decorators (which expect an HttpResponse).
+        _decorated_view = _view
+
+        def _view(request, *args, **kwargs):
+            # Peek at the callable's return value before hitting decorators.
+            cleaned_kwargs = {k: v or "" for k, v in kwargs.items()}
+            cleaned_args = [x or "" for x in args]
+            if to(request, *cleaned_args, **cleaned_kwargs) is None:
+                return None
+            return _decorated_view(request, *args, **kwargs)
 
     return re_path(pattern, _view, name=name)
 
