@@ -44,7 +44,12 @@ SHOW_TO_CONVERSION = {
         "auth_state": "state-fxa-supported-signed-out",
     },
     "unsupported": {"platforms": ["unsupported"], "firefox": "", "auth_state": ""},
-    "other-os": {"platforms": ["other-os"], "firefox": "", "auth_state": ""},
+    # Preserve legacy "other-os" bucket semantics: Android + iOS + other.
+    "other-os": {
+        "platforms": ["android", "ios", "other-os"],
+        "firefox": "",
+        "auth_state": "",
+    },
 }
 
 
