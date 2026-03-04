@@ -274,7 +274,7 @@
       <div class="display-xs-and-sm">
         <include:section>
           <content:content>
-              <include:conditional-display condition="android">
+              <include:conditional-display platform_conditions="{{ ['android'] }}">
                 <include:card>
                   <content:heading>
                     <include:heading
@@ -301,7 +301,7 @@
                 </include:card>
               </include:conditional-display>
 
-              <include:conditional-display condition="ios">
+              <include:conditional-display platform_conditions="{{ ['ios'] }}">
                 <include:card>
                   <content:heading>
                     <include:heading
