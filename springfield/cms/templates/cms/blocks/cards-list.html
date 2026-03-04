@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_level = block_level or 1 %}
+
 <include:cards-list>
   {% for card in value.cards %}
     {% set card_index = loop.index %}
