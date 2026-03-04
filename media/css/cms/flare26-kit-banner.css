@@ -55,7 +55,10 @@
 
 .fl-banner-kit .fl-button {
     max-inline-size: 100%;
-    text-wrap: balance;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .fl-banner-kit .fl-superheading {
