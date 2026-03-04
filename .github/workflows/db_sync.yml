@@ -139,6 +139,17 @@ jobs:
           workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ steps.target.outputs.sa }}
 
+      - name: Backup target database before drop
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql backups create \
+            --instance="$INSTANCE" \
+            --project="$PROJECT" \
+            --description="db-sync pre-drop backup (run $GITHUB_RUN_ID)"
+          echo "Backup complete — restorable via console or gcloud if import fails"
+
       - name: Drop target database
         env:
           INSTANCE: ${{ steps.target.outputs.instance }}
