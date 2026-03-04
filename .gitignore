@@ -37,7 +37,6 @@ node_modules
 npm-debug.log
 pip-log.txt
 python_coverage/
-root_files/etags.json
 settings_local.py
 settings/local.py
 static
