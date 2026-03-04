@@ -2198,27 +2198,48 @@ def test_springfield_link_block_page_constructs_alias_locale_url(tiny_localized_
 
 
 @pytest.mark.django_db
-@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
-def test_springfield_link_block_page_constructs_alias_locale_url_returns_none_when_page_url_is_none(tiny_localized_site):
-    """Returns None when the linked page has no URL and no translation exists for the active locale.
-
-    Pages in non-default locale trees are not served by any configured site, so
-    page.url returns None. When get_translation() also fails, the if fallback_url: guard
-    prevents the URL reconstruction from running, and None is returned.
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_link_block_page_constructs_alias_locale_url_without_locale_db_record(tiny_localized_site):
     """
-    # Create an es-AR Locale record so SpringfieldLocale.get_active() resolves it.
-    LocaleFactory(language_code="es-AR")
-    # fr_grandchild is in the fr locale tree, which is not the site root — page.url is None.
-    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
-    assert fr_grandchild.url is None  # pre-condition: page has no accessible URL
-    assert not Page.objects.filter(locale__language_code="es-AR", slug="grandchild-page").exists()
+    Returns /{alias_locale}/{path} when the alias locale has NO Locale DB record.
 
-    link_value = _springfield_link_value("page", page=fr_grandchild.pk)
+    When pt-PT has no Locale DB record, the page link should still use the URL-facing
+    locale (pt-PT) as the URL prefix.
+    """
+    assert not Page.objects.filter(locale__language_code="pt-PT").exists()
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
 
-    with mock.patch("django.utils.translation.get_language", return_value="es-AR"):
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-PT"):
         url = link_value.get_url()
 
-    assert url is None
+    # The URL should use the pt-PT locale prefix.
+    assert url == "/pt-PT/test-page/"
+
+
+@pytest.mark.django_db
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_springfield_link_block_page_constructs_alias_locale_url_without_alias_or_fallback_locale_db_record(tiny_localized_site):
+    """
+    Returns /{alias_locale}/{path} when neither the alias nor the fallback
+    locale has a Locale DB record.
+
+    When es-CL has no Locale DB record and es-MX (its fallback) also has no
+    Locale DB record, the page link should still use the URL-facing locale (es-CL)
+    as the URL prefix.
+    """
+    assert not Page.objects.filter(locale__language_code="es-CL").exists()
+    assert not Page.objects.filter(locale__language_code="es-MX").exists()
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="es-CL"):
+        url = link_value.get_url()
+
+    # The URL should use the es-CL locale prefix.
+    assert url == "/es-CL/test-page/"
 
 
 def test_springfield_link_block_page_none_returns_none():
