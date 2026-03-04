@@ -105,6 +105,7 @@ _csp_script_src = {
     "www.google-analytics.com",
     "tagmanager.google.com",
     "www.youtube.com",
+    "www.youtube-nocookie.com",
     "s.ytimg.com",
     "cdn.transcend.io",  # Transcend Consent Management
     "transcend-cdn.com",  # Transcend Consent Management
