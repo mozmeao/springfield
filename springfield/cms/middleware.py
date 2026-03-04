@@ -7,9 +7,11 @@ from http import HTTPStatus
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.urls import Resolver404, resolve
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-from wagtail.models import Page
+from wagtail.models import Locale as WagtailLocale, Page
+from wagtail.views import serve as wagtail_serve
 
 from springfield.base.i18n import normalize_language
 from springfield.cms.utils import find_fallback_page_for_locale
@@ -30,7 +32,62 @@ class CMSLocaleFallbackMiddleware:
         # One-time configuration and initialization.
         self.get_response = get_response
 
+    def _serve_fallback_page(self, request, lang_prefix, sub_path, fallback_locales):
+        """Find and serve the fallback locale's page for an alias locale URL.
+
+        Returns an HttpResponse if a fallback page is found, or None if the alias
+        locale has no configured fallback page (allowing the caller to fall through).
+
+        View-restricted pages are never transparently served; they redirect to the
+        canonical URL so Wagtail's restriction enforcement fires there.
+        """
+        fallback_page = find_fallback_page_for_locale(lang_prefix, sub_path)
+        if not fallback_page:
+            return None
+
+        if fallback_page.get_view_restrictions():
+            return HttpResponseRedirect(fallback_page.url)
+
+        specific_page = fallback_page.specific
+        request.content_locale = fallback_locales[lang_prefix]
+        # Note: we intentionally do NOT call translation.activate(request.content_locale)
+        # here, even though it would make SpringfieldLocale.get_active() resolve
+        # to the fallback locale's Wagtail Locale object.
+        # The reason: Django's LocalePrefixPattern.language_prefix reads
+        # translation.get_language() directly, so activating a different
+        # locale (e.g. es-MX while serving /es-AR/) would cause all url()
+        # template calls to generate links with the wrong locale prefix (es-MX).
+        # Setting request.content_locale carries the fallback locale
+        # into the render pipeline without disturbing URL generation.
+        return specific_page.serve(request)
+
     def __call__(self, request):
+        _path = request.path.lstrip("/")
+        lang_prefix, _, sub_path = _path.partition("/")
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        # Pre-intercept: if the URL prefix is a configured alias locale but has no
+        # Wagtail Locale DB record, we serve the fallback page. We must do this before
+        # response = self.get_response(request) to avoid this unlikely scenario:
+        #   the user requests a page in an alias locale (ex: /pt-PT/somepage),
+        #   but the pt-PT locale doesn't exist in the database,
+        # because this causes Wagtail to redirect the user to the en-US page.
+        if lang_prefix in fallback_locales and not WagtailLocale.objects.filter(language_code=lang_prefix).exists():
+            try:
+                is_wagtail_path = resolve(request.path).func == wagtail_serve
+            except Resolver404:
+                is_wagtail_path = False
+
+            # Only pre-intercept for paths routed to Wagtail's serve view. Fluent/Django
+            # views (e.g. firefox.urls, privacy.urls) resolve to a different func and must
+            # be left to get_response() so they are not incorrectly replaced by CMS content.
+            if is_wagtail_path:
+                response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
+                if response is not None:
+                    return response
+                # If no fallback page exists, fall through to get_response() normally so
+                # Wagtail's default behaviour (e.g. serving en-US content) is preserved.
+
         response = self.get_response(request)
 
         if response.status_code == HTTPStatus.NOT_FOUND:
@@ -43,34 +100,15 @@ class CMSLocaleFallbackMiddleware:
             # which means it didn't match any Django URLs, and didn't match
             # a CMS page for the current locale+path combination in the URL.
 
-            _path = request.path.lstrip("/")
-            lang_prefix, _, sub_path = _path.partition("/")
-
             # Check if the requested locale is a configured alias locale (e.g. es-AR → es-MX).
             # If so, try to find and serve the fallback locale's page inline — no redirect.
             # This means that the URL will be whatever the user requested (for example,
             # /es-AR/somepage), but the page content will come from the fallback locale
             # page (for example, the /es-MX/somepage Page).
-            if lang_prefix in getattr(settings, "FALLBACK_LOCALES", {}):
-                fallback_page = find_fallback_page_for_locale(lang_prefix, sub_path)
-                if fallback_page:
-                    # Never transparently serve view-restricted pages — redirect to the
-                    # canonical URL instead so Wagtail's restriction enforcement fires there.
-                    if fallback_page.get_view_restrictions():
-                        return HttpResponseRedirect(fallback_page.url)
-
-                    specific_page = fallback_page.specific
-                    request.content_locale = settings.FALLBACK_LOCALES[lang_prefix]
-                    # Note: we intentionally do NOT call translation.activate(request.content_locale)
-                    # here, even though it would make SpringfieldLocale.get_active() resolve
-                    # to the fallback locale's Wagtail Locale object.
-                    # The reason: Django's LocalePrefixPattern.language_prefix reads
-                    # translation.get_language() directly, so activating a different
-                    # locale (e.g. es-MX while serving /es-AR/) would cause all url()
-                    # template calls to generate links with the wrong locale prefix (es-MX).
-                    # Setting request.content_locale carries the fallback locale
-                    # into the render pipeline without disturbing URL generation.
-                    return specific_page.serve(request)
+            if lang_prefix in fallback_locales:
+                fallback_response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
+                if fallback_response is not None:
+                    return fallback_response
                 # Fallback page not found — fall through to Accept-Language redirect logic.
 
             # Let's see if there is an alternative version available in a

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.test import override_settings
 
 import pytest
-from wagtail.models import Page, Site
+from wagtail.models import Locale, Page, Site
 
 from springfield.cms.tests.factories import LocaleFactory
 
@@ -88,6 +88,62 @@ def test_canonical_link_and_index_for_non_alias_page(client, tiny_localized_site
     # The response context has both the LANG and the CANONICAL_LANG.
     assert response.context["LANG"] == "pt-BR"
     assert response.context["CANONICAL_LANG"] == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_canonical_link_and_index_for_alias_without_locale_db_record(client, tiny_localized_site):
+    """
+    Test canonical and index when the alias locale has no Wagtail Locale DB record.
+
+    When pt-PT has no Locale DB record, we serve the pt-BR content at the pt-PT URL,
+    because pt-BR is the fallback locale for pt-PT.
+    """
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    pt_br_child = Page.objects.get(locale__language_code="pt-BR", slug="child-page")
+    pt_pt_url = pt_br_child.url.replace("pt-BR", "pt-PT")
+
+    response = client.get(pt_pt_url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    assert f"<title>{pt_br_child.title}" in html
+    page_path = "/test-page/child-page/"
+    # Canonical must point to pt-BR (the fallback locale), not pt-PT.
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-BR{page_path}"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-PT{page_path}"' not in html
+    # Since content (pt-BR) differs from the URL locale (pt-PT), the page should not be indexed.
+    assert '<meta name="robots" content="noindex,follow">' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_canonical_link_and_index_when_alias_and_fallback_have_no_locale_db_record(client, tiny_localized_site):
+    """
+    Test canonical and index when the alias & fallback locales have no Wagtail Locale DB record.
+
+    When es-CL has no Locale DB record, we try to serve the es-MX content at the es-CL URL,
+    because es-MX is the fallback locale for es-CL. But, if the es-MX Locale also
+    doesn't exist, we redirect to the settings.LANGUAGE_CODE content.
+    """
+    assert not Locale.objects.filter(language_code="es-CL").exists()
+    assert not Locale.objects.filter(language_code="es-MX").exists()
+
+    en_us_child = Page.objects.get(locale__language_code=settings.LANGUAGE_CODE, slug="child-page")
+    es_cl_url = en_us_child.url.replace("pt-BR", "es-CL")
+
+    response = client.get(es_cl_url)
+
+    # Since the es-CL and the es-MX locales do not exist, the user is redirected
+    # to the page in the settings.LANGUAGE_CODE locale.
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+    assert f"<title>{en_us_child.title}" in html
+    page_path = "/test-page/child-page/"
+    # Canonical must point to the settings.LANGUAGE_CODE locale, not es-CL.
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/{settings.LANGUAGE_CODE}{page_path}"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-CL{page_path}"' not in html
+    # Since content (settings.LANGUAGE_CODE) differs from the URL locale (es-CL), the page should not be indexed.
+    assert '<meta name="robots" content="noindex,follow">' not in html
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import override_settings
 
 import pytest
-from wagtail.models import Page, PageViewRestriction
+from wagtail.models import Locale, Page, PageViewRestriction
 
 from springfield.cms.middleware import CMSLocaleFallbackMiddleware
 from springfield.cms.tests.factories import LocaleFactory
@@ -230,6 +230,63 @@ def test_CMSLocaleFallbackMiddleware_alias_locale_serves_fallback_page_transpare
     assert response.status_code == 200
     assert request.content_locale == "pt-BR"
     assert pt_br_page.title in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_CMSLocaleFallbackMiddleware_alias_locale_without_alias_locale_db_record_still_serves_fallback(
+    rf,
+    tiny_localized_site,
+):
+    """Alias locale without a Locale DB record still serves the fallback page.
+
+    When a new locale is added to FALLBACK_LOCALES but no Wagtail Locale object
+    has yet been created for it, the middleware must still transparently serve
+    the fallback locale's page.
+    """
+    # Precondition: alias locale has no Locale DB record.
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    pt_br_page = Page.objects.get(locale__language_code="pt-BR", slug="child-page")
+    pt_pt_url = pt_br_page.url.replace("pt-BR", "pt-PT")
+    request = rf.get(pt_pt_url)
+    request.locale = "pt-PT"
+
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+
+    assert response.status_code == 200
+    assert request.content_locale == "pt-BR"
+    assert pt_br_page.title in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_CMSLocaleFallbackMiddleware_alias_locale_without_alias_fallback_locale_db_records_still_serves_fallback(
+    rf,
+    tiny_localized_site,
+):
+    """
+    Requesting a page at an alias locale URL when both the alias and fallback locale
+    have no Locale DB record and no pages.
+
+    es-CL → es-MX; neither es-CL nor es-MX exist in the DB.
+    Since no fallback page is found, the middleware falls through to the
+    Accept-Language redirect logic, which redirects to settings.LANGUAGE_CODE.
+    """
+    # Precondition: alias locale and fallback have no Locale DB record.
+    assert not Locale.objects.filter(language_code="es-CL").exists()
+    assert not Locale.objects.filter(language_code="es-MX").exists()
+
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="child-page")
+    es_cl_url = en_us_page.url.replace("en-US", "es-CL")
+    request = rf.get(es_cl_url)
+    request.locale = "es-CL"
+
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+
+    # No page found in es-MX (the fallback locale), so falls through to redirect.
+    assert response.status_code == 302
+    assert response.url == en_us_page.url
 
 
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
