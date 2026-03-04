@@ -5,6 +5,7 @@
 import os
 from unittest.mock import ANY, Mock, call, patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -105,6 +106,7 @@ class TestRender(TestCase):
         # Test with accept language header of unsupported locale and locale-less path returns 302.
         self._test("/download/", template, "", "ach", 302, "/en-US/download/", active_locales=locales)
 
+    @override_settings(FALLBACK_LOCALES={})
     def test_firefox(self):
         path = "/download/"
         template = "firefox/download.html"
@@ -157,6 +159,46 @@ class TestRender(TestCase):
         req = RequestFactory().get(path)
         l10n_utils.render(req, template, ftl_files=ftl_files)
         assert ftl_files == ["dude", "walter"]
+
+    @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+    def test_alias_locale_served_transparently(self):
+        """
+        A non-Wagtail page requested at an alias locale URL is served transparently.
+
+        When pt-PT is configured as an alias for pt-BR, and the page has pt-BR
+        translations but not pt-PT, requesting /pt-PT/download/ should return the
+        pt-BR content at the /pt-PT/download/ URL.
+        """
+        path = "/pt-PT/download/"
+        template = "firefox/download.html"
+        locales = ["en-US", "pt-BR", "fr"]  # Notice: no pt-PT locale.
+
+        request = RequestFactory().get(path)
+        request.locale = "pt-PT"
+
+        response = l10n_utils.render(request, template, {"active_locales": locales})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(request.content_locale, "pt-BR")
+
+    @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+    def test_alias_locale_redirects_when_fallback_also_missing(self):
+        """Alias locale still redirects when the fallback locale has no translations either."""
+        path = "/pt-PT/download/"
+        template = "firefox/download.html"
+        locales = ["en-US", "fr"]  # pt-PT not present; pt-BR not present
+
+        request = RequestFactory().get(path)
+        request.locale = "pt-PT"
+
+        response = l10n_utils.render(request, template, {"active_locales": locales})
+
+        # Since both the alias locale and its fallback are missing, the user is
+        # redirected to the settings.LANGUAGE_CODE URL.
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, path.replace("pt-PT", settings.LANGUAGE_CODE))
+        # The content_locale attribute has not been set on the request.
+        self.assertFalse(hasattr(request, "content_locale"))
 
     @patch.object(l10n_utils, "django_render")
     @patch.object(l10n_utils, "ftl_active_locales")
