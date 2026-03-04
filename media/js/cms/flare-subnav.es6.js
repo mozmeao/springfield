@@ -9,36 +9,45 @@
     const buttonEl = document.querySelector('.fl-subnav-toggle');
     const subnavListEl = document.querySelector('.fl-subnav-list');
 
-    const handleKeyboardNavigation = () => {
-        // close if we tab back from first element
-        buttonEl.addEventListener('keydown', function (event) {
-            if (event.key === 'Tab' && event.shiftKey) {
-                buttonEl.setAttribute('aria-expanded', 'false');
-            }
-        });
-
+    const getLastSubnavLink = () => {
         const subnavLinks = document.querySelectorAll('.fl-subnav-list a');
 
         if (subnavLinks.length > 0) {
-            // close if we tab forward from last element
-            subnavLinks[subnavLinks.length - 1].addEventListener(
-                'keydown',
-                function (event) {
-                    if (event.key === 'Tab' && !event.shiftKey) {
-                        buttonEl.setAttribute('aria-expanded', 'false');
-                    }
-                }
-            );
+            return subnavLinks[subnavLinks.length - 1];
+        }
+
+        return false;
+    };
+
+    const handleToggleShiftTab = (event) => {
+        if (event.key === 'Tab' && event.shiftKey) {
+            closeSubnavList();
         }
     };
 
-    const handleOutsideClick = () => {
-        document.addEventListener('click', (event) => {
-            // close if we detect a click outside the subnav
-            if (!event.target.closest('.fl-subnav')) {
-                buttonEl.setAttribute('aria-expanded', 'false');
-            }
-        });
+    const handleLastLinkTab = (event) => {
+        if (event.key === 'Tab' && !event.shiftKey) {
+            closeSubnavList();
+        }
+    };
+
+    const handleOutsideClick = (event) => {
+        if (!event.target.closest('.fl-subnav')) {
+            closeSubnavList();
+        }
+    };
+
+    const closeSubnavList = () => {
+        // remove unnecessary listeners
+        buttonEl.removeEventListener('keydown', handleToggleShiftTab);
+        const lastLink = getLastSubnavLink();
+        if (lastLink) {
+            lastLink.removeEventListener('keydown', handleLastLinkTab);
+        }
+        document.removeEventListener('click', handleOutsideClick);
+
+        // close subnav list
+        buttonEl.setAttribute('aria-expanded', 'false');
     };
 
     if (buttonEl && subnavListEl) {
@@ -46,12 +55,22 @@
             e.preventDefault();
 
             if (e.currentTarget.getAttribute('aria-expanded') === 'true') {
-                buttonEl.setAttribute('aria-expanded', 'false');
+                closeSubnavList();
             } else {
+                // open subnav list
                 buttonEl.setAttribute('aria-expanded', 'true');
 
-                handleKeyboardNavigation();
-                handleOutsideClick();
+                // close if we tab back from first element
+                buttonEl.addEventListener('keydown', handleToggleShiftTab);
+
+                // close if we tab forward from first element
+                const lastLink = getLastSubnavLink();
+                if (lastLink) {
+                    lastLink.addEventListener('keydown', handleLastLinkTab);
+                }
+
+                // close with outside click
+                document.addEventListener('click', handleOutsideClick);
             }
         });
     }
