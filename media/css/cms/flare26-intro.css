@@ -21,6 +21,7 @@
 .fl-intro-content {
     align-items: center;
     display: flex;
+    flex-direction: column;
     max-inline-size: 848px;
 }
 
@@ -84,7 +85,7 @@
 }
 
 .fl-intro-actions {
-    margin-block-start: var(--token-spacing-2xl);
+    margin-block: var(--token-spacing-2xl);
 }
 
 .fl-intro.fl-intro-media-right,
@@ -107,12 +108,17 @@
     position: relative;
 }
 
+.fl-home-intro .fl-intro {
+    padding-block-end: var(--token-layout-sm);
+}
+
 .fl-home-intro .fl-intro-content {
     display: block;
 }
 
 /* This is only for the 'features theme' page, for now. */
 .has-sitting-kit .fl-intro .fl-subheading {
+    margin: var(--token-layout-md-half) auto;
     text-wrap: balance;
 }
 
@@ -189,12 +195,11 @@
 }
 
 .fl-home-intro .fl-heading {
-    margin-block: var(--token-spacing-lg);
+    margin-block: var(--token-layout-2xs);
 }
 
 .fl-home-intro .fl-subheading {
-    margin: 0 auto;
-    margin-block: 0 var(--token-layout-sm);
+    margin: var(--token-layout-md-half) auto;
     max-inline-size: 48ch;
     text-wrap: balance;
 }
@@ -240,5 +245,9 @@
         --banner-kit-right-position: calc(50% - 198px);
         --banner-kit-bottom-position: -522px;
         --banner-kit-width: 1050px;
+    }
+
+    .fl-home-intro .fl-subheading {
+        margin: var(--token-layout-xs) auto;
     }
 }

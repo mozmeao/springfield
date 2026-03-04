@@ -1,0 +1,175 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Disables animations for people who prefer reduced motion */
+/* stylelint-disable declaration-no-important */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+/* stylelint-enable declaration-no-important */
+
+/* Enables CSS transitions for size keywords like 'auto' */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        /* stylelint-disable-next-line property-no-unknown */
+        interpolate-size: allow-keywords;
+    }
+}
+
+/* Animations */
+@keyframes fl-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes progress-circle {
+    0% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%,
+            50% 0%
+        );
+    }
+
+    12.5% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%,
+            100% 0%
+        );
+    }
+
+    25% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 50%,
+            100% 50%,
+            100% 50%,
+            100% 50%,
+            100% 50%,
+            100% 50%
+        );
+    }
+
+    37.5% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            100% 100%,
+            100% 100%,
+            100% 100%,
+            100% 100%,
+            100% 100%
+        );
+    }
+
+    50% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            50% 100%,
+            50% 100%,
+            50% 100%,
+            50% 100%,
+            50% 100%
+        );
+    }
+
+    62.5% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            50% 100%,
+            0% 100%,
+            0% 100%,
+            0% 100%,
+            0% 100%
+        );
+    }
+
+    75% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            50% 100%,
+            0% 100%,
+            0% 50%,
+            0% 50%,
+            0% 50%
+        );
+    }
+
+    87.5% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            50% 100%,
+            0% 100%,
+            0% 50%,
+            0% 0%,
+            0% 0%
+        );
+    }
+
+    100% {
+        clip-path: polygon(
+            50% 50%,
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            100% 100%,
+            50% 100%,
+            0% 100%,
+            0% 50%,
+            0% 0%,
+            50% 0%
+        );
+    }
+}

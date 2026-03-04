@@ -2,15 +2,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from unittest import mock
+from urllib.parse import urlparse, urlunparse
+
 from django.template.loader import render_to_string
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Page
 
 from lib.l10n_utils import get_locale
+from springfield.cms.blocks import SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -81,6 +86,10 @@ def placeholder_images():
 @pytest.fixture
 def index_page(minimal_site):
     return get_test_index_page()
+
+
+def strip_host(url):
+    return urlunparse(urlparse(url)._replace(scheme="", netloc=""))
 
 
 def assert_button_attributes(
@@ -192,7 +201,7 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_previous_sibling("label", class_="default-browser-label hidden")
+        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
@@ -427,6 +436,55 @@ def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
         assert img and img["src"] == image_url
 
 
+def assert_animation_attributes(animation_element: BeautifulSoup, animation_data: dict):
+    """
+    Compares the rendered animation element with the expected animation data.
+    """
+    video_url = animation_data["value"]["video_url"]
+    alt = animation_data["value"]["alt"]
+    poster_id = animation_data["value"]["poster"]
+    playback = animation_data["value"].get("playback", "autoplay_loop")
+
+    image_obj = SpringfieldImage.objects.get(id=poster_id)
+    image_url = image_obj.get_rendition("width-800").url
+
+    if playback == "autoplay_loop":
+        # Should render a simple <video autoplay muted loop>
+        video = animation_element.find("video")
+        assert video
+        assert video.has_attr("autoplay")
+        assert video.has_attr("muted")
+        assert video.has_attr("loop")
+        assert video.has_attr("playsinline")
+        assert video["poster"] == image_url
+        source = video.find("source")
+        assert source and source["src"] == video_url
+        img = video.find("img", class_="fl-video-poster")
+        assert img and img["src"] == image_url
+        assert img["alt"] == alt
+    elif playback == "autoplay_once":
+        # Should render .fl-animation container with play button and video
+        assert "fl-animation" in animation_element.get("class", [])
+        assert "fl-animation-playing" in animation_element.get("class", [])
+        assert animation_element["data-playback"] == "autoplay_once"
+
+        button = animation_element.find("button", class_="js-animation-play")
+        assert button and button["aria-label"] == alt
+
+        img = button.find("img", class_="fl-video-poster")
+        assert img and img["src"] == image_url
+
+        video = animation_element.find("video")
+        assert video
+        assert video.has_attr("muted")
+        assert video.has_attr("playsinline")
+        assert not video.has_attr("autoplay")
+        assert not video.has_attr("loop")
+        assert video["poster"] == image_url
+        source = video.find("source")
+        assert source and source["src"] == video_url
+
+
 def test_inline_notifications(index_page, rf):
     notifications = get_inline_notification_variants()
     test_page = get_inline_notification_test_page()
@@ -524,6 +582,10 @@ def test_intro_block(index_page, placeholder_images, rf):
             if media_value["type"] == "video":
                 video_div = intro_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media_value)
+
+            if media_value["type"] == "animation":
+                animation_div = intro_element.find("div", class_="fl-video")
+                assert_animation_attributes(animation_div, media_value)
 
         if video := intro["value"].get("video"):
             video = video[0]
@@ -657,6 +719,10 @@ def test_media_content_block(index_page, placeholder_images, rf):
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
             assert_video_attributes(video_div, media_value)
+
+        elif media_value["type"] == "animation":
+            animation_div = div.find("div", class_="fl-video")
+            assert_animation_attributes(animation_div, media_value)
 
         # Tags
         tags = media_content["value"]["tags"]
@@ -1168,6 +1234,9 @@ def test_banner_block(index_page, placeholder_images, rf):
             elif media["type"] == "video":
                 video_div = banner_element.find("div", class_="fl-video")
                 assert_video_attributes(video_div, media)
+            elif media["type"] == "animation":
+                animation_div = banner_element.find("div", class_="fl-video")
+                assert_animation_attributes(animation_div, media)
             elif media["type"] == "qr_code":
                 assert "has-qr-code" in media_element["class"]
                 assert media_element.find("div", class_="fl-banner-qr").find("svg")
@@ -1557,7 +1626,6 @@ def test_home_pre_footer_cta(index_page, rf):
     assert response.status_code == 200
 
     content = response.content
-    context = test_page.get_context(request)
     soup = BeautifulSoup(content, "html.parser")
 
     pre_footer_cta = get_pre_footer_cta_snippet()
@@ -1569,7 +1637,10 @@ def test_home_pre_footer_cta(index_page, rf):
     assert link_element
 
     assert link_element.get_text().strip() == pre_footer_cta.label.strip()
-    assert link_element["href"] == add_utm_parameters(context, pre_footer_cta.link)
+
+    # data might be pointing the link to a different host,
+    # so we only validate the remainder
+    assert strip_host(link_element["href"]) == "/thanks/"
     assert link_element["data-cta-position"] == "pre-footer-cta"
     assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
     assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
@@ -1819,11 +1890,11 @@ def test_theme_hub_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_sticker = image(img, "width-400").img_tag()
         sticker_element = card_element.find("img")
-        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+        assert sticker_element.prettify() == BeautifulSoup(rendered_sticker, "html.parser").find("img").prettify()
 
 
 def test_illustration_card_renders_featured_image_without_override(index_page, rf):
@@ -1893,7 +1964,11 @@ def test_sticker_row_renders_sticker_without_override(index_page, rf):
     # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
     # so it should fall back to the article's sticker
     card_element = sticker_row_articles[1]
-    article = articles[3]
+
+    section_data = get_theme_page_sticker_row_section()
+    card_data = section_data["value"]["content"][0]["value"]["cards"][1]
+    article_ids = {article.id: article for article in articles}
+    article = article_ids[card_data["value"]["article"]]
     sticker_element = card_element.find("img")
 
     # Should NOT be the Firefox logo placeholder
@@ -2011,3 +2086,174 @@ def test_freeform_page_2026_single_column_layout(index_page, rf):
     assert not soup.find("div", class_="fl-split-page-lower"), "Lower section should not exist when upper_content is empty"
     main = soup.find("main", class_="fl-main")
     assert main and "has-gradient-bottom" in main.get("class", [])
+
+
+# ---------------------------------------------------------------------------
+# SpringfieldLinkBlock
+# ---------------------------------------------------------------------------
+
+
+def _springfield_link_data(link_to, **fields):
+    """Build a raw data dict for SpringfieldLinkBlock.clean()."""
+    data = {
+        "link_to": link_to,
+        "page": None,
+        "file": None,
+        "custom_url": "",
+        "relative_url": "",
+        "anchor": "",
+        "email": "",
+        "phone": "",
+        "new_window": False,
+    }
+    data.update(fields)
+    return data
+
+
+def test_springfield_link_block_clean_accepts_valid_relative_url():
+    """clean() passes for a locale-free path."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/features/"))
+    assert result["relative_url"] == "/features/"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/en-US/features/",
+        "/fr/features/",
+        "/pt-BR/features/",
+        "/de/features/",
+    ],
+)
+def test_springfield_link_block_clean_rejects_locale_prefixed_url(path):
+    """clean() raises when the relative_url value begins with a locale prefix."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=path))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_empty_relative_url_raises():
+    """clean() raises when link_to is relative_url but no path is provided."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url=""))
+    assert "relative_url" in exc_info.value.block_errors
+
+
+def test_springfield_link_block_clean_rejects_nonexistent_relative_url():
+    """clean() raises when the relative_url path does not resolve at all."""
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/not/a/valid/path!/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_clean_rejects_wagtail_page_url(minimal_site):
+    """clean() raises when the relative_url path resolves to Wagtail's catch-all, not a static page."""
+    # minimal_site creates a SimpleRichTextPage at /test-page/ (a Wagtail-only URL)
+    assert Page.objects.filter(slug="test-page").exists() is True
+
+    with pytest.raises(StreamBlockValidationError) as exc_info:
+        SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/test-page/"))
+    assert "relative_url" in exc_info.value.block_errors
+    error = exc_info.value.block_errors["relative_url"]
+    assert error.message == "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+
+
+def test_springfield_link_block_clean_locale_validation_only_applies_to_relative_url():
+    """Locale-prefix validation does not apply to other link types."""
+    result = SpringfieldLinkBlock().clean(_springfield_link_data("custom_url", custom_url="/en-US/features/"))
+    assert result["custom_url"] == "/en-US/features/"
+
+
+def _springfield_link_value(link_to, **fields):
+    """Build a SpringfieldLinkBlockURLValue via SpringfieldLinkBlock.to_python()."""
+    return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
+
+
+def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
+    """Prepends the active locale to the stored path."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = link_value.get_url()
+
+    assert url == "/fr/features/"
+
+
+def test_springfield_link_block_relative_url_falls_back_when_get_active_raises():
+    """Falls back to the raw path when SpringfieldLocale.get_active() raises an exception."""
+    link_value = _springfield_link_value("relative_url", relative_url="/features/")
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = link_value.get_url()
+
+    assert url == "/features/"
+
+
+def test_springfield_link_block_relative_url_empty_returns_empty():
+    """Returns an empty string when no path is stored."""
+    link_value = _springfield_link_value("relative_url", relative_url="")
+
+    assert link_value.get_url() == ""
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_returns_locale_aware_url(tiny_localized_site):
+    """Returns the translated page URL when the active locale has a translation."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        url = link_value.get_url()
+
+    fr_page = Page.objects.get(locale__language_code="fr", slug="test-page")
+    assert url == fr_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_get_active_raises(tiny_localized_site):
+    """Falls back to the page's own URL when SpringfieldLocale.get_active() raises."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with mock.patch(
+        "springfield.cms.models.locale.SpringfieldLocale.get_active",
+        side_effect=Exception("simulated locale failure"),
+    ):
+        url = link_value.get_url()
+
+    assert url == en_us_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_when_no_translation_exists(tiny_localized_site):
+    """Falls back to the page's own URL when no translation exists for the active locale."""
+    # fr_grandchild exists only in fr — it has no pt-BR counterpart
+    fr_grandchild = Page.objects.get(locale__language_code="fr", slug="grandchild-page")
+    assert Page.objects.filter(locale__language_code="pt-BR", slug="grandchild-page").exists() is False
+
+    link_value = _springfield_link_value("page", page=fr_grandchild.pk)
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-BR"):
+        url = link_value.get_url()
+
+    assert url == fr_grandchild.url
+
+
+def test_springfield_link_block_page_none_returns_none():
+    """Returns None when no page is stored."""
+    link_value = _springfield_link_value("page", page=None)
+
+    assert link_value.get_url() is None
+
+
+def test_uuid_block_is_not_translatable():
+    """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
+    from springfield.cms.blocks import UUIDBlock
+
+    assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []

@@ -102,11 +102,12 @@ class Command(BaseCommand):
         artcle_theme_hub_page = get_article_theme_hub_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
 
-        feature_index_page, feature_pages = load_feature_page_fixtures()
+        feature_theme_page, feature_index_page, feature_pages = load_feature_page_fixtures()
         if not no_refresh:
-            # Delete existing feature page children (but not the index page itself)
-            feature_index_page.get_children().delete()
-            self.stdout.write(self.style.SUCCESS("Existing feature page children deleted."))
+            # Delete existing feature theme page children (index page + detail pages)
+            feature_theme_page.get_children().delete()
+            self.stdout.write(self.style.SUCCESS("Existing feature pages deleted."))
+        self.stdout.write(self.style.SUCCESS(f"Feature Theme page loaded: {feature_theme_page.slug}"))
         self.stdout.write(self.style.SUCCESS(f"Feature Index page loaded: {feature_index_page.slug}"))
         for page in feature_pages:
             self.stdout.write(self.style.SUCCESS(f"Feature page loaded: {page.slug}"))

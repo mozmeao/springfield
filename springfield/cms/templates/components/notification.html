@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props icon=None, color=None, theme=None, closable=False, stacked=False #}
+{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False #}
 
 {% set closable = false if stacked else closable %}
 
@@ -12,11 +12,13 @@
   fl-notification-wrapper
   {% if theme and theme == 'light' %}fl-force-light-theme{% endif %}
   {% if theme and theme == 'dark' %}fl-force-dark-theme{% endif %}
+
 ">
   <div class="
     fl-notification
     {% if color %}fl-notification-{{ color }}{% endif %}
     {% if stacked %}fl-notification-stacked{% endif %}
+    {% if reverse_icon %}fl-notification-reverse-icon{% endif %}
   ">
     {% if icon %}
       <div class="fl-notification-icon-section">
@@ -28,11 +30,16 @@
     {% endif %}
     <div class="fl-notification-content">
       {% if contents.heading %}
-        <div class="fl-notification-heading">
+        <p class="fl-notification-heading">
           {{ contents.heading }}
-        </div>
+        </p>
+        {{ contents }}
+      {% else %}
+      <p class="fl-notification-heading">
+
+          {{ contents }}
+        </p>
       {% endif %}
-      {{ contents }}
     </div>
     {% if closable %}
       <button class="fl-notification-close" aria-label="Close notification">

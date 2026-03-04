@@ -25,6 +25,9 @@ body {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
     inline-size: 100%;
+    margin: 0;
+    max-inline-size: 100%;
+    padding: 0;
 }
 
 h1,
@@ -191,4 +194,9 @@ details[open] > summary::after {
 th,
 td {
     border-color: var(--token-color-black-4);
+}
+
+code {
+    background-color: var(--fl-theme-code-background);
+    color: var(--fl-theme-color-text);
 }

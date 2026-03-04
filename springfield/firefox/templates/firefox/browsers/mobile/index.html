@@ -81,7 +81,7 @@
               {{ google_play_button(href=android_url, id="android-download", class_name="fl-store-button android-download") }}
               {{ apple_app_store_button(href=ios_url, id="ios-download", class_name="fl-store-button ios-download") }}
             </div>
-            <img class="display-xs-and-sm fl-mobile-store-mobile-img" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
+            <img class="fl-mobile-store-mobile-img" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
           </div>
         </div>
       </section>
@@ -274,7 +274,7 @@
       <div class="display-xs-and-sm">
         <include:section>
           <content:content>
-              <include:conditional-display condition="android">
+              <include:conditional-display platform_conditions="{{ ['android'] }}">
                 <include:card>
                   <content:heading>
                     <include:heading
@@ -301,7 +301,7 @@
                 </include:card>
               </include:conditional-display>
 
-              <include:conditional-display condition="ios">
+              <include:conditional-display platform_conditions="{{ ['ios'] }}">
                 <include:card>
                   <content:heading>
                     <include:heading

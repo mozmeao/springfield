@@ -292,10 +292,10 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {"theme": "purple", "media_after": True, "show_to": "all"},
-                "media": [videos["animation"]],
+                "media": [videos["animation_autoplay_once"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
-                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Animation</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Animation (Autoplay once)</p>',
                     "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
                     "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
                 },

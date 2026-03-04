@@ -11,7 +11,7 @@
     {% if theme == 'light' %}fl-force-light-theme{% endif %}
 ">
     <div class="fl-header-inner">
-        <a href="/" class="fl-logo-fx" aria-label="Firefox">
+        <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
             <img
                 src="/media/img/logos/firefox/logo-word-hor-2026.svg"
                 alt="Firefox"
@@ -38,6 +38,7 @@
             <span class="fl-show-mobile-menu-content">
               <span class="fl-icon fl-icon-app-menu"></span>
               <span class="fl-icon fl-icon-close"></span>
+              <span class="fallback-text">Menu</span>
             </span>
           </button>
         </div>

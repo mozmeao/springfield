@@ -320,7 +320,7 @@
       "files": [
         "css/cms/flare26-base.css",
         "css/cms/flare26-icon.css",
-        "css/cms/flare26-button.css",
+        "css/cms/flare26-nav-icons.css",
         "css/cms/flare26-download-utils.css",
         "css/cms/flare26-download-link.css",
         "css/cms/flare26-fallback-nav.css",
@@ -847,6 +847,12 @@
         "js/cms/wagtailadmin-fx-logo.js"
       ],
       "name": "wagtailadmin-fx-logo"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-link-block.js"
+      ],
+      "name": "wagtailadmin-link-block"
     },
     {
       "files": [

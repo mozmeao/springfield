@@ -7,7 +7,6 @@ import pytest
 from pages.firefox.browsers.mobile_focus import FirefoxMobileFocusPage
 
 
-@pytest.mark.skip("This needs Flare26 update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_get_firefox_qr_code(base_url, selenium):

@@ -275,7 +275,7 @@ def get_pre_footer_cta_snippet(context):
         locale = context["self"].locale
 
     if locale:
-        return PreFooterCTASnippet.objects.filter(locale=locale).first()
+        return PreFooterCTASnippet.objects.filter(locale=locale).live().first()
 
     return None
 
@@ -311,7 +311,7 @@ def get_pre_footer_cta_form_snippet(context):
         locale = context["self"].locale
 
     if locale:
-        return PreFooterCTAFormSnippet.objects.filter(locale=locale).first()
+        return PreFooterCTAFormSnippet.objects.filter(locale=locale).live().first()
 
     return None
 

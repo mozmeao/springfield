@@ -1,0 +1,64 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+
+{#
+  Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
+  media/js/base/mozilla-utils.js
+#}
+
+<div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
+  <a href="{{ download_firefox_thanks_link['transition_url'] }}"
+     class="download-link fl-button {{ theme_class }} "
+     data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
+     data-testid="{{ block_position }}"
+     data-cta-text="{{ cta_text }}"
+     data-cta-position="{{ block_position }}"
+     data-cta-uid="{{ analytics_id }}"
+  >
+    {% if icon_name and icon_position == "left" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="fl-icon-left"
+      />
+    {% endif %}
+    {{ label }}
+    {% if icon_name and icon_position == "right" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="fl-icon-right"
+      />
+    {% endif %}
+  </a>
+  {% if show_default_browser_checkbox %}
+    {% set checkbox %}
+      <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
+        <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
+        {{ ftl('block-set-as-default')}}
+      </label>
+    {% endset %}
+    {% if is_preview %}
+      <include:conditional-display platform_conditions="{{ ['windows'] }}">
+        {{ checkbox }}
+      </include:conditional-display>
+    {% else %}
+      {{ checkbox }}
+    {% endif %}
+  {% endif %}
+
+  {% if show_store_button %}
+    {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+    {% set ios_url = app_store_url('firefox', campaign) %}
+    {% set android_url = play_store_url('firefox', campaign) %}
+    {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
+    {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+  {% endif %}
+</div>

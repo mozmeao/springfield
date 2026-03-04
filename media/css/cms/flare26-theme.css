@@ -26,18 +26,18 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-body-background: var(--token-color-dark-purple);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
     --token-color-error-text-color: var(--token-color-secondary-red);
+    --fl-theme-code-background: var(--token-color-soft-purple-2);
 
     /* Surface colors */
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
-    /* Button palette */
-    --fl-theme-button-primary: var(--token-color-link-purple);
+    /* Button palette
+       Note: most button variables are in the button file, as they are
+       heavily overriden, and it's easiest to see them all in one place. */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
-    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
 
     /* Typography variables */
     --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
@@ -106,14 +106,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --card-border-color: var(--token-color-soft-purple);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
+    --theme-dark-purple-card-bg-color: var(--token-color-purple);
     --theme-yellow-card-bg-color: var(--token-color-soft-yellow);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
-    --cloud-background-gradient: linear-gradient(
+    --callout-background-gradient: linear-gradient(
         180deg,
-        #fff44f 0%,
-        #ffb84a 100%
+        #fff04f 0%,
+        #ffba4a 84%
     );
 
     /* Navigiation menu */
@@ -129,6 +130,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --content-dark-mode-only: unset;
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-light-purple);
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
@@ -137,6 +139,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-icon-bg: var(--token-color-dark-purple);
     --notification-icon-color: var(--token-color-white);
     --notification-stacked-color: var(--token-color-dark-purple);
+    --notification-box-shadow: 0px 0px 24px 2px rgba(214, 197, 246, 0.4);
 
     /* red */
     --notification-red-bg: var(--token-color-soft-red);
@@ -165,9 +168,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --sidebar-text-color: var(--token-color-grey-3);
     --sidebar-selected-text-color: var(--token-color-black-4);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
+    --fl-subnav-toggle-bg: var(--token-color-white);
 }
 
-/* todo: when we build a proper dark mode, copy these up to a :root selector */
 .fl-split-page-upper,
 .fl-force-dark-theme {
     /* Main theme */
@@ -179,6 +182,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-color-link: var(--token-color-soft-purple-4);
     --fl-theme-color-link-hover: var(--token-color-white);
     --token-color-error-text-color: var(--token-color-soft-magenta);
+    --fl-theme-code-background: var(--token-color-link-purple);
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-light-purple);
@@ -208,13 +212,18 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --theme-purple-card-bg-color: var(--token-color-purple);
     --theme-purple-card-bullet-color: var(--token-color-light-purple);
     --theme-yellow-card-bg-color: var(--token-color-medium-purple);
-    --cloud-background-gradient: linear-gradient(
-        180deg,
-        var(--token-color-medium-purple) 0%,
-        var(--token-color-purple) 100%
+
+    /* ommiting this one because we use the 'force'
+       class on light mode for the text.
+    --theme-dark-purple-card-bg-color: var(--token-color-dark-purple-2); */
+    --callout-background-gradient: linear-gradient(
+        265.1deg,
+        #2c0c55 0%,
+        #3c116f 100%
     );
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-soft-purple-4);
 
     /* base/purple */
     --notification-bg: var(--token-color-purple);
@@ -223,6 +232,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-icon-bg: var(--token-color-soft-purple);
     --notification-icon-color: var(--token-color-black-4);
     --notification-stacked-color: var(--token-color-white);
+    --notification-box-shadow: 0px 0px 24px 2px rgba(20, 2, 38, 0.4);
 
     /* red */
     --notification-red-bg: var(--token-color-secondary-red-3);
@@ -254,10 +264,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons are mostly the same for both dark and light mode. */
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-purple);
-    --fl-theme-button-bg-primary-disabled-color: var(
-        --token-color-soft-purple-4
-    );
+    --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
 }
 
 .fl-force-light-theme {
@@ -267,6 +274,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-background: var(--token-color-white);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
     --token-color-error-text-color: var(--token-color-secondary-red);
+    --fl-theme-code-background: var(--token-color-soft-purple-2);
 
     /* Divider color */
     --fl-theme-divider-color: var(--token-color-soft-purple);
@@ -293,6 +301,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
 
     /* Notifications */
+    --windows-icon-color: var(--token-color-light-purple);
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
@@ -301,6 +310,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --notification-icon-bg: var(--token-color-dark-purple);
     --notification-icon-color: var(--token-color-white);
     --notification-stacked-color: var(--token-color-dark-purple);
+    --notification-box-shadow: 0px 0px 24px 2px rgba(214, 197, 246, 0.4);
 
     /* red */
     --notification-red-bg: var(--token-color-soft-red);
@@ -332,8 +342,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* buttons */
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
-    --fl-theme-button-bg-primary-disabled-bg: var(--token-color-soft-purple-2);
-    --fl-theme-button-bg-primary-disabled-color: var(--token-color-link-purple);
+    --fl-subnav-toggle-bg: var(--token-color-white);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -347,6 +356,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-color-link: var(--token-color-soft-purple-4);
         --fl-theme-color-link-hover: var(--token-color-white);
         --token-color-error-text-color: var(--token-color-soft-magenta);
+        --fl-theme-code-background: var(--token-color-link-purple);
 
         /* Divider color */
         --fl-theme-divider-color: var(--token-color-light-purple);
@@ -375,13 +385,15 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --theme-purple-card-bg-color: var(--token-color-purple);
         --theme-purple-card-bullet-color: var(--token-color-light-purple);
         --theme-yellow-card-bg-color: var(--token-color-medium-purple);
-        --cloud-background-gradient: linear-gradient(
-            180deg,
-            var(--token-color-medium-purple) 0%,
-            var(--token-color-purple) 100%
+        --theme-dark-purple-card-bg-color: var(--token-color-dark-purple-2);
+        --callout-background-gradient: linear-gradient(
+            265.1deg,
+            #2c0c55 0%,
+            #3c116f 100%
         );
 
         /* Notifications */
+        --windows-icon-color: var(--token-color-soft-purple-4);
 
         /* base/purple */
         --notification-bg: var(--token-color-purple);
@@ -390,6 +402,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --notification-icon-bg: var(--token-color-soft-purple);
         --notification-icon-color: var(--token-color-black-4);
         --notification-stacked-color: var(--token-color-white);
+        --notification-box-shadow: 0px 0px 24px 2px rgba(20, 2, 38, 0.4);
 
         /* red */
         --notification-red-bg: var(--token-color-secondary-red-3);
@@ -423,12 +436,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* buttons are mostly the same for both dark and light mode. */
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
-        --fl-theme-button-bg-primary-disabled-bg: var(
-            --token-color-soft-purple-2
-        );
-        --fl-theme-button-bg-primary-disabled-color: var(
-            --token-color-soft-purple-4
-        );
+        --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
     }
 }
 

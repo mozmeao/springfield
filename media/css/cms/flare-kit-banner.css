@@ -5,10 +5,6 @@
 */
 
 .fl-banner-kit {
-    --fl-theme-color-text-primary: var(--token-neutrals-white);
-    --fl-theme-color-link: var(--token-blue-light-blue);
-    --fl-theme-color-link-visited: var(--token-purple-light-purple);
-    --fl-theme-color-link-strong: var(--token-blue-light-blue);
     --kit-img: none; /* These are added with a utility class below. */
     --kit-banner-padding-bottom: 24px;
     --kit-img-size: min(90%, 400px) max(20%, 120px);

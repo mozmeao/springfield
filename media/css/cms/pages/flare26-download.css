@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: var(--token-layout-lg) 0 0;
+    padding: var(--token-layout-lg) var(--fl-section-h-padding) 0;
     text-align: center;
 }
 
@@ -13,9 +13,18 @@
     margin-block: var(--token-layout-xs);
 }
 
+.fl-download-intro .fl-heading-size-1 {
+    margin-block-end: 0;
+}
+
 .fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    block-size: 0.8em;
     display: inline-block;
-    margin-block-end: 0.25em;
+    inline-size: 0.8em;
+}
+
+.prevent-line-break {
+    white-space: nowrap;
 }
 
 .fl-download-intro .fl-subheading {
@@ -26,6 +35,12 @@
 
 .fl-download-intro-featured-image {
     padding-block-start: var(--token-spacing-md);
+    padding-inline: var(--fl-section-h-padding);
+}
+
+/* if no paragraph above, give some extra padding to the featured image. */
+.download-page-actions + .fl-download-intro-featured-image {
+    padding-block-start: var(--token-layout-xs);
 }
 
 .fl-download-intro-featured-image img {

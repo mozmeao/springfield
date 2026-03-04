@@ -5,12 +5,23 @@
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
+from django.forms.utils import ErrorList
+from django.forms.widgets import CheckboxSelectMultiple
+from django.urls import Resolver404, resolve
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail_link_block.blocks import LinkBlock
+from wagtail.views import serve as wagtail_serve
+from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
+
+from lib.l10n_utils.fluent import ftl
+from springfield.base.i18n import split_path_and_normalize_language
+from springfield.cms.models.locale import SpringfieldLocale
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -298,20 +309,27 @@ ICON_CHOICES = [
     ("xr-true", "XR True"),
 ]
 
-CONDITIONAL_DISPLAY_CHOICES = [
-    ("all", "All Users"),
-    ("is-firefox", "Firefox Users"),
-    ("not-firefox", "Non Firefox Users"),
-    ("state-fxa-supported-signed-in", "Signed-in Users"),
-    ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("osx", "macOS Users"),
-    ("linux", "Linux Users"),
-    ("windows", "Windows Users"),
-    ("windows-10-plus", "Windows 10+ Users"),
-    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
-    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
-    ("unsupported", "Unsupported OS Users"),
-    ("other-os", "Other OS Users"),  # iOS, Android, Other
+PLATFORM_CHOICES = [
+    ("osx", "macOS"),
+    ("linux", "Linux"),
+    ("windows", "Windows"),
+    ("windows-10-plus", "Windows 10+"),
+    ("android", "Android"),
+    ("ios", "iOS"),
+    ("other-os", "Other OS"),
+    ("unsupported", "Unsupported OS"),
+]
+
+FIREFOX_CHOICES = [
+    ("", "No restriction"),
+    ("is-firefox", "Firefox only"),
+    ("not-firefox", "Non-Firefox only"),
+]
+
+AUTH_CHOICES = [
+    ("", "No restriction"),
+    ("state-fxa-supported-signed-in", "Signed-in only"),
+    ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
 
 
@@ -369,11 +387,61 @@ def validate_video_url(value):
     return value
 
 
+class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
+    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+
+    def _localize(self, instance):
+        if instance and hasattr(instance, "get_localized"):
+            instance = instance.get_localized()
+        return instance
+
+    def to_python(self, value):
+        return self._localize(super().to_python(value))
+
+    def bulk_to_python(self, values):
+        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+
+    def clean(self, value):
+        if value and not value.live:
+            raise ValidationError("The selected snippet is not published.")
+        return super().clean(value)
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+
+
+class ConditionalDisplayBlock(blocks.StructBlock):
+    platforms = blocks.MultipleChoiceBlock(
+        choices=PLATFORM_CHOICES,
+        required=False,
+        help_text="Show to specific platforms. Leave empty to show to all platforms.",
+        widget=CheckboxSelectMultiple,
+    )
+    firefox = blocks.ChoiceBlock(
+        choices=FIREFOX_CHOICES,
+        default="",
+        required=False,
+        label="Firefox",
+        help_text="Filter by Firefox browser. Leave empty for no restriction.",
+    )
+    auth_state = blocks.ChoiceBlock(
+        choices=AUTH_CHOICES,
+        default="",
+        required=False,
+        label="Login state",
+        help_text="Filter by login state. Leave empty for no restriction.",
+    )
+
+    class Meta:
+        label = "Conditional Display"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
+        icon = "eye"
+        collapsed = True
+        form_classname = "compact-form struct-block"
 
 
 # Element blocks
@@ -426,6 +494,13 @@ class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
 
+    def get_translatable_segments(self, value):
+        # UUIDs are analytics IDs, not user-facing content — exclude from translation.
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
 
 def BaseButtonSettings(themes=None, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
@@ -459,6 +534,143 @@ def BaseButtonSettings(themes=None, **kwargs):
     return _BaseButtonSettings(**kwargs)
 
 
+class SpringfieldLinkBlockURLValue(URLValue):
+    def get_url(self):
+        """
+        Override the get_url() method to:
+            - provide logic for returning a locale-appropriate relative_url
+            - provide logic for returning a locale-appropriate page URL
+        """
+        link_to = self.get("link_to")
+
+        if link_to == "relative_url":
+            path = self.get(link_to)
+            if path:
+                try:
+                    locale = SpringfieldLocale.get_active()
+                    return f"/{locale.language_code}/{path.lstrip('/')}"
+                except Exception:
+                    return path
+            return path
+
+        if link_to == "page":
+            page = self.get("page")
+            if page:
+                try:
+                    locale = SpringfieldLocale.get_active()
+                    return page.get_translation(locale).url
+                except Exception:
+                    return page.url
+            return None
+
+        return super().get_url()
+
+
+class SpringfieldLinkBlock(LinkBlock):
+    """
+    Extends LinkBlock with a ``relative_url`` link type.
+
+    LinkBlock works well, but we also want to give CMS users a relative_url
+    option, where they can type in a relative URL to a page on the site.
+    The reason for this extra field is to allow CMS users to link to static pages,
+    while also rendering those links in the appropriate locale for end users.
+    For example, a CMS user may link to the /features/ page, and an end user
+    browsing in en-US would see a link to /en-US/features/, while a user
+    browsing in es-ES would see a link to /es-ES/features/.
+    """
+
+    link_to = blocks.ChoiceBlock(
+        choices=[
+            ("page", _("Page")),
+            ("file", _("File")),
+            ("custom_url", _("Custom URL")),
+            ("relative_url", _("Relative URL")),
+            ("email", _("Email")),
+            ("anchor", _("Anchor")),
+            ("phone", _("Phone")),
+        ],
+        required=False,
+        classname="link_choice_type_selector",
+        label=_("Link to"),
+    )
+    relative_url = blocks.CharBlock(
+        required=False,
+        classname="relative_url_link",
+        label=_("Relative URL"),
+        help_text=_(
+            "Site-relative path without a locale prefix, e.g. /features/ — the "
+            "locale is added automatically. Note: the Relative URL is meant for "
+            "linking to static pages (not managed here). If you are linking to "
+            "a page, please select 'Page', instead of 'Relative URL'."
+        ),
+    )
+
+    class Meta:
+        value_class = SpringfieldLinkBlockURLValue
+
+    def __init__(self, *args, **kwargs):
+        """Override __init__() to put relative_url field right after custom_url field."""
+        super().__init__(*args, **kwargs)
+        items = list(self.child_blocks.items())
+        keys = [k for k, _ in items]
+        relative_url_item = items.pop(keys.index("relative_url"))
+        items.insert(keys.index("custom_url") + 1, relative_url_item)
+        self.child_blocks = dict(items)
+
+    def clean(self, value):
+        # Full override of LinkBlock.clean() required: that method has a
+        # hardcoded url_default_values dict, so we cannot inject relative_url
+        # into it without rewriting the method. Without this override,
+        # relative_url would not be cleared when a different link type is chosen.
+        clean_values = blocks.StructBlock.clean(self, value)
+        errors = {}
+
+        url_default_values = {
+            "page": None,
+            "file": None,
+            "custom_url": "",
+            "relative_url": "",
+            "anchor": "",
+            "email": "",
+            "phone": "",
+        }
+        url_type = clean_values.get("link_to")
+
+        if url_type != "" and clean_values.get(url_type) in [None, ""]:
+            errors[url_type] = ErrorList(["You need to add a {} link".format(url_type.replace("_", " "))])
+        elif url_type == "relative_url":
+            path = clean_values.get("relative_url", "")
+            # If the relative URL has a locale prefix, raise an error.
+            lang_code, _, _ = split_path_and_normalize_language(path)
+            if lang_code:
+                errors["relative_url"] = ErrorList(["Do not include a locale prefix (e.g. use /features/ not /en-US/features/)."])
+            else:
+                # Raise an error if either:
+                #  - the relative URL does not exist on the site, or
+                #  - the relative URL matches a Wagtail Page URL
+                error_msg = "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
+                try:
+                    path_to_check = f"/en-US/{path.lstrip('/')}"
+                    with translation.override("en-US"):
+                        match = resolve(path_to_check)
+                    if match.func == wagtail_serve:
+                        errors["relative_url"] = ErrorList([error_msg])
+                except Resolver404:
+                    errors["relative_url"] = ErrorList([error_msg])
+        if not errors:
+            try:
+                url_default_values.pop(url_type, None)
+                for field in url_default_values:
+                    clean_values[field] = url_default_values[field]
+            except KeyError:
+                errors[url_type] = ErrorList(["Enter a valid link type"])
+
+        if errors:
+            raise blocks.StreamBlockValidationError(block_errors=errors, non_block_errors=ErrorList([]))
+
+        return clean_values
+
+
 def ButtonBlock(themes=None, **kwargs):
     """Factory function to create ButtonBlock with specified themes.
 
@@ -469,7 +681,7 @@ def ButtonBlock(themes=None, **kwargs):
     class _ButtonBlock(blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         label = blocks.CharBlock(label="Button Text")
-        link = LinkBlock()
+        link = SpringfieldLinkBlock()
 
         class Meta:
             template = "cms/blocks/button.html"
@@ -637,7 +849,7 @@ class CTASettings(blocks.StructBlock):
 class CTABlock(blocks.StructBlock):
     settings = CTASettings()
     label = blocks.CharBlock(label="Link Text")
-    link = LinkBlock()
+    link = SpringfieldLinkBlock()
 
     class Meta:
         label = "Link"
@@ -765,9 +977,20 @@ class AnimationBlock(blocks.StructBlock):
     )
     alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the animation is played.")
+    playback = blocks.ChoiceBlock(
+        choices=[
+            ("autoplay_loop", "Autoplay (loop)"),
+            ("autoplay_once", "Autoplay (play once)"),
+        ],
+        default="autoplay_loop",
+        label="Playback",
+        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
+        inline_form=True,
+    )
 
     class Meta:
         label = "Animation"
+        label_format = "Animation - {video_url}"
         template = "cms/blocks/animation.html"
 
 
@@ -852,11 +1075,8 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -864,7 +1084,7 @@ class BaseCardSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
+        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1223,10 +1443,14 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
 # Article Cards
 
 
-class ArticleOverridesBlock(blocks.StructBlock):
+class BaseArticleOverridesBlock(blocks.StructBlock):
     image = ImageChooserBlock(
         required=False,
-        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
+        help_text="Optional custom image to override the article's featured image.",
+    )
+    sticker = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom sticker image to override the article's sticker.",
     )
     icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
     superheading = blocks.CharBlock(
@@ -1259,14 +1483,17 @@ class ArticleOverridesBlock(blocks.StructBlock):
         label = "Overrides"
 
 
-class ArticleValue(blocks.StructValue):
+class BaseArticleValue(blocks.StructValue):
+    def get_article(self):
+        return self["article"].localized
+
     def get_title(self) -> str:
         from springfield.cms.templatetags.cms_tags import remove_p_tag
 
         overrides = self.get("overrides", {})
         if title := overrides.get("title"):
             return remove_p_tag(richtext(title))
-        article_page = self.get("article")
+        article_page = self.get_article()
         return article_page.title if article_page else ""
 
     def get_description(self) -> str:
@@ -1275,7 +1502,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if description := overrides.get("description"):
             return remove_p_tag(richtext(description))
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "description") and article_page.description:
@@ -1286,29 +1513,29 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if superheading := overrides.get("superheading"):
             return superheading
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
+            if tag := article_page.get_tag():
+                return tag.name
         return ""
 
     def get_link_label(self) -> str:
         overrides = self.get("overrides", {})
         if link_label := overrides.get("link_label"):
             return link_label
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "link_text") and article_page.link_text:
                 return article_page.link_text
-        return ""
+        return ftl("ui-learn-more", ftl_files=["ui"])
 
     def get_featured_image(self):
         overrides = self.get("overrides", {})
         if image := overrides.get("image"):
             return image
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "featured_image"):
@@ -1317,9 +1544,9 @@ class ArticleValue(blocks.StructValue):
 
     def get_sticker(self):
         overrides = self.get("overrides", {})
-        if image := overrides.get("image"):
-            return image
-        article_page = self.get("article")
+        if sticker := overrides.get("sticker"):
+            return sticker
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "sticker"):
@@ -1330,7 +1557,7 @@ class ArticleValue(blocks.StructValue):
         overrides = self.get("overrides", {})
         if icon := overrides.get("icon"):
             return icon
-        article_page = self.get("article")
+        article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "icon") and article_page.icon:
@@ -1343,19 +1570,19 @@ class ArticleValue(blocks.StructValue):
             url = link.get_url()
             if url:
                 return url
-        article_page = self.get("article")
+        article_page = self.get_article()
         return article_page.url if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
-    overrides = ArticleOverridesBlock(required=False)
+    overrides = BaseArticleOverridesBlock(required=False)
 
     class Meta:
         label = "Article"
         label_format = "{article}"
         form_classname = "compact-form struct-block"
-        value_class = ArticleValue
+        value_class = BaseArticleValue
 
 
 class ArticlesListSettings(blocks.StructBlock):
@@ -1389,144 +1616,16 @@ class ArticleCardsListBlock(blocks.StructBlock):
         label_format = "Article Cards List"
 
 
-class RelatedArticleOverridesBlock(blocks.StructBlock):
-    image = ImageChooserBlock(
-        required=False,
-        help_text="Optional custom image to override the article's image. Will replace the featured image or sticker, depending on the card type.",
-    )
-    sticker = ImageChooserBlock(
-        required=False,
-        help_text="Optional custom sticker image to override the article's sticker.",
-    )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
-    superheading = blocks.CharBlock(
-        required=False,
-        help_text="Optional custom superheading to override the article's tag.",
-    )
-    title = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom title to override the article's title.",
-    )
-    description = blocks.RichTextBlock(
-        features=HEADING_TEXT_FEATURES,
-        required=False,
-        help_text="Optional custom description to override the article's description.",
-    )
-    link_label = blocks.CharBlock(
-        required=False,
-        help_text="Optional custom link label to override the article's call to action text.",
-    )
-    link = LinkBlock(
-        required=False,
-        verbose_name="Link override",
-        help_text="Optional custom link to override the article's call to action link.",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Overrides"
-
-
-class RelatedArticleValue(blocks.StructValue):
-    def get_title(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
-        overrides = self.get("overrides", {})
-        if title := overrides.get("title"):
-            return remove_p_tag(richtext(title))
-        article_page = self.get("article")
-        return article_page.title if article_page else ""
-
-    def get_description(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
-        overrides = self.get("overrides", {})
-        if description := overrides.get("description"):
-            return remove_p_tag(richtext(description))
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "description") and article_page.description:
-                return remove_p_tag(richtext(article_page.description))
-        return ""
-
-    def get_superheading(self) -> str:
-        overrides = self.get("overrides", {})
-        if superheading := overrides.get("superheading"):
-            return superheading
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
-        return ""
-
-    def get_link_label(self) -> str:
-        overrides = self.get("overrides", {})
-        if link_label := overrides.get("link_label"):
-            return link_label
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "link_text") and article_page.link_text:
-                return article_page.link_text
-        return ""
-
-    def get_featured_image(self):
-        overrides = self.get("overrides", {})
-        if image := overrides.get("image"):
-            return image
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "featured_image"):
-                return article_page.featured_image
-        return None
-
-    def get_sticker(self):
-        overrides = self.get("overrides", {})
-        if sticker := overrides.get("sticker"):
-            return sticker
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "sticker"):
-                return article_page.sticker
-        return None
-
-    def get_icon(self) -> str:
-        overrides = self.get("overrides", {})
-        if icon := overrides.get("icon"):
-            return icon
-        article_page = self.get("article")
-        if article_page:
-            article_page = article_page.specific
-            if hasattr(article_page, "icon") and article_page.icon:
-                return article_page.icon
-        return "globe"
-
-    def get_link_url(self) -> str:
-        overrides = self.get("overrides", {})
-        if link := overrides.get("link"):
-            url = link.get_url()
-            if url:
-                return url
-        article_page = self.get("article")
-        return article_page.url if article_page else ""
-
-
 class RelatedArticleBlock(blocks.StructBlock):
     article = blocks.PageChooserBlock(target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage"))
-    overrides = RelatedArticleOverridesBlock(required=False)
+    overrides = BaseArticleOverridesBlock(required=False)
     tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
 
     class Meta:
         label = "Related Article"
         label_format = "{article}"
         form_classname = "compact-form struct-block"
-        value_class = RelatedArticleValue
+        value_class = BaseArticleValue
         template = "cms/blocks/related-article-card.html"
 
 
@@ -1568,11 +1667,8 @@ class InlineNotificationSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Show close button",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1580,7 +1676,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1678,11 +1774,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
 
 
 class SectionBlockSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1694,7 +1787,7 @@ class SectionBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1791,11 +1884,8 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Place media after text content on desktop.",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1807,7 +1897,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1845,11 +1935,8 @@ class KitBannerSettings(blocks.StructBlock):
         default="filled",
         inline_form=True,
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1861,7 +1948,7 @@ class KitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1910,7 +1997,22 @@ class HomeCarouselSlide(blocks.StructBlock):
     image = ImageVariantsBlock()
 
 
+class HomeCarouselSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class HomeCarouselBlock(blocks.StructBlock):
+    settings = HomeCarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
@@ -1999,11 +2101,8 @@ class CardGalleryBlock(blocks.StructBlock):
 
 
 class HomeKitBannerSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -2015,7 +2114,7 @@ class HomeKitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 

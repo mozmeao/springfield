@@ -12,7 +12,6 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, Tit
 from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
-from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
@@ -30,6 +29,7 @@ from springfield.cms.blocks import (
     IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
+    LocalizedLiveSnippetChooserBlock,
     MobileStoreQRCodeBlock,
     RelatedArticlesListBlock,
     SectionBlock,
@@ -235,7 +235,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("section", SectionBlock2026()),
             (
                 "banner_snippet",
-                SnippetChooserBlock(
+                LocalizedLiveSnippetChooserBlock(
                     target_model="cms.BannerSnippet",
                     template="cms/snippets/banner-snippet.html",
                     label="Banner Snippet",
@@ -302,7 +302,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("download_support", DownloadSupportBlock()),
             (
                 "banner_snippet",
-                SnippetChooserBlock(
+                LocalizedLiveSnippetChooserBlock(
                     target_model="cms.BannerSnippet",
                     template="cms/snippets/banner-snippet.html",
                     label="Banner Snippet",
@@ -324,14 +324,16 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         first_block = self.content[0]
         if first_block.block_type != "section":
             raise ValidationError("The first block must be a 'Section' block.")
-        if first_block.value["settings"].get("show_to") != "all":
+        if first_block.value["settings"].get("show_to", {}).get("platforms"):
             section_blocks = [block for block in self.content if block.block_type == "section"]
-            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
-            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
-            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+            covered_platforms = set()
+            for block in section_blocks:
+                if platforms := block.value["settings"].get("show_to", {}).get("platforms"):
+                    covered_platforms.update(platforms)
+            if not {"windows", "osx", "linux", "android", "ios", "unsupported", "other-os"}.issubset(covered_platforms):
                 raise ValidationError(
                     "When using conditional display in sections, all platform conditions "
-                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                    "('Windows', 'macOS', 'Linux', 'Android', 'iOS', 'Other OS Users', and 'Unsupported OS Users') must be included."
                 )
 
     def get_utm_campaign(self):
@@ -342,6 +344,10 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             return "cms/thanks_page__direct.html"
 
         return "cms/thanks_page.html"
+
+    @property
+    def noindex(self):
+        return True
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -372,7 +378,6 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
-        context["tags"] = {article.tag.slug: article.tag.name for article in all_articles if article.tag}
         return context
 
 
@@ -587,6 +592,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("related_articles"),
     ]
 
+    def get_tag(self):
+        if self.tag:
+            return self.tag.get_localized()
+        return None
+
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
@@ -662,7 +672,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
             (
                 "banner_snippet",
-                SnippetChooserBlock(
+                LocalizedLiveSnippetChooserBlock(
                     target_model="cms.BannerSnippet",
                     template="cms/snippets/banner-snippet.html",
                     label="Banner Snippet",
@@ -684,7 +694,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
             (
                 "banner_snippet",
-                SnippetChooserBlock(
+                LocalizedLiveSnippetChooserBlock(
                     target_model="cms.BannerSnippet",
                     template="cms/snippets/banner-snippet.html",
                     label="Banner Snippet",
@@ -754,3 +764,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_utm_campaign(self):
         return f"whatsnew-{self.version}"
+
+    @property
+    def noindex(self):
+        return True
