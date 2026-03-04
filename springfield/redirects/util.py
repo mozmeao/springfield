@@ -241,18 +241,12 @@ def redirect(
         kwargs = {k: v or "" for k, v in kwargs.items()}
         args = [x or "" for x in args]
 
-        # If it's a callable, call it and get the url out.
-        # Use a pre-computed value from the outer wrapper if available,
-        # to avoid calling the callable twice per request.
+        # If it's a callable, get the pre-computed value stashed by the
+        # outer wrapper (which also handles the None/skip case).
         if callable(to):
-            to_value = getattr(request, "_redirect_to_value", None) or to(request, *args, **kwargs)
+            to_value = request._redirect_to_value
         else:
             to_value = to
-
-        # A callable returning None means "skip this redirect" — the
-        # redirect middleware will pass the request through to Django.
-        if to_value is None:
-            return None
 
         if to_value.startswith("/") or HTTP_RE.match(to_value):
             redirect_url = to_value

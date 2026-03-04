@@ -9,7 +9,7 @@ from django.test import RequestFactory
 
 import pytest
 
-from springfield.cms.redirects import prefer_cms_redirect
+from springfield.cms.redirects import _cms_page_exists, prefer_cms_redirect
 from springfield.redirects.middleware import RedirectsMiddleware
 from springfield.redirects.util import get_resolver
 
@@ -65,3 +65,22 @@ def test_query_strings_preserved(mock_exists):
     assert resp is not None
     assert resp.status_code == 301
     assert resp["Location"] == "/de/download/windows/?utm_source=foo"
+
+
+@pytest.mark.django_db
+class TestCmsPageExists:
+    def test_page_exists_default_locale(self, tiny_localized_site):
+        """Should find a page at /home/{path} for the default locale."""
+        assert _cms_page_exists("en-US", "/test-page/child-page/") is True
+
+    def test_page_exists_other_locale(self, tiny_localized_site):
+        """Should find a page at /home-{locale}/{path} for non-default locales."""
+        assert _cms_page_exists("fr", "/test-page/child-page/") is True
+
+    def test_page_missing_for_locale(self, tiny_localized_site):
+        """Should return False when no page exists for the given locale."""
+        assert _cms_page_exists("de", "/test-page/child-page/") is False
+
+    def test_page_missing_for_path(self, tiny_localized_site):
+        """Should return False when no page exists at the given path."""
+        assert _cms_page_exists("en-US", "/nonexistent/page/") is False
