@@ -129,21 +129,14 @@ def test_canonical_link_and_index_when_alias_and_fallback_have_no_locale_db_reco
     assert not Locale.objects.filter(language_code="es-MX").exists()
 
     en_us_child = Page.objects.get(locale__language_code=settings.LANGUAGE_CODE, slug="child-page")
-    es_cl_url = en_us_child.url.replace("pt-BR", "es-CL")
+    es_cl_url = en_us_child.url.replace("en-US", "es-CL")
 
     response = client.get(es_cl_url)
 
     # Since the es-CL and the es-MX locales do not exist, the user is redirected
     # to the page in the settings.LANGUAGE_CODE locale.
-    assert response.status_code == 200
-    html = response.content.decode("utf-8")
-    assert f"<title>{en_us_child.title}" in html
-    page_path = "/test-page/child-page/"
-    # Canonical must point to the settings.LANGUAGE_CODE locale, not es-CL.
-    assert f'rel="canonical" href="{settings.CANONICAL_URL}/{settings.LANGUAGE_CODE}{page_path}"' in html
-    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-CL{page_path}"' not in html
-    # Since content (settings.LANGUAGE_CODE) differs from the URL locale (es-CL), the page should not be indexed.
-    assert '<meta name="robots" content="noindex,follow">' not in html
+    assert response.status_code == 302
+    assert response.url == en_us_child.url
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
