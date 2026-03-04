@@ -357,6 +357,8 @@ BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
+STORE_BUTTON_TYPE = "store_button"
+FOCUS_BUTTON_TYPE = "focus_button"
 
 
 BUTTON_PRIMARY = ""
@@ -475,8 +477,8 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -800,6 +802,42 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     return _DownloadFirefoxButtonBlock(**kwargs)
 
 
+class StoreButtonBlock(blocks.StructBlock):
+    store = blocks.ChoiceBlock(
+        choices=[
+            ("android", "Android (Google Play)"),
+            ("ios", "iOS (App Store)"),
+        ],
+        label="Store",
+    )
+
+    class Meta:
+        label = "Store Button"
+        label_format = "Store Button - {type}"
+        template = "cms/blocks/store-button.html"
+
+
+def FirefoxFocusButtonBlock(themes=None, **kwargs):
+    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
+        store = blocks.ChoiceBlock(
+            choices=[
+                ("android", "Android (Google Play)"),
+                ("ios", "iOS (App Store)"),
+            ],
+            label="Store",
+        )
+
+        class Meta:
+            label = "Firefox Focus Button"
+            label_format = "Firefox Focus Button - {label}"
+            template = "cms/blocks/firefox-focus-button.html"
+            value_class = BaseButtonValue
+
+    return _FirefoxFocusButtonBlock(**kwargs)
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -821,6 +859,8 @@ def MixedButtonsBlock(
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
+        STORE_BUTTON_TYPE: StoreButtonBlock(),
+        FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
