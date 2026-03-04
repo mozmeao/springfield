@@ -181,6 +181,13 @@ jobs:
             --project="$PROJECT" \
             --quiet
 
+      - name: Delete export file from bucket
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
+
       # ── Sync CMS media bucket ──
 
       - name: Resolve CMS bucket names
