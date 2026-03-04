@@ -29,12 +29,12 @@
 
 {{ contents }}
 
-{% if platform_conditions %}
+{% if auth_state_condition  %}
   </div>
 {% endif %}
 {% if firefox_condition %}
   </div>
 {% endif %}
-{% if auth_state_condition %}
+{% if platform_conditions %}
   </div>
 {% endif %}
