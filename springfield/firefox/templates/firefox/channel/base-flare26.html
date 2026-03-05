@@ -14,25 +14,26 @@
 {% endblock %}
 
 {% block content %}
-<nav class="fl-subnav fl-force-dark-theme">
-  <div class="fl-subnav-heading-wrap">
-    <a class="fl-subnav-heading" href="{{ url('firefox.channel.desktop') }}">{{ ftl('sub-navigation-release-channels') }}</a>
-    <button class="fl-subnav-toggle" aria-expanded="false" aria-controls="flare-subnav-list">
-      <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
-      <i class="fl-icon fl-icon-chevron-down"></i>
-    </button>
-  </div>
-
-  <ul class="fl-subnav-list">
-    <li>
-      <a
-        href="{{ url('firefox.channel.desktop') }}"
-        {% if request.path == url('firefox.channel.desktop') %}aria-current="page"{% endif %}
-        >{{ ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop') }}</a></li>
-    <li><a href="{{ url('firefox.channel.android') }}"{% if request.path == url('firefox.channel.android') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android') }}</a></li>
-    <li><a href="{{ url('firefox.channel.ios') }}"{% if request.path == url('firefox.channel.ios') %} aria-current="page"{% endif %}>{{ ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios') }}</a></li>
-  </ul>
-</nav>
+<include:subnav
+  heading_text="{{ ftl('sub-navigation-release-channels') }}"
+  heading_href="{{ url('firefox.channel.desktop') }}"
+  links="{{ [
+      {
+        'text': ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop'),
+        'href': url('firefox.channel.desktop')
+      },
+      {
+        'text': ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android'),
+        'href': url('firefox.channel.android')
+      },
+      {
+        'text': ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios'),
+        'href': url('firefox.channel.ios')
+      }
+  ] }}"
+  theme="dark"
+>
+</include:subnav>
 
 <main class="fl-main has-gradient-bottom fl-channel-page">
   <div class="fl-split-page-upper has-gradient-bottom">
@@ -48,7 +49,7 @@
           </content:heading>
 
           <content:media>
-            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
+            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
           </content:media>
         </include:intro>
       </div>
@@ -89,17 +90,18 @@
 </main>
 
 
-<div class="fl-section fl-force-dark-theme">
+<aside class="fl-section fl-force-dark-theme" aria-labelledby="fl-newsletter">
     <div class="fl-section-container">
       <include:newsletter-form theme="dark">
         <include:heading
           level="h2"
           heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
           subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
+          id="fl-newsletter"
         />
       </include:newsletter-form>
     </div>
-  </div>
+  </aside>
 {% endblock %}
 
 {% block js %}
