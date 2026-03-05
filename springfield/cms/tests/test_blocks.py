@@ -2284,6 +2284,33 @@ def test_springfield_link_block_page_constructs_alias_locale_url_without_alias_o
     assert url == "/es-CL/test-page/"
 
 
+@pytest.mark.django_db
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_springfield_link_block_page_handles_absolute_page_url(tiny_localized_site):
+    """
+    When page.url returns an absolute URL (e.g. http://localhost:8000/en-US/test-page/),
+    get_url() must still produce a correct relative path with the alias locale prefix,
+    not a malformed URL like /es-AR/localhost:8000/en-US/test-page/.
+    """
+    LocaleFactory(language_code="es-AR")
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    assert not Page.objects.filter(locale__language_code="es-AR", slug="test-page").exists()
+
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with (
+        mock.patch("django.utils.translation.get_language", return_value="es-AR"),
+        mock.patch.object(
+            type(en_us_page),
+            "url",
+            new_callable=lambda: property(lambda self: "http://localhost:8000/en-US/test-page/"),
+        ),
+    ):
+        url = link_value.get_url()
+
+    assert url == "/es-AR/test-page/"
+
+
 def test_springfield_link_block_page_none_returns_none():
     """Returns None when no page is stored."""
     link_value = _springfield_link_value("page", page=None)

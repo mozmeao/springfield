@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -539,7 +540,11 @@ class SpringfieldLinkBlockURLValue(URLValue):
     def _with_locale_prefix(url, lang):
         """Replace the locale prefix in url with lang, or return url unchanged if unparseable."""
         if url:
-            parts = url.lstrip("/").split("/", 1)
+            # page.url can return an absolute URL (e.g. http://host/en-US/path/)
+            # when the page belongs to a different Wagtail site. Extract just the path.
+            parsed = urlparse(url)
+            path = parsed.path if parsed.scheme or parsed.netloc else url
+            parts = path.lstrip("/").split("/", 1)
             if len(parts) == 2:
                 return f"/{lang}/{parts[1]}"
         return url
