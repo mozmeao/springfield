@@ -66,7 +66,7 @@
 }
 
 .fl-banner-kit-diving-in {
-    --kit-img: url('/media/img/firefox/flare/kit-dive.png');
+    --kit-img: url('/media/img/firefox/flare/kit-dive.svg');
     --kit-banner-padding-bottom: 400px;
     --kit-img-position: left -70px bottom var(--token-layout-3xs);
     --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px)
@@ -160,7 +160,7 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-banner-padding-bottom: 450px;
+        --kit-banner-padding-bottom: 480px;
         --kit-img-size: 550px auto;
         --kit-img-position: left calc(50% - 192px) bottom var(--token-layout-md);
         --kit-banner-padding-right: var(--token-layout-lg);
@@ -204,7 +204,7 @@
     .fl-banner-kit-diving-in {
         --kit-img-size: 686px auto;
         --kit-img-position: left calc(50% - 240px) bottom var(--token-layout-md);
-        --kit-banner-padding-bottom: 480px;
+        --kit-banner-padding-bottom: 510px;
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 
