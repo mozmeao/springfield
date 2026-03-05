@@ -243,3 +243,33 @@
 .fl-show-auto-download-notification {
     display: none;
 }
+
+/* other fallback styles */
+.fl-card-sticker {
+    width: 100px;
+}
+
+.fl-newsletterform-illustration {
+    width: 200px;
+}
+
+/* hiding mobile and dark mode variants. Only display defaults. */
+/* stylelint-disable declaration-no-important */
+.display-sm-up,
+.display-md-up,
+.display-light {
+    display: block !important;
+}
+
+.display-xs,
+.display-xs-and-sm,
+.display-dark,
+.fl-consent-banner-content {
+    display: none !important;
+}
+
+/* overriding carousel styles for older browsers that still apply the JS */
+.fl-carousel-slide {
+    opacity: 1 !important;
+    transform: none !important;
+}
