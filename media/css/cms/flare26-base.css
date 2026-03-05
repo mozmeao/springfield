@@ -250,7 +250,7 @@ button,
     color: #fff;
     cursor: pointer;
     display: inline-block;
-    margin: 0 0 16px;
+    margin: 0;
     padding: 4px 16px;
     text-decoration: none;
 }
