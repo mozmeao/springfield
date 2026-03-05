@@ -1441,6 +1441,18 @@ WAGTAILIMAGES_FORMAT_CONVERSIONS = {
     "webp": "webp",
 }
 
+
+def _localize_dashboard_column_filter_options():
+    alias_codes = sorted(FALLBACK_LOCALES.keys())
+    non_alias_codes = sorted(code for code, _label in lazy_wagtail_langs() if code not in FALLBACK_LOCALES)
+    return [
+        ("alias", "Alias locales", alias_codes),
+        ("non_alias", "Non-alias locales", non_alias_codes),
+    ]
+
+
+WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
+
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
 #
