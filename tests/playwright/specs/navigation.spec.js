@@ -22,12 +22,12 @@ languages.forEach((lang) => {
             });
 
             test('Navigation menu hover', async ({ page }) => {
-                const resourceLink = page.getByTestId(
-                    'navigation-link-resources'
-                );
-                const resourceMenu = page.getByTestId(
-                    'navigation-menu-resources'
-                );
+                const resourceLink = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-link-resources');
+                const resourceMenu = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-menu-resources');
 
                 // Hover over Firefox link
                 await resourceLink.hover();
@@ -35,15 +35,15 @@ languages.forEach((lang) => {
             });
 
             test('Navigation link click', async ({ page }) => {
-                const resourceLink = page.getByTestId(
-                    'navigation-link-resources'
-                );
-                const resourceMenu = page.getByTestId(
-                    'navigation-menu-resources'
-                );
-                const firefoxMenuLink = page.getByTestId(
-                    'navigation-menu-link-data-protection'
-                );
+                const resourceLink = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-link-resources');
+                const resourceMenu = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-menu-resources');
+                const firefoxMenuLink = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-menu-link-data-protection');
 
                 // Hover over Firefox link
                 await resourceLink.hover();
@@ -81,9 +81,9 @@ languages.forEach((lang) => {
                 const navigationMenuItems = page.getByTestId(
                     'navigation-menu-items'
                 );
-                const browserMenu = page.getByTestId(
-                    'navigation-menu-resources'
-                );
+                const browserMenu = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-menu-resources');
 
                 // Open navigation menu
                 await navigationMenuButton.click();
@@ -104,9 +104,9 @@ languages.forEach((lang) => {
                 const navigationMenuItems = page.getByTestId(
                     'navigation-menu-items'
                 );
-                const firefoxMenuLink = page.getByTestId(
-                    'navigation-menu-link-data-protection'
-                );
+                const firefoxMenuLink = page
+                    .getByTestId('navigation-menu-items')
+                    .getByTestId('navigation-menu-link-data-protection');
 
                 // Open navigation menu
                 await navigationMenuButton.click();
