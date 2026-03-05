@@ -1578,9 +1578,9 @@ wagtail-localize==1.13 \
     #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
-wagtail-localize-dashboard==0.2.0 \
-    --hash=sha256:414702b4b40afdf3894bd6d04f6067d3ca2c4c25f927d0196eab6c684568065d \
-    --hash=sha256:f93be9fc447faf4ed868f15993ede054c4b46b2f22c7d464777ef9fb7f90e611
+wagtail-localize-dashboard==0.3.0 \
+    --hash=sha256:6209b92ff78b369a68070a9706b8547610aed2062d3b86ed2871257688a471d3 \
+    --hash=sha256:c95b99bcd8331ff7138c961788a2da64d9ca92cf38a39d0acdf2f9361b2f2261
     # via -r requirements/prod.in
 wagtail-localize-intentional-blanks==0.2.4 \
     --hash=sha256:185b6010b08dce9db7d22839fb6701bb3339310fbdfd31c8c6a8c0b4ed8d38d3 \
