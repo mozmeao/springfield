@@ -31,18 +31,18 @@ test.describe(
             // Assert default language is English
             await expect(languageSelect).toHaveValue('en-US');
 
-            // Change page language from /en-US/ to /de/
-            await languageSelect.selectOption('de');
-            await page.waitForURL('/de/?automation=true*', {
+            // Change page language from /en-US/ to /nl/
+            await languageSelect.selectOption('nl');
+            await page.waitForURL('/nl/?automation=true*', {
                 waitUntil: 'commit'
             });
 
-            // Assert page language is now German
+            // Assert page language is now Dutch
             await expect(
                 page
                     .getByTestId('footer-language-select')
                     .filter({ visible: true })
-            ).toHaveValue('de');
+            ).toHaveValue('nl');
         });
     }
 );
@@ -68,18 +68,18 @@ test.describe(
             // Assert default language is English
             await expect(languageSelect).toHaveValue('en-US');
 
-            // Change page language from /en-US/ to /de/
-            await languageSelect.selectOption('de');
-            await page.waitForURL('/de/?automation=true*', {
+            // Change page language from /en-US/ to /nl/
+            await languageSelect.selectOption('nl');
+            await page.waitForURL('/nl/?automation=true*', {
                 waitUntil: 'commit'
             });
 
-            // Assert page language is now German
+            // Assert page language is now Dutch
             await expect(
                 page
                     .getByTestId('footer-language-select')
                     .filter({ visible: true })
-            ).toHaveValue('de');
+            ).toHaveValue('nl');
         });
     }
 );
