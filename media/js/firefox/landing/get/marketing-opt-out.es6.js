@@ -8,6 +8,7 @@ import {
     hasConsentCookie,
     getConsentCookie,
     setConsentCookie,
+    setGtagAdsConsentMode,
     consentRequired,
     dntEnabled,
     gpcEnabled
@@ -207,6 +208,7 @@ MarketingOptOut.init = () => {
     if (MarketingOptOut.shouldShowCheckbox()) {
         MarketingOptOut.showCheckbox();
         MarketingOptOut.bindEvents();
+        setGtagAdsConsentMode(true);
         return true;
     }
 

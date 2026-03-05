@@ -241,6 +241,22 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
+        it('should keep ads denied default on /landing/get (updated via MarketingOptOut.init)', function () {
+            // Ads defaults to denied in setGtagConsentDefaults.
+            // MarketingOptOut.init grants ads via update when checkbox is shown.
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
+            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'False');
+            GTMSnippet.setGtagConsentDefaults();
+            expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                ad_storage: 'denied'
+            });
+        });
+
         it('should deny analytics default when no consent cookie, on /landing/get, but consent is required (EU)', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
             spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);

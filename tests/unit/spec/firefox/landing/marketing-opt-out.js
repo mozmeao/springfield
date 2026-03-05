@@ -213,6 +213,23 @@ describe('marketing-opt-out.es6.js', function () {
             expect(checkboxes.length).toEqual(2);
         });
 
+        it('should grant ads consent when checkbox is shown', function () {
+            window.gtag = jasmine.createSpy('gtag');
+            spyOn(
+                window.Mozilla.StubAttribution,
+                'meetsRequirements'
+            ).and.returnValue(true);
+            spyOn(MarketingOptOut, 'shouldShowCheckbox').and.returnValue(true);
+
+            MarketingOptOut.init();
+            expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+                ad_user_data: 'granted',
+                ad_personalization: 'granted',
+                ad_storage: 'granted'
+            });
+            delete window.gtag;
+        });
+
         it('should remove attribution data and reject analytics when visitor unchecks input', function () {
             spyOn(
                 window.Mozilla.StubAttribution,
