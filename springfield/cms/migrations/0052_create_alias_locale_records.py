@@ -12,9 +12,7 @@ def create_alias_locales(apps, schema_editor):
     if "pytest" in sys.modules:
         return
 
-    from django.contrib.contenttypes.models import ContentType
-
-    from wagtail.models import Locale, Page, Site
+    from wagtail.models import Locale, Site
 
     alias_locales = ["es-AR", "es-CL", "pt-PT", "en-GB", "en-CA"]
 
@@ -24,7 +22,6 @@ def create_alias_locales(apps, schema_editor):
     en_us_root = site.root_page
     # The Wagtail tree root (depth 1) is the parent of all locale root pages.
     wagtail_root = en_us_root.get_parent()
-    page_content_type = ContentType.objects.get_for_model(Page)
 
     for code in alias_locales:
         locale, _ = Locale.objects.get_or_create(language_code=code)
@@ -32,24 +29,29 @@ def create_alias_locales(apps, schema_editor):
         if en_us_root.get_translation_or_none(locale) is not None:
             continue
 
-        # Add an empty root page as a sibling of the default locale root.
-        # We bypass copy_for_translation (which requires the parent to already
-        # have a translation in the target locale) and add directly under the
-        # Wagtail tree root instead.
+        # Add a root page for the alias locale as a sibling of the default locale root.
+        # We use page.copy() (rather than copy_for_translation) to avoid parent-translation
+        # checks while still copying the correct specific content-type and all its
+        # DB table rows.  This is required so that wagtail-localize's copy_for_translation
+        # — which resolves parent pages via `parent.specific.get_translation(locale)`,
+        # filtering by the specific model's queryset — can find this root when
+        # translating any child page to this locale.
+        #
         # This gives the alias locale its own empty page tree so that Wagtail
         # routes within it and produces a genuine 404 for unknown paths, rather
         # than silently falling back to the en-US tree and returning 200 with
         # wrong-locale content.
-        new_root = Page(
-            title=en_us_root.title,
-            slug=f"home-{code}",
-            content_type=page_content_type,
-            locale=locale,
-            translation_key=en_us_root.translation_key,
-            live=True,
-            has_unpublished_changes=False,
+        en_us_root.copy(
+            to=wagtail_root,
+            update_attrs={
+                "locale": locale,
+                "slug": f"home-{code}",
+            },
+            copy_revisions=False,
+            keep_live=True,
+            reset_translation_key=False,
+            log_action=None,
         )
-        wagtail_root.add_child(instance=new_root)
 
 
 def remove_alias_locales(apps, schema_editor):
