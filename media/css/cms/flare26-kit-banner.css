@@ -53,13 +53,21 @@
     text-wrap: balance;
 }
 
+.fl-banner-kit .fl-button {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
+}
+
 .fl-banner-kit .fl-superheading {
     color: var(--fl-theme-color-text);
 }
 
 .fl-banner-kit-diving-in {
-    --kit-img: url('/media/img/firefox/flare/kit-dive.png');
-    --kit-banner-padding-bottom: 375px;
+    --kit-img: url('/media/img/firefox/flare/kit-dive.svg');
+    --kit-banner-padding-bottom: 400px;
     --kit-img-position: left -70px bottom var(--token-layout-3xs);
     --kit-img-size: min(calc(100% - calc(var(--token-layout-3xs) * 2)), 400px)
         auto;
@@ -115,7 +123,7 @@
     .fl-banner-kit-diving-in {
         --kit-img-position: left calc(50% - 155px) bottom var(--token-layout-xs);
         --kit-img-size: min(60%, 450px) auto;
-        --kit-banner-padding-bottom: 400px;
+        --kit-banner-padding-bottom: 440px;
     }
 
     .fl-banner-kit-with-qr {
@@ -152,7 +160,7 @@
     }
 
     .fl-banner-kit-diving-in {
-        --kit-banner-padding-bottom: 420px;
+        --kit-banner-padding-bottom: 480px;
         --kit-img-size: 550px auto;
         --kit-img-position: left calc(50% - 192px) bottom var(--token-layout-md);
         --kit-banner-padding-right: var(--token-layout-lg);
@@ -196,7 +204,7 @@
     .fl-banner-kit-diving-in {
         --kit-img-size: 686px auto;
         --kit-img-position: left calc(50% - 240px) bottom var(--token-layout-md);
-        --kit-banner-padding-bottom: 480px;
+        --kit-banner-padding-bottom: 510px;
         --kit-banner-padding-right: var(--token-layout-lg);
     }
 

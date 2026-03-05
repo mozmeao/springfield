@@ -6,17 +6,20 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
+from django.forms.widgets import CheckboxSelectMultiple
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
+from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
 
@@ -306,20 +309,27 @@ ICON_CHOICES = [
     ("xr-true", "XR True"),
 ]
 
-CONDITIONAL_DISPLAY_CHOICES = [
-    ("all", "All Users"),
-    ("is-firefox", "Firefox Users"),
-    ("not-firefox", "Non Firefox Users"),
-    ("state-fxa-supported-signed-in", "Signed-in Users"),
-    ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("osx", "macOS Users"),
-    ("linux", "Linux Users"),
-    ("windows", "Windows Users"),
-    ("windows-10-plus", "Windows 10+ Users"),
-    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
-    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
-    ("unsupported", "Unsupported OS Users"),
-    ("other-os", "Other OS Users"),  # iOS, Android, Other
+PLATFORM_CHOICES = [
+    ("osx", "macOS"),
+    ("linux", "Linux"),
+    ("windows", "Windows"),
+    ("windows-10-plus", "Windows 10+"),
+    ("android", "Android"),
+    ("ios", "iOS"),
+    ("other-os", "Other OS"),
+    ("unsupported", "Unsupported OS"),
+]
+
+FIREFOX_CHOICES = [
+    ("", "No restriction"),
+    ("is-firefox", "Firefox only"),
+    ("not-firefox", "Non-Firefox only"),
+]
+
+AUTH_CHOICES = [
+    ("", "No restriction"),
+    ("state-fxa-supported-signed-in", "Signed-in only"),
+    ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
 
 
@@ -377,11 +387,61 @@ def validate_video_url(value):
     return value
 
 
+class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
+    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+
+    def _localize(self, instance):
+        if instance and hasattr(instance, "get_localized"):
+            instance = instance.get_localized()
+        return instance
+
+    def to_python(self, value):
+        return self._localize(super().to_python(value))
+
+    def bulk_to_python(self, values):
+        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+
+    def clean(self, value):
+        if value and not value.live:
+            raise ValidationError("The selected snippet is not published.")
+        return super().clean(value)
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+
+
+class ConditionalDisplayBlock(blocks.StructBlock):
+    platforms = blocks.MultipleChoiceBlock(
+        choices=PLATFORM_CHOICES,
+        required=False,
+        help_text="Show to specific platforms. Leave empty to show to all platforms.",
+        widget=CheckboxSelectMultiple,
+    )
+    firefox = blocks.ChoiceBlock(
+        choices=FIREFOX_CHOICES,
+        default="",
+        required=False,
+        label="Firefox",
+        help_text="Filter by Firefox browser. Leave empty for no restriction.",
+    )
+    auth_state = blocks.ChoiceBlock(
+        choices=AUTH_CHOICES,
+        default="",
+        required=False,
+        label="Login state",
+        help_text="Filter by login state. Leave empty for no restriction.",
+    )
+
+    class Meta:
+        label = "Conditional Display"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
+        icon = "eye"
+        collapsed = True
+        form_classname = "compact-form struct-block"
 
 
 # Element blocks
@@ -433,6 +493,13 @@ class BaseButtonValue(blocks.StructValue):
 class UUIDBlock(blocks.CharBlock):
     def clean(self, value):
         return super().clean(value) or str(uuid4())
+
+    def get_translatable_segments(self, value):
+        # UUIDs are analytics IDs, not user-facing content — exclude from translation.
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
 
 
 def BaseButtonSettings(themes=None, **kwargs):
@@ -540,6 +607,15 @@ class SpringfieldLinkBlock(LinkBlock):
 
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
+
+    def __init__(self, *args, **kwargs):
+        """Override __init__() to put relative_url field right after custom_url field."""
+        super().__init__(*args, **kwargs)
+        items = list(self.child_blocks.items())
+        keys = [k for k, _ in items]
+        relative_url_item = items.pop(keys.index("relative_url"))
+        items.insert(keys.index("custom_url") + 1, relative_url_item)
+        self.child_blocks = dict(items)
 
     def clean(self, value):
         # Full override of LinkBlock.clean() required: that method has a
@@ -999,11 +1075,8 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1011,7 +1084,7 @@ class BaseCardSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
+        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1443,8 +1516,8 @@ class BaseArticleValue(blocks.StructValue):
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if hasattr(article_page, "tag") and article_page.tag:
-                return article_page.tag.name
+            if tag := article_page.get_tag():
+                return tag.name
         return ""
 
     def get_link_label(self) -> str:
@@ -1456,7 +1529,7 @@ class BaseArticleValue(blocks.StructValue):
             article_page = article_page.specific
             if hasattr(article_page, "link_text") and article_page.link_text:
                 return article_page.link_text
-        return ""
+        return ftl("ui-learn-more", ftl_files=["ui"])
 
     def get_featured_image(self):
         overrides = self.get("overrides", {})
@@ -1594,11 +1667,8 @@ class InlineNotificationSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Show close button",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1606,7 +1676,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1704,11 +1774,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
 
 
 class SectionBlockSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1720,7 +1787,7 @@ class SectionBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1817,11 +1884,8 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Place media after text content on desktop.",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1833,7 +1897,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1871,11 +1935,8 @@ class KitBannerSettings(blocks.StructBlock):
         default="filled",
         inline_form=True,
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1887,7 +1948,7 @@ class KitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1936,7 +1997,22 @@ class HomeCarouselSlide(blocks.StructBlock):
     image = ImageVariantsBlock()
 
 
+class HomeCarouselSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class HomeCarouselBlock(blocks.StructBlock):
+    settings = HomeCarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
@@ -2025,11 +2101,8 @@ class CardGalleryBlock(blocks.StructBlock):
 
 
 class HomeKitBannerSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -2041,7 +2114,7 @@ class HomeKitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 

@@ -9,7 +9,10 @@ import {
     dntEnabled,
     getConsentCookie,
     gpcEnabled,
-    isFirefoxDownloadThanks
+    isFirefoxDownloadThanks,
+    isFirefoxLandingGet,
+    setGtagAdsConsentMode,
+    setGtagAnalyticsConsentMode
 } from '../consent/utils.es6';
 
 const GTM_CONTAINER_ID = document
@@ -18,12 +21,46 @@ const GTM_CONTAINER_ID = document
 
 const GTMSnippet = {};
 
+if (typeof window.dataLayer === 'undefined') {
+    window.dataLayer = [];
+}
+
+/**
+ * Set Gtag consent defaults to false unless there is a
+ * consent pref cookie allowing analytics OR there's no
+ * consent required and we're on /landing/get
+ */
+GTMSnippet.setGtagConsentDefaults = () => {
+    const cookie = getConsentCookie();
+    const hasPref = cookie;
+
+    if (hasPref) {
+        setGtagAdsConsentMode(cookie.analytics, 'default');
+        setGtagAnalyticsConsentMode(cookie.analytics, 'default');
+    } else {
+        setGtagAdsConsentMode(false, 'default');
+        setGtagAnalyticsConsentMode(
+            GTMSnippet.isFirefoxLandingGet() && !consentRequired()
+                ? true
+                : false,
+            'default'
+        );
+    }
+};
+
 /**
  * Load the GTM snippet. Expects `GTM_CONTAINER_ID` to be
  * defined in the HTML tag via a data attribute.
  */
 GTMSnippet.loadSnippet = () => {
     if (GTM_CONTAINER_ID) {
+        window.gtag = function () {
+            window.dataLayer.push(arguments);
+        };
+        // first: set default consent
+        GTMSnippet.setGtagConsentDefaults();
+
+        // then: load GTM script (the order is important)
         // prettier-ignore
         (function(w,d,s,l,i,j,f,dl,k,q){
             w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});f=d.getElementsByTagName(s)[0];
@@ -42,11 +79,23 @@ GTMSnippet.isFirefoxDownloadThanks = () => {
 };
 
 /**
+ * Determine if the current page is /landing/get.
+ * @returns {Boolean}
+ */
+GTMSnippet.isFirefoxLandingGet = () => {
+    return isFirefoxLandingGet(window.location.href);
+};
+
+/**
  * Event handler for `mozConsentStatus` event.
  * @param {Object} e - Event object
  */
 GTMSnippet.handleConsent = (e) => {
     const hasConsent = e.detail.analytics;
+
+    // update gtag consent according to pref
+    setGtagAdsConsentMode(hasConsent);
+    setGtagAnalyticsConsentMode(hasConsent);
 
     if (hasConsent) {
         GTMSnippet.loadSnippet();

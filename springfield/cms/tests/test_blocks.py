@@ -2164,3 +2164,10 @@ def test_springfield_link_block_page_none_returns_none():
     link_value = _springfield_link_value("page", page=None)
 
     assert link_value.get_url() is None
+
+
+def test_uuid_block_is_not_translatable():
+    """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
+    from springfield.cms.blocks import UUIDBlock
+
+    assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []

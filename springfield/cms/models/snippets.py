@@ -6,16 +6,18 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.fields import RichTextField
-from wagtail.models import PreviewableMixin, TranslatableMixin
+from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
+from springfield.cms.models.locale import SpringfieldLocale
 
 
 class FluentPreviewableMixin(PreviewableMixin):
@@ -31,7 +33,35 @@ class FluentPreviewableMixin(PreviewableMixin):
         return context
 
 
-class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
+class BaseDraftQueryset(models.QuerySet):
+    def live(self):
+        return self.filter(live=True)
+
+    def not_live(self):
+        return self.filter(live=False)
+
+
+class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, RevisionMixin):
+    """A base mixin for snippets that are translatable and have draft state and revision history."""
+
+    objects = BaseDraftQueryset.as_manager()
+
+    class Meta(TranslatableMixin.Meta, DraftStateMixin.Meta, RevisionMixin.Meta):
+        abstract = True
+
+    @cached_property
+    def active_locale(self):
+        return SpringfieldLocale.get_active()
+
+    def get_localized(self):
+        """Get the localized instance of this snippet for the active locale, or None if not available in the active locale."""
+        instance = self.localized
+        if instance and (instance.locale_id != self.active_locale.id or not instance.live):
+            return None
+        return instance
+
+
+class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
     label = models.CharField(max_length=255, default="Get Firefox")
@@ -42,7 +72,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
         FieldPanel("analytics_id"),
     ]
 
-    class Meta(TranslatableMixin.Meta):
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Pre Footer Call to Action"
         verbose_name_plural = "Pre Footer Call to Action"
 
@@ -56,7 +86,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(PreFooterCTASnippet)
 
 
-class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
+class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the Newsletter sign-up form at the bottom of pages."""
 
     heading = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -69,7 +99,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
         FieldPanel("analytics_id"),
     ]
 
-    class Meta(TranslatableMixin.Meta):
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Pre Footer Call To Action Form"
         verbose_name_plural = "Pre Footer Call To Action Forms"
 
@@ -85,7 +115,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(PreFooterCTAFormSnippet)
 
 
-class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMixin):
+class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
     heading = RichTextField(
@@ -108,7 +138,7 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
         FieldPanel("image"),
     ]
 
-    class Meta(TranslatableMixin.Meta):
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Download Firefox Call To Action Snippet"
         verbose_name_plural = "Download Firefox Call To Action Snippets"
 
@@ -124,7 +154,7 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, TranslatableMix
 register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
-class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
+class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a banner with a QR code."""
 
     kit_theme = models.BooleanField(default=False, help_text="Use the Kit theme for this banner.")
@@ -152,7 +182,7 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
         FieldPanel("qr_code"),
     ]
 
-    class Meta(TranslatableMixin.Meta):
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Banner Snippet"
         verbose_name_plural = "Banner Snippets"
 
@@ -168,7 +198,7 @@ class BannerSnippet(FluentPreviewableMixin, TranslatableMixin):
 register_snippet(BannerSnippet)
 
 
-class Tag(TranslatableMixin, models.Model):
+class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
     """A tag for categorizing articles."""
 
     name = models.CharField()

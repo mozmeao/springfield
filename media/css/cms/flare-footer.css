@@ -511,6 +511,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-decoration: none;
 }
 
+.fl-footer-link.fl-footer-link-has-icon {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+}
+
 .fl-footer-link:hover {
     text-decoration: underline;
 }

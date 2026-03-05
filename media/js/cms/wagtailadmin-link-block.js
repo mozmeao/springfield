@@ -20,9 +20,13 @@
         if (!parent) return;
         var field = parent.querySelector('.relative_url_link_field');
         if (!field) return;
+        var newWindowField = parent.querySelector('.new_window_link_field');
 
         if (selector.value === 'relative_url') {
             field.classList.remove('link-block__hidden');
+            if (newWindowField) {
+                newWindowField.classList.remove('link-block__hidden');
+            }
         } else {
             field.classList.add('link-block__hidden');
         }
