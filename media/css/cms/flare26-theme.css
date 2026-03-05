@@ -343,8 +343,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
     --fl-subnav-toggle-bg: var(--token-color-white);
-    --button-bg-color-disabled: var(--token-color-soft-purple-2);
-    --button-text-color-disabled: var(--token-color-link-purple);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -439,8 +437,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
         --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
-        --button-bg-color-disabled: var(--token-color-soft-purple-2);
-        --button-text-color-disabled: var(--token-color-soft-purple-4);
     }
 }
 

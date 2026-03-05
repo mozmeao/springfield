@@ -84,7 +84,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if pre_footer_cta %}
         {% set analytics_text = pre_footer_cta.label %}
         {% set analytics_position = "pre-footer-cta" %}
-          <include:conditional-display condition="not-firefox">
+          <include:conditional-display firefox_condition="not-firefox">
           <include:pre-footer-cta
             label="{{ pre_footer_cta.label }}"
             link="{{ pre_footer_cta.link }}"
@@ -100,7 +100,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
         {% set analytics_position = "pre-footer-cta-form" %}
         {% set analytics_id = pre_footer_cta_form.analytics_id %}
-          <include:conditional-display condition="is-firefox">
+          <include:conditional-display firefox_condition="is-firefox">
             <include:newsletter-form theme="dark">
               <include:heading
                 level="h2"

@@ -323,14 +323,16 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         first_block = self.content[0]
         if first_block.block_type != "section":
             raise ValidationError("The first block must be a 'Section' block.")
-        if first_block.value["settings"].get("show_to") != "all":
+        if first_block.value["settings"].get("show_to", {}).get("platforms"):
             section_blocks = [block for block in self.content if block.block_type == "section"]
-            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
-            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
-            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+            covered_platforms = set()
+            for block in section_blocks:
+                if platforms := block.value["settings"].get("show_to", {}).get("platforms"):
+                    covered_platforms.update(platforms)
+            if not {"windows", "osx", "linux", "android", "ios", "unsupported", "other-os"}.issubset(covered_platforms):
                 raise ValidationError(
                     "When using conditional display in sections, all platform conditions "
-                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                    "('Windows', 'macOS', 'Linux', 'Android', 'iOS', 'Other OS Users', and 'Unsupported OS Users') must be included."
                 )
 
     def get_utm_campaign(self):

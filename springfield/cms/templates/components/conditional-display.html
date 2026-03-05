@@ -4,9 +4,37 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="{% if condition != 'all' %}conditional-display condition-{{ condition }} {% if is_preview %}is-preview{% endif %}{% else %}conditional-passthrough{% endif %}">
-  {% if condition != 'all' and is_preview %}
-    <span class="preview-indicator">Condition: {{ condition }}</span>
-  {% endif %}
-  {{ contents }}
-</div>
+{# platform_conditions=[], firefox_condition="", auth_state_condition="" #}
+
+{% if platform_conditions %}
+  <div class="conditional-display {% for condition in platform_conditions %}condition-{{ condition }} {% endfor %} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Conditions: {{ platform_conditions | join(", ") }}</span>
+    {% endif %}
+{% endif %}
+
+{% if firefox_condition %}
+  <div class="conditional-display condition-{{ firefox_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ firefox_condition }}</span>
+    {% endif %}
+{% endif %}
+
+{% if auth_state_condition %}
+  <div class="conditional-display condition-{{ auth_state_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ auth_state_condition }}</span>
+    {% endif %}
+{% endif %}
+
+{{ contents }}
+
+{% if auth_state_condition  %}
+  </div>
+{% endif %}
+{% if firefox_condition %}
+  </div>
+{% endif %}
+{% if platform_conditions %}
+  </div>
+{% endif %}
