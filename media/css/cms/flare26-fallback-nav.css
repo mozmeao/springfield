@@ -51,7 +51,6 @@
 }
 
 .fl-ie-only.fl-nav {
-    /* stylelint-disable-next-line */
     display: flex !important;
 }
 

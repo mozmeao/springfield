@@ -305,6 +305,5 @@ td {
 }
 
 .fl-ie-only {
-    /* stylelint-disable-next-line */
     display: none !important;
 }
