@@ -7,56 +7,18 @@ from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get
 from springfield.cms.models import FreeFormPage2026
 
 
-def get_mobile_store_qr_code_variants():
+def get_mobile_store_qr_code():
     return {
-        "with_heading": {
-            "type": "mobile_store_qr_code",
-            "value": {
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="h1wh">Firefox on your phone</p>',
-                    "subheading_text": '<p data-block-key="sh1wh">The browser you trust, built for life on the go.</p>',
-                },
-                "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
+        "type": "mobile_store_qr_code",
+        "value": {
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="h1wh">Firefox on your phone</p>',
+                "subheading_text": '<p data-block-key="sh1wh">The browser you trust, built for life on the go.</p>',
             },
-            "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
         },
-        "without_heading": {
-            "type": "mobile_store_qr_code",
-            "value": {
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": "",
-                    "subheading_text": "",
-                },
-                "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
-            },
-            "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-        },
-        "with_superheading_only": {
-            "type": "mobile_store_qr_code",
-            "value": {
-                "heading": {
-                    "superheading_text": '<p data-block-key="suph3">Firefox Mobile</p>',
-                    "heading_text": "",
-                    "subheading_text": "",
-                },
-                "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
-            },
-            "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
-        },
-        "with_all_fields": {
-            "type": "mobile_store_qr_code",
-            "value": {
-                "heading": {
-                    "superheading_text": '<p data-block-key="suph4">Firefox Mobile</p>',
-                    "heading_text": '<p data-block-key="h1h4">Firefox on your phone</p>',
-                    "subheading_text": '<p data-block-key="sh1h4">The browser you trust, built for life on the go.</p>',
-                },
-                "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
-            },
-            "id": "d4e5f6a7-b8c9-0123-def0-234567890123",
-        },
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     }
 
 
@@ -175,7 +137,6 @@ def get_mobile_browsers_cards():
 
 def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     index_page = get_2026_test_index_page()
-    variants = get_mobile_store_qr_code_variants()
 
     slug = "mobile-store-qr-code"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -186,19 +147,14 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
         )
         index_page.add_child(instance=page)
 
-    page.upper_content = [variants["with_heading"]]
-    page.content = [
-        variants["without_heading"],
-        variants["with_superheading_only"],
-        variants["with_all_fields"],
-    ]
+    page.upper_content = [get_mobile_store_qr_code()]
+    page.content = [get_mobile_store_qr_code()]
     page.save_revision().publish()
     return page
 
 
 def get_freeform_page_2026_test_page() -> FreeFormPage2026:
     index_page = get_2026_test_index_page()
-    variants = get_mobile_store_qr_code_variants()
 
     slug = "freeform-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -209,7 +165,7 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
         )
         index_page.add_child(instance=page)
 
-    page.upper_content = [variants["with_heading"]]
+    page.upper_content = [get_mobile_store_qr_code()]
     page.content = [
         {
             "type": "section",
