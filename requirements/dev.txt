@@ -2337,9 +2337,8 @@ wagtail-localize-intentional-blanks==0.2.4 \
     --hash=sha256:185b6010b08dce9db7d22839fb6701bb3339310fbdfd31c8c6a8c0b4ed8d38d3 \
     --hash=sha256:8557a1c4c565ffa950aee59c907981a92cb30c7c072f9866dd211ec87253479a
     # via -r requirements/prod.txt
-wagtail-localize-smartling==0.11.0 \
-    --hash=sha256:2650f9467f1b9bc0879e9f9f9e13eb12074b26bf55f84a89e59c4613e454ecbe \
-    --hash=sha256:a34f6927d128b1e18d1bb937d2cb5c22683488be7a7299364afb62d849e41fd8
+wagtail-localize-smartling @ https://github.com/dchukhin/wagtail-localize-smartling/archive/support-excluded-locales.tar.gz \
+    --hash=sha256:9f1e9e4e9fa978ac0c4d003b642668e4f2e9da97667470794a53d5e7dc6df35a
     # via -r requirements/prod.txt
 wagtail-thumbnail-choice-block==0.1.5 \
     --hash=sha256:079a61e76e45cfa4e6261a2d8a4d8a5ad6570f342d032b3774e9ea58905dda42 \
