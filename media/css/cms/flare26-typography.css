@@ -17,6 +17,10 @@
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
+/* TODO: standardize these with Figma naming. This doesn't currently
+   account for the fact that Wagtail components are hierarchy-aware,
+   so a card might have h3 on one page and h2 on another, and they
+   need to look consistent everywhere. */
 .fl-heading h1,
 h1.fl-heading,
 .fl-heading-size-1,
