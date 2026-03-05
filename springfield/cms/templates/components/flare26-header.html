@@ -43,12 +43,14 @@
       </button>
     </div>
     {% endif %}
-  </div>
-  <div class="fl-ie-only fl-nav is-open">
-    <ul class="fl-nav-menu">
-      {% include 'cms/includes/flare26-menus/browser.html' %}
-      {% include 'cms/includes/flare26-menus/features.html' %}
-      {% include 'cms/includes/flare26-menus/resources.html' %}
-    </ul>
+
+    <div class="fl-ie-only fl-nav">
+      <a class="ie-menu-button" href="#">Menu</a>
+      <ul class="fl-nav-menu">
+        {% include 'cms/includes/flare26-menus/browser.html' %}
+        {% include 'cms/includes/flare26-menus/features.html' %}
+        {% include 'cms/includes/flare26-menus/resources.html' %}
+      </ul>
+    </div>
   </div>
 </header>
