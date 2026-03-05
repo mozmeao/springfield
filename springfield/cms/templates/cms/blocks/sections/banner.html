@@ -12,7 +12,10 @@
   {% set qr_code = value.media[0].value.data %}
 {% endif %}
 
-<include:conditional-display condition="{{ value.settings.show_to }}">
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
 
   <include:banner
     theme="{{ value.settings.theme }}"

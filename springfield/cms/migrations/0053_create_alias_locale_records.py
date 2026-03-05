@@ -85,7 +85,7 @@ def remove_alias_locales(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0051_bannersnippet_expire_at_bannersnippet_expired_and_more"),
+        ("cms", "0052_convert_show_to_conditional_display"),
     ]
 
     operations = [
