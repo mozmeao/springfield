@@ -201,6 +201,7 @@ video,
 canvas,
 svg {
     display: block;
+    height: auto;
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
     max-width: 100%;
