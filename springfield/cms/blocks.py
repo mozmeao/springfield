@@ -2236,10 +2236,14 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 class MobileStoreQRCodeBlock(blocks.StructBlock):
     """Block for displaying mobile app store buttons with a QR code."""
 
-    heading = HeadingBlock(required=False)
+    heading = HeadingBlock()
     qr_code_data = blocks.CharBlock(
         label="QR Code Data",
         help_text="The URL or text encoded in the QR code.",
+    )
+    mobile_image = ImageChooserBlock(
+        label="Mobile Image",
+        help_text="Image shown on mobile instead of the QR code.",
     )
 
     class Meta:
