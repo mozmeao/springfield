@@ -33,7 +33,8 @@ def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
         id=settings.PRE_FOOTER_CTA_SNIPPET_ID,
         defaults={
             "locale": locale,
-            "label": "Get Firefox",
+            "pretranslated_label": "navigation-get-firefox",
+            "custom_label": "",
             "analytics_id": "123e4567-e89b-12d3-a456-426614174000",
         },
     )
