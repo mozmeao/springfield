@@ -29,8 +29,12 @@ class Migration(migrations.Migration):
             model_name="prefooterctasnippet",
             name="pretranslated_label",
             field=models.CharField(
-                choices=[("custom", "Custom text"), ("block-get-firefox", "Get Firefox"), ("block-download-firefox", "Download Firefox")],
-                default="block-get-firefox",
+                choices=[
+                    ("custom", "Custom text"),
+                    ("navigation-get-firefox", "Get Firefox"),
+                    ("download-button-download-firefox", "Download Firefox"),
+                ],
+                default="navigation-get-firefox",
                 help_text="Choose a pre-translated label. If 'Custom text' is selected, fill in the custom label below.",
                 max_length=255,
             ),

@@ -70,7 +70,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
     pretranslated_label = models.CharField(
         max_length=255,
         choices=FLUENT_TEXT_PRESET_CHOICES,
-        default="block-get-firefox",
+        default="navigation-get-firefox",
         help_text="Choose a pre-translated label. If 'Custom text' is selected, fill in the custom label below.",
     )
     custom_label = models.CharField(
@@ -101,7 +101,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
     def resolve_label(self):
         if self.pretranslated_label == "custom":
             return self.custom_label
-        return ftl(self.pretranslated_label, ftl_files=["components"])
+        return ftl(self.pretranslated_label, ftl_files=["navigation-firefox", "download_button"])
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pre-footer-cta-snippet-preview.html"

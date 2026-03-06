@@ -376,8 +376,8 @@ BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_
 BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
 
 FLUENT_TEXT_PRESETS = {
-    "block-get-firefox": "Get Firefox",
-    "block-download-firefox": "Download Firefox",
+    "navigation-get-firefox": "Get Firefox",
+    "download-button-download-firefox": "Download Firefox",
 }
 
 FLUENT_TEXT_PRESET_CHOICES = [("custom", "Custom text")] + [(ftl_id, label) for ftl_id, label in FLUENT_TEXT_PRESETS.items()]
@@ -503,13 +503,13 @@ class FluentOrCustomTextValue(blocks.StructValue):
         pretranslated_or_custom = self.get("pretranslated_or_custom")
         if pretranslated_or_custom == "custom":
             return self.get("custom_text", "")
-        return ftl(pretranslated_or_custom, ftl_files=["components"])
+        return ftl(pretranslated_or_custom, ftl_files=["navigation-firefox", "download_button"])
 
 
 class FluentOrCustomTextBlock(blocks.StructBlock):
     pretranslated_or_custom = blocks.ChoiceBlock(
         choices=FLUENT_TEXT_PRESET_CHOICES,
-        default="block-download-firefox",
+        default="download-button-download-firefox",
         label="Text",
     )
     custom_text = blocks.CharBlock(
