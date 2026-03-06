@@ -18,6 +18,7 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
+from wagtail_localize.segments import StringSegmentValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
@@ -521,7 +522,11 @@ class FluentOrCustomTextBlock(blocks.StructBlock):
     def get_translatable_segments(self, value):
         if value.get("pretranslated_or_custom") != "custom":
             return []
-        return super().get_translatable_segments(value)
+
+        custom_text = value.get("custom_text", "")
+        if not custom_text:
+            return []
+        return [StringSegmentValue("custom_text", custom_text)]
 
     class Meta:
         label = "Button Text"
