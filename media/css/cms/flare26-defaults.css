@@ -205,12 +205,12 @@ code {
 input[type='checkbox'] {
     -webkit-appearance: none; /* For older WebKit/Blink browsers */
     appearance: none;
+    block-size: 24px;
     border: 1px solid var(--checkbox-border-color);
     border-radius: 4px;
-    height: 24px;
+    inline-size: 24px;
     margin-block-end: 0;
     padding: 4px;
-    width: 24px;
 }
 
 /* checkbox checked styles */
