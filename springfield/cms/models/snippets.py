@@ -66,7 +66,6 @@ class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, Revi
 class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
-    label_old = models.CharField(max_length=255, default="Get Firefox")
     pretranslated_label = models.CharField(
         max_length=255,
         choices=FLUENT_TEXT_PRESET_CHOICES,
