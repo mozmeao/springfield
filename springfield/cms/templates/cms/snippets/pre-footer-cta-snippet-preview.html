@@ -8,11 +8,12 @@
 
 
 {% block pre_footer %}
+  {% set resolved_label = object.resolve_label() %}
   <include:pre-footer-cta
     link="{{ object.link }}"
-    label="{{ object.label }}"
+    label="{{ resolved_label }}"
     analytics_id="{{ object.analytics_id }}"
-    analytics_text="{{ object.label }}"
+    analytics_text="{{ resolved_label }}"
     analytics_position="pre-footer-cta"
   />
 {% endblock pre_footer %}
