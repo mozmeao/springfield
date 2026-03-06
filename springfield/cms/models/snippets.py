@@ -13,9 +13,11 @@ from wagtail.fields import RichTextField
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
+from lib.l10n_utils.fluent import ftl
+from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, FLUENT_TEXT_PRESET_CHOICES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 
@@ -64,11 +66,28 @@ class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, Revi
 class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
-    label = models.CharField(max_length=255, default="Get Firefox")
+    label_old = models.CharField(max_length=255, default="Get Firefox")
+    pretranslated_label = models.CharField(
+        max_length=255,
+        choices=FLUENT_TEXT_PRESET_CHOICES,
+        default="block-get-firefox",
+        help_text="Choose a pre-translated label. If 'Custom text' is selected, fill in the custom label below.",
+    )
+    custom_label = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Only used when 'Custom text' is selected above. Will be sent for translation.",
+    )
     analytics_id = models.CharField(default=uuid4)
 
+    override_translatable_fields = [
+        SynchronizedField("pretranslated_label"),
+    ]
+
     panels = [
-        FieldPanel("label"),
+        FieldPanel("pretranslated_label"),
+        FieldPanel("custom_label"),
         FieldPanel("analytics_id"),
     ]
 
@@ -77,7 +96,12 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         verbose_name_plural = "Pre Footer Call to Action"
 
     def __str__(self):
-        return f"{self.label} – {self.locale}"
+        return f"{self.resolve_label()} – {self.locale}"
+
+    def resolve_label(self):
+        if self.pretranslated_label == "custom":
+            return self.custom_label
+        return ftl(self.pretranslated_label, ftl_files=["components"])
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pre-footer-cta-snippet-preview.html"
