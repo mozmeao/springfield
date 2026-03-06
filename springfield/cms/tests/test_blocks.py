@@ -16,7 +16,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import SpringfieldLinkBlock
+from springfield.cms.blocks import FLUENT_TEXT_PRESETS, SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -155,7 +155,11 @@ def assert_button_attributes(
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = button_data["value"]["label"]
+    label_data = button_data["value"]["label"]
+    if label_data["pretranslated_or_custom"] == "custom":
+        label = label_data["custom_text"]
+    else:
+        label = FLUENT_TEXT_PRESETS[label_data["pretranslated_or_custom"]]
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -1319,7 +1323,11 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+    label_data = button["value"]["label"]
+    resolved_label = (
+        label_data["custom_text"] if label_data["pretranslated_or_custom"] == "custom" else FLUENT_TEXT_PRESETS[label_data["pretranslated_or_custom"]]
+    )
+    cta_text = f"{heading_text.strip()} - {resolved_label}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
@@ -1633,13 +1641,14 @@ def test_home_pre_footer_cta(index_page, rf):
     link_element = cta_element.find("a", class_="fl-pre-footer-cta-button")
     assert link_element
 
-    assert link_element.get_text().strip() == pre_footer_cta.label.strip()
+    resolved_label = pre_footer_cta.resolve_label()
+    assert link_element.get_text().strip() == resolved_label.strip()
 
     # data might be pointing the link to a different host,
     # so we only validate the remainder
     assert strip_host(link_element["href"]) == "/thanks/"
     assert link_element["data-cta-position"] == "pre-footer-cta"
-    assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
+    assert link_element["data-cta-text"] == resolved_label.strip()
     assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
 
 
