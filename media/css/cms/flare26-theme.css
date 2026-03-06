@@ -169,6 +169,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --sidebar-selected-text-color: var(--token-color-black-4);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
     --fl-subnav-toggle-bg: var(--token-color-white);
+
+    /* custom checkbox styles */
+    --checkbox-border-color: #7543e3;
+    --checkbox-disabled-border-color: #535664;
+    --checkbox-hover-bg-color: #6132bc;
+    --checkbox-hover-border-color: #7543e3;
+    --checkbox-checked-bg-color: #7543e3;
+    --checkbox-checked-hover-bg-color: #6132bc;
 }
 
 .fl-split-page-upper,
@@ -265,6 +273,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
     --fl-subnav-bg: var(--token-gradient-subnav-dark);
     --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
+
+    /* custom checkbox styles */
+    --checkbox-border-color: #fff;
+    --checkbox-disabled-border-color: #c7a8ff;
+    --checkbox-hover-bg-color: #f1e7f8;
+    --checkbox-hover-border-color: #fff;
 }
 
 .fl-force-light-theme {
@@ -343,6 +357,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);
     --fl-subnav-bg: var(--token-gradient-subnav-light);
     --fl-subnav-toggle-bg: var(--token-color-white);
+
+    /* custom checkbox styles */
+    --checkbox-border-color: #7543e3;
+    --checkbox-disabled-border-color: #535664;
+    --checkbox-hover-bg-color: #6132bc;
+    --checkbox-hover-border-color: #7543e3;
+    --checkbox-checked-bg-color: #7543e3;
+    --checkbox-checked-hover-bg-color: #6132bc;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -437,6 +459,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-pill-bg-color-primary: var(--token-color-medium-purple);
         --fl-subnav-bg: var(--token-gradient-subnav-dark);
         --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
+
+        /* custom checkbox styles */
+        --checkbox-border-color: #fff;
+        --checkbox-disabled-border-color: #c7a8ff;
+        --checkbox-hover-bg-color: #f1e7f8;
+        --checkbox-hover-border-color: #fff;
     }
 }
 
