@@ -6,7 +6,11 @@
 
 {%- set available_languages = get_locale_options(request, translations) -%}
 
-    <link rel="canonical" href="{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}">
+    {# CANONICAL_LANG == LANG for normal pages; CANONICAL_LANG == fallback locale for alias pages #}
+    <link rel="canonical" href="{{ settings.CANONICAL_URL + '/' + CANONICAL_LANG + canonical_path }}">
+    {% if CANONICAL_LANG != LANG %}
+    <meta name="robots" content="noindex,follow">
+    {% endif %}
     {% if is_homepage %}<link rel="alternate" hreflang="x-default" href="{{ settings.CANONICAL_URL }}{{ canonical_path }}">{% endif %}
     {% if available_languages -%}
       {%- for code, label in available_languages|dictsort -%}
@@ -38,8 +42,11 @@
         <link rel="alternate" hreflang="pa" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="ਪੰਜਾਬੀ">
         <link rel="alternate" hreflang="pa-IN" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="{{ label|safe }}">
         {% elif code == 'pt-PT' -%}
-        <link rel="alternate" hreflang="pt" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="Português">
+        {# pt-PT is an alias locale; bare hreflang="pt" is emitted by the pt-BR block instead #}
         <link rel="alternate" hreflang="pt-PT" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="{{ label|safe }}">
+        {% elif code == 'pt-BR' -%}
+        <link rel="alternate" hreflang="pt" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="Português">
+        <link rel="alternate" hreflang="pt-BR" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="{{ label|safe }}">
         {% elif code == 'sv-SE' -%}
         <link rel="alternate" hreflang="sv" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="Svenska">
         <link rel="alternate" hreflang="sv-SE" href="{{ settings.CANONICAL_URL + '/' + code + loop_canonical_path }}" title="{{ label|safe }}">
