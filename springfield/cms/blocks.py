@@ -864,11 +864,11 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
+        label = FluentOrCustomTextBlock()
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
+            label_format = "Download Firefox Button"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
