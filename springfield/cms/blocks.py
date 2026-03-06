@@ -375,6 +375,13 @@ BUTTON_THEME_CHOICES = {
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
 BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
 
+FLUENT_TEXT_PRESETS = {
+    "block-get-firefox": "Get Firefox",
+    "block-download-firefox": "Download Firefox",
+}
+
+FLUENT_TEXT_PRESET_CHOICES = [("custom", "Custom text")] + [(ftl_id, label) for ftl_id, label in FLUENT_TEXT_PRESETS.items()]
+
 
 def validate_animation_url(value):
     if value and "assets.mozilla.net" not in value:
@@ -489,6 +496,36 @@ class BaseButtonValue(blocks.StructValue):
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+
+class FluentOrCustomTextValue(blocks.StructValue):
+    def resolve_text(self):
+        pretranslated_or_custom = self.get("pretranslated_or_custom")
+        if pretranslated_or_custom == "custom":
+            return self.get("custom_text", "")
+        return ftl(pretranslated_or_custom, ftl_files=["components"])
+
+
+class FluentOrCustomTextBlock(blocks.StructBlock):
+    pretranslated_or_custom = blocks.ChoiceBlock(
+        choices=FLUENT_TEXT_PRESET_CHOICES,
+        default="block-download-firefox",
+        label="Text",
+    )
+    custom_text = blocks.CharBlock(
+        required=False,
+        label="Custom text",
+        help_text="Only used when 'Custom text' is selected above. Will be sent for translation.",
+    )
+
+    def get_translatable_segments(self, value):
+        if value.get("pretranslated_or_custom") != "custom":
+            return []
+        return super().get_translatable_segments(value)
+
+    class Meta:
+        label = "Button Text"
+        value_class = FluentOrCustomTextValue
 
 
 class UUIDBlock(blocks.CharBlock):
