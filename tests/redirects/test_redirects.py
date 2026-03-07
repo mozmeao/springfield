@@ -31,6 +31,9 @@ def test_redirect_url(url, base_url):
         clear_url_caches()
         url["base_url"] = base_url
         assert_valid_url(**url)
+
+    importlib.reload(firefox_urls_module)
+    importlib.reload(root_urls_module)
     clear_url_caches()
 
 

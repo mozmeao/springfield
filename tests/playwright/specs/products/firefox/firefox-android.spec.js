@@ -8,7 +8,7 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/browsers/mobile/android/';
+const url = '/en-US/download/android/';
 
 // Currently, we're keeping these tests skipped,
 // while the new pages aren't available on all envs
