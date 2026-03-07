@@ -1114,11 +1114,13 @@ def test_buttons(index_page, rf):
     soup = BeautifulSoup(content, "html.parser")
 
     main = soup.find("main", class_="fl-main")
-    button_elements = main.find_all("a", class_="fl-button:not([data-cta-text*='Extended Support Release'])")
+    button_elements = main.select("a.fl-button:not([data-cta-text*='Extended Support Release'])")
     blocks = get_button_blocks()
     tested_buttons = []
     for block in blocks:
         tested_buttons.extend(block["value"]["buttons"])
+
+    assert len(button_elements) == len(tested_buttons)
 
     for index, button_element in enumerate(button_elements):
         button_data = tested_buttons[index]
