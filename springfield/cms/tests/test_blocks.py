@@ -45,6 +45,11 @@ from springfield.cms.fixtures.card_fixtures import (
     get_sticker_card_variants,
     get_sticker_cards_test_page,
 )
+from springfield.cms.fixtures.freeformpage_2026 import (
+    get_freeform_page_2026_test_page,
+    get_mobile_store_qr_code,
+    get_mobile_store_qr_code_test_page,
+)
 from springfield.cms.fixtures.homepage_fixtures import (
     get_card_gallery,
     get_cards_list,
@@ -2002,6 +2007,88 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     assert icon_element is not None
     assert f"fl-icon-{article.icon}" in icon_element["class"]
     assert "fl-icon-globe" not in icon_element["class"]
+
+
+def test_mobile_store_qr_code_block(index_page, rf):
+    page = get_mobile_store_qr_code_test_page()
+    block_data = get_mobile_store_qr_code()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper, "Upper section should exist when upper_content has blocks"
+    assert lower, "Lower section should exist when upper_content has blocks"
+
+    upper_qr = upper.find("section", class_="fl-mobile-store-qr-section")
+    assert upper_qr, "QR code section should render in upper content"
+
+    heading_div = upper_qr.find("div", class_="fl-mobile-store-qr-heading")
+    assert heading_div, "Heading div should render when heading_text is present"
+    expected_heading = BeautifulSoup(block_data["value"]["heading"]["heading_text"], "html.parser").get_text()
+    assert expected_heading in upper_qr.get_text()
+
+    qr_code_div = upper_qr.find("div", class_="fl-mobile-store-qr-code")
+    assert qr_code_div, "QR code div should be present"
+    assert qr_code_div.find("svg"), "QR code SVG should be rendered inside the QR code div"
+
+    assert upper_qr.find("div", class_="fl-mobile-store-buttons"), "Store buttons should render"
+
+    lower_qr_section = lower.find("section", class_="fl-mobile-store-qr-section")
+    heading_div = lower_qr_section.find("div", class_="fl-mobile-store-qr-heading")
+    assert heading_div, "Heading div should render when heading_text is present"
+    expected_heading = BeautifulSoup(block_data["value"]["heading"]["heading_text"], "html.parser").get_text()
+    assert expected_heading in lower_qr_section.get_text()
+
+    qr_code_div = lower_qr_section.find("div", class_="fl-mobile-store-qr-code")
+    assert qr_code_div, "QR code div should be present"
+    assert qr_code_div.find("svg"), "QR code SVG should be rendered inside the QR code div"
+
+    assert lower_qr_section.find("div", class_="fl-mobile-store-buttons")
+
+
+def test_freeform_page_2026_split_layout(index_page, rf):
+    page = get_freeform_page_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper, "Upper section should exist when upper_content has blocks"
+    assert lower, "Lower section should exist when upper_content has blocks"
+
+    # Upper content contains the QR code section
+    assert upper.find("section", class_="fl-mobile-store-qr-section")
+
+    # Lower content contains the section with cards
+    sections = lower.find_all("section", class_="fl-section")
+    assert len(sections) == 1
+    card_articles = sections[0].find_all("article", class_="fl-illustration-card")
+    assert len(card_articles) == 3, "Should render cards for Android, iOS, and Focus"
+
+
+def test_freeform_page_2026_single_column_layout(index_page, rf):
+    page = get_mobile_store_qr_code_test_page()
+    page.upper_content = []
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert not soup.find("div", class_="fl-split-page-upper"), "Upper section should not exist when upper_content is empty"
+    assert not soup.find("div", class_="fl-split-page-lower"), "Lower section should not exist when upper_content is empty"
+    main = soup.find("main", class_="fl-main")
+    assert main and "has-gradient-bottom" in main.get("class", [])
 
 
 # ---------------------------------------------------------------------------
