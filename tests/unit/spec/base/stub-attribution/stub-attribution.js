@@ -730,7 +730,49 @@ describe('stub-attribution.js', function () {
             );
             spyOn(window._SearchParams.prototype, 'get').and.callFake(
                 function (key) {
-                    return key === 'experiment' ? 'firefox-download' : 1;
+                    if (key === 'experiment') return 'firefox-download';
+                    if (key === 'variation') return 1;
+                    return null;
+                }
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+        });
+
+        it('should return fbclid when present in URL params', function () {
+            const referrer = '';
+
+            const utms = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr'
+            };
+
+            const data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                fbclid: 'IwAR2aCGqoEtSa5Jjbtxmszt7dQyri7Oipa_cXU8zGZGcnLkYm7JkVeVs1y8',
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(window._SearchParams.prototype, 'get').and.callFake(
+                function (key) {
+                    if (key === 'fbclid')
+                        return 'IwAR2aCGqoEtSa5Jjbtxmszt7dQyri7Oipa_cXU8zGZGcnLkYm7JkVeVs1y8';
+                    return null;
                 }
             );
             spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
@@ -765,7 +807,11 @@ describe('stub-attribution.js', function () {
             );
             spyOn(window._SearchParams.prototype, 'get').and.callFake(
                 function (key) {
-                    return key === 'experiment' ? 'firefox-download' : 1;
+                    if (key === 'experiment') return 'firefox-download';
+                    if (key === 'variation') return 1;
+                    if (key === 'fbclid')
+                        return 'IwAR2aCGqoEtSa5Jjbtxmszt7dQyri7Oipa_cXU8zGZGcnLkYm7JkVeVs1y8';
+                    return null;
                 }
             );
             spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
