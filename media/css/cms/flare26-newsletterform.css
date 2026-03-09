@@ -64,15 +64,6 @@
     margin: 0;
 }
 
-.fl-newsletterform-cta .fl-heading {
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-heading-sm);
-    font-variation-settings: unset;
-    font-weight: var(--token-font-weight-bold);
-    line-height: 1.1;
-    margin: 0;
-}
-
 .fl-newsletterform {
     align-items: center;
     display: flex;
