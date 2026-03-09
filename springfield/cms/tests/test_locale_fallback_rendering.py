@@ -5,6 +5,7 @@
 import os
 
 from django.conf import settings
+from django.template import engines
 from django.test import override_settings
 from django.urls import path
 
@@ -379,19 +380,18 @@ def test_unsupported_locale_not_in_hreflang_alternates(client, tiny_localized_si
 
 @pytest.fixture()
 def _add_test_templates_dir():
-    """Temporarily add the test templates directory to the Jinja2 template DIRS."""
-    from django.template import engines
+    """Temporarily add the test templates directory to the Jinja2 FileSystemLoader.
 
-    jinja2_dirs = settings.TEMPLATES[0]["DIRS"]
-    jinja2_dirs.insert(0, TEST_TEMPLATES_DIR)
-    # Reset cached template engines so the Jinja2 FileSystemLoader
-    # picks up the modified DIRS (it copies the list at init time).
-    engines._engines = {}
+    Modifies the loader's searchpath directly instead of resetting
+    engines._engines, which would invalidate module-level references
+    to the Jinja2 environment used by other tests' mock patches.
+    """
+    jinja2_loader = engines["jinja2"].env.loader
+    jinja2_loader.searchpath.insert(0, TEST_TEMPLATES_DIR)
     try:
         yield
     finally:
-        jinja2_dirs.remove(TEST_TEMPLATES_DIR)
-        engines._engines = {}
+        jinja2_loader.searchpath.remove(TEST_TEMPLATES_DIR)
 
 
 @pytest.mark.urls(__name__)
