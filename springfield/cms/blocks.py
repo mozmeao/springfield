@@ -531,6 +531,8 @@ class FluentOrCustomTextBlock(blocks.StructBlock):
     class Meta:
         label = "Button Text"
         value_class = FluentOrCustomTextValue
+        form_classname = "fluent-or-custom-text-block"
+        form_template = "cms/block_forms/fluent_or_custom_text.html"
 
 
 class UUIDBlock(blocks.CharBlock):
