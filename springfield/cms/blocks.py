@@ -1490,6 +1490,7 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
             min_num=0,
             max_num=2,
             required=False,
