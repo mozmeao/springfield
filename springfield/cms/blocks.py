@@ -813,7 +813,7 @@ class StoreButtonBlock(blocks.StructBlock):
 
     class Meta:
         label = "Store Button"
-        label_format = "Store Button - {type}"
+        label_format = "Store Button - {store}"
         template = "cms/blocks/store-button.html"
 
 
