@@ -39,7 +39,10 @@ GTMSnippet.setGtagConsentDefaults = () => {
         setGtagAdsConsentMode(cookie.analytics, 'default');
         setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
-        setGtagAdsConsentMode(false, 'default');
+        setGtagAdsConsentMode(
+            GTMSnippet.isFirefoxLandingGet() && !consentRequired(),
+            'default'
+        );
         setGtagAnalyticsConsentMode(!consentRequired(), 'default');
     }
 };
