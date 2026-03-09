@@ -684,7 +684,6 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
-
     content = StreamField(
         [
             ("intro", IntroBlock2026()),
@@ -703,10 +702,15 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    show_pre_footer = models.BooleanField(
+        default=True,
+        help_text="If true, the page will display the default pre-footer section.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        FieldPanel("show_pre_footer"),
     ]
 
     class Meta:
