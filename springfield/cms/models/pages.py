@@ -707,10 +707,16 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, the page will display the default pre-footer section.",
     )
 
+    show_nav_cta = models.BooleanField(
+        default=True,
+        help_text="If true, the download button will appear in the navigation bar for this page.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
         FieldPanel("show_pre_footer"),
+        FieldPanel("show_nav_cta"),
     ]
 
     class Meta:

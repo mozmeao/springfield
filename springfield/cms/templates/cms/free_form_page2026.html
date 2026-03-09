@@ -9,13 +9,14 @@
 
 {% block flare_header %}
   {% set theme = "dark" if page.upper_content else "light" %}
-  <include:flare26-header theme="{{ theme }}" />
+  {% set hide_nav_cta = not page.show_nav_cta %}
+  <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" />
 {% endblock %}
 
 {% block content %}
 <div class="fl-page fl-freeform-2026-page">
   {% if page.upper_content|length %}
-    <main class="fl-main">
+    <main class="fl-main has-gradient-bottom">
       {% set ns = namespace(headings=0) %}
 
       <div class="fl-split-page-upper has-gradient-bottom">
