@@ -1,0 +1,236 @@
+name: Database Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Source environment"
+        type: choice
+        options:
+          - prod
+          - stage
+          - dev
+        default: prod
+      target:
+        description: "Target environment (never prod)"
+        type: choice
+        options:
+          - dev
+          - stage
+        default: dev
+
+env:
+  BUCKET: ${{ secrets.GCP_DB_SYNC_BUCKET }}
+  DATABASE: springfield-cms
+
+permissions: {}
+
+jobs:
+  sync:
+    name: "Sync ${{ inputs.source }} → ${{ inputs.target }}"
+    runs-on: ubuntu-latest
+    environment: db-sync
+    concurrency:
+      group: db-sync-${{ inputs.target }}
+      cancel-in-progress: false
+    permissions:
+      id-token: write # Required for Workload Identity Federation with GCP
+    steps:
+      - name: Validate inputs
+        env:
+          SOURCE: ${{ inputs.source }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          # Reject prod as target (defense-in-depth against API triggers)
+          if [ "$TARGET" = "prod" ]; then
+            echo "::error::Prod cannot be a target"
+            exit 1
+          fi
+          # Reject unknown values
+          case "$SOURCE" in prod|stage|dev) ;; *)
+            echo "::error::Unknown source: $SOURCE"
+            exit 1
+          esac
+          case "$TARGET" in dev|stage) ;; *)
+            echo "::error::Unknown target: $TARGET"
+            exit 1
+          esac
+          # Reject same source and target
+          if [ "$SOURCE" = "$TARGET" ]; then
+            echo "::error::Source and target cannot be the same"
+            exit 1
+          fi
+
+      - name: Resolve source environment
+        id: source
+        env:
+          SOURCE: ${{ inputs.source }}
+          PROD_PROJECT: ${{ secrets.GCP_PROJECT_ID_PROD }}
+          NONPROD_PROJECT: ${{ secrets.GCP_PROJECT_ID_NONPROD }}
+        run: |
+          case "$SOURCE" in
+            prod)
+              echo "project=$PROD_PROJECT" >> "$GITHUB_OUTPUT"
+              echo "instance=springfield-prod-prod-v1" >> "$GITHUB_OUTPUT"
+              echo "sa=db-sync@$PROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              ;;
+            stage)
+              echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
+              echo "instance=springfield-nonprod-stage-v1" >> "$GITHUB_OUTPUT"
+              echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              ;;
+            dev)
+              echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
+              echo "instance=springfield-nonprod-dev-v1" >> "$GITHUB_OUTPUT"
+              echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Resolve target environment
+        id: target
+        env:
+          TARGET: ${{ inputs.target }}
+          NONPROD_PROJECT: ${{ secrets.GCP_PROJECT_ID_NONPROD }}
+        run: |
+          case "$TARGET" in
+            stage)
+              echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
+              echo "instance=springfield-nonprod-stage-v1" >> "$GITHUB_OUTPUT"
+              echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              ;;
+            dev)
+              echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
+              echo "instance=springfield-nonprod-dev-v1" >> "$GITHUB_OUTPUT"
+              echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      # ── Export from source ──
+
+      - name: Auth to source project
+        id: auth-source
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ steps.source.outputs.sa }}
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
+
+      - name: Export database from source
+        env:
+          INSTANCE: ${{ steps.source.outputs.instance }}
+          PROJECT: ${{ steps.source.outputs.project }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gcloud sql export sql "$INSTANCE" \
+            "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
+            --database="$DATABASE" \
+            --project="$PROJECT" \
+            --offload
+          echo "Export complete"
+
+      # ── Import to target ──
+
+      - name: Auth to target project
+        id: auth-target
+        if: steps.source.outputs.project != steps.target.outputs.project
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ steps.target.outputs.sa }}
+
+      - name: Backup target database before drop
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql backups create \
+            --instance="$INSTANCE" \
+            --project="$PROJECT" \
+            --description="db-sync pre-drop backup (run $GITHUB_RUN_ID)"
+          echo "Backup complete — restorable via console or gcloud if import fails"
+
+      - name: Drop target database
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql databases delete "$DATABASE" \
+            --instance="$INSTANCE" \
+            --project="$PROJECT" \
+            --quiet
+
+      - name: Recreate target database
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql databases create "$DATABASE" \
+            --instance="$INSTANCE" \
+            --project="$PROJECT"
+
+      - name: Import database to target
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gcloud sql import sql "$INSTANCE" \
+            "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
+            --database="$DATABASE" \
+            --project="$PROJECT" \
+            --quiet
+
+      - name: Delete export file from bucket
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
+
+      # ── Sync CMS media bucket ──
+
+      - name: Resolve CMS bucket names
+        id: cms
+        env:
+          SOURCE: ${{ inputs.source }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          case "$SOURCE" in
+            prod)  echo "source=springfield-prod-prod-cms-media" >> "$GITHUB_OUTPUT" ;;
+            stage) echo "source=springfield-nonprod-stage-cms-media" >> "$GITHUB_OUTPUT" ;;
+            dev)   echo "source=springfield-nonprod-dev-cms-media" >> "$GITHUB_OUTPUT" ;;
+          esac
+          case "$TARGET" in
+            stage) echo "target=springfield-nonprod-stage-cms-media" >> "$GITHUB_OUTPUT" ;;
+            dev)   echo "target=springfield-nonprod-dev-cms-media" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Sync CMS media from source to target
+        env:
+          CMS_SOURCE: ${{ steps.cms.outputs.source }}
+          CMS_TARGET: ${{ steps.cms.outputs.target }}
+        run: |
+          gsutil -m rsync -r \
+            "gs://$CMS_SOURCE" \
+            "gs://$CMS_TARGET"
+
+      - name: Summary
+        env:
+          SOURCE: ${{ inputs.source }}
+          TARGET: ${{ inputs.target }}
+          SOURCE_INSTANCE: ${{ steps.source.outputs.instance }}
+          TARGET_INSTANCE: ${{ steps.target.outputs.instance }}
+          CMS_SOURCE: ${{ steps.cms.outputs.source }}
+          CMS_TARGET: ${{ steps.cms.outputs.target }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          echo "### Database Sync Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Source** | $SOURCE (\`$SOURCE_INSTANCE\`) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Target** | $TARGET (\`$TARGET_INSTANCE\`) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Database** | \`$DATABASE\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **CMS media** | \`$CMS_SOURCE\` → \`$CMS_TARGET\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Run ID** | \`$RUN_ID\` |" >> "$GITHUB_STEP_SUMMARY"

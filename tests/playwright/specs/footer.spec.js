@@ -22,22 +22,64 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('Footer language change', async ({ page }) => {
-            const languageSelect = page.getByTestId('footer-language-select');
+        test('Footer language change - mobile', async ({ page }) => {
+            const languageSelect = page
+                .getByTestId('fl-footer-mobile')
+                .getByTestId('footer-language-select')
+                .filter({ visible: true });
 
             // Assert default language is English
             await expect(languageSelect).toHaveValue('en-US');
 
-            // Change page language from /en-US/ to /de/
-            await languageSelect.selectOption('de');
-            await page.waitForURL('/de/?automation=true*', {
+            // Change page language from /en-US/ to /nl/
+            await languageSelect.selectOption('nl');
+            await page.waitForURL('/nl/?automation=true*', {
                 waitUntil: 'commit'
             });
 
-            // Assert page language is now German
+            // Assert page language is now Dutch
             await expect(
-                page.getByTestId('footer-language-select')
-            ).toHaveValue('de');
+                page
+                    .getByTestId('footer-language-select')
+                    .filter({ visible: true })
+            ).toHaveValue('nl');
+        });
+    }
+);
+
+test.describe(
+    `${url} footer (desktop)`,
+    {
+        tag: '@firefox'
+    },
+    () => {
+        test.use({ viewport: { width: 1280, height: 720 } });
+
+        test.beforeEach(async ({ page, browserName }) => {
+            await openPage(url, page, browserName);
+        });
+
+        test('Footer language change - desktop', async ({ page }) => {
+            const languageSelect = page
+                .getByTestId('fl-footer-desktop')
+                .getByTestId('footer-language-select')
+                .filter({ visible: true });
+
+            // Assert default language is English
+            await expect(languageSelect).toHaveValue('en-US');
+
+            // Change page language from /en-US/ to /nl/
+            await languageSelect.selectOption('nl');
+            await page.waitForURL('/nl/?automation=true*', {
+                waitUntil: 'commit'
+            });
+
+            // Assert page language is now Dutch
+            await expect(
+                page
+                    .getByTestId('footer-language-select')
+                    .filter({ visible: true })
+            ).toHaveValue('nl');
         });
     }
 );

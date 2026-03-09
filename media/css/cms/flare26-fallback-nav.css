@@ -1,4 +1,4 @@
-/* stylelint-disable csstools/use-logical */
+/* stylelint-disable csstools/use-logical, declaration-no-important */
 
 .fl-section {
     padding: 48px 0;
@@ -11,12 +11,15 @@
 }
 
 .fl-logo-fx img {
+    height: 40px;
+    margin: 0;
+    max-height: none;
     max-width: none;
 }
 
 .fl-logo-dark,
 .fl-menu-close-button,
-.fl-menu-title .fl-icon,
+.fl-icon,
 .fl-nav-mobile-download-link,
 .fl-footer-logo,
 .fl-carousel-fade-overlay {
@@ -47,14 +50,31 @@
     position: relative;
 }
 
+.fl-ie-only.fl-nav {
+    display: flex !important;
+}
+
 .fl-nav-menu {
-    display: flex;
+    background-color: #fff;
+    border: 2px solid #eee;
+    display: none;
     flex-wrap: wrap;
     gap: 8px;
+    left: 0;
     list-style: none;
     margin: 0;
-    padding: 0;
-    width: 100%;
+    padding: 24px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+}
+
+.fl-ie-only.fl-nav:hover .fl-nav-menu {
+    display: flex !important;
+}
+
+.fl-ie-only.fl-nav:focus-within .fl-nav-menu {
+    display: flex !important;
 }
 
 .fl-menu-category {
@@ -69,18 +89,9 @@
     width: 25%;
 }
 
-.fl-nav {
+.fl-nav,
+.fl-show-mobile-menu {
     display: none;
-}
-
-.fl-nav.is-open {
-    background-color: #fff;
-    border: 2px solid #eee;
-    display: flex;
-    padding: 24px;
-    position: absolute;
-    top: 100%;
-    width: 100%;
 }
 
 .fl-menu-category-link a:link,
@@ -124,41 +135,18 @@
     text-decoration: underline;
 }
 
-.fl-show-mobile-menu {
-    align-items: center;
-    background-color: #7543e3;
-    border-radius: 30px;
-    color: white;
-    display: flex;
-    height: 40px;
-    justify-content: center;
-    margin-left: 10px;
-    min-width: 40px;
-    padding: 0 16px;
-    width: auto;
+.fl-nav .fl-button.button-ghost {
+    background: transparent;
+    border: 2px solid #333336;
+    color: #333336;
+    margin: 16px 0 0;
 }
 
-.fl-show-mobile-menu .fl-icon-close,
-.fl-show-mobile-menu.is-open .fl-icon-app-menu {
-    display: none;
-}
-
-.fl-show-mobile-menu.is-open .fl-icon-close,
-.fl-show-mobile-menu .fl-icon-app-menu {
-    display: block;
-}
-
-.fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
-    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 16px auto;
-    display: block;
-    font-size: 0;
-    line-height: 0;
-    margin: auto;
-    min-width: 32px;
-    width: 32px;
+.fl-nav .fl-button.button-ghost:hover,
+.fl-nav .fl-button.button-ghost:focus,
+.fl-nav .fl-button.button-ghost:active {
+    background-color: #333336;
+    color: #fff;
 }
 
 .fl-show-mobile-menu-content {
@@ -166,7 +154,8 @@
     display: flex;
 }
 
-.fl-header .download-link {
+.fl-header .download-link,
+.ie-menu-button {
     background-color: #7543e3;
     border-radius: 40px;
     color: white;
@@ -176,12 +165,16 @@
     text-decoration: none;
 }
 
+.ie-menu-button {
+    margin: 0 0 0 16px;
+}
+
 .fl-header .download-link:hover,
 .fl-header .download-link:focus,
 .fl-header .download-link:active,
-.fl-show-mobile-menu:hover,
-.fl-show-mobile-menu:focus,
-.fl-show-mobile-menu:active {
+.ie-menu-button:hover,
+.ie-menu-button:focus,
+.ie-menu-button:active {
     background-color: #6132bc;
     color: white;
 }
@@ -276,4 +269,43 @@
 
 .fl-language-switcher button {
     padding: 4px 8px;
+}
+
+.fl-show-auto-download-notification {
+    display: none;
+}
+
+/* other fallback styles */
+.fl-card-sticker img {
+    height: auto;
+    width: 100px;
+}
+
+.fl-newsletterform-illustration {
+    width: 200px;
+}
+
+/* hiding mobile and dark mode variants. Only display defaults. */
+.display-sm-up,
+.display-md-up,
+.display-light {
+    display: block !important;
+}
+
+.display-xs,
+.display-xs-and-sm,
+.display-dark,
+.fl-consent-banner-content {
+    display: none !important;
+}
+
+/* overriding carousel styles for older browsers that still apply the JS */
+.fl-carousel-slide {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* hiding webp images as a fallback for browsers that don't support webp, instead of showing broken image icons */
+img[src*='.webp'] {
+    display: none !important;
 }

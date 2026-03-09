@@ -10,6 +10,11 @@ from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
 import everett
+import pytest
+from wagtail.models import Page
+from wagtail_localize.models import StringTranslation, Translation, TranslationSource
+
+from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
 @patch("springfield.cms.management.commands.bootstrap_local_admin.sys.stdout.write")
@@ -196,3 +201,275 @@ class SmartlingSyncTests(TestCase):
         expected_output = "\nsync_smartling did not execute successfully: Boom!\n"
         output = mock_stderr_write.call_args_list[0][0][0]
         self.assertEqual(output, expected_output)
+
+
+# ---------------------------------------------------------------------------
+# Helpers shared by LinkTranslationsAfterExport tests
+# ---------------------------------------------------------------------------
+
+
+def _run_link_translations(**options):
+    """Run link_translations_after_export; return (stdout_str, stderr_str)."""
+    out = StringIO()
+    err = StringIO()
+    call_command("link_translations_after_export", stdout=out, stderr=err, **options)
+    return out.getvalue(), err.getvalue()
+
+
+def _clear_localize_records():
+    """Delete all wagtail_localize records to simulate the post-DB-export state."""
+    TranslationSource.objects.all().delete()
+    # Cascades via FK to Translation, StringTranslation, StringSegment, etc.
+
+
+def _make_translated_page(target_locale, *, en_slug, en_title, translated_title=None):
+    """
+    Create an en-US content page (under the existing site home) and copy it to
+    *target_locale*.  If *translated_title* is provided the translated page is
+    updated and published with that title so that a StringTranslation can later
+    be inferred.  Returns (en_page, translated_page).
+    """
+    en_home = Page.objects.get(slug="home")
+    en_page = SimpleRichTextPageFactory(parent=en_home, slug=en_slug, title=en_title)
+    translated_page = en_page.copy_for_translation(target_locale)
+    if translated_title:
+        translated_page.title = translated_title
+        translated_page.save_revision().publish()
+    return en_page, translated_page
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+class TestLinkTranslationsAfterExport:
+    """Tests for the link_translations_after_export management command."""
+
+    def test_no_pages(self):
+        """Command completes cleanly when there are no multi-locale page groups."""
+        out, err = _run_link_translations()
+        assert "TranslationSources: 0" in out
+        assert "Translations: 0" in out
+        assert "StringTranslations: 0" in out
+        assert "Errors: 0" in out
+        assert err == ""
+
+    def test_untranslated_page(self):
+        """A page existing only in one locale creates no wagtail_localize records."""
+        en_home = Page.objects.get(slug="home")
+        SimpleRichTextPageFactory(parent=en_home, slug="en-only", title="English Only")
+        _clear_localize_records()
+
+        out, err = _run_link_translations()
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # Nothing was translated.
+        assert TranslationSource.objects.count() == 0
+        assert Translation.objects.count() == 0
+        assert "TranslationSources: 0" in out
+
+    def test_translated_page_creates_structural_records(self):
+        """TranslationSource and Translation records are recreated for translated pages."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+
+        en_page, _ = _make_translated_page(fr_locale, en_slug="structural-en", en_title="Structural EN")
+        _clear_localize_records()
+
+        assert TranslationSource.objects.count() == 0
+        assert Translation.objects.count() == 0
+
+        out, err = _run_link_translations()
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # Two multi-locale groups: en_home↔fr_home and en_page↔fr_page
+        assert TranslationSource.objects.count() == 2
+        assert Translation.objects.filter(enabled=True).count() == 2
+        # The content page's group is specifically linked
+        en_home_source = TranslationSource.objects.get(object_id=str(en_home.translation_key))
+        assert Translation.objects.filter(source=en_home_source, target_locale=fr_locale, enabled=True).exists()
+        en_page_source = TranslationSource.objects.get(object_id=str(en_page.translation_key))
+        assert Translation.objects.filter(source=en_page_source, target_locale=fr_locale, enabled=True).exists()
+
+    def test_translated_page_creates_string_translations(self):
+        """StringTranslation records are created when translated content differs from source."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        fr_home = en_home.copy_for_translation(fr_locale)
+
+        en_page, fr_page = _make_translated_page(
+            fr_locale,
+            en_slug="string-en",
+            en_title="English Title",
+            translated_title="Titre français",
+        )
+        _clear_localize_records()
+        assert StringTranslation.objects.count() == 0
+
+        out, err = _run_link_translations()
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # StringTranslations were created
+        assert StringTranslation.objects.count() == 2
+        # There is a StringTranslation for the fr homepage slug (the fr homepage
+        # exists because the translated fr page needs a homepage to exist)
+        assert StringTranslation.objects.filter(data=fr_home.slug).exists()
+        # There is a StringTranslation for the translated page in the fr locale
+        assert StringTranslation.objects.filter(data=fr_page.title).exists()
+        # The fr_page slug matches the en_page slug, so there is no StringTranslation for it
+        assert en_page.slug == fr_page.slug
+
+    def test_dry_run(self):
+        """--dry-run prints a warning but makes no DB changes."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+        _make_translated_page(fr_locale, en_slug="dry-run-en", en_title="Dry Run EN")
+        _clear_localize_records()
+
+        out, err = _run_link_translations(dry_run=True)
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # No translations were created
+        assert TranslationSource.objects.count() == 0
+        assert Translation.objects.count() == 0
+        assert "DRY RUN" in out
+
+    def test_skip_string_translations(self):
+        """--skip-string-translations creates structural records but no StringTranslations."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+        _make_translated_page(
+            fr_locale,
+            en_slug="skip-strings-en",
+            en_title="Skip Strings EN",
+            translated_title="Skip Strings FR",
+        )
+        _clear_localize_records()
+
+        out, err = _run_link_translations(skip_string_translations=True)
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # A TranslationSource and a Translation were created, but no StringTranslations.
+        assert TranslationSource.objects.count() >= 1
+        assert Translation.objects.filter(enabled=True).count() >= 1
+        assert StringTranslation.objects.count() == 0
+        assert "StringTranslations: 0" in out
+
+    def test_page_ids_filters_to_matching_group(self):
+        """--page_ids limits processing to groups that contain a specified page ID."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+
+        en_page1, _ = _make_translated_page(fr_locale, en_slug="group1-en", en_title="Group 1 EN")
+        en_page2, _ = _make_translated_page(fr_locale, en_slug="group2-en", en_title="Group 2 EN")
+        _clear_localize_records()
+
+        out, err = _run_link_translations(page_ids=str(en_page1.pk))
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # The en_page1 was translated into the fr locale.
+        assert TranslationSource.objects.count() == 1
+        en_page1_source = TranslationSource.objects.filter(object_id=str(en_page1.translation_key)).first()
+        assert Translation.objects.count() == 1
+        assert Translation.objects.filter(source=en_page1_source, target_locale__language_code="fr")
+        assert "matching --page_ids filter" in out
+
+    def test_page_ids_accepts_target_page_id(self):
+        """--page_ids works when a translated (target) page ID is passed instead of source ID."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+
+        en_page, fr_page = _make_translated_page(fr_locale, en_slug="target-id-en", en_title="Target ID EN")
+        _clear_localize_records()
+
+        # Pass the translated page's pk — the whole group should be linked
+        out, err = _run_link_translations(page_ids=str(fr_page.pk))
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # The en_page was translated into the fr_page.
+        assert "TranslationSources: 1" in out
+        assert "Translations: 1" in out
+        assert TranslationSource.objects.count() == 1
+        assert Translation.objects.count() == 1
+        source = TranslationSource.objects.filter(object_id=str(en_page.translation_key)).first()
+        assert source is not None
+        assert Translation.objects.filter(source=source, target_locale=fr_locale).exists()
+
+    def test_page_ids_invalid_input_raises_system_exit(self):
+        """--page_ids rejects non-integer values with a SystemExit."""
+        with pytest.raises(SystemExit):
+            _run_link_translations(page_ids="not-a-number")
+
+    def test_idempotent(self):
+        """Running the command twice produces identical record counts."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        en_home.copy_for_translation(fr_locale)
+        _make_translated_page(
+            fr_locale,
+            en_slug="idempotent-en",
+            en_title="Idempotent EN",
+            translated_title="Idempotent FR",
+        )
+        _clear_localize_records()
+
+        _run_link_translations()
+        source_count = TranslationSource.objects.count()
+        translation_count = Translation.objects.count()
+        string_count = StringTranslation.objects.count()
+
+        _run_link_translations()
+        assert TranslationSource.objects.count() == source_count
+        assert Translation.objects.count() == translation_count
+        assert StringTranslation.objects.count() == string_count
+
+    def test_multiple_target_locales(self):
+        """Pages translated into multiple locales each get their own Translation record."""
+        en_home = Page.objects.get(slug="home")
+        fr_locale = LocaleFactory(language_code="fr")
+        de_locale = LocaleFactory(language_code="de")
+        en_home.copy_for_translation(fr_locale)
+        en_home.copy_for_translation(de_locale)
+
+        en_page, _ = _make_translated_page(fr_locale, en_slug="multi-locale-en", en_title="Multi Locale EN")
+        en_page.copy_for_translation(de_locale)
+        _clear_localize_records()
+
+        out, err = _run_link_translations()
+
+        # There were no errors.
+        assert "Errors: 0" in out
+        assert err == ""
+        # The en_home was translated into fr and de locales, and also, the
+        # en_page was translated into the fr and de locales.
+        assert "TranslationSources: 2" in out
+        assert "Translations: 4" in out
+        assert TranslationSource.objects.count() == 2
+        en_home_source = TranslationSource.objects.filter(object_id=str(en_home.translation_key)).first()
+        en_page_source = TranslationSource.objects.filter(object_id=str(en_page.translation_key)).first()
+        assert Translation.objects.count() == 4
+        assert Translation.objects.filter(source=en_home_source, target_locale__language_code="fr")
+        assert Translation.objects.filter(source=en_home_source, target_locale__language_code="de")
+        assert Translation.objects.filter(source=en_page_source, target_locale__language_code="fr")
+        assert Translation.objects.filter(source=en_page_source, target_locale__language_code="de")

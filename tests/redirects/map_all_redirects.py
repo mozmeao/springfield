@@ -13,7 +13,7 @@ URLS = flatten(
         # issue 222
         url_test("/os/", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", status_code=301),
         url_test("/desktop/", "/browsers/desktop/", status_code=302),
-        url_test("/android/", "/browsers/mobile/android/", status_code=302),
+        url_test("/android/", "/download/android/", status_code=302),
         url_test("/developer/", "/channel/desktop/developer/", status_code=302),
         url_test("/10/", "/features/", status_code=301),
         url_test("/independent/", "/features/", status_code=301),

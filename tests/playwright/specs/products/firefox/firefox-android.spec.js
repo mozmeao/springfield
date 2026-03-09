@@ -8,7 +8,10 @@
 
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/browsers/mobile/android/';
+const url = '/en-US/download/android/';
+
+// Currently, we're keeping these tests skipped,
+// while the new pages aren't available on all envs
 
 test.describe(
     `${url} page`,
@@ -16,11 +19,16 @@ test.describe(
         tag: '@firefox'
     },
     () => {
+        test.skip(
+            true,
+            "The new Download Firefox Android page at /download/android/ doesn't have a send to device form"
+        );
+
         test.beforeEach(async ({ page, browserName }) => {
             await openPage(url, page, browserName);
         });
 
-        test('Send to device form success', async ({ page }) => {
+        test.skip('Send to device form success', async ({ page }) => {
             const emailField = page.getByTestId(
                 'send-to-device-form-email-field'
             );
@@ -38,7 +46,7 @@ test.describe(
             await expect(thanksMessage).toBeVisible();
         });
 
-        test('Send to device form failure', async ({ page }) => {
+        test.skip('Send to device form failure', async ({ page }) => {
             const emailField = page.getByTestId(
                 'send-to-device-form-email-field'
             );

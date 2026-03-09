@@ -9,7 +9,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 <footer class="fl-footer">
   <div class="fl-footer-inner">
-    <div class="fl-footer-sections-list fl-footer-sections-list-desktop">
+    {# TODO: refactor both sections into a single one while keeping design consistent #}
+
+    <div class="fl-footer-sections-list fl-footer-sections-list-desktop" data-testid="fl-footer-desktop">
       {% include 'cms/includes/flare26-footer/download.html' %}
       {% include 'cms/includes/flare26-footer/builds.html' %}
       {% include 'cms/includes/flare26-footer/community.html' %}
@@ -18,7 +20,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% include 'cms/includes/flare26-footer/lang-switcher.html' %}
     </div>
 
-    <div class="fl-footer-sections-list fl-footer-sections-list-mobile">
+    <div class="fl-footer-sections-list fl-footer-sections-list-mobile" data-testid="fl-footer-mobile">
       <div class="fl-footer-sections-list-column">
         {% include 'cms/includes/flare26-footer/download.html' %}
         {% include 'cms/includes/flare26-footer/resources.html' %}
