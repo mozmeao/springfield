@@ -207,26 +207,8 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should deny all defaults when no consent cookie and not on /landing/get', function () {
+        it('should grant analytics default when no consent cookie and visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
-            document
-                .getElementsByTagName('html')[0]
-                .setAttribute('data-needs-consent', 'False');
-            GTMSnippet.setGtagConsentDefaults();
-            expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
-                ad_user_data: 'denied',
-                ad_personalization: 'denied',
-                ad_storage: 'denied'
-            });
-            expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
-                analytics_storage: 'denied'
-            });
-        });
-
-        it('should grant analytics default when no consent cookie, on /landing/get, and consent not required', function () {
-            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'False');
@@ -241,9 +223,8 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should deny analytics default when no consent cookie, on /landing/get, but consent is required (EU)', function () {
+        it('should deny analytics default when no consent cookie and visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'True');
