@@ -2,15 +2,40 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import os
+
 from django.conf import settings
+from django.template import engines
 from django.test import override_settings
+from django.urls import path
 
 import pytest
 from wagtail.models import Locale, Page, Site
 
+from lib import l10n_utils
+from springfield.base.i18n import springfield_i18n_patterns
 from springfield.cms.tests.factories import LocaleFactory
+from springfield.urls import urlpatterns as springfield_urlpatterns
 
 pytestmark = [pytest.mark.django_db]
+
+TEST_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+
+
+def _hreflang_test_view(request):
+    return l10n_utils.render(
+        request,
+        "test-hreflang.html",
+        {"active_locales": ["en-US", "es-MX", "fr", "de"]},
+    )
+
+
+urlpatterns = (
+    springfield_i18n_patterns(
+        path("test-hreflang/", _hreflang_test_view, name="test-hreflang"),
+    )
+    + springfield_urlpatterns
+)
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
@@ -177,3 +202,254 @@ def test_pt_pt_hreflang_block_does_not_emit_bare_hreflang_pt(client, tiny_locali
 
     html = response.content.decode("utf-8")
     assert f'hreflang="pt" href="{settings.CANONICAL_URL}/pt-PT/' not in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX", "es-CL": "es-MX"})
+def test_alias_locales_excluded_from_hreflang_on_all_pages(client, tiny_localized_site):
+    """
+    Alias locales without their own content must not appear in hreflang alternates.
+
+    When es-AR and es-CL both fall back to es-MX with no content of their own,
+    neither should appear in hreflang alternates — regardless of which page is
+    being viewed (canonical, fallback target, or alias).
+    """
+    site = Site.objects.get(is_default_site=True)
+    en_us_root_page = site.root_page
+    en_us_test_page = en_us_root_page.get_children()[0]  # slug "test-page"
+    en_us_child = Page.objects.get(locale__language_code="en-US", slug="child-page")
+
+    # Create es-MX locale with a full translation tree including child-page.
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_mx_test_page = en_us_test_page.copy_for_translation(es_mx_locale, copy_parents=True)
+    es_mx_test_page.save_revision().publish()
+
+    es_mx_child = en_us_child.copy_for_translation(es_mx_locale)
+    es_mx_child.save_revision().publish()
+
+    # Create es-AR locale with a root page and test-page but NO child-page —
+    # it will fall back to es-MX via the middleware, matching the real-world scenario.
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+    es_ar_root_page = en_us_root_page.copy_for_translation(es_ar_locale)
+    es_ar_root_page.live = True
+    es_ar_root_page.save()
+
+    es_ar_test_page = en_us_test_page.copy_for_translation(es_ar_locale)
+    es_ar_test_page.live = True
+    es_ar_test_page.save()
+    es_ar_test_page.save_revision().publish()
+
+    page_path = "/test-page/child-page/"
+
+    # --- 1. Request the en-US page (a page with its own content) ---
+    response = client.get(en_us_child.url)
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+
+    # Canonical should be self-referencing (en-US).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # es-MX has actual content — must appear in alternates.
+    assert f'hreflang="es-MX" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    # es-AR and es-CL have no content — must NOT appear in alternates.
+    assert f'hreflang="es-AR" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    assert f'hreflang="es-CL" href="{settings.CANONICAL_URL}/es-CL{page_path}"' not in html
+
+    # --- 2. Request the es-MX page (the fallback target, has its own content) ---
+    es_mx_child.refresh_from_db()
+    response = client.get(es_mx_child.url)
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+
+    # Canonical should be self-referencing (es-MX).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # es-MX itself should appear in alternates.
+    assert f'hreflang="es-MX" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    # es-AR and es-CL have no content — must NOT appear in alternates.
+    assert f'hreflang="es-AR" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    assert f'hreflang="es-CL" href="{settings.CANONICAL_URL}/es-CL{page_path}"' not in html
+
+    # --- 3. Request the es-AR page (alias locale, served via fallback middleware) ---
+    es_ar_url = es_mx_child.url.replace("es-MX", "es-AR")
+    response = client.get(es_ar_url)
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+
+    # Canonical must point to es-MX (the fallback locale), not es-AR.
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    # The alias page should be noindexed.
+    assert '<meta name="robots" content="noindex,follow">' in html
+    # es-MX has actual content — must appear in alternates.
+    assert f'hreflang="es-MX" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    # es-AR and es-CL have no content — must NOT appear in alternates.
+    assert f'hreflang="es-AR" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    assert f'hreflang="es-CL" href="{settings.CANONICAL_URL}/es-CL{page_path}"' not in html
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_promoted_alias_locale_included_in_hreflang_alternates(client, tiny_localized_site):
+    """
+    An alias locale that has its own content SHOULD appear in hreflang alternates.
+
+    When pt-PT has been "promoted" (has its own translated page), it is a real
+    translation — not a fallback — and should appear in the alternates.
+    """
+    site = Site.objects.get(is_default_site=True)
+    en_us_root_page = site.root_page
+    en_us_test_page = en_us_root_page.get_children()[0]  # slug "test-page"
+    en_us_child = Page.objects.get(locale__language_code="en-US", slug="child-page")
+
+    # Create a real pt-PT translation tree (not an alias)
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    pt_pt_root_page = en_us_root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root_page.live = True
+    pt_pt_root_page.save()
+
+    pt_pt_test_page = en_us_test_page.copy_for_translation(pt_pt_locale)
+    pt_pt_test_page.live = True
+    pt_pt_test_page.save()
+    pt_pt_test_page.save_revision().publish()
+
+    pt_pt_child = en_us_child.copy_for_translation(pt_pt_locale)
+    pt_pt_child.live = True
+    pt_pt_child.save()
+    pt_pt_child.save_revision().publish()
+
+    # --- 1. Request the en-US page (a page with its own content) ---
+    response = client.get(en_us_child.url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # Both pt-BR and pt-PT have their own content — both should appear.
+    assert f'hreflang="pt-BR" href="{settings.CANONICAL_URL}/pt-BR/' in html
+    assert f'hreflang="pt-PT" href="{settings.CANONICAL_URL}/pt-PT/' in html
+
+    # --- 2. Request the pt-BR page (the fallback target, has its own content) ---
+    pt_br_child = Page.objects.get(locale__language_code="pt-BR", slug="child-page")
+    response = client.get(pt_br_child.url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    page_path = "/test-page/child-page/"
+    # Canonical should be self-referencing (pt-BR).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-BR{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # Both pt-BR and pt-PT have their own content — both should appear.
+    assert f'hreflang="pt-BR" href="{settings.CANONICAL_URL}/pt-BR{page_path}"' in html
+    assert f'hreflang="pt-PT" href="{settings.CANONICAL_URL}/pt-PT{page_path}"' in html
+
+    # --- 3. Request the pt-PT page (promoted alias locale, has its own content) ---
+    pt_pt_child.refresh_from_db()
+    response = client.get(pt_pt_child.url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # Canonical should be self-referencing (pt-PT has its own content).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-PT{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # Both pt-BR and pt-PT have their own content — both should appear.
+    assert f'hreflang="pt-BR" href="{settings.CANONICAL_URL}/pt-BR{page_path}"' in html
+    assert f'hreflang="pt-PT" href="{settings.CANONICAL_URL}/pt-PT{page_path}"' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_unsupported_locale_not_in_hreflang_alternates(client, tiny_localized_site):
+    """
+    A locale with no content and no fallback configured must not appear in alternates.
+
+    When ja has no page for child-page and is not listed in FALLBACK_LOCALES,
+    it should not appear in hreflang alternates on any page. Requesting the ja
+    URL should redirect since there is no content or fallback for it.
+    """
+    en_us_child = Page.objects.get(locale__language_code="en-US", slug="child-page")
+
+    # --- 1. Request the en-US page — ja must not appear in alternates ---
+    response = client.get(en_us_child.url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    assert 'hreflang="ja"' not in html
+
+    # --- 2. Request the ja URL — should redirect (no content, no fallback) ---
+    ja_url = en_us_child.url.replace("en-US", "ja")
+    response = client.get(ja_url)
+    assert response.status_code == 302
+    assert response.url == en_us_child.url
+
+
+@pytest.fixture()
+def _add_test_templates_dir():
+    """Temporarily add the test templates directory to the Jinja2 FileSystemLoader.
+
+    Modifies the loader's searchpath directly instead of resetting
+    engines._engines, which would invalidate module-level references
+    to the Jinja2 environment used by other tests' mock patches.
+    """
+    jinja2_loader = engines["jinja2"].env.loader
+    jinja2_loader.searchpath.insert(0, TEST_TEMPLATES_DIR)
+    try:
+        yield
+    finally:
+        jinja2_loader.searchpath.remove(TEST_TEMPLATES_DIR)
+
+
+@pytest.mark.urls(__name__)
+@pytest.mark.usefixtures("_add_test_templates_dir")
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX", "es-CL": "es-MX"})
+def test_non_cms_page_hreflang_alternates(client):
+    """Non-CMS (Django/Fluent) pages should render correct hreflang alternates.
+
+    Uses a test-only view with controlled active_locales to verify that hreflang
+    alternate links are rendered correctly for non-Wagtail pages. Alias locales
+    that are not in active_locales but whose fallback is present should not appear
+    in alternates.
+    """
+    page_path = "/test-hreflang/"
+
+    # --- 1. Request the en-US page ---
+    response = client.get(f"/en-US{page_path}")
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # Canonical should be self-referencing (en-US).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # en-US should emit both hreflang="en" and hreflang="en-US".
+    assert f'hreflang="en" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    assert f'hreflang="en-US" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    # Locales in active_locales should appear.
+    assert f'hreflang="fr" href="{settings.CANONICAL_URL}/fr{page_path}"' in html
+    assert f'hreflang="de" href="{settings.CANONICAL_URL}/de{page_path}"' in html
+    assert f'hreflang="es-MX" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    # es-AR and es-CL are alias locales not in active_locales — should NOT appear.
+    assert 'hreflang="es-AR"' not in html
+    assert 'hreflang="es-CL"' not in html
+    # ja is not in active_locales and has no fallback — should not appear.
+    assert 'hreflang="ja"' not in html
+
+    # --- 2. Request the es-MX page (fallback target, has its own content) ---
+    response = client.get(f"/es-MX{page_path}")
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # Canonical should be self-referencing (es-MX).
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+    # es-AR and es-CL should NOT appear.
+    assert 'hreflang="es-AR"' not in html
+    assert 'hreflang="es-CL"' not in html
+
+    # --- 3. Request the es-AR page (alias locale, served via fallback) ---
+    response = client.get(f"/es-AR{page_path}")
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # Canonical must point to es-MX (the fallback locale), not es-AR.
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    # The alias page should be noindexed.
+    assert '<meta name="robots" content="noindex,follow">' in html
+    # es-AR and es-CL should NOT appear in alternates.
+    assert 'hreflang="es-AR"' not in html
+    assert 'hreflang="es-CL"' not in html

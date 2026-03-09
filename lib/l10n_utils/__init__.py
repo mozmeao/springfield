@@ -170,6 +170,18 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
 
     context["translations"] = get_translations_native_names(translations)
 
+    # Content locales: locales with content (not including alias locales that
+    # serve another locale's content).
+    # For CMS pages, _content_locales_via_cms  only includes aliases that have
+    # their own translated page.
+    # For non-CMS pages, translations already excludes aliases (they are added
+    # later by get_locale_options for the language picker only).
+    if is_cms_page:
+        content_locales = getattr(request, "_content_locales_via_cms", translations)
+    else:
+        content_locales = translations
+    context["content_locales"] = set(content_locales)
+
     # Ensure the path requires a locale prefix.
     if not non_locale_url:
         # If the requested path's locale is different from the best matching
