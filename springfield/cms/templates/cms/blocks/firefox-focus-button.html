@@ -5,7 +5,7 @@
 #}
 
 {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-browsers-mobile") %}
-{% set link = play_store_url('firefox', campaign) if value.store == "android" else app_store_url('firefox', campaign) %}
+{% set link = play_store_url('focus', campaign) if value.store == "android" else app_store_url('focus', campaign) %}
 
 <include:button
   theme_class="{{ value.theme_class() }}"
