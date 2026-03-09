@@ -6,6 +6,7 @@
 
 'use strict';
 
+const path = require('path');
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 const url = '/en-US/channel/desktop/developer/';
@@ -85,7 +86,10 @@ test.describe(
 
             // Set Linux UA strings.
             await page.addInitScript({
-                path: `./scripts/useragent/linux/${browserName}.js`
+                path: path.join(
+                    __dirname,
+                    `../../../scripts/useragent/linux/${browserName}.js`
+                )
             });
             await page.goto(url + '?automation=true');
 
@@ -163,7 +167,10 @@ test.describe(
             if (browserName === 'webkit') {
                 // Set macOS 10.14 UA strings.
                 await page.addInitScript({
-                    path: `./scripts/useragent/mac-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/mac-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 
@@ -185,7 +192,10 @@ test.describe(
             } else {
                 // Set Windows 8.1 UA string (64-bit).
                 await page.addInitScript({
-                    path: `./scripts/useragent/win-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/win-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 

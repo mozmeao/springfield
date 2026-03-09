@@ -177,6 +177,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --checkbox-hover-border-color: #7543e3;
     --checkbox-checked-bg-color: #7543e3;
     --checkbox-checked-hover-bg-color: #6132bc;
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-black-1);
 }
 
 .fl-split-page-upper,
@@ -279,6 +282,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --checkbox-disabled-border-color: #c7a8ff;
     --checkbox-hover-bg-color: #f1e7f8;
     --checkbox-hover-border-color: #fff;
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-grey-1);
 }
 
 .fl-force-light-theme {
@@ -365,6 +371,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --checkbox-hover-border-color: #7543e3;
     --checkbox-checked-bg-color: #7543e3;
     --checkbox-checked-hover-bg-color: #6132bc;
+
+    /* Release notes */
+    --release-notes-text-color-secondary: var(--token-color-black-1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -465,6 +474,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --checkbox-disabled-border-color: #c7a8ff;
         --checkbox-hover-bg-color: #f1e7f8;
         --checkbox-hover-border-color: #fff;
+
+        /* Release notes */
+        --release-notes-text-color-secondary: var(--token-color-grey-1);
     }
 }
 
