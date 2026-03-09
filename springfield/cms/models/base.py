@@ -13,7 +13,7 @@ from wagtail.models import Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
-from springfield.cms.utils import get_locales_for_cms_page
+from springfield.cms.utils import compute_cms_page_locales
 
 
 @method_decorator(never_cache, name="serve_password_required_response")
@@ -75,7 +75,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request.is_cms_page = True
 
         # Patch in a list of available locales for pages that are translations, not just aliases
-        request._locales_available_via_cms = get_locales_for_cms_page(self)
+        all_locales, content_locales = compute_cms_page_locales(self)
+        request._locales_available_via_cms = all_locales
+        request._content_locales_via_cms = content_locales
         return request
 
     def _render_with_fluent_string_support(self, request, *args, **kwargs):

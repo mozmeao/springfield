@@ -68,11 +68,14 @@ def find_fallback_page_for_locale(locale_code, url_path):
     return Page.objects.live().filter(url_path=full_url_path).first()
 
 
-def get_locales_for_cms_page(page):
-    # Patch in a list of CMS-available locales for pages that are
-    # translations, not just aliases
+def compute_cms_page_locales(page):
+    """
+    Return a tuple of locales: (all_locales, content_locales) for a CMS page.
 
-    locales_available_via_cms = [page.locale.language_code]
+    all_locales: content_locales + alias locales from FALLBACK_LOCALES.
+    content_locales: locales with real translated content (no alias expansion).
+    """
+    content_locales = [page.locale.language_code]
     try:
         _actual_translations = (
             page.get_translations()
@@ -83,22 +86,38 @@ def get_locales_for_cms_page(page):
                 )
             )
         )
-        locales_available_via_cms += [x.locale.language_code for x in _actual_translations]
+        content_locales += [x.locale.language_code for x in _actual_translations]
     except ValueError:
         # when there's no draft and no potential for aliases, etc, the above lookup will fail
         pass
 
     # Expand with alias locales from FALLBACK_LOCALES reverse map.
     # e.g. if es-MX is in the list, also add es-AR and es-CL.
-    alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in locales_available_via_cms]
+    alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in content_locales]
 
     seen = set()
-    result = []
-    for lc in locales_available_via_cms + alias_additions:
-        if lc not in seen:
-            seen.add(lc)
-            result.append(lc)
-    return result
+    all_locales = []
+    for locale in content_locales + alias_additions:
+        if locale not in seen:
+            seen.add(locale)
+            all_locales.append(locale)
+
+    # Deduplicate content_locales preserving order.
+    seen = set()
+    deduped_content = []
+    for locale in content_locales:
+        if locale not in seen:
+            seen.add(locale)
+            deduped_content.append(locale)
+
+    return all_locales, deduped_content
+
+
+def get_locales_for_cms_page(page):
+    # Patch in a list of CMS-available locales for pages that are
+    # translations, not just aliases
+    all_locales, _ = compute_cms_page_locales(page)
+    return all_locales
 
 
 def get_cms_locales_for_path(request):
