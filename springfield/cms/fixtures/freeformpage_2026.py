@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
@@ -17,6 +18,7 @@ def get_mobile_store_qr_code():
                 "subheading_text": '<p data-block-key="sh1wh">The browser you trust, built for life on the go.</p>',
             },
             "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
+            "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
         },
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     }

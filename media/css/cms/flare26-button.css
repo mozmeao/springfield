@@ -167,28 +167,19 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     border-radius: var(--token-border-radius-2xs);
 }
 
-/* Button fills - Outline. TODO: refactor these away, but double-check
-   that they're not in use in the CMS. */
-.fl-button-outline {
+.fl-button.button-link {
     background-color: transparent;
-    border: 2px solid var(--fl-theme-color-text);
-    color: var(--fl-theme-color-text);
-}
-
-.fl-button-outline:hover {
-    background-color: var(--fl-theme-color-text);
-    color: var(--fl-theme-color-text-inverse);
-}
-
-/* Button fills - Text */
-.fl-button-text {
-    background-color: transparent;
-    color: var(--button-bg-color);
+    color: var(--fl-theme-color-link);
     padding-inline: 0;
+    text-decoration: underline;
 }
 
-.fl-button-text:hover {
-    text-decoration: underline;
+.fl-button.button-link:hover,
+.fl-button.button-link:active,
+.fl-button.button-link:focus {
+    background-color: transparent;
+    color: var(--fl-theme-color-link-hover);
+    text-decoration: none;
 }
 
 /* Button icons */
