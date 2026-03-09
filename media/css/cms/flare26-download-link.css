@@ -52,7 +52,15 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     align-items: center;
     display: inline-flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+}
+
+/* download as default checkbox label */
+.fl-download-firefox-button .default-browser-label {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
 }
 
 .fl-header .mzp-c-button-download-privacy-link,
