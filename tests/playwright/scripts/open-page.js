@@ -6,6 +6,8 @@
 
 'use strict';
 
+const path = require('path');
+
 /**
  * Opens a page with a given URL, page, and browser name.
  * @param {String} url - The URL to open.
@@ -20,11 +22,11 @@ const openPage = async (url, page, browserName) => {
      */
     if (browserName === 'webkit') {
         await page.addInitScript({
-            path: `./scripts/useragent/mac/${browserName}.js`
+            path: path.join(__dirname, `useragent/mac/${browserName}.js`)
         });
     } else {
         await page.addInitScript({
-            path: `./scripts/useragent/win/${browserName}.js`
+            path: path.join(__dirname, `useragent/win/${browserName}.js`)
         });
     }
 
