@@ -54,6 +54,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request({"dude": "abides"})
@@ -68,7 +69,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "a2d38f7e968c6a4f40c75453a2ed3d0ca4ee67c131df2f698c290bc45fc20854",
         )
 
     def test_no_valid_param_data(self):
@@ -91,6 +92,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -105,7 +107,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "a2d38f7e968c6a4f40c75453a2ed3d0ca4ee67c131df2f698c290bc45fc20854",
         )
 
     def test_some_valid_param_data(self):
@@ -120,6 +122,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -134,7 +137,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "f42e98baca1d36d6e7e264d2ec997b7be0f8c2cd987f313e275a4971f71baa7d",
         )
 
     def test_campaign_data_too_long(self):
@@ -157,13 +160,14 @@ class TestStubAttributionCode(TestCase):
             "campaign": "The|Dude|abides|I|dont|know|about|you|but|I|take|comfort|in"
             "|thatThe|Dude|abides|I|dont|know|about|you|but|I|take|comfort|in|thatThe"
             "|Dude|abides|I|dont|know|about|you|but|I|take|comfort|in|thatThe|Dude|abides"
-            "|I|dont|know|about|you|but|I|take|comfort|in|thatThe|Dude|abides|I|dont|know|about%7_",
+            "|I|dont|know|about|you|but|I|take|comfort|in|thatThe|Dude|abides|I|dont%_",
             "content": "A144_A000_0000000",
             "experiment": "(not set)",
             "variation": "(not set)",
             "ua": "chrome",
             "client_id_ga4": "2456954538.1610960957",
             "session_id": "1668161374",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -180,7 +184,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "02f2109b763e2eff09884419ce6e674761acb814d79d6e84cd2fb174f5841e71",
+            "5bc63f8502eed33a93c0ae6266614c4f85345e837101d87a3307ab76f2eefda3",
         )
 
     def test_other_data_too_long_not_campaign(self):
@@ -220,6 +224,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "chrome",
             "client_id_ga4": "2456954538.1610960957",
             "session_id": "1668161374",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -234,7 +239,45 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "f96186b4d814cfe99bf0c4d17a065535239cc0b4054534b46552bbc615598b90",
+            "a51fdfa48e39b07d1772c1924e2c5cbad1448edce079a4d61472f9f13a39e31d",
+        )
+
+    def test_returns_valid_data_with_fbclid(self):
+        params = {
+            "utm_source": "brandt",
+            "utm_medium": "aether",
+            "experiment": "firefox-download",
+            "variation": "1",
+            "ua": "chrome",
+            "client_id_ga4": "2456954538.1610960957",
+            "session_id": "1668161374",
+            "fbclid": "IwAR2aCGqoEtSa5Jjbtxmszt7dQyri7Oipa_cXU8zGZGcnLkYm7JkVeVs1y8",
+            "dlsource": "fxdotcom",
+        }
+        final_params = {
+            "source": "brandt",
+            "medium": "aether",
+            "campaign": "(not set)",
+            "content": "(not set)",
+            "experiment": "firefox-download",
+            "variation": "1",
+            "ua": "chrome",
+            "client_id_ga4": "2456954538.1610960957",
+            "session_id": "1668161374",
+            "fbclid": "IwAR2aCGqoEtSa5Jjbtxmszt7dQyri7Oipa_cXU8zGZGcnLkYm7JkVeVs1y8",
+            "dlsource": "fxdotcom",
+        }
+        req = self._get_request(params)
+        resp = views.stub_attribution_code(req)
+        self.assertEqual(resp.status_code, 200)
+        assert resp["cache-control"] == "max-age=300"
+        data = json.loads(resp.content)
+        attrs = parse_qs(querystringsafe_base64.decode(data["attribution_code"].encode()).decode())
+        attrs = {k: v[0] for k, v in attrs.items()}
+        self.assertDictEqual(attrs, final_params)
+        self.assertEqual(
+            data["attribution_sig"],
+            "cfe6b408ae8662e2b71eef33fa59d2228e33655cc466fdf52a2370a8f3fe2191",
         )
 
     def test_handles_referrer(self):
@@ -249,6 +292,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -263,7 +307,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "f42e98baca1d36d6e7e264d2ec997b7be0f8c2cd987f313e275a4971f71baa7d",
         )
 
     def test_handles_referrer_no_source(self):
@@ -281,6 +325,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -295,7 +340,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1791839786fe22e61e20e570ff0860082b16527cc9f982564461d0b33afed4b8",
+            "3cfebffa78e47f8e6d8b2edc87acff376fa353c62418531b5b563bde84fa84a6",
         )
 
     def test_handles_referrer_utf8(self):
@@ -316,6 +361,7 @@ class TestStubAttributionCode(TestCase):
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
             "session_id": "(not set)",
+            "fbclid": "(not set)",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -330,7 +376,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "a2d38f7e968c6a4f40c75453a2ed3d0ca4ee67c131df2f698c290bc45fc20854",
         )
 
     @override_settings(STUB_ATTRIBUTION_RATE=0.2)

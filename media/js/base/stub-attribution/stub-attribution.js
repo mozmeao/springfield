@@ -520,6 +520,7 @@ if (typeof window.Mozilla === 'undefined') {
         var clientIDGA4 = omitNonEssentialFields
             ? null
             : StubAttribution.getGtagClientID();
+        var fbclid = omitNonEssentialFields ? null : params.get('fbclid');
 
         var data = {
             utm_source: utms.utm_source,
@@ -532,6 +533,7 @@ if (typeof window.Mozilla === 'undefined') {
             variation: variation,
             client_id_ga4: clientIDGA4,
             session_id: clientIDGA4 ? StubAttribution.createSessionID() : null,
+            fbclid: fbclid,
             dlsource: StubAttribution.DLSOURCE
         };
 
