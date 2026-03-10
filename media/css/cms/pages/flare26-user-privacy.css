@@ -149,7 +149,8 @@ body.data-uitour #privacy-settings {
         color: var(--sidebar-selected-text-color);
     }
 
-    .fl-page-user-privacy .main-content .sidebar li a {
+    .fl-page-user-privacy .main-content .sidebar li a,
+    .fl-page-user-privacy .main-content .sidebar li.current+li.current a {
         align-items: center;
         color: var(--sidebar-text-color);
         display: flex;
