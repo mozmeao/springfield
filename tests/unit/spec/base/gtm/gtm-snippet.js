@@ -258,7 +258,7 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should deny analytics default when no consent cookie and visitor is in EU/EAA', function () {
+        it('should deny all defaults when no consent cookie and visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
             spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
             document
