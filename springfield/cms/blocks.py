@@ -16,13 +16,13 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -691,7 +691,7 @@ class SpringfieldLinkBlock(LinkBlock):
                     path_to_check = f"/en-US/{path.lstrip('/')}"
                     with translation.override("en-US"):
                         match = resolve(path_to_check)
-                    if match.func == wagtail_serve:
+                    if match.func == wagtail_serve_with_locale_fallback:
                         errors["relative_url"] = ErrorList([error_msg])
                 except Resolver404:
                     errors["relative_url"] = ErrorList([error_msg])
