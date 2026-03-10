@@ -9,7 +9,10 @@
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
 
-<include:conditional-display condition="{{ value.settings.show_to }}">
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
   <include:card expand_link="{{ value.settings.expand_link }}">
     <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
 

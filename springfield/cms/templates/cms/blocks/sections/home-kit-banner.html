@@ -7,7 +7,10 @@
 {% set block_position = block_position or "banner" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
-<include:conditional-display condition="{{ value.settings.show_to }}">
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
   <include:kit-banner
     theme="{{ 'with-qr' if value.qr_code else 'diving-in' }}"
     qr_code="{{ value.qr_code }}"

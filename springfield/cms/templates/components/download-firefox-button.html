@@ -15,9 +15,9 @@
 
 <div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
   <a href="{{ download_firefox_thanks_link['transition_url'] }}"
-     class="download-link fl-button {{ theme_class }} "
+     class="download-link fl-button {{ theme_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
-     data-testid="{{ block_position }}"
+     data-testid="download-firefox-button__download-link"
      data-cta-text="{{ cta_text }}"
      data-cta-position="{{ block_position }}"
      data-cta-uid="{{ analytics_id }}"
@@ -46,7 +46,7 @@
       </label>
     {% endset %}
     {% if is_preview %}
-      <include:conditional-display condition="windows">
+      <include:conditional-display platform_conditions="{{ ['windows'] }}">
         {{ checkbox }}
       </include:conditional-display>
     {% else %}
@@ -60,5 +60,18 @@
     {% set android_url = play_store_url('firefox', campaign) %}
     {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
     {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+  {% endif %}
+
+  {% if not exclude_unsupported_content %}
+    {# ESR download buttons to display on unsupported systems: issue 13317 #}
+    {% with flare_styles=True %}
+      {% include 'firefox/includes/download-unsupported.html' %}
+    {% endwith %}
+
+    <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
+      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
+        {{ ftl('download-button-firefox-privacy-notice') }}
+      </a>
+    </small>
   {% endif %}
 </div>

@@ -94,7 +94,7 @@ ul.download-list strong {
 }
 
 .download-dumb ul li {
-    display: inline-block;
+    display: inline-flex;
     margin: 20px 0 0;
 }
 
@@ -128,8 +128,8 @@ ul.download-list strong {
 
 /* Product download buttons */
 .download-button {
-    display: inline-block;
-    vertical-align: top;
+    display: flex;
+    flex-direction: column;
 }
 
 .download-button .ios-download,
@@ -200,7 +200,7 @@ ul.download-list strong {
 
 .linux .firefox-platform-button .download-link.os_linux64,
 .linux .firefox-platform-button .download-link.os_linux64-aarch64 {
-    display: inline-block;
+    display: inline-flex;
 }
 
 .firefox-platform-button .c-linux-debian {
@@ -338,7 +338,7 @@ ul.download-list strong {
 
 /* Show Firefox Win32 ESR download buttons for 64-bit CPUs. */
 .windows.fx-unsupported .fx-unsupported-message.win .download-link.os_win {
-    display: inline-block !important;
+    display: inline-flex !important;
 }
 
 /* Hide Windows platform specific buttons. */
@@ -352,7 +352,7 @@ ul.download-list strong {
 .windows.fx-unsupported.x64
     .fx-unsupported-message.win
     .download-link.os_win64 {
-    display: inline-block !important;
+    display: inline-flex !important;
 }
 
 /* Hide Firefox Win32 ESR download buttons for 64-bit CPUs. */
@@ -386,7 +386,7 @@ ul.download-list strong {
 
 /* Microsoft Store badge */
 .download-ms-store-badge {
-    display: inline-block;
+    display: inline-flex;
 }
 
 .download-ms-store-badge .ms-store-badge-img {

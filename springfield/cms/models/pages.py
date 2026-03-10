@@ -30,6 +30,7 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
+    MobileStoreQRCodeBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -323,14 +324,16 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         first_block = self.content[0]
         if first_block.block_type != "section":
             raise ValidationError("The first block must be a 'Section' block.")
-        if first_block.value["settings"].get("show_to") != "all":
+        if first_block.value["settings"].get("show_to", {}).get("platforms"):
             section_blocks = [block for block in self.content if block.block_type == "section"]
-            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
-            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
-            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+            covered_platforms = set()
+            for block in section_blocks:
+                if platforms := block.value["settings"].get("show_to", {}).get("platforms"):
+                    covered_platforms.update(platforms)
+            if not {"windows", "osx", "linux", "android", "ios", "unsupported", "other-os"}.issubset(covered_platforms):
                 raise ValidationError(
                     "When using conditional display in sections, all platform conditions "
-                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                    "('Windows', 'macOS', 'Linux', 'Android', 'iOS', 'Other OS Users', and 'Unsupported OS Users') must be included."
                 )
 
     def get_utm_campaign(self):
@@ -655,6 +658,70 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
     ]
+
+
+class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A flexible 2026 page type with optional upper/lower split layout."""
+
+    upper_content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("section", SectionBlock2026()),
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+            (
+                "banner_snippet",
+                LocalizedLiveSnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+        help_text="Optional upper content. If present, the page will use a split layout.",
+    )
+    content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("section", SectionBlock2026()),
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+            (
+                "banner_snippet",
+                LocalizedLiveSnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+    )
+    show_pre_footer = models.BooleanField(
+        default=True,
+        help_text="If true, the page will display the default pre-footer section.",
+    )
+
+    show_nav_cta = models.BooleanField(
+        default=True,
+        help_text="If true, the download button will appear in the navigation bar for this page.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+        FieldPanel("show_pre_footer"),
+        FieldPanel("show_nav_cta"),
+    ]
+
+    class Meta:
+        verbose_name = "Free Form 2026 Page"
+        verbose_name_plural = "Free Form 2026 Pages"
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):

@@ -9,6 +9,8 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.models import HomePage
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_home_intro():
     buttons = get_button_variants()
@@ -36,7 +38,7 @@ def get_cards_list():
                 {
                     "type": "sticker_card",
                     "value": {
-                        "settings": {"expand_link": False, "show_to": "all"},
+                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -56,7 +58,7 @@ def get_cards_list():
                 {
                     "type": "sticker_card",
                     "value": {
-                        "settings": {"expand_link": False, "show_to": "all"},
+                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -76,7 +78,7 @@ def get_cards_list():
                 {
                     "type": "sticker_card",
                     "value": {
-                        "settings": {"expand_link": False, "show_to": "all"},
+                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -97,7 +99,7 @@ def get_cards_list():
                 {
                     "type": "sticker_card",
                     "value": {
-                        "settings": {"expand_link": False, "show_to": "all"},
+                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
                             "settings": {
@@ -296,7 +298,7 @@ def get_kit_banner():
     return {
         "type": "kit_banner",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": "kit-banner"},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": "kit-banner"},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="cggck">Peace of mind?</p><p data-block-key="eia38">Piece of cake.</p>',

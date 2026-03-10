@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-browsers-mobile") %}
+{% set link = play_store_url('focus', campaign) if value.store == "android" else app_store_url('focus', campaign) %}
+
+<include:button
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  size_class="{{ size_class }}"
+  link="{{ link }}"
+  external="true"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+/>

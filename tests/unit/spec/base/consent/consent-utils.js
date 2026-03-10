@@ -11,9 +11,12 @@ import {
     getHostName,
     hasConsentCookie,
     isFirefoxDownloadThanks,
+    isFirefoxLandingGet,
     isURLExceptionAllowed,
     isURLPermitted,
-    setConsentCookie
+    setConsentCookie,
+    setGtagAdsConsentMode,
+    setGtagAnalyticsConsentMode
 } from '../../../../../media/js/base/consent/utils.es6';
 
 describe('consentRequired()', function () {
@@ -359,5 +362,109 @@ describe('setConsentCookie()', function () {
         const data = true;
         const result = setConsentCookie(data);
         expect(result).toBeFalse();
+    });
+});
+
+describe('isFirefoxLandingGet()', function () {
+    it('should return true if URL contains /landing/get', function () {
+        expect(
+            isFirefoxLandingGet('https://www.mozilla.org/en-US/landing/get/')
+        ).toBeTrue();
+        expect(
+            isFirefoxLandingGet('https://www.allizom.org/en-US/landing/get/')
+        ).toBeTrue();
+        expect(
+            isFirefoxLandingGet('https://localhost:8000/en-US/landing/get/')
+        ).toBeTrue();
+    });
+
+    it('should return false if URL is not /landing/get', function () {
+        expect(
+            isFirefoxLandingGet('https://www.mozilla.org/en-US/')
+        ).toBeFalse();
+        expect(
+            isFirefoxLandingGet('https://www.allizom.org/en-US/')
+        ).toBeFalse();
+        expect(
+            isFirefoxLandingGet('https://localhost:8000/en-US/')
+        ).toBeFalse();
+        expect(isFirefoxLandingGet('')).toBeFalse();
+        expect(isFirefoxLandingGet(null)).toBeFalse();
+        expect(isFirefoxLandingGet(undefined)).toBeFalse();
+        expect(isFirefoxLandingGet(true)).toBeFalse();
+    });
+});
+
+describe('setGtagAdsConsentMode()', function () {
+    afterEach(function () {
+        delete window.gtag;
+    });
+
+    it('should return false if window.gtag is not defined', function () {
+        expect(setGtagAdsConsentMode(true)).toBeFalse();
+    });
+
+    it('should grant ads consent when called with true', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(true);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            ad_storage: 'granted'
+        });
+    });
+
+    it('should deny ads consent when called with false', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(false);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            ad_storage: 'denied'
+        });
+    });
+
+    it('should use "default" type when specified', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(false, 'default');
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            ad_storage: 'denied'
+        });
+    });
+});
+
+describe('setGtagAnalyticsConsentMode()', function () {
+    afterEach(function () {
+        delete window.gtag;
+    });
+
+    it('should return false if window.gtag is not defined', function () {
+        expect(setGtagAnalyticsConsentMode(true)).toBeFalse();
+    });
+
+    it('should grant analytics consent when called with true', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(true);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            analytics_storage: 'granted'
+        });
+    });
+
+    it('should deny analytics consent when called with false', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(false);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            analytics_storage: 'denied'
+        });
+    });
+
+    it('should use "default" type when specified', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(true, 'default');
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+            analytics_storage: 'granted'
+        });
     });
 });
