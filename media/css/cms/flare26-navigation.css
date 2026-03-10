@@ -82,7 +82,7 @@
     color: var(--fl-theme-color-text);
     font-weight: var(--token-font-weight-semibold);
     margin: 0;
-    padding: var(--token-spacing-sm);
+    padding: var(--token-spacing-sm) 10px;
     text-decoration: underline;
 }
 
