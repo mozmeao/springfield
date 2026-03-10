@@ -207,7 +207,7 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should grant analytics default when no consent cookie and visitor is outside EU/EAA', function () {
+        it('should grant analytics default and deny ads default when no consent cookie and visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
             spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
             document
