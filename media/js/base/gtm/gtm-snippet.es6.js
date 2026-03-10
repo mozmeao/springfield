@@ -26,9 +26,10 @@ if (typeof window.dataLayer === 'undefined') {
 }
 
 /**
- * Set Gtag consent defaults to false unless there is a
- * consent pref cookie allowing analytics OR there's no
- * consent required and we're on /landing/get
+ * Set Gtag consent defaults based on consent cookie or
+ * visitor region. Visitors outside EU/EAA default to
+ * granted analytics; visitors inside EU/EAA default to
+ * denied until explicit consent is given.
  */
 GTMSnippet.setGtagConsentDefaults = () => {
     const cookie = getConsentCookie();
@@ -38,13 +39,11 @@ GTMSnippet.setGtagConsentDefaults = () => {
         setGtagAdsConsentMode(cookie.analytics, 'default');
         setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
-        setGtagAdsConsentMode(false, 'default');
-        setGtagAnalyticsConsentMode(
-            GTMSnippet.isFirefoxLandingGet() && !consentRequired()
-                ? true
-                : false,
+        setGtagAdsConsentMode(
+            GTMSnippet.isFirefoxLandingGet() && !consentRequired(),
             'default'
         );
+        setGtagAnalyticsConsentMode(!consentRequired(), 'default');
     }
 };
 

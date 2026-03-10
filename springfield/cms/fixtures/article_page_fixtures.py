@@ -17,6 +17,8 @@ LOREM_IPSUM = (
     "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 )
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def create_article(
     title: str,
@@ -178,7 +180,7 @@ def get_theme_page_illustration_cards_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="qf39f">Peace of mind? Piece of cake.</p>',
@@ -273,7 +275,7 @@ def get_theme_page_icon_cards_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="sv9yi">Protection Features</p>',
@@ -405,7 +407,7 @@ def get_theme_page_sticker_row_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {"superheading_text": "", "heading_text": '<p data-block-key="sv9yi">More Firefox Features</p>', "subheading_text": ""},
             "content": [
                 {
@@ -526,7 +528,7 @@ def get_theme_hub_illustration_cards_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {"superheading_text": "", "heading_text": "", "subheading_text": ""},
             "content": [
                 {
@@ -629,7 +631,7 @@ def get_theme_hub_page_sticker_row_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="sx44k">Made by people on the internet, for people on the internet</p>',
@@ -640,7 +642,7 @@ def get_theme_hub_page_sticker_row_section():
                 {
                     "type": "article_cards_list",
                     "value": {
-                        "settings": {"card_type": "sticker_row"},
+                        "settings": {"card_type": "sticker_row", "show_to": SHOW_TO_ALL},
                         "cards": [
                             {
                                 "type": "item",

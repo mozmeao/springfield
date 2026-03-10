@@ -7,7 +7,7 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:step-card expand_link="{{ value.expand_link }}" step="{{ card_index }}">
+<include:step-card expand_link="{{ value.settings.expand_link }}" step="{{ card_index }}">
   <content:media>
     {% include_block value.image %}
   </content:media>

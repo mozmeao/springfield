@@ -161,6 +161,7 @@ python manage.py dumpdata \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
     cms.FreeFormPage \
+    cms.FreeFormPage2026 \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
     cms.SpringfieldImage \
