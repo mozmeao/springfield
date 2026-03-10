@@ -1827,6 +1827,33 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
     return _IntroBlock(*args, **kwargs)
 
 
+class IntroBlockSettings2026(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        default="vertical",
+        label="Layout",
+        inline_form=True,
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        form_classname = "compact-form struct-block"
+
+
 def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create IntroBlock with appropriate button types.
 
@@ -1836,6 +1863,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _IntroBlock(blocks.StructBlock):
+        settings = IntroBlockSettings2026()
         media = blocks.StreamBlock(
             [
                 ("image", ImageVariantsBlock()),

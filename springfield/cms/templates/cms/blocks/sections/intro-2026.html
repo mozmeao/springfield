@@ -4,7 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:intro-2026>
+<include:intro
+  {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
+  anchor_id="{{ value.settings.anchor_id }}"
+  vertical="{{ value.settings.media_position == 'vertical' }}"
+  slim="{{ value.settings.slim }}"
+>
   <content:heading>
     {% include_block value.heading %}
   </content:heading>
@@ -29,4 +34,4 @@
       {% endfor %}
     </content:media>
   {% endif %}
-</include:intro-2026>
+</include:intro>
