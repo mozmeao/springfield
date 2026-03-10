@@ -7,11 +7,9 @@ from http import HTTPStatus
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.urls import Resolver404, resolve
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 from wagtail.models import Locale as WagtailLocale, Page
-from wagtail.views import serve as wagtail_serve
 
 from springfield.base.i18n import normalize_language
 from springfield.cms.utils import find_fallback_page_for_locale
@@ -66,27 +64,25 @@ class CMSLocaleFallbackMiddleware:
         lang_prefix, _, sub_path = _path.partition("/")
         fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
 
-        # Pre-intercept: if the URL prefix is a configured alias locale but has no
-        # Wagtail Locale DB record, we serve the fallback page. We must do this before
-        # response = self.get_response(request) to avoid this unlikely scenario:
-        #   the user requests a page in an alias locale (ex: /pt-PT/somepage),
-        #   but the pt-PT locale doesn't exist in the database,
-        # because this causes Wagtail to redirect the user to the en-US page.
-        if lang_prefix in fallback_locales and not WagtailLocale.objects.filter(language_code=lang_prefix).exists():
-            try:
-                is_wagtail_path = resolve(request.path).func == wagtail_serve
-            except Resolver404:
-                is_wagtail_path = False
-
-            # Only pre-intercept for paths routed to Wagtail's serve view. Fluent/Django
-            # views (e.g. firefox.urls, privacy.urls) resolve to a different func and must
-            # be left to get_response() so they are not incorrectly replaced by CMS content.
-            if is_wagtail_path:
-                response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
-                if response is not None:
-                    return response
-                # If no fallback page exists, fall through to get_response() normally so
-                # Wagtail's default behaviour (e.g. serving en-US content) is preserved.
+        # Pre-intercept: serve the fallback page *before* get_response() when
+        # the alias locale cannot produce a correct Wagtail response on its own.
+        #
+        # Two cases require pre-interception:
+        # 1. The alias locale has no Locale DB record — Wagtail would redirect
+        #    to en-US instead of 404ing.
+        # 2. The alias locale has a DB record but site.root_page has no live
+        #    translation in it — Wagtail serves the en-US homepage with 200
+        #    at the alias URL (e.g. /pt-PT/), so the 404 fallback never fires.
+        #
+        # "Promoted" alias locales (those with a live site.root_page translation)
+        # are left to Wagtail; their sub-page 404s are caught by the
+        # post-response fallback below.
+        if lang_prefix in fallback_locales and self._alias_needs_preintercept(lang_prefix):
+            response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
+            if response is not None:
+                return response
+            # If no fallback page exists, fall through to get_response() normally so
+            # Wagtail's default behaviour (e.g. serving en-US content) is preserved.
 
         response = self.get_response(request)
 
@@ -190,6 +186,28 @@ class CMSLocaleFallbackMiddleware:
                 # (once the work to pre-cache the page tree lands)
 
         return response
+
+    def _alias_needs_preintercept(self, lang_prefix):
+        """Return True if the alias locale requires pre-interception.
+
+        Pre-interception is needed when Wagtail cannot correctly serve pages
+        for this alias locale on its own:
+        - No Locale DB record exists, OR
+        - The Locale record exists but site.root_page has no live translation
+          in this locale (Wagtail would serve the en-US homepage with 200).
+        """
+        alias_locale = WagtailLocale.objects.filter(language_code=lang_prefix).first()
+        if not alias_locale:
+            return True
+
+        from wagtail.models import Site
+
+        site = Site.objects.filter(is_default_site=True).select_related("root_page").first()
+        if not site:
+            return False
+
+        alias_root = site.root_page.get_translation_or_none(alias_locale)
+        return not alias_root or not alias_root.live
 
     def _has_null_byte(self, request):
         if "\x00" in request.path:

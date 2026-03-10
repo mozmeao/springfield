@@ -62,8 +62,11 @@ def find_fallback_page_for_locale(locale_code, url_path):
         return None
 
     # Normalize here; caller passes raw sub_path to avoid double normalization.
-    _url_path = url_path.strip("/") + "/"
-    full_url_path = f"{locale_root.url_path}{_url_path}"
+    _url_path = url_path.strip("/")
+    if not _url_path:
+        # Homepage request: return the locale root page itself (if live).
+        return locale_root if locale_root.live else None
+    full_url_path = f"{locale_root.url_path}{_url_path}/"
 
     return Page.objects.live().filter(url_path=full_url_path).first()
 

@@ -14,7 +14,7 @@ from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
-from springfield.cms.tests.factories import LocaleFactory
+from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 from springfield.urls import urlpatterns as springfield_urlpatterns
 
 pytestmark = [pytest.mark.django_db]
@@ -376,6 +376,62 @@ def test_unsupported_locale_not_in_hreflang_alternates(client, tiny_localized_si
     response = client.get(ja_url)
     assert response.status_code == 302
     assert response.url == en_us_child.url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_homepage_fallback_for_alias_locale(client):
+    """
+    If the homepage at an alias locale URL (e.g. /pt-PT/) is not live, GETting the
+    /pt-PT/ URL should serve fallback locale content (pt-BR) with a pt-BR canonical link.
+
+    When the pt-PT locale has a Locale DB record and a non-live root page
+    (as created by the alias locale migration), requesting /pt-PT/ should
+    serve the pt-BR homepage content via the fallback middleware.
+    """
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    site = Site.objects.get(is_default_site=True)
+    wagtail_root_page = site.root_page  # plain Page at depth 2
+
+    # Create a SimpleRichTextPage as the homepage (depth 3) for en-US,
+    # so that the CMS template (with canonical/hreflang) is used.
+    en_us_homepage = SimpleRichTextPageFactory(
+        title="English Home",
+        slug="home-page",
+        parent=wagtail_root_page,
+        locale=en_us_locale,
+    )
+    en_us_homepage.save_revision().publish()
+
+    # Point the site root to the homepage.
+    site.root_page = en_us_homepage
+    site.save()
+
+    # Create a pt-BR translation of the homepage.
+    wagtail_root_page.copy_for_translation(pt_br_locale)
+    pt_br_homepage = en_us_homepage.copy_for_translation(pt_br_locale)
+    pt_br_homepage.title = "Página Inicial pt-BR"
+    pt_br_homepage.save()
+    pt_br_homepage.save_revision().publish()
+
+    # Create pt-PT locale with a non-live root page (mimics migration 0053).
+    pt_pt_root = wagtail_root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = False
+    pt_pt_root.save()
+
+    response = client.get("/pt-PT/")
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    # The response should serve pt-BR content, not the default Wagtail page.
+    assert "Página Inicial pt-BR" in html
+    # Canonical must point to pt-BR (the fallback locale), not pt-PT.
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-BR/"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-PT/"' not in html
+    # Since content (pt-BR) differs from the URL locale (pt-PT), should be noindexed.
+    assert '<meta name="robots" content="noindex,follow">' in html
 
 
 @pytest.fixture()
