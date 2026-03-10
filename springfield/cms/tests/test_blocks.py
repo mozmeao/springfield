@@ -1201,9 +1201,9 @@ def test_buttons(index_page, rf):
                     assert button_element.find("span", class_=f"fl-icon-{icon}")
                 campaign = context["utm_parameters"]["utm_campaign"]
                 if button_data["value"]["store"] == "android":
-                    assert button_element["href"] == play_store_url(context, "firefox", campaign)
+                    assert button_element["href"] == play_store_url(context, "focus", campaign)
                 else:
-                    assert button_element["href"] == app_store_url(context, "firefox", campaign)
+                    assert button_element["href"] == app_store_url(context, "focus", campaign)
 
         # Store buttons render as fl-store-button, exclude those inside download wrappers
         store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]
@@ -1300,9 +1300,9 @@ def test_buttons_2026(index_page, rf):
                         assert button_element.find("span", class_=f"fl-icon-{icon}")
                     campaign = context["utm_parameters"]["utm_campaign"]
                     if button_data["value"]["store"] == "android":
-                        assert button_element["href"] == play_store_url(context, "firefox", campaign)
+                        assert button_element["href"] == play_store_url(context, "focus", campaign)
                     else:
-                        assert button_element["href"] == app_store_url(context, "firefox", campaign)
+                        assert button_element["href"] == app_store_url(context, "focus", campaign)
 
             # Store buttons render as fl-store-button, exclude those inside download wrappers
             store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]

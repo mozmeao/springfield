@@ -11,6 +11,8 @@ from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_media_content_variants() -> list[dict]:
     tags = list(get_tag_variants().values())
@@ -163,7 +165,7 @@ def get_section_with_media_content_variants() -> dict:
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all", "anchor_id": "section-with-media-content"},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": "section-with-media-content"},
             "heading": {
                 "superheading_text": '<p data-block-key="d2q88">Media + Content</p>',
                 "heading_text": '<p data-block-key="w8raa">Section with Media + Content Blocks and Call To Action</p>',

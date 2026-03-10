@@ -6,6 +6,8 @@ from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_t
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_kit_banner_variants():
     buttons = get_button_variants()
@@ -15,7 +17,7 @@ def get_kit_banner_variants():
             "value": {
                 "settings": {
                     "theme": "filled",
-                    "show_to": "all",
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "filled-banner-without-kit-image",
                 },
                 "heading": {
@@ -32,7 +34,7 @@ def get_kit_banner_variants():
             "value": {
                 "settings": {
                     "theme": "filled-small",
-                    "show_to": "all",
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "filled-banner-small-curious-kit",
                 },
                 "heading": {
@@ -50,7 +52,7 @@ def get_kit_banner_variants():
             "value": {
                 "settings": {
                     "theme": "filled-large",
-                    "show_to": "all",
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "filled-banner-large-curious-kit",
                 },
                 "heading": {
@@ -68,7 +70,7 @@ def get_kit_banner_variants():
             "value": {
                 "settings": {
                     "theme": "filled-face",
-                    "show_to": "all",
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "filled-banner-sitting-kit",
                 },
                 "heading": {
@@ -86,7 +88,7 @@ def get_kit_banner_variants():
             "value": {
                 "settings": {
                     "theme": "filled-tail",
-                    "show_to": "all",
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "filled-banner-kit-tail",
                 },
                 "heading": {
