@@ -1,0 +1,31 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/free_form_page2026.html" %}
+
+
+{% block flare_header %}
+  {% set theme = "dark" if page.upper_content else "light" %}
+  <include:flare26-header theme="{{ theme }}" hide_nav_cta disable_sticky/>
+{% endblock %}
+
+
+{% block pre_footer %}
+  {% set pre_footer_cta_form = get_pre_footer_cta_form_snippet() %}
+  {% if pre_footer_cta_form %}
+    {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
+    {% set analytics_position = "pre-footer-cta-form" %}
+    {% set analytics_id = pre_footer_cta_form.analytics_id %}
+    <include:newsletter-form theme="dark">
+      <include:heading
+        level="h2"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
+        subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
+      />
+      </include:newsletter-form>
+  {% endif %}
+{% endblock pre_footer %}
