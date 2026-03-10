@@ -14,10 +14,9 @@ from django.utils.encoding import force_str
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
 
-import querystringsafe_base64
 from product_details import product_details
 
-from lib import l10n_utils
+from lib import l10n_utils, querystringsafe_base64
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
 from springfield.base import waffle
