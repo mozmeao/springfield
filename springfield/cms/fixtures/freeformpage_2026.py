@@ -7,6 +7,8 @@ from django.conf import settings
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_mobile_store_qr_code():
     return {
@@ -44,7 +46,7 @@ def get_mobile_browsers_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": image_value,
                 "eyebrow": "",
                 "headline": '<p data-block-key="android-h">Firefox for Android</p>',
@@ -75,7 +77,7 @@ def get_mobile_browsers_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": image_value,
                 "eyebrow": "",
                 "headline": '<p data-block-key="ios-h">Firefox for iOS</p>',
@@ -106,7 +108,7 @@ def get_mobile_browsers_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": image_value,
                 "eyebrow": "",
                 "headline": '<p data-block-key="focus-h">Firefox Focus</p>',
@@ -172,7 +174,7 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
         {
             "type": "section",
             "value": {
-                "settings": {"show_to": "all", "anchor_id": ""},
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="sh1ff">Find the Firefox that fits you.</p>',
