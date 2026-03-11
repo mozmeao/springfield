@@ -16,7 +16,6 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_localize.segments import StringSegmentValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
@@ -24,6 +23,7 @@ from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -359,6 +359,8 @@ BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
+STORE_BUTTON_TYPE = "store_button"
+FOCUS_BUTTON_TYPE = "focus_button"
 
 
 BUTTON_PRIMARY = ""
@@ -484,8 +486,8 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -736,7 +738,7 @@ class SpringfieldLinkBlock(LinkBlock):
                     path_to_check = f"/en-US/{path.lstrip('/')}"
                     with translation.override("en-US"):
                         match = resolve(path_to_check)
-                    if match.func == wagtail_serve:
+                    if match.func == wagtail_serve_with_locale_fallback:
                         errors["relative_url"] = ErrorList([error_msg])
                 except Resolver404:
                     errors["relative_url"] = ErrorList([error_msg])
@@ -883,6 +885,42 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     return _DownloadFirefoxButtonBlock(**kwargs)
 
 
+class StoreButtonBlock(blocks.StructBlock):
+    store = blocks.ChoiceBlock(
+        choices=[
+            ("android", "Android (Google Play)"),
+            ("ios", "iOS (App Store)"),
+        ],
+        label="Store",
+    )
+
+    class Meta:
+        label = "Store Button"
+        label_format = "Store Button - {store}"
+        template = "cms/blocks/store-button.html"
+
+
+def FirefoxFocusButtonBlock(themes=None, **kwargs):
+    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
+        store = blocks.ChoiceBlock(
+            choices=[
+                ("android", "Android (Google Play)"),
+                ("ios", "iOS (App Store)"),
+            ],
+            label="Store",
+        )
+
+        class Meta:
+            label = "Firefox Focus Button"
+            label_format = "Firefox Focus Button - {label}"
+            template = "cms/blocks/firefox-focus-button.html"
+            value_class = BaseButtonValue
+
+    return _FirefoxFocusButtonBlock(**kwargs)
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -904,6 +942,8 @@ def MixedButtonsBlock(
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
+        STORE_BUTTON_TYPE: StoreButtonBlock(),
+        FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -1147,6 +1187,26 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/media-content.html"
 
     return _MediaContentBlock(*args, **kwargs)
+
+
+class IconListItemBlock(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List Item"
+        label_format = "{text}"
+
+
+class IconListWithImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    list_items = blocks.ListBlock(IconListItemBlock())
+
+    class Meta:
+        label = "Icon List with Image"
+        label_format = "Icon List with Image"
+        template = "cms/blocks/icon-list-with-image.html"
 
 
 # Cards
@@ -1499,6 +1559,34 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     return _IllustrationCardBlock(*args, **kwargs)
 
 
+def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create OutlinedCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _OutlinedCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/outlined-card.html"
+            label = "Outlined Card"
+            label_format = "Outlined Card - {headline}"
+
+    return _OutlinedCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1512,6 +1600,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
             ]
         )
 
@@ -1918,6 +2007,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
             ],
             required=False,
         )
@@ -2222,6 +2312,28 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
+
+
+# Mobile
+
+
+class MobileStoreQRCodeBlock(blocks.StructBlock):
+    """Block for displaying mobile app store buttons with a QR code."""
+
+    heading = HeadingBlock()
+    qr_code_data = blocks.CharBlock(
+        label="QR Code Data",
+        help_text="The URL or text encoded in the QR code.",
+    )
+    mobile_image = ImageChooserBlock(
+        label="Mobile Image",
+        help_text="Image shown on mobile instead of the QR code.",
+    )
+
+    class Meta:
+        template = "cms/blocks/sections/mobile-store-qr-code.html"
+        label = "Mobile Store Button / QR Code"
+        label_format = "{heading}"
 
 
 # Thanks Page

@@ -1468,6 +1468,7 @@ _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
     "cms.FreeFormPage",
+    "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
     "cms.ArticleIndexPage",

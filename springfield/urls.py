@@ -9,13 +9,13 @@ from django.urls import include, path
 from django.utils.module_loading import import_string
 
 import wagtaildraftsharing.urls as wagtaildraftsharing_urls
-from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 from watchman import views as watchman_views
 
 from springfield.base import views as base_views
 from springfield.base.i18n import springfield_i18n_patterns
+from springfield.cms import wagtail_urls
 from springfield.cms.views import FlareTestView
 
 # The default django 404 and 500 handler doesn't run the ContextProcessors,
@@ -93,8 +93,10 @@ if apps.is_installed("pattern_library"):
         path("pattern-library/", include("pattern_library.urls")),
     ]
 
-# Wagtail is the catch-all route, and it will raise a 404 if needed.
-# Note that we're also using localised URLs here
+# Wagtail catch-all: uses our custom wagtail_urls module which replaces
+# Wagtail's serve view with one that handles alias-locale fallback.
+# Because this is in the URL router, it only fires for paths that no other
+# Django view (including prefer_cms-decorated views) has claimed.
 urlpatterns += springfield_i18n_patterns(
     path("", include(wagtail_urls)),
 )

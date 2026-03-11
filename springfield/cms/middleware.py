@@ -7,87 +7,39 @@ from http import HTTPStatus
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.urls import Resolver404, resolve
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-from wagtail.models import Locale as WagtailLocale, Page
-from wagtail.views import serve as wagtail_serve
+from wagtail.models import Page, Site
 
 from springfield.base.i18n import normalize_language
-from springfield.cms.utils import find_fallback_page_for_locale
+from springfield.cms.views import _serve_fallback_page
 
 logger = logging.getLogger(__name__)
 
 
 class CMSLocaleFallbackMiddleware:
-    """Middleware to seek a viable translation in the CMS of a request that
-    404ed, based on the user's Accept-Language headers, ultimately
-    trying settings.LANGUAGE_CODE as the last effort
+    """Middleware that handles two locale-fallback concerns for 404 responses:
 
-    This has to exist because Wagtail doesn't fail over to the default/any
-    other locale if a request to /some-locale/some/path/ 404s
+    1. Alias-locale transparent serving: if the requested locale is a
+       configured alias (e.g. es-AR → es-MX) and the page exists in the
+       fallback locale, serve that content at the alias URL without redirecting.
+
+    2. Accept-Language redirect: if no alias fallback is found, redirect to
+       the best available locale based on the user's Accept-Language header,
+       falling back to settings.LANGUAGE_CODE.
+
+    Note: for alias locales where Wagtail itself cannot produce a correct
+    response (no Locale DB record, or no live root page translation), the
+    pre-wagtail-interception is handled by ``wagtail_serve_with_locale_fallback``
+    in the URL router — not here.  This middleware only handles 404s that
+    come back *after* the URL router has run.
     """
 
     def __init__(self, get_response):
         # One-time configuration and initialization.
         self.get_response = get_response
 
-    def _serve_fallback_page(self, request, lang_prefix, sub_path, fallback_locales):
-        """Find and serve the fallback locale's page for an alias locale URL.
-
-        Returns an HttpResponse if a fallback page is found, or None if the alias
-        locale has no configured fallback page (allowing the caller to fall through).
-
-        View-restricted pages are never transparently served; they redirect to the
-        canonical URL so Wagtail's restriction enforcement fires there.
-        """
-        fallback_page = find_fallback_page_for_locale(lang_prefix, sub_path)
-        if not fallback_page:
-            return None
-
-        if fallback_page.get_view_restrictions():
-            return HttpResponseRedirect(fallback_page.url)
-
-        specific_page = fallback_page.specific
-        request.content_locale = fallback_locales[lang_prefix]
-        # Note: we intentionally do NOT call translation.activate(request.content_locale)
-        # here, even though it would make SpringfieldLocale.get_active() resolve
-        # to the fallback locale's Wagtail Locale object.
-        # The reason: Django's LocalePrefixPattern.language_prefix reads
-        # translation.get_language() directly, so activating a different
-        # locale (e.g. es-MX while serving /es-AR/) would cause all url()
-        # template calls to generate links with the wrong locale prefix (es-MX).
-        # Setting request.content_locale carries the fallback locale
-        # into the render pipeline without disturbing URL generation.
-        return specific_page.serve(request)
-
     def __call__(self, request):
-        _path = request.path.lstrip("/")
-        lang_prefix, _, sub_path = _path.partition("/")
-        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
-
-        # Pre-intercept: if the URL prefix is a configured alias locale but has no
-        # Wagtail Locale DB record, we serve the fallback page. We must do this before
-        # response = self.get_response(request) to avoid this unlikely scenario:
-        #   the user requests a page in an alias locale (ex: /pt-PT/somepage),
-        #   but the pt-PT locale doesn't exist in the database,
-        # because this causes Wagtail to redirect the user to the en-US page.
-        if lang_prefix in fallback_locales and not WagtailLocale.objects.filter(language_code=lang_prefix).exists():
-            try:
-                is_wagtail_path = resolve(request.path).func == wagtail_serve
-            except Resolver404:
-                is_wagtail_path = False
-
-            # Only pre-intercept for paths routed to Wagtail's serve view. Fluent/Django
-            # views (e.g. firefox.urls, privacy.urls) resolve to a different func and must
-            # be left to get_response() so they are not incorrectly replaced by CMS content.
-            if is_wagtail_path:
-                response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
-                if response is not None:
-                    return response
-                # If no fallback page exists, fall through to get_response() normally so
-                # Wagtail's default behaviour (e.g. serving en-US content) is preserved.
-
         response = self.get_response(request)
 
         if response.status_code == HTTPStatus.NOT_FOUND:
@@ -95,6 +47,10 @@ class CMSLocaleFallbackMiddleware:
                 # Don't bother processing URLs with null-byte content - they
                 # are fake/vuln scan requests
                 return response
+
+            _path = request.path.lstrip("/")
+            lang_prefix, _, sub_path = _path.partition("/")
+            fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
 
             # At this point we have a request that has resulted in a 404,
             # which means it didn't match any Django URLs, and didn't match
@@ -106,7 +62,7 @@ class CMSLocaleFallbackMiddleware:
             # /es-AR/somepage), but the page content will come from the fallback locale
             # page (for example, the /es-MX/somepage Page).
             if lang_prefix in fallback_locales:
-                fallback_response = self._serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
+                fallback_response = _serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
                 if fallback_response is not None:
                     return fallback_response
                 # Fallback page not found — fall through to Accept-Language redirect logic.
@@ -145,28 +101,31 @@ class CMSLocaleFallbackMiddleware:
 
             # Now try to get hold of all the pages that exist in the CMS for the extracted path
             # that are also in a locale that is acceptable to the user or maybe the fallback locale.
+            #
+            # We build full Wagtail url_paths by looking up the site root page's
+            # translations for each candidate locale.  This avoids hard-coding
+            # the root slug.
 
-            # We do this by seeking full url_paths that are prefixed with /home/ (for the
-            # default locale) or home-<locale_code> - Wagtail sort of 'denorms' the
-            # language code into the root of the page tree for each separate locale - eg:
-            # * /home/test-path/to/a/page for en-US
-            # * /home-fr/test-path/to/a/page for French
+            site = Site.objects.filter(is_default_site=True).select_related("root_page").first()
+            if not site:
+                return response
+
+            root_page = site.root_page
+            # Fetch only (language_code, url_path) for candidate locale roots.
+            locale_root_paths = dict(
+                Page.objects.filter(
+                    translation_key=root_page.translation_key,
+                    locale__language_code__in=ranked_locales,
+                ).values_list("locale__language_code", "url_path")
+            )
 
             possible_url_path_patterns = []
             for locale_code in ranked_locales:
-                if locale_code == settings.LANGUAGE_CODE:
-                    root = "/home"
-                else:
-                    root = f"/home-{locale_code}"
+                root_url_path = locale_root_paths.get(locale_code)
+                if root_url_path:
+                    possible_url_path_patterns.append(f"{root_url_path}{_url_path}")
 
-                full_url_path = f"{root}/{_url_path}"
-                possible_url_path_patterns.append(full_url_path)
-
-            cms_pages_with_viable_locales = Page.objects.live().filter(
-                url_path__in=possible_url_path_patterns,
-                # There's no extra value in filtering with locale__language_code__in=ranked_locales
-                # due to the locale code being embedded in the url_path strings
-            )
+            cms_pages_with_viable_locales = Page.objects.live().select_related("locale").filter(url_path__in=possible_url_path_patterns)
 
             if cms_pages_with_viable_locales:
                 # OK, we have some candidate pages with that desired path and at least one

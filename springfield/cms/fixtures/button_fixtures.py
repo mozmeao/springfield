@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage
+from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
+from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
@@ -266,6 +266,44 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 },
             },
             "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+        },
+        "store_android": {
+            "type": "store_button",
+            "value": {"store": "android"},
+            "id": "sb000001-0000-0000-0000-000000000001",
+        },
+        "store_ios": {
+            "type": "store_button",
+            "value": {"store": "ios"},
+            "id": "sb000001-0000-0000-0000-000000000002",
+        },
+        "focus_android": {
+            "type": "focus_button",
+            "value": {
+                "settings": {
+                    "theme": "",
+                    "icon": "downloads",
+                    "icon_position": "right",
+                    "analytics_id": "fb000001-0000-0000-0000-000000000001",
+                },
+                "label": "Get Firefox Focus for Android",
+                "store": "android",
+            },
+            "id": "fb000001-0000-0000-0000-000000000002",
+        },
+        "focus_ios": {
+            "type": "focus_button",
+            "value": {
+                "settings": {
+                    "theme": "secondary",
+                    "icon": "downloads",
+                    "icon_position": "right",
+                    "analytics_id": "fb000001-0000-0000-0000-000000000003",
+                },
+                "label": "Get Firefox Focus for iOS",
+                "store": "ios",
+            },
+            "id": "fb000001-0000-0000-0000-000000000004",
         },
     }
     if full:
@@ -536,7 +574,53 @@ def get_button_blocks() -> list[dict]:
             },
             "id": "706155ae-f993-4582-b2eb-21de4efa660e",
         },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="sbh01">Store Buttons</p>',
+                    "subheading_text": '<p data-block-key="sbsub1">Display the Google Play or App Store button.</p>',
+                },
+                "buttons": [buttons["store_android"], buttons["store_ios"]],
+            },
+            "id": "storeintr-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="fbh01">Firefox Focus Buttons</p>',
+                    "subheading_text": '<p data-block-key="fbsub1">Display a link to Firefox Focus on Google Play or App Store.</p>',
+                },
+                "buttons": [buttons["focus_android"], buttons["focus_ios"]],
+            },
+            "id": "focusintr-0000-0000-0000-000000000001",
+        },
     ]
+
+
+def get_buttons_2026_test_page() -> FreeFormPage2026:
+    index_page = get_2026_test_index_page()
+
+    slug = "test-buttons-2026"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
+        index_page.add_child(instance=page)
+
+    blocks = get_button_blocks()
+    page.upper_content = blocks
+    page.content = blocks
+    page.save_revision().publish()
+    return page
 
 
 def get_buttons_test_page() -> FreeFormPage:

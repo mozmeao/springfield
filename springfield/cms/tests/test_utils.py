@@ -7,7 +7,7 @@ from django.test import override_settings
 
 import pytest
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import Locale, Page
+from wagtail.models import Locale, Page, Site
 
 from springfield.cms.tests.factories import LocaleFactory
 from springfield.cms.utils import (
@@ -18,6 +18,14 @@ from springfield.cms.utils import (
 )
 
 pytestmark = [pytest.mark.django_db]
+
+
+def _publish_root_page(site, locale_code):
+    """Publish the root page for the given locale (tiny_localized_site creates them as drafts)."""
+    root = site.root_page.get_translation(Locale.objects.get(language_code=locale_code))
+    root.live = True
+    root.save()
+    return root
 
 
 @override_settings(FALLBACK_LOCALES={})
@@ -225,6 +233,88 @@ def test_find_fallback_page_for_locale__returns_page_when_found(tiny_localized_s
 
     result = find_fallback_page_for_locale("pt-PT", "test-page/")
     assert expected_result == result
+    assert result.locale.language_code == "pt-BR"
+
+
+@pytest.mark.parametrize(
+    "falsy_url_path",
+    [
+        (""),
+        ("/"),
+    ],
+)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_homepage_for_falsy_url_path(tiny_localized_site, falsy_url_path):
+    """
+    Returns fallback locale homepage when no alias homepage & url_path is falsy (homepage request).
+
+    When a user requests /pt-PT/ (the pt-PT homepage), and the pt-PT locale does
+    not have a live homepage, we should return the pt-BR homepage.
+    """
+    # The pt-PT locale does not have a live homepage.
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    site = Site.objects.get(is_default_site=True)
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", falsy_url_path)
+    assert result is not None, "find_fallback_page_for_locale returned None for empty url_path (homepage)"
+    assert result == pt_br_root
+    assert result.locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_fallback_homepage_when_alias_has_no_live_homepage(tiny_localized_site):
+    """
+    When the alias locale (pt-PT) exists but has no live homepage,
+    the function returns the fallback locale's (pt-BR) homepage.
+    """
+    # Create pt-PT locale with a non-live root page (mimics migration 0053).
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    pt_pt_root = site.root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = False
+    pt_pt_root.save()
+
+    # pt-PT has no live homepage.
+    assert not Page.objects.live().filter(locale=pt_pt_locale, depth=site.root_page.depth).exists()
+
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", "")
+    assert result is not None, "find_fallback_page_for_locale returned None when alias has no live homepage"
+    assert result == pt_br_root
+    assert result.locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_fallback_homepage_when_alias_has_live_homepage(tiny_localized_site):
+    """
+    When the alias locale (pt-PT) has its own live homepage, the function
+    still returns the fallback locale's (pt-BR) homepage.
+
+    find_fallback_page_for_locale always looks up the fallback locale's page tree.
+    Whether to use the alias locale's own page or the fallback is decided by the
+    caller (the middleware), not by this function.
+    """
+    # Create pt-PT locale with a live root page (promoted alias).
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    pt_pt_root = site.root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = True
+    pt_pt_root.save()
+    pt_pt_root.save_revision().publish()
+
+    # pt-PT has a live homepage.
+    assert Page.objects.live().filter(locale=pt_pt_locale, depth=site.root_page.depth).exists()
+
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", "")
+    assert result is not None, "find_fallback_page_for_locale returned None when alias has live homepage"
+    # The function always returns the fallback locale's page, regardless of
+    # whether the alias locale has its own content.
+    assert result == pt_br_root
     assert result.locale.language_code == "pt-BR"
 
 
