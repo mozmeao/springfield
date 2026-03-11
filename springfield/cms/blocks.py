@@ -981,14 +981,17 @@ class ImageVariantsBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ImageVariantsBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    settings = ImageVariantsBlockSettings()
+def ImageVariantsBlock(required=True, *args, **kwargs):
+    class _ImageVariantsBlock(blocks.StructBlock):
+        image = ImageChooserBlock(required=required)
+        settings = ImageVariantsBlockSettings()
 
-    class Meta:
-        label = "Image"
-        label_format = "Image - {image}"
-        template = "cms/blocks/image-variants.html"
+        class Meta:
+            label = "Image"
+            label_format = "Image - {image}"
+            template = "cms/blocks/image-variants.html"
+
+    return _ImageVariantsBlock(*args, **kwargs)
 
 
 class VideoBlock(blocks.StructBlock):
@@ -1483,6 +1486,7 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _OutlinedCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
+        sticker = ImageVariantsBlock(required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
