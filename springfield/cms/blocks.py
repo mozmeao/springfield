@@ -390,18 +390,15 @@ def validate_video_url(value):
 
 
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
-    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+    """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
-    def _localize(self, instance):
-        if instance and hasattr(instance, "get_localized"):
-            instance = instance.get_localized()
-        return instance
-
-    def to_python(self, value):
-        return self._localize(super().to_python(value))
-
-    def bulk_to_python(self, values):
-        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        if value and hasattr(value, "get_localized"):
+            localized_instance = value.get_localized()
+            context[self.TEMPLATE_VAR] = localized_instance
+            context["self"] = localized_instance
+        return context
 
     def clean(self, value):
         if value and not value.live:
