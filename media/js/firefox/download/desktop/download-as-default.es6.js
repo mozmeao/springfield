@@ -225,13 +225,13 @@ DownloadAsDefault.meetsRequirements = () => {
         // Ensure the visitor is on Windows OS
         return false;
     } else if (DownloadAsDefault.onlyEssential()) {
-        // onlyEssential() tells us whether DNT/GPC are blocking 
-        // the cookie banner of if consent is still needed (and remember the 
+        // onlyEssential() tells us whether DNT/GPC are blocking
+        // the cookie banner of if consent is still needed (and remember the
         // banner is not shown on /thanks/ if consent is needed - we just skip
         // attribution in that case - this is a key point here).
 
-        // In this corner case (which surfaces in the EU *specifically*), there's 
-        // no point showing DaD because stubattribution will never get 
+        // In this corner case (which surfaces in the EU *specifically*), there's
+        // no point showing DaD because stubattribution will never get
         // called - and so the download-as-default param won't reach the stub
         // installer - so it's better to not show the checkbox option at all.
         return false;
