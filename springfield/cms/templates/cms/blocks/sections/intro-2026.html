@@ -7,7 +7,7 @@
 <include:intro
   {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
   anchor_id="{{ value.settings.anchor_id }}"
-  vertical="{{ value.settings.media_position == 'vertical' }}"
+  vertical="{{ value.settings.layout == 'vertical' }}"
   slim="{{ value.settings.slim }}"
 >
   <content:heading>
@@ -29,9 +29,7 @@
     <content:media>
       {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
       {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-      {% for block in value.media %}
-        {% include_block block %}
-      {% endfor %}
+      {% include_block value.media %}
     </content:media>
   {% endif %}
 </include:intro>

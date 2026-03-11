@@ -2268,17 +2268,59 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
 
         for index, variant in enumerate(variants):
             intro_el = intro_divs[index]
-            heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
+            value = variant["value"]
+            intro_classes = intro_el.get("class", [])
+
+            # Heading
+            heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
             heading = intro_el.find(class_="fl-heading")
             assert heading and heading_text in heading.get_text()
 
-            media = variant["value"].get("media")
+            # Settings: layout
+            layout = value["settings"]["layout"]
+            if layout == "vertical":
+                assert "fl-intro-vertical" in intro_classes
+            elif layout == "right" and value["media"]:
+                assert "fl-intro-media-right" in intro_classes
+            elif layout == "left" and value["media"]:
+                assert "fl-intro-media-left" in intro_classes
+
+            # Settings: slim
+            if value["settings"]["slim"]:
+                assert "is-slim" in intro_classes
+            else:
+                assert "is-slim" not in intro_classes
+
+            # Settings: anchor_id
+            anchor_id = value["settings"]["anchor_id"]
+            if anchor_id:
+                assert intro_el.get("id") == anchor_id
+            else:
+                assert not intro_el.get("id")
+
+            # Media
+            media = value.get("media")
             if media:
                 media_block = media[0]
+                media_el = intro_el.find("div", class_="fl-intro-media")
+                assert media_el
                 if media_block["type"] == "image":
-                    assert intro_el.find("div", class_="fl-intro-media").find("img")
+                    assert_image_variants_attributes(
+                        images_element=media_el,
+                        images_value=media_block["value"],
+                        sizes="(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw",
+                        widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                    )
                 elif media_block["type"] == "video":
-                    assert intro_el.find("div", class_="fl-video")
+                    assert_video_attributes(intro_el.find("div", class_="fl-video"), media_block)
+                elif media_block["type"] == "animation":
+                    assert_animation_attributes(intro_el.find("div", class_="fl-video"), media_block)
+                elif media_block["type"] == "qr_code":
+                    qr_div = media_el.find("div", class_="fl-media-qr-code")
+                    assert qr_div
+                    assert qr_div.find("div", class_="fl-qr-code").find("svg")
+                    if media_block["value"].get("background"):
+                        assert qr_div.find("img")
             else:
                 assert not intro_el.find("div", class_="fl-intro-media")
 

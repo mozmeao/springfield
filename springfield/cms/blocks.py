@@ -1861,15 +1861,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
 
     class _IntroBlock(blocks.StructBlock):
         settings = IntroBlockSettings2026()
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
