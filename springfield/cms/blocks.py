@@ -2071,7 +2071,7 @@ class KitBannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitBannerBlock(allow_uitour=False, *args, **kwargs):
+def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, **kwargs):
     """Factory function to create KitBannerBlock with appropriate button types."""
 
     class _KitBannerBlock(blocks.StructBlock):
@@ -2079,6 +2079,7 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=button_themes,
             min_num=0,
             max_num=2,
             required=False,
