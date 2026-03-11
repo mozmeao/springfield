@@ -1,0 +1,212 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@use '~@mozilla-protocol/core/protocol/css/includes/lib';
+
+// Minimal POC styling for Smart Window page.
+// Borrows key patterns from firefox/ai/waitlist.scss.
+
+body {
+    --figma-color-mvp-cream: #FCF5F0;
+    --figma-color-mvp-dark-purple: #210340;
+    --figma-color-mvp-soft-purple: #F1E7F8;
+    --figma-color-mvp-link-purple: #6132BC;
+    --figma-color-error: #A5302B;
+
+    background: linear-gradient(180deg, var(--figma-color-mvp-soft-purple) 0%, var(--figma-color-mvp-cream) 100%);
+    min-height: 100vh;
+
+    * {
+        box-sizing: border-box;
+    }
+}
+
+.visually-hidden {
+    @include lib.visually-hidden;
+}
+
+// Layout
+#outer-wrapper {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
+
+    > * {
+        width: 100%;
+    }
+}
+
+.c-navigation {
+    margin-inline: auto;
+    margin-block-end: 48px;
+    max-width: calc(#{lib.$content-max} + (#{lib.$spacing-md} * 2));
+    padding-inline: lib.$spacing-md;
+    padding-top: lib.$spacing-md;
+}
+
+.c-smart-window {
+    max-width: calc(#{lib.$content-max} + (#{lib.$layout-2xs} * 2));
+    margin-inline: auto;
+    padding-inline: lib.$layout-2xs;
+    color: var(--figma-color-mvp-dark-purple);
+    padding-bottom: lib.$layout-md;
+
+    @media #{lib.$mq-md} {
+        padding-inline: lib.$layout-md;
+    }
+}
+
+.c-smart-window-content {
+    max-width: 640px;
+    margin-inline: auto;
+}
+
+// Pill / badge
+.c-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.125rem;
+    margin-bottom: lib.$spacing-lg;
+}
+
+.c-pill-tag {
+    background-color: var(--figma-color-mvp-dark-purple);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+// Headings
+.c-heading {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: lib.$spacing-lg;
+
+    @media #{lib.$mq-md} {
+        font-size: 2rem;
+    }
+}
+
+// Body text
+.c-body {
+    margin-bottom: lib.$spacing-xl;
+
+    p {
+        margin-bottom: lib.$spacing-md;
+    }
+
+    ul {
+        margin-bottom: lib.$spacing-md;
+        padding-left: lib.$spacing-lg;
+    }
+}
+
+// Form (waitlist)
+.c-input-wrapper {
+    display: flex;
+    gap: lib.$spacing-sm;
+    margin-bottom: lib.$spacing-md;
+
+    input[type='email'] {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid var(--figma-color-mvp-dark-purple);
+        border-radius: 8px;
+        font-size: 1rem;
+
+        &:focus {
+            outline: 2px solid var(--figma-color-mvp-link-purple);
+            outline-offset: 2px;
+        }
+    }
+}
+
+.c-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--figma-color-mvp-dark-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: var(--figma-color-mvp-link-purple);
+    }
+}
+
+.c-submit-loading {
+    display: none;
+}
+
+.c-waitlist-errors {
+    color: var(--figma-color-error);
+    margin-bottom: lib.$spacing-md;
+}
+
+.c-privacy-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    a {
+        color: var(--figma-color-mvp-link-purple);
+    }
+}
+
+.c-privacy-input {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+// Confirmation
+.c-smart-window-confirmation {
+    text-align: center;
+    padding: lib.$layout-md 0;
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: lib.$spacing-md;
+    }
+}
+
+// CTA buttons (Protocol overrides for prominence)
+.c-smart-window-section {
+    .mzp-c-button.mzp-t-xl {
+        font-size: 1.125rem;
+        padding: 16px 32px;
+        margin-top: lib.$spacing-lg;
+    }
+}
+
+// Hidden utility
+.hidden {
+    display: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
+// Footer (minimal override)
+.c-footer {
+    max-width: calc(#{lib.$content-max} + (#{lib.$layout-2xs} * 2));
+    margin-inline: auto;
+    padding-inline: lib.$layout-2xs;
+    padding-block: lib.$spacing-lg;
+
+    @media #{lib.$mq-md} {
+        padding-inline: lib.$layout-md;
+    }
+}

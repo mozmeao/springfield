@@ -27,6 +27,7 @@ from springfield.firefox.firefox_details import (
     firefox_desktop,
     firefox_ios,
 )
+from springfield.base.geo import get_country_from_request
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
 
@@ -173,6 +174,24 @@ def firefox_ai_waitlist_page(request):
     ctx = {"newsletter_id": newsletter_id}
 
     return l10n_utils.render(request, template_name, ctx)
+
+
+SMART_WINDOW_SUPPORTED_COUNTRIES = ["US", "CA", "DE", "FR"]
+
+
+@require_safe
+def smart_window_page(request):
+    country_code = get_country_from_request(request)
+    ctx = {
+        "newsletter_id": "smart-window-waitlist",
+        "is_supported_country": country_code in SMART_WINDOW_SUPPORTED_COUNTRIES,
+    }
+    return l10n_utils.render(
+        request,
+        "firefox/smart-window/index.html",
+        ctx,
+        ftl_files=["firefox/smart-window"],
+    )
 
 
 @require_safe
