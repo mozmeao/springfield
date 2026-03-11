@@ -145,7 +145,7 @@ DownloadAsDefault.unbindEvents = () => {
         checkboxes[i].style.display = 'none';
     }
 
-    for (let i = 0; i < checkboxes.length; i++) {
+    for (let i = 0; i < loadingSigns.length; i++) {
         loadingSigns[i].classList.add('show');
     }
 };
@@ -158,7 +158,7 @@ DownloadAsDefault.bindEvents = () => {
     const checkboxes = document.querySelectorAll('.default-browser-checkbox');
     const loadingSigns = document.querySelectorAll('.loading');
 
-    for (let i = 0; i < checkboxes.length; i++) {
+    for (let i = 0; i < loadingSigns.length; i++) {
         loadingSigns[i].classList.remove('show');
     }
 

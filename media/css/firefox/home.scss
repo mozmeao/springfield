@@ -779,9 +779,24 @@ button.mzp-c-cta-link {
 
         &.show {
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: url('/media/img/icons/loading.svg') no-repeat center;
+            width: 13px;
+            aspect-ratio: 1;
+
+            --circle:no-repeat radial-gradient(farthest-side,#25b09b 92%,#0000);
+            background:
+                var(--circle) top,
+                var(--circle) left,
+                var(--circle) right,
+                var(--circle) bottom;
+            background-size: 4px 4px;
+            animation: l7 1s infinite;
         }
     }
 }
+
+@keyframes l7 {
+    to {
+        transform: rotate(.5turn)
+    }
+}
+
