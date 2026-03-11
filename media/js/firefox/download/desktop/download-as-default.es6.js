@@ -224,6 +224,11 @@ DownloadAsDefault.meetsRequirements = () => {
     } else if (window.site.platform !== 'windows') {
         // Ensure the visitor is on Windows OS
         return false;
+    } else if (DownloadAsDefault.onlyEssential()) {
+        // Ensure we will pass StubAttributionConsent.init()
+        // Otherwise, on pages without the checkbox check state directly
+        // calling StubAttribution.init(), it will never run
+        return false;
     } else if (!window.site.fxSupported) {
         // Ensure the visitor is on a supported version
         return false;
