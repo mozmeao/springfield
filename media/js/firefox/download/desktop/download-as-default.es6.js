@@ -225,9 +225,15 @@ DownloadAsDefault.meetsRequirements = () => {
         // Ensure the visitor is on Windows OS
         return false;
     } else if (DownloadAsDefault.onlyEssential()) {
-        // Ensure we will pass StubAttributionConsent.init()
-        // Otherwise, on pages without the checkbox check state directly
-        // calling StubAttribution.init(), it will never run
+        // onlyEssential() tells us whether DNT/GPC are blocking 
+        // the cookie banner of if consent is still needed (and remember the 
+        // banner is not shown on /thanks/ if consent is needed - we just skip
+        // attribution in that case - this is a key point here).
+
+        // In this corner case (which surfaces in the EU *specifically*), there's 
+        // no point showing DaD because stubattribution will never get 
+        // called - and so the download-as-default param won't reach the stub
+        // installer - so it's better to not show the checkbox option at all.
         return false;
     } else if (!window.site.fxSupported) {
         // Ensure the visitor is on a supported version
