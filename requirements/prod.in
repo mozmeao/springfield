@@ -53,6 +53,10 @@ sentry-processor==0.0.1
 sentry-sdk==2.52.0
 supervisor==4.3.0
 timeago==1.0.16
+# TODO: update wagtail-link-block version once these pull requests are merged and released:
+#   - https://github.com/developersociety/wagtail-link-block/pull/36
+#   - https://github.com/developersociety/wagtail-link-block/pull/37
+#   - https://github.com/developersociety/wagtail-link-block/pull/38
 wagtail-link-block==1.1.7
 wagtail-localize-dashboard==0.3.0
 wagtail-localize-intentional-blanks==0.2.4
