@@ -9,7 +9,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-from wagtail.models import Page
+from wagtail.models import Page, Site
 
 from springfield.base.i18n import normalize_language
 from springfield.cms.views import _serve_fallback_page
@@ -101,28 +101,31 @@ class CMSLocaleFallbackMiddleware:
 
             # Now try to get hold of all the pages that exist in the CMS for the extracted path
             # that are also in a locale that is acceptable to the user or maybe the fallback locale.
+            #
+            # We build full Wagtail url_paths by looking up the site root page's
+            # translations for each candidate locale.  This avoids hard-coding
+            # the root slug.
 
-            # We do this by seeking full url_paths that are prefixed with /home/ (for the
-            # default locale) or home-<locale_code> - Wagtail sort of 'denorms' the
-            # language code into the root of the page tree for each separate locale - eg:
-            # * /home/test-path/to/a/page for en-US
-            # * /home-fr/test-path/to/a/page for French
+            site = Site.objects.filter(is_default_site=True).select_related("root_page").first()
+            if not site:
+                return response
+
+            root_page = site.root_page
+            # Fetch only (language_code, url_path) for candidate locale roots.
+            locale_root_paths = dict(
+                Page.objects.filter(
+                    translation_key=root_page.translation_key,
+                    locale__language_code__in=ranked_locales,
+                ).values_list("locale__language_code", "url_path")
+            )
 
             possible_url_path_patterns = []
             for locale_code in ranked_locales:
-                if locale_code == settings.LANGUAGE_CODE:
-                    root = "/home"
-                else:
-                    root = f"/home-{locale_code}"
+                root_url_path = locale_root_paths.get(locale_code)
+                if root_url_path:
+                    possible_url_path_patterns.append(f"{root_url_path}{_url_path}")
 
-                full_url_path = f"{root}/{_url_path}"
-                possible_url_path_patterns.append(full_url_path)
-
-            cms_pages_with_viable_locales = Page.objects.live().filter(
-                url_path__in=possible_url_path_patterns,
-                # There's no extra value in filtering with locale__language_code__in=ranked_locales
-                # due to the locale code being embedded in the url_path strings
-            )
+            cms_pages_with_viable_locales = Page.objects.live().select_related("locale").filter(url_path__in=possible_url_path_patterns)
 
             if cms_pages_with_viable_locales:
                 # OK, we have some candidate pages with that desired path and at least one

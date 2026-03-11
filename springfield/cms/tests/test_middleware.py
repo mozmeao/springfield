@@ -7,10 +7,10 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import override_settings
 
 import pytest
-from wagtail.models import Locale, Page, PageViewRestriction
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.middleware import CMSLocaleFallbackMiddleware
-from springfield.cms.tests.factories import LocaleFactory
+from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
 
@@ -193,6 +193,74 @@ def test_CMSLocaleFallbackMiddleware_404_when_no_live_page_exists_only_drafts(
     middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
     response = middleware(request)
     assert response.status_code == 404  # rather than a redirect to `child_page`
+
+
+# ---------------------------------------------------------------------------
+# Accept-Language redirect with non-standard root page
+# ---------------------------------------------------------------------------
+
+
+def test_CMSLocaleFallbackMiddleware_accept_language_redirect_with_nested_site_root(
+    rf,
+):
+    """
+    Accept-Language redirect must work when Site.root_page is not the default depth-2 page.
+
+    The site root can be a depth-3 page (e.g. url_path=/home/home/).
+    The middleware must look up the actual root page url_path, rather than
+    hardcoding '/home' and '/home-{locale}'.
+    """
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = LocaleFactory(language_code="fr")
+
+    site = Site.objects.get(is_default_site=True)
+    original_root = site.root_page  # depth 2, url_path=/home/
+
+    # Create a nested page to act as the new site root (mirrors production
+    # structure where Site.root_page is at depth 3).
+    inner_root = Page(title="Inner Home", slug="inner-home", locale=en_us_locale)
+    original_root.add_child(instance=inner_root)
+    inner_root.save_revision().publish()
+    assert inner_root.url_path == "/home/inner-home/"
+
+    site.root_page = inner_root
+    site.save()
+
+    # Create a content page under the nested root.
+    en_page = SimpleRichTextPageFactory(
+        title="Test Page",
+        slug="test-page",
+        parent=inner_root,
+    )
+    en_page.save_revision().publish()
+    assert en_page.url_path == "/home/inner-home/test-page/"
+
+    # Create fr translations — parent pages must be translated first.
+    original_root.copy_for_translation(fr_locale)
+
+    fr_inner_root = inner_root.copy_for_translation(fr_locale)
+    fr_inner_root.save_revision().publish()
+
+    fr_page = en_page.copy_for_translation(fr_locale)
+    fr_page.save_revision().publish()
+
+    # Sanity checks
+    en_page.refresh_from_db()
+    fr_page.refresh_from_db()
+    assert "/inner-home/" in en_page.url_path
+    assert fr_page.live is True
+
+    # Request a locale that doesn't have the page, with fr as preferred.
+    request = rf.get(
+        "/de/test-page/",
+        HTTP_ACCEPT_LANGUAGE="fr;q=0.8",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+
+    # Should redirect to the fr version of the page.
+    assert response.status_code == 302, "Middleware failed to find page for Accept-Language redirect (likely hardcoded root url_path prefix)"
+    assert response.headers["Location"] == "/fr/test-page/"
 
 
 # ---------------------------------------------------------------------------
