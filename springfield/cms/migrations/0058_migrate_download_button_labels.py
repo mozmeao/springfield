@@ -169,7 +169,7 @@ def update_translation_sources(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0054_prefootercta_pretranslated_label"),
+        ("cms", "0057_prefootercta_pretranslated_label"),
     ]
 
     operations = [

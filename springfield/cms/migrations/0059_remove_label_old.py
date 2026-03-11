@@ -7,7 +7,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0055_migrate_download_button_labels"),
+        ("cms", "0058_migrate_download_button_labels"),
     ]
 
     operations = [
