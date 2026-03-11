@@ -8,7 +8,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
@@ -46,11 +45,6 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
-
-
-@hooks.register("insert_global_admin_js")
-def relative_url_link_block_js():
-    return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
 
 
 @hooks.register("insert_global_admin_js")
