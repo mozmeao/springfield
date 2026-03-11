@@ -10,7 +10,6 @@ from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple
 from django.urls import Resolver404, resolve
 from django.utils import translation
-from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
@@ -551,64 +550,56 @@ class SpringfieldLinkBlockURLValue(URLValue):
                 return f"/{lang}/{parts[1]}"
         return url
 
-    def get_url(self):
-        """
-        Override the get_url() method to:
-            - provide logic for returning a locale-appropriate relative_url
-            - provide logic for returning a locale-appropriate page URL
-        """
-        link_to = self.get("link_to")
+    def get_relative_url_url(self):
+        """Return a locale-appropriate relative_url."""
+        path = self.get("relative_url")
+        if path:
+            try:
+                locale = SpringfieldLocale.get_active()
+                # To make sure we return the URL prefixed with the user-facing locale,
+                # we reconstruct the URL using the URL-facing locale prefix.
+                active_lang = normalize_language(translation.get_language()) or locale.language_code
+                return f"/{active_lang}/{path.lstrip('/')}"
+            except Exception:
+                return path
+        return path
 
-        if link_to == "relative_url":
-            path = self.get(link_to)
-            if path:
+    def get_page_url(self):
+        """Return a locale-appropriate Page URL."""
+        page = self.get("page")
+        if page:
+            try:
+                locale = SpringfieldLocale.get_active()
+                # Get the active language, so we can use it to determine the URL to return.
+                active_lang = normalize_language(translation.get_language()) or locale.language_code
                 try:
-                    locale = SpringfieldLocale.get_active()
-                    # To make sure we return the URL prefixed with the user-facing locale,
+                    translated_page = page.get_translation(locale)
+                    # If the translated page matches the active language,
+                    # then return the translated page's URL.
+                    if translated_page.locale.language_code == active_lang:
+                        return translated_page.url
+                    # The translated page doesn not match the active language;
                     # we reconstruct the URL using the URL-facing locale prefix.
-                    active_lang = normalize_language(translation.get_language()) or locale.language_code
-                    return f"/{active_lang}/{path.lstrip('/')}"
+                    return self._with_locale_prefix(translated_page.url, active_lang)
                 except Exception:
-                    return path
-            return path
-
-        if link_to == "page":
-            page = self.get("page")
-            if page:
-                try:
-                    locale = SpringfieldLocale.get_active()
-                    # Get the active language, so we can use it to determine the URL to return.
-                    active_lang = normalize_language(translation.get_language()) or locale.language_code
-                    try:
-                        translated_page = page.get_translation(locale)
-                        # If the translated page matches the active language,
-                        # then return the translated page's URL.
-                        if translated_page.locale.language_code == active_lang:
-                            return translated_page.url
-                        # The translated page doesn not match the active language;
-                        # we reconstruct the URL using the URL-facing locale prefix.
-                        return self._with_locale_prefix(translated_page.url, active_lang)
-                    except Exception:
-                        # This means that this page has no translation for this locale.
-                        # In case this is rendered as a fallback page (the user
-                        # requested /es-AR/somepage, but that page doesn't exist
-                        # in the es-AR locale, so the user is served the content
-                        # from the es-MX locale's somepage at the /es-AR/somepage URL),
-                        # we want to make sure that the URL we return here matches
-                        # the requested locale. For example, for a page link to
-                        # the /features/control/ page, we want to return
-                        # /es-AR/features/control/ (not /es-MX/features/control/).
-                        return self._with_locale_prefix(page.url, active_lang)
-                except Exception:
-                    return page.url
-            return None
-
-        return super().get_url()
+                    # This means that this page has no translation for this locale.
+                    # In case this is rendered as a fallback page (the user
+                    # requested /es-AR/somepage, but that page doesn't exist
+                    # in the es-AR locale, so the user is served the content
+                    # from the es-MX locale's somepage at the /es-AR/somepage URL),
+                    # we want to make sure that the URL we return here matches
+                    # the requested locale. For example, for a page link to
+                    # the /features/control/ page, we want to return
+                    # /es-AR/features/control/ (not /es-MX/features/control/).
+                    return self._with_locale_prefix(page.url, active_lang)
+            except Exception:
+                return page.url
+        return None
 
 
 class SpringfieldLinkBlock(LinkBlock):
     """
-    Extends LinkBlock with a ``relative_url`` link type.
+    Extends LinkBlock with custom methods for the ``relative_url`` link type.
 
     LinkBlock works well, but we also want to give CMS users a relative_url
     option, where they can type in a relative URL to a page on the site.
@@ -619,96 +610,33 @@ class SpringfieldLinkBlock(LinkBlock):
     browsing in es-ES would see a link to /es-ES/features/.
     """
 
-    link_to = blocks.ChoiceBlock(
-        choices=[
-            ("page", _("Page")),
-            ("file", _("File")),
-            ("custom_url", _("Custom URL")),
-            ("relative_url", _("Relative URL")),
-            ("email", _("Email")),
-            ("anchor", _("Anchor")),
-            ("phone", _("Phone")),
-        ],
-        required=False,
-        classname="link_choice_type_selector",
-        label=_("Link to"),
-    )
-    relative_url = blocks.CharBlock(
-        required=False,
-        classname="relative_url_link",
-        label=_("Relative URL"),
-        help_text=_(
-            "Site-relative path without a locale prefix, e.g. /features/ — the "
-            "locale is added automatically. Note: the Relative URL is meant for "
-            "linking to static pages (not managed here). If you are linking to "
-            "a page, please select 'Page', instead of 'Relative URL'."
-        ),
-    )
-
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
 
-    def __init__(self, *args, **kwargs):
-        """Override __init__() to put relative_url field right after custom_url field."""
-        super().__init__(*args, **kwargs)
-        items = list(self.child_blocks.items())
-        keys = [k for k, _ in items]
-        relative_url_item = items.pop(keys.index("relative_url"))
-        items.insert(keys.index("custom_url") + 1, relative_url_item)
-        self.child_blocks = dict(items)
-
-    def clean(self, value):
-        # Full override of LinkBlock.clean() required: that method has a
-        # hardcoded url_default_values dict, so we cannot inject relative_url
-        # into it without rewriting the method. Without this override,
-        # relative_url would not be cleared when a different link type is chosen.
-        clean_values = blocks.StructBlock.clean(self, value)
+    def clean_relative_url(self, clean_values):
+        """Springfield-specific validation for relative_url."""
         errors = {}
-
-        url_default_values = {
-            "page": None,
-            "file": None,
-            "custom_url": "",
-            "relative_url": "",
-            "anchor": "",
-            "email": "",
-            "phone": "",
-        }
-        url_type = clean_values.get("link_to")
-
-        if url_type != "" and clean_values.get(url_type) in [None, ""]:
-            errors[url_type] = ErrorList(["You need to add a {} link".format(url_type.replace("_", " "))])
-        elif url_type == "relative_url":
-            path = clean_values.get("relative_url", "")
-            # If the relative URL has a locale prefix, raise an error.
-            lang_code, _, _ = split_path_and_normalize_language(path)
-            if lang_code:
-                errors["relative_url"] = ErrorList(["Do not include a locale prefix (e.g. use /features/ not /en-US/features/)."])
-            else:
-                # Raise an error if either:
-                #  - the relative URL does not exist on the site, or
-                #  - the relative URL matches a Wagtail Page URL
-                error_msg = "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
-                try:
-                    path_to_check = f"/en-US/{path.lstrip('/')}"
-                    with translation.override("en-US"):
-                        match = resolve(path_to_check)
-                    if match.func == wagtail_serve_with_locale_fallback:
-                        errors["relative_url"] = ErrorList([error_msg])
-                except Resolver404:
-                    errors["relative_url"] = ErrorList([error_msg])
-        if not errors:
+        path = clean_values.get("relative_url", "")
+        if not path:
+            return {"relative_url": ErrorList(["You need to add a relative url link"])}
+        # If the relative URL has a locale prefix, raise an error.
+        lang_code, _, __ = split_path_and_normalize_language(path)
+        if lang_code:
+            errors["relative_url"] = ErrorList(["Do not include a locale prefix (e.g. use /features/ not /en-US/features/)."])
+        else:
+            # Raise an error if either:
+            #  - the relative URL does not exist on the site, or
+            #  - the relative URL matches a Wagtail Page URL
+            error_msg = "This URL does not match any existing static URL on the site. If linking to a page, select 'Page'"
             try:
-                url_default_values.pop(url_type, None)
-                for field in url_default_values:
-                    clean_values[field] = url_default_values[field]
-            except KeyError:
-                errors[url_type] = ErrorList(["Enter a valid link type"])
-
-        if errors:
-            raise blocks.StreamBlockValidationError(block_errors=errors, non_block_errors=ErrorList([]))
-
-        return clean_values
+                path_to_check = f"/en-US/{path.lstrip('/')}"
+                with translation.override("en-US"):
+                    match = resolve(path_to_check)
+                if match.func == wagtail_serve_with_locale_fallback:
+                    errors["relative_url"] = ErrorList([error_msg])
+            except Resolver404:
+                errors["relative_url"] = ErrorList([error_msg])
+        return errors
 
 
 def ButtonBlock(themes=None, **kwargs):
