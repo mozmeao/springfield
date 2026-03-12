@@ -48,9 +48,9 @@
 {% else %}
   {% set icon_title = 'Customize' %}
   {% set meta_desc = 'The Firefox brand is getting a refresh and you get the first look' %}
-  {% set main_heading = 'Say hi to Kit' %}
-  {% set main_subheading = 'New friend unlocked' %}
-  {% set main_body = 'The Firefox brand is getting a refresh and you get the first look. Kit’s our new mascot and your new companion through an internet that’s private, open and actually yours.' %}
+  {% set main_heading = 'More fire. <br> More fox.' %}
+  {% set main_subheading = 'Meet Kit. Your companion for a new internet era.' %}
+  {% set main_body = 'Get to know the new face (and tail) of Firefox. Watch the video, give your browser a fresh wallpaper and explore the latest Kit merch.' %}
   {% set card_1_heading = 'Grab a new wallpaper' %}
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
@@ -58,32 +58,47 @@
   {% set card_1_list_1_mobile = 'Go to Settings' %}
   {% set card_1_list_2_mobile = 'Click Homepage' %}
   {% set card_1_list_3_mobile = 'Click Wallpaper' %}
-  {% set card_2_heading = 'You’re first in line for Kit gear' %}
-  {% set card_2_body = '<p>New limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
+  {% set card_2_heading = 'Gear up with Kit' %}
+  {% set card_2_body = '<p>Limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
   {% set card_2_cta_na = 'North America' %}
   {% set card_2_cta_eu = 'Europe' %}
 {% endif %}
 
-{% block page_title %}{{ main_heading }}{% endblock %}
+{% block page_title %}{{ main_heading | safe }}{% endblock %}
 {% block page_desc %}{{ meta_desc }}{% endblock %}
 
 {% block page_css %}
   {{ css_bundle('kit') }}
 {% endblock %}
 
+{% set kit_video_available = LANG.startswith('en-') %}
+
 {% block content %}
 <main>
   <div class="kit-banner-container">
-    <div class="kit-banner" aria-labelledby="kit-banner-heading">
+    <div class="kit-banner {% if kit_video_available %}kit-banner-with-video{% endif %}" aria-labelledby="kit-banner-heading">
         <div class="kit-banner-content">
           <h1 id="kit-banner-heading" class="heading heading-size-2">
-              {{ main_heading }}
+              {{ main_heading | safe }}
           </h1>
           <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
           <div class="kit-banner-body subheading">
               <p>{{ main_body }}</p>
           </div>
         </div>
+        {% if kit_video_available %}
+        <div class="kit-banner-video">
+          <video
+            preload="none"
+            loop
+            controls
+            width="520"
+            height="592"
+            poster="{{ static('img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg') }}">
+            <source src="https://assets.mozilla.net/video/whatsnew/wnp-137-de-high-res-v2.webm" type="video/webm">
+          </video>
+        </div>
+        {% else %}
         <div class="kit-banner-brand">
           <div class="kit-banner-media">
             <button type="button" class="button c-animation-button" data-js-video-state="paused">
@@ -104,6 +119,7 @@
             <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden>
           </div>
         </div>
+        {% endif %}
     </div>
   </div>
 
@@ -174,8 +190,8 @@
         <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
         {{ card_2_body | safe }}
         <div class="buttons">
-          <a href="https://mozilla-na.myspreadshop.com/say+hi+to+kit!?collection=pFGwhvwYfR" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
-          <a href="https://mozilla-europe.myspreadshop.ie/say+hi+to+kit!?collection=cJvxXDyZTi" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+          <a href="https://mzl.la/hikit-na" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+          <a href="https://mzl.la/hikit-EU" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
         </div>
       </div>
       <div class="c-gallery-card-media-container">
