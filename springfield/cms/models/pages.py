@@ -5,6 +5,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -30,6 +31,7 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
+    MediaBlock,
     MobileStoreQRCodeBlock,
     RelatedArticlesListBlock,
     SectionBlock,
@@ -778,3 +780,159 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
+
+
+class BlogIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that lists blog posts."""
+
+    subpage_types = ["cms.BlogArticlePage"]
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels
+
+    class Meta:
+        verbose_name = "Blog Index Page"
+        verbose_name_plural = "Blog Index Pages"
+
+
+class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays a single blog article."""
+
+    parent_page_types = ["cms.BlogIndexPage"]
+
+    description = RichTextField(
+        blank=True,
+        features=HEADING_TEXT_FEATURES,
+        help_text="A short description used on the index page.",
+    )
+    featured = models.BooleanField(
+        default=False,
+        help_text="Check to set as a featured article on the index page.",
+    )
+    featured_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+        help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode variant of the featured image.",
+    )
+    featured_image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional mobile variant of the featured image.",
+    )
+    featured_image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the featured image.",
+    )
+
+    topic = models.ForeignKey(
+        "cms.Tag",
+        on_delete=models.PROTECT,
+        related_name="blog_articles",
+    )
+    tags = models.ManyToManyField(
+        "cms.Tag",
+        related_name="blog_articles_tags",
+        blank=True,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the article image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the article image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the article image.",
+    )
+    content = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+            ("media", MediaBlock()),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("description"),
+                FieldPanel("featured"),
+                FieldPanel("featured_image"),
+                MultiFieldPanel(
+                    [
+                        FieldRowPanel(
+                            [
+                                FieldPanel("featured_image_dark_mode"),
+                                FieldPanel("featured_image_mobile"),
+                                FieldPanel("featured_image_dark_mode_mobile"),
+                            ]
+                        )
+                    ],
+                    heading="Featured Image Variants",
+                    classname="collapsed",
+                ),
+            ],
+            heading="Index Page Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("topic"),
+                FieldPanel("tags", widget=CheckboxSelectMultiple()),
+            ],
+            heading="Tags",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("image"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Article Image Variants",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Blog Article Page"
+        verbose_name_plural = "Blog Article Pages"
