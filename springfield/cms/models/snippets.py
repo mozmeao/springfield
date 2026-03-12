@@ -17,7 +17,7 @@ from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from lib.l10n_utils.fluent import ftl
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, FLUENT_TEXT_PRESET_CHOICES, HEADING_TEXT_FEATURES, ButtonBlock
+from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, FLUENT_TEXT_CUSTOM, FLUENT_TEXT_PRESET_CHOICES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 
@@ -108,7 +108,7 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return f"{self.resolve_label()} – {self.locale}"
 
     def resolve_label(self):
-        if self.pretranslated_label == "custom":
+        if self.pretranslated_label == FLUENT_TEXT_CUSTOM:
             return self.custom_label
         return ftl(self.pretranslated_label, ftl_files=["navigation-firefox", "download_button"])
 

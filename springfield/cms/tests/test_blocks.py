@@ -16,7 +16,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import FLUENT_TEXT_PRESETS, SpringfieldLinkBlock
+from springfield.cms.blocks import FLUENT_TEXT_CUSTOM, FLUENT_TEXT_PRESETS, SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -176,7 +176,7 @@ def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
     label_data = button_data["value"]["label"]
-    if label_data["pretranslated_or_custom"] == "custom":
+    if label_data["pretranslated_or_custom"] == FLUENT_TEXT_CUSTOM:
         label = label_data["custom_text"]
     else:
         label = FLUENT_TEXT_PRESETS[label_data["pretranslated_or_custom"]]
@@ -1474,7 +1474,9 @@ def test_home_intro_block(index_page, rf):
     cta_position = "upper-block-1-intro.button-1"
     label_data = button["value"]["label"]
     resolved_label = (
-        label_data["custom_text"] if label_data["pretranslated_or_custom"] == "custom" else FLUENT_TEXT_PRESETS[label_data["pretranslated_or_custom"]]
+        label_data["custom_text"]
+        if label_data["pretranslated_or_custom"] == FLUENT_TEXT_CUSTOM
+        else FLUENT_TEXT_PRESETS[label_data["pretranslated_or_custom"]]
     )
     cta_text = f"{heading_text.strip()} - {resolved_label}"
     assert_download_button_attributes(

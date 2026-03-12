@@ -506,7 +506,7 @@ class BaseButtonValue(blocks.StructValue):
 class FluentOrCustomTextValue(blocks.StructValue):
     def resolve_text(self):
         pretranslated_or_custom = self.get("pretranslated_or_custom")
-        if pretranslated_or_custom == "custom":
+        if pretranslated_or_custom == FLUENT_TEXT_CUSTOM:
             return self.get("custom_text", "")
         return ftl(pretranslated_or_custom, ftl_files=["navigation-firefox", "download_button"])
 
@@ -539,7 +539,7 @@ class FluentOrCustomTextBlock(blocks.StructBlock):
         return result
 
     def get_translatable_segments(self, value):
-        if value.get("pretranslated_or_custom") != "custom":
+        if value.get("pretranslated_or_custom") != FLUENT_TEXT_CUSTOM:
             return []
 
         custom_text = value.get("custom_text", "")

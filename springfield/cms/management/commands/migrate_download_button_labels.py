@@ -31,6 +31,7 @@ from wagtail.blocks import CharBlock
 from wagtail.models import Locale, Page, Revision
 from wagtail_localize.models import Translation, TranslationSource
 
+from springfield.cms.blocks import FLUENT_TEXT_CUSTOM
 from springfield.cms.models.snippets import PreFooterCTASnippet
 
 logger = logging.getLogger(__name__)
@@ -75,7 +76,7 @@ def convert_download_button_label(data, is_english=True):
                     if preset:
                         value["label"] = {"pretranslated_or_custom": preset, "custom_text": ""}
                     else:
-                        value["label"] = {"pretranslated_or_custom": "custom", "custom_text": old_label}
+                        value["label"] = {"pretranslated_or_custom": FLUENT_TEXT_CUSTOM, "custom_text": old_label}
                 else:
                     value["label"] = {"pretranslated_or_custom": DEFAULT_PRESET, "custom_text": ""}
                 changed = True
@@ -127,7 +128,7 @@ class Command(BaseCommand):
                 snippet.pretranslated_label = preset
                 snippet.custom_label = ""
             else:
-                snippet.pretranslated_label = "custom"
+                snippet.pretranslated_label = FLUENT_TEXT_CUSTOM
                 snippet.custom_label = snippet.label_old
                 self.stdout.write(f"  PreFooterCTASnippet pk={snippet.pk} has custom label_old={snippet.label_old!r}, keeping as custom text")
             if not dry_run:
@@ -144,7 +145,7 @@ class Command(BaseCommand):
             ).first()
             if english_sibling and english_sibling.pretranslated_label:
                 snippet.pretranslated_label = english_sibling.pretranslated_label
-                if english_sibling.pretranslated_label == "custom":
+                if english_sibling.pretranslated_label == FLUENT_TEXT_CUSTOM:
                     # Preserve the non-English translated label as custom text.
                     snippet.custom_label = snippet.label_old
                 else:
