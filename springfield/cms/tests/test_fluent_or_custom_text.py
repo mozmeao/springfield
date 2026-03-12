@@ -6,6 +6,8 @@ from copy import deepcopy
 from importlib import import_module
 from unittest import mock
 
+from django.core.exceptions import ValidationError
+
 import pytest
 from wagtail.models import Locale
 
@@ -70,6 +72,31 @@ def test_translatable_segments_custom_empty_returns_empty():
     block = FluentOrCustomTextBlock()
     segments = block.get_translatable_segments({"pretranslated_or_custom": "custom", "custom_text": ""})
     assert segments == []
+
+
+# -- FluentOrCustomTextBlock.clean() --
+
+
+def test_clean_preset_passes():
+    """Choosing "Get Firefox" and setting empty custom_text is valid."""
+    block = FluentOrCustomTextBlock()
+    result = block.clean({"pretranslated_or_custom": "navigation-get-firefox", "custom_text": ""})
+    assert result["pretranslated_or_custom"] == "navigation-get-firefox"
+
+
+def test_clean_custom_with_text_passes():
+    """Choosing "Custom Text" and setting non-empty custom_text is valid."""
+    block = FluentOrCustomTextBlock()
+    result = block.clean({"pretranslated_or_custom": "custom", "custom_text": "My Label"})
+    assert result["custom_text"] == "My Label"
+
+
+def test_clean_custom_without_text_raises():
+    """Choosing "Custom Text" and setting empty custom_text is not valid."""
+    block = FluentOrCustomTextBlock()
+    with pytest.raises(ValidationError) as exc_info:
+        block.clean({"pretranslated_or_custom": "custom", "custom_text": ""})
+    assert "custom_text" in exc_info.value.block_errors
 
 
 # -- PreFooterCTASnippet.resolve_label() --

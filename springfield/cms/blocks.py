@@ -13,6 +13,7 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
@@ -383,7 +384,8 @@ FLUENT_TEXT_PRESETS = {
     "download-button-download-firefox": "Download Firefox",
 }
 
-FLUENT_TEXT_PRESET_CHOICES = [("custom", "Custom text")] + [(ftl_id, label) for ftl_id, label in FLUENT_TEXT_PRESETS.items()]
+FLUENT_TEXT_CUSTOM = "custom"
+FLUENT_TEXT_PRESET_CHOICES = [(FLUENT_TEXT_CUSTOM, "Custom text")] + [(ftl_id, label) for ftl_id, label in FLUENT_TEXT_PRESETS.items()]
 
 
 def validate_animation_url(value):
@@ -525,6 +527,16 @@ class FluentOrCustomTextBlock(blocks.StructBlock):
         label="Custom text",
         help_text="Only used when 'Custom text' is selected above. Will be sent for translation.",
     )
+
+    def clean(self, value):
+        result = super().clean(value)
+        if result["pretranslated_or_custom"] == FLUENT_TEXT_CUSTOM and not result.get("custom_text"):
+            raise StructBlockValidationError(
+                block_errors={
+                    "custom_text": ErrorList([ValidationError("This field is required when 'Custom text' is selected.")]),
+                }
+            )
+        return result
 
     def get_translatable_segments(self, value):
         if value.get("pretranslated_or_custom") != "custom":
