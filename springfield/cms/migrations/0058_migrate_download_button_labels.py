@@ -173,13 +173,14 @@ def update_translation_sources(apps, schema_editor):
     wagtail_link_block's LinkBlock).
     """
     try:
-        from wagtail_localize.models import TranslationSource
+        from wagtail_localize.models import Translation, TranslationSource
     except ImportError:
         return
 
     from django.contrib.contenttypes.models import ContentType
 
     from wagtail.blocks import CharBlock
+    from wagtail.models import Page
 
     page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
     content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
@@ -216,6 +217,27 @@ def update_translation_sources(apps, schema_editor):
                     obj,
                     exc_info=True,
                 )
+                continue
+
+            # Regenerate translated pages so they pick up the new block structure.
+            # Only publish pages that are already live to avoid accidentally
+            # publishing draft content.
+            for translation in Translation.objects.filter(source=source):
+                try:
+                    translated_instance = source.get_translated_instance(translation.target_locale)
+                    is_live = translated_instance.live if isinstance(translated_instance, Page) else True
+                    source.create_or_update_translation(
+                        translation.target_locale,
+                        publish=is_live,
+                        fallback=True,
+                    )
+                except Exception:
+                    logger.warning(
+                        "Failed to sync translation for TranslationSource pk=%s to locale %s.",
+                        source.pk,
+                        translation.target_locale.language_code,
+                        exc_info=True,
+                    )
     finally:
         CharBlock.to_python = original_to_python
         CharBlock.get_default = original_get_default
