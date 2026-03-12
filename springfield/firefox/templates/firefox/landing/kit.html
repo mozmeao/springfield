@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
+{% extends "cms/base-flare26.html" %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
@@ -74,145 +74,155 @@
 {% set kit_video_available = LANG.startswith('en-') %}
 
 {% block content %}
-<main>
-  <div class="kit-banner-container">
-    <div class="kit-banner {% if kit_video_available %}kit-banner-with-video{% endif %}" aria-labelledby="kit-banner-heading">
-        <div class="kit-banner-content">
-          <h1 id="kit-banner-heading" class="heading heading-size-2">
-              {{ main_heading | safe }}
-          </h1>
-          <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
-          <div class="kit-banner-body subheading">
-              <p>{{ main_body }}</p>
-          </div>
-        </div>
-        {% if kit_video_available %}
-        <div class="kit-banner-video">
-          <video
-            preload="none"
-            loop
-            controls
-            width="520"
-            height="592"
-            poster="{{ static('img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg') }}">
-            <source src="https://assets.mozilla.net/video/whatsnew/wnp-137-de-high-res-v2.webm" type="video/webm">
-          </video>
-        </div>
-        {% else %}
-        <div class="kit-banner-brand">
-          <div class="kit-banner-media">
-            <button type="button" class="button c-animation-button" data-js-video-state="paused">
-              <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <title>{{ ftl('ui-play-animation')}}</title>
-                <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
-              </svg>
-              <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <title>{{ ftl('ui-pause-animation')}}</title>
-                <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
-                <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
-              </svg>
-            </button>
-            <video aria-labelledby="kit-banner-heading" playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
-              <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
-              <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
-            </video>
-            <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden>
-          </div>
-        </div>
-        {% endif %}
-    </div>
-  </div>
+<div class="fl-page">
+  <main class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-section-container">
 
-  <div class="c-card-gallery">
-    <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
-      <div class="c-gallery-card-text-container">
-        <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
-        <ol class="c-gallery-card-list-desktop">
-          <li>{{ card_1_list_1 }}</li>
-          <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
-          <li>{{ card_1_list_3 }}</li>
-        </ol>
-        <ol class="c-gallery-card-list-mobile">
-          <li>{{ card_1_list_1_mobile }}</li>
-          <li>{{ card_1_list_2_mobile }}</li>
-          <li>{{ card_1_list_3_mobile }}</li>
-        </ol>
-      </div>
-      <div class="c-gallery-card-media-container">
-        <div class="c-gallery-card-media-desktop">
-          {{ picture(
-            url="img/firefox/kit/browser-dark-630.png",
-            sources=[
-              {
-                'srcset': {
-                  "img/firefox/kit/browser-dark-315.png": "315w",
-                  "img/firefox/kit/browser-dark-630.png": "630w",
-                  "img/firefox/kit/browser-dark-1259.png": "1259w",
-                  "img/firefox/kit/browser-dark-1738.png": "1738w",
-                },
-                'sizes': {
-                  "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-                  "(min-width: 1024px)": "calc(50vw - 156px)",
-                  "default": "calc(100vw - 80px)",
-                },
-              }
-            ],
-            optional_attributes={
-              "l10n": True,
-              "loading": "lazy"
-            }
-          )}}
+          <div class="kit-banner-container">
+            <div class="kit-banner {% if kit_video_available %}kit-banner-with-video{% endif %}" aria-labelledby="kit-banner-heading">
+                <div class="kit-banner-content">
+                  <h1 id="kit-banner-heading" class="heading heading-size-2">
+                      {{ main_heading | safe }}
+                  </h1>
+                  <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
+                  <div class="kit-banner-body subheading">
+                      <p>{{ main_body }}</p>
+                  </div>
+                </div>
+                {% if kit_video_available %}
+                <div class="kit-banner-video">
+                  <video
+                    preload="none"
+                    loop
+                    controls
+                    width="520"
+                    height="592"
+                    poster="{{ static('img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg') }}">
+                    <source src="https://assets.mozilla.net/video/whatsnew/wnp-137-de-high-res-v2.webm" type="video/webm">
+                  </video>
+                </div>
+                {% else %}
+                <div class="kit-banner-brand">
+                  <div class="kit-banner-media">
+                    <button type="button" class="button c-animation-button" data-js-video-state="paused">
+                      <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>{{ ftl('ui-play-animation')}}</title>
+                        <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
+                      </svg>
+                      <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>{{ ftl('ui-pause-animation')}}</title>
+                        <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
+                        <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
+                      </svg>
+                    </button>
+                    <video aria-labelledby="kit-banner-heading" playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
+                      <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
+                      <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
+                    </video>
+                    <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden>
+                  </div>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+
+          <div class="c-card-gallery">
+            <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
+              <div class="c-gallery-card-text-container">
+                <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
+                <ol class="c-gallery-card-list-desktop">
+                  <li>{{ card_1_list_1 }}</li>
+                  <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
+                  <li>{{ card_1_list_3 }}</li>
+                </ol>
+                <ol class="c-gallery-card-list-mobile">
+                  <li>{{ card_1_list_1_mobile }}</li>
+                  <li>{{ card_1_list_2_mobile }}</li>
+                  <li>{{ card_1_list_3_mobile }}</li>
+                </ol>
+              </div>
+              <div class="c-gallery-card-media-container">
+                <div class="c-gallery-card-media-desktop">
+                  {{ picture(
+                    url="img/firefox/kit/browser-dark-630.png",
+                    sources=[
+                      {
+                        'srcset': {
+                          "img/firefox/kit/browser-dark-315.png": "315w",
+                          "img/firefox/kit/browser-dark-630.png": "630w",
+                          "img/firefox/kit/browser-dark-1259.png": "1259w",
+                          "img/firefox/kit/browser-dark-1738.png": "1738w",
+                        },
+                        'sizes': {
+                          "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                          "(min-width: 1024px)": "calc(50vw - 156px)",
+                          "default": "calc(100vw - 80px)",
+                        },
+                      }
+                    ],
+                    optional_attributes={
+                      "l10n": True,
+                      "loading": "lazy"
+                    }
+                  )}}
+                </div>
+                <div class="c-gallery-card-media-mobile">
+                  {{ picture(
+                    url="img/firefox/kit/browser-dark-630.png",
+                    sources=[
+                      {
+                        'srcset': {
+                          "img/firefox/kit/browser-mobile-310.png": "310w",
+                          "img/firefox/kit/browser-mobile-620.png": "620w",
+                        },
+                        'sizes': {
+                          "default": "calc(100vw - 80px)",
+                        },
+                      }
+                    ],
+                    optional_attributes={
+                      "l10n": True,
+                      "loading": "lazy"
+                    }
+                  )}}
+                </div>
+              </div>
+            </section>
+            <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
+              <div class="c-gallery-card-text-container">
+                <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
+                {{ card_2_body | safe }}
+                <div class="buttons">
+                  <a href="https://mzl.la/hikit-na" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+                  <a href="https://mzl.la/hikit-EU" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+                </div>
+              </div>
+              <div class="c-gallery-card-media-container">
+                {{ resp_img(
+                  url="img/firefox/landing/kit/merch-627.png",
+                  srcset={
+                    "img/firefox/landing/kit/merch-314.png": "314w",
+                    "img/firefox/landing/kit/merch-627.png": "627w",
+                    "img/firefox/landing/kit/merch-1254.png": "1254w",
+                    "img/firefox/landing/kit/merch-1852.png": "1852w",
+                  },
+                  sizes={
+                      "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                      "(min-width: 1024px)": "calc(50vw - 156px)",
+                      "default": "calc(100vw - 80px)",
+                  },
+                  optional_attributes={ "loading": "lazy" }) }}
+              </div>
+            </section>
+          </div>
+
         </div>
-        <div class="c-gallery-card-media-mobile">
-          {{ picture(
-            url="img/firefox/kit/browser-dark-630.png",
-            sources=[
-              {
-                'srcset': {
-                  "img/firefox/kit/browser-mobile-310.png": "310w",
-                  "img/firefox/kit/browser-mobile-620.png": "620w",
-                },
-                'sizes': {
-                  "default": "calc(100vw - 80px)",
-                },
-              }
-            ],
-            optional_attributes={
-              "l10n": True,
-              "loading": "lazy"
-            }
-          )}}
-        </div>
-      </div>
-    </section>
-    <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
-      <div class="c-gallery-card-text-container">
-        <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
-        {{ card_2_body | safe }}
-        <div class="buttons">
-          <a href="https://mzl.la/hikit-na" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
-          <a href="https://mzl.la/hikit-EU" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
-        </div>
-      </div>
-      <div class="c-gallery-card-media-container">
-        {{ resp_img(
-          url="img/firefox/landing/kit/merch-627.png",
-          srcset={
-            "img/firefox/landing/kit/merch-314.png": "314w",
-            "img/firefox/landing/kit/merch-627.png": "627w",
-            "img/firefox/landing/kit/merch-1254.png": "1254w",
-            "img/firefox/landing/kit/merch-1852.png": "1852w",
-          },
-          sizes={
-              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-              "(min-width: 1024px)": "calc(50vw - 156px)",
-              "default": "calc(100vw - 80px)",
-          },
-          optional_attributes={ "loading": "lazy" }) }}
-      </div>
-    </section>
-  </div>
-</main>
+     </section>
+    </div>
+  </main>
+</div>
 {% endblock %}
 
 {% block js %}
