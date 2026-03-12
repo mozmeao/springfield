@@ -54,6 +54,11 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def fluent_or_custom_text_js():
+    return format_html('<script src="{}"></script>', static("js/cms/wagtailadmin-fluent-or-custom-text.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def mark_locale_roles_in_admin():
     """Adds 'alias → X' badges next to alias locale names on the locales list page.
 

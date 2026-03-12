@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# form_template for FluentOrCustomTextBlock.
+
+Renders the pretranslated_or_custom selector normally and wraps the
+custom_text child in a container with hidden so that newly-added blocks
+start with the field hidden (the default dropdown value is never "custom").
+The companion JS file removes/adds the hidden attribute on change.
+
+NOTE: With a form_template, Wagtail does not auto-wrap the output in a div
+with form_classname, so we must include the wrapper class ourselves. #}
+
+<div class="fluent-or-custom-text-block">
+    <div>
+        {{ children.pretranslated_or_custom.render_form() }}
+    </div>
+    <div class="fluent-or-custom-text-block__custom-text" hidden>
+        {{ children.custom_text.render_form() }}
+    </div>
+</div>

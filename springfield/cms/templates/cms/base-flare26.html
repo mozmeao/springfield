@@ -82,11 +82,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
       {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
       {% if pre_footer_cta %}
-        {% set analytics_text = pre_footer_cta.label %}
+        {% set resolved_label = pre_footer_cta.resolve_label() %}
+        {% set analytics_text = resolved_label %}
         {% set analytics_position = "pre-footer-cta" %}
           <include:conditional-display firefox_condition="not-firefox">
           <include:pre-footer-cta
-            label="{{ pre_footer_cta.label }}"
+            label="{{ resolved_label }}"
             link="{{ pre_footer_cta.link }}"
             analytics_text="{{ analytics_text }}"
             analytics_position="{{ analytics_position }}"

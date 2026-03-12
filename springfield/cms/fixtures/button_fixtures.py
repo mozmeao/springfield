@@ -236,7 +236,10 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "label": {
+                    "pretranslated_or_custom": "navigation-get-firefox",
+                    "custom_text": "",
+                },
                 "settings": {
                     "theme": "",
                     "icon": "downloads",
@@ -250,7 +253,10 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "label": {
+                    "pretranslated_or_custom": "navigation-get-firefox",
+                    "custom_text": "",
+                },
                 "settings": {
                     "theme": "secondary",
                     "icon": "downloads",

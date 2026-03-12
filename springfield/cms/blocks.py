@@ -13,10 +13,12 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
+from wagtail_localize.segments import StringSegmentValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
@@ -377,6 +379,14 @@ BUTTON_THEME_CHOICES = {
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
 BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
 
+FLUENT_TEXT_PRESETS = {
+    "navigation-get-firefox": "Get Firefox",
+    "download-button-download-firefox": "Download Firefox",
+}
+
+FLUENT_TEXT_CUSTOM = "custom"
+FLUENT_TEXT_PRESET_CHOICES = [(FLUENT_TEXT_CUSTOM, "Custom text")] + [(ftl_id, label) for ftl_id, label in FLUENT_TEXT_PRESETS.items()]
+
 
 def validate_animation_url(value):
     if value and "assets.mozilla.net" not in value:
@@ -491,6 +501,57 @@ class BaseButtonValue(blocks.StructValue):
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+
+class FluentOrCustomTextValue(blocks.StructValue):
+    def resolve_text(self):
+        pretranslated_or_custom = self.get("pretranslated_or_custom")
+        if pretranslated_or_custom == FLUENT_TEXT_CUSTOM:
+            return self.get("custom_text", "")
+        return ftl(pretranslated_or_custom, ftl_files=["navigation-firefox", "download_button"])
+
+
+class FluentOrCustomTextBlock(blocks.StructBlock):
+    pretranslated_or_custom = blocks.ChoiceBlock(
+        choices=FLUENT_TEXT_PRESET_CHOICES,
+        default="download-button-download-firefox",
+        help_text=(
+            "Choose one of the pre-translated choices, or 'Custom text' to enter custom text. "
+            "Note: if you choose one of the pre-translated choices, then translations of this page "
+            "will inherit the translation for this text (and not be able to set it on their own)."
+        ),
+        label="Text",
+    )
+    custom_text = blocks.CharBlock(
+        required=False,
+        label="Custom text",
+        help_text="Only used when 'Custom text' is selected above. Will be sent for translation.",
+    )
+
+    def clean(self, value):
+        result = super().clean(value)
+        if result["pretranslated_or_custom"] == FLUENT_TEXT_CUSTOM and not result.get("custom_text"):
+            raise StructBlockValidationError(
+                block_errors={
+                    "custom_text": ErrorList([ValidationError("This field is required when 'Custom text' is selected.")]),
+                }
+            )
+        return result
+
+    def get_translatable_segments(self, value):
+        if value.get("pretranslated_or_custom") != FLUENT_TEXT_CUSTOM:
+            return []
+
+        custom_text = value.get("custom_text", "")
+        if not custom_text:
+            return []
+        return [StringSegmentValue("custom_text", custom_text)]
+
+    class Meta:
+        label = "Button Text"
+        value_class = FluentOrCustomTextValue
+        form_classname = "fluent-or-custom-text-block"
+        form_template = "cms/block_forms/fluent_or_custom_text.html"
 
 
 class UUIDBlock(blocks.CharBlock):
@@ -829,11 +890,11 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
+        label = FluentOrCustomTextBlock()
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
+            label_format = "Download Firefox Button"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
