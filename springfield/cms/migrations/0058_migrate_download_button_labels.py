@@ -24,6 +24,18 @@ LABEL_TO_PRESET = {
 }
 DEFAULT_PRESET = "download-button-download-firefox"
 
+PAGE_MODELS_AND_FIELDS = [
+    ("HomePage", ["upper_content", "lower_content"]),
+    ("DownloadPage", ["content"]),
+    ("ThanksPage", ["content"]),
+    ("ArticleThemePage", ["upper_content", "content"]),
+    ("FreeFormPage", ["content"]),
+    ("FreeFormPage2026", ["upper_content", "content"]),
+    ("WhatsNewPage", ["content"]),
+]
+
+PAGE_MODEL_NAMES = [name for name, _ in PAGE_MODELS_AND_FIELDS]
+
 
 def migrate_snippets(apps, schema_editor):
     PreFooterCTASnippet = apps.get_model("cms", "PreFooterCTASnippet")
@@ -52,6 +64,11 @@ def migrate_snippets(apps, schema_editor):
         ).first()
         if english_sibling and english_sibling.pretranslated_label:
             snippet.pretranslated_label = english_sibling.pretranslated_label
+            if english_sibling.pretranslated_label == "custom":
+                # Preserve the non-English translated label as custom text.
+                snippet.custom_label = snippet.label_old
+            else:
+                snippet.custom_label = ""
         else:
             logger.warning(
                 "PreFooterCTASnippet pk=%s (locale=%s) has no English sibling, defaulting to %s",
@@ -60,7 +77,7 @@ def migrate_snippets(apps, schema_editor):
                 DEFAULT_PRESET,
             )
             snippet.pretranslated_label = DEFAULT_PRESET
-        snippet.custom_label = ""
+            snippet.custom_label = ""
         snippet.save(update_fields=["pretranslated_label", "custom_label"])
 
 
@@ -98,16 +115,7 @@ def convert_download_button_label(data, is_english=True):
 
 
 def convert_pages(apps, schema_editor):
-    models_and_fields = [
-        ("HomePage", ["upper_content", "lower_content"]),
-        ("DownloadPage", ["content"]),
-        ("ThanksPage", ["content"]),
-        ("ArticleThemePage", ["upper_content", "content"]),
-        ("FreeFormPage", ["content"]),
-        ("WhatsNewPage", ["content"]),
-    ]
-
-    for model_name, field_names in models_and_fields:
+    for model_name, field_names in PAGE_MODELS_AND_FIELDS:
         Model = apps.get_model("cms", model_name)
         for page in Model.objects.all():
             is_english = page.locale.language_code.startswith("en")
@@ -127,9 +135,19 @@ def convert_revisions(apps, schema_editor):
     except LookupError:
         return
 
+    from django.contrib.contenttypes.models import ContentType
+
+    Locale = apps.get_model("wagtailcore", "Locale")
+    english_locale_ids = set(Locale.objects.filter(language_code__startswith="en").values_list("pk", flat=True))
+
+    page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
+    content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
+
     field_names = ["content", "upper_content", "lower_content"]
 
-    for revision in Revision.objects.iterator():
+    for revision in Revision.objects.filter(content_type_id__in=content_type_ids).iterator():
+        locale_id = revision.content.get("locale")
+        is_english = locale_id in english_locale_ids if locale_id else True
         modified = False
         for field_name in field_names:
             raw_json = revision.content.get(field_name)
@@ -137,7 +155,7 @@ def convert_revisions(apps, schema_editor):
                 continue
             try:
                 field_data = json.loads(raw_json)
-                if convert_download_button_label(field_data):
+                if convert_download_button_label(field_data, is_english=is_english):
                     revision.content[field_name] = json.dumps(field_data)
                     modified = True
             except (json.JSONDecodeError, TypeError):
@@ -155,9 +173,7 @@ def update_translation_sources(apps, schema_editor):
 
     from django.contrib.contenttypes.models import ContentType
 
-    page_models = [
-        apps.get_model("cms", name) for name in ("HomePage", "DownloadPage", "ThanksPage", "ArticleThemePage", "FreeFormPage", "WhatsNewPage")
-    ]
+    page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
     content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
 
     for source in TranslationSource.objects.filter(specific_content_type_id__in=content_type_ids):
