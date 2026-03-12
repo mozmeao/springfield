@@ -66,6 +66,12 @@ class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, Revi
 class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the big Get Firefox button at the bottom of pages."""
 
+    # DEPRECATED: label_old is the pre-migration label field (renamed from
+    # "label" in migration 0057). Remove this field and add a RemoveField
+    # migration once migrate_download_button_labels has been run in all
+    # environments.
+    label_old = models.CharField(max_length=255, default="Get Firefox")
+
     pretranslated_label = models.CharField(
         max_length=255,
         choices=FLUENT_TEXT_PRESET_CHOICES,
