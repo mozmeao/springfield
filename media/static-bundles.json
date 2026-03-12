@@ -458,6 +458,12 @@
     },
     {
       "files": [
+        "css/firefox/smart-window/index.scss"
+      ],
+      "name": "smart_window"
+    },
+    {
+      "files": [
         "css/firefox/landing/eoy-2025.scss"
       ],
       "name": "eoy_2025"
@@ -857,6 +863,18 @@
         "js/firefox/ai/waitlist-newsletter-init.es6.js"
       ],
       "name": "waitlist_newsletter"
+    },
+    {
+      "files": [
+        "js/firefox/smart-window/init.es6.js"
+      ],
+      "name": "smart_window_init"
+    },
+    {
+      "files": [
+        "js/firefox/smart-window/waitlist.es6.js"
+      ],
+      "name": "smart_window_waitlist"
     }
   ]
 }
