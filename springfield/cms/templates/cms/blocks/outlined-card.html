@@ -13,6 +13,11 @@
   auth_state_condition="{{ value.settings.show_to.auth_state }}">
   <include:card expand_link="{{ value.settings.expand_link }}">
     <content:heading>
+      {% if value.sticker %}
+        <div class="fl-card-sticker">
+          {% include_block value.sticker %}
+        </div>
+      {% endif %}
       <include:heading
         level="{{ heading_level }}"
         heading_size="fl-heading-size-3"

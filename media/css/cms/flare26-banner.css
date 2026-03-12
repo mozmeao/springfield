@@ -6,13 +6,15 @@
 
 .fl-banner {
     --fl-theme-color-text: var(--fl-theme-color-banner-text);
+    --fl-banner-padding: var(--token-layout-3xs);
+    --fl-banner-border-radius: var(--token-border-radius-md);
     align-items: center;
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--fl-banner-border-radius);
     color: var(--fl-theme-color-text);
     display: flex;
     justify-content: center;
     overflow: hidden;
-    padding: var(--token-layout-3xs);
+    padding: var(--fl-banner-padding);
     position: relative;
     text-align: center;
 }
@@ -197,17 +199,18 @@
 }
 
 .fl-banner-slim .fl-banner {
-    border-radius: var(--token-border-radius-xl-half);
+    --fl-banner-border-radius: var(--token-border-radius-xl-half);
     padding: var(--token-layout-xs) var(--token-layout-2xs);
 }
 
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */
-.fl-main:has(.fl-split-page-lower > .fl-banner:last-child) {
+.fl-main:has(.fl-split-page-lower > .fl-banner:last-child),
+.fl-main:has(.fl-split-page-lower > .fl-banner-container:last-child) {
     padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-split-page-lower > .fl-banner:last-child {
-    border-radius: calc(
+    --fl-banner-border-radius: calc(
         var(--token-border-radius-xl) - var(--token-spacing-lg)
     );
     margin-inline: var(--token-spacing-lg);
@@ -215,10 +218,10 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
+        --fl-banner-padding: var(--token-layout-md);
+        --fl-banner-border-radius: var(--token-border-radius-lg);
         align-items: initial;
-        border-radius: var(--token-border-radius-lg);
         justify-content: initial;
-        padding: var(--token-layout-md);
         text-align: initial;
     }
 
@@ -227,7 +230,7 @@
     }
 
     .fl-banner-slim .fl-banner {
-        padding: var(--token-layout-md);
+        --fl-banner-padding: var(--token-layout-md);
     }
 
     .fl-banner-media img {
@@ -250,8 +253,8 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        border-radius: var(--token-border-radius-xl);
-        padding: var(--token-layout-lg);
+        --fl-banner-padding: var(--token-layout-lg);
+        --fl-banner-border-radius: var(--token-border-radius-xl);
     }
 
     .fl-banner-container {
@@ -285,5 +288,79 @@
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
         justify-content: left;
+    }
+}
+
+/* Phone QR Banner */
+
+.fl-banner-phone-qr {
+    max-inline-size: none;
+}
+
+.fl-banner-phone-qr .fl-banner {
+    padding: 0;
+}
+
+.fl-banner-phone-qr .fl-banner .fl-banner-content {
+    grid-row: 1;
+    padding: var(--fl-banner-padding);
+}
+
+.fl-banner-phone-qr .fl-banner .fl-banner-qr {
+    align-items: end;
+    background-image: url('/media/img/firefox/flare/phone_screen.png');
+    background-position: center calc(100% + 10px);
+    background-repeat: no-repeat;
+    background-size: calc(100% - var(--fl-banner-border-radius) * 2) auto;
+    block-size: 120%;
+    display: flex;
+    grid-row: 2;
+    inline-size: 100%;
+    justify-content: center;
+    min-block-size: 400px;
+    padding-block-end: calc(var(--fl-banner-padding) * 2);
+}
+
+.fl-banner-phone-qr .fl-banner .fl-banner-qr svg {
+    inline-size: calc(80% - var(--fl-banner-padding) * 2);
+    margin: 30% 0 0;
+}
+
+@media (--viewport-md-only) {
+    .fl-banner-phone-qr .fl-banner .fl-banner-content {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-banner-phone-qr .fl-banner .fl-banner-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-phone-qr .fl-banner .fl-banner-qr {
+        background-position: calc(100% - var(--token-spacing-3xl))
+            calc(100% + 10px);
+        background-size: 430px auto;
+        block-size: 100%;
+        grid-row: 1;
+        justify-content: end;
+        padding-block-end: var(--fl-banner-padding);
+        padding-inline-end: calc(var(--token-spacing-3xl) + 40px);
+    }
+
+    .fl-banner-phone-qr .fl-banner .fl-banner-qr svg {
+        inline-size: 350px;
+    }
+
+    .fl-banner-phone-qr .fl-banner .fl-banner-content {
+        grid-area: 1 / 2;
+        padding-inline-start: 0;
+    }
+
+    .fl-split-page-lower > .fl-banner-phone-qr:last-child {
+        inline-size: calc(100% + var(--token-spacing-xl) * 2);
+        margin-block-end: calc(var(--token-spacing-3xl) * -1);
+        margin-inline: calc(var(--token-spacing-xl) * -1);
     }
 }

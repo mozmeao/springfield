@@ -390,18 +390,15 @@ def validate_video_url(value):
 
 
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
-    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+    """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
-    def _localize(self, instance):
-        if instance and hasattr(instance, "get_localized"):
-            instance = instance.get_localized()
-        return instance
-
-    def to_python(self, value):
-        return self._localize(super().to_python(value))
-
-    def bulk_to_python(self, values):
-        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        if value and hasattr(value, "get_localized"):
+            localized_instance = value.get_localized()
+            context[self.TEMPLATE_VAR] = localized_instance
+            context["self"] = localized_instance
+        return context
 
     def clean(self, value):
         if value and not value.live:
@@ -984,14 +981,17 @@ class ImageVariantsBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ImageVariantsBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    settings = ImageVariantsBlockSettings()
+def ImageVariantsBlock(required=True, *args, **kwargs):
+    class _ImageVariantsBlock(blocks.StructBlock):
+        image = ImageChooserBlock(required=required)
+        settings = ImageVariantsBlockSettings()
 
-    class Meta:
-        label = "Image"
-        label_format = "Image - {image}"
-        template = "cms/blocks/image-variants.html"
+        class Meta:
+            label = "Image"
+            label_format = "Image - {image}"
+            template = "cms/blocks/image-variants.html"
+
+    return _ImageVariantsBlock(*args, **kwargs)
 
 
 class VideoBlock(blocks.StructBlock):
@@ -1486,6 +1486,7 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
 
     class _OutlinedCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
+        sticker = ImageVariantsBlock(required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -1827,6 +1828,33 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
     return _IntroBlock(*args, **kwargs)
 
 
+class IntroBlockSettings2026(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        default="vertical",
+        label="Layout",
+        inline_form=True,
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        form_classname = "compact-form struct-block"
+
+
 def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create IntroBlock with appropriate button types.
 
@@ -1836,15 +1864,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _IntroBlock(blocks.StructBlock):
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        settings = IntroBlockSettings2026()
+        media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -1921,6 +1942,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
@@ -2042,7 +2064,7 @@ class KitBannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitBannerBlock(allow_uitour=False, *args, **kwargs):
+def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, **kwargs):
     """Factory function to create KitBannerBlock with appropriate button types."""
 
     class _KitBannerBlock(blocks.StructBlock):
@@ -2050,6 +2072,7 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=button_themes,
             min_num=0,
             max_num=2,
             required=False,
