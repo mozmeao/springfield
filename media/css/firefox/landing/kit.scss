@@ -30,7 +30,7 @@ main {
     --figma-black-4: #15141A;
     display: grid;
     row-gap: 16px;
-    padding-block: 16px;
+    padding: 16px 16px 0;
 
 
     *, *::before, *::after {
@@ -56,6 +56,9 @@ main {
     }
 }
 
+.fl-section {
+    padding: 16px 0;
+}
 
 .kit-banner {
     position: relative;
@@ -278,9 +281,7 @@ main {
 .c-card-gallery {
     // match width/padding to fl-banner-container
     margin-inline: auto;
-    padding-inline: 40px;
     width: 100%;
-    max-width: calc(var(--widths-viewport-wrapper-screen-2xl) * 1px);
 
     // card gallery styles
     display: flex;
@@ -294,6 +295,10 @@ main {
             flex-basis: 50%; // make cards take up equal width
         }
     }
+}
+
+.c-card-gallery section {
+    margin: 0;
 }
 
 // match width/padding to fl-banner-container
