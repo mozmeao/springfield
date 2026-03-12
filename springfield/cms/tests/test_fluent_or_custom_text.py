@@ -12,8 +12,8 @@ from wagtail.models import Locale
 from springfield.cms.blocks import FluentOrCustomTextBlock, FluentOrCustomTextValue
 from springfield.cms.models.snippets import PreFooterCTASnippet
 
-_migration_0055 = import_module("springfield.cms.migrations.0055_migrate_download_button_labels")
-convert_download_button_label = _migration_0055.convert_download_button_label
+_mgmt_cmd = import_module("springfield.cms.management.commands.migrate_download_button_labels")
+convert_download_button_label = _mgmt_cmd.convert_download_button_label
 
 pytestmark = [pytest.mark.django_db]
 
@@ -97,7 +97,7 @@ def test_snippet_resolve_label_custom():
     assert snippet.resolve_label() == "Buy Firefox"
 
 
-# -- convert_download_button_label() migration helper --
+# -- convert_download_button_label() management command helper --
 
 
 def _make_download_button_block(label):
