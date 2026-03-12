@@ -76,7 +76,11 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         max_length=255,
         choices=FLUENT_TEXT_PRESET_CHOICES,
         default="navigation-get-firefox",
-        help_text="Choose a pre-translated label. If 'Custom text' is selected, fill in the custom label below.",
+        help_text=(
+            "Choose a pre-translated label. If 'Custom text' is selected, fill in the custom label below. "
+            "Note: if you choose one of the pre-translated choices, then translations of this snippet "
+            "will inherit the translation for this text (and not be able to set it on their own)."
+        ),
     )
     custom_label = models.CharField(
         max_length=255,
