@@ -165,7 +165,13 @@ def convert_revisions(apps, schema_editor):
 
 
 def update_translation_sources(apps, schema_editor):
-    """Re-sync TranslationSource records so wagtail-localize sees the new block structure."""
+    """Re-sync TranslationSource records so wagtail-localize sees the new block structure.
+
+    Temporarily patches CharBlock.to_python to return "" instead of None,
+    working around a wagtail-localize incompatibility where extract_segments()
+    crashes on None values from optional CharBlock fields (e.g. in
+    wagtail_link_block's LinkBlock).
+    """
     try:
         from wagtail_localize.models import TranslationSource
     except ImportError:
@@ -173,14 +179,46 @@ def update_translation_sources(apps, schema_editor):
 
     from django.contrib.contenttypes.models import ContentType
 
+    from wagtail.blocks import CharBlock
+
     page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
     content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
 
-    for source in TranslationSource.objects.filter(specific_content_type_id__in=content_type_ids):
-        try:
-            source.update_from_db()
-        except Exception:
-            logger.warning("Failed to update TranslationSource pk=%s", source.pk, exc_info=True)
+    original_to_python = CharBlock.to_python
+    original_get_default = CharBlock.get_default
+
+    def safe_to_python(self, value):
+        result = original_to_python(self, value)
+        return result if result is not None else ""
+
+    def safe_get_default(self):
+        result = original_get_default(self)
+        return result if result is not None else ""
+
+    CharBlock.to_python = safe_to_python
+    CharBlock.get_default = safe_get_default
+    try:
+        for source in TranslationSource.objects.filter(specific_content_type_id__in=content_type_ids):
+            try:
+                source.update_from_db()
+            except Exception:
+                ct = ContentType.objects.get_for_id(source.specific_content_type_id)
+                try:
+                    obj = source.get_source_instance()
+                except Exception:
+                    obj = None
+                logger.warning(
+                    "Failed to update TranslationSource pk=%s (%s.%s, object_id=%s, page=%s).",
+                    source.pk,
+                    ct.app_label,
+                    ct.model,
+                    source.object_id,
+                    obj,
+                    exc_info=True,
+                )
+    finally:
+        CharBlock.to_python = original_to_python
+        CharBlock.get_default = original_get_default
 
 
 class Migration(migrations.Migration):
