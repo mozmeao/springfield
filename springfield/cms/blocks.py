@@ -513,7 +513,11 @@ class FluentOrCustomTextBlock(blocks.StructBlock):
     pretranslated_or_custom = blocks.ChoiceBlock(
         choices=FLUENT_TEXT_PRESET_CHOICES,
         default="download-button-download-firefox",
-        help_text="Choose one of the pre-translated choices, or 'Custom text' to enter custom text.",
+        help_text=(
+            "Choose one of the pre-translated choices, or 'Custom text' to enter custom text. "
+            "Note: if you choose one of the pre-translated choices, then translations of this page "
+            "will inherit the translation for this text (and not be able to set it on their own)."
+        ),
         label="Text",
     )
     custom_text = blocks.CharBlock(
