@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props video_url, poster, alt, aspect_ratio="", playback="autoplay_loop" #}
+{# props video_url, poster, alt, aspect_ratio="", playback="autoplay_loop", show_pause_button="" #}
 
 {% if playback == "autoplay_loop" %}
 <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
@@ -17,6 +17,29 @@
     <source src="{{ video_url }}" type="video/webm">
     <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-poster" />
   </video>
+  {% if show_pause_button %}
+    <button
+      class="fl-video-play js-animation-pause"
+      aria-label="{{ alt|default('Pause animation') }}"
+      data-label-pause="{{ alt|default('Pause animation') }}"
+      data-label-play="{{ alt|default('Play animation') }}"
+      type="button"
+    >
+      <span class="fl-video-play-icon js-pause-icon" aria-hidden="true">
+        <svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
+          <rect x="16" y="14" width="6" height="20" fill="#fff"/>
+          <rect x="26" y="14" width="6" height="20" fill="#fff"/>
+        </svg>
+      </span>
+      <span class="fl-video-play-icon js-play-icon" aria-hidden="true" hidden>
+        <svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="rgba(0,0,0,0.7)"/>
+          <path d="M17.887 13.951 35.472 24 17.887 34.049z" fill="#fff"/>
+        </svg>
+      </span>
+    </button>
+  {% endif %}
 </div>
 {% elif playback == "autoplay_once" %}
 <div class="fl-video fl-animation fl-animation-playing" data-playback="autoplay_once" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
