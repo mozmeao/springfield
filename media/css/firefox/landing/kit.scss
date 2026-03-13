@@ -20,6 +20,14 @@
   size-adjust: 77.44%;
 }
 
+.kit .fl-split-page-lower {
+    padding-top: 0;
+}
+
+.kit .fl-section-container {
+  gap: 16px;
+}
+
 // Kit styles (unlayered to override both flare and m24)
 main {
     // We need the casing to stay on X-LocaleSpecific
@@ -30,7 +38,7 @@ main {
     --figma-black-4: #15141A;
     display: grid;
     row-gap: 16px;
-    padding-block: 16px;
+    padding: 16px 16px 0;
 
 
     *, *::before, *::after {
@@ -53,9 +61,13 @@ main {
     video {
         width: 100%;
         display: block;
+        margin-bottom: 0;
     }
 }
 
+.fl-section {
+    padding: 16px 0;
+}
 
 .kit-banner {
     position: relative;
@@ -66,14 +78,22 @@ main {
     border: none;
     padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
     padding-bottom: 0;
+}
 
+.kit-banner.kit-banner-with-video {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 40px;
+    padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
 }
 
 .kit-banner-container {
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: calc(var(--scale-40) * 1px);
+    padding: 0;
     gap: calc(var(--scale-40) * 1px);
 }
 
@@ -103,7 +123,7 @@ main {
 }
 
 .kit-banner-subheading {
-    font-size: var(--font-size-subheading-1);
+    font-size: 1.25rem;
     font-weight: var(--font-weight-semibold);
     line-height: 1.1;
     margin-bottom: 45px;
@@ -112,14 +132,24 @@ main {
 }
 
 .kit-banner-content {
+    font-size: 1rem;
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
     margin: auto;
 }
 
 @media (min-width: 768px) {
-    .kit-banner {
-        border-radius: 128px;
+    .kit-banner.kit-banner-with-video {
+        padding: 56px;
+    }
+
+    .kit-banner .kit-banner-content {
+        max-width: 600px;
+    }
+
+    .kit-banner-video {
+        max-width: 600px;
+        margin: 0 auo;
     }
 
     .kit-banner .heading {
@@ -127,13 +157,48 @@ main {
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
     .kit-banner {
+        border-radius: 120px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .kit-banner,
+    .kit-banner.kit-banner-with-video {
         padding: 120px;
     }
 
+    .kit-banner .kit-banner-content {
+        max-width: 100%;
+    }
+
+    .kit-banner-video {
+        max-width: 100%;
+    }
+
+    .kit-banner.kit-banner-with-video {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .kit-banner.kit-banner-with-video .kit-banner-content {
+        max-inline-size: calc((100% - 80px) / 2 );
+        margin: 0;
+    }
+
+    .kit-banner.kit-banner-with-video .kit-banner-body {
+        max-inline-size: 100%;
+    }
+
+    .kit-banner.kit-banner-with-video .kit-banner-video {
+        max-inline-size: calc((100% - 80px) / 2 );
+    }
+
     .kit-banner .heading {
-        font-size: 8rem;
+        font-size: 6rem;
     }
 
     .kit-banner-subheading {
@@ -157,6 +222,16 @@ main {
         max-width: min(740px,60%);
         bottom: 0;
         right: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kit-banner.kit-banner-with-video {
+        gap: 80px;
+    }
+
+    .kit-banner .heading {
+        font-size: 7rem;
     }
 }
 
@@ -215,6 +290,7 @@ main {
     &[data-js-video-state="paused"] {
         .c-animation-button-play {
             display: block;
+            margin-bottom: 0;
         }
 
         .c-animation-button-pause {
@@ -229,6 +305,7 @@ main {
 
         .c-animation-button-pause {
             display: block;
+            margin-bottom: 0;
         }
     }
 }
@@ -249,9 +326,7 @@ main {
 .c-card-gallery {
     // match width/padding to fl-banner-container
     margin-inline: auto;
-    padding-inline: 40px;
     width: 100%;
-    max-width: calc(var(--widths-viewport-wrapper-screen-2xl) * 1px);
 
     // card gallery styles
     display: flex;
@@ -267,11 +342,8 @@ main {
     }
 }
 
-// match width/padding to fl-banner-container
-@media (max-width: 767px) {
-    .c-card-gallery {
-        padding-inline: calc(var(--scale-24) * 1px);
-    }
+.c-card-gallery section {
+    margin: 0;
 }
 
 .c-gallery-card {
@@ -286,10 +358,9 @@ main {
 
     @media (min-width: 768px) {
         --padding: 56px;
-        border-radius: 80px;
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 900px) {
         --padding: 80px;
         border-radius: 128px;
     }
@@ -327,6 +398,7 @@ main {
         display: grid;
         gap: 10px;
         padding-left: 34px;
+        list-style: none;
 
         li {
             counter-increment: custom-marker;
@@ -354,6 +426,8 @@ main {
     svg {
         border-radius: 2px;
         background-color: rgba(21, 20, 26, 0.10);
+        display: inline;
+        margin-bottom: 0;
         padding: 4px;
         vertical-align: middle;
         box-sizing: content-box;
@@ -538,4 +612,8 @@ main {
         -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
         mask: var(--icon-src) no-repeat center / 1em 1em;
     }
+}
+
+[hidden] {
+    display: none
 }
