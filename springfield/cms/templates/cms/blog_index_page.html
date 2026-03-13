@@ -13,176 +13,203 @@
   <main class="fl-main">
     <section class="fl-section">
       <div class="fl-section-container">
-
-        <include:heading
-          level="h1"
-          heading_text="{{ page.title }}"
-          heading_size="fl-heading-size-1"
-          alignment_class="text-center"
-        />
-
-        {% if top_topics %}
-          <div class="fl-blog-topics">
-            {% for topic in top_topics %}
-              {% set text = topic.name ~ " (" ~ topic.article_count ~ ")" %}
-              <include:tag
-                text="{{ text }}"
-                color="purple"
-                corners="round"
-              />
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        {% if featured_articles %}
-          <div class="fl-blog-featured">
-
-            {% set first = featured_articles[0] %}
-            <include:media-content>
-              <content:media>
-                {% if first.image %}
-                  {% set classes = image_variant_classes(first.image_dark_mode, first.image_mobile, first.image_dark_mode_mobile) %}
-                  <div class="image-variants-display">
-                    {{ srcset_image(
-                        first.image,
-                        "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                        sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                        width=first.image.width,
-                        loading="lazy",
-                        class=classes.primary,
-                    ) }}
-                    {% if first.image_mobile %}
-                      {{ srcset_image(
-                          first.image_mobile,
-                          "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                          sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                          width=first.image_mobile.width,
-                          loading="lazy",
-                          class=classes.mobile,
-                      ) }}
-                    {% endif %}
-                    {% if first.image_dark_mode_mobile %}
-                      {{ srcset_image(
-                          first.image_dark_mode_mobile,
-                          "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                          sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                          width=first.image_dark_mode_mobile.width,
-                          loading="lazy",
-                          class=classes.dark_mode_mobile,
-                      ) }}
-                    {% endif %}
-                    {% if first.image_dark_mode %}
-                      {{ srcset_image(
-                          first.image_dark_mode,
-                          "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                          sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                          width=first.image_dark_mode.width,
-                          loading="lazy",
-                          class=classes.dark_mode,
-                      ) }}
-                    {% endif %}
-                  </div>
+        <div>
+          <div class="fl-blog-index-header">
+            {% if page.page_heading %}
+              {% for block in page.page_heading %}
+                {% if block.block_type == "heading" %}
+                  <include:heading
+                    level="h1"
+                    superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
+                    heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                    subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
+                    alignment_class="text-center"
+                  />
                 {% endif %}
-              </content:media>
-              <content:heading>
-                <include:heading
-                  level="h2"
-                  heading_text="{{ first.title }}"
-                  superheading_text="{{ first.topic.name }}"
-                  heading_size="fl-heading-size-2"
-                />
-              </content:heading>
-              <content:body>
-                {{ first.description|richtext }}
-              </content:body>
-              <content:buttons>
-                <include:button
-                  theme_class="button-ghost"
-                  label="{{ first.link_text if first.link_text else 'Read more' }}"
-                  link="{{ first.url }}"
-                />
-              </content:buttons>
-            </include:media-content>
-
-            {% if featured_articles %}
-              <include:cards-list>
-                {% for article in featured_articles[1:5] %}
-                  <include:illustration-card-2026 expand_link="true">
-                    <content:media>
-                      {% if article.featured_image %}
-                        {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
-                        <div class="image-variants-display">
-                          {{ srcset_image(
-                              article.featured_image,
-                              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                              sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
-                              width=article.featured_image.width,
-                              loading="lazy",
-                              class=classes.primary,
-                          ) }}
-                          {% if article.featured_image_mobile %}
-                            {{ srcset_image(
-                                article.featured_image_mobile,
-                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                                sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
-                                width=article.featured_image_mobile.width,
-                                loading="lazy",
-                                class=classes.mobile,
-                            ) }}
-                          {% endif %}
-                          {% if article.featured_image_dark_mode_mobile %}
-                            {{ srcset_image(
-                                article.featured_image_dark_mode_mobile,
-                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                                sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
-                                width=article.featured_image_dark_mode_mobile.width,
-                                loading="lazy",
-                                class=classes.dark_mode_mobile,
-                            ) }}
-                          {% endif %}
-                          {% if article.featured_image_dark_mode %}
-                            {{ srcset_image(
-                                article.featured_image_dark_mode,
-                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                                sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
-                                width=article.featured_image_dark_mode.width,
-                                loading="lazy",
-                                class=classes.dark_mode,
-                            ) }}
-                          {% endif %}
-                        </div>
-                      {% endif %}
-                    </content:media>
-                    <content:heading>
-                      <p class="fl-superheading">{{ article.topic.name }}</p>
-                      <h3 class="fl-heading fl-heading-size-3">
-                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                          {{ article.title }}
-                        </a>
-                      </h3>
-                    </content:heading>
-                    <content:body>
-                      {{ article.description|richtext }}
-                      {% set article_tags = article.tags.all() %}
-                      {% if article_tags %}
-                        <div class="fl-card-tags">
-                          {% for tag in article_tags %}
-                            <include:tag
-                              text="{{ tag.name }}"
-                              color="purple"
-                              corners="round"
-                            />
-                          {% endfor %}
-                        </div>
-                      {% endif %}
-                    </content:body>
-                  </include:illustration-card-2026>
-                {% endfor %}
-              </include:cards-list>
+              {% endfor %}
+            {% else %}
+              <include:heading
+                level="h1"
+                heading_text="{{ page.title }}"
+                heading_size="fl-heading-size-1"
+                alignment_class="text-center"
+              />
             {% endif %}
-
           </div>
-        {% endif %}
+
+          {% if top_topics %}
+            <div class="fl-blog-topics">
+              <div class="fl-blog-topics-list">
+                {% for topic in top_topics %}
+                  <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', None, {'topic_slug': topic.slug}) }}" class="fl-blog-topic-link">
+                    <span class="fl-blog-topic-name">{{ topic.name }}</span>
+                    <include:tag
+                      text="{{ '%02d'|format(topic.article_count) }}"
+                      color="purple"
+                      corners="round"
+                    />
+                  </a>
+                {% endfor %}
+                <div class="fl-blog-topics-all">
+                  <a href="{{ page.url }}topics/" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <hr/>
+
+          {% if featured_articles %}
+            <div class="fl-blog-featured">
+
+              {% set first = featured_articles[0] %}
+              <include:media-content media_after>
+                <content:media>
+                  {% if first.image %}
+                    {% set classes = image_variant_classes(first.image_dark_mode, first.image_mobile, first.image_dark_mode_mobile) %}
+                    <div class="image-variants-display">
+                      {{ srcset_image(
+                          first.image,
+                          "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                          sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                          width=first.image.width,
+                          loading="lazy",
+                          class=classes.primary,
+                      ) }}
+                      {% if first.image_mobile %}
+                        {{ srcset_image(
+                            first.image_mobile,
+                            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                            sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                            width=first.image_mobile.width,
+                            loading="lazy",
+                            class=classes.mobile,
+                        ) }}
+                      {% endif %}
+                      {% if first.image_dark_mode_mobile %}
+                        {{ srcset_image(
+                            first.image_dark_mode_mobile,
+                            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                            sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                            width=first.image_dark_mode_mobile.width,
+                            loading="lazy",
+                            class=classes.dark_mode_mobile,
+                        ) }}
+                      {% endif %}
+                      {% if first.image_dark_mode %}
+                        {{ srcset_image(
+                            first.image_dark_mode,
+                            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                            sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                            width=first.image_dark_mode.width,
+                            loading="lazy",
+                            class=classes.dark_mode,
+                        ) }}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </content:media>
+                <content:heading>
+                  <include:heading
+                    level="h2"
+                    heading_text="{{ first.title }}"
+                    superheading_text="{{ first.topic.name }}"
+                    heading_size="fl-heading-size-2"
+                  />
+                </content:heading>
+                <content:body>
+                  {{ first.description|richtext }}
+                </content:body>
+                <content:buttons>
+                  <include:button
+                    theme_class="button-ghost"
+                    label="{{ first.link_text if first.link_text else 'Read more' }}"
+                    link="{{ first.url }}"
+                  />
+                </content:buttons>
+              </include:media-content>
+
+              {% if featured_articles %}
+                <include:cards-list>
+                  {% for article in featured_articles[1:5] %}
+                    <include:illustration-card-2026 expand_link="true">
+                      <content:media>
+                        {% if article.featured_image %}
+                          {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                          <div class="image-variants-display">
+                            {{ srcset_image(
+                                article.featured_image,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
+                                width=article.featured_image.width,
+                                loading="lazy",
+                                class=classes.primary,
+                            ) }}
+                            {% if article.featured_image_mobile %}
+                              {{ srcset_image(
+                                  article.featured_image_mobile,
+                                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                  sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
+                                  width=article.featured_image_mobile.width,
+                                  loading="lazy",
+                                  class=classes.mobile,
+                              ) }}
+                            {% endif %}
+                            {% if article.featured_image_dark_mode_mobile %}
+                              {{ srcset_image(
+                                  article.featured_image_dark_mode_mobile,
+                                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                  sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
+                                  width=article.featured_image_dark_mode_mobile.width,
+                                  loading="lazy",
+                                  class=classes.dark_mode_mobile,
+                              ) }}
+                            {% endif %}
+                            {% if article.featured_image_dark_mode %}
+                              {{ srcset_image(
+                                  article.featured_image_dark_mode,
+                                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                  sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw",
+                                  width=article.featured_image_dark_mode.width,
+                                  loading="lazy",
+                                  class=classes.dark_mode,
+                              ) }}
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                      </content:media>
+                      <content:heading>
+                        <p class="fl-superheading">{{ article.topic.name }}</p>
+                        <h3 class="fl-heading fl-heading-size-3">
+                          <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                            {{ article.title }}
+                          </a>
+                        </h3>
+                      </content:heading>
+                      <content:body>
+                        {{ article.description|richtext }}
+                        {% set article_tags = article.tags.all() %}
+                        {% if article_tags %}
+                          <div class="fl-card-tags">
+                            {% for tag in article_tags %}
+                              <include:tag
+                                text="{{ tag.name }}"
+                                color="purple"
+                                corners="round"
+                              />
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </content:body>
+                    </include:illustration-card-2026>
+                  {% endfor %}
+                </include:cards-list>
+              {% endif %}
+
+            </div>
+          {% endif %}
+
+        </div>
 
         {% if list_articles %}
           <div class="fl-blog-article-list">
@@ -215,17 +242,15 @@
           </div>
 
           {% if list_articles.paginator.num_pages > 1 %}
-            <nav class="fl-pagination" aria-label="Article list pagination">
-              {% if list_articles.has_previous() %}
-                <a class="fl-button button-ghost" href="?page={{ list_articles.previous_page_number() }}">Previous</a>
-              {% endif %}
-              <span class="fl-pagination-info">
-                Page {{ list_articles.number }} of {{ list_articles.paginator.num_pages }}
-              </span>
-              {% if list_articles.has_next() %}
-                <a class="fl-button button-ghost" href="?page={{ list_articles.next_page_number() }}">Next</a>
-              {% endif %}
-            </nav>
+            <include:pagination
+              page_number="{{ list_articles.number }}"
+              total_pages="{{ list_articles.paginator.num_pages }}"
+              prev_url="{{ '?page=' ~ list_articles.previous_page_number() if list_articles.has_previous() else '' }}"
+              next_url="{{ '?page=' ~ list_articles.next_page_number() if list_articles.has_next() else '' }}"
+              aria_label="{{ ftl('blog-pagination-label') }}"
+              prev_label="{{ ftl('ui-previous') }}"
+              next_label="{{ ftl('ui-next') }}"
+            />
           {% endif %}
 
         {% endif %}

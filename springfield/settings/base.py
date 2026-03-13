@@ -727,6 +727,7 @@ INSTALLED_APPS = [
     "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
+    "wagtail.contrib.routable_page",
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",

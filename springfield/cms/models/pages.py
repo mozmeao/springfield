@@ -8,15 +8,18 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
 from django.forms.widgets import CheckboxSelectMultiple
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
+from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
+from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -26,6 +29,7 @@ from springfield.cms.blocks import (
     CardsListBlock2026,
     CodeBlock,
     DownloadSupportBlock,
+    HeadingBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -786,12 +790,25 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return True
 
 
-class BlogIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
     subpage_types = ["cms.BlogArticlePage"]
+    ftl_files = ["cms/blog"]
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels
+    page_heading = StreamField(
+        [("heading", HeadingBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+    more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("page_heading"),
+        FieldPanel("more_articles_heading"),
+    ]
 
     class Meta:
         verbose_name = "Blog Index Page"
@@ -804,21 +821,75 @@ class BlogIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
         base_qs = BlogArticlePage.objects.child_of(self).live().public()
 
-        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at"))
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
 
-        list_articles_qs = base_qs.filter(featured=False).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+        list_articles_qs = (
+            base_qs.exclude(id__in=[article.id for article in featured_articles])
+            .select_related("topic")
+            .prefetch_related("tags")
+            .order_by("-first_published_at")
+        )
 
         paginator = Paginator(list_articles_qs, 10)
         list_articles = paginator.get_page(request.GET.get("page", 1))
 
         top_topics = (
-            Tag.objects.filter(blog_articles__in=base_qs.values("pk")).annotate(article_count=Count("blog_articles")).order_by("-article_count")[:5]
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("-article_count")[:5]
         )
 
         context["featured_articles"] = featured_articles
         context["list_articles"] = list_articles
         context["top_topics"] = top_topics
         return context
+
+    def _render_route(self, request, template, extra_context=None):
+
+        request.is_preview = False
+        request = self._patch_request_for_springfield(request)
+        context = self.get_context(request)
+        if extra_context:
+            context.update(extra_context)
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
+
+    @path("")
+    def index_route(self, request):
+        return self._render_route(request, self.get_template(request))
+
+    @path("topics/")
+    def topics_route(self, request):
+        from springfield.cms.models.snippets import Tag
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+        all_topics = (
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("name")
+        )
+        return self._render_route(request, "cms/blog_topics_page.html", {"all_topics": all_topics})
+
+    @path("topics/<slug:topic_slug>/")
+    def topic_route(self, request, topic_slug):
+        from springfield.cms.models.snippets import Tag
+
+        try:
+            topic = Tag.objects.get(slug=topic_slug, locale=self.locale)
+        except Tag.DoesNotExist:
+            raise Http404
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public().filter(topic=topic)
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:4])
+        list_articles_qs = (
+            base_qs.exclude(id__in=[a.id for a in featured_articles]).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+        )
+        paginator = Paginator(list_articles_qs, 10)
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+        return self._render_route(
+            request,
+            "cms/blog_topic_detail_page.html",
+            {"topic": topic, "featured_articles": featured_articles, "list_articles": list_articles},
+        )
 
 
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):

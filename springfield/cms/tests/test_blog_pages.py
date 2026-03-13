@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.db.models import Count
+from django.http import Http404
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -12,6 +15,8 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_pages,
     get_blog_topics,
 )
+from springfield.cms.models import BlogArticlePage
+from springfield.cms.models.snippets import Tag
 
 pytestmark = [pytest.mark.django_db]
 
@@ -93,21 +98,43 @@ def test_blog_index_renders_headline(blog_setup, rf):
 
 def test_blog_index_renders_top_topics(blog_setup, rf):
     index_page, _ = blog_setup
-    topics = get_blog_topics()
+    base_qs = BlogArticlePage.objects.child_of(index_page).live().public()
+    top_topics = list(
+        Tag.objects.filter(blog_articles__in=base_qs.values("pk")).annotate(article_count=Count("blog_articles")).order_by("-article_count")[:5]
+    )
+
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    topic_section = soup.find("div", class_="fl-blog-topics")
-    assert topic_section
+    topic_links = soup.find_all("a", class_="fl-blog-topic-link")
+    assert len(topic_links) == len(top_topics)
 
-    rendered_tags = topic_section.find_all("span", class_="fl-tag")
-    assert len(rendered_tags) == len(topics)
+    for topic in top_topics:
+        expected_href = index_page.url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": topic.slug})
+        link = soup.find("a", class_="fl-blog-topic-link", href=expected_href)
+        assert link, f"No link found for topic '{topic.name}'"
 
-    # Each tag contains a topic name and a count in parentheses
-    for tag_el in rendered_tags:
-        text = tag_el.get_text(strip=True)
-        assert "(" in text and ")" in text
+        # Topic name is in a separate span outside the tag
+        name_span = link.find("span", class_="fl-blog-topic-name")
+        assert name_span and topic.name in name_span.get_text()
+
+        # Tag shows the zero-padded article count
+        tag_el = link.find("span", class_="fl-tag")
+        assert tag_el and tag_el.get_text(strip=True) == f"{topic.article_count:02d}"
+
+
+def test_blog_index_top_topics_have_view_all_link(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    view_all = soup.find("div", class_="fl-blog-topics-all")
+    assert view_all
+    link = view_all.find("a")
+    assert link
+    assert link["href"] == index_page.url + index_page.reverse_subpage("topics_route")
 
 
 def test_blog_index_renders_first_featured_article_as_media_content(blog_setup, rf):
@@ -191,11 +218,15 @@ def test_blog_index_renders_pagination(blog_setup, rf):
     pagination = soup.find("nav", class_="fl-pagination")
     assert pagination, "Pagination nav should appear when there are more than 10 list articles"
 
-    # Page 1 has no Previous link, but has a Next link
-    prev_link = pagination.find("a", string=lambda t: t and "Previous" in t)
-    next_link = pagination.find("a", string=lambda t: t and "Next" in t)
-    assert prev_link is None
-    assert next_link
+    # Page 1: prev button is disabled, next button has an href
+    prev_button = pagination.find("div", class_="fl-pagination-prev").find("a")
+    next_button = pagination.find("div", class_="fl-pagination-next").find("a")
+    assert prev_button.get("aria-disabled") == "true"
+    assert next_button.get("href")
+
+    # Page indicator shows current/total
+    indicator = pagination.find("span", class_="fl-pagination-indicator")
+    assert indicator.get_text(strip=True) == "1/2"
 
 
 def test_blog_index_pagination_page_2(blog_setup, rf):
@@ -211,10 +242,16 @@ def test_blog_index_pagination_page_2(blog_setup, rf):
 
     pagination = soup.find("nav", class_="fl-pagination")
     assert pagination
-    prev_link = pagination.find("a", string=lambda t: t and "Previous" in t)
-    next_link = pagination.find("a", string=lambda t: t and "Next" in t)
-    assert prev_link
-    assert next_link is None
+
+    # Page 2: prev button has an href, next button is disabled
+    prev_button = pagination.find("div", class_="fl-pagination-prev").find("a")
+    next_button = pagination.find("div", class_="fl-pagination-next").find("a")
+    assert prev_button.get("href")
+    assert next_button.get("aria-disabled") == "true"
+
+    # Page indicator shows current/total
+    indicator = pagination.find("span", class_="fl-pagination-indicator")
+    assert indicator.get_text(strip=True) == "2/2"
 
 
 # ---------------------------------------------------------------------------
@@ -299,3 +336,183 @@ def test_blog_article_renders_quote_block(blog_setup, rf):
 
     figcaption = quote_block.find("figcaption", class_="fl-quote-author")
     assert figcaption and "Mozilla Foundation" in figcaption.get_text()
+
+
+# ---------------------------------------------------------------------------
+# Blog topics page (/topics/)
+# ---------------------------------------------------------------------------
+
+
+def test_blog_topics_page_renders_200(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    assert response.status_code == 200
+
+
+def test_blog_topics_page_renders_heading(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    h1 = soup.find("h1", class_="fl-heading")
+    assert h1 and "All Topics" in h1.get_text()
+
+
+def test_blog_topics_page_lists_all_topics_with_name_and_count(blog_setup, rf):
+    index_page, _ = blog_setup
+    base_qs = BlogArticlePage.objects.child_of(index_page).live().public()
+    expected_topics = Tag.objects.filter(blog_articles__in=base_qs.values("pk")).annotate(article_count=Count("blog_articles")).order_by("name")
+
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    topics_list = soup.find("div", class_="fl-blog-topics-list")
+    assert topics_list
+
+    links = topics_list.find_all("a")
+    assert len(links) == expected_topics.count()
+
+    for topic in expected_topics:
+        # Find the tag element whose text contains this topic's name and count
+        matching = [
+            tag
+            for tag in topics_list.find_all("span", class_="fl-tag")
+            if topic.name in tag.get_text() and f"({topic.article_count})" in tag.get_text()
+        ]
+        assert matching, f"No tag found for topic '{topic.name}' with count {topic.article_count}"
+
+
+def test_blog_topics_page_links_to_topic_detail(blog_setup, rf):
+    index_page, _ = blog_setup
+    topics = get_blog_topics()
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    links = soup.find("div", class_="fl-blog-topics-list").find_all("a")
+    expected_hrefs = {index_page.url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": slug}) for slug in topics}
+    rendered_hrefs = {link["href"] for link in links}
+    assert rendered_hrefs == expected_hrefs
+
+
+# ---------------------------------------------------------------------------
+# Blog topic detail page (/{slug}/)
+# ---------------------------------------------------------------------------
+
+
+def test_blog_topic_detail_renders_200(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    assert response.status_code == 200
+
+
+def test_blog_topic_detail_renders_404_for_unknown_topic(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "nonexistent"})
+    request = rf.get(url)
+    with pytest.raises(Http404):
+        index_page.topic_route(request, topic_slug="nonexistent")
+
+
+def test_blog_topic_detail_renders_topic_heading(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    h1 = soup.find("h1", class_="fl-heading")
+    assert h1 and "Privacy" in h1.get_text()
+
+
+def test_blog_topic_detail_renders_featured_as_illustration_cards(blog_setup, rf):
+    index_page, _ = blog_setup
+    topic = Tag.objects.get(slug="privacy")
+    featured_articles = list(
+        BlogArticlePage.objects.child_of(index_page)
+        .live()
+        .public()
+        .filter(topic=topic, featured=True)
+        .prefetch_related("tags")
+        .order_by("-first_published_at")[:4]
+    )
+
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    cards = soup.find_all("article", class_="fl-illustration-card")
+    assert len(cards) == len(featured_articles)
+
+    for article, card in zip(featured_articles, cards):
+        # Card has expand-link class
+        assert "fl-card-expand-link" in card.get("class", [])
+        # Card has an image
+        assert card.find("img")
+        # Card heading contains the article title with an expand link to the article URL
+        heading = card.find("h2", class_="fl-heading")
+        assert heading and article.title in heading.get_text()
+        expand_link = heading.find("a", class_="fl-link-expand")
+        assert expand_link and expand_link["href"] == article.url
+        # Card body contains article description
+        body = card.find("div", class_="fl-card-content").find("div", class_="fl-body")
+        assert body
+        # Card body contains each tag
+        tag_names = {t.name for t in article.tags.all()}
+        card_tag_texts = {el.get_text(strip=True) for el in card.find_all("span", class_="fl-tag")}
+        assert tag_names <= card_tag_texts
+
+
+def test_blog_topic_detail_renders_list_articles(blog_setup, rf):
+    index_page, _ = blog_setup
+    topic = Tag.objects.get(slug="privacy")
+    base_qs = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic=topic)
+    featured_ids = list(base_qs.filter(featured=True).order_by("-first_published_at").values_list("id", flat=True)[:4])
+    list_articles = list(base_qs.exclude(id__in=featured_ids).prefetch_related("tags").order_by("-first_published_at"))
+
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    article_list = soup.find("div", class_="fl-blog-article-list")
+    assert article_list
+
+    items = article_list.find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == len(list_articles)
+
+    for article, item in zip(list_articles, items):
+        # Title heading with a link to the article URL
+        heading = item.find("h2", class_="fl-heading")
+        assert heading and article.title in heading.get_text()
+        link = heading.find("a", class_="fl-link")
+        assert link and link["href"] == article.url
+        # Description body
+        assert item.find("div", class_="fl-body")
+        # Published date
+        assert item.find("p", class_="fl-blog-article-date")
+        # Each tag rendered
+        tag_names = {t.name for t in article.tags.all()}
+        item_tag_texts = {el.get_text(strip=True) for el in item.find_all("span", class_="fl-tag")}
+        assert tag_names <= item_tag_texts
+
+
+def test_blog_topic_detail_no_pagination_when_single_page(blog_setup, rf):
+    index_page, _ = blog_setup
+    # "privacy" has only 3 regular articles — no second page needed
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("nav", class_="fl-pagination")
