@@ -4,16 +4,22 @@
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db import models
+from django.db.models import Count
+from django.forms.widgets import CheckboxSelectMultiple
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
+from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
+from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -21,7 +27,9 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    CodeBlock,
     DownloadSupportBlock,
+    HeadingBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
     HomeKitBannerBlock,
@@ -30,7 +38,9 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
+    MediaBlock,
     MobileStoreQRCodeBlock,
+    QuoteBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -778,3 +788,251 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
+
+
+class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that lists blog posts."""
+
+    subpage_types = ["cms.BlogArticlePage"]
+    ftl_files = ["cms/blog"]
+
+    page_heading = StreamField(
+        [("heading", HeadingBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+    more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("page_heading"),
+        FieldPanel("more_articles_heading"),
+    ]
+
+    class Meta:
+        verbose_name = "Blog Index Page"
+        verbose_name_plural = "Blog Index Pages"
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.models.snippets import Tag
+
+        context = super().get_context(request, *args, **kwargs)
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
+
+        list_articles_qs = (
+            base_qs.exclude(id__in=[article.id for article in featured_articles])
+            .select_related("topic")
+            .prefetch_related("tags")
+            .order_by("-first_published_at")
+        )
+
+        paginator = Paginator(list_articles_qs, 10)
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+
+        top_topics = (
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("-article_count")[:5]
+        )
+
+        context["featured_articles"] = featured_articles
+        context["list_articles"] = list_articles
+        context["top_topics"] = top_topics
+        return context
+
+    def _render_route(self, request, template, extra_context=None):
+
+        request.is_preview = False
+        request = self._patch_request_for_springfield(request)
+        context = self.get_context(request)
+        if extra_context:
+            context.update(extra_context)
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
+
+    @path("")
+    def index_route(self, request):
+        return self._render_route(request, self.get_template(request))
+
+    @path("topics/")
+    def topics_route(self, request):
+        from springfield.cms.models.snippets import Tag
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+        all_topics = (
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("name")
+        )
+        return self._render_route(request, "cms/blog_topics_page.html", {"all_topics": all_topics})
+
+    @path("topics/<slug:topic_slug>/")
+    def topic_route(self, request, topic_slug):
+        from springfield.cms.models.snippets import Tag
+
+        try:
+            topic = Tag.objects.get(slug=topic_slug, locale=self.locale)
+        except Tag.DoesNotExist:
+            raise Http404
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public().filter(topic=topic)
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:4])
+        list_articles_qs = (
+            base_qs.exclude(id__in=[a.id for a in featured_articles]).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+        )
+        paginator = Paginator(list_articles_qs, 10)
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+        return self._render_route(
+            request,
+            "cms/blog_topic_detail_page.html",
+            {"topic": topic, "featured_articles": featured_articles, "list_articles": list_articles},
+        )
+
+
+class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays a single blog article."""
+
+    parent_page_types = ["cms.BlogIndexPage"]
+
+    description = RichTextField(
+        blank=True,
+        features=HEADING_TEXT_FEATURES,
+        help_text="A short description used on the index page.",
+    )
+    featured = models.BooleanField(
+        default=False,
+        help_text="Check to set as a featured article on the index page.",
+    )
+    featured_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+        help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode variant of the featured image.",
+    )
+    featured_image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional mobile variant of the featured image.",
+    )
+    featured_image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the featured image.",
+    )
+
+    topic = models.ForeignKey(
+        "cms.Tag",
+        on_delete=models.PROTECT,
+        related_name="blog_articles",
+    )
+    tags = models.ManyToManyField(
+        "cms.Tag",
+        related_name="blog_articles_tags",
+        blank=True,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the article image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the article image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the article image.",
+    )
+    content = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+            ("media", MediaBlock()),
+            ("code", CodeBlock()),
+            ("quote", QuoteBlock()),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("description"),
+                FieldPanel("featured"),
+                FieldPanel("featured_image"),
+                MultiFieldPanel(
+                    [
+                        FieldRowPanel(
+                            [
+                                FieldPanel("featured_image_dark_mode"),
+                                FieldPanel("featured_image_mobile"),
+                                FieldPanel("featured_image_dark_mode_mobile"),
+                            ]
+                        )
+                    ],
+                    heading="Featured Image Variants",
+                    classname="collapsed",
+                ),
+            ],
+            heading="Index Page Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("topic"),
+                FieldPanel("tags", widget=CheckboxSelectMultiple()),
+            ],
+            heading="Tags",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("image"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Article Image Variants",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Blog Article Page"
+        verbose_name_plural = "Blog Article Pages"

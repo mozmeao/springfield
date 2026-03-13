@@ -727,6 +727,7 @@ INSTALLED_APPS = [
     "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
+    "wagtail.contrib.routable_page",
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
@@ -821,6 +822,7 @@ TEMPLATES = [
                 "springfield.base.context_processors.canonical_path",
                 "springfield.base.context_processors.current_year",
                 "springfield.firefox.context_processors.latest_firefox_versions",
+                "springfield.cms.pattern_contexts.pattern_library_l10n_context",
             ],
             "extensions": [
                 "jinja2.ext.do",
@@ -1407,9 +1409,14 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     # Order here is the order used in the editor UI
     "h2",
     "h3",
+    "h4",
+    "h5",
     "hr",
     "bold",
     "italic",
+    "superscript",
+    "subscript",
+    "strikethrough",
     "code",
     "blockquote",
     "link",

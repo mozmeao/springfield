@@ -1130,6 +1130,35 @@ class IconListWithImageBlock(blocks.StructBlock):
         template = "cms/blocks/icon-list-with-image.html"
 
 
+class CodeBlock(blocks.StructBlock):
+    code = blocks.TextBlock(
+        label="Code",
+        help_text="Paste the code snippet here.",
+    )
+
+    class Meta:
+        label = "Code"
+        template = "cms/blocks/code.html"
+
+
+class QuoteBlock(blocks.StructBlock):
+    quote = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        label="Quote",
+        help_text="The quoted text.",
+    )
+    author = blocks.CharBlock(
+        required=False,
+        label="Author",
+        help_text="Optional attribution for the quote.",
+    )
+
+    class Meta:
+        label = "Quote"
+        label_format = "Quote - {author}"
+        template = "cms/blocks/quote.html"
+
+
 # Cards
 
 

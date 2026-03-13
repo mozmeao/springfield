@@ -1,0 +1,41 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-blog-topics-body{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-page-blog-topics">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <include:heading
+          level="h1"
+          heading_text="{{ ftl('blog-all-topics') }}"
+          heading_size="fl-heading-size-1"
+          alignment_class="text-center"
+        />
+
+        {% if all_topics %}
+          <div class="fl-blog-topics-list">
+            {% for topic in all_topics %}
+              {% set text = topic.name ~ " (" ~ topic.article_count ~ ")" %}
+              <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', None, {'topic_slug': topic.slug}) }}">
+                <include:tag
+                  text="{{ text }}"
+                  color="purple"
+                  corners="round"
+                />
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

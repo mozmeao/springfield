@@ -212,6 +212,7 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
     class Meta(TranslatableMixin.Meta):
         verbose_name = "Tag"
         verbose_name_plural = "Tags"
+        unique_together = [*TranslatableMixin.Meta.unique_together, ("slug", "locale")]
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
