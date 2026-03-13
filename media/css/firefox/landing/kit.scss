@@ -134,13 +134,22 @@ main {
 .kit-banner-content {
     font-size: 1rem;
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
     margin: auto;
 }
 
 @media (min-width: 768px) {
-    .kit-banner {
-        border-radius: 120px;
+    .kit-banner.kit-banner-with-video {
+        padding: 56px;
+    }
+
+    .kit-banner .kit-banner-content {
+        max-width: 600px;
+    }
+
+    .kit-banner-video {
+        max-width: 600px;
+        margin: 0 auo;
     }
 
     .kit-banner .heading {
@@ -148,16 +157,31 @@ main {
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
     .kit-banner {
+        border-radius: 120px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .kit-banner,
+    .kit-banner.kit-banner-with-video {
         padding: 120px;
+    }
+
+    .kit-banner .kit-banner-content {
+        max-width: 100%;
+    }
+
+    .kit-banner-video {
+        max-width: 100%;
     }
 
     .kit-banner.kit-banner-with-video {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        gap: 80px;
+        gap: 40px;
     }
 
     .kit-banner.kit-banner-with-video .kit-banner-content {
@@ -174,7 +198,7 @@ main {
     }
 
     .kit-banner .heading {
-        font-size: 7rem;
+        font-size: 6rem;
     }
 
     .kit-banner-subheading {
@@ -198,6 +222,16 @@ main {
         max-width: min(740px,60%);
         bottom: 0;
         right: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kit-banner.kit-banner-with-video {
+        gap: 80px;
+    }
+
+    .kit-banner .heading {
+        font-size: 7rem;
     }
 }
 
@@ -364,6 +398,7 @@ main {
         display: grid;
         gap: 10px;
         padding-left: 34px;
+        list-style: none;
 
         li {
             counter-increment: custom-marker;
@@ -391,6 +426,8 @@ main {
     svg {
         border-radius: 2px;
         background-color: rgba(21, 20, 26, 0.10);
+        display: inline;
+        margin-bottom: 0;
         padding: 4px;
         vertical-align: middle;
         box-sizing: content-box;
