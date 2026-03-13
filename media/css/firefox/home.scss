@@ -753,7 +753,9 @@ button.mzp-c-cta-link {
 // download as default checkbox
 
 .default-browser-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-weight: normal;
     margin: 0 auto $spacing-lg;
     padding-bottom: 0;
@@ -770,5 +772,30 @@ button.mzp-c-cta-link {
 
     .c-intro-download & {
         margin: 0 0 $spacing-lg;
+    }
+
+    .loading {
+        display: none;
+
+        &.show {
+            display: inline-block;
+            width: 13px;
+            aspect-ratio: 1;
+
+            --circle:no-repeat radial-gradient(farthest-side,#25b09b 92%,#0000);
+            background:
+                var(--circle) top,
+                var(--circle) left,
+                var(--circle) right,
+                var(--circle) bottom;
+            background-size: 4px 4px;
+            animation: l7 1s infinite;
+        }
+    }
+}
+
+@keyframes l7 {
+    to {
+        transform: rotate(.5turn)
     }
 }
