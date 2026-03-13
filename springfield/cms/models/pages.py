@@ -4,7 +4,9 @@
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db import models
+from django.db.models import Count
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -22,6 +24,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    CodeBlock,
     DownloadSupportBlock,
     HomeCarouselBlock,
     HomeIntroBlock,
@@ -33,6 +36,7 @@ from springfield.cms.blocks import (
     LocalizedLiveSnippetChooserBlock,
     MediaBlock,
     MobileStoreQRCodeBlock,
+    QuoteBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -793,6 +797,29 @@ class BlogIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name = "Blog Index Page"
         verbose_name_plural = "Blog Index Pages"
 
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.models.snippets import Tag
+
+        context = super().get_context(request, *args, **kwargs)
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at"))
+
+        list_articles_qs = base_qs.filter(featured=False).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+
+        paginator = Paginator(list_articles_qs, 10)
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+
+        top_topics = (
+            Tag.objects.filter(blog_articles__in=base_qs.values("pk")).annotate(article_count=Count("blog_articles")).order_by("-article_count")[:5]
+        )
+
+        context["featured_articles"] = featured_articles
+        context["list_articles"] = list_articles
+        context["top_topics"] = top_topics
+        return context
+
 
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
@@ -884,6 +911,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("media", MediaBlock()),
+            ("code", CodeBlock()),
+            ("quote", QuoteBlock()),
         ],
         use_json_field=True,
     )

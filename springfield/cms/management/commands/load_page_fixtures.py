@@ -13,6 +13,7 @@ from springfield.cms.fixtures.base_fixtures import (
     get_placeholder_images,
     get_test_index_page,
 )
+from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_filled_cards_test_page,
@@ -28,7 +29,6 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_sticker_cards_2026_test_page,
 )
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
-from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
     get_mobile_store_qr_code_test_page,
@@ -135,15 +135,12 @@ class Command(BaseCommand):
         artcle_theme_hub_page = get_article_theme_hub_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
 
-        feature_theme_page, feature_index_page, feature_pages = load_feature_page_fixtures()
-        if not no_refresh:
-            # Delete existing feature theme page children (index page + detail pages)
-            feature_theme_page.get_children().delete()
-            self.stdout.write(self.style.SUCCESS("Existing feature pages deleted."))
-        self.stdout.write(self.style.SUCCESS(f"Feature Theme page loaded: {feature_theme_page.slug}"))
-        self.stdout.write(self.style.SUCCESS(f"Feature Index page loaded: {feature_index_page.slug}"))
-        for page in feature_pages:
-            self.stdout.write(self.style.SUCCESS(f"Feature page loaded: {page.slug}"))
+        blog_index_page = get_blog_index_page()
+        self.stdout.write(self.style.SUCCESS(f"Blog Index test page loaded: {blog_index_page.slug}"))
+
+        blog_pages = get_blog_pages()
+        for page in blog_pages:
+            self.stdout.write(self.style.SUCCESS(f"Blog Article test page loaded: {page.slug}"))
 
         # 2025 pages
 
