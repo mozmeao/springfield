@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -15,13 +16,13 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
-from springfield.base.i18n import split_path_and_normalize_language
+from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -537,6 +538,19 @@ def BaseButtonSettings(themes=None, **kwargs):
 
 
 class SpringfieldLinkBlockURLValue(URLValue):
+    @staticmethod
+    def _with_locale_prefix(url, lang):
+        """Replace the locale prefix in url with lang, or return url unchanged if unparseable."""
+        if url:
+            # page.url can return an absolute URL (e.g. http://host/en-US/path/)
+            # when the page belongs to a different Wagtail site. Extract just the path.
+            parsed = urlparse(url)
+            path = parsed.path if parsed.scheme or parsed.netloc else url
+            parts = path.lstrip("/").split("/", 1)
+            if len(parts) == 2:
+                return f"/{lang}/{parts[1]}"
+        return url
+
     def get_url(self):
         """
         Override the get_url() method to:
@@ -550,7 +564,10 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if path:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return f"/{locale.language_code}/{path.lstrip('/')}"
+                    # To make sure we return the URL prefixed with the user-facing locale,
+                    # we reconstruct the URL using the URL-facing locale prefix.
+                    active_lang = normalize_language(translation.get_language()) or locale.language_code
+                    return f"/{active_lang}/{path.lstrip('/')}"
                 except Exception:
                     return path
             return path
@@ -560,7 +577,28 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if page:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return page.get_translation(locale).url
+                    # Get the active language, so we can use it to determine the URL to return.
+                    active_lang = normalize_language(translation.get_language()) or locale.language_code
+                    try:
+                        translated_page = page.get_translation(locale)
+                        # If the translated page matches the active language,
+                        # then return the translated page's URL.
+                        if translated_page.locale.language_code == active_lang:
+                            return translated_page.url
+                        # The translated page doesn not match the active language;
+                        # we reconstruct the URL using the URL-facing locale prefix.
+                        return self._with_locale_prefix(translated_page.url, active_lang)
+                    except Exception:
+                        # This means that this page has no translation for this locale.
+                        # In case this is rendered as a fallback page (the user
+                        # requested /es-AR/somepage, but that page doesn't exist
+                        # in the es-AR locale, so the user is served the content
+                        # from the es-MX locale's somepage at the /es-AR/somepage URL),
+                        # we want to make sure that the URL we return here matches
+                        # the requested locale. For example, for a page link to
+                        # the /features/control/ page, we want to return
+                        # /es-AR/features/control/ (not /es-MX/features/control/).
+                        return self._with_locale_prefix(page.url, active_lang)
                 except Exception:
                     return page.url
             return None
@@ -655,7 +693,7 @@ class SpringfieldLinkBlock(LinkBlock):
                     path_to_check = f"/en-US/{path.lstrip('/')}"
                     with translation.override("en-US"):
                         match = resolve(path_to_check)
-                    if match.func == wagtail_serve:
+                    if match.func == wagtail_serve_with_locale_fallback:
                         errors["relative_url"] = ErrorList([error_msg])
                 except Resolver404:
                     errors["relative_url"] = ErrorList([error_msg])
