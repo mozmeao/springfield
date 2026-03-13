@@ -7,14 +7,15 @@
 {% from "macros.html" import google_play_button with context %}
 {% from "macros-protocol.html" import picto, split with context %}
 
-{% extends "base-protocol.html" %}
+{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
+{% extends base_template %}
 
 {# This template can render with EITHER 'firefox/download/download.ftl' OR 'firefox/download/platform.ftl' active
  # download.ftl contains strings for the hero and small-links for the platform pages
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
 
-{% block body_class %}mzp-t-firefox{% endblock %}
+{% block body_class %}{% if switch("flare26_enabled") %}fl-download-page{% else %}mzp-t-firefox{% endif %}{% endblock %}
 
 {% block experiments %}{% endblock %}
 
@@ -66,6 +67,11 @@
 {# else it will fall back to the strings from new/download.ftl specified in base_download #}
 {% endif %}
 
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header theme="dark" />
+{% endblock %}
+
 {% block site_header %}
   {% with hide_nav_cta=True %}
     {% include 'includes/navigation/navigation.html' %}
@@ -73,86 +79,168 @@
 {% endblock %}
 
 {% block content %}
-<main class="main-download" {% if v %}data-variant="{{ v }}"{% endif %}>
-  {% call split(
-    block_class='mzp-l-split-center-on-sm-md t-split-hero',
-    media_class='mzp-l-split-media-overflow',
-    media_after=True,
-    image=resp_img(url=hero_img, optional_attributes={ 'class': 'mzp-c-split-media-asset' })
+  {% if switch("flare26_enabled") %}
+    <main class="fl-main fl-desktop-download fl-force-light-theme" {% if v %}data-variant="{{ v }}"{% endif %}>
+      <div class="{% if ftl_file_is_active('firefox/download/platform') %}fl-split-page-upper{% endif %}">
+        <div class="fl-section">
+          <div class="fl-section-container">
+            <include:intro slim vertical media_position="right">
+              <content:heading>
+                <h1 class="fl-heading fl-heading-size-1">{{ hero_title }}</h1>
+              </content:heading>
+              <content:actions>
+                {% block intro_download_button_26 %}
+                  {{ download_firefox_thanks(
+                    alt_copy=ftl('download-button-download-now'),
+                    locale_in_transition=True,
+                    download_location='primary cta',
+                    flare_styles=True,
+                  ) }}
+                {% endblock %}
+                <ul class="fl-small-links">
+                  {% if ftl_has_messages('firefox-new-download-a-different') %}
+                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-new-download-a-different') }}</a></li>
+                  {% else %}
+                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_advanced }}</a></li>
+                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_lang }}</a></li>
+                  {% endif %}
+                  <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
+                </ul>
+              </content:actions>
+              <content:media>
+                <img src="/media/{{ hero_img }}" class="fl-mediacontent-asset" aria-hidden="true" />
+              </content:media>
+            </include:intro>
+          </div>
+        </div>
+      </div>
 
-  ) %}
-    <div class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox"></div>
-    <h1 class="c-download-split-title">{{ hero_title }}</h1>
-    <div class="c-intro-download">
-      {% block intro_download_button %}
-        {{ download_firefox_thanks(alt_copy=ftl('download-button-download-now'), locale_in_transition=True, download_location='primary cta') }}
-      {% endblock %}
+      {% if ftl_file_is_active('firefox/download/platform') %}
+        <div class="fl-split-page-lower">
+          <div class="fl-section">
+            <div class="fl-section-container">
+              <include:cards-list>
+                <include:illustration-card-2026 variant="sticker">
+                  <content:media>
+                    <img src="/media/{{ card1_image_url }}" aria-hidden="true" />
+                  </content:media>
+                  <content:heading>
+                    <include:heading level="h2" heading_text="{{ card1_title }}" />
+                  </content:heading>
+                  <content:body>
+                    <p>{{ card1_desc }}</p>
+                  </content:body>
+                </include:illustration-card-2026>
+                <include:illustration-card-2026 variant="sticker">
+                  <content:media>
+                    <img src="/media/{{ card2_image_url }}" aria-hidden="true" />
+                  </content:media>
+                  <content:heading>
+                    <include:heading level="h2" heading_text="{{ card2_title }}" />
+                  </content:heading>
+                  <content:body>
+                    <p>{{ card2_desc }}</p>
+                  </content:body>
+                </include:illustration-card-2026>
+                <include:illustration-card-2026 variant="sticker">
+                  <content:media>
+                    <img src="/media/{{ card3_image_url }}" aria-hidden="true" />
+                  </content:media>
+                  <content:heading>
+                    <include:heading level="h2" heading_text="{{ card3_title }}" />
+                  </content:heading>
+                  <content:body>
+                    <p>{{ card3_desc }}</p>
+                  </content:body>
+                </include:illustration-card-2026>
+              </include:cards-list>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </main>
+  {% else %}
+    <main class="main-download" {% if v %}data-variant="{{ v }}"{% endif %}>
+      {% call split(
+        block_class='mzp-l-split-center-on-sm-md t-split-hero',
+        media_class='mzp-l-split-media-overflow',
+        media_after=True,
+        image=resp_img(url=hero_img, optional_attributes={ 'class': 'mzp-c-split-media-asset' })
 
-      {% block small_links %}
-      <ul class="small-links">
-        {% if ftl_has_messages('firefox-new-download-a-different') %}
-        <li><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-new-download-a-different') }}</a></li>
-        {% else %}
-        <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_advanced }}</a></li>
-        <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_lang }}</a></li>
+      ) %}
+        <div class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox"></div>
+        <h1 class="c-download-split-title">{{ hero_title }}</h1>
+        <div class="c-intro-download">
+          {% block intro_download_button %}
+            {{ download_firefox_thanks(alt_copy=ftl('download-button-download-now'), locale_in_transition=True, download_location='primary cta') }}
+          {% endblock %}
+
+          {% block small_links %}
+          <ul class="small-links">
+            {% if ftl_has_messages('firefox-new-download-a-different') %}
+            <li><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-new-download-a-different') }}</a></li>
+            {% else %}
+            <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_advanced }}</a></li>
+            <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_lang }}</a></li>
+            {% endif %}
+            <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
+          </ul>
+        </div>
+        {% endblock %}
+      {% endcall %}
+
+      {% block features %}
+        {% if ftl_file_is_active('firefox/download/platform') %}
+          <section class="features">
+            <ul class="mzp-l-content mzp-l-columns mzp-t-columns-three mzp-t-picto-center">
+              {% call picto(
+                title=card1_title,
+                image=resp_img(
+                  url=card1_image_url,
+                  optional_attributes={
+                    'class': 'mzp-c-picto-image',
+                    'width': '96'
+                  }
+                ),
+                body=True,
+                base_el='li'
+              ) %}
+                {{ card1_desc }}
+              {% endcall %}
+              {% call picto(
+                title=card2_title,
+                image=resp_img(
+                  url=card2_image_url,
+                  optional_attributes={
+                    'class': 'mzp-c-picto-image',
+                    'width': '96'
+                  }
+                ),
+                body=True,
+                base_el='li'
+              ) %}
+                {{ card2_desc }}
+              {% endcall %}
+              {% call picto(
+                title=card3_title,
+                image=resp_img(
+                  url=card3_image_url,
+                  optional_attributes={
+                    'class': 'mzp-c-picto-image',
+                    'width': '96'
+                  }
+                ),
+                body=True,
+                base_el='li'
+              ) %}
+                {{ card3_desc }}
+              {% endcall %}
+            </ul>
+          </section>
         {% endif %}
-        <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
-      </ul>
-    </div>
-    {% endblock %}
-  {% endcall %}
-
-  {% block features %}
-    {% if ftl_file_is_active('firefox/download/platform') %}
-      <section class="features">
-        <ul class="mzp-l-content mzp-l-columns mzp-t-columns-three mzp-t-picto-center">
-          {% call picto(
-            title=card1_title,
-            image=resp_img(
-              url=card1_image_url,
-              optional_attributes={
-                'class': 'mzp-c-picto-image',
-                'width': '96'
-              }
-            ),
-            body=True,
-            base_el='li'
-          ) %}
-            {{ card1_desc }}
-          {% endcall %}
-          {% call picto(
-            title=card2_title,
-            image=resp_img(
-              url=card2_image_url,
-              optional_attributes={
-                'class': 'mzp-c-picto-image',
-                'width': '96'
-              }
-            ),
-            body=True,
-            base_el='li'
-          ) %}
-            {{ card2_desc }}
-          {% endcall %}
-          {% call picto(
-            title=card3_title,
-            image=resp_img(
-              url=card3_image_url,
-              optional_attributes={
-                'class': 'mzp-c-picto-image',
-                'width': '96'
-              }
-            ),
-            body=True,
-            base_el='li'
-          ) %}
-            {{ card3_desc }}
-          {% endcall %}
-        </ul>
-      </section>
-    {% endif %}
-  {% endblock %}
-</main>
+      {% endblock %}
+    </main>
+  {% endif %}
 {% endblock %}
 
 {% block page_banner %}
@@ -162,7 +250,7 @@
 {% endblock %}
 
 {% block js %}
-  {% if show_firefox_app_store_banner %}
+  {% if show_firefox_app_store_banner and not switch("flare26_enabled") %}
     {{ js_bundle('firefox-app-store-banner') }}
   {% endif %}
 {% endblock %}
