@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from copy import deepcopy
-from importlib import import_module
 from unittest import mock
 
 from django.core.exceptions import ValidationError
@@ -13,9 +11,6 @@ from wagtail.models import Locale
 
 from springfield.cms.blocks import FluentOrCustomTextBlock, FluentOrCustomTextValue
 from springfield.cms.models.snippets import PreFooterCTASnippet
-
-_mgmt_cmd = import_module("springfield.cms.management.commands.migrate_download_button_labels")
-convert_download_button_label = _mgmt_cmd.convert_download_button_label
 
 pytestmark = [pytest.mark.django_db]
 
@@ -122,75 +117,3 @@ def test_snippet_resolve_label_custom():
         locale=locale,
     )
     assert snippet.resolve_label() == "Buy Firefox"
-
-
-# -- convert_download_button_label() management command helper --
-
-
-def _make_download_button_block(label):
-    """Create a download_button block with old-style string label."""
-    return {
-        "type": "download_button",
-        "value": {
-            "label": label,
-            "settings": {"theme": "", "icon": "downloads"},
-        },
-    }
-
-
-def test_convert_english_get_firefox():
-    data = _make_download_button_block("Get Firefox")
-    assert convert_download_button_label(data, is_english=True) is True
-    assert data["value"]["label"] == {"pretranslated_or_custom": "navigation-get-firefox", "custom_text": ""}
-
-
-def test_convert_english_download_firefox():
-    data = _make_download_button_block("Download Firefox")
-    assert convert_download_button_label(data, is_english=True) is True
-    assert data["value"]["label"]["pretranslated_or_custom"] == "download-button-download-firefox"
-
-
-def test_convert_english_unknown_label():
-    data = _make_download_button_block("Something Else")
-    assert convert_download_button_label(data, is_english=True) is True
-    assert data["value"]["label"] == {"pretranslated_or_custom": "custom", "custom_text": "Something Else"}
-
-
-def test_convert_non_english():
-    data = _make_download_button_block("Télécharger Firefox")
-    assert convert_download_button_label(data, is_english=False) is True
-    assert data["value"]["label"]["pretranslated_or_custom"] == "download-button-download-firefox"
-
-
-def test_convert_nested_blocks():
-    data = {
-        "type": "section",
-        "value": {
-            "buttons": [
-                _make_download_button_block("Get Firefox"),
-                _make_download_button_block("Download Firefox"),
-            ]
-        },
-    }
-    assert convert_download_button_label(data, is_english=True) is True
-    assert data["value"]["buttons"][0]["value"]["label"]["pretranslated_or_custom"] == "navigation-get-firefox"
-    assert data["value"]["buttons"][1]["value"]["label"]["pretranslated_or_custom"] == "download-button-download-firefox"
-
-
-def test_convert_no_download_button():
-    data = {"type": "button", "value": {"label": "Click me"}}
-    assert convert_download_button_label(data, is_english=True) is False
-
-
-def test_convert_already_migrated():
-    """Block with dict label (already migrated) is not touched."""
-    data = {
-        "type": "download_button",
-        "value": {
-            "label": {"pretranslated_or_custom": "navigation-get-firefox", "custom_text": ""},
-            "settings": {"theme": ""},
-        },
-    }
-    original = deepcopy(data)
-    assert convert_download_button_label(data, is_english=True) is False
-    assert data == original
