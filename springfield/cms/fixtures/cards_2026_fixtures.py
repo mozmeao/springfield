@@ -19,6 +19,15 @@ _IMAGE_VARIANTS = {
     },
 }
 
+_EMPTY_IMAGE_VARIANTS = {
+    "image": None,
+    "settings": {
+        "dark_mode_image": None,
+        "mobile_image": None,
+        "dark_mode_mobile_image": None,
+    },
+}
+
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
     return {
@@ -352,6 +361,108 @@ def get_step_cards_2026_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     sections = get_step_cards_2026_sections()
+    page.upper_content = sections
+    page.content = sections
+    page.save_revision().publish()
+    return page
+
+
+# ---------------------------------------------------------------------------
+# Outlined Cards 2026
+# ---------------------------------------------------------------------------
+
+
+def get_outlined_card_2026_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        {
+            "type": "outlined_card",
+            "value": {
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "sticker": _EMPTY_IMAGE_VARIANTS,
+                "headline": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
+                "content": '<p data-block-key="2026oc1c">Without sticker, primary button.</p>',
+                "buttons": [buttons["primary"]],
+            },
+            "id": "2026oc01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "outlined_card",
+            "value": {
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "sticker": _IMAGE_VARIANTS,
+                "headline": '<p data-block-key="2026oc2h">Outlined Card with Sticker</p>',
+                "content": '<p data-block-key="2026oc2c">With sticker and secondary button. Switch to Dark Mode to see the alternative image.</p>',
+                "buttons": [buttons["secondary"]],
+            },
+            "id": "2026oc01-0000-0000-0000-000000000002",
+        },
+        {
+            "type": "outlined_card",
+            "value": {
+                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
+                "sticker": _EMPTY_IMAGE_VARIANTS,
+                "headline": '<p data-block-key="2026oc3h">Clickable Outlined Card</p>',
+                "content": '<p data-block-key="2026oc3c">With expand link enabled - the entire card is clickable.</p>',
+                "buttons": [buttons["ghost"]],
+            },
+            "id": "2026oc01-0000-0000-0000-000000000003",
+        },
+        {
+            "type": "outlined_card",
+            "value": {
+                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
+                "sticker": _IMAGE_VARIANTS,
+                "headline": '<p data-block-key="2026oc4h">All Outlined Card Fields</p>',
+                "content": '<p data-block-key="2026oc4c">With sticker, expand link enabled, and link button.</p>',
+                "buttons": [buttons["link"]],
+            },
+            "id": "2026oc01-0000-0000-0000-000000000004",
+        },
+    ]
+
+
+def get_outlined_cards_2026_sections() -> list[dict]:
+    cards = get_outlined_card_2026_variants()
+    return [
+        _section(
+            heading_text="Outlined Cards - 3 Columns",
+            subheading_text="Default 3-column grid layout.",
+            content_blocks=[
+                {
+                    "type": "cards_list",
+                    "value": {"cards": cards[:3]},
+                    "id": "2026ocs1-0000-0000-0000-000000000001",
+                }
+            ],
+            section_id="2026os01-0000-0000-0000-000000000001",
+        ),
+        _section(
+            heading_text="Outlined Cards - 4 Columns",
+            subheading_text="When 4 cards are present the grid switches to 4 columns.",
+            content_blocks=[
+                {
+                    "type": "cards_list",
+                    "value": {"cards": cards},
+                    "id": "2026ocs1-0000-0000-0000-000000000002",
+                }
+            ],
+            section_id="2026os01-0000-0000-0000-000000000002",
+        ),
+    ]
+
+
+def get_outlined_cards_2026_test_page() -> FreeFormPage2026:
+    get_placeholder_images()
+    index_page = get_2026_test_index_page()
+
+    slug = "test-outlined-cards-2026"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Test Outlined Cards 2026")
+        index_page.add_child(instance=page)
+
+    sections = get_outlined_cards_2026_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()

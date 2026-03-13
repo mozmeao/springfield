@@ -30,6 +30,7 @@ from springfield.cms.tests.factories import (
     LocaleFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
     WhatsNewPageFactory,
 )
 
@@ -164,6 +165,15 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     response = index_page.specific.serve(request)
     assert response.status_code == 302
     assert response.headers["location"].endswith(v124_page.url)
+
+    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
+    v125_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v125_page.url)
 
 
 def test_whats_new_index_page_redirects_to_home_if_no_children(
