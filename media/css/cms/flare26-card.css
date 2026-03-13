@@ -148,8 +148,7 @@ Basic Card
 
 .fl-card {
     align-items: stretch;
-
-    /* backdrop-filter: blur(7.5px); */
+    backdrop-filter: blur(7.5px);
     background: var(--fl-theme-default-card-bg);
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
@@ -221,8 +220,7 @@ Sticker Card
 
 .fl-sticker-card {
     align-items: stretch;
-
-    /* backdrop-filter: blur(7.5px); */
+    backdrop-filter: blur(7.5px);
     background: var(--fl-theme-surface-card-gradient);
     block-size: auto;
     border-radius: var(--token-border-radius-md);
