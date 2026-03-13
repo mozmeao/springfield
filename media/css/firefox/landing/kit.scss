@@ -20,6 +20,14 @@
   size-adjust: 77.44%;
 }
 
+.kit .fl-split-page-lower {
+    padding-top: 0;
+}
+
+.kit .fl-section-container {
+  gap: 16px;
+}
+
 // Kit styles (unlayered to override both flare and m24)
 main {
     // We need the casing to stay on X-LocaleSpecific
@@ -53,6 +61,7 @@ main {
     video {
         width: 100%;
         display: block;
+        margin-bottom: 0;
     }
 }
 
@@ -84,7 +93,7 @@ main {
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: calc(var(--scale-40) * 1px);
+    padding: 0;
     gap: calc(var(--scale-40) * 1px);
 }
 
@@ -131,7 +140,7 @@ main {
 
 @media (min-width: 768px) {
     .kit-banner {
-        border-radius: 128px;
+        border-radius: 120px;
     }
 
     .kit-banner .heading {
@@ -247,6 +256,7 @@ main {
     &[data-js-video-state="paused"] {
         .c-animation-button-play {
             display: block;
+            margin-bottom: 0;
         }
 
         .c-animation-button-pause {
@@ -261,6 +271,7 @@ main {
 
         .c-animation-button-pause {
             display: block;
+            margin-bottom: 0;
         }
     }
 }
@@ -301,13 +312,6 @@ main {
     margin: 0;
 }
 
-// match width/padding to fl-banner-container
-@media (max-width: 767px) {
-    .c-card-gallery {
-        padding-inline: calc(var(--scale-24) * 1px);
-    }
-}
-
 .c-gallery-card {
     --padding: 32px;
     border-radius: 40px;
@@ -320,10 +324,9 @@ main {
 
     @media (min-width: 768px) {
         --padding: 56px;
-        border-radius: 80px;
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 900px) {
         --padding: 80px;
         border-radius: 128px;
     }
@@ -572,4 +575,8 @@ main {
         -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
         mask: var(--icon-src) no-repeat center / 1em 1em;
     }
+}
+
+[hidden] {
+    display: none
 }
