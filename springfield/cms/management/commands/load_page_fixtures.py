@@ -24,6 +24,7 @@ from springfield.cms.fixtures.card_fixtures import (
 from springfield.cms.fixtures.card_gallery_2026_fixtures import get_card_gallery_2026_test_page
 from springfield.cms.fixtures.cards_2026_fixtures import (
     get_illustration_cards_2026_test_page,
+    get_outlined_cards_2026_test_page,
     get_step_cards_2026_test_page,
     get_sticker_cards_2026_test_page,
 )
@@ -99,6 +100,9 @@ class Command(BaseCommand):
 
         illustration_cards_2026_page = get_illustration_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Illustration Cards 2026 test page loaded: {illustration_cards_2026_page.slug}"))
+
+        outlined_cards_2026_page = get_outlined_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Outlined Cards 2026 test page loaded: {outlined_cards_2026_page.slug}"))
 
         step_cards_2026_page = get_step_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Step Cards 2026 test page loaded: {step_cards_2026_page.slug}"))

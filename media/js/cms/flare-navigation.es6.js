@@ -5,8 +5,8 @@
  */
 
 // Sticky header
-import Headroom from 'headroom.js';
 import { createFocusTrap } from 'focus-trap';
+import Headroom from 'headroom.js';
 
 (function () {
     const headerEl = document.querySelector('.fl-header.enable-sticky');
@@ -59,8 +59,17 @@ import { createFocusTrap } from 'focus-trap';
     // Menu panels
     const menuCategories = document.querySelectorAll('.fl-menu-category');
 
-    // mouse is being used
     menuCategories.forEach(function (category) {
+        // keyboard is being used
+        category.addEventListener('keyup', function (event) {
+            if (event.key === 'Escape') {
+                menuCategories.forEach(function (category) {
+                    category.classList.remove('is-active');
+                });
+            }
+        });
+
+        // mouse is being used
         category.addEventListener('mouseover', function () {
             menuCategories.forEach(function (category) {
                 category.classList.remove('is-active');
