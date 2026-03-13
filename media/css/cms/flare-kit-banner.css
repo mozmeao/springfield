@@ -73,9 +73,14 @@
 
 .fl-banner-animation .fl-video-play-icon {
     position: absolute;
-    right: 0;
+    right: 2px;
     bottom: 10px;
     inline-size: 40px;
+}
+
+.fl-banner-kit-curious-animation .fl-banner-content {
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 @media (--viewport-sm-up) {
@@ -128,6 +133,11 @@
         --kit-animation-right: 0;
     }
 
+    .fl-banner-animation .fl-video-play-icon {
+        right: 16px;
+        bottom: 16px;
+    }
+
     .fl-banner-kit-face {
         --kit-banner-padding-bottom: 180px;
     }
@@ -178,9 +188,12 @@
 
     .fl-banner-kit-large .fl-banner-content,
     .fl-banner-kit-face .fl-banner-content,
-    .fl-banner-kit-tail .fl-banner-content,
-    .fl-banner-kit-curious-animation .fl-banner-content {
+    .fl-banner-kit-tail .fl-banner-content {
         margin: 0 auto;
+    }
+
+    .fl-banner-kit-curious-animation .fl-banner-content {
+        margin: 0 auto 0 min(10vw,100px);
     }
 }
 
@@ -194,11 +207,5 @@
     .fl-banner-kit-face,
     .fl-banner-kit-curious-animation {
         --kit-banner-padding-right: 400px;
-    }
-
-    .fl-banner-animation .fl-video-play-icon {
-        right: 16px;
-        bottom: 16px;
-        inline-size: 48px;
     }
 }
