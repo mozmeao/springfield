@@ -896,6 +896,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
     parent_page_types = ["cms.BlogIndexPage"]
+    ftl_files = ["cms/blog"]
 
     description = RichTextField(
         blank=True,

@@ -13,6 +13,11 @@
   <main class="fl-main">
     <section class="fl-section">
       <div class="fl-section-container">
+        <a href="{{ page.url }}" class="fl-blog-back-link">
+          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+          {{ ftl('blog-back') }}
+        </a>
+
         <div class="fl-blog-index-header">
           <include:heading
             level="h1"

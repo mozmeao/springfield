@@ -4,4 +4,5 @@
 
 blog-all-topics = All Topics
 blog-view-all-topics = View all topics
+blog-back = Back
 blog-pagination-label = Pagination

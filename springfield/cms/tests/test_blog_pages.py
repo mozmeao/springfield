@@ -338,6 +338,20 @@ def test_blog_article_renders_quote_block(blog_setup, rf):
     assert figcaption and "Mozilla Foundation" in figcaption.get_text()
 
 
+def test_blog_article_renders_back_link(blog_setup, rf):
+    index_page, articles = blog_setup
+    article = articles[0]
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link
+    assert back_link["href"] == index_page.url
+    assert back_link.find("span", class_="fl-icon-back")
+    assert "Back" in back_link.get_text()
+
+
 # ---------------------------------------------------------------------------
 # Blog topics page (/topics/)
 # ---------------------------------------------------------------------------
@@ -360,6 +374,20 @@ def test_blog_topics_page_renders_heading(blog_setup, rf):
 
     h1 = soup.find("h1", class_="fl-heading")
     assert h1 and "All Topics" in h1.get_text()
+
+
+def test_blog_topics_page_renders_back_link(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link
+    assert back_link["href"] == index_page.url
+    assert back_link.find("span", class_="fl-icon-back")
+    assert "Back" in back_link.get_text()
 
 
 def test_blog_topics_page_lists_all_topics_with_name_and_count(blog_setup, rf):
@@ -403,7 +431,7 @@ def test_blog_topics_page_links_to_topic_detail(blog_setup, rf):
 
 
 # ---------------------------------------------------------------------------
-# Blog topic detail page (/{slug}/)
+# Blog topic detail page (/topics/{slug}/)
 # ---------------------------------------------------------------------------
 
 
@@ -432,6 +460,20 @@ def test_blog_topic_detail_renders_topic_heading(blog_setup, rf):
 
     h1 = soup.find("h1", class_="fl-heading")
     assert h1 and "Privacy" in h1.get_text()
+
+
+def test_blog_topic_detail_renders_back_link(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link
+    assert back_link["href"] == index_page.url
+    assert back_link.find("span", class_="fl-icon-back")
+    assert "Back" in back_link.get_text()
 
 
 def test_blog_topic_detail_renders_featured_as_illustration_cards(blog_setup, rf):

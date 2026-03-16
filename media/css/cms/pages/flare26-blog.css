@@ -19,7 +19,7 @@
 .fl-blog-topics-list {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--token-spacing-md);
+    gap: var(--token-spacing-xl);
 }
 
 .fl-blog-topic-link {
@@ -43,6 +43,20 @@
 .fl-blog-topics-all {
     margin-inline-start: auto;
     text-transform: uppercase;
+}
+
+.fl-article-back {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-blog-back-link {
+    color: var(--token-color-grey-4);
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.fl-blog-back-link:hover {
+    text-decoration: underline;
 }
 
 .fl-blog-featured .fl-card-grid {
