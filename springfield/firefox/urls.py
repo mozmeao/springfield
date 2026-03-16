@@ -208,6 +208,7 @@ urlpatterns = (
     # END What's New Page (WNP) paths
     page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
     path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
+    path("smart-window/", views.firefox_smart_window_landing_page, name="firefox.smart-window"),
 )
 
 if settings.ENABLE_CMS_REFRESH_REDIRECTS:

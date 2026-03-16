@@ -857,6 +857,12 @@
         "js/firefox/ai/waitlist-newsletter-init.es6.js"
       ],
       "name": "waitlist_newsletter"
+    },
+    {
+      "files": [
+        "js/firefox/ai/landing-init.es6.js"
+      ],
+      "name": "smart_window_landing"
     }
   ]
 }

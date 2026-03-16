@@ -1,0 +1,50 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends 'cms/base-flare26.html' %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header />
+{% endblock %}
+
+{% block content %}
+<main class="fl-main">
+  <include:intro>
+    <content:heading>
+      <include:heading
+        level="h1"
+        heading_text="{{ ftl('smart-window-heading')}}"
+        subheading_text="{{ ftl('smart-window-body')}}"
+      />
+    </content:heading>
+    <content:actions>
+
+      <include:conditional-display firefox_condition="is-firefox">
+        <button id="js-uitour-show-account" class="fl-button" data-cta-type="smart-window" data-cta-text="Enable Smart Window">
+          {{ ftl('smart-window-enable')}}
+        </button>
+      </include:conditional-display>
+      <include:conditional-display firefox_condition="not-firefox">
+        <include:download-firefox-button
+          analytics_id="smart-window-firefox"
+          label="{{ ftl('smart-window-download-and-enable')}}"
+          icon_name="downloads"
+          icon_position="right"
+          block_position="primary"
+          exclude_unsupported_content="True"
+        />
+      </include:conditional-display>
+    </content:actions>
+  </include:intro>
+</main>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('smart_window_landing') }}
+{% endblock %}

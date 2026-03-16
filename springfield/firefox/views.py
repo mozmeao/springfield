@@ -21,6 +21,7 @@ from lib import l10n_utils
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
 from springfield.base import waffle
+from springfield.base.geo import get_country_from_request
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import (
     firefox_android,
@@ -29,6 +30,9 @@ from springfield.firefox.firefox_details import (
 )
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
+
+# TODO: check if this is best place to set
+SMART_WINDOW_SUPPORTED_COUNTRIES = ["US", "CA", "DE", "FR"]
 
 UA_REGEXP = re.compile(r"Firefox/(%s)" % version_re)
 
@@ -173,6 +177,20 @@ def firefox_ai_waitlist_page(request):
     ctx = {"newsletter_id": newsletter_id}
 
     return l10n_utils.render(request, template_name, ctx)
+
+
+@require_safe
+def firefox_smart_window_landing_page(request):
+    template_name = "firefox/ai/landing.html"
+    country_code = get_country_from_request(request)
+    redirect_url = reverse("firefox.ai.waitlist")
+
+    # TODO: check what unsupported locale fallback should be, redirect or EN page
+    # redirect to waitlist if country or locale is unsupported
+    if country_code not in SMART_WINDOW_SUPPORTED_COUNTRIES or not ftl_file_is_active("firefox/smart-window"):
+        return HttpResponseRedirect(redirect_url)
+
+    return l10n_utils.render(request, template_name, ftl_files="firefox/smart-window")
 
 
 @require_safe
