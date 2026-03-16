@@ -845,7 +845,6 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return context
 
     def _render_route(self, request, template, extra_context=None):
-
         request.is_preview = False
         request = self._patch_request_for_springfield(request)
         context = self.get_context(request)
