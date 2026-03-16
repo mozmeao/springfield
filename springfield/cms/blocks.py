@@ -1047,29 +1047,33 @@ class VideoBlock(blocks.StructBlock):
         template = "cms/blocks/video.html"
 
 
-class AnimationBlock(blocks.StructBlock):
-    video_url = blocks.URLBlock(
-        label="Animation URL",
-        help_text="Link to a webm video from assets.mozilla.net.",
-        validators=[validate_animation_url],
-    )
-    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
-    poster = ImageChooserBlock(help_text="Poster image displayed before the animation is played.")
-    playback = blocks.ChoiceBlock(
-        choices=[
-            ("autoplay_loop", "Autoplay (loop)"),
-            ("autoplay_once", "Autoplay (play once)"),
-        ],
-        default="autoplay_loop",
-        label="Playback",
-        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
-        inline_form=True,
-    )
+def AnimationBlock(required=True, *args, **kwargs):
+    class _AnimationBlock(blocks.StructBlock):
+        video_url = blocks.URLBlock(
+            required=required,
+            label="Animation URL",
+            help_text="Link to a webm video from assets.mozilla.net.",
+            validators=[validate_animation_url],
+        )
+        alt = blocks.CharBlock(required=required, label="Alt Text", help_text="Text for screen readers describing the video.")
+        poster = ImageChooserBlock(required=required, help_text="Poster image displayed before the animation is played.")
+        playback = blocks.ChoiceBlock(
+            choices=[
+                ("autoplay_loop", "Autoplay (loop)"),
+                ("autoplay_once", "Autoplay (play once)"),
+            ],
+            default="autoplay_loop",
+            label="Playback",
+            help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
+            inline_form=True,
+        )
 
-    class Meta:
-        label = "Animation"
-        label_format = "Animation - {video_url}"
-        template = "cms/blocks/animation.html"
+        class Meta:
+            label = "Animation"
+            label_format = "Animation - {video_url}"
+            template = "cms/blocks/animation.html"
+
+    return _AnimationBlock(*args, **kwargs)
 
 
 class QRCodeBlock(blocks.StructBlock):
@@ -1421,7 +1425,7 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
+            themes=[BUTTON_LINK],
             min_num=0,
             max_num=1,
             required=False,
@@ -1472,7 +1476,7 @@ def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=1,
+            max_num=2,
             required=False,
         )
 
@@ -1530,7 +1534,7 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
@@ -2059,6 +2063,7 @@ class KitBannerSettings(blocks.StructBlock):
             ("filled-large", "With Large Curious Kit"),
             ("filled-face", "With Sitting Kit"),
             ("filled-tail", "With Kit Tail"),
+            ("curious-animation", "With Curious Kit Animation"),
         ),
         default="filled",
         inline_form=True,
