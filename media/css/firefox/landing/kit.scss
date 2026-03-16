@@ -220,9 +220,10 @@ main {
         text-align: left;
     }
 
+    .kit-banner-subheading,
     .kit-banner-body {
         width: 400px;
-        max-width: 43%;
+        max-width: 40%;
     }
 
     .kit-banner-brand {
@@ -241,6 +242,11 @@ main {
 
     .kit-banner .heading {
         font-size: 7rem;
+    }
+
+    .kit-banner-subheading,
+    .kit-banner-body {
+        max-width: 50%;
     }
 }
 
