@@ -113,16 +113,3 @@
     aspect-ratio: 16 / 9;
     border-radius: calc(var(--token-scale-16) * 1px);
 }
-
-/* Blog page related articles */
-.fl-blog-related-articles {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--token-scale-24) * 1px);
-    margin-top: calc(var(--token-scale-64) * 1px);
-}
-
-.fl-blog-related-articles .fl-mediacontent {
-    padding: 0;
-    margin: 0;
-}

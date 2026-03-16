@@ -122,7 +122,6 @@
                 </content:body>
                 <content:buttons>
                   <include:button
-                    theme_class="button-ghost"
                     label="{{ first.link_text if first.link_text else 'Read more' }}"
                     link="{{ first.url }}"
                   />
@@ -179,12 +178,14 @@
                         {% endif %}
                       </content:media>
                       <content:heading>
-                        <p class="fl-superheading">{{ article.topic.name }}</p>
-                        <h3 class="fl-heading fl-heading-size-3">
-                          <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                            {{ article.title }}
-                          </a>
-                        </h3>
+                        <hgroup class="fl-heading-group">
+                          <p class="fl-superheading">{{ article.topic.name }}</p>
+                          <h3 class="fl-heading fl-heading-size-3">
+                            <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                              {{ article.title }}
+                            </a>
+                          </h3>
+                        </hgroup>
                       </content:heading>
                       <content:body>
                         {{ article.description|richtext }}
