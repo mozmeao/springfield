@@ -108,19 +108,23 @@
         {% if list_articles %}
           <div class="fl-blog-article-list">
             {% for article in list_articles %}
-              <article class="fl-blog-article-list-item">
-                <h2 class="fl-heading fl-heading-size-3">
-                  <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
-                </h2>
-                <div class="fl-body">{{ article.description|richtext }}</div>
+              {% set show_image = loop.index0 % 4 == 3 %}
+              <include:blog-article-list-item with_image="{{ show_image }}">
+                <content:heading>
+                  <hgroup class="fl-heading-group">
+                    <p class="fl-superheading">{{ article.topic.name }}</p>
+                    <h2 class="fl-heading">
+                      <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
+                    </h2>
+                  </hgroup>
+                </content:heading>
+                <content:body>{{ article.description|richtext }}</content:body>
                 {% if article.first_published_at %}
-                  <p class="fl-body fl-body-xsmall fl-blog-article-date">
-                    {{ article.first_published_at|date("DATE_FORMAT") }}
-                  </p>
+                  <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
                 {% endif %}
                 {% set article_tags = article.tags.all() %}
                 {% if article_tags %}
-                  <div class="fl-article-tags">
+                  <content:tags>
                     {% for tag in article_tags %}
                       <include:tag
                         text="{{ tag.name }}"
@@ -128,9 +132,26 @@
                         corners="round"
                       />
                     {% endfor %}
-                  </div>
+                  </content:tags>
                 {% endif %}
-              </article>
+                {% if show_image %}
+                  {% set img_classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                  <content:image>
+                    <div class="image-variants-display">
+                      {{ srcset_image(article.featured_image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
+                      {% if article.featured_image_mobile %}
+                        {{ srcset_image(article.featured_image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}
+                      {% endif %}
+                      {% if article.featured_image_dark_mode %}
+                        {{ srcset_image(article.featured_image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}
+                      {% endif %}
+                      {% if article.featured_image_dark_mode_mobile %}
+                        {{ srcset_image(article.featured_image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}
+                      {% endif %}
+                    </div>
+                  </content:image>
+                {% endif %}
+              </include:blog-article-list-item>
             {% endfor %}
           </div>
 

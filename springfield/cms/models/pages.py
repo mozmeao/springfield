@@ -1034,6 +1034,14 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        related = (
+            BlogArticlePage.objects.sibling_of(self).live().public().filter(topic=self.topic).exclude(pk=self.pk).order_by("-first_published_at")[:4]
+        )
+        context["related_articles"] = list(related)
+        return context
+
     class Meta:
         verbose_name = "Blog Article Page"
         verbose_name_plural = "Blog Article Pages"

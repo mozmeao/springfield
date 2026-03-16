@@ -139,6 +139,7 @@ def test_blog_index_top_topics_have_view_all_link(blog_setup, rf):
 
 def test_blog_index_renders_first_featured_article_as_media_content(blog_setup, rf):
     index_page, _ = blog_setup
+    first_featured = BlogArticlePage.objects.child_of(index_page).live().public().filter(featured=True).order_by("-first_published_at").first()
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -156,7 +157,7 @@ def test_blog_index_renders_first_featured_article_as_media_content(blog_setup, 
 
     # Has a heading for the article title (most recently published featured article)
     heading = mediacontent.find(["h2", "h3"], class_="fl-heading")
-    assert heading and "Featured Blog Article" in heading.get_text()
+    assert heading and first_featured.title in heading.get_text()
 
     # Has a "Read more" button
     button = mediacontent.find("a", class_="fl-button")
@@ -252,6 +253,26 @@ def test_blog_index_pagination_page_2(blog_setup, rf):
     # Page indicator shows current/total
     indicator = pagination.find("span", class_="fl-pagination-indicator")
     assert indicator.get_text(strip=True) == "2/2"
+
+
+def test_blog_index_list_articles_image_on_every_fourth(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == 10  # first page
+
+    for i, item in enumerate(items):
+        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
+        if i % 4 == 3:
+            assert has_image_class, f"Item {i} should have image class"
+            assert has_img, f"Item {i} should render an image"
+        else:
+            assert not has_image_class, f"Item {i} should not have image class"
+            assert not has_img, f"Item {i} should not render an image"
 
 
 # ---------------------------------------------------------------------------
@@ -350,6 +371,73 @@ def test_blog_article_renders_back_link(blog_setup, rf):
     assert back_link["href"] == index_page.url
     assert back_link.find("span", class_="fl-icon-back")
     assert "Back" in back_link.get_text()
+
+
+def test_blog_article_renders_related_articles(blog_setup, rf):
+    index_page, _ = blog_setup
+    # Pick an article whose topic has other articles (Privacy appears multiple times)
+    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+    expected_related = list(
+        BlogArticlePage.objects.child_of(index_page)
+        .live()
+        .public()
+        .filter(topic=article.topic)
+        .exclude(pk=article.pk)
+        .order_by("-first_published_at")[:4]
+    )
+
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    section = soup.find("section", class_="fl-blog-related-articles")
+    assert section
+
+    heading = section.find("h2", class_="fl-heading")
+    assert heading and "Related Articles" in heading.get_text()
+
+    items = section.find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == len(expected_related)
+
+    for related, item in zip(expected_related, items):
+        superheading = item.find("p", class_="fl-superheading")
+        assert superheading and related.topic.name in superheading.get_text()
+        heading = item.find("h3", class_="fl-heading")
+        assert heading and related.title in heading.get_text()
+        link = heading.find("a", class_="fl-link")
+        assert link and link["href"] == related.url
+        body = item.find("div", class_="fl-body")
+        assert body and body.get_text(strip=True)
+
+
+def test_blog_article_excludes_self_from_related(blog_setup, rf):
+    index_page, _ = blog_setup
+    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+    request = rf.get(article.get_full_url())
+    context = article.get_context(request)
+    assert article not in context["related_articles"]
+
+
+def test_blog_article_related_articles_image_on_every_fourth(blog_setup, rf):
+    index_page, _ = blog_setup
+    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    section = soup.find("section", class_="fl-blog-related-articles")
+    assert section
+
+    items = section.find_all("article", class_="fl-blog-article-list-item")
+    for i, item in enumerate(items):
+        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
+        if i % 4 == 3:
+            assert has_image_class, f"Item {i} should have image class"
+            assert has_img, f"Item {i} should render an image"
+        else:
+            assert not has_image_class, f"Item {i} should not have image class"
+            assert not has_img, f"Item {i} should not render an image"
 
 
 # ---------------------------------------------------------------------------
@@ -547,6 +635,25 @@ def test_blog_topic_detail_renders_list_articles(blog_setup, rf):
         tag_names = {t.name for t in article.tags.all()}
         item_tag_texts = {el.get_text(strip=True) for el in item.find_all("span", class_="fl-tag")}
         assert tag_names <= item_tag_texts
+
+
+def test_blog_topic_detail_list_articles_image_on_every_fourth(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    response = index_page.topic_route(request, topic_slug="privacy")
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
+    for i, item in enumerate(items):
+        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
+        if i % 4 == 3:
+            assert has_image_class, f"Item {i} should have image class"
+            assert has_img, f"Item {i} should render an image"
+        else:
+            assert not has_image_class, f"Item {i} should not have image class"
+            assert not has_img, f"Item {i} should not render an image"
 
 
 def test_blog_topic_detail_no_pagination_when_single_page(blog_setup, rf):
