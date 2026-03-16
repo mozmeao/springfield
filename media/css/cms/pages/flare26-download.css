@@ -174,3 +174,28 @@
     background-color: unset;
     border-radius: 0;
 }
+
+/* Legacy Download page springfield/firefox/templates/firefox/browsers/desktop/base.html */
+.fl-download-page .fl-firefox-platform-button {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+@media (--viewport-sm-up) {
+    .fl-download-page .fl-firefox-platform-button {
+        align-items: start;
+    }
+}
+
+ul.fl-small-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.fl-small-links li {
+    font-size: var(--fl-theme-font-size-body-xs);
+    margin: 0;
+}

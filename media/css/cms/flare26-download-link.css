@@ -63,6 +63,10 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     justify-content: flex-start;
 }
 
+.fl-privacy-link {
+    font-size: var(--fl-theme-font-size-body-xs);
+}
+
 .fl-header .mzp-c-button-download-privacy-link,
 .fl-header .fx-unsupported-message,
 .fl-header .fl-privacy-link {
