@@ -39,7 +39,7 @@ def get_kit_banner_variants():
                 },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
-                    "heading_text": '<p data-block-key="xgfrq">Filled Banner Small Curious Kit</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Filled Banner with Small Curious Kit</p>',
                     "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
@@ -57,7 +57,7 @@ def get_kit_banner_variants():
                 },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
-                    "heading_text": '<p data-block-key="xgfrq">Filled Banner Large Curious Kit</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Filled Banner with Large Curious Kit</p>',
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
@@ -75,7 +75,7 @@ def get_kit_banner_variants():
                 },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
-                    "heading_text": '<p data-block-key="xgfrq">Filled Banner Sitting Kit</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Filled Banner with Sitting Kit</p>',
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
@@ -93,8 +93,26 @@ def get_kit_banner_variants():
                 },
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
-                    "heading_text": '<p data-block-key="xgfrq">Filled Banner Kit Tail</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Filled Banner with Kit Tail</p>',
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
+                    "placed on the right corner.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "54ea6d6a-6490-4946-8caf-b5fba56d5a10",
+        },
+        {
+            "type": "kit_banner",
+            "value": {
+                "settings": {
+                    "theme": "filled-curious-animation",
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "filled-banner-curious-animation",
+                },
+                "heading": {
+                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Filled Banner with Curious Kit Animation</p>',
+                    "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit animation is '
                     "placed on the right corner.</p>",
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],

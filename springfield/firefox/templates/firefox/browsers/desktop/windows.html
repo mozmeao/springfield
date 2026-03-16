@@ -28,6 +28,10 @@
   {{ firefox_download_desktop_button_windows() }}
 {% endblock %}
 
+{% block intro_download_button_26 %}
+  {{ firefox_download_desktop_button_windows(flare_styles=True) }}
+{% endblock %}
+
 {# cards #}
 {% set card1_title = ftl('new-platform-2x-faster') %}
 {% set card1_desc = ftl('new-platform-firefox-moves-fast') %}
