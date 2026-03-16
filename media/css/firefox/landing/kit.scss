@@ -68,6 +68,10 @@ main {
     picture {
         margin: 0;
     }
+
+    [hidden] {
+        display: none
+    }
 }
 
 .fl-section {
@@ -247,6 +251,10 @@ main {
 
     .kit-banner-media video {
         display: none;
+    }
+
+    .kit-banner .kit-banner-body {
+        padding-block-end: 64px;
     }
 }
 
@@ -617,8 +625,4 @@ main {
         -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
         mask: var(--icon-src) no-repeat center / 1em 1em;
     }
-}
-
-[hidden] {
-    display: none
 }
