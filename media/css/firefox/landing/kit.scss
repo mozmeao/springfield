@@ -51,6 +51,7 @@ main {
 
     p, ol {
         line-height: 1.4;
+        margin-inline-start: 0;
     }
 
     .button {
@@ -62,6 +63,10 @@ main {
         width: 100%;
         display: block;
         margin-bottom: 0;
+    }
+
+    picture {
+        margin: 0;
     }
 }
 
@@ -149,7 +154,7 @@ main {
 
     .kit-banner-video {
         max-width: 600px;
-        margin: 0 auo;
+        margin: 0 auto;
     }
 
     .kit-banner .heading {
