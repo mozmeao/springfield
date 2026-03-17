@@ -265,7 +265,7 @@ def test_blog_index_list_articles_image_on_every_fourth(blog_setup, rf):
     assert len(items) == 10  # first page
 
     for i, item in enumerate(items):
-        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
         has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
         if i % 4 == 3:
             assert has_image_class, f"Item {i} should have image class"

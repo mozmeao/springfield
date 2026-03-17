@@ -73,12 +73,12 @@
 
 .fl-blog-featured .fl-illustration-card .fl-card-media img {
     block-size: 100%;
+    margin-block-end: 0;
 }
 
 .fl-blog-featured .fl-illustration-card:nth-child(even) .fl-card-media img {
     aspect-ratio: 1/1;
     block-size: auto;
-    margin-block-end: 0;
 }
 
 .fl-blog-featured .fl-mediacontent {
