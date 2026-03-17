@@ -12,6 +12,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -878,34 +879,76 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         verbose_name = "Blog Index Page"
         verbose_name_plural = "Blog Index Pages"
 
-    def get_context(self, request, *args, **kwargs):
-        from springfield.cms.models.snippets import Tag
+    @cached_property
+    def base_articles_qs(self):
+        return (
+            BlogArticlePage.objects.child_of(self)
+            .live()
+            .public()
+            .select_related(
+                "topic",
+                "image",
+                "image_dark_mode",
+                "image_mobile",
+                "image_dark_mode_mobile",
+                "featured_image",
+                "featured_image_dark_mode",
+                "featured_image_mobile",
+                "featured_image_dark_mode_mobile",
+            )
+            .prefetch_related(
+                "tags",
+                "image__renditions",
+                "image_dark_mode__renditions",
+                "image_mobile__renditions",
+                "image_dark_mode_mobile__renditions",
+                "featured_image__renditions",
+                "featured_image_dark_mode__renditions",
+                "featured_image_mobile__renditions",
+                "featured_image_dark_mode_mobile__renditions",
+            )
+        )
 
-        context = super().get_context(request, *args, **kwargs)
+    @cached_property
+    def featured_articles(self):
+        base_qs = self.base_articles_qs
 
-        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+        if topic := getattr(self, "topic", None):
+            base_qs = base_qs.filter(topic=topic)
 
-        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
-
-        list_articles_qs = base_qs.select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+        featured_articles = base_qs.filter(featured=True).order_by("-first_published_at")[:5]
 
         # Only display the featured article cards if there are at least 3 cards
         # The first featured article is displayed as a media content block
         if featured_articles and len(featured_articles) < 4:
             featured_articles = [featured_articles[0]]
 
-        list_articles_qs = list_articles_qs.exclude(id__in=[article.id for article in featured_articles])
+        return featured_articles
 
-        paginator = Paginator(list_articles_qs, 10)
+    @cached_property
+    def list_articles_paginator(self):
+        base_qs = self.base_articles_qs
+
+        if topic := getattr(self, "topic", None):
+            base_qs = base_qs.filter(topic=topic)
+
+        list_articles_qs = base_qs.order_by("-first_published_at").exclude(id__in=[article.id for article in self.featured_articles])
+        return Paginator(list_articles_qs, 10)
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.models.snippets import Tag
+
+        context = super().get_context(request, *args, **kwargs)
+
+        paginator = self.list_articles_paginator
         list_articles = paginator.get_page(request.GET.get("page", 1))
-
         top_topics = (
-            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            Tag.objects.filter(locale=self.locale, blog_articles__in=self.base_articles_qs.values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .order_by("-article_count")[:5]
         )
 
-        context["featured_articles"] = featured_articles
+        context["featured_articles"] = self.featured_articles
         context["list_articles"] = list_articles
         context["top_topics"] = top_topics
         return context
@@ -943,25 +986,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         except Tag.DoesNotExist:
             raise Http404
 
-        base_qs = BlogArticlePage.objects.child_of(self).live().public().filter(topic=topic)
-        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
-
-        list_articles_qs = base_qs.select_related("topic").prefetch_related("tags").order_by("-first_published_at")
-
-        # Only display the featured article cards if there are at least 3 cards
-        # The first featured article is displayed as a media content block
-        if featured_articles and len(featured_articles) < 4:
-            featured_articles = [featured_articles[0]]
-
-        list_articles_qs = list_articles_qs.exclude(id__in=[article.id for article in featured_articles])
-
-        paginator = Paginator(list_articles_qs, 10)
+        # Store the topic on the instance for use in article queries
+        self.topic = topic
+        paginator = self.list_articles_paginator
         topic.article_count = paginator.count
-        list_articles = paginator.get_page(request.GET.get("page", 1))
         return self._render_route(
             request,
             "cms/blog_index_page.html",
-            {"topic": topic, "featured_articles": featured_articles, "list_articles": list_articles},
+            {"topic": topic},
         )
 
 

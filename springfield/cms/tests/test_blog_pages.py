@@ -743,3 +743,33 @@ def test_blog_topic_detail_no_pagination_when_single_page(privacy_articles, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     assert not soup.find("nav", class_="fl-pagination")
+
+
+# ---------------------------------------------------------------------------
+# N+1 query tests
+# ---------------------------------------------------------------------------
+
+
+def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
+    """Blog index should fetch all related data in bulk, not per article.
+
+    Query breakdown (19 total):
+      Wagtail overhead (5): locale, page translation, view restriction x2, ancestors
+      Template overhead (4): waffle x2, pre-footer snippets x2
+      Blog data (10): featured articles, featured tags, featured renditions x2,
+                      paginator count, top topics, list articles, list tags,
+                      list renditions x2
+    """
+    idx, _ = blog_setup
+    request = rf.get(idx.get_full_url())
+    with django_assert_max_num_queries(19):
+        idx.serve(request)
+
+
+def test_blog_topic_detail_no_n_plus_one_queries(privacy_articles, rf, django_assert_max_num_queries):
+    """Topic page should fetch all related data in bulk, not per article."""
+    idx, _ = privacy_articles
+    url = idx.full_url + idx.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
+    request = rf.get(url)
+    with django_assert_max_num_queries(19):
+        idx.topic_route(request, topic_slug="privacy")
