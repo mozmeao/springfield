@@ -59,6 +59,16 @@ class WhatsNewPageFactory(wagtail_factories.PageFactory):
         model = models.WhatsNewPage
 
 
+class WhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox 145"
+    live = True
+    slug = "145"
+    version = "145"
+
+    class Meta:
+        model = models.WhatsNewPage
+
+
 class FreeFormPageFactory(wagtail_factories.PageFactory):
     title = "Test FreeFormPage"
     live = True

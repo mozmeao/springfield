@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
+{% extends "cms/base-flare26.html" %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
@@ -14,9 +14,9 @@
 {% if LANG == 'de' %}
   {% set icon_title = 'Anpassen' %}
   {% set meta_desc = 'Firefox bekommt einen frischen Look und du siehst es zuerst.' %}
-  {% set main_heading = 'Sag Hallo zu Kit' %}
-  {% set main_subheading = 'Neuer Freund an Bord' %}
-  {% set main_body = 'Firefox bekommt einen frischen Look und du siehst es zuerst. Kit ist unser neues Maskottchen und dein Begleiter durch ein Internet, das privat, offen und wirklich deins ist.' %}
+  {% set main_heading = 'Mehr Gründe,<br> Firefox zu lieben.' %}
+  {% set main_subheading = 'Hier ist Kit - An deiner Seite für eine neue Internet-Ära.' %}
+  {% set main_body = 'Lerne das neue Gesicht (und den neuen Schwanz) von Firefox kennen. Gib deinem Browser ein neues Hintergrundbild und entdecke die neuesten Kit-Fanartikel.' %}
   {% set card_1_heading = 'Hol dir ein neues Hintergrundbild' %}
   {% set card_1_list_1 = 'Öffne einen neuen Tab.' %}
   {% set card_1_list_2 = 'Klicke unten rechts auf das ' + pencil_icon + '-Symbol.' %}
@@ -24,16 +24,16 @@
   {% set card_1_list_1_mobile = 'Gehe zu Einstellungen' %}
   {% set card_1_list_2_mobile = 'Tippe auf Startseite' %}
   {% set card_1_list_3_mobile = 'Tippe auf Hintergrundbild' %}
-  {% set card_2_heading = 'Du erhältst Kit-Produkte vor allen anderen.' %}
-  {% set card_2_body = '<p>Neue limitierte Designs, sofort erhältlich.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
+  {% set card_2_heading = 'Statte dich mit Kit aus' %}
+  {% set card_2_body = '<p>Limited-Edition Designs einsatzbereit.</p><p class="font-semibold">Hol sie dir jetzt:</p>' %}
   {% set card_2_cta_na = 'Nordamerika' %}
   {% set card_2_cta_eu = 'Europa' %}
 {% elif LANG == 'fr' %}
   {% set icon_title = 'Personnaliser' %}
   {% set meta_desc = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde' %}
-  {% set main_heading = 'Dites bonjour à Kit' %}
-  {% set main_subheading = 'Nouvelle amitié débloquée' %}
-  {% set main_body = 'La marque Firefox se refait une beauté et vous offre un aperçu avant tout le monde. Kit, notre nouvelle mascotte, va accompagner votre navigation au sein d’un internet privé, ouvert et qui vous appartient.' %}
+  {% set main_heading = 'Encore plus de raisons d’aimer Firefox.' %}
+  {% set main_subheading = 'Faites connaissance avec Kit, votre compagnon dans cette nouvelle ère d’Internet.' %}
+  {% set main_body = 'Découvrez le nouveau visage (et la nouvelle queue) de Firefox. Personnalisez votre navigateur avec un nouveau fond d’écran et explorez les derniers produits dérivés Kit.' %}
   {% set card_1_heading = 'Choisis un nouveau fond d’écran' %}
   {% set card_1_list_1 = 'Ouvrez un nouvel onglet.' %}
   {% set card_1_list_2 = 'Cliquez sur l’icône ' + pencil_icon + ' en bas à droite.' %}
@@ -41,16 +41,16 @@
   {% set card_1_list_1_mobile = 'Aller dans Paramètres' %}
   {% set card_1_list_2_mobile = 'Cliquer sur Page d’accueil' %}
   {% set card_1_list_3_mobile = 'Cliquer sur Fond d’écran' %}
-  {% set card_2_heading = 'Vous êtes aux premières loges pour les produits Kit' %}
-  {% set card_2_body = '<p>Nouveaux designs en édition limitée prêts à être expédiés.</p><p class="font-semibold">Recevoir mes produits&nbsp;:</p>' %}
+  {% set card_2_heading = 'Équipez-vous avec Kit' %}
+  {% set card_2_body = '<p>Des designs en édition limitée prêts à l’envoi.</p><p class="font-semibold">Recevoir mes produits&nbsp;:</p>' %}
   {% set card_2_cta_na = 'Amérique du Nord' %}
   {% set card_2_cta_eu = 'Europe' %}
 {% else %}
   {% set icon_title = 'Customize' %}
   {% set meta_desc = 'The Firefox brand is getting a refresh and you get the first look' %}
-  {% set main_heading = 'Say hi to Kit' %}
-  {% set main_subheading = 'New friend unlocked' %}
-  {% set main_body = 'The Firefox brand is getting a refresh and you get the first look. Kit’s our new mascot and your new companion through an internet that’s private, open and actually yours.' %}
+  {% set main_heading = 'More fire. <br> More fox.' %}
+  {% set main_subheading = 'Meet Kit. Your companion for a new internet era.' %}
+  {% set main_body = 'Get to know the new face (and tail) of Firefox. Watch the video, give your browser a fresh wallpaper and explore the latest Kit merch.' %}
   {% set card_1_heading = 'Grab a new wallpaper' %}
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
@@ -58,147 +58,182 @@
   {% set card_1_list_1_mobile = 'Go to Settings' %}
   {% set card_1_list_2_mobile = 'Click Homepage' %}
   {% set card_1_list_3_mobile = 'Click Wallpaper' %}
-  {% set card_2_heading = 'You’re first in line for Kit gear' %}
-  {% set card_2_body = '<p>New limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
+  {% set card_2_heading = 'Gear up with Kit' %}
+  {% set card_2_body = '<p>Limited-edition designs ready to ship.</p><p class="font-semibold">Get your merch:</p>' %}
   {% set card_2_cta_na = 'North America' %}
   {% set card_2_cta_eu = 'Europe' %}
 {% endif %}
 
-{% block page_title %}{{ main_heading }}{% endblock %}
+{% block page_title %}{{ main_heading | safe }}{% endblock %}
 {% block page_desc %}{{ meta_desc }}{% endblock %}
 
 {% block page_css %}
   {{ css_bundle('kit') }}
 {% endblock %}
 
-{% block content %}
-<main>
-  <div class="kit-banner-container">
-    <div class="kit-banner" aria-labelledby="kit-banner-heading">
-        <div class="kit-banner-content">
-          <h1 id="kit-banner-heading" class="heading heading-size-2">
-              {{ main_heading }}
-          </h1>
-          <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
-          <div class="kit-banner-body subheading">
-              <p>{{ main_body }}</p>
-          </div>
-        </div>
-        <div class="kit-banner-brand">
-          <div class="kit-banner-media">
-            <button type="button" class="button c-animation-button" data-js-video-state="paused">
-              <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <title>{{ ftl('ui-play-animation')}}</title>
-                <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
-              </svg>
-              <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <title>{{ ftl('ui-pause-animation')}}</title>
-                <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
-                <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
-              </svg>
-            </button>
-            <video aria-labelledby="kit-banner-heading" playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
-              <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
-              <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
-            </video>
-            <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden>
-          </div>
-        </div>
-    </div>
-  </div>
+{% from "macros.html" import video_inline_embed with context %}
 
-  <div class="c-card-gallery">
-    <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
-      <div class="c-gallery-card-text-container">
-        <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
-        <ol class="c-gallery-card-list-desktop">
-          <li>{{ card_1_list_1 }}</li>
-          <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
-          <li>{{ card_1_list_3 }}</li>
-        </ol>
-        <ol class="c-gallery-card-list-mobile">
-          <li>{{ card_1_list_1_mobile }}</li>
-          <li>{{ card_1_list_2_mobile }}</li>
-          <li>{{ card_1_list_3_mobile }}</li>
-        </ol>
-      </div>
-      <div class="c-gallery-card-media-container">
-        <div class="c-gallery-card-media-desktop">
-          {{ picture(
-            url="img/firefox/kit/browser-dark-630.png",
-            sources=[
-              {
-                'srcset': {
-                  "img/firefox/kit/browser-dark-315.png": "315w",
-                  "img/firefox/kit/browser-dark-630.png": "630w",
-                  "img/firefox/kit/browser-dark-1259.png": "1259w",
-                  "img/firefox/kit/browser-dark-1738.png": "1738w",
-                },
-                'sizes': {
-                  "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-                  "(min-width: 1024px)": "calc(50vw - 156px)",
-                  "default": "calc(100vw - 80px)",
-                },
-              }
-            ],
-            optional_attributes={
-              "l10n": True,
-              "loading": "lazy"
-            }
-          )}}
+{% set kit_video_available = LANG.startswith('en-') %}
+
+{% block content %}
+<div class="kit fl-page">
+  <main class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-section-container">
+
+          <div class="kit-banner-container">
+            <div class="kit-banner {% if kit_video_available %}kit-banner-with-video{% endif %}" aria-labelledby="kit-banner-heading">
+                <div class="kit-banner-content">
+                  <h1 id="kit-banner-heading" class="heading heading-size-2">
+                      {{ main_heading | safe }}
+                  </h1>
+                  <h2 class="kit-banner-subheading">{{ main_subheading }}</h2>
+                  <div class="kit-banner-body subheading">
+                      <p>{{ main_body }}</p>
+                  </div>
+                </div>
+                {% if kit_video_available %}
+                <div class="kit-banner-video">
+                {{ video_inline_embed(
+                    id="AtuzapfqF1M",
+                    title="Meet Kit. Your companion for a new internet era.",
+                    image=resp_img(
+                      url='img/firefox/landing/kit/kit.jpg',
+                      srcset={
+                        'img/firefox/landing/kit/kit-high-res.jpg': '2x'
+                      },
+                      optional_attributes={
+                        'width': '560',
+                        'height': '315',
+                        'alt': '',
+                      }
+                    ),
+                  ) }}
+                  </div>
+                {% else %}
+                <div class="kit-banner-brand">
+                  <div class="kit-banner-media">
+                    <button type="button" class="button c-animation-button" data-js-video-state="paused">
+                      <svg class="c-animation-button-play" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>{{ ftl('ui-play-animation')}}</title>
+                        <path d="M5 18.8569V5.14289C5 3.60689 6.659 2.64489 7.992 3.40689L19.992 10.2639C21.336 11.0319 21.336 12.9689 19.992 13.7369L7.992 20.5939C6.659 21.3559 5 20.3929 5 18.8569Z" fill="currentColor"/>
+                      </svg>
+                      <svg class="c-animation-button-pause" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>{{ ftl('ui-pause-animation')}}</title>
+                        <path d="M7.625 4.99988H9.375V18.9999H7.625V4.99988Z" fill="currentColor"/>
+                        <path d="M14.625 4.99988H16.375V18.9999H14.625V4.99988Z" fill="currentColor"/>
+                      </svg>
+                    </button>
+                    <video aria-labelledby="kit-banner-heading" playsinline preload="auto" loop muted poster="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}">
+                      <source media="(min-width: 1024px)" src="https://assets.mozilla.net/video/kit/pop-up-1480.webm" type="video/webm">
+                      <source src="https://assets.mozilla.net/video/kit/pop-up-800.webm" type="video/webm">
+                    </video>
+                    <img class="kit-banner-still" src="{{ static('img/firefox/landing/kit/kit-pop-up-poster.png') }}" height="" width="" hidden alt="Kit">
+                  </div>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+
+          <div class="c-card-gallery">
+            <section aria-labelledby="heading-2" class="c-gallery-card c-gallery-card-light c-gallery-card-type-1">
+              <div class="c-gallery-card-text-container fl-force-light-theme">
+                <h2 id="heading-2" class="c-gallery-card-heading">{{ card_1_heading }}</h2>
+                <ol class="c-gallery-card-list-desktop">
+                  <li>{{ card_1_list_1 }}</li>
+                  <li>{{ card_1_list_2 | safe | format(icon_title) }}</li>
+                  <li>{{ card_1_list_3 }}</li>
+                </ol>
+                <ol class="c-gallery-card-list-mobile">
+                  <li>{{ card_1_list_1_mobile }}</li>
+                  <li>{{ card_1_list_2_mobile }}</li>
+                  <li>{{ card_1_list_3_mobile }}</li>
+                </ol>
+              </div>
+              <div class="c-gallery-card-media-container">
+                <div class="c-gallery-card-media-desktop">
+                  {{ picture(
+                    url="img/firefox/kit/browser-dark-630.png",
+                    sources=[
+                      {
+                        'srcset': {
+                          "img/firefox/kit/browser-dark-315.png": "315w",
+                          "img/firefox/kit/browser-dark-630.png": "630w",
+                          "img/firefox/kit/browser-dark-1259.png": "1259w",
+                          "img/firefox/kit/browser-dark-1738.png": "1738w",
+                        },
+                        'sizes': {
+                          "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                          "(min-width: 1024px)": "calc(50vw - 156px)",
+                          "default": "calc(100vw - 80px)",
+                        },
+                      }
+                    ],
+                    optional_attributes={
+                      "l10n": True,
+                      "loading": "lazy"
+                    }
+                  )}}
+                </div>
+                <div class="c-gallery-card-media-mobile">
+                  {{ picture(
+                    url="img/firefox/kit/browser-dark-630.png",
+                    sources=[
+                      {
+                        'srcset': {
+                          "img/firefox/kit/browser-mobile-310.png": "310w",
+                          "img/firefox/kit/browser-mobile-620.png": "620w",
+                        },
+                        'sizes': {
+                          "default": "calc(100vw - 80px)",
+                        },
+                      }
+                    ],
+                    optional_attributes={
+                      "l10n": True,
+                      "loading": "lazy"
+                    }
+                  )}}
+                </div>
+              </div>
+            </section>
+            <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
+              <div class="c-gallery-card-text-container">
+                <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
+                {{ card_2_body | safe }}
+                <div class="buttons">
+                  <a href="https://mzl.la/hikit-na" rel="external noopener" class="button" data-link-text="North America">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+                  <a href="https://mzl.la/hikit-EU" rel="external noopener" class="button" data-link-text="Europe">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
+                </div>
+              </div>
+              <div class="c-gallery-card-media-container">
+                {{ resp_img(
+                  url="img/firefox/landing/kit/merch-627.png",
+                  srcset={
+                    "img/firefox/landing/kit/merch-314.png": "314w",
+                    "img/firefox/landing/kit/merch-627.png": "627w",
+                    "img/firefox/landing/kit/merch-1254.png": "1254w",
+                    "img/firefox/landing/kit/merch-1852.png": "1852w",
+                  },
+                  sizes={
+                      "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
+                      "(min-width: 1024px)": "calc(50vw - 156px)",
+                      "default": "calc(100vw - 80px)",
+                  },
+                  optional_attributes={ "loading": "lazy" }) }}
+              </div>
+            </section>
+          </div>
+
         </div>
-        <div class="c-gallery-card-media-mobile">
-          {{ picture(
-            url="img/firefox/kit/browser-dark-630.png",
-            sources=[
-              {
-                'srcset': {
-                  "img/firefox/kit/browser-mobile-310.png": "310w",
-                  "img/firefox/kit/browser-mobile-620.png": "620w",
-                },
-                'sizes': {
-                  "default": "calc(100vw - 80px)",
-                },
-              }
-            ],
-            optional_attributes={
-              "l10n": True,
-              "loading": "lazy"
-            }
-          )}}
-        </div>
-      </div>
-    </section>
-    <section aria-labelledby="heading-3" class="c-gallery-card c-gallery-card-dark c-gallery-card-type-1">
-      <div class="c-gallery-card-text-container">
-        <h2 id="heading-3" class="c-gallery-card-heading">{{ card_2_heading }}</h2>
-        {{ card_2_body | safe }}
-        <div class="buttons">
-          <a href="https://mozilla-na.myspreadshop.com/say+hi+to+kit!?collection=pFGwhvwYfR" rel="external noopener" class="button">{{ card_2_cta_na }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
-          <a href="https://mozilla-europe.myspreadshop.ie/say+hi+to+kit!?collection=cJvxXDyZTi" rel="external noopener" class="button">{{ card_2_cta_eu }} <span class="icon icon-right  icon-arrow-right" aria-hidden="true"></span></a>
-        </div>
-      </div>
-      <div class="c-gallery-card-media-container">
-        {{ resp_img(
-          url="img/firefox/landing/kit/merch-627.png",
-          srcset={
-            "img/firefox/landing/kit/merch-314.png": "314w",
-            "img/firefox/landing/kit/merch-627.png": "627w",
-            "img/firefox/landing/kit/merch-1254.png": "1254w",
-            "img/firefox/landing/kit/merch-1852.png": "1852w",
-          },
-          sizes={
-              "(min-width: 1440px)": "calc((1440px - 156px) / 2)",
-              "(min-width: 1024px)": "calc(50vw - 156px)",
-              "default": "calc(100vw - 80px)",
-          },
-          optional_attributes={ "loading": "lazy" }) }}
-      </div>
-    </section>
-  </div>
-</main>
+     </section>
+    </div>
+  </main>
+</div>
 {% endblock %}
 
 {% block js %}
   {{ js_bundle('video_play_state') }}
+  {{ js_bundle('video-inline-embed') }}
 {% endblock %}
