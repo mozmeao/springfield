@@ -23,7 +23,15 @@ describe('marketing-opt-out.es6.js', function () {
             <label for="marketing-opt-out-secondary" class="marketing-opt-out-checkbox-label hidden">
                 <input type="checkbox" id="marketing-opt-out-secondary" class="marketing-opt-out-checkbox-input">.
             </label>
-        </div>`;
+        </div>
+        <a class="download-link"
+        href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
+         Download
+        </a>
+        <a class="download-link"
+            href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
+            Download
+        </a>`;
 
         document.body.insertAdjacentHTML('beforeend', optOut);
     });
@@ -338,6 +346,52 @@ describe('marketing-opt-out.es6.js', function () {
 
             checkboxes = document.querySelectorAll(checkboxSelector);
             expect(checkboxes.length).toEqual(0);
+        });
+    });
+
+    describe('showCheckbox()', function () {
+        it('should add marketing_consent=1 param to all download links', function () {
+            MarketingOptOut.showCheckbox();
+            const links = document.querySelectorAll('.download-link');
+            links.forEach(function (link) {
+                expect(link.getAttribute('href')).toContain(
+                    'marketing_consent=1'
+                );
+            });
+        });
+    });
+
+    describe('processAttributionRequest()', function () {
+        beforeEach(function () {
+            spyOn(window.Mozilla.StubAttribution, 'removeAttributionData');
+            spyOn(window.Mozilla.Cookies, 'setItem');
+            // mock the addition of the param from showCheckbox
+            const links = document.querySelectorAll('.download-link');
+            links.forEach(function (link) {
+                const href = link.getAttribute('href');
+                link.setAttribute('href', href + '&marketing_consent=1');
+            });
+        });
+
+        it('should remove marketing_consent param from all download links when unchecked', function () {
+            MarketingOptOut.processAttributionRequest(false);
+            const links = document.querySelectorAll('.download-link');
+            links.forEach(function (link) {
+                expect(link.getAttribute('href')).not.toContain(
+                    'marketing_consent'
+                );
+            });
+        });
+
+        it('should not remove marketing_consent param when checked (opt-in path)', function () {
+            spyOn(window.Mozilla.StubAttribution, 'init');
+            MarketingOptOut.processAttributionRequest(true);
+            const links = document.querySelectorAll('.download-link');
+            links.forEach(function (link) {
+                expect(link.getAttribute('href')).toContain(
+                    'marketing_consent=1'
+                );
+            });
         });
     });
 });
