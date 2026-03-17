@@ -1440,6 +1440,52 @@ def test_kit_banner_block(index_page, rf):
             )
 
 
+def test_kit_banner_curious_animation(index_page, rf):
+    test_page = get_kit_banner_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Find the curious animation banner by anchor ID
+    animation_container = soup.find(id="filled-banner-curious-animation")
+    assert animation_container is not None
+
+    banner = animation_container.find("div", class_="fl-banner-kit")
+    assert banner is not None
+
+    # The curious-animation theme applies fl-banner-kit-curious-animation class
+    assert "fl-banner-kit-curious-animation" in banner["class"]
+
+    # Animation wrapper is rendered
+    animation_wrapper = banner.find("div", class_="fl-banner-animation")
+    assert animation_wrapper is not None
+
+    # Video element is present (autoplay_loop renders a plain <video>)
+    video = animation_wrapper.find("video")
+    assert video is not None
+
+    # Pause button is present
+    pause_button = animation_wrapper.find("button", class_="js-animation-pause")
+    assert pause_button is not None
+
+    # Pause button has accessible label attributes
+    assert pause_button.get("data-label-pause") is not None
+    assert pause_button.get("data-label-play") is not None
+
+    # Pause icon is visible by default
+    pause_icon = pause_button.find(class_="js-pause-icon")
+    assert pause_icon is not None
+    assert pause_icon.get("hidden") is None
+
+    # Play icon is hidden by default
+    play_icon = pause_button.find(class_="js-play-icon")
+    assert play_icon is not None
+    assert play_icon.get("hidden") is not None
+
+
 # Homepage
 
 

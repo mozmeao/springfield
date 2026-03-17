@@ -233,7 +233,8 @@
         --fl-banner-padding: var(--token-layout-md);
     }
 
-    .fl-banner-media img {
+    .fl-banner-media img,
+    .fl-banner-media video {
         border-radius: var(--token-spacing-lg);
     }
 
