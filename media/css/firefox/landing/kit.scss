@@ -241,6 +241,11 @@ main {
         max-width: 40%;
     }
 
+    .kit-banner.kit-banner-with-video .kit-banner-subheading,
+    .kit-banner.kit-banner-with-video .kit-banner-body {
+        max-width: 100%;
+    }
+
     .kit-banner-brand {
         position: absolute;
         max-height: 90%;
