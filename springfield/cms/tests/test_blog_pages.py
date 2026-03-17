@@ -15,6 +15,8 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_FEATURED,
     NUM_FEATURED_INDEX_SHOWN,
     NUM_LIST_ARTICLES,
+    PRIVACY_EXTRA_FEATURED_DESCRIPTIONS,
+    PRIVACY_EXTRA_FEATURED_TITLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
     _create_blog_article,
@@ -58,10 +60,11 @@ def single_article(minimal_site):
 
 @pytest.fixture
 def privacy_articles(minimal_site):
-    """Index page + 2 featured + 5 regular privacy articles.
+    """Index page + 4 featured + 5 regular privacy articles.
 
-    Enough for related-articles and topic-detail tests, including the
-    image-on-every-fourth check (needs at least 4 list articles).
+    4 featured satisfies the >= 4 threshold so the topic page shows
+    1 hero + 3 cards (not just 1 hero). 5 regular ensures the
+    image-on-every-fourth check has enough list articles.
     """
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
     idx = get_blog_index_page()
@@ -69,18 +72,24 @@ def privacy_articles(minimal_site):
     content = get_blog_article_content(image)
 
     articles = []
-    for i in range(2):
+    featured_data = [
+        (FEATURED_TITLES[0], FEATURED_DESCRIPTIONS[0]),
+        (FEATURED_TITLES[1], FEATURED_DESCRIPTIONS[1]),
+        (PRIVACY_EXTRA_FEATURED_TITLES[0], PRIVACY_EXTRA_FEATURED_DESCRIPTIONS[0]),
+        (PRIVACY_EXTRA_FEATURED_TITLES[1], PRIVACY_EXTRA_FEATURED_DESCRIPTIONS[1]),
+    ]
+    for i, (title, description) in enumerate(featured_data):
         articles.append(
             _create_blog_article(
                 index_page=idx,
-                title=FEATURED_TITLES[i],
+                title=title,
                 slug=f"test-privacy-featured-{i + 1}",
                 featured=True,
                 topic=privacy,
                 tags=[privacy],
                 image=image,
                 featured_image=mobile_image,
-                description=FEATURED_DESCRIPTIONS[i],
+                description=description,
                 content=content,
             )
         )
@@ -566,11 +575,11 @@ def test_blog_topics_page_lists_all_topics_with_name_and_count(blog_setup, rf):
     assert len(links) == expected_topics.count()
 
     for topic in expected_topics:
-        # Find the tag element whose text contains this topic's name and count
+        # Each topic renders as a large tag containing the name and a nested count tag
         matching = [
             tag
-            for tag in topics_list.find_all("span", class_="fl-tag")
-            if topic.name in tag.get_text() and f"({topic.article_count})" in tag.get_text()
+            for tag in topics_list.find_all("span", class_="fl-blog-selected-topic")
+            if topic.name in tag.get_text() and str(topic.article_count) in tag.get_text()
         ]
         assert matching, f"No tag found for topic '{topic.name}' with count {topic.article_count}"
 

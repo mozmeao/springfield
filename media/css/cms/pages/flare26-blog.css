@@ -17,6 +17,7 @@
 }
 
 .fl-blog-topics-list {
+    align-items: center;
     display: flex;
     flex-wrap: wrap;
     gap: var(--token-spacing-xl);
@@ -103,6 +104,7 @@
 
 .fl-blog-featured .fl-mediacontent {
     align-items: start;
+    max-inline-size: unset;
 }
 
 .fl-blog-article-list {

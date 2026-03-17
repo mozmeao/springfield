@@ -887,12 +887,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
 
-        list_articles_qs = (
-            base_qs.exclude(id__in=[article.id for article in featured_articles])
-            .select_related("topic")
-            .prefetch_related("tags")
-            .order_by("-first_published_at")
-        )
+        list_articles_qs = base_qs.select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+
+        # Only display the featured article cards if there are at least 3 cards
+        # The first featured article is displayed as a media content block
+        if featured_articles and len(featured_articles) < 4:
+            featured_articles = [featured_articles[0]]
+
+        list_articles_qs = list_articles_qs.exclude(id__in=[article.id for article in featured_articles])
 
         paginator = Paginator(list_articles_qs, 10)
         list_articles = paginator.get_page(request.GET.get("page", 1))
@@ -942,10 +944,17 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             raise Http404
 
         base_qs = BlogArticlePage.objects.child_of(self).live().public().filter(topic=topic)
-        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:4])
-        list_articles_qs = (
-            base_qs.exclude(id__in=[a.id for a in featured_articles]).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
-        )
+        featured_articles = list(base_qs.filter(featured=True).select_related("topic").prefetch_related("tags").order_by("-first_published_at")[:5])
+
+        list_articles_qs = base_qs.select_related("topic").prefetch_related("tags").order_by("-first_published_at")
+
+        # Only display the featured article cards if there are at least 3 cards
+        # The first featured article is displayed as a media content block
+        if featured_articles and len(featured_articles) < 4:
+            featured_articles = [featured_articles[0]]
+
+        list_articles_qs = list_articles_qs.exclude(id__in=[article.id for article in featured_articles])
+
         paginator = Paginator(list_articles_qs, 10)
         topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
