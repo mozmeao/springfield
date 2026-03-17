@@ -18,6 +18,11 @@ on:
           - dev
           - stage
         default: dev
+      branches_in_sync:
+        description: "I confirm that the source and target branches are on the same commit"
+        type: boolean
+        required: true
+        default: false
 
 env:
   BUCKET: ${{ secrets.GCP_DB_SYNC_BUCKET }}
@@ -40,6 +45,7 @@ jobs:
         env:
           SOURCE: ${{ inputs.source }}
           TARGET: ${{ inputs.target }}
+          BRANCHES_IN_SYNC: ${{ inputs.branches_in_sync }}
         run: |
           # Reject prod as target (defense-in-depth against API triggers)
           if [ "$TARGET" = "prod" ]; then
@@ -58,6 +64,11 @@ jobs:
           # Reject same source and target
           if [ "$SOURCE" = "$TARGET" ]; then
             echo "::error::Source and target cannot be the same"
+            exit 1
+          fi
+          # Require confirmation that branches are on the same commit
+          if [ "$BRANCHES_IN_SYNC" != "true" ]; then
+            echo "::error::Please confirm that the source and target branches are on the same commit before running a sync"
             exit 1
           fi
 
@@ -126,6 +137,8 @@ jobs:
             "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
             --database="$DATABASE" \
             --project="$PROJECT" \
+            --clean \
+            --if-exists \
             --offload
           echo "Export complete"
 
@@ -139,7 +152,7 @@ jobs:
           workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ steps.target.outputs.sa }}
 
-      - name: Backup target database before drop
+      - name: Backup target database
         env:
           INSTANCE: ${{ steps.target.outputs.instance }}
           PROJECT: ${{ steps.target.outputs.project }}
@@ -147,27 +160,8 @@ jobs:
           gcloud sql backups create \
             --instance="$INSTANCE" \
             --project="$PROJECT" \
-            --description="db-sync pre-drop backup (run $GITHUB_RUN_ID)"
-          echo "Backup complete — restorable via console or gcloud if import fails"
-
-      - name: Drop target database
-        env:
-          INSTANCE: ${{ steps.target.outputs.instance }}
-          PROJECT: ${{ steps.target.outputs.project }}
-        run: |
-          gcloud sql databases delete "$DATABASE" \
-            --instance="$INSTANCE" \
-            --project="$PROJECT" \
-            --quiet
-
-      - name: Recreate target database
-        env:
-          INSTANCE: ${{ steps.target.outputs.instance }}
-          PROJECT: ${{ steps.target.outputs.project }}
-        run: |
-          gcloud sql databases create "$DATABASE" \
-            --instance="$INSTANCE" \
-            --project="$PROJECT"
+            --description="db-sync pre-import backup (run $GITHUB_RUN_ID)"
+          echo "Backup complete — restorable via console or gcloud if import partially fails"
 
       - name: Import database to target
         env:
@@ -179,14 +173,7 @@ jobs:
             "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
             --database="$DATABASE" \
             --project="$PROJECT" \
-            --quiet
-
-      - name: Delete export file from bucket
-        if: always()
-        env:
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
+            --user=postgres
 
       # ── Sync CMS media bucket ──
 
@@ -211,9 +198,24 @@ jobs:
           CMS_SOURCE: ${{ steps.cms.outputs.source }}
           CMS_TARGET: ${{ steps.cms.outputs.target }}
         run: |
-          gsutil -m rsync -r \
+          gcloud storage rsync \
             "gs://$CMS_SOURCE" \
-            "gs://$CMS_TARGET"
+            "gs://$CMS_TARGET" \
+            --recursive
+
+      - name: Re-auth to source project for cleanup
+        if: always()
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ steps.source.outputs.sa }}
+
+      - name: Delete export file from bucket
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gcloud storage rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
 
       - name: Summary
         env:
@@ -234,3 +236,10 @@ jobs:
           echo "| **Database** | \`$DATABASE\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **CMS media** | \`$CMS_SOURCE\` → \`$CMS_TARGET\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Run ID** | \`$RUN_ID\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> **Note:** Tables that exist in \`$TARGET\` but not in \`$SOURCE\` are not removed by this sync." >> "$GITHUB_STEP_SUMMARY"
+          echo "> If \`$TARGET\` has schema migrations not yet on \`$SOURCE\`, those tables survive with their existing data." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Manual follow-up required" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Log in to the \`$TARGET\` CMS and update the **Site name** and **Site domain** to reflect the $TARGET environment." >> "$GITHUB_STEP_SUMMARY"
