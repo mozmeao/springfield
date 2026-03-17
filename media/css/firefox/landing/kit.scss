@@ -162,13 +162,8 @@ main {
         padding: 56px;
     }
 
-    .kit-banner .kit-banner-content {
+    .kit-banner.kit-banner-with-video .kit-banner-content {
         max-width: 600px;
-    }
-
-    .kit-banner-video {
-        max-width: 600px;
-        margin: 0 auto;
     }
 
     .kit-banner.kit-banner-with-video .kit-banner-video {
@@ -194,27 +189,8 @@ main {
 }
 
 @media (min-width: 1024px) {
-    .kit-banner,
     .kit-banner.kit-banner-with-video {
         padding: 100px;
-        gap: 40px;
-    }
-
-    .kit-banner .kit-banner-content {
-        max-width: 100%;
-        width: 560px;
-    }
-
-     .kit-banner.kit-banner-with-video .kit-banner-content {
-        max-inline-size: calc((100% - 40px) / 2 );
-        margin: 0;
-    }
-
-    .kit-banner.kit-banner-with-video {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        gap: 40px;
     }
 
     .kit-banner.kit-banner-with-video .kit-banner-body {
@@ -229,10 +205,34 @@ main {
         margin-bottom: 34px;
         margin-top: 20px;
     }
+}
+
+@media (min-width: 1200px) {
+    .kit-banner,
+    .kit-banner.kit-banner-with-video {
+        padding: 120px;
+    }
+
+    .kit-banner.kit-banner-with-video .kit-banner-content {
+        max-inline-size: calc((100% - 40px) / 2 );
+        width: 560px;
+        margin: 0;
+    }
+
+    .kit-banner.kit-banner-with-video {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 40px;
+    }
 
     .kit-banner-content {
         max-width: 100%;
         text-align: left;
+    }
+
+    .kit-banner .heading {
+        font-size: 7rem;
     }
 
     .kit-banner-subheading,
@@ -250,20 +250,15 @@ main {
     }
 }
 
-@media (min-width: 1200px) {
-    .kit-banner,
-    .kit-banner.kit-banner-with-video {
-        padding: 120px;
-        gap: 80px;
-    }
-
-    .kit-banner .heading {
-        font-size: 7rem;
-    }
-
-    .kit-banner-subheading,
-    .kit-banner-body {
+@media (min-width: 1400px) {
+    .kit-banner-subheading {
+        width: 100%;
         max-width: 50%;
+    }
+
+    .kit-banner-body {
+        width: 100%;
+        max-width: 40%;
     }
 }
 
