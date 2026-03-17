@@ -342,6 +342,38 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function initAnimationPauseButtons() {
+        const pauseButtons = document.querySelectorAll('.js-animation-pause');
+
+        pauseButtons.forEach(function (button) {
+            const container = button.closest('.fl-video');
+            if (!container) return;
+
+            const video = container.querySelector('video');
+            if (!video) return;
+
+            const pauseIcon = button.querySelector('.js-pause-icon');
+            const playIcon = button.querySelector('.js-play-icon');
+
+            button.addEventListener('click', function () {
+                if (video.paused) {
+                    video.play().catch();
+                    button.setAttribute(
+                        'aria-label',
+                        button.dataset.labelPause
+                    );
+                    pauseIcon.hidden = false;
+                    playIcon.hidden = true;
+                } else {
+                    video.pause();
+                    button.setAttribute('aria-label', button.dataset.labelPlay);
+                    pauseIcon.hidden = true;
+                    playIcon.hidden = false;
+                }
+            });
+        });
+    }
+
     function initDownloadDropdown() {
         const dropdownEl = document.querySelector('.fl-platform-dropdown');
 
@@ -405,6 +437,7 @@ if (typeof window.cms === 'undefined') {
             applyVideoAspectRatios();
             initVideoPlayers();
             initAnimations();
+            initAnimationPauseButtons();
             initDownloadDropdown();
             Flare26.initDialogs();
         });
