@@ -8,9 +8,16 @@ from django.http import Http404
 import pytest
 from bs4 import BeautifulSoup
 
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
+    FEATURED_DESCRIPTIONS,
+    FEATURED_TITLES,
     NUM_FEATURED,
     NUM_REGULAR,
+    REGULAR_DESCRIPTIONS,
+    REGULAR_TITLES,
+    _create_blog_article,
+    get_blog_article_content,
     get_blog_index_page,
     get_blog_pages,
     get_blog_topics,
@@ -22,8 +29,81 @@ pytestmark = [pytest.mark.django_db]
 
 
 @pytest.fixture
+def index_page(minimal_site):
+    """Blog index page only — no articles."""
+    return get_blog_index_page()
+
+
+@pytest.fixture
+def single_article(minimal_site):
+    """Index page + one privacy article with all content block types."""
+    image, _, mobile_image, _ = get_placeholder_images()
+    idx = get_blog_index_page()
+    privacy = get_blog_topics()["privacy"]
+    article = _create_blog_article(
+        index_page=idx,
+        title=FEATURED_TITLES[0],
+        slug="test-single-article",
+        featured=False,
+        topic=privacy,
+        tags=[privacy],
+        image=image,
+        featured_image=mobile_image,
+        description=FEATURED_DESCRIPTIONS[0],
+        content=get_blog_article_content(image),
+    )
+    return idx, article
+
+
+@pytest.fixture
+def privacy_articles(minimal_site):
+    """Index page + 2 featured + 5 regular privacy articles.
+
+    Enough for related-articles and topic-detail tests, including the
+    image-on-every-fourth check (needs at least 4 list articles).
+    """
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+    idx = get_blog_index_page()
+    privacy = get_blog_topics()["privacy"]
+    content = get_blog_article_content(image)
+
+    articles = []
+    for i in range(2):
+        articles.append(
+            _create_blog_article(
+                index_page=idx,
+                title=FEATURED_TITLES[i],
+                slug=f"test-privacy-featured-{i + 1}",
+                featured=True,
+                topic=privacy,
+                tags=[privacy],
+                image=image,
+                featured_image=mobile_image,
+                description=FEATURED_DESCRIPTIONS[i],
+                content=content,
+            )
+        )
+    for i in range(5):
+        articles.append(
+            _create_blog_article(
+                index_page=idx,
+                title=REGULAR_TITLES[i],
+                slug=f"test-privacy-regular-{i + 1}",
+                featured=False,
+                topic=privacy,
+                tags=[privacy],
+                image=dark_image,
+                featured_image=dark_mobile_image,
+                description=REGULAR_DESCRIPTIONS[i],
+                content=content,
+            )
+        )
+    return idx, articles
+
+
+@pytest.fixture
 def blog_setup(minimal_site):
-    """Create the full set of blog articles and return ``(index_page, articles)``."""
+    """Full blog setup (5 featured + 12 regular across 5 topics) for index/pagination tests."""
     articles = get_blog_pages()
     return get_blog_index_page(), articles
 
@@ -79,15 +159,13 @@ def test_blog_index_context_top_topics(blog_setup, rf):
     assert counts == sorted(counts, reverse=True)
 
 
-def test_blog_index_renders_200(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_index_renders_200(index_page, rf):
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     assert response.status_code == 200
 
 
-def test_blog_index_renders_headline(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_index_renders_headline(index_page, rf):
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -119,9 +197,9 @@ def test_blog_index_renders_top_topics(blog_setup, rf):
         name_span = link.find("span", class_="fl-blog-topic-name")
         assert name_span and topic.name in name_span.get_text()
 
-        # Tag shows the zero-padded article count
+        # Tag shows the article count
         tag_el = link.find("span", class_="fl-tag")
-        assert tag_el and tag_el.get_text(strip=True) == f"{topic.article_count:02d}"
+        assert tag_el and tag_el.get_text(strip=True) == str(topic.article_count)
 
 
 def test_blog_index_top_topics_have_view_all_link(blog_setup, rf):
@@ -280,17 +358,15 @@ def test_blog_index_list_articles_image_on_every_fourth(blog_setup, rf):
 # ---------------------------------------------------------------------------
 
 
-def test_blog_article_renders_200(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_200(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     assert response.status_code == 200
 
 
-def test_blog_article_renders_title_and_topic(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_title_and_topic(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -302,9 +378,8 @@ def test_blog_article_renders_title_and_topic(blog_setup, rf):
     assert superheading and article.topic.name in superheading.get_text()
 
 
-def test_blog_article_renders_text_block(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_text_block(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -314,9 +389,8 @@ def test_blog_article_renders_text_block(blog_setup, rf):
     assert "Lorem ipsum" in rich_text_section.get_text()
 
 
-def test_blog_article_renders_media_block(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_media_block(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -326,9 +400,8 @@ def test_blog_article_renders_media_block(blog_setup, rf):
     assert rich_text_section.find("img"), "Media block should render an image"
 
 
-def test_blog_article_renders_code_block(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_code_block(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -342,9 +415,8 @@ def test_blog_article_renders_code_block(blog_setup, rf):
     assert "Hello, Firefox!" in code.get_text()
 
 
-def test_blog_article_renders_quote_block(blog_setup, rf):
-    _, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_quote_block(single_article, rf):
+    _, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -359,9 +431,8 @@ def test_blog_article_renders_quote_block(blog_setup, rf):
     assert figcaption and "Mozilla Foundation" in figcaption.get_text()
 
 
-def test_blog_article_renders_back_link(blog_setup, rf):
-    index_page, articles = blog_setup
-    article = articles[0]
+def test_blog_article_renders_back_link(single_article, rf):
+    index_page, article = single_article
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -373,10 +444,9 @@ def test_blog_article_renders_back_link(blog_setup, rf):
     assert "Back" in back_link.get_text()
 
 
-def test_blog_article_renders_related_articles(blog_setup, rf):
-    index_page, _ = blog_setup
-    # Pick an article whose topic has other articles (Privacy appears multiple times)
-    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+def test_blog_article_renders_related_articles(privacy_articles, rf):
+    index_page, articles = privacy_articles
+    article = articles[0]
     expected_related = list(
         BlogArticlePage.objects.child_of(index_page)
         .live()
@@ -410,17 +480,17 @@ def test_blog_article_renders_related_articles(blog_setup, rf):
         assert body and body.get_text(strip=True)
 
 
-def test_blog_article_excludes_self_from_related(blog_setup, rf):
-    index_page, _ = blog_setup
-    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+def test_blog_article_excludes_self_from_related(privacy_articles, rf):
+    index_page, articles = privacy_articles
+    article = articles[0]
     request = rf.get(article.get_full_url())
     context = article.get_context(request)
     assert article not in context["related_articles"]
 
 
-def test_blog_article_related_articles_image_on_every_fourth(blog_setup, rf):
-    index_page, _ = blog_setup
-    article = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic__slug="privacy").first()
+def test_blog_article_related_articles_image_on_every_fourth(privacy_articles, rf):
+    index_page, articles = privacy_articles
+    article = articles[0]
     request = rf.get(article.get_full_url())
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -430,7 +500,7 @@ def test_blog_article_related_articles_image_on_every_fourth(blog_setup, rf):
 
     items = section.find_all("article", class_="fl-blog-article-list-item")
     for i, item in enumerate(items):
-        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
         has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
         if i % 4 == 3:
             assert has_image_class, f"Item {i} should have image class"
@@ -445,16 +515,16 @@ def test_blog_article_related_articles_image_on_every_fourth(blog_setup, rf):
 # ---------------------------------------------------------------------------
 
 
-def test_blog_topics_page_renders_200(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topics_page_renders_200(single_article, rf):
+    index_page, _ = single_article
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
     assert response.status_code == 200
 
 
-def test_blog_topics_page_renders_heading(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topics_page_renders_heading(single_article, rf):
+    index_page, _ = single_article
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
@@ -464,8 +534,7 @@ def test_blog_topics_page_renders_heading(blog_setup, rf):
     assert h1 and "All Topics" in h1.get_text()
 
 
-def test_blog_topics_page_renders_back_link(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topics_page_renders_back_link(index_page, rf):
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
@@ -523,49 +592,47 @@ def test_blog_topics_page_links_to_topic_detail(blog_setup, rf):
 # ---------------------------------------------------------------------------
 
 
-def test_blog_topic_detail_renders_200(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_renders_200(privacy_articles, rf):
+    index_page, _ = privacy_articles
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
     request = rf.get(url)
     response = index_page.topic_route(request, topic_slug="privacy")
     assert response.status_code == 200
 
 
-def test_blog_topic_detail_renders_404_for_unknown_topic(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_renders_404_for_unknown_topic(index_page, rf):
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "nonexistent"})
     request = rf.get(url)
     with pytest.raises(Http404):
         index_page.topic_route(request, topic_slug="nonexistent")
 
 
-def test_blog_topic_detail_renders_topic_heading(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_renders_selected_topic(privacy_articles, rf):
+    index_page, _ = privacy_articles
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
     request = rf.get(url)
     response = index_page.topic_route(request, topic_slug="privacy")
     soup = BeautifulSoup(response.content, "html.parser")
 
-    h1 = soup.find("h1", class_="fl-heading")
-    assert h1 and "Privacy" in h1.get_text()
+    selected = soup.find("span", class_="fl-blog-selected-topic")
+    assert selected and "Privacy" in selected.get_text()
 
 
-def test_blog_topic_detail_renders_back_link(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_selected_topic_links_back_to_index(privacy_articles, rf):
+    index_page, _ = privacy_articles
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
     request = rf.get(url)
     response = index_page.topic_route(request, topic_slug="privacy")
     soup = BeautifulSoup(response.content, "html.parser")
 
-    back_link = soup.find("a", class_="fl-blog-back-link")
-    assert back_link
-    assert back_link["href"] == index_page.url
-    assert back_link.find("span", class_="fl-icon-back")
-    assert "Back" in back_link.get_text()
+    selected = soup.find("span", class_="fl-blog-selected-topic")
+    assert selected
+    close_link = selected.find("a")
+    assert close_link and close_link["href"] == index_page.url
 
 
-def test_blog_topic_detail_renders_featured_as_illustration_cards(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_renders_featured_as_illustration_cards(privacy_articles, rf):
+    index_page, _ = privacy_articles
     topic = Tag.objects.get(slug="privacy")
     featured_articles = list(
         BlogArticlePage.objects.child_of(index_page)
@@ -581,16 +648,17 @@ def test_blog_topic_detail_renders_featured_as_illustration_cards(blog_setup, rf
     response = index_page.topic_route(request, topic_slug="privacy")
     soup = BeautifulSoup(response.content, "html.parser")
 
+    # The first featured article renders as media-content; the rest become illustration cards
     cards = soup.find_all("article", class_="fl-illustration-card")
-    assert len(cards) == len(featured_articles)
+    assert len(cards) == len(featured_articles) - 1
 
-    for article, card in zip(featured_articles, cards):
+    for article, card in zip(featured_articles[1:], cards):
         # Card has expand-link class
         assert "fl-card-expand-link" in card.get("class", [])
         # Card has an image
         assert card.find("img")
         # Card heading contains the article title with an expand link to the article URL
-        heading = card.find("h2", class_="fl-heading")
+        heading = card.find("h3", class_="fl-heading")
         assert heading and article.title in heading.get_text()
         expand_link = heading.find("a", class_="fl-link-expand")
         assert expand_link and expand_link["href"] == article.url
@@ -603,8 +671,8 @@ def test_blog_topic_detail_renders_featured_as_illustration_cards(blog_setup, rf
         assert tag_names <= card_tag_texts
 
 
-def test_blog_topic_detail_renders_list_articles(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_renders_list_articles(privacy_articles, rf):
+    index_page, _ = privacy_articles
     topic = Tag.objects.get(slug="privacy")
     base_qs = BlogArticlePage.objects.child_of(index_page).live().public().filter(topic=topic)
     featured_ids = list(base_qs.filter(featured=True).order_by("-first_published_at").values_list("id", flat=True)[:4])
@@ -637,8 +705,8 @@ def test_blog_topic_detail_renders_list_articles(blog_setup, rf):
         assert tag_names <= item_tag_texts
 
 
-def test_blog_topic_detail_list_articles_image_on_every_fourth(blog_setup, rf):
-    index_page, _ = blog_setup
+def test_blog_topic_detail_list_articles_image_on_every_fourth(privacy_articles, rf):
+    index_page, _ = privacy_articles
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
     request = rf.get(url)
     response = index_page.topic_route(request, topic_slug="privacy")
@@ -646,7 +714,7 @@ def test_blog_topic_detail_list_articles_image_on_every_fourth(blog_setup, rf):
 
     items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
     for i, item in enumerate(items):
-        has_image_class = "fl-blog-article-list-item--with-image" in item.get("class", [])
+        has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
         has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
         if i % 4 == 3:
             assert has_image_class, f"Item {i} should have image class"
@@ -656,9 +724,8 @@ def test_blog_topic_detail_list_articles_image_on_every_fourth(blog_setup, rf):
             assert not has_img, f"Item {i} should not render an image"
 
 
-def test_blog_topic_detail_no_pagination_when_single_page(blog_setup, rf):
-    index_page, _ = blog_setup
-    # "privacy" has only 3 regular articles — no second page needed
+def test_blog_topic_detail_no_pagination_when_single_page(privacy_articles, rf):
+    index_page, _ = privacy_articles
     url = index_page.full_url + index_page.reverse_subpage("topic_route", kwargs={"topic_slug": "privacy"})
     request = rf.get(url)
     response = index_page.topic_route(request, topic_slug="privacy")

@@ -883,10 +883,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             base_qs.exclude(id__in=[a.id for a in featured_articles]).select_related("topic").prefetch_related("tags").order_by("-first_published_at")
         )
         paginator = Paginator(list_articles_qs, 10)
+        topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
         return self._render_route(
             request,
-            "cms/blog_topic_detail_page.html",
+            "cms/blog_index_page.html",
             {"topic": topic, "featured_articles": featured_articles, "list_articles": list_articles},
         )
 

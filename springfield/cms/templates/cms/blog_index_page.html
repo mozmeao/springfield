@@ -37,18 +37,29 @@
             {% endif %}
           </div>
 
-          {% if top_topics %}
+          {% if top_topics or topic %}
             <div class="fl-blog-topics">
               <div class="fl-blog-topics-list">
-                {% for topic in top_topics %}
-                  <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', None, {'topic_slug': topic.slug}) }}" class="fl-blog-topic-link">
-                    <span class="fl-blog-topic-name">{{ topic.name }}</span>
-                    <include:tag
-                      text="{{ '%02d'|format(topic.article_count) }}"
-                      color="purple"
-                      corners="round"
-                    />
-                  </a>
+                {% if topic %}
+                  <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
+                    {{ topic.name }} <span class="fl-tag fl-tag-white fl-tag-round">{{ topic.article_count }}</span>
+                    <a href="{{ page.url }}">
+                      <span class="visually-hidden">Show all</span>
+                      <include:icon icon_name="close" hidden="true" />
+                    </a>
+                  </span>
+                {% endif %}
+                {% for topic_item in top_topics %}
+                  {% if not topic or topic_item.slug != topic.slug %}
+                    <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', None, {'topic_slug': topic_item.slug}) }}" class="fl-blog-topic-link">
+                      <span class="fl-blog-topic-name">{{ topic_item.name }}</span>
+                      <include:tag
+                        text="{{ topic_item.article_count }}"
+                        color="purple"
+                        corners="round"
+                      />
+                    </a>
+                  {% endif %}
                 {% endfor %}
                 <div class="fl-blog-topics-all">
                   <a href="{{ page.url }}topics/" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
