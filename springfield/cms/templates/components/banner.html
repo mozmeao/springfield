@@ -4,10 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" #}
+{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" phone_qr_bg=False #}
 
 <div
-  class="fl-banner-container {% if slim %}fl-banner-slim{% endif %}"
+  class="fl-banner-container {% if slim %}fl-banner-slim{% endif %} {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}"
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   <div
@@ -18,7 +18,11 @@
     aria-labelledby="fl-banner-heading">
 
     <div class="fl-banner-layout">
-      {% if contents.media or qr_code %}
+      {% if phone_qr_bg and qr_code %}
+        <div class="fl-banner-qr" role="img" aria-label="QR Code">
+          {{ qrcode(qr_code, 12) }}
+        </div>
+      {% elif contents.media or qr_code %}
         <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}" aria-hidden="true">
           {% if qr_code %}
             <div class="fl-banner-qr" role="img">
