@@ -176,20 +176,6 @@ jobs:
             --user=springfield_rw_user \
             --quiet
 
-      - name: Re-auth to source project for cleanup
-        if: always()
-        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
-        with:
-          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ steps.source.outputs.sa }}
-
-      - name: Delete export file from bucket
-        if: always()
-        env:
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
-
       # ── Sync CMS media bucket ──
 
       - name: Resolve CMS bucket names
@@ -216,6 +202,20 @@ jobs:
           gsutil -m rsync -r \
             "gs://$CMS_SOURCE" \
             "gs://$CMS_TARGET"
+
+      - name: Re-auth to source project for cleanup
+        if: always()
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ steps.source.outputs.sa }}
+
+      - name: Delete export file from bucket
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
 
       - name: Summary
         env:
