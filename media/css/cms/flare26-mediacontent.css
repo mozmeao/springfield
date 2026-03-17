@@ -9,7 +9,8 @@
     display: grid;
     gap: var(--token-spacing-xl);
     grid-template-columns: 1fr;
-    padding: var(--token-spacing-lg);
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     position: relative;
 }
 
@@ -29,6 +30,12 @@
     margin-block-end: var(--token-spacing-lg);
 }
 
+.fl-mediacontent-content .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    font-size: var(--fl-theme-label-caps-sm);
+    text-transform: uppercase;
+}
+
 .fl-mediacontent-tags {
     display: flex;
     flex-wrap: wrap;
@@ -42,7 +49,7 @@
 
 @media (--viewport-md-up) {
     .fl-mediacontent {
-        gap: var(--token-layout-xs);
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
     }
 
@@ -60,6 +67,11 @@
 
     .fl-mediacontent-content {
         padding: 0;
+    }
+
+    /* todo: This makes these components match Figma, but we should revisit container gaps. */
+    .fl-mediacontent + .fl-mediacontent {
+        padding-block-start: 16px;
     }
 
     .fl-mediacontent-content .fl-buttons {
