@@ -239,3 +239,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "> **Note:** Tables that exist in \`$TARGET\` but not in \`$SOURCE\` are not removed by this sync." >> "$GITHUB_STEP_SUMMARY"
           echo "> If \`$TARGET\` has schema migrations not yet on \`$SOURCE\`, those tables survive with their existing data." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Manual follow-up required" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Log in to the \`$TARGET\` CMS and update the **Site name** and **Site domain** to reflect the $TARGET environment." >> "$GITHUB_STEP_SUMMARY"
