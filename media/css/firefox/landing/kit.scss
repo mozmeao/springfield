@@ -98,6 +98,16 @@ main {
     padding: calc(var(--scale-64) * 1px) calc(var(--scale-24) * 1px);
 }
 
+.kit-banner.kit-banner-with-video .kit-banner-video {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.kit-banner-video iframe {
+    width: 100%;
+    height: auto;
+}
+
 .kit-banner-container {
     width: 100%;
     max-width: 1440px;
@@ -161,6 +171,17 @@ main {
         margin: 0 auto;
     }
 
+    .kit-banner.kit-banner-with-video .kit-banner-video {
+        width: 560px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .kit-banner-video iframe {
+        width: 560px;
+        height: 315px;
+    }
+
     .kit-banner .heading {
         font-size: 5rem;
     }
@@ -175,15 +196,18 @@ main {
 @media (min-width: 1024px) {
     .kit-banner,
     .kit-banner.kit-banner-with-video {
-        padding: 120px;
+        padding: 100px;
+        gap: 40px;
     }
 
     .kit-banner .kit-banner-content {
         max-width: 100%;
+        width: 560px;
     }
 
-    .kit-banner-video {
-        max-width: 100%;
+     .kit-banner.kit-banner-with-video .kit-banner-content {
+        max-inline-size: calc((100% - 40px) / 2 );
+        margin: 0;
     }
 
     .kit-banner.kit-banner-with-video {
@@ -193,17 +217,8 @@ main {
         gap: 40px;
     }
 
-    .kit-banner.kit-banner-with-video .kit-banner-content {
-        max-inline-size: calc((100% - 80px) / 2 );
-        margin: 0;
-    }
-
     .kit-banner.kit-banner-with-video .kit-banner-body {
         max-inline-size: 100%;
-    }
-
-    .kit-banner.kit-banner-with-video .kit-banner-video {
-        max-inline-size: calc((100% - 80px) / 2 );
     }
 
     .kit-banner .heading {
@@ -236,7 +251,9 @@ main {
 }
 
 @media (min-width: 1200px) {
+    .kit-banner,
     .kit-banner.kit-banner-with-video {
+        padding: 120px;
         gap: 80px;
     }
 

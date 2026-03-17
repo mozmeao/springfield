@@ -92,18 +92,9 @@
                   </div>
                 </div>
                 {% if kit_video_available %}
-                <div class="kit-banner-video">
-                  <video
-                    controls
-                    autoplay
-                    muted
-                    playsinline
-                    width="960"
-                    height="540"
-                    poster="{{ static('img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg') }}">
-                    <source src="https://assets.mozilla.net/video/kit-2026.webm" type="video/webm">
-                  </video>
-                </div>
+                  <div class="kit-banner-video">
+                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/AtuzapfqF1M?si=amsSinxbbPXXQusc" title="Meet Kit. Your companion for a new internet era." frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  </div>
                 {% else %}
                 <div class="kit-banner-brand">
                   <div class="kit-banner-media">
