@@ -173,7 +173,7 @@ jobs:
             "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
             --database="$DATABASE" \
             --project="$PROJECT" \
-            --user=springfield_rw_user \
+            --user=postgres \
             --quiet
 
       # ── Sync CMS media bucket ──
