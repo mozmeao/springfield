@@ -13,7 +13,8 @@ from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
     NUM_FEATURED,
-    NUM_REGULAR,
+    NUM_FEATURED_INDEX_SHOWN,
+    NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
     _create_blog_article,
@@ -128,8 +129,8 @@ def test_blog_index_context_list_articles_are_paginated(blog_setup, rf):
     context = index_page.get_context(request)
 
     list_articles = context["list_articles"]
-    assert list_articles.paginator.count == NUM_REGULAR
-    assert list_articles.paginator.num_pages == 2
+    assert list_articles.paginator.count == NUM_LIST_ARTICLES
+    assert list_articles.paginator.num_pages == 3
     assert list_articles.number == 1
     assert len(list_articles.object_list) == 10
 
@@ -141,7 +142,7 @@ def test_blog_index_context_list_articles_page_2(blog_setup, rf):
 
     list_articles = context["list_articles"]
     assert list_articles.number == 2
-    assert len(list_articles.object_list) == NUM_REGULAR - 10
+    assert len(list_articles.object_list) == 10
 
 
 def test_blog_index_context_top_topics(blog_setup, rf):
@@ -249,8 +250,8 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     soup = BeautifulSoup(response.content, "html.parser")
 
     cards = soup.find_all("article", class_="fl-illustration-card")
-    # Articles 2-5 render as illustration cards
-    assert len(cards) == NUM_FEATURED - 1
+    # Index shows 1 hero + up to 4 cards (NUM_FEATURED_INDEX_SHOWN total)
+    assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 1
 
     for card in cards:
         # Each card has an expand link
@@ -305,24 +306,25 @@ def test_blog_index_renders_pagination(blog_setup, rf):
 
     # Page indicator shows current/total
     indicator = pagination.find("span", class_="fl-pagination-indicator")
-    assert indicator.get_text(strip=True) == "1/2"
+    assert indicator.get_text(strip=True) == "1/3"
 
 
-def test_blog_index_pagination_page_2(blog_setup, rf):
+def test_blog_index_pagination_last_page(blog_setup, rf):
     index_page, _ = blog_setup
-    request = rf.get(index_page.get_full_url(), {"page": "2"})
+    num_pages = (NUM_LIST_ARTICLES + 9) // 10
+    request = rf.get(index_page.get_full_url(), {"page": str(num_pages)})
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
     article_list = soup.find("div", class_="fl-blog-article-list")
     assert article_list
     items = article_list.find_all("article", class_="fl-blog-article-list-item")
-    assert len(items) == NUM_REGULAR - 10
+    assert len(items) == NUM_LIST_ARTICLES - (num_pages - 1) * 10
 
     pagination = soup.find("nav", class_="fl-pagination")
     assert pagination
 
-    # Page 2: prev button has an href, next button is disabled
+    # Last page: prev button has an href, next button is disabled
     prev_button = pagination.find("div", class_="fl-pagination-prev").find("a")
     next_button = pagination.find("div", class_="fl-pagination-next").find("a")
     assert prev_button.get("href")
@@ -330,7 +332,7 @@ def test_blog_index_pagination_page_2(blog_setup, rf):
 
     # Page indicator shows current/total
     indicator = pagination.find("span", class_="fl-pagination-indicator")
-    assert indicator.get_text(strip=True) == "2/2"
+    assert indicator.get_text(strip=True) == f"{num_pages}/{num_pages}"
 
 
 def test_blog_index_list_articles_image_on_every_fourth(blog_setup, rf):

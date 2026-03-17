@@ -13,70 +13,41 @@ LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do e
 
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
 
-FEATURED_TITLES = [
-    "How Firefox Protects Your Privacy Online",
-    "The Future of Web Security",
-    "Faster Browsing: What's New in Firefox",
-    "Essential Tips for a Better Web Experience",
-    "Why Open Source Matters More Than Ever",
+_LOREM_WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore".split()
+_LOREM_SENTENCES = [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
 ]
 
-REGULAR_TITLES = [
-    "Understanding Tracking Protection",
-    "A Deep Dive into Browser Fingerprinting and What You Can Do About It",
-    "Speed",
-    "Ten Simple Tips to Stay Safe While Browsing the Web Every Day",
-    "Contributing to Open Source for the First Time",
-    "Firefox's Private Browsing Mode Explained in Detail",
-    "Phishing Attacks: How to Spot and Avoid Them",
-    "Memory",
-    "Customizing Firefox: Extensions, Themes, and Hidden Settings Worth Knowing",
-    "The History and Philosophy of Open Source Software",
-    "Do Not Track and Global Privacy Control: What They Mean for You",
-    "Zero-Day Vulnerabilities and How Browsers Respond",
-]
 
-FEATURED_DESCRIPTIONS = [
-    '<p data-block-key="fd00001">Firefox includes built-in tracking protection that blocks thousands of trackers by default, '
-    "keeping your browsing private.</p>",
-    '<p data-block-key="fd00002">As threats evolve, so does Firefox. Here\'s a look at the latest security features designed to keep '
-    "you safe on the modern web.</p>",
-    "<p data-block-key=\"fd00003\">We've shipped significant performance improvements in the latest release. Here's what changed and "
-    "why it matters.</p>",
-    '<p data-block-key="fd00004">Small changes to how you browse can make a big difference. These tips will help you get more out of '
-    "Firefox every day.</p>",
-    '<p data-block-key="fd00005">Open source software powers much of the internet. We explore why transparency and community matter '
-    "more than ever in today's digital landscape, and how Firefox embodies those values in everything it ships.</p>",
-]
+def _title(n_words):
+    return " ".join(_LOREM_WORDS[:n_words]).capitalize()
 
-REGULAR_DESCRIPTIONS = [
-    '<p data-block-key="rd00001">Firefox\'s Enhanced Tracking Protection stops social media trackers, cross-site cookies, fingerprinters, '
-    "and cryptominers automatically.</p>",
-    '<p data-block-key="rd00002">Browser fingerprinting is a subtle but powerful way advertisers track you without cookies. '
-    "Learn how it works, what data gets collected, and the steps you can take to reduce your digital footprint across the web.</p>",
-    '<p data-block-key="rd00003">Firefox is fast.</p>',
-    '<p data-block-key="rd00004">From using a password manager and enabling two-factor authentication to keeping your browser updated and '
-    "being cautious with extensions, these ten practices will meaningfully reduce your exposure to common online threats.</p>",
-    '<p data-block-key="rd00005">Opening your first pull request can feel daunting. This guide walks you through finding a project, '
-    "understanding the contribution workflow, and making a change you can be proud of.</p>",
-    "<p data-block-key=\"rd00006\">Private Browsing in Firefox doesn't save your history, cookies, or form data locally — but it's not a "
-    "full anonymity tool. Here's what it does and doesn't protect against, and when you should use it.</p>",
-    '<p data-block-key="rd00007">Phishing emails and websites are getting harder to spot. Learn the tell-tale signs of a phishing attempt '
-    "and the browser features that can help warn you before it's too late.</p>",
-    "<p data-block-key=\"rd00008\">We've reduced Firefox's memory usage.</p>",
-    '<p data-block-key="rd00009">Firefox is endlessly customizable. From productivity-boosting extensions to one-click theme changes and '
-    "about:config tweaks that power users swear by, here's a tour of the best personalization options available to you right now.</p>",
-    '<p data-block-key="rd00010">From the GNU Manifesto to Linux, Git, and Firefox itself, we trace the ideological roots of free and '
-    "open source software and explain why the movement's founding principles remain as relevant today as they were decades ago.</p>",
-    '<p data-block-key="rd00011">Do Not Track was the first attempt to let users opt out of tracking. Global Privacy Control is its '
-    "more enforceable successor. We explain what each signal does, which sites respect it, and how to enable both in Firefox.</p>",
-    '<p data-block-key="rd00012">When a zero-day is discovered, browser vendors race to patch it before attackers exploit it at scale. '
-    "Here's how the vulnerability disclosure process works and what Firefox does to ship fixes fast.</p>",
-]
 
-# 5 featured + 12 non-featured = 17 total, triggering second page of pagination
-NUM_FEATURED = 5
-NUM_REGULAR = 12
+def _desc(key, n_sentences):
+    return f'<p data-block-key="{key}">{" ".join(_LOREM_SENTENCES[:n_sentences])}</p>'
+
+
+# Titles: varying word counts (1–13 words) to stress-test layout
+FEATURED_TITLES = [_title(n) for n in (3, 7, 1, 9, 5)]
+REGULAR_TITLES = [_title(n) for n in (5, 13, 1, 11, 3, 9, 7, 1, 13, 5, 11, 3)]
+PRIVACY_EXTRA_FEATURED_TITLES = [_title(n) for n in (7, 11, 3)]
+PRIVACY_EXTRA_REGULAR_TITLES = [_title(n) for n in (9, 1, 13, 5, 7, 3, 11, 9)]
+
+# Descriptions: varying sentence counts (1–3) to stress-test layout
+FEATURED_DESCRIPTIONS = [_desc(f"ft{i:04d}", n) for i, n in enumerate((1, 2, 3, 1, 2), start=1)]
+REGULAR_DESCRIPTIONS = [_desc(f"rt{i:04d}", n) for i, n in enumerate((2, 1, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), start=1)]
+PRIVACY_EXTRA_FEATURED_DESCRIPTIONS = [_desc(f"pf{i:04d}", n) for i, n in enumerate((2, 3, 1), start=1)]
+PRIVACY_EXTRA_REGULAR_DESCRIPTIONS = [_desc(f"pr{i:04d}", n) for i, n in enumerate((1, 3, 2, 1, 3, 2, 1, 3), start=1)]
+
+# 5 featured + 3 extra Privacy featured + 12 regular + 8 extra Privacy regular = 28 total articles
+# BlogIndexPage.get_context() limits featured_articles to [:5], so the 3 overflow privacy
+# featured articles fall into the paginated list alongside the 20 regular articles (23 list total).
+# Privacy topic page: 4 featured (1 hero + 3 cards) + 11 regular (2 pages of pagination)
+NUM_FEATURED = 5  # articles shown in the index featured section (context limits to [:5])
+NUM_FEATURED_INDEX_SHOWN = 5  # index template shows 1 hero + up to 4 illustration cards
+NUM_LIST_ARTICLES = 23  # articles in the paginated list (20 regular + 3 overflow featured)
 
 
 def get_blog_topics() -> dict[str, Tag]:
@@ -182,9 +153,11 @@ def get_blog_index_page() -> BlogIndexPage:
 
 def get_blog_pages() -> list[BlogArticlePage]:
     """
-    Create a blog index page with enough articles to cover all index page sections:
-    - 5 featured articles: 1 hero (media+content) + 4 illustration cards
-    - 12 non-featured articles: spans two pages of pagination (10 per page)
+    Create a blog index page with articles covering all sections:
+    - 8 featured: 5 spread across topics + 3 extra for Privacy
+      (Privacy gets 4 total: 1 hero + 3 cards on its topic page)
+    - 20 non-featured: 12 spread across topics + 8 extra for Privacy
+      (Privacy gets 11 total: triggers pagination on its topic page)
 
     All articles use all available content block types: text, media, code, quote.
     """
@@ -194,18 +167,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
     content = get_blog_article_content(image)
 
     topic_list = list(topics.values())
+    privacy = topics["privacy"]
     articles = []
 
-    for i in range(1, NUM_FEATURED + 1):
+    # One featured article per topic (5 total)
+    for i in range(1, len(topic_list) + 1):
         topic = topic_list[(i - 1) % len(topic_list)]
-        article_tags = topic_list[:2]
         article = _create_blog_article(
             index_page=index_page,
             title=FEATURED_TITLES[i - 1],
             slug=f"test-featured-blog-article-{i}",
             featured=True,
             topic=topic,
-            tags=article_tags,
+            tags=topic_list[:2],
             image=image,
             featured_image=mobile_image,
             description=FEATURED_DESCRIPTIONS[i - 1],
@@ -213,19 +187,51 @@ def get_blog_pages() -> list[BlogArticlePage]:
         )
         articles.append(article)
 
-    for i in range(1, NUM_REGULAR + 1):
+    # 3 extra featured articles for Privacy (total Privacy featured: 4)
+    for i, (title, description) in enumerate(zip(PRIVACY_EXTRA_FEATURED_TITLES, PRIVACY_EXTRA_FEATURED_DESCRIPTIONS), start=1):
+        article = _create_blog_article(
+            index_page=index_page,
+            title=title,
+            slug=f"test-privacy-extra-featured-{i}",
+            featured=True,
+            topic=privacy,
+            tags=topic_list[:2],
+            image=image,
+            featured_image=mobile_image,
+            description=description,
+            content=content,
+        )
+        articles.append(article)
+
+    # 12 regular articles spread across all topics
+    for i in range(1, len(REGULAR_TITLES) + 1):
         topic = topic_list[(i - 1) % len(topic_list)]
-        article_tags = [topic_list[i % len(topic_list)]]
         article = _create_blog_article(
             index_page=index_page,
             title=REGULAR_TITLES[i - 1],
             slug=f"test-regular-blog-article-{i}",
             featured=False,
             topic=topic,
-            tags=article_tags,
+            tags=[topic_list[i % len(topic_list)]],
             image=dark_image,
             featured_image=dark_mobile_image,
             description=REGULAR_DESCRIPTIONS[i - 1],
+            content=content,
+        )
+        articles.append(article)
+
+    # 8 extra regular articles for Privacy (total Privacy regular: 11)
+    for i, (title, description) in enumerate(zip(PRIVACY_EXTRA_REGULAR_TITLES, PRIVACY_EXTRA_REGULAR_DESCRIPTIONS), start=1):
+        article = _create_blog_article(
+            index_page=index_page,
+            title=title,
+            slug=f"test-privacy-extra-regular-{i}",
+            featured=False,
+            topic=privacy,
+            tags=[topic_list[i % len(topic_list)]],
+            image=dark_image,
+            featured_image=dark_mobile_image,
+            description=description,
             content=content,
         )
         articles.append(article)
