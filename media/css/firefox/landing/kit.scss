@@ -251,16 +251,12 @@ main {
 }
 
 @supports (-webkit-backdrop-filter: none) {
-    .kit-banner-still {
+    main .kit-banner-still {
         display: block;
     }
 
-    .kit-banner-media video {
+    main .kit-banner-media video {
         display: none;
-    }
-
-    .kit-banner .kit-banner-body {
-        padding-block-end: 64px;
     }
 }
 

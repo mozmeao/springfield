@@ -71,7 +71,7 @@
   {{ css_bundle('kit') }}
 {% endblock %}
 
-{% set kit_video_available = false %}
+{% set kit_video_available = LANG.startswith('en-') %}
 
 {% block content %}
 <div class="kit fl-page">
@@ -98,10 +98,10 @@
                     autoplay
                     muted
                     playsinline
-                    width="520"
-                    height="592"
+                    width="960"
+                    height="540"
                     poster="{{ static('img/firefox/landing/win10-eos/vertical-tabs/poster-de.jpg') }}">
-                    <source src="https://assets.mozilla.net/video/whatsnew/wnp-137-de-high-res-v2.webm" type="video/webm">
+                    <source src="https://assets.mozilla.net/video/kit-2026.webm" type="video/webm">
                   </video>
                 </div>
                 {% else %}
