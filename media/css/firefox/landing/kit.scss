@@ -181,7 +181,7 @@ main {
 
 .kit-banner-video iframe.video-play[role='button'] {
     width: 100%;
-    height: auto;
+    height: 100%;
 }
 
 .kit-banner-container {
@@ -234,8 +234,17 @@ main {
 }
 
 @media (max-width: 767px) {
-    .kit-banner-video {
-        display: none;
+    .mzp-c-video {
+        max-width: 100%;
+        aspect-ratio: 16 / 9;
+        height: auto;
+    }
+
+    main .video-play[role='button'] img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        min-width: unset;
+        min-height: fit-content;
     }
 }
 
