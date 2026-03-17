@@ -102,17 +102,21 @@ jobs:
         env:
           TARGET: ${{ inputs.target }}
           NONPROD_PROJECT: ${{ secrets.GCP_PROJECT_ID_NONPROD }}
+          STAGE_REPLICAS: ${{ secrets.GCP_STAGE_REPLICA_INSTANCES }}
+          DEV_REPLICAS: ${{ secrets.GCP_DEV_REPLICA_INSTANCES }}
         run: |
           case "$TARGET" in
             stage)
               echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
               echo "instance=springfield-nonprod-stage-v1" >> "$GITHUB_OUTPUT"
               echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              echo "replicas=$STAGE_REPLICAS" >> "$GITHUB_OUTPUT"
               ;;
             dev)
               echo "project=$NONPROD_PROJECT" >> "$GITHUB_OUTPUT"
               echo "instance=springfield-nonprod-dev-v1" >> "$GITHUB_OUTPUT"
               echo "sa=db-sync@$NONPROD_PROJECT.iam.gserviceaccount.com" >> "$GITHUB_OUTPUT"
+              echo "replicas=$DEV_REPLICAS" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -137,8 +141,6 @@ jobs:
             "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
             --database="$DATABASE" \
             --project="$PROJECT" \
-            --clean \
-            --if-exists \
             --offload
           echo "Export complete"
 
@@ -161,7 +163,41 @@ jobs:
             --instance="$INSTANCE" \
             --project="$PROJECT" \
             --description="db-sync pre-import backup (run $GITHUB_RUN_ID)"
-          echo "Backup complete — restorable via console or gcloud if import partially fails"
+          echo "Backup complete — restorable via console or gcloud if import fails"
+
+      - name: Stop replication on target replicas
+        env:
+          REPLICAS: ${{ steps.target.outputs.replicas }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          IFS=',' read -ra REPLICA_LIST <<< "$REPLICAS"
+          for replica in "${REPLICA_LIST[@]}"; do
+            replica="${replica// /}"
+            echo "Stopping replication on $replica..."
+            gcloud sql instances patch "$replica" \
+              --no-enable-database-replication \
+              --project="$PROJECT" \
+              --quiet
+          done
+
+      - name: Drop target database
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql databases delete "$DATABASE" \
+            --instance="$INSTANCE" \
+            --project="$PROJECT" \
+            --quiet
+
+      - name: Recreate target database
+        env:
+          INSTANCE: ${{ steps.target.outputs.instance }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          gcloud sql databases create "$DATABASE" \
+            --instance="$INSTANCE" \
+            --project="$PROJECT"
 
       - name: Import database to target
         env:
@@ -173,7 +209,23 @@ jobs:
             "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" \
             --database="$DATABASE" \
             --project="$PROJECT" \
-            --user=postgres
+            --user=springfield_rw_user
+
+      - name: Restart replication on target replicas
+        if: always()
+        env:
+          REPLICAS: ${{ steps.target.outputs.replicas }}
+          PROJECT: ${{ steps.target.outputs.project }}
+        run: |
+          IFS=',' read -ra REPLICA_LIST <<< "$REPLICAS"
+          for replica in "${REPLICA_LIST[@]}"; do
+            replica="${replica// /}"
+            echo "Restarting replication on $replica..."
+            gcloud sql instances patch "$replica" \
+              --enable-database-replication \
+              --project="$PROJECT" \
+              --quiet
+          done
 
       # ── Sync CMS media bucket ──
 
@@ -237,8 +289,7 @@ jobs:
           echo "| **CMS media** | \`$CMS_SOURCE\` → \`$CMS_TARGET\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Run ID** | \`$RUN_ID\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> **Note:** Tables that exist in \`$TARGET\` but not in \`$SOURCE\` are not removed by this sync." >> "$GITHUB_STEP_SUMMARY"
-          echo "> If \`$TARGET\` has schema migrations not yet on \`$SOURCE\`, those tables survive with their existing data." >> "$GITHUB_STEP_SUMMARY"
+          echo "> **Note:** The target database is dropped and recreated before import — all pre-existing target data is replaced." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Manual follow-up required" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
