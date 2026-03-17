@@ -72,6 +72,82 @@ main {
     [hidden] {
         display: none
     }
+
+    .mzp-c-video .video-play[role='button'] {
+        background: transparent;
+        block-size: unset;
+        border-radius: 0;
+        color: unset;
+        inline-size: unset;
+        min-width: 100%;
+        height: auto;
+    }
+
+    .video-play[role='button'] img {
+        min-width: 560px;
+        min-height: 315px;
+        max-width: 100%;
+    }
+}
+
+.mzp-c-video iframe,.mzp-c-video video {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%
+}
+
+.video-play {
+    display: block;
+    line-height: 0;
+    position: relative
+}
+
+.mzp-c-video {
+    height: 315px;
+    overflow: hidden;
+    position: relative;
+    width: 560px;
+}
+
+.mzp-c-video::after {
+    content: "";
+    display: block;
+}
+
+.video-play::after {
+    background: url("/media/img/icons/video-play.svg") 0 0 no-repeat;
+    content: "";
+    height: 100px;
+    left: 50%;
+    margin: -50px 0 0 -50px;
+    opacity: .7;
+    position: absolute;
+    top: 50%;
+    transition: opacity .15s ease-in-out,transform .15s ease-in-out;
+    width: 100px;
+    z-index: 2
+}
+
+.video-play:focus,
+.video-play:hover {
+    border-color: #fff;
+    outline: 0
+}
+
+.video-play:focus::after,
+.video-play:hover::after {
+    opacity: 1;
+    transform: scale(1.1)
+}
+
+.mzp-c-video .video-play {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%
 }
 
 .fl-section {
@@ -103,7 +179,7 @@ main {
     margin: 0 auto;
 }
 
-.kit-banner-video iframe {
+.kit-banner-video iframe.video-play[role='button'] {
     width: 100%;
     height: auto;
 }
@@ -172,9 +248,14 @@ main {
         margin: 0 auto;
     }
 
-    .kit-banner-video iframe {
+    .kit-banner-video iframe.video-play[role='button'] {
         width: 560px;
         height: 315px;
+    }
+
+    .kit-banner.kit-banner-with-video iframe.video-play[role='button'] img {
+        min-width: 528px;
+        min-height: 315px;
     }
 
     .kit-banner .heading {

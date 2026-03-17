@@ -50,7 +50,7 @@
   {% set meta_desc = 'The Firefox brand is getting a refresh and you get the first look' %}
   {% set main_heading = 'More fire. <br> More fox.' %}
   {% set main_subheading = 'Meet Kit. Your companion for a new internet era.' %}
-  {% set main_body = 'Get to know the new face (and tail) of Firefox. Give your browser a fresh wallpaper and explore the latest Kit merch.' %}
+  {% set main_body = 'Get to know the new face (and tail) of Firefox. Watch the video, give your browser a fresh wallpaper and explore the latest Kit merch.' %}
   {% set card_1_heading = 'Grab a new wallpaper' %}
   {% set card_1_list_1 = 'Open a new tab.' %}
   {% set card_1_list_2 = 'Click on the ' + pencil_icon + ' in the lower right.' %}
@@ -70,6 +70,8 @@
 {% block page_css %}
   {{ css_bundle('kit') }}
 {% endblock %}
+
+{% from "macros.html" import video_inline_embed with context %}
 
 {% set kit_video_available = LANG.startswith('en-') %}
 
@@ -92,8 +94,22 @@
                   </div>
                 </div>
                 {% if kit_video_available %}
-                  <div class="kit-banner-video">
-                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/AtuzapfqF1M?si=amsSinxbbPXXQusc&rel=0" title="Meet Kit. Your companion for a new internet era." frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <div class="kit-banner-video">
+                {{ video_inline_embed(
+                    id="AtuzapfqF1M",
+                    title="Meet Kit. Your companion for a new internet era.",
+                    image=resp_img(
+                      url='img/firefox/landing/kit/kit.jpg',
+                      srcset={
+                        'img/firefox/landing/kit/kit-high-res.jpg': '2x'
+                      },
+                      optional_attributes={
+                        'width': '560',
+                        'height': '315',
+                        'alt': '',
+                      }
+                    ),
+                  ) }}
                   </div>
                 {% else %}
                 <div class="kit-banner-brand">
@@ -219,4 +235,5 @@
 
 {% block js %}
   {{ js_bundle('video_play_state') }}
+  {{ js_bundle('video-inline-embed') }}
 {% endblock %}
