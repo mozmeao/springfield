@@ -442,7 +442,7 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     # Articles are ordered by the first_published_at field in descending order,
     # but in this test we only verify their presence on the page.
     for i in range(1, 3):
-        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h2").text)
         assert f"Description for Featured Article {i}" in matching_card.text
         assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
         superheading = matching_card.find(class_="fl-superheading")
