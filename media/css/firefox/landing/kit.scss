@@ -233,6 +233,12 @@ main {
     margin: auto;
 }
 
+@media (max-width: 767px) {
+    .kit-banner-video {
+        display: none;
+    }
+}
+
 @media (min-width: 768px) {
     .kit-banner.kit-banner-with-video {
         padding: 56px;
