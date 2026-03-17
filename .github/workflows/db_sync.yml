@@ -199,9 +199,10 @@ jobs:
           CMS_SOURCE: ${{ steps.cms.outputs.source }}
           CMS_TARGET: ${{ steps.cms.outputs.target }}
         run: |
-          gsutil -m rsync -r \
+          gcloud storage rsync \
             "gs://$CMS_SOURCE" \
-            "gs://$CMS_TARGET"
+            "gs://$CMS_TARGET" \
+            --recursive
 
       - name: Re-auth to source project for cleanup
         if: always()
@@ -215,7 +216,7 @@ jobs:
         env:
           RUN_ID: ${{ github.run_id }}
         run: |
-          gsutil rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
+          gcloud storage rm "gs://$BUCKET/db-sync-$RUN_ID.sql.gz" || true
 
       - name: Summary
         env:
