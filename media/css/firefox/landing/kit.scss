@@ -455,6 +455,10 @@ main {
     .c-gallery-card-list-mobile {
         display: none;
     }
+
+    &.fl-force-light-theme {
+        color: var(--token-color-black-4);
+    }
 }
 
 .c-gallery-card-list-desktop {
@@ -492,7 +496,7 @@ main {
 
 .c-gallery-card-dark {
     --title-text-color: var(--neutrals-white);
-    background-color: var(--purple-dark-purple);
+    background-color: rgb(76, 36, 137);
     color: var(--neutrals-white);
 }
 
