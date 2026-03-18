@@ -24,6 +24,7 @@ describe('marketing-opt-out.es6.js', function () {
                 <input type="checkbox" id="marketing-opt-out-secondary" class="marketing-opt-out-checkbox-input">.
             </label>
         </div>
+        <div id="opt-out-download-links">
         <a class="download-link"
         href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
          Download
@@ -31,7 +32,8 @@ describe('marketing-opt-out.es6.js', function () {
         <a class="download-link"
             href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
             Download
-        </a>`;
+        </a>
+        </div>`;
 
         document.body.insertAdjacentHTML('beforeend', optOut);
     });
@@ -39,6 +41,10 @@ describe('marketing-opt-out.es6.js', function () {
     afterEach(function () {
         const optOut = document.getElementById('opt-out');
         optOut.parentNode.removeChild(optOut);
+        const optOutDownloadLinks = document.getElementById(
+            'opt-out-download-links'
+        );
+        optOutDownloadLinks.parentNode.removeChild(optOutDownloadLinks);
 
         document
             .getElementsByTagName('html')[0]
