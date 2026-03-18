@@ -851,7 +851,10 @@ describe('stub-attribution.js', function () {
 
         it('should use data-stub-attribution-campaign-override over utm_campaign from URL params', function () {
             const html = document.documentElement;
-            html.setAttribute('data-stub-attribution-campaign-override', 'smart_window');
+            html.setAttribute(
+                'data-stub-attribution-campaign-override',
+                'smart_window'
+            );
 
             const referrer = '';
 
@@ -888,8 +891,14 @@ describe('stub-attribution.js', function () {
 
         it('should use data-stub-attribution-campaign-override over data-stub-attribution-campaign', function () {
             const html = document.documentElement;
-            html.setAttribute('data-stub-attribution-campaign-override', 'smart_window');
-            html.setAttribute('data-stub-attribution-campaign', 'other_campaign');
+            html.setAttribute(
+                'data-stub-attribution-campaign-override',
+                'smart_window'
+            );
+            html.setAttribute(
+                'data-stub-attribution-campaign',
+                'other_campaign'
+            );
 
             const referrer = '';
 

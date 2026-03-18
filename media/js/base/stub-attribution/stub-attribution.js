@@ -524,7 +524,14 @@ if (typeof window.Mozilla === 'undefined') {
         var data = {
             utm_source: utms.utm_source,
             utm_medium: utms.utm_medium,
-            utm_campaign: document.documentElement.getAttribute('data-stub-attribution-campaign-override') || utms.utm_campaign || document.documentElement.getAttribute('data-stub-attribution-campaign'),
+            utm_campaign:
+                document.documentElement.getAttribute(
+                    'data-stub-attribution-campaign-override'
+                ) ||
+                utms.utm_campaign ||
+                document.documentElement.getAttribute(
+                    'data-stub-attribution-campaign'
+                ),
             utm_content: utms.utm_content,
             referrer: referrer,
             ua: ua,
