@@ -1,0 +1,91 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* This component only appears on large browser sizes. */
+
+.fl-qr-code-snippet {
+    background: var(--token-gradient-radial-purple);
+    border: 2px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: none;
+    inset: auto var(--token-spacing-lg) var(--token-spacing-lg);
+    opacity: 0;
+    position: fixed;
+    transition-behavior: allow-discrete;
+    transition-duration: 500ms;
+    transition-property: opacity, display, transform;
+    z-index: 5;
+}
+
+.fl-qr-code-snippet.is-open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@starting-style {
+    .fl-qr-code-snippet.is-open {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+}
+
+.fl-qr-code-snippet-close {
+    inset: var(--token-spacing-lg) var(--token-spacing-lg) auto auto;
+    padding: var(--token-spacing-2xs);
+    position: absolute;
+}
+
+.fl-qr-code-snippet-text {
+    padding: var(--token-spacing-2xl);
+}
+
+.fl-button.fl-qr-code-snippet-close .fl-icon {
+    block-size: var(--token-spacing-xl);
+    inline-size: var(--token-spacing-xl);
+}
+
+.fl-qr-code-snippet-container {
+    align-items: center;
+    display: grid;
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr 1fr;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-qr-code-snippet-kit {
+    align-items: center;
+    background-image: url('/media/img/firefox/flare/kit-qr.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 380px auto;
+    block-size: 100%;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    justify-self: center;
+    min-block-size: 240px;
+}
+
+.fl-qr-code-snippet-kit svg {
+    block-size: 180px;
+    inline-size: 180px;
+    transform: translateX(-8px);
+}
+
+.fl-qr-code-snippet-kit svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-below-md) {
+    .fl-qr-code-snippet.is-open {
+        display: none;
+    }
+}
