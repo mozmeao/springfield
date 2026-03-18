@@ -1454,6 +1454,7 @@ _allowed_page_models = [
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
+    "cms.WhatsNewPage2026",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.ArticleThemePage",
