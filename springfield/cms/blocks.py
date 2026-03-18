@@ -1787,7 +1787,7 @@ class InlineNotificationBlock(blocks.StructBlock):
 
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before")),
+        choices=(("after", "After"), ("before", "Before"), ("right", "Right"), ("left", "Left")),
         default="after",
         label="Media Position",
         inline_form=True,
@@ -1796,12 +1796,33 @@ class IntroBlockSettings(blocks.StructBlock):
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
     )
+    vertical = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Vertical",
+        inline_form=True,
+        help_text="Renders content vertically.",
+    )
+    full_width = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Full width",
+        inline_form=True,
+        help_text="Renders content using all available horizontal space.",
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim",
+        inline_form=True,
+        help_text="Makes block's paddings smaller.",
+    )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}"
+        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}..."
         form_classname = "compact-form struct-block"
 
 
@@ -2288,3 +2309,46 @@ class DownloadSupportBlock(blocks.StaticBlock):
     class Meta:
         template = "cms/blocks/download-support.html"
         label = "Download Support Message"
+
+
+# User Privacy Page
+
+
+def UserPrivacyTopicBlock(allow_uitour=False, *args, **kwargs):
+    class _UserPrivacyTopicBlock(blocks.StructBlock):
+        short_title = blocks.CharBlock(
+            label="Short Title",
+            help_text="Text to be used on the sidebar link.",
+        )
+        anchor_id = blocks.CharBlock(
+            help_text="Add an ID to make this section linkable from the sidebar (e.g., 'privacy-online', 'data-control')",
+        )
+        image = ImageChooserBlock(
+            label="Image",
+            help_text="Image shown at the top of the topic heading.",
+        )
+        heading = HeadingBlock()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/user-privacy-topic.html"
+            label = "User Privacy Topic"
+            label_format = "{heading}"
+
+    return _UserPrivacyTopicBlock(*args, **kwargs)
+
+
+class UserPrivacyTopicListBlock(blocks.StructBlock):
+    topics = blocks.ListBlock(UserPrivacyTopicBlock(), min=1)
+
+    class Meta:
+        template = "cms/blocks/user-privacy-topic-list.html"
+        label = "User Privacy Topic List"
+        label_format = "{heading}"

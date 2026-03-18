@@ -1,0 +1,11 @@
+
+<section id="{{ value.anchor_id }}">
+  {{ value.image }}
+  {{ value.heading }}
+  {{ value.content|richtext }}
+  <div class="link-list">
+    {% for button in value.buttons %}
+      {{ button }}
+    {% endfor %}
+  </div>
+</section>

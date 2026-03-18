@@ -37,6 +37,7 @@ from springfield.cms.blocks import (
     SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
+    UserPrivacyTopicListBlock,
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
@@ -842,3 +843,31 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
+
+
+class UserPrivacyPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays user privacy topics."""
+
+    content = StreamField(
+        [
+            ("intro", IntroBlock2026()),
+            ("topics", UserPrivacyTopicListBlock()),
+            (
+                "banner_snippet",
+                LocalizedLiveSnippetChooserBlock(
+                    target_model="cms.BannerSnippet",
+                    template="cms/snippets/banner-snippet.html",
+                    label="Banner Snippet",
+                ),
+            ),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "User Privacy Page"
+        verbose_name_plural = "User Privacy Pages"
