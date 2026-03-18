@@ -26,7 +26,7 @@ on:
 
 env:
   BUCKET: ${{ secrets.GCP_DB_SYNC_BUCKET }}
-  DATABASE: springfield-cms
+  DATABASE: ${{ secrets.GCP_DB_SYNC_TARGET_DATABASE }}
 
 permissions: {}
 
@@ -180,24 +180,31 @@ jobs:
               --quiet
           done
 
-      - name: Drop target database
+      - name: Drop and recreate target database
         env:
           INSTANCE: ${{ steps.target.outputs.instance }}
           PROJECT: ${{ steps.target.outputs.project }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          gcloud sql databases delete "$DATABASE" \
-            --instance="$INSTANCE" \
-            --project="$PROJECT" \
-            --quiet
-
-      - name: Recreate target database
-        env:
-          INSTANCE: ${{ steps.target.outputs.instance }}
-          PROJECT: ${{ steps.target.outputs.project }}
-        run: |
-          gcloud sql databases create "$DATABASE" \
-            --instance="$INSTANCE" \
+          # gcloud sql databases delete fails if any connections exist.
+          # Read replicas are disconnected by the stop-replication step, but
+          # there may be a brief lag before the walsender closes, and the
+          # application pods also hold connections that stop-replication does
+          # not affect. DROP DATABASE ... WITH (FORCE) terminates all remaining
+          # connections atomically before dropping, making the timing reliable.
+          # We use a SQL import against the postgres system database because
+          # Cloud SQL's postgres user can DROP/CREATE databases but cannot
+          # DROP TABLE on application-owned tables.
+          printf 'DROP DATABASE IF EXISTS "%s" WITH (FORCE);\nCREATE DATABASE "%s";\n' \
+            "$DATABASE" "$DATABASE" \
+            > /tmp/recreate-db.sql
+          gcloud storage cp /tmp/recreate-db.sql "gs://$BUCKET/recreate-db-$RUN_ID.sql"
+          gcloud sql import sql "$INSTANCE" \
+            "gs://$BUCKET/recreate-db-$RUN_ID.sql" \
+            --database=postgres \
+            --user=postgres \
             --project="$PROJECT"
+          gcloud storage rm "gs://$BUCKET/recreate-db-$RUN_ID.sql"
 
       - name: Import database to target
         env:
