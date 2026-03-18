@@ -63,38 +63,32 @@
 {% set download_title = download_title|default('Get the most recent version') %}
 
 {% block sub_navigation %}
-  {{ sub_nav(
-    title={
-      'text':  ftl('sub-navigation-release-notes')
-    },
-    links=[
+  <include:subnav
+    heading_text="{{ ftl('sub-navigation-release-notes') }}"
+    links="{{ [
     {
       'text': ftl('sub-navigation-desktop'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox for Android' and equivalent_release_url else url('firefox.notes'),
-      'cta_name': "Desktop"
     },
     {
       'text': ftl('sub-navigation-desktop-beta-and-developer'),
       'href': url('firefox.notes', channel='beta'),
-      'cta_name': "Desktop Beta and Developer Edition"
     },
     {
       'text': ftl('sub-navigation-desktop-nightly'),
       'href': url('firefox.notes', channel='nightly'),
-      'cta_name': "Desktop Nightly"
     },
     {
       'text': ftl('sub-navigation-android'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox' and equivalent_release_url else url('firefox.notes', platform='android'),
-      'cta_name': "Android"
     },
     {
       'text': ftl('sub-navigation-ios'),
       'href': url('firefox.notes', platform='ios'),
-      'cta_name': "iOS"
-    }],
-    force_dark_theme=True
-  ) }}
+    }] }}"
+    theme="dark"
+  >
+  </include:subnav>
 {% endblock %}
 
 {% set feedback_url='https://connect.mozilla.org/' %}
