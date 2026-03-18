@@ -230,8 +230,14 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
     qr_code = models.CharField(blank=True)
     closable = models.BooleanField(default=False, help_text="Whether the QR code can be closed by the user.")
 
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+
     panels = [
         FieldPanel("heading"),
+        FieldPanel("content"),
         FieldPanel("qr_code"),
         FieldPanel("closable"),
     ]

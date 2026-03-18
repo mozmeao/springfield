@@ -314,7 +314,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the left side of the page.",
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -721,7 +721,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the left side of the page.",
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -788,7 +788,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the left side of the page.",
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
     content_panels = [
@@ -838,7 +838,7 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the left side of the page.",
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
     content_panels = [

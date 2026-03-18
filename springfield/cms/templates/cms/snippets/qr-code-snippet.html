@@ -7,19 +7,28 @@
 {% if value and value.qr_code %}
   <aside class="fl-qr-code-snippet{% if value.closable %} fl-qr-code-snippet-closable{% endif %}">
     {% if value.closable %}
-      <button class="fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
+      <button class="fl-button button-link fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
         <include:icon icon_name="close" />
       </button>
     {% endif %}
+    <div class="fl-qr-code-snippet-container">
+      <div class="fl-qr-code-snippet-text">
+      {% if value.heading %}
+        <h2 class="fl-heading fl-heading-sm fl-qr-code-snippet-heading">
+          {{ value.heading|richtext|remove_p_tag }}
+        </h2>
+      {% endif %}
 
-    {% if value.heading %}
-      <div class="fl-qr-code-snippet-heading">
-        {{ value.heading|richtext }}
+      {% if value.content %}
+      {{ value.content|richtext }}
+      {% endif %}
+
       </div>
-    {% endif %}
 
-    <div class="fl-qr-code" role="img" aria-label="QR Code">
-      {{ qrcode(value.qr_code, 12) }}
-    </div>
+      <div class="fl-qr-code-snippet-kit" role="img" aria-label="QR Code">
+        {{ qrcode(value.qr_code, 12) }}
+      </div>
+
+  </div>
   </aside>
 {% endif %}
