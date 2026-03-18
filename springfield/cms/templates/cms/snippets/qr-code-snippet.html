@@ -7,7 +7,7 @@
 {% if value and value.qr_code %}
   <aside class="fl-qr-code-snippet{% if value.closable %} fl-qr-code-snippet-closable{% endif %}">
     {% if value.closable %}
-      <button class="fl-button button-link fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
+      <button type="button" class="fl-button button-link fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
         <include:icon icon_name="close" />
       </button>
     {% endif %}
