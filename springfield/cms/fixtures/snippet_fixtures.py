@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, Tag
+from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, QRCodeSnippet, Tag
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -64,6 +64,20 @@ def get_download_firefox_cta_snippet() -> DownloadFirefoxCallToActionSnippet:
             "heading": '<p data-block-key="c1bc4d7eadf0">Download Firefox Browser</p>',
             "description": '<p data-block-key="0b474f02">Fast, private and free web browser. </p>',
             "image": image,
+        },
+    )
+    return snippet
+
+
+def get_qr_code_snippet() -> QRCodeSnippet:
+    locale = Locale.get_default()
+    snippet, _ = QRCodeSnippet.objects.update_or_create(
+        id=settings.QR_CODE_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "heading": '<p data-block-key="c1bc4d7eadf0">Get Firefox on your phone</p>',
+            "qr_code": "https://www.firefox.com/browsers/mobile/",
+            "closable": True,
         },
     )
     return snippet

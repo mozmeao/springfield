@@ -1,0 +1,25 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if value and value.qr_code %}
+  <aside class="fl-qr-code-snippet{% if value.closable %} fl-qr-code-snippet-closable{% endif %}">
+    {% if value.closable %}
+      <button class="fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
+        <include:icon icon_name="close" />
+      </button>
+    {% endif %}
+
+    {% if value.heading %}
+      <div class="fl-qr-code-snippet-heading">
+        {{ value.heading|richtext }}
+      </div>
+    {% endif %}
+
+    <div class="fl-qr-code" role="img" aria-label="QR Code">
+      {{ qrcode(value.qr_code, 12) }}
+    </div>
+  </aside>
+{% endif %}
