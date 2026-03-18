@@ -336,6 +336,7 @@ describe('gtm-snippet.es6.js', function () {
 
     describe('GTMSnippet.hasLandingGetMarketingConsent()', function () {
         it('should return true when marketing_consent param is present', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(true);
             const result = GTMSnippet.hasLandingGetMarketingConsent(
                 'https://www.firefox.com/en-US/thanks/?marketing_consent=1'
             );
@@ -343,8 +344,17 @@ describe('gtm-snippet.es6.js', function () {
         });
 
         it('should return false when marketing_consent param is absent', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(true);
             const result = GTMSnippet.hasLandingGetMarketingConsent(
                 'https://www.firefox.com/en-US/thanks/'
+            );
+            expect(result).toBeFalse();
+        });
+
+        it('should return false when not on /thanks/ page', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(false);
+            const result = GTMSnippet.hasLandingGetMarketingConsent(
+                'https://www.firefox.com/en-US/landing/get/?marketing_consent=1'
             );
             expect(result).toBeFalse();
         });

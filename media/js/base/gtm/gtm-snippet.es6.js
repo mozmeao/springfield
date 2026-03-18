@@ -28,9 +28,14 @@ if (typeof window.dataLayer === 'undefined') {
 /**
  * Checks for marketing consent param from /landing/get
  * This means the user did not change opt-out checkbox default on that page
+ * Only applies on the /thanks page
  * @returns {Boolean}
  */
 GTMSnippet.hasLandingGetMarketingConsent = (href) => {
+    if (!GTMSnippet.isFirefoxDownloadThanks()) {
+        return false;
+    }
+
     const url = new URL(href);
     const params = new URLSearchParams(url.search);
     return params.has('marketing_consent', 1);
