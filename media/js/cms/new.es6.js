@@ -407,6 +407,12 @@ if (typeof window.cms === 'undefined') {
         const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
 
         if (qrCodeSnippetEl) {
+            const closeButton = qrCodeSnippetEl.querySelector(
+                '.fl-qr-code-snippet-close'
+            );
+
+            qrCodeSnippetEl.setAttribute('aria-live', 'polite');
+
             setTimeout(function () {
                 qrCodeSnippetEl.classList.add('is-open');
             }, 3000);
@@ -416,9 +422,6 @@ if (typeof window.cms === 'undefined') {
                     'fl-qr-code-snippet-closable'
                 )
             ) {
-                const closeButton = qrCodeSnippetEl.querySelector(
-                    '.fl-qr-code-snippet-close'
-                );
                 if (closeButton) {
                     closeButton.addEventListener('click', function () {
                         qrCodeSnippetEl.classList.remove('is-open');

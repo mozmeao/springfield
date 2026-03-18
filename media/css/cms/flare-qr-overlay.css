@@ -6,9 +6,38 @@
 
 /* This component only appears on large browser sizes. */
 
+:root {
+    /* tokens copied from 2026 design files for the QR code snippet component */
+
+    /* Spacing tokens (from flare26-tokens.css) */
+    --token-spacing-2xs: 2px;
+    --token-spacing-lg: 16px;
+    --token-spacing-xl: 24px;
+    --token-spacing-2xl: 32px;
+
+    /* Border radius tokens (from flare26-tokens.css) */
+    --token-border-radius-sm: 24px;
+
+    /* Width tokens (from flare26-tokens.css) */
+    --token-width-desktop-wide-banner: 1170px;
+
+    /* Color tokens (from flare26-tokens.css) */
+    --token-color-white: rgb(255, 255, 255);
+    --token-color-black-4: rgb(21, 20, 26);
+    --token-color-black-4-16: rgba(21, 20, 26, 0.16);
+    --token-color-soft-purple: rgb(241, 231, 248);
+
+    /* Gradient tokens (from flare26-tokens.css) */
+    --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-gradient-light) 0%, var(--token-purple-gradient-dark) 100%);
+
+    /* Theme tokens (from flare26-theme.css) */
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+    --card-border-color: var(--token-color-soft-purple);
+}
+
 .fl-qr-code-snippet {
     background: var(--token-gradient-radial-purple);
-    border: 2px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
@@ -20,6 +49,13 @@
     transition-duration: 500ms;
     transition-property: opacity, display, transform;
     z-index: 5;
+}
+
+.fl-qr-code-snippet,
+.fl-qr-code-snippet .fl-heading,
+.fl-qr-code-snippet-close,
+.fl-qr-code-snippet-close:hover {
+    color: white;
 }
 
 .fl-qr-code-snippet.is-open {
@@ -39,6 +75,13 @@
     inset: var(--token-spacing-lg) var(--token-spacing-lg) auto auto;
     padding: var(--token-spacing-2xs);
     position: absolute;
+    border: 0 none;
+    opacity: 0.8;
+}
+
+.fl-qr-code-snippet-close:hover {
+    background: transparent;
+    opacity: 1;
 }
 
 .fl-qr-code-snippet-text {
