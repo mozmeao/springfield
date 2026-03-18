@@ -164,6 +164,7 @@ python manage.py dumpdata \
     cms.FreeFormPage2026 \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
+    cms.WhatsNewPage2026 \
     cms.SpringfieldImage \
     cms.ArticleIndexPage \
     cms.ArticleDetailPage \
