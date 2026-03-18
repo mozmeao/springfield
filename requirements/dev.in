@@ -1,6 +1,5 @@
 -r prod.txt
 
-bpython==0.26
 braceexpand==0.1.7
 django-silk==5.4.3
 factory-boy==3.3.3

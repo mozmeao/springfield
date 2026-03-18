@@ -54,15 +54,13 @@
   {% endif %}
 {% endblock %}
 
-{% block site_header %}{% endblock %}
-{% block flare_header %}{% endblock %}
-
 {% block content %}
 {% if switch('flare26_enabled') %}
 <main class="fl-main has-gradient-bottom newsletter-page">
   <include:newsletter-form>
     <include:heading
       level="h2"
+      heading_size="fl-heading-size-3"
       heading_text="Keep up with all things Firefox"
       subheading_text="Get how-tos, advice and news to make your Firefox experience work best for you."
     />

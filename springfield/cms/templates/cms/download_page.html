@@ -20,8 +20,11 @@
   <main class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <h1 class="fl-heading fl-heading-size-1">
-        <span class="fl-fx-logo">‍</span><br>
+        {% if LANG.startswith('en-') %}
+        Download <span class="prevent-line-break"><span class="fl-fx-logo">‍</span> Firefox</span> for
+        {% else %}
         {{ ftl('firefox-new-download-firefox') }}
+        {% endif %}
       </h1>
       <div class="fl-platform-dropdown-wrapper">
         <div class="fl-platform-dropdown">
@@ -48,6 +51,7 @@
 
       {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
 
+      <div class="download-page-actions">
       {% if page.platform == "mac" %}
         {{ firefox_download_desktop_button_mac(flare_styles=True) }}
       {% elif page.platform == "windows" %}
@@ -64,11 +68,8 @@
         {% set android_url = play_store_url('firefox', campaign) %}
         {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
         <p><small>{{ ftl('browsers-chromebook-x86-based-chromebook') }}</small></p>
-        {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' ~ campaign ~ '&utm_content=seo' %}
-        <a href="https://support.mozilla.org/kb/run-firefox-chromeos{{ params }}" rel="external noopener" data-cta-text="Install Firefox for Chromebook">
-          {{ ftl('browsers-chromebook-get-firefox-desktop') }}
-        </a>
       {% endif %}
+      </div>
 
       {% if page.intro_footer_text %}
         <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
@@ -153,6 +154,7 @@
     <include:newsletter-form theme="dark">
       <include:heading
         level="h2"
+        heading_size="fl-heading-size-3"
         heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
         subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
       />

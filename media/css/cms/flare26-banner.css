@@ -6,13 +6,15 @@
 
 .fl-banner {
     --fl-theme-color-text: var(--fl-theme-color-banner-text);
+    --fl-banner-padding: var(--token-layout-3xs);
+    --fl-banner-border-radius: var(--token-border-radius-md);
     align-items: center;
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--fl-banner-border-radius);
     color: var(--fl-theme-color-text);
     display: flex;
     justify-content: center;
     overflow: hidden;
-    padding: var(--token-layout-3xs);
+    padding: var(--fl-banner-padding);
     position: relative;
     text-align: center;
 }
@@ -41,7 +43,6 @@
 
 .fl-banner .fl-heading {
     display: block;
-    font-size: var(--fl-theme-font-size-heading-xl);
     inline-size: 100%;
     line-height: 0.9;
     text-wrap: balance;
@@ -54,8 +55,8 @@
 }
 
 .fl-banner-outlined {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
     border: 1px solid var(--token-color-black-1);
-    color: var(--fl-theme-color-text);
 }
 
 .fl-banner-purple {
@@ -185,53 +186,12 @@
 .fl-banner-layout {
     align-items: center;
     display: grid;
-    gap: var(--token-spacing-xl);
     grid-template-columns: 1fr;
     inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     position: relative;
     z-index: 2;
-}
-
-.fl-banner-purple .fl-button:not([class*='button-']),
-.fl-banner-dark-purple .fl-button:not([class*='button-']) {
-    border-color: var(--token-color-white);
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button:not([class*='button-']):hover,
-.fl-banner-purple .fl-button:not([class*='button-']):focus,
-.fl-banner-purple .fl-button:not([class*='button-']):active,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):hover,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):focus,
-.fl-banner-dark-purple .fl-button:not([class*='button-']):active {
-    background-color: var(--token-color-cream);
-    border-color: var(--token-color-black-1);
-    color: var(--token-color-dark-purple);
-}
-
-.fl-banner-purple .fl-button.button-ghost,
-.fl-banner-dark-purple .fl-button.button-ghost {
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button.button-ghost:hover,
-.fl-banner-purple .fl-button.button-ghost:focus,
-.fl-banner-purple .fl-button.button-ghost:active,
-.fl-banner-dark-purple .fl-button.button-ghost:hover,
-.fl-banner-dark-purple .fl-button.button-ghost:focus,
-.fl-banner-dark-purple .fl-button.button-ghost:active {
-    background-color: var(--token-color-black-16);
-    color: var(--token-color-white);
-}
-
-.fl-banner-purple .fl-button.button-secondary:hover,
-.fl-banner-purple .fl-button.button-secondary:focus,
-.fl-banner-purple .fl-button.button-secondary:active,
-.fl-banner-dark-purple .fl-button.button-secondary:hover,
-.fl-banner-dark-purple .fl-button.button-secondary:focus,
-.fl-banner-dark-purple .fl-button.button-secondary:active {
-    background: var(--token-color-purple);
-    color: var(--token-color-white);
 }
 
 .fl-banner-slim.fl-banner-container {
@@ -239,17 +199,18 @@
 }
 
 .fl-banner-slim .fl-banner {
-    border-radius: var(--token-border-radius-xl-half);
+    --fl-banner-border-radius: var(--token-border-radius-xl-half);
     padding: var(--token-layout-xs) var(--token-layout-2xs);
 }
 
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */
-.fl-main:has(.fl-split-page-lower > .fl-banner:last-child) {
+.fl-main:has(.fl-split-page-lower > .fl-banner:last-child),
+.fl-main:has(.fl-split-page-lower > .fl-banner-container:last-child) {
     padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-split-page-lower > .fl-banner:last-child {
-    border-radius: calc(
+    --fl-banner-border-radius: calc(
         var(--token-border-radius-xl) - var(--token-spacing-lg)
     );
     margin-inline: var(--token-spacing-lg);
@@ -257,10 +218,10 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
+        --fl-banner-padding: var(--token-layout-md);
+        --fl-banner-border-radius: var(--token-border-radius-lg);
         align-items: initial;
-        border-radius: var(--token-border-radius-lg);
         justify-content: initial;
-        padding: var(--token-layout-md);
         text-align: initial;
     }
 
@@ -269,10 +230,11 @@
     }
 
     .fl-banner-slim .fl-banner {
-        padding: var(--token-layout-md);
+        --fl-banner-padding: var(--token-layout-md);
     }
 
-    .fl-banner-media img {
+    .fl-banner-media img,
+    .fl-banner-media video {
         border-radius: var(--token-spacing-lg);
     }
 
@@ -292,8 +254,8 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        border-radius: var(--token-border-radius-xl);
-        padding: var(--token-layout-lg);
+        --fl-banner-padding: var(--token-layout-lg);
+        --fl-banner-border-radius: var(--token-border-radius-xl);
     }
 
     .fl-banner-container {
@@ -327,5 +289,90 @@
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
         justify-content: left;
+    }
+}
+
+/* Phone QR Banner */
+
+.fl-banner-phone-qr {
+    max-inline-size: none;
+}
+
+.fl-banner-phone-qr .fl-banner {
+    padding: 0;
+}
+
+.fl-banner-phone-qr .fl-banner-content {
+    grid-row: 1;
+    padding: var(--fl-banner-padding);
+    padding-block-start: calc(var(--fl-banner-padding) * 2);
+}
+
+.fl-banner-phone-qr .fl-banner-qr {
+    align-items: end;
+    aspect-ratio: 2 / 3; /* ratio of phone image */
+    background-image: url('/media/img/firefox/flare/phone_screen.png');
+    background-position: center bottom -10px;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    display: flex;
+    grid-row: 2;
+    inline-size: calc(100% - var(--fl-banner-border-radius));
+    justify-content: center;
+    max-inline-size: 330px;
+    padding-block-end: calc(var(--fl-banner-padding) * 2);
+    position: relative;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg {
+    inline-size: 90%;
+    inset-block-end: 15%;
+    position: absolute;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner-phone-qr .fl-banner-content {
+        padding-block-start: var(--fl-banner-padding);
+    }
+}
+
+@media (--viewport-md-only) {
+    .fl-banner-phone-qr .fl-banner-content {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-banner-phone-qr .fl-banner-layout {
+        gap: var(--token-layout-md);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr {
+        align-self: end;
+        background-position: center bottom -60px;
+        grid-row: 1;
+        justify-content: center;
+        max-inline-size: 330px;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr svg {
+        inset-block-end: 7%;
+    }
+
+    .fl-banner-phone-qr .fl-banner-content {
+        grid-area: 1 / 2;
+        padding-inline: 0 calc(var(--fl-banner-padding) / 2);
+    }
+
+    .fl-split-page-lower > .fl-banner-phone-qr:last-child {
+        inline-size: calc(100% + var(--token-spacing-xl) * 2);
+        margin-block-end: calc(var(--token-spacing-3xl) * -1);
+        margin-inline: calc(var(--token-spacing-xl) * -1);
     }
 }

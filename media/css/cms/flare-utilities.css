@@ -159,19 +159,21 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .conditional-display.is-preview {
-    display: block;
-    border: red dashed 2px;
+    display: unset;
+    outline: red dashed 2px;
+    outline-offset: -2px;
     position: relative;
 }
 
 .conditional-display.is-preview .preview-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
     background: red;
-    color: white;
+    color: black;
     font-size: 10px;
+    inset-block-start: 0;
+    inset-inline-start: 0;
     padding: 2px 4px;
+    position: absolute;
+    text-wrap: nowrap;
     z-index: 10;
 }
 
@@ -183,11 +185,13 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-.state-fxa-supported-signed-in .conditional-display.condition-state-fxa-supported-signed-in {
+.state-fxa-supported-signed-in
+    .conditional-display.condition-state-fxa-supported-signed-in {
     display: unset;
 }
 
-.state-fxa-supported-signed-out .conditional-display.condition-state-fxa-supported-signed-out {
+.state-fxa-supported-signed-out
+    .conditional-display.condition-state-fxa-supported-signed-out {
     display: unset;
 }
 
@@ -199,11 +203,11 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-.linux .conditional-display.condition-linux {
+.linux:not(.fx-unsupported) .conditional-display.condition-linux {
     display: unset;
 }
 
-.osx .conditional-display.condition-osx {
+.osx:not(.fx-unsupported) .conditional-display.condition-osx {
     display: unset;
 }
 
@@ -219,12 +223,28 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: unset;
 }
 
-/* The platform class is placed on the html element and the signed-in state class is placed on the body element */
-
-.windows-10-plus .state-fxa-supported-signed-in .conditional-display.condition-windows-10-plus-signed-in {
+.conditional-display.condition-unknown {
     display: unset;
 }
 
-.windows-10-plus .state-fxa-supported-signed-out .conditional-display.condition-windows-10-plus-signed-out {
+html.linux .conditional-display.condition-unknown:not(.is-preview),
+html.osx .conditional-display.condition-unknown:not(.is-preview),
+html.windows .conditional-display.condition-unknown:not(.is-preview),
+html.windows-10-plus .conditional-display.condition-unknown:not(.is-preview),
+html.ios .conditional-display.condition-unknown:not(.is-preview),
+html.other .conditional-display.condition-unknown:not(.is-preview),
+html.android .conditional-display.condition-unknown:not(.is-preview) {
+    display: none;
+}
+
+html:not(.fx-unsupported) .conditional-display.condition-supported {
+    display: unset;
+}
+
+html.fx-unsupported .conditional-display.condition-unsupported {
+    display: unset;
+}
+
+html.other .conditional-display.condition-other-os {
     display: unset;
 }

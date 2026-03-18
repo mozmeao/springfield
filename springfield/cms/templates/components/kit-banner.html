@@ -12,8 +12,8 @@
   {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
   <div
     class="
-      fl-banner fl-banner-kit fl-banner-purple
-      {% if theme %}fl-banner-kit-{{ theme }}{% endif %}"
+      fl-banner fl-banner-kit fl-banner-purple fl-force-dark-theme
+      {% if contents.animation %}fl-banner-kit-animation{% elif theme %}fl-banner-kit-{{ theme }}{% endif %}"
     aria-labelledby="fl-banner-heading"
     >
     {% if qr_code and qr_code.strip() %}
@@ -35,5 +35,16 @@
         {% endif %}
       </div>
     </div>
+    {% if theme == "curious-animation" %}
+      <div class="fl-banner-animation">
+        <include:animation
+          video_url="https://assets.mozilla.net/video/kit/pop-up-1480.webm"
+          alt="Animated Curious Kit"
+          poster="/media/img/firefox/flare/fox-brand-confused.svg"
+          playback="autoplay_loop"
+          show_pause_button="true"
+        />
+      </div>
+    {% endif %}
   </div>
 </div>

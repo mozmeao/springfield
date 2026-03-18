@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:media-content narrow="true">
+  <content:media>
+    {% set sizes = "(min-width: 1024px) 50vw, 100vw" %}
+    {{ srcset_image(
+        value.image,
+        "width-{200,400,600,800,1000,1200}",
+        sizes=sizes,
+        width=value.image.width,
+        height=value.image.height,
+        loading="lazy",
+    ) }}
+  </content:media>
+  <content:body>
+    <ul class="icon-text-list">
+      {% for item in value.list_items %}
+        <li>
+          <span class="fl-icon-wrap">
+            <include:icon icon_name="{{ item.icon }}" hidden="true" />
+          </span>
+          {{ item.text|richtext|remove_p_tag }}
+        </li>
+      {% endfor %}
+    </ul>
+  </content:body>
+</include:media-content>

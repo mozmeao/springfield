@@ -55,6 +55,11 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     --card-bg-color: var(--theme-yellow-card-bg-color);
 }
 
+.dark-purple-theme {
+    --card-bg-color: var(--theme-dark-purple-card-bg-color);
+    --card-bullet-color: var(--theme-purple-card-bullet-color);
+}
+
 .fl-card-gallery-main-card {
     grid-template-rows: auto var(--gallery-main-image-height);
 }
@@ -65,10 +70,7 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery-callout-card {
     align-items: center;
-    background:
-        url('/media/img/firefox/flare/2026/clouds.svg') center center / cover
-            no-repeat,
-        var(--cloud-background-gradient);
+    background: var(--callout-background-gradient);
     border-radius: var(--token-border-radius-xl);
     justify-content: center;
     max-inline-size: var(--gallery-callout-card-max-width);
@@ -142,11 +144,20 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 .fl-card-gallery-card-figure {
     padding-block-end: 0;
-    padding-inline-start: var(--gallery-card-padding);
+    padding-inline: var(--gallery-card-padding);
 }
 
 .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
-    padding-inline-end: var(--gallery-card-padding);
+    padding-inline: var(--gallery-card-padding);
+}
+
+.fl-card-gallery-secondary-card .fl-card-gallery-card-figure img {
+    object-fit: contain;
+    object-position: bottom center;
+}
+
+.fl-card-gallery-main-card .fl-card-gallery-card-figure {
+    padding-inline-end: 0;
 }
 
 .fl-card-gallery-card-figure img {
@@ -187,10 +198,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     .fl-card-gallery-secondary-card {
         grid-area: secondary;
         grid-template-rows: auto var(--gallery-secondary-image-height);
-    }
-
-    .fl-card-gallery-secondary-card .fl-card-gallery-card-figure {
-        padding-inline-end: 0;
     }
 
     .fl-card-gallery-card-figure img {

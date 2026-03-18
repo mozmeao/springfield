@@ -24,12 +24,8 @@ test.describe(
         });
 
         test('should not have any detectable a11y issues', async ({ page }) => {
-            const resourcesLink = page.getByTestId(
-                'm24-navigation-link-resources'
-            );
-            const resourcesMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
-            );
+            const resourcesLink = page.getByTestId('navigation-link-resources');
+            const resourcesMenu = page.getByTestId('navigation-menu-resources');
 
             // Hover over resources link to open menu
             await expect(resourcesMenu).not.toBeVisible();
@@ -61,14 +57,12 @@ test.describe(
 
         test('should not have any detectable a11y issues', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'm24-navigation-menu-button'
+                'navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'm24-navigation-menu-items'
+                'navigation-menu-items'
             );
-            const resourcesMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
-            );
+            const resourcesMenu = page.getByTestId('navigation-menu-resources');
 
             // Open navigation menu
             await expect(navigationMenuItems).not.toBeVisible();

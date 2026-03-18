@@ -7,6 +7,10 @@
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-flare.html" %}
 {% extends base_template %}
 
+{% block flare_header %}
+  <include:flare26-header theme="dark"/>
+{% endblock %}
+
 {% block content %}
 <div class="fl-page">
   <main class="fl-main has-gradient-bottom">
@@ -16,6 +20,7 @@
         <div class="fl-section-container">
           <include:heading
             alignment_class="text-center"
+            heading_size="fl-heading-size-2"
             level="h1"
             heading_text="{{ page.title }}"
             subheading_text="{{ page.sub_title }}"
@@ -29,10 +34,11 @@
                 <include:sticker-card-2026 expand_link="true">
                   <content:heading>
                     <a class="fl-card-heading-link" href="{{ article.url }}">
+                      {% set tag = article.get_tag() %}
                       <include:heading
-                        level="h3"
+                        level="h2"
                         heading_size="fl-heading-size-3"
-                        superheading_text="{{ article.tag.name }}"
+                        superheading_text="{{ tag.name if tag else '' }}"
                         heading_text="{{  article.index_page_heading or article.title }}"
                       />
                     </a>
@@ -134,6 +140,7 @@
         <div class="fl-section-container">
           <include:heading
             alignment_class="text-center"
+            heading_size="fl-heading-lg"
             level="h2"
             heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
             subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
@@ -163,9 +170,10 @@
                     {% endif %}
                   </content:media>
                   <content:heading>
-                    {% if article.tag %}
+                    {% set tag = article.get_tag() %}
+                    {% if tag %}
                       <p class="fl-superheading">
-                        {{ article.tag.name }}
+                        {{ tag.name }}
                       </p>
                     {% endif %}
                     <h3 class="fl-heading fl-heading-size-3">

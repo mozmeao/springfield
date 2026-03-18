@@ -4,21 +4,22 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
+{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' %}
 
 <li class="fl-menu-category">
   <a
     href="#"
     class="fl-menu-title"
     aria-haspopup="true"
-    aria-controls="fl-menu-panel-resources"
+    aria-controls="fl-menu-panel-browser"
+    data-testid="navigation-link-browser"
   >
     <h2>
       {{ ftl('navigation-browser')}}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </h2>
   </a>
-  <div class="fl-menu-panel" id="fl-menu-panel-resources">
+  <div class="fl-menu-panel" id="fl-menu-panel-browser" data-testid="navigation-menu-browser">
     <button class="fl-menu-close-button">
       <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
     </button>
@@ -30,9 +31,10 @@
           <li>
             <a
               class="fl-nav-link"
-              href="{{ url('firefox.browsers.mobile.index') }}"
+              href="{{ url('firefox.browsers.mobile') }}"
               data-link-text="Mobile"
               data-link-position="topnav - mobile"
+              data-testid="navigation-menu-link-mobile"
             >
               <span class="fl-icon fl-icon-device-mobile"></span>
               {{ ftl('navigation-mobile') }}
@@ -84,7 +86,7 @@
           theme_class="button-ghost"
           size_class="fl-button-small"
           label="{{ ftl('navigation-download-firefox') }}"
-          link="{{ url('firefox.browsers.desktop.index') }}"
+          link="{{ url('firefox.download') }}"
         />
       </div>
     </div>

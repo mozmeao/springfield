@@ -7,6 +7,7 @@
 <a
   class="fl-button {{ theme_class }} {{ size_class }}"
   href="{{ link }}"
+  {% if disabled %}disabled{% endif %}
   {% if id %}id="{{ id }}"{% endif %}
   {% if external %}target="_blank" rel="external noopener"{% endif %}
   {% if analytics_text %}

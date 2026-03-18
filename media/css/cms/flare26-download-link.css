@@ -24,8 +24,8 @@
     display: none;
 }
 
-html.android .fl-download-firefox-button .download-link,
-html.ios .fl-download-firefox-button .download-link {
+html.android .fl-download-firefox-button:has(.fl-store-button) .download-link,
+html.ios .fl-download-firefox-button:has(.fl-store-button) .download-link {
     display: none;
 }
 
@@ -52,7 +52,19 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     align-items: center;
     display: inline-flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+}
+
+/* download as default checkbox label */
+.fl-download-firefox-button .default-browser-label {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.fl-privacy-link {
+    font-size: var(--fl-theme-font-size-body-xs);
 }
 
 .fl-header .mzp-c-button-download-privacy-link,
@@ -86,7 +98,7 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     position: fixed;
 }
 
-.fl-nav-mobile-download-link .fl-fx-download-container {
+.fl-nav-mobile-download-link .fl-download-firefox-button {
     display: block;
 }
 

@@ -25,6 +25,9 @@ body {
     font-family: var(--fl-theme-font-family-body);
     font-weight: var(--fl-theme-font-weight-body);
     inline-size: 100%;
+    margin: 0;
+    max-inline-size: 100%;
+    padding: 0;
 }
 
 h1,
@@ -191,4 +194,54 @@ details[open] > summary::after {
 th,
 td {
     border-color: var(--token-color-black-4);
+}
+
+code {
+    background-color: var(--fl-theme-code-background);
+    color: var(--fl-theme-color-text);
+}
+
+/* checkbox custom styles */
+input[type='checkbox'] {
+    -webkit-appearance: none; /* For older WebKit/Blink browsers */
+    appearance: none;
+    block-size: 24px;
+    border: 1px solid var(--checkbox-border-color);
+    border-radius: 4px;
+    inline-size: 24px;
+    margin-block-end: 0;
+    padding: 4px;
+}
+
+/* checkbox checked styles */
+input[type='checkbox']:checked {
+    background-size: cover;
+}
+
+input[type='checkbox']:not(:disabled):checked {
+    background-color: var(--checkbox-checked-bg-color);
+    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-white.svg');
+}
+
+/* checkbox disabled styles */
+input[type='checkbox']:disabled {
+    border-color: var(--checkbox-disabled-border-color);
+}
+
+input[type='checkbox']:disabled:checked {
+    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-white.svg');
+}
+
+/* checkbox hovering styles */
+@media (hover: hover) {
+    input[type='checkbox']:not(:disabled):hover {
+        background-color: var(--checkbox-hover-bg-color);
+        border-color: var(--checkbox-hover-border-color);
+        cursor: pointer;
+    }
+
+    input[type='checkbox']:not(:disabled):hover:checked {
+        background-color: var(--checkbox-hover-color);
+        cursor: pointer;
+    }
 }

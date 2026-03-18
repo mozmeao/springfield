@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage
+from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
+from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
@@ -28,6 +28,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "9e0a239d-9ef1-40f9-b031-5c68b54ee114",
@@ -51,6 +52,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "668a7bdc-64e4-4401-864f-ac87f8f7aa1f",
@@ -74,6 +76,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "13e00ed4-0a68-44fa-a41c-822be75318c7",
@@ -97,6 +100,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
@@ -120,6 +124,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
@@ -138,6 +143,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "b418983a-94cc-4c72-a5bc-f4915318f51c",
@@ -161,6 +167,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": True,
+                    "relative_url": "",
                 },
             },
             "id": "8c8fa9da-aa41-4d6f-88e0-d3cb3a8e429d",
@@ -184,6 +191,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "157e4a05-80b2-42af-88d8-dc79f1541d69",
@@ -207,6 +215,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": True,
+                    "relative_url": "",
                 },
             },
             "id": "eef9102c-ad76-4575-ad92-58d099633216",
@@ -244,13 +253,51 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "label": "Get Firefox",
                 "settings": {
                     "theme": "secondary",
-                    "icon": "download",
+                    "icon": "downloads",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
                     "show_default_browser_checkbox": True,
                 },
             },
             "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+        },
+        "store_android": {
+            "type": "store_button",
+            "value": {"store": "android"},
+            "id": "sb000001-0000-0000-0000-000000000001",
+        },
+        "store_ios": {
+            "type": "store_button",
+            "value": {"store": "ios"},
+            "id": "sb000001-0000-0000-0000-000000000002",
+        },
+        "focus_android": {
+            "type": "focus_button",
+            "value": {
+                "settings": {
+                    "theme": "",
+                    "icon": "downloads",
+                    "icon_position": "right",
+                    "analytics_id": "fb000001-0000-0000-0000-000000000001",
+                },
+                "label": "Get Firefox Focus for Android",
+                "store": "android",
+            },
+            "id": "fb000001-0000-0000-0000-000000000002",
+        },
+        "focus_ios": {
+            "type": "focus_button",
+            "value": {
+                "settings": {
+                    "theme": "secondary",
+                    "icon": "downloads",
+                    "icon_position": "right",
+                    "analytics_id": "fb000001-0000-0000-0000-000000000003",
+                },
+                "label": "Get Firefox Focus for iOS",
+                "store": "ios",
+            },
+            "id": "fb000001-0000-0000-0000-000000000004",
         },
     }
     if full:
@@ -277,6 +324,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "email": "",
                             "phone": "",
                             "new_window": False,
+                            "relative_url": "",
                         },
                     },
                     "id": "0dade661-5c21-4aab-9826-7d03b2e0490b",
@@ -300,6 +348,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "email": "",
                             "phone": "",
                             "new_window": True,
+                            "relative_url": "",
                         },
                     },
                     "id": "a3b9e37d-f113-424f-a612-fa93c2b105c6",
@@ -323,6 +372,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "email": "",
                             "phone": "",
                             "new_window": False,
+                            "relative_url": "",
                         },
                     },
                     "id": "032851a4-20a7-4ca0-8914-2e25959fe507",
@@ -346,6 +396,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "email": "example@mozilla.org",
                             "phone": "",
                             "new_window": False,
+                            "relative_url": "",
                         },
                     },
                     "id": "fbcc60a9-b82e-4f50-b962-5783df4ff4c4",
@@ -369,6 +420,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "email": "",
                             "phone": "+111111111",
                             "new_window": False,
+                            "relative_url": "",
                         },
                     },
                     "id": "6a1d0a3e-b7eb-42c4-a322-b28d7dc43d79",
@@ -394,6 +446,7 @@ def get_cta_variants() -> dict[str, dict]:
                     "email": "",
                     "phone": "",
                     "new_window": False,
+                    "relative_url": "",
                 },
             },
             "id": "4fd0adda-42ba-4ade-b63c-0208226696a4",
@@ -515,7 +568,53 @@ def get_button_blocks() -> list[dict]:
             },
             "id": "706155ae-f993-4582-b2eb-21de4efa660e",
         },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="sbh01">Store Buttons</p>',
+                    "subheading_text": '<p data-block-key="sbsub1">Display the Google Play or App Store button.</p>',
+                },
+                "buttons": [buttons["store_android"], buttons["store_ios"]],
+            },
+            "id": "storeintr-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"media_position": "after"},
+                "image": None,
+                "dark_image": None,
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="fbh01">Firefox Focus Buttons</p>',
+                    "subheading_text": '<p data-block-key="fbsub1">Display a link to Firefox Focus on Google Play or App Store.</p>',
+                },
+                "buttons": [buttons["focus_android"], buttons["focus_ios"]],
+            },
+            "id": "focusintr-0000-0000-0000-000000000001",
+        },
     ]
+
+
+def get_buttons_2026_test_page() -> FreeFormPage2026:
+    index_page = get_2026_test_index_page()
+
+    slug = "test-buttons-2026"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
+        index_page.add_child(instance=page)
+
+    blocks = get_button_blocks()
+    page.upper_content = blocks
+    page.content = blocks
+    page.save_revision().publish()
+    return page
 
 
 def get_buttons_test_page() -> FreeFormPage:

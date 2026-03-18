@@ -17,13 +17,17 @@
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
+/* TODO: standardize these with Figma naming. This doesn't currently
+   account for the fact that Wagtail components are hierarchy-aware,
+   so a card might have h3 on one page and h2 on another, and they
+   need to look consistent everywhere. */
 .fl-heading h1,
 h1.fl-heading,
 .fl-heading-size-1,
 .fl-rich-text h1,
 .fl-heading h2,
-h2.fl-heading,
 .fl-heading-size-2,
+.fl-heading-lg,
 .fl-pre-footer-cta-button,
 .fl-heading-condensed {
     font-variation-settings:
@@ -104,6 +108,7 @@ h2.fl-heading.fl-heading-sm {
 }
 
 .fl-features-theme-page .fl-heading-size-2,
+.fl-freeform-2026-page .fl-heading-size-2,
 .fl-heading-lg {
     font-size: var(--fl-theme-font-size-heading-lg);
 }
@@ -180,6 +185,19 @@ h2.fl-heading.fl-heading-sm {
 
 .fl-label-xs.fl-label-allcaps {
     letter-spacing: 0.24px;
+}
+
+.fl-heading a:link,
+.fl-heading a:visited,
+.fl-heading a:hover,
+.fl-heading a:active {
+    color: var(--fl-theme-color-text);
+    text-decoration: none;
+}
+
+.fl-heading a:hover,
+.fl-heading a:active {
+    text-decoration: underline;
 }
 
 /* These styles need to match the ones from media/js/cms/wagtailadmin-fx-logo.js

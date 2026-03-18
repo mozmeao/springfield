@@ -9,6 +9,8 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_illustration_cards():
     buttons = get_button_variants()
@@ -16,7 +18,7 @@ def get_illustration_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "settings": {
@@ -35,7 +37,7 @@ def get_illustration_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "settings": {
@@ -54,7 +56,7 @@ def get_illustration_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "settings": {
@@ -73,7 +75,7 @@ def get_illustration_cards():
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": "all", "image_after": False},
+                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "settings": {
@@ -97,7 +99,7 @@ def get_cards_list_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "all"},
+            "settings": {"show_to": SHOW_TO_ALL},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="7tmxz">Work confidently. </p><p data-block-key="4tohn">Browse privately.</p>',

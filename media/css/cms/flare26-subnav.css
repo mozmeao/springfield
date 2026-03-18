@@ -43,12 +43,7 @@
 }
 
 .fl-subnav-list {
-    background: linear-gradient(
-        90deg,
-        var(--token-color-dark-purple) 0%,
-        var(--token-color-purple) 50%,
-        var(--token-color-dark-purple) 100%
-    );
+    background: var(--fl-theme-background);
     display: none;
     flex-direction: column;
     gap: var(--token-spacing-xl);
@@ -62,6 +57,7 @@
 }
 
 .fl-subnav-list.is-open {
+    border-block-end: 2px solid var(--fl-subtle-border-color);
     display: flex;
 }
 
@@ -70,7 +66,7 @@
 }
 
 .fl-subnav-toggle {
-    background: var(--fl-menu-hamburger-bg);
+    background: var(--fl-subnav-toggle-bg);
     border-radius: var(--token-spacing-sm);
     color: var(--fl-theme-color-text);
     font-weight: var(--token-font-weight-semibold);
@@ -100,6 +96,7 @@
     .fl-subnav-list,
     .fl-subnav-list.is-open {
         background: transparent;
+        border: none;
         display: flex;
         flex-direction: row;
         padding: 0;
