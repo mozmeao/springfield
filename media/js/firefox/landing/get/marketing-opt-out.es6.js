@@ -65,14 +65,16 @@ MarketingOptOut.processAttributionRequest = (checked) => {
         window.Mozilla.StubAttribution.removeAttributionData();
         MarketingOptOut.bindEvents();
 
-        // Remove param to download links sharing consent state with /thanks page
-        const downloadLinks = document.querySelectorAll('.download-link');
-        for (let i = 0; i < downloadLinks.length; i++) {
-            const href = downloadLinks[i].getAttribute('href');
+        // Remove param to download /thanks links sharing consent state with /thanks page
+        const downloadThanksLinks = document.querySelectorAll(
+            '.c-button-download-thanks .download-link'
+        );
+        for (let i = 0; i < downloadThanksLinks.length; i++) {
+            const href = downloadThanksLinks[i].getAttribute('href');
             if (href) {
                 const linkUrl = new URL(href, window.location.href);
                 linkUrl.searchParams.delete('marketing_consent');
-                downloadLinks[i].setAttribute('href', linkUrl.toString());
+                downloadThanksLinks[i].setAttribute('href', linkUrl.toString());
             }
         }
     }
@@ -193,16 +195,18 @@ MarketingOptOut.showCheckbox = () => {
             true;
     }
 
-    // Add param to download links share consent state with /thanks page
+    // Add param to download /thanks links sharing consent state with /thanks page
     // This is only necessary on initial "show" of checked checkbox
     // User interaction with the checkbox will set a global pref cookie
-    const downloadLinks = document.querySelectorAll('.download-link');
-    for (let i = 0; i < downloadLinks.length; i++) {
-        const href = downloadLinks[i].getAttribute('href');
+    const downloadThanksLinks = document.querySelectorAll(
+        '.c-button-download-thanks .download-link'
+    );
+    for (let i = 0; i < downloadThanksLinks.length; i++) {
+        const href = downloadThanksLinks[i].getAttribute('href');
         if (href) {
             const linkUrl = new URL(href, window.location.href);
             linkUrl.searchParams.set('marketing_consent', '1');
-            downloadLinks[i].setAttribute('href', linkUrl.toString());
+            downloadThanksLinks[i].setAttribute('href', linkUrl.toString());
         }
     }
 };

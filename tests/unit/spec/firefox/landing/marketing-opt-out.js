@@ -24,7 +24,7 @@ describe('marketing-opt-out.es6.js', function () {
                 <input type="checkbox" id="marketing-opt-out-secondary" class="marketing-opt-out-checkbox-input">.
             </label>
         </div>
-        <div id="opt-out-download-links">
+        <div id="opt-out-download-links" class="c-button-download-thanks">
         <a class="download-link"
         href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
          Download
