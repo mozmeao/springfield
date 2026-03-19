@@ -1923,7 +1923,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
