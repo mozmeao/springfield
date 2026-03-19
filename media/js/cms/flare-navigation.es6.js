@@ -41,16 +41,12 @@ import Headroom from 'headroom.js';
                     el.classList.remove('is-open');
                 });
                 document.body.classList.remove('fl-modal-open');
-                mobileNavEl.removeAttribute('role');
-                mobileNavEl.removeAttribute('aria-modal');
                 trap.deactivate();
             } else {
                 elements.forEach(function (el) {
                     el.classList.add('is-open');
                 });
                 document.body.classList.add('fl-modal-open');
-                mobileNavEl.setAttribute('role', 'dialog');
-                mobileNavEl.setAttribute('aria-modal', 'true');
                 trap.activate();
             }
         });

@@ -403,6 +403,34 @@ if (typeof window.cms === 'undefined') {
         }
     }
 
+    function initQRCodeSnippet() {
+        const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
+
+        if (qrCodeSnippetEl) {
+            const closeButton = qrCodeSnippetEl.querySelector(
+                '.fl-qr-code-snippet-close'
+            );
+
+            qrCodeSnippetEl.setAttribute('aria-live', 'polite');
+
+            setTimeout(function () {
+                qrCodeSnippetEl.classList.add('is-open');
+            }, 3000);
+
+            if (
+                qrCodeSnippetEl.classList.contains(
+                    'fl-qr-code-snippet-closable'
+                )
+            ) {
+                if (closeButton) {
+                    closeButton.addEventListener('click', function () {
+                        qrCodeSnippetEl.classList.remove('is-open');
+                    });
+                }
+            }
+        }
+    }
+
     Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
@@ -439,6 +467,7 @@ if (typeof window.cms === 'undefined') {
             initAnimations();
             initAnimationPauseButtons();
             initDownloadDropdown();
+            initQRCodeSnippet();
             Flare26.initDialogs();
         });
     } else {
@@ -449,6 +478,7 @@ if (typeof window.cms === 'undefined') {
         initVideoPlayers();
         initAnimations();
         initDownloadDropdown();
+        initQRCodeSnippet();
         Flare26.initDialogs();
     }
 

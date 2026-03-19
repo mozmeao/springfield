@@ -43,7 +43,6 @@
 
 .fl-banner .fl-heading {
     display: block;
-    font-size: var(--fl-theme-font-size-heading-xl);
     inline-size: 100%;
     line-height: 0.9;
     text-wrap: balance;
@@ -187,9 +186,10 @@
 .fl-banner-layout {
     align-items: center;
     display: grid;
-    gap: var(--token-spacing-xl);
     grid-template-columns: 1fr;
     inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     position: relative;
     z-index: 2;
 }
@@ -302,61 +302,72 @@
     padding: 0;
 }
 
-.fl-banner-phone-qr .fl-banner .fl-banner-content {
+.fl-banner-phone-qr .fl-banner-content {
     grid-row: 1;
     padding: var(--fl-banner-padding);
+    padding-block-start: calc(var(--fl-banner-padding) * 2);
 }
 
-.fl-banner-phone-qr .fl-banner .fl-banner-qr {
+.fl-banner-phone-qr .fl-banner-qr {
     align-items: end;
+    aspect-ratio: 2 / 3; /* ratio of phone image */
     background-image: url('/media/img/firefox/flare/phone_screen.png');
-    background-position: center calc(100% + 10px);
+    background-position: center bottom -10px;
     background-repeat: no-repeat;
-    background-size: calc(100% - var(--fl-banner-border-radius) * 2) auto;
-    block-size: 120%;
+    background-size: 100% auto;
     display: flex;
     grid-row: 2;
-    inline-size: 100%;
+    inline-size: calc(100% - var(--fl-banner-border-radius));
     justify-content: center;
-    min-block-size: 400px;
+    max-inline-size: 330px;
     padding-block-end: calc(var(--fl-banner-padding) * 2);
+    position: relative;
 }
 
-.fl-banner-phone-qr .fl-banner .fl-banner-qr svg {
-    inline-size: calc(80% - var(--fl-banner-padding) * 2);
-    margin: 30% 0 0;
+.fl-banner-phone-qr .fl-banner-qr svg {
+    inline-size: 90%;
+    inset-block-end: 15%;
+    position: absolute;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner-phone-qr .fl-banner-content {
+        padding-block-start: var(--fl-banner-padding);
+    }
 }
 
 @media (--viewport-md-only) {
-    .fl-banner-phone-qr .fl-banner .fl-banner-content {
+    .fl-banner-phone-qr .fl-banner-content {
         align-items: center;
         text-align: center;
     }
 }
 
-@media (--viewport-lg-up) {
-    .fl-banner-phone-qr .fl-banner .fl-banner-layout {
+@media (--viewport-md-up) {
+    .fl-banner-phone-qr .fl-banner-layout {
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
     }
 
-    .fl-banner-phone-qr .fl-banner .fl-banner-qr {
-        background-position: calc(100% - var(--token-spacing-3xl))
-            calc(100% + 10px);
-        background-size: 430px auto;
-        block-size: 100%;
+    .fl-banner-phone-qr .fl-banner-qr {
+        align-self: end;
+        background-position: center bottom -60px;
         grid-row: 1;
-        justify-content: end;
-        padding-block-end: var(--fl-banner-padding);
-        padding-inline-end: calc(var(--token-spacing-3xl) + 40px);
+        justify-content: center;
+        max-inline-size: 330px;
     }
 
-    .fl-banner-phone-qr .fl-banner .fl-banner-qr svg {
-        inline-size: 350px;
+    .fl-banner-phone-qr .fl-banner-qr svg {
+        inset-block-end: 7%;
     }
 
-    .fl-banner-phone-qr .fl-banner .fl-banner-content {
+    .fl-banner-phone-qr .fl-banner-content {
         grid-area: 1 / 2;
-        padding-inline-start: 0;
+        padding-inline: 0 calc(var(--fl-banner-padding) / 2);
     }
 
     .fl-split-page-lower > .fl-banner-phone-qr:last-child {

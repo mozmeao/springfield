@@ -108,6 +108,7 @@ h2.fl-heading.fl-heading-sm {
 }
 
 .fl-features-theme-page .fl-heading-size-2,
+.fl-freeform-2026-page .fl-heading-size-2,
 .fl-heading-lg {
     font-size: var(--fl-theme-font-size-heading-lg);
 }

@@ -19,6 +19,7 @@
             heading_text="{{ page.title }}"
         />
         {% if switch("flare26_enabled") and page.image %}
+        <div class="article-featured-image">
           {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
           <div class="image-variants-display">
             {{ srcset_image(
@@ -60,6 +61,7 @@
               ) }}
             {% endif %}
           </div>
+        </div>
         {% endif %}
       </header>
 

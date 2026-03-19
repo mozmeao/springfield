@@ -64,6 +64,19 @@ MarketingOptOut.processAttributionRequest = (checked) => {
         });
         window.Mozilla.StubAttribution.removeAttributionData();
         MarketingOptOut.bindEvents();
+
+        // Remove param to download /thanks links sharing consent state with /thanks page
+        const downloadThanksLinks = document.querySelectorAll(
+            '.c-button-download-thanks .download-link'
+        );
+        for (let i = 0; i < downloadThanksLinks.length; i++) {
+            const href = downloadThanksLinks[i].getAttribute('href');
+            if (href) {
+                const linkUrl = new URL(href, window.location.href);
+                linkUrl.searchParams.delete('marketing_consent');
+                downloadThanksLinks[i].setAttribute('href', linkUrl.toString());
+            }
+        }
     }
 };
 
@@ -180,6 +193,21 @@ MarketingOptOut.showCheckbox = () => {
         labels[i].classList.remove('hidden');
         labels[i].querySelector('.marketing-opt-out-checkbox-input').checked =
             true;
+    }
+
+    // Add param to download /thanks links sharing consent state with /thanks page
+    // This is only necessary on initial "show" of checked checkbox
+    // User interaction with the checkbox will set a global pref cookie
+    const downloadThanksLinks = document.querySelectorAll(
+        '.c-button-download-thanks .download-link'
+    );
+    for (let i = 0; i < downloadThanksLinks.length; i++) {
+        const href = downloadThanksLinks[i].getAttribute('href');
+        if (href) {
+            const linkUrl = new URL(href, window.location.href);
+            linkUrl.searchParams.set('marketing_consent', '1');
+            downloadThanksLinks[i].setAttribute('href', linkUrl.toString());
+        }
     }
 };
 
