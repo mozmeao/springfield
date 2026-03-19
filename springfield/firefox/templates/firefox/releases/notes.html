@@ -411,7 +411,7 @@
                           />
                         {% else %}
                           <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/developer.svg') }}" width="30" height="30">
-                          <h3>Developer</h3>
+                          <h3>{{ note.tag }}</h3>
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article">
@@ -506,7 +506,7 @@
                                 icon_name="trending"
                                 hidden="true"
                               />
-                              {{ note.tag }}
+                              Firefox Labs
                             </span>
                           {% endset %}
                           <include:heading
@@ -516,7 +516,7 @@
                           />
                         {% else %}
                           <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/labs.svg') }}" width="30" height="30">
-                          <h3>{{ note.tag }}</h3>
+                          <h3>Firefox Labs</h3>
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article">
@@ -555,7 +555,7 @@
                                 icon_name="critical"
                                 hidden="true"
                               />
-                              {{ note.tag }}
+                              Unresolved
                             </span>
                           {% endset %}
                           <include:heading
@@ -590,7 +590,7 @@
                                 icon_name="avatar-signed-out"
                                 hidden="true"
                               />
-                              {{ note.tag }}
+                              Community Contributions
                             </span>
                           {% endset %}
                           <include:heading
