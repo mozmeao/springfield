@@ -17,7 +17,7 @@ def migrate_download_button_labels(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0057_prefootercta_pretranslated_label"),
+        ("cms", "0060_prefootercta_pretranslated_label"),
     ]
 
     operations = [
