@@ -2080,6 +2080,7 @@ class BannerSettings(blocks.StructBlock):
         (
             ("outlined", "Outlined"),
             ("purple", "Purple"),
+            ("dark-purple", "Dark Purple"),
         ),
         default="outlined",
         inline_form=True,
@@ -2098,6 +2099,13 @@ class BannerSettings(blocks.StructBlock):
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
     )
 
     class Meta:
