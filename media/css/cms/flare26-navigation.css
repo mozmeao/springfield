@@ -32,7 +32,7 @@
     text-decoration: none;
 }
 
-.fl-header a:hover .fl-menu-heading {
+.fl-header a:hover {
     text-decoration: underline;
 }
 
@@ -151,6 +151,11 @@
 /* ================================================
    Menu Panel Styles
    ================================================ */
+
+.fl-menu-heading {
+    display: flex;
+    gap: var(--token-spacing-xs);
+}
 
 .fl-menu-title,
 .fl-menu-title h2,
