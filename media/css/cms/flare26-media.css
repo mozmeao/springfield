@@ -82,8 +82,6 @@
 
 .fl-video-play-icon {
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-    inset-block-end: 1rem;
-    inset-inline-end: 1rem;
     position: absolute;
     transition: transform 0.2s ease;
     z-index: 1;
