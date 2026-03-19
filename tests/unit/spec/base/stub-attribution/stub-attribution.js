@@ -778,6 +778,12 @@ describe('stub-attribution.js', function () {
             expect(result).toEqual(data);
         });
 
+        afterEach(function () {
+            document.documentElement.removeAttribute(
+                'data-stub-attribution-campaign'
+            );
+        });
+
         it('should use data-stub-attribution-campaign as fallback when utm_campaign is not in URL params', function () {
             const html = document.documentElement;
             html.setAttribute('data-stub-attribution-campaign', 'smart_window');
@@ -809,7 +815,6 @@ describe('stub-attribution.js', function () {
             const result = Mozilla.StubAttribution.getAttributionData(referrer);
             expect(result).toEqual(data);
 
-            html.removeAttribute('data-stub-attribution-campaign');
         });
 
         it('should prefer utm_campaign from URL params over data-stub-attribution-campaign', function () {
@@ -846,7 +851,6 @@ describe('stub-attribution.js', function () {
             const result = Mozilla.StubAttribution.getAttributionData(referrer);
             expect(result).toEqual(data);
 
-            html.removeAttribute('data-stub-attribution-campaign');
         });
 
         it('should use data-stub-attribution-campaign-override over utm_campaign from URL params', function () {
