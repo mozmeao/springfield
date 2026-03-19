@@ -1887,6 +1887,13 @@ class IntroBlockSettings2026(blocks.StructBlock):
         label="Layout",
         inline_form=True,
     )
+    full_width = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Full Width",
+        inline_form=True,
+        help_text="Renders content using all available horizontal space.",
+    )
     slim = blocks.BooleanBlock(
         required=False,
         default=False,
