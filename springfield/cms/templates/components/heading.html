@@ -12,7 +12,7 @@
       </p>
     {% endif %}
     {% if heading_text %}
-      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
+      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}" {% if id %}id="{{ id }}"{% endif %}>
         {{ heading_text }}
       </{{ level|default('h2') }}>
     {% endif %}

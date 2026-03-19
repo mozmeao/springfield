@@ -24,8 +24,14 @@ test.describe(
         });
 
         test('should not have any detectable a11y issues', async ({ page }) => {
-            const resourcesLink = page.getByTestId('navigation-link-resources');
-            const resourcesMenu = page.getByTestId('navigation-menu-resources');
+            // distinguish from ie-only nav
+            const mainNav = page.getByTestId('navigation-menu-items');
+            const resourcesLink = mainNav.getByTestId(
+                'navigation-link-resources'
+            );
+            const resourcesMenu = mainNav.getByTestId(
+                'navigation-menu-resources'
+            );
 
             // Hover over resources link to open menu
             await expect(resourcesMenu).not.toBeVisible();
@@ -62,7 +68,11 @@ test.describe(
             const navigationMenuItems = page.getByTestId(
                 'navigation-menu-items'
             );
-            const resourcesMenu = page.getByTestId('navigation-menu-resources');
+            // distinguish from ie-only nav
+            const mainNav = page.getByTestId('navigation-menu-items');
+            const resourcesMenu = mainNav.getByTestId(
+                'navigation-menu-resources'
+            );
 
             // Open navigation menu
             await expect(navigationMenuItems).not.toBeVisible();

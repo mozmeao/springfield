@@ -342,3 +342,31 @@ def get_download_firefox_cta_snippet(context):
         return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).first()
 
     return None
+
+
+@pass_context
+@library.global_function
+def get_qr_code_snippet(context):
+    """
+    Retrieves the QRCodeSnippet for the current locale.
+    Returns the first live snippet for the locale, or None if not found.
+
+    Usage in templates:
+        {% set qr_code_snippet = get_qr_code_snippet() %}
+        {% if qr_code_snippet %}
+            {% set value = qr_code_snippet %}
+            {% include "cms/snippets/qr-code-snippet.html" %}
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import QRCodeSnippet
+
+    locale = None
+    if "page" in context and hasattr(context["page"], "locale"):
+        locale = context["page"].locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        return QRCodeSnippet.objects.filter(locale=locale).live().first()
+
+    return None

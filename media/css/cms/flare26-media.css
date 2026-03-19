@@ -75,6 +75,7 @@
     inline-size: 100%;
     inset-block-start: 0;
     inset-inline-start: 0;
+    margin: 0;
     object-fit: cover;
     position: absolute;
 }
@@ -86,6 +87,10 @@
     position: absolute;
     transition: transform 0.2s ease;
     z-index: 1;
+}
+
+.fl-video-play-icon svg {
+    margin: 0;
 }
 
 .fl-video iframe,
