@@ -54,19 +54,21 @@
     text-wrap: balance;
 }
 
-.fl-banner-outlined {
+.fl-banner.fl-banner-outlined {
     --fl-theme-color-banner-text: var(--fl-theme-color-text);
-    border: 1px solid var(--token-color-black-1);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    border: 1px solid var(--token-color-grey-3);
 }
 
-.fl-banner-purple {
+.fl-banner.fl-banner-purple {
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
     --fl-theme-color-link-visited: var(--token-color-white);
     --fl-theme-color-link-strong: var(--token-color-white);
-    background-image: var(--token-gradient-purple);
-    background-position: center;
-    background-repeat: no-repeat;
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+    background-position: center bottom;
     background-size: cover;
 }
 
@@ -84,6 +86,18 @@
 .fl-banner-purple .fl-superheading,
 .fl-banner-dark-purple .fl-superheading {
     color: var(--fl-theme-color-text);
+}
+
+.fl-banner-purple .fl-button.button-ghost {
+    border-color: var(--token-color-white);
+    color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button.button-ghost:hover,
+.fl-banner-purple .fl-button.button-ghost:focus,
+.fl-banner-purple .fl-button.button-ghost:active {
+    background: var(--token-color-white);
+    color: var(--token-color-dark-purple);
 }
 
 .fl-banner-media {
@@ -225,6 +239,11 @@
         text-align: initial;
     }
 
+    .fl-banner.fl-banner-purple,
+    .fl-banner.fl-banner-outlined {
+        --fl-banner-padding: var(--token-layout-2xs);
+    }
+
     .fl-banner-container {
         padding: var(--token-spacing-3xl);
     }
@@ -256,6 +275,11 @@
     .fl-banner {
         --fl-banner-padding: var(--token-layout-lg);
         --fl-banner-border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-banner.fl-banner-purple,
+    .fl-banner.fl-banner-outlined {
+        --fl-banner-padding: var(--token-layout-xs);
     }
 
     .fl-banner-container {

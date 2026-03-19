@@ -47,7 +47,8 @@
     text-wrap: balance;
 }
 
-.fl-banner-kit .fl-banner-content .fl-subheading {
+.fl-banner-kit .fl-banner-content .fl-subheading,
+.fl-banner-kit .fl-banner-content .fl-body {
     margin: 0 auto;
     max-inline-size: 500px;
     text-wrap: balance;

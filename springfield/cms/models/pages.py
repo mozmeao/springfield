@@ -32,6 +32,7 @@ from springfield.cms.blocks import (
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -665,11 +666,13 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
         with the appropriate button types.
     """
     return [
+        ("notification", NotificationBlock()),
         ("intro", IntroBlock2026(allow_uitour=allow_uitour)),
         ("section", SectionBlock2026(allow_uitour=allow_uitour)),
         ("showcase", ShowcaseBlock()),
         ("card_gallery", CardGalleryBlock()),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+        ("banner", BannerBlock()),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(
