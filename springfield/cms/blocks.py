@@ -2040,6 +2040,49 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+# Topic list
+
+
+def TopicBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicBlock(blocks.StructBlock):
+        short_title = blocks.CharBlock(
+            label="Short Title",
+            help_text="Text to be used on the sidebar link.",
+        )
+        anchor_id = blocks.CharBlock(
+            help_text="Add an ID to make this section linkable from the sidebar (e.g., 'privacy-online', 'data-control')",
+        )
+        image = ImageChooserBlock(
+            label="Image",
+            help_text="Image shown at the top of the topic heading.",
+        )
+        heading = HeadingBlock()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/topic.html"
+            label = "Topic"
+            label_format = "{heading}"
+
+    return _TopicBlock(*args, **kwargs)
+
+
+class TopicListBlock(blocks.StructBlock):
+    topics = blocks.ListBlock(TopicBlock(), min=1)
+
+    class Meta:
+        template = "cms/blocks/sections/topic-list.html"
+        label = "Topic List"
+        label_format = "{heading}"
+
+
 # Banners
 
 
@@ -2357,46 +2400,3 @@ class DownloadSupportBlock(blocks.StaticBlock):
     class Meta:
         template = "cms/blocks/download-support.html"
         label = "Download Support Message"
-
-
-# User Privacy Page
-
-
-def UserPrivacyTopicBlock(allow_uitour=False, *args, **kwargs):
-    class _UserPrivacyTopicBlock(blocks.StructBlock):
-        short_title = blocks.CharBlock(
-            label="Short Title",
-            help_text="Text to be used on the sidebar link.",
-        )
-        anchor_id = blocks.CharBlock(
-            help_text="Add an ID to make this section linkable from the sidebar (e.g., 'privacy-online', 'data-control')",
-        )
-        image = ImageChooserBlock(
-            label="Image",
-            help_text="Image shown at the top of the topic heading.",
-        )
-        heading = HeadingBlock()
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/user-privacy-topic.html"
-            label = "User Privacy Topic"
-            label_format = "{heading}"
-
-    return _UserPrivacyTopicBlock(*args, **kwargs)
-
-
-class UserPrivacyTopicListBlock(blocks.StructBlock):
-    topics = blocks.ListBlock(UserPrivacyTopicBlock(), min=1)
-
-    class Meta:
-        template = "cms/blocks/user-privacy-topic-list.html"
-        label = "User Privacy Topic List"
-        label_format = "{heading}"

@@ -38,7 +38,7 @@ from springfield.cms.blocks import (
     SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
-    UserPrivacyTopicListBlock,
+    TopicListBlock,
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
@@ -654,7 +654,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
     ]
 
 
-def _get_freeform_page_blocks_2026(allow_uitour=False):
+def _get_freeform_page_blocks_2026(allow_uitour=True):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -673,6 +673,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
         ("card_gallery", CardGalleryBlock()),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
         ("banner", BannerBlock()),
+        ("topic_list", TopicListBlock()),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(
@@ -686,7 +687,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
 
 FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=False)
+FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 WHATS_NEW_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 
 
@@ -868,28 +869,8 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return True
 
 
-class UserPrivacyPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class UserPrivacyPage(FreeFormPage2026):
     """A page that displays user privacy topics."""
-
-    content = StreamField(
-        [
-            ("intro", IntroBlock2026()),
-            ("topics", UserPrivacyTopicListBlock()),
-            (
-                "banner_snippet",
-                LocalizedLiveSnippetChooserBlock(
-                    target_model="cms.BannerSnippet",
-                    template="cms/snippets/banner-snippet.html",
-                    label="Banner Snippet",
-                ),
-            ),
-        ],
-        use_json_field=True,
-    )
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
 
     class Meta:
         verbose_name = "User Privacy Page"
