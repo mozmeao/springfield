@@ -814,7 +814,41 @@ describe('stub-attribution.js', function () {
             );
             const result = Mozilla.StubAttribution.getAttributionData(referrer);
             expect(result).toEqual(data);
+        });
 
+        it('should use data-stub-attribution-campaign fallback while preserving other UTM params from URL', function () {
+            const html = document.documentElement;
+            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: undefined,
+                utm_content: 'rel-esr'
+            };
+
+            const data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'smart_window',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
         });
 
         it('should prefer utm_campaign from URL params over data-stub-attribution-campaign', function () {
@@ -850,7 +884,6 @@ describe('stub-attribution.js', function () {
             );
             const result = Mozilla.StubAttribution.getAttributionData(referrer);
             expect(result).toEqual(data);
-
         });
 
         it('should use data-stub-attribution-campaign-override over utm_campaign from URL params', function () {
