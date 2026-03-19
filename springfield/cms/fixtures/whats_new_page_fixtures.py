@@ -4,6 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
 from springfield.cms.fixtures.freeformpage_2026 import get_mobile_store_qr_code
+from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage, WhatsNewPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -23,6 +24,7 @@ def get_whatsnew_index_page() -> WhatsNewIndexPage:
 
 
 def get_whats_new_page_with_qr_snippet() -> WhatsNewPage:
+    get_qr_code_snippet()
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-qr"
@@ -57,6 +59,7 @@ def get_whats_new_page_with_qr_snippet() -> WhatsNewPage:
 
 
 def get_whats_new_page_2026_with_qr_snippet() -> WhatsNewPage2026:
+    get_qr_code_snippet()
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-2026-qr"

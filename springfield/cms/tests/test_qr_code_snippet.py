@@ -30,7 +30,7 @@ def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     aside = _get_qr_snippet_aside(soup)
     assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code"), "QR code SVG wrapper should be rendered"
+    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
     assert "Get Firefox on your phone" in aside.get_text()
     assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
 
@@ -58,7 +58,7 @@ def test_freeform_page_2026_renders_qr_code_snippet(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     aside = _get_qr_snippet_aside(soup)
     assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code"), "QR code SVG wrapper should be rendered"
+    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
     assert "Get Firefox on your phone" in aside.get_text()
     assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
 
@@ -89,7 +89,7 @@ def test_whats_new_page_renders_qr_code_snippet(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     aside = _get_qr_snippet_aside(soup)
     assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code"), "QR code SVG wrapper should be rendered"
+    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
     assert "Get Firefox on your phone" in aside.get_text()
 
 
@@ -116,7 +116,7 @@ def test_whats_new_page_2026_renders_qr_code_snippet(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     aside = _get_qr_snippet_aside(soup)
     assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code"), "QR code SVG wrapper should be rendered"
+    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
     assert "Get Firefox on your phone" in aside.get_text()
 
 
