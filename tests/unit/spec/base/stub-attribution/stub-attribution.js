@@ -777,6 +777,224 @@ describe('stub-attribution.js', function () {
             );
             expect(result).toEqual(data);
         });
+
+        afterEach(function () {
+            document.documentElement.removeAttribute(
+                'data-stub-attribution-campaign'
+            );
+        });
+
+        it('should use data-stub-attribution-campaign as fallback when utm_campaign is not in URL params', function () {
+            const html = document.documentElement;
+            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: undefined,
+                utm_medium: undefined,
+                utm_campaign: undefined,
+                utm_content: undefined
+            };
+
+            const data = {
+                utm_campaign: 'smart_window',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+        });
+
+        it('should use data-stub-attribution-campaign fallback while preserving other UTM params from URL', function () {
+            const html = document.documentElement;
+            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: undefined,
+                utm_content: 'rel-esr'
+            };
+
+            const data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'smart_window',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+        });
+
+        it('should prefer utm_campaign from URL params over data-stub-attribution-campaign', function () {
+            const html = document.documentElement;
+            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr'
+            };
+
+            const data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+        });
+
+        it('should use data-stub-attribution-campaign-override over utm_campaign from URL params', function () {
+            const html = document.documentElement;
+            html.setAttribute(
+                'data-stub-attribution-campaign-override',
+                'smart_window'
+            );
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'F100_4242_otherstuff_in_here',
+                utm_content: 'rel-esr'
+            };
+
+            const data = {
+                utm_source: 'desktop-snippet',
+                utm_medium: 'referral',
+                utm_campaign: 'smart_window',
+                utm_content: 'rel-esr',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+
+            html.removeAttribute('data-stub-attribution-campaign-override');
+        });
+
+        it('should use data-stub-attribution-campaign-override over data-stub-attribution-campaign', function () {
+            const html = document.documentElement;
+            html.setAttribute(
+                'data-stub-attribution-campaign-override',
+                'smart_window'
+            );
+            html.setAttribute(
+                'data-stub-attribution-campaign',
+                'other_campaign'
+            );
+
+            const referrer = '';
+
+            const utms = {
+                utm_source: undefined,
+                utm_medium: undefined,
+                utm_campaign: undefined,
+                utm_content: undefined
+            };
+
+            const data = {
+                utm_campaign: 'smart_window',
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+
+            html.removeAttribute('data-stub-attribution-campaign-override');
+            html.removeAttribute('data-stub-attribution-campaign');
+        });
+
+        it('should not include campaign when neither URL param nor data attribute is set', function () {
+            const referrer = '';
+
+            const utms = {
+                utm_source: undefined,
+                utm_medium: undefined,
+                utm_campaign: undefined,
+                utm_content: undefined
+            };
+
+            const data = {
+                referrer: '',
+                ua: 'chrome',
+                client_id_ga4: GA4_CLIENT_ID,
+                session_id: jasmine.any(String),
+                dlsource: DLSOURCE
+            };
+
+            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
+                utms
+            );
+            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
+                'chrome'
+            );
+            const result = Mozilla.StubAttribution.getAttributionData(referrer);
+            expect(result).toEqual(data);
+        });
     });
 
     describe('requestAuthentication', function () {
