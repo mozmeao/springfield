@@ -4,27 +4,79 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/free_form_page2026.html" %}
 
+
+{% block flare_header %}
+  {% set theme = "dark" if page.upper_content else None %}
+  {% set hide_nav_cta = not page.show_nav_cta %}
+  <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" />
+{% endblock %}
 
 {% block content %}
-<main id="fl-page-user-privacy" class="fl-main fl-page-user-privacy">
-  {% set ns = namespace(headings=0) %}
-  {% for block in page.content %}
-    {% set block_index = loop.index %}
-    {% set block_type = block.block_type %}
-    {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+<div class="fl-page-user-privacy fl-page-user-privacy-cms">
+  {% if page.upper_content %}
+    <main class="fl-main has-gradient-bottom">
+      {% set ns = namespace(headings=0) %}
 
-    {% if block.value.heading and block.value.heading.heading_text %}
-      {% set block_level = 1 if ns.headings == 0 else 2 %}
-      {% set ns.headings = ns.headings + 1 %}
-    {% endif %}
+      <div class="fl-split-page-upper has-gradient-bottom no-gap">
+        {% for block in page.upper_content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
 
-    <div class="fl-section {% if loop.last %}end-of-page has-gradient-bottom{% endif %}">
-      <div class="max-width-wide-banner">
-        {% include_block block %}
+          {% if block.value.heading and block.value.heading.heading_text %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          <div class="fl-section">
+            <div class="max-width-wide-banner">
+              {% include_block block %}
+            </div>
+          </div>
+        {% endfor %}
       </div>
-    </div>
-  {% endfor %}
-</main>
+
+      <div class="fl-split-page-lower no-gap">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
+
+          {% if block.value.heading and block.value.heading.heading_text %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          <div class="fl-section">
+            <div class="max-width-wide-banner">
+              {% include_block block %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </main>
+  {% else %}
+    <main class="fl-main has-gradient-bottom">
+      {% set ns = namespace(headings=0) %}
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+
+        {% if block.value.heading and block.value.heading.heading_text %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        <div class="fl-section">
+          <div class="max-width-wide-banner">
+            {% include_block block %}
+          </div>
+        </div>
+      {% endfor %}
+    </main>
+  {% endif %}
+</div>
 {% endblock %}
