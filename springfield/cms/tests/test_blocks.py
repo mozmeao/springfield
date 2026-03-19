@@ -28,7 +28,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_intro,
     get_theme_page_sticker_row_section,
 )
-from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
@@ -1389,6 +1389,81 @@ def test_banner_block(index_page, placeholder_images, rf):
                 assert media_element.find("div", class_="fl-banner-qr").find("svg")
                 if media_value.get("background"):
                     assert media_element.find("img")
+
+
+def test_banner_2026_block(index_page, placeholder_images, rf):
+    banners = get_banner_variants()
+    test_page = get_banner_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
+        banner_divs = region.find_all("div", class_="fl-banner")
+        assert len(banner_divs) == len(banners)
+
+        # The page template shares a heading counter across upper and lower content,
+        # so lower-region banners always render as h2 (counter > 0 after upper).
+        heading_index_offset = region_index * len(banners)
+
+        for index, banner in enumerate(banners):
+            banner_element = banner_divs[index]
+
+            settings = banner["value"]["settings"]
+            assert f"fl-banner-{settings['theme']}" in banner_element["class"]
+            if settings.get("media_after"):
+                assert "fl-banner-reverse" in banner_element["class"]
+            anchor_id = settings.get("anchor_id")
+            if anchor_id:
+                assert banner_element.parent.get("id") == anchor_id
+
+            heading_block = banner["value"]["heading"]
+            assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=heading_index_offset + index)
+
+            heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+            buttons = banner["value"]["buttons"]
+            button_elements = banner_element.find_all("a", class_="fl-button")
+            for button_index, button in enumerate(buttons):
+                button_element = button_elements[button_index]
+                cta_position = f"{region_name}-block-{index + 1}-banner.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_element,
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
+
+            if media := banner["value"]["media"]:
+                media = media[0]
+                media_element = banner_element.find("div", class_="fl-banner-media")
+                assert media_element
+
+                media_value = media["value"]
+                if media["type"] == "image":
+                    images_element = media_element.find("div", class_="image-variants-display")
+                    assert_image_variants_attributes(images_element=images_element, images_value=media_value)
+                elif media["type"] == "video":
+                    video_div = banner_element.find("div", class_="fl-video")
+                    assert_video_attributes(video_div, media)
+                elif media["type"] == "animation":
+                    animation_div = banner_element.find("div", class_="fl-video")
+                    assert_animation_attributes(animation_div, media)
+                elif media["type"] == "qr_code":
+                    assert "has-qr-code" in media_element["class"]
+                    assert media_element.find("div", class_="fl-banner-qr").find("svg")
+                    if media_value.get("background"):
+                        assert media_element.find("img")
 
 
 def test_kit_banner_block(index_page, rf):

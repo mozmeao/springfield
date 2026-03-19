@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
-from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_2026_test_index_page,
     get_article_index_test_page,
@@ -123,6 +123,9 @@ class Command(BaseCommand):
 
         notification_page = get_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
+
+        banner_2026_page = get_banner_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))
 
         buttons_2026_page = get_buttons_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons 2026 test page loaded: {buttons_2026_page.slug}"))

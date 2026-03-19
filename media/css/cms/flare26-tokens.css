@@ -132,6 +132,9 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-dark-purple) 100%
     );
 
+    /* Radial purple noise */
+    --token-noise-gradient: url('/media/img/firefox/flare/noise-gradient.png');
+
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #ffe500 0%, #ff980e 100%);
 

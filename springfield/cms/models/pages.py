@@ -671,6 +671,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
         ("showcase", ShowcaseBlock()),
         ("card_gallery", CardGalleryBlock()),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+        ("banner", BannerBlock()),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(

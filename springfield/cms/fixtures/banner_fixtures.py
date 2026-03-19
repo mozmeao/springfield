@@ -3,10 +3,10 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
-from springfield.cms.models import FreeFormPage
+from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
 
@@ -306,6 +306,25 @@ def get_banner_variants():
             "id": "29e5bda829-e447-4398-b9d6-2228959ec021",
         },
     ]
+
+
+def get_banner_2026_test_page() -> FreeFormPage2026:
+    get_placeholder_images()
+    index_page = get_2026_test_index_page()
+
+    page = FreeFormPage2026.objects.filter(slug="test-banner-2026-page").first()
+    if not page:
+        page = FreeFormPage2026(
+            slug="test-banner-2026-page",
+            title="Test Banner 2026 Page",
+        )
+        index_page.add_child(instance=page)
+
+    variants = get_banner_variants()
+    page.upper_content = variants
+    page.content = variants
+    page.save_revision().publish()
+    return page
 
 
 def get_banner_test_page() -> FreeFormPage:
