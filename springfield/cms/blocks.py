@@ -1844,27 +1844,6 @@ class IntroBlockSettings(blocks.StructBlock):
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
     )
-    vertical = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Vertical",
-        inline_form=True,
-        help_text="Renders content vertically.",
-    )
-    full_width = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Full width",
-        inline_form=True,
-        help_text="Renders content using all available horizontal space.",
-    )
-    slim = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Slim",
-        inline_form=True,
-        help_text="Makes block's paddings smaller.",
-    )
 
     class Meta:
         icon = "cog"
