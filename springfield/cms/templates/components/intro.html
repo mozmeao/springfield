@@ -18,7 +18,7 @@
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   {% if contents.media and media_position == 'before' %}
-    <div class="fl-intro-media dim-images-on-dark-mode">
+    <div class="fl-intro-media">
       {{ contents.media }}
     </div>
   {% endif %}
@@ -39,7 +39,7 @@
     {% endif %}
   </div>
   {% if contents.media and not media_position == 'before' %}
-    <div class="fl-intro-media dim-images-on-dark-mode">
+    <div class="fl-intro-media">
       {{ contents.media }}
     </div>
   {% endif %}
