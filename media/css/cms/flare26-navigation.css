@@ -82,7 +82,7 @@
     color: var(--fl-theme-color-text);
     font-weight: var(--token-font-weight-semibold);
     margin: 0;
-    padding: var(--token-spacing-sm);
+    padding: var(--token-spacing-sm) 10px;
     text-decoration: underline;
 }
 
@@ -295,10 +295,12 @@
     background: transparent;
     border-radius: 0;
     color: var(--fl-theme-color-text);
-    display: none;
+    display: block;
     inset-block-start: 16px;
     inset-inline-end: 16px;
+    opacity: 0;
     padding: 0;
+    pointer-events: none;
     position: absolute;
     z-index: 1;
 }
@@ -455,7 +457,8 @@
 
     /* close buttons is only displayed when keyboard nav is being used */
     .fl-nav-menu:has(*:focus-visible) .fl-menu-close-button {
-        display: block;
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .fl-menu-category h2::after {
@@ -517,6 +520,7 @@
 
 @media (pointer: coarse) and (--viewport-md-up) {
     .fl-nav-menu .fl-menu-close-button {
-        display: block;
+        opacity: 1;
+        pointer-events: auto;
     }
 }
