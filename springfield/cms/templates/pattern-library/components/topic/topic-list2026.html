@@ -1,0 +1,77 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-section">
+  <div class="max-width-wide-banner">
+    <div class="fl-topic-list">
+      <div class="fl-topic-list-sidebar">
+        <ul>
+          {% for topic in topics %}
+            <li>
+              <a href="#{{ topic.anchor_id }}">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                {{ topic.short_title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="fl-topic-list-mobile-menu">
+        <ul>
+          {% for topic in topics %}
+            <li>
+              <a href="#{{ topic.anchor_id }}">
+                {{ topic.short_title }}
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="down" />
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="fl-topic-list-content">
+        {% for topic in topics %}
+          <include:topic
+            anchor_id="{{ topic.anchor_id }}"
+          >
+            <content:image>
+              <img src="{{ topic.image }}" alt="" />
+            </content:image>
+            <content:heading>
+              <include:heading
+                heading_text="{{ topic.heading }}"
+                heading_level="h2"
+              />
+            </content:heading>
+            <content:content>
+              {{ topic.content|richtext }}
+            </content:content>
+            <content:buttons>
+              {% for button in topic.buttons %}
+                {% set block_position = block_position ~ ".button-" ~ loop.index %}
+                <include:button
+                  theme_class="{{ button.theme_class }}"
+                  label="{{ button.label }}"
+                  link="{{ button.link }}"
+                  external="{{ button.external }}"
+                  icon_name="{{ button.icon_name }}"
+                  icon_position="{{ button.icon_position }}"
+                  disabled="{{ button.disabled }}"
+                />
+              {% endfor %}
+            </content:buttons>
+          </include:topic>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
