@@ -37,13 +37,14 @@ Button - Flare 2026 Design System Buttons
     gap: var(--token-spacing-md);
     justify-content: center;
     line-height: 1;
+    min-inline-size: fit-content;
     padding: var(--token-spacing-md) var(--token-spacing-xl);
+    text-align: center;
     text-decoration: none;
     transition:
         background-color var(--token-transition-fast),
         color var(--token-transition-fast),
         border-color var(--token-transition-fast);
-    white-space: nowrap;
 }
 
 /* Disabled state */
