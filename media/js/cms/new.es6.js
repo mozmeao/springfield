@@ -5,6 +5,7 @@
  */
 
 import VideoEngagement from '../base/datalayer-videoengagement.es6';
+import { getConsentCookie } from '../base/consent/utils.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -404,29 +405,74 @@ if (typeof window.cms === 'undefined') {
     }
 
     function initQRCodeSnippet() {
+        const COOKIE_ID = 'qr-snippet-dismissed';
         const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
 
-        if (qrCodeSnippetEl) {
-            const closeButton = qrCodeSnippetEl.querySelector(
-                '.fl-qr-code-snippet-close'
-            );
+        if (!qrCodeSnippetEl) {
+            return;
+        }
 
-            qrCodeSnippetEl.setAttribute('aria-live', 'polite');
+        const cookiesEnabled =
+            typeof window.Mozilla.Cookies !== 'undefined' &&
+            window.Mozilla.Cookies.enabled();
 
-            setTimeout(function () {
-                qrCodeSnippetEl.classList.add('is-open');
-            }, 3000);
+        // Don't show if previously dismissed.
+        if (cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID)) {
+            return;
+        }
 
-            if (
-                qrCodeSnippetEl.classList.contains(
-                    'fl-qr-code-snippet-closable'
-                )
-            ) {
-                if (closeButton) {
-                    closeButton.addEventListener('click', function () {
-                        qrCodeSnippetEl.classList.remove('is-open');
-                    });
-                }
+        const closeButton = qrCodeSnippetEl.querySelector(
+            '.fl-qr-code-snippet-close'
+        );
+
+        qrCodeSnippetEl.setAttribute('aria-live', 'polite');
+
+        setTimeout(function () {
+            qrCodeSnippetEl.classList.add('is-open');
+        }, 3000);
+
+        if (
+            qrCodeSnippetEl.classList.contains(
+                'fl-qr-code-snippet-closable'
+            )
+        ) {
+            if (closeButton) {
+                closeButton.addEventListener('click', function () {
+                    qrCodeSnippetEl.classList.remove('is-open');
+
+                    if (!cookiesEnabled) {
+                        return;
+                    }
+
+                    /**
+                     * Set a preference cookie to remember the user dismissed
+                     * the QR code snippet. Legal are OK to set this without
+                     * explicit consent because:
+                     *
+                     * 1) The cookie is not used for tracking purposes.
+                     * 2) The cookie is set only after an explicit user action.
+                     *
+                     * We still honor not setting this cookie if preference
+                     * cookies have been explicitly rejected by the user.
+                     */
+                    const cookie = getConsentCookie();
+                    if (cookie && !cookie.preference) {
+                        return;
+                    }
+
+                    const date = new Date();
+                    const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
+                    date.setTime(date.getTime() + cookieDuration);
+                    Mozilla.Cookies.setItem(
+                        COOKIE_ID,
+                        true,
+                        date.toUTCString(),
+                        '/',
+                        undefined,
+                        false,
+                        'lax'
+                    );
+                });
             }
         }
     }
