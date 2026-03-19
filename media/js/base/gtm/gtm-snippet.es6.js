@@ -26,6 +26,22 @@ if (typeof window.dataLayer === 'undefined') {
 }
 
 /**
+ * Checks for marketing consent param from /landing/get
+ * This means the user did not change opt-out checkbox default on that page
+ * Only applies on the /thanks page
+ * @returns {Boolean}
+ */
+GTMSnippet.hasLandingGetMarketingConsent = (href) => {
+    if (!GTMSnippet.isFirefoxDownloadThanks()) {
+        return false;
+    }
+
+    const url = new URL(href);
+    const params = new URLSearchParams(url.search);
+    return params.has('marketing_consent', 1);
+};
+
+/**
  * Set Gtag consent defaults based on consent cookie or
  * visitor region. Visitors outside EU/EAA default to
  * granted analytics; visitors inside EU/EAA default to
@@ -40,7 +56,8 @@ GTMSnippet.setGtagConsentDefaults = () => {
         setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
         setGtagAdsConsentMode(
-            GTMSnippet.isFirefoxLandingGet() && !consentRequired(),
+            (GTMSnippet.isFirefoxLandingGet() && !consentRequired()) ||
+                GTMSnippet.hasLandingGetMarketingConsent(window.location.href),
             'default'
         );
         setGtagAnalyticsConsentMode(!consentRequired(), 'default');

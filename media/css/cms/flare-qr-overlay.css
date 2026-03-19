@@ -1,0 +1,134 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* This component only appears on large browser sizes. */
+
+:root {
+    /* tokens copied from 2026 design files for the QR code snippet component */
+
+    /* Spacing tokens (from flare26-tokens.css) */
+    --token-spacing-2xs: 2px;
+    --token-spacing-lg: 16px;
+    --token-spacing-xl: 24px;
+    --token-spacing-2xl: 32px;
+
+    /* Border radius tokens (from flare26-tokens.css) */
+    --token-border-radius-sm: 24px;
+
+    /* Width tokens (from flare26-tokens.css) */
+    --token-width-desktop-wide-banner: 1170px;
+
+    /* Color tokens (from flare26-tokens.css) */
+    --token-color-white: rgb(255, 255, 255);
+    --token-color-black-4: rgb(21, 20, 26);
+    --token-color-black-4-16: rgba(21, 20, 26, 0.16);
+    --token-color-soft-purple: rgb(241, 231, 248);
+
+    /* Gradient tokens (from flare26-tokens.css) */
+    --token-gradient-radial-purple: radial-gradient(74.06% 118.24% at 50% -18.24%, var(--token-purple-gradient-light) 0%, var(--token-purple-gradient-dark) 100%);
+
+    /* Theme tokens (from flare26-theme.css) */
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+    --card-border-color: var(--token-color-soft-purple);
+}
+
+.fl-qr-code-snippet {
+    background: var(--token-gradient-radial-purple);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: none;
+    inset: auto var(--token-spacing-lg) var(--token-spacing-lg);
+    opacity: 0;
+    position: fixed;
+    transition-behavior: allow-discrete;
+    transition-duration: 500ms;
+    transition-property: opacity, display, transform;
+    z-index: 5;
+}
+
+.fl-qr-code-snippet,
+.fl-qr-code-snippet .fl-heading,
+.fl-qr-code-snippet-close,
+.fl-qr-code-snippet-close:hover {
+    color: white;
+}
+
+.fl-qr-code-snippet.is-open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@starting-style {
+    .fl-qr-code-snippet.is-open {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+}
+
+.fl-qr-code-snippet-close {
+    inset: var(--token-spacing-lg) var(--token-spacing-lg) auto auto;
+    padding: var(--token-spacing-2xs);
+    position: absolute;
+    border: 0 none;
+    opacity: 0.8;
+}
+
+.fl-qr-code-snippet-close:hover {
+    background: transparent;
+    opacity: 1;
+}
+
+.fl-qr-code-snippet-text {
+    padding: var(--token-spacing-2xl);
+}
+
+.fl-button.fl-qr-code-snippet-close .fl-icon {
+    block-size: var(--token-spacing-xl);
+    inline-size: var(--token-spacing-xl);
+}
+
+.fl-qr-code-snippet-container {
+    align-items: center;
+    display: grid;
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr 1fr;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-qr-code-snippet-kit {
+    align-items: center;
+    background-image: url('/media/img/firefox/flare/kit-qr.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 380px auto;
+    block-size: 100%;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    justify-self: center;
+    min-block-size: 240px;
+}
+
+.fl-qr-code-snippet-kit svg {
+    block-size: 180px;
+    inline-size: 180px;
+    transform: translateX(-8px);
+}
+
+.fl-qr-code-snippet-kit svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-below-md) {
+    .fl-qr-code-snippet.is-open {
+        display: none;
+    }
+}

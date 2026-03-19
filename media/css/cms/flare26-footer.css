@@ -206,6 +206,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     vertical-align: baseline;
 }
 
+[dir='rtl'] .fl-footer-section a[href^='http']::after {
+    transform: scaleX(-1);
+}
+
 /* -------------------------------------------------------------------------- */
 
 /* Secondary Section */

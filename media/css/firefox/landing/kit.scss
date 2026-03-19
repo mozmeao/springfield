@@ -39,7 +39,7 @@ main {
     display: grid;
     row-gap: 16px;
     padding: 16px 16px 0;
-    letter-spacing: 1px;
+    font-variant-ligatures: none;
 
 
     *, *::before, *::after {
@@ -81,7 +81,7 @@ main {
         color: unset;
         inline-size: unset;
         min-width: 100%;
-        height: auto;
+        height: 100%;
     }
 
     .video-play[role='button'] img {
@@ -235,17 +235,21 @@ main {
 }
 
 @media (max-width: 767px) {
-    .mzp-c-video {
+    main .mzp-c-video {
         max-width: 100%;
         aspect-ratio: 16 / 9;
         height: auto;
     }
 
+    main .mzp-c-video .video-play[role="button"] {
+        height: 100%;
+    }
+
     main .video-play[role='button'] img {
         width: 100%;
         aspect-ratio: 16 / 9;
-        min-width: unset;
-        min-height: fit-content;
+        min-width: 100%;
+        min-height: 100%;
     }
 }
 

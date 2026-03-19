@@ -313,9 +313,14 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     def clean(self):
@@ -715,12 +720,17 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=True,
         help_text="If true, the download button will appear in the navigation bar for this page.",
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
         FieldPanel("show_pre_footer"),
         FieldPanel("show_nav_cta"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
@@ -777,11 +787,16 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="The version of Firefox this What's New page refers to.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
@@ -822,12 +837,17 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         WHATS_NEW_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:

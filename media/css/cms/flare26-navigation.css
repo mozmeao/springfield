@@ -123,6 +123,10 @@
     vertical-align: baseline;
 }
 
+[dir='rtl'] .fl-nav a[href^='http']::after {
+    transform: scaleX(-1);
+}
+
 .fl-nav-menu {
     display: flex;
     flex-direction: column;
