@@ -1785,6 +1785,54 @@ class InlineNotificationBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class NotificationSettings(blocks.StructBlock):
+    icon = IconChoiceBlock(required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("green", "Green"),
+            ("orange", "Orange"),
+            ("red", "Red"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    stacked = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Stack icon above message",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button. Not available for stacked layout.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class NotificationBlock(blocks.StructBlock):
+    settings = NotificationSettings()
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/notification.html"
+        label = "Notification"
+        label_format = "{message}"
+        form_classname = "compact-form struct-block"
+
+
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
         choices=(("after", "After"), ("before", "Before")),

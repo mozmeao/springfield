@@ -42,6 +42,7 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
+from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
@@ -119,6 +120,9 @@ class Command(BaseCommand):
 
         card_gallery_2026_page = get_card_gallery_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Card Gallery 2026 test page loaded: {card_gallery_2026_page.slug}"))
+
+        notification_page = get_notification_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
 
         buttons_2026_page = get_buttons_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons 2026 test page loaded: {buttons_2026_page.slug}"))
