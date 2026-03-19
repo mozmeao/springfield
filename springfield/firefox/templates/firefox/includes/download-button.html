@@ -22,7 +22,7 @@
     <ul>
       {% for plat in builds -%}
         <li><a href="{{ plat.download_link_direct or plat.download_link }}"
-               class="download-link mzp-c-button mzp-t-product ga-product-download"
+               class="download-link mzp-c-button mzp-t-product ga-product-download fl-button"
                data-download-version="{{ plat.os }}"
                data-cta-text="Download Firefox for {{ plat.os_arch_pretty or plat.os_pretty }}"
                {% if plat.os == 'android' %}data-cta-type="firefox_mobile"
