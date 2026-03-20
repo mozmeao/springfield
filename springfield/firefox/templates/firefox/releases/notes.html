@@ -506,7 +506,7 @@
                                 icon_name="trending"
                                 hidden="true"
                               />
-                              Firefox Labs
+                              {{ note.tag }}
                             </span>
                           {% endset %}
                           <include:heading
@@ -516,7 +516,7 @@
                           />
                         {% else %}
                           <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/labs.svg') }}" width="30" height="30">
-                          <h3>Firefox Labs</h3>
+                          <h3>{{ note.tag }}</h3>
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article">
