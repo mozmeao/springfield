@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" phone_qr_bg=False #}
+{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" phone_qr_bg=False stretch_media=False media_after_mobile=False #}
 
 <div
   class="fl-banner-container {% if slim %}fl-banner-slim{% endif %} {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}"
@@ -14,7 +14,9 @@
     class="
       fl-banner
       fl-banner-{{ theme }}
-      {% if media_after %}fl-banner-reverse{% endif %}"
+      {% if media_after %}fl-banner-reverse{% endif %}
+      {% if stretch_media %}fl-banner-stretch-media{% endif %}
+      {% if media_after_mobile %}fl-banner-media-after-mobile{% endif %}"
     aria-labelledby="fl-banner-heading">
 
     <div class="fl-banner-layout">

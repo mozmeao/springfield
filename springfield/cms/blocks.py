@@ -354,7 +354,10 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
+    (
+        UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
+        "Open Preferences - More From Mozilla",
+    ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
@@ -413,7 +416,14 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
-    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
+    def __init__(
+        self,
+        choices=None,
+        thumbnails=None,
+        thumbnail_templates=None,
+        thumbnail_size=20,
+        **kwargs,
+    ):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
@@ -480,8 +490,21 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+        return [
+            BUTTON_TYPE,
+            UITOUR_BUTTON_TYPE,
+            FXA_BUTTON_TYPE,
+            DOWNLOAD_BUTTON_TYPE,
+            STORE_BUTTON_TYPE,
+            FOCUS_BUTTON_TYPE,
+        ]
+    return [
+        BUTTON_TYPE,
+        FXA_BUTTON_TYPE,
+        DOWNLOAD_BUTTON_TYPE,
+        STORE_BUTTON_TYPE,
+        FOCUS_BUTTON_TYPE,
+    ]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -1026,8 +1049,15 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Link to a webm video from assets.mozilla.net.",
             validators=[validate_animation_url],
         )
-        alt = blocks.CharBlock(required=required, label="Alt Text", help_text="Text for screen readers describing the video.")
-        poster = ImageChooserBlock(required=required, help_text="Poster image displayed before the animation is played.")
+        alt = blocks.CharBlock(
+            required=required,
+            label="Alt Text",
+            help_text="Text for screen readers describing the video.",
+        )
+        poster = ImageChooserBlock(
+            required=required,
+            help_text="Poster image displayed before the animation is played.",
+        )
         playback = blocks.ChoiceBlock(
             choices=[
                 ("autoplay_loop", "Autoplay (loop)"),
@@ -1530,7 +1560,10 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
-                ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                (
+                    "illustration_card",
+                    IllustrationCard2026Block(allow_uitour=allow_uitour),
+                ),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
             ]
         )
@@ -1555,7 +1588,11 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom sticker image to override the article's sticker.",
     )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
+    icon = IconChoiceBlock(
+        required=False,
+        inline_form=True,
+        help_text="Optional icon to display on icon cards.",
+    )
     superheading = blocks.CharBlock(
         required=False,
         help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
@@ -1891,7 +1928,11 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
 class IntroBlockSettings2026(blocks.StructBlock):
     layout = blocks.ChoiceBlock(
-        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        choices=(
+            ("vertical", "Vertical"),
+            ("right", "Media Right"),
+            ("left", "Media Left"),
+        ),
         default="vertical",
         label="Layout",
         inline_form=True,
@@ -2055,9 +2096,28 @@ class BannerSettings(blocks.StructBlock):
     media_after = blocks.BooleanBlock(
         required=False,
         default=False,
-        label="Media After",
+        label="Media After on Desktop",
         inline_form=True,
         help_text="Place media after text content on desktop.",
+    )
+
+    media_after_mobile = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Media After on Mobile",
+        inline_form=True,
+        help_text="Stack media below text on small screens.",
+    )
+
+    stretch_media = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Stretch Media to Banner Edge",
+        inline_form=True,
+        help_text=(
+            "This will stretch media to the edges of the container. "
+            "This is useful for transparent images or animations that appear to pop in from the side or bottom."
+        ),
     )
     show_to = ConditionalDisplayBlock(
         label="Show To",
