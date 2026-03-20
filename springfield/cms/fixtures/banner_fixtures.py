@@ -336,6 +336,26 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "simple-outlined-banner-2026",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Simple Outlined Banner</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
+                    "If no media is provided, it uses the centered layout.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000002",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
                     "theme": "purple",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
@@ -350,7 +370,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000002",
+            "id": "a1b2c3d4-0001-0001-0001-000000000003",
         },
         {
             "type": "banner",
@@ -372,7 +392,7 @@ def get_banner_2026_variants():
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a1b2c3d4-0001-0001-0001-000000000003",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000004",
                     }
                 ],
                 "heading": {
@@ -383,7 +403,40 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000004",
+            "id": "a1b2c3d4-0001-0001-0001-000000000005",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "outlined-banner-with-image-2026",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000006",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with Image</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                    "Switch between light and dark mode to see the alternative images.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000007",
         },
         {
             "type": "banner",
@@ -405,7 +458,7 @@ def get_banner_2026_variants():
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a1b2c3d4-0001-0001-0001-000000000005",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000008",
                     }
                 ],
                 "heading": {
@@ -416,7 +469,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000006",
+            "id": "a1b2c3d4-0001-0001-0001-000000000009",
         },
         {
             "type": "banner",
@@ -438,7 +491,7 @@ def get_banner_2026_variants():
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a1b2c3d4-0001-0001-0001-000000000007",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000010",
                     }
                 ],
                 "heading": {
@@ -448,7 +501,39 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000008",
+            "id": "a1b2c3d4-0001-0001-0001-000000000011",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "outlined-banner-with-image-after-2026",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000012",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with Image After</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000013",
         },
         {
             "type": "banner",
@@ -470,7 +555,7 @@ def get_banner_2026_variants():
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a1b2c3d4-0001-0001-0001-000000000009",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000014",
                     }
                 ],
                 "heading": {
@@ -480,7 +565,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000010",
+            "id": "a1b2c3d4-0001-0001-0001-000000000015",
         },
         {
             "type": "banner",
@@ -495,7 +580,7 @@ def get_banner_2026_variants():
                     {
                         "type": "qr_code",
                         "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
-                        "id": "a1b2c3d4-0001-0001-0001-000000000011",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000016",
                     }
                 ],
                 "heading": {
@@ -505,7 +590,32 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000012",
+            "id": "a1b2c3d4-0001-0001-0001-000000000017",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "outlined-banner-with-qr-code-2026",
+                },
+                "media": [
+                    {
+                        "type": "qr_code",
+                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "id": "a1b2c3d4-0001-0001-0001-000000000018",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with QR Code</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000019",
         },
         {
             "type": "banner",
@@ -520,7 +630,7 @@ def get_banner_2026_variants():
                     {
                         "type": "qr_code",
                         "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
-                        "id": "a1b2c3d4-0001-0001-0001-000000000013",
+                        "id": "a1b2c3d4-0001-0001-0001-000000000020",
                     }
                 ],
                 "heading": {
@@ -530,7 +640,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000014",
+            "id": "a1b2c3d4-0001-0001-0001-000000000021",
         },
         {
             "type": "banner",
@@ -550,7 +660,27 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000015",
+            "id": "a1b2c3d4-0001-0001-0001-000000000022",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "outlined-banner-with-video-2026",
+                },
+                "media": [videos["youtube"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with Video</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000023",
         },
         {
             "type": "banner",
@@ -570,7 +700,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000016",
+            "id": "a1b2c3d4-0001-0001-0001-000000000024",
         },
         {
             "type": "banner",
@@ -585,7 +715,22 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000017",
+            "id": "a1b2c3d4-0001-0001-0001-000000000025",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {"theme": "outlined", "media_after": False, "show_to": SHOW_TO_ALL},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Outlined Banner with Animation</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000026",
         },
         {
             "type": "banner",
@@ -600,7 +745,7 @@ def get_banner_2026_variants():
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000018",
+            "id": "a1b2c3d4-0001-0001-0001-000000000027",
         },
     ]
 
