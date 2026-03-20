@@ -431,11 +431,7 @@ if (typeof window.cms === 'undefined') {
             qrCodeSnippetEl.classList.add('is-open');
         }, 3000);
 
-        if (
-            qrCodeSnippetEl.classList.contains(
-                'fl-qr-code-snippet-closable'
-            )
-        ) {
+        if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
             if (closeButton) {
                 closeButton.addEventListener('click', function () {
                     qrCodeSnippetEl.classList.remove('is-open');
