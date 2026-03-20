@@ -9,14 +9,16 @@
         <div class="fl-footer-top">
             <p class="fl-footer-copy">
                 {% set mozilla_link_attrs = 'class="fl-footer-link"
-                href="https://www.mozilla.org/"'|safe %} {% set
-                mozilla_foundation_link_attrs = 'class="fl-footer-link"
+                href="https://www.mozilla.org/"'|safe %}
+                {% set mozilla_foundation_link_attrs = 'class="fl-footer-link"
                 href="https://foundation.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer"'|safe
-                %} {{ ftl('footer-visit-mozilla',
+                %}
+                {% set footer_years = "©1998–" ~ current_year|string %}
+                {{ ftl('footer-visit-mozilla',
                 mozilla_link_attrs=mozilla_link_attrs,
                 mozilla_foundation_link_attrs=mozilla_foundation_link_attrs) }}
                 <br />
-                {{ ftl('footer-contributors', years='©1998–2025') }}
+                {{ ftl('footer-contributors', years=footer_years) }}
                 <br />
                 {% set license_attrs = 'class="fl-footer-link"
                 href="https://www.mozilla.org/en-US/foundation/licensing/website-content/"'|safe
