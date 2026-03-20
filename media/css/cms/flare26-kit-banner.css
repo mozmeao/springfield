@@ -23,8 +23,14 @@
 }
 
 .fl-banner-kit .fl-banner-content {
+    gap: var(--token-spacing-3xl);
     inline-size: 100%;
     min-inline-size: 0;
+}
+
+.fl-banner-kit .fl-banner-content-inner,
+.fl-banner-kit .fl-heading-group {
+    gap: var(--token-spacing-3xl);
 }
 
 .fl-banner-kit .fl-heading {
@@ -47,7 +53,8 @@
     text-wrap: balance;
 }
 
-.fl-banner-kit .fl-banner-content .fl-subheading {
+.fl-banner-kit .fl-banner-content .fl-subheading,
+.fl-banner-kit .fl-banner-content .fl-body {
     margin: 0 auto;
     max-inline-size: 500px;
     text-wrap: balance;

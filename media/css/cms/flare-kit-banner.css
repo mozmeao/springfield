@@ -13,6 +13,11 @@
     --kit-animation-block-size: max(20%, 120px);
     --kit-animation-inline-size: min(90%, 400px);
     --kit-animation-right: calc(50% - var(--kit-animation-inline-size) / 2);
+    --fl-theme-color-headings-primary: var(--token-neutrals-white);
+    --fl-theme-color-text-primary: var(--token-neutrals-white);
+    --fl-theme-color-link: var(--token-blue-light-blue);
+    --fl-theme-color-link-visited: var(--token-purple-light-purple);
+    --fl-theme-color-link-strong: var(--token-blue-light-blue);
     background-image: var(--kit-img), var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
     background-size: var(--kit-img-size), 600px 600px, cover;
     background-position: var(--kit-img-position), center, center;
@@ -81,6 +86,37 @@
 .fl-banner-kit-curious-animation .fl-banner-content {
     max-width: 400px;
     margin: 0 auto;
+}
+
+.fl-banner-kit .fl-button:not([class*="button-"]) {
+    color: var(--token-neutrals-white);
+    border-color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button:not([class*="button-"]):hover,
+.fl-banner-kit .fl-button:not([class*="button-"]):focus,
+.fl-banner-kit .fl-button:not([class*="button-"]):active {
+    color: var(--token-purple-dark-purple);
+    background-color: var(--token-neutrals-ash);
+    border-color: var(--token-neutrals-charcoal);
+}
+
+.fl-banner-kit .fl-button.button-ghost {
+    color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button.button-ghost:hover,
+.fl-banner-kit .fl-button.button-ghost:focus,
+.fl-banner-kit .fl-button.button-ghost:active {
+    background: var(--token-neutrals-white);
+    color: var(--token-purple-dark-purple);
+}
+
+.fl-banner-kit .fl-button.button-secondary:hover,
+.fl-banner-kit .fl-button.button-secondary:focus,
+.fl-banner-kit .fl-button.button-secondary:active {
+    background: var(--token-blue-medium-blue);
+    color: var(--token-neutrals-white);
 }
 
 @media (--viewport-sm-up) {
