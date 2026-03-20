@@ -22,7 +22,7 @@
    so a card might have h3 on one page and h2 on another, and they
    need to look consistent everywhere. */
 .fl-heading h1,
-h1.fl-heading,
+h1.fl-heading:not([class*='fl-heading-size-']),
 .fl-heading-size-1,
 .fl-rich-text h1,
 .fl-heading h2,

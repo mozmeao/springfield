@@ -2035,10 +2035,11 @@ class SubscriptionBlock(blocks.StructBlock):
 class BannerSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
+            ("default", "Default"),
             ("outlined", "Outlined"),
             ("purple", "Purple"),
         ),
-        default="outlined",
+        default="default",
         inline_form=True,
     )
     media_after = blocks.BooleanBlock(
