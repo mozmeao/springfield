@@ -28,7 +28,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_intro,
     get_theme_page_sticker_row_section,
 )
-from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page, get_banner_variants
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
@@ -1392,7 +1392,7 @@ def test_banner_block(index_page, placeholder_images, rf):
 
 
 def test_banner_2026_block(index_page, placeholder_images, rf):
-    banners = get_banner_variants()
+    banners = get_banner_2026_variants()
     test_page = get_banner_2026_test_page()
 
     request = rf.get(test_page.get_full_url())

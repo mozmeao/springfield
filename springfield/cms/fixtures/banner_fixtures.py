@@ -308,6 +308,303 @@ def get_banner_variants():
     ]
 
 
+def get_banner_2026_variants():
+    buttons = get_button_variants()
+    videos = get_video_variants()
+    return [
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "simple-default-banner",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Simple Default Banner</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
+                    "If no media is provided, it uses the centered layout.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000001",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "simple-purple-banner-2026",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Simple Purple Banner</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
+                    "If no media is provided, it uses the centered layout.</p>",
+                },
+                "buttons": [buttons["tertiary"], buttons["ghost"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000002",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-image",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000003",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Image</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                    "Switch between light and dark mode to see the alternative images.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000004",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "purple-banner-with-image-2026",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000005",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Image</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                    "Switch between light and dark mode to see the alternative images.</p>",
+                },
+                "buttons": [buttons["tertiary"], buttons["ghost"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000006",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-image-after",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000007",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Image After</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000008",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "purple",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "purple-banner-with-image-after-2026",
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000009",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Image After</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                },
+                "buttons": [buttons["tertiary"], buttons["ghost"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000010",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-qr-code",
+                },
+                "media": [
+                    {
+                        "type": "qr_code",
+                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "id": "a1b2c3d4-0001-0001-0001-000000000011",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with QR Code</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000012",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "purple",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "purple-banner-with-qr-code-2026",
+                },
+                "media": [
+                    {
+                        "type": "qr_code",
+                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "id": "a1b2c3d4-0001-0001-0001-000000000013",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with QR Code</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                },
+                "buttons": [buttons["tertiary"], buttons["ghost"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000014",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-video",
+                },
+                "media": [videos["youtube"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Video</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000015",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "purple",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "purple-banner-with-video-2026",
+                },
+                "media": [videos["cdn"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Video</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                },
+                "buttons": [buttons["tertiary"], buttons["ghost"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000016",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {"theme": "default", "media_after": False, "show_to": SHOW_TO_ALL},
+                "media": [videos["animation"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Animation</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000017",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {"theme": "purple", "media_after": True, "show_to": SHOW_TO_ALL},
+                "media": [videos["animation_autoplay_once"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Banner with Animation (Autoplay once)</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000018",
+        },
+    ]
+
+
 def get_banner_2026_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_2026_test_index_page()
@@ -320,7 +617,7 @@ def get_banner_2026_test_page() -> FreeFormPage2026:
         )
         index_page.add_child(instance=page)
 
-    variants = get_banner_variants()
+    variants = get_banner_2026_variants()
     page.upper_content = variants
     page.content = variants
     page.save_revision().publish()
