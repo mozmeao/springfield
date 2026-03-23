@@ -34,11 +34,6 @@
 }
 
 .fl-banner-kit .fl-heading {
-    display: block;
-    text-wrap: balance;
-}
-
-.fl-banner-kit .fl-banner-content .fl-heading {
     box-sizing: border-box;
     display: block;
     inline-size: 100%;
@@ -53,8 +48,8 @@
     text-wrap: balance;
 }
 
-.fl-banner-kit .fl-banner-content .fl-subheading,
-.fl-banner-kit .fl-banner-content .fl-body {
+.fl-banner-kit .fl-subheading,
+.fl-banner-kit .fl-body {
     margin: 0 auto;
     max-inline-size: 500px;
     text-wrap: balance;
@@ -86,6 +81,7 @@
 
 .fl-banner-kit-face {
     --kit-img: url('/media/img/firefox/flare/forward-facing-kit.svg');
+    --kit-img-size: auto 140px;
 }
 
 .fl-banner-kit-tail {
@@ -181,6 +177,17 @@
         justify-content: start;
     }
 
+    .fl-banner-kit.align-start-on-desktop .fl-heading-group,
+    .fl-banner-kit.align-start-on-desktop .fl-heading,
+    .fl-banner-kit.align-start-on-desktop .fl-subheading {
+        margin-inline-start: 0;
+    }
+
+    .fl-banner-kit.align-center-on-desktop .fl-heading,
+    .fl-banner-kit.align-center-on-desktop .fl-subheading {
+        margin-inline-start: auto;
+    }
+
     .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-tail,
@@ -207,8 +214,8 @@
     }
 
     .fl-banner-animation .fl-video-play-icon {
-        inset-block-end: var(--token-layout-3xs);
-        inset-inline-end: var(--token-layout-3xs);
+        inset-block-end: var(--token-layout-xs);
+        inset-inline-end: var(--token-layout-xs);
     }
 
     .fl-banner-kit-face {
@@ -307,11 +314,6 @@
     .fl-banner-kit-face .fl-banner-content,
     .fl-banner-kit-tail .fl-banner-content {
         margin: 0 auto;
-    }
-
-    .fl-banner-kit-curious-animation .fl-banner-content {
-        margin-block: 0;
-        margin-inline: min(10vw, 100px) auto;
     }
 
     .fl-banner-kit-diving-in {
