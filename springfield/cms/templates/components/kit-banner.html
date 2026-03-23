@@ -12,8 +12,9 @@
   {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
   <div
     class="
-      fl-banner fl-banner-kit fl-banner-purple fl-force-dark-theme
-      {% if contents.animation %}fl-banner-kit-animation{% elif theme %}fl-banner-kit-{{ theme }}{% endif %}"
+      fl-banner fl-banner-kit fl-force-dark-theme
+      {% if contents.animation %}fl-banner-kit-animation{% elif theme %}fl-banner-kit-{{ theme }}{% endif %}
+      {% if theme and theme != 'small' %}align-start-on-desktop{% else %}align-center-on-desktop{% endif %}"
     aria-labelledby="fl-banner-heading"
     >
     {% if qr_code and qr_code.strip() %}

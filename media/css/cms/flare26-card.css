@@ -142,11 +142,6 @@ Card Grid - Flare 2026 Design System Cards
     text-decoration: underline;
 }
 
-.fl-body a {
-    color: var(--fl-theme-color-text);
-    text-decoration: none;
-}
-
 /* =====================================================================
 Basic Card
 ===================================================================== */

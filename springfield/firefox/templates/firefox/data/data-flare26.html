@@ -176,15 +176,16 @@
         <content:heading>
           <include:heading
             level="h2"
+            heading_size="fl-heading-size-3"
+            alignment_class=""
             heading_text="Private browsing that goes above and beyond."
+            subheading_text="And when it comes to private browsing, Firefox’s Private Window mode goes way past most browsers. In addition to making sure everything you do in a Private Window is deleted when you close it, Firefox blocks  tracker scripts and content by default, keeps your unique device  identity private with advanced fingerprinting protections, and proactively tells websites not to sell or share your data."
+            subheading_size="fl-subheading-4"
           />
-        </content:heading>
 
-        <content:body>
-          <p>
-            And when it comes to private browsing, Firefox’s Private Window mode goes way past most browsers. In addition to making sure everything you do in a Private Window is deleted when you close it, Firefox blocks  tracker scripts and content by default, keeps your unique device  identity private with advanced fingerprinting protections, and proactively tells websites not to sell or share your data.
-          </p>
-        </content:body>
+
+
+        </content:heading>
 
         <content:media>
           <img src="/media/img/firefox/flare/2026/user-privacy/bottom-banner.png" aria-hidden />
@@ -196,27 +197,28 @@
   <div class="fl-section end-of-page has-gradient-bottom">
     <div class="max-width-wide-banner">
 
-      <include:intro vertical full_width>
-        <content:heading>
-          <include:heading
-            level="h2"
-            heading_text="Firefox is built to protect you."
-            subheading_text="Take control of your data with Firefox today."
-          />
-        </content:heading>
+      <include:banner
+        slim="true"
+        theme="default"
+      >
+      <content:heading>
+        <include:heading
+          level="h2"
+          heading_size="fl-heading-size-2"
+          heading_text="Firefox is built to protect you. "
+          subheading_text="Take control of your data with Firefox today."
+        />
+      </content:heading>
 
-        <content:body>
+      <content:actions>
           <div class="fl-buttons is-horizontal">
-
-          {{ download_firefox_thanks(
-            alt_copy="Download Firefox",
-            dom_id='data-protection-download-firefox',
-            button_class='download-cta',
-            download_location='data-protection',
-            flare_styles=True,
-          ) }}
-
-
+            {{ download_firefox_thanks(
+              alt_copy="Download Firefox",
+              dom_id='data-protection-download-firefox',
+              button_class='download-cta',
+              download_location='data-protection',
+              flare_styles=True,
+            ) }}
             <include:button
               id="privacy-settings"
               label="Manage Your Privacy Settings"
@@ -232,8 +234,13 @@
               link="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}"
             />
           </div>
-        </content:body>
-      </include:intro>
+      </content:actions>
+
+
+
+      </include:banner>
+
+
 
     </div>
   </div>

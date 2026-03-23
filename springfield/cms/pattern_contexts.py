@@ -20,3 +20,16 @@ def add_fluent_context(context, request):
 
     context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
     return context
+
+
+def pattern_library_l10n_context(request):
+    """Add localization context to pattern library requests. The `add_fluent_context` modifier
+    only applies to the context used for the pattern rendering, not the surrounding page context.
+    """
+
+    if request.path.startswith("/pattern-library/"):
+        locale = get_locale(request)
+        return {
+            "fluent_l10n": fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES),
+        }
+    return {}
