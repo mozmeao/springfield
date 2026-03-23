@@ -5,6 +5,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_position = block_position or "topic-list" %}
+
 <section class="fl-section">
   <div class="fl-section-container">
     <div class="fl-topic-list">
@@ -40,7 +42,8 @@
 
       <div class="fl-topic-list-content">
         {% for topic in value.topics %}
-          {{ topic }}
+          {% set block_position = block_position ~ '.topic-' ~ loop.index %}
+          {% include_block topic %}
         {% endfor %}
       </div>
     </div>
