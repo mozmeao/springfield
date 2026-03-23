@@ -620,9 +620,11 @@
         </section>
       </div>
 
+      <div class="fl-section fl-t-section-no-gap">
       {% with location = 'bottom' %}
         {% include "firefox/releases/partials/notes_pagination.html" %}
       {% endwith %}
+      </div>
 
       {% if switch('flare26_enabled') %}
       <div class="fl-download-section-container">
