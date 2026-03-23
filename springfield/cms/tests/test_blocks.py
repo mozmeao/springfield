@@ -77,7 +77,7 @@ from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import (
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page, get_intro_2026_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
-from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page, get_kit_banner_variants
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page, get_kit_banner_variants
 from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
@@ -1560,6 +1560,62 @@ def test_kit_banner_curious_animation(index_page, rf):
     play_icon = pause_button.find(class_="js-play-icon")
     assert play_icon is not None
     assert play_icon.get("hidden") is not None
+
+
+def test_kit_banner_2026_block(index_page, placeholder_images, rf):
+    banners = get_kit_banner_variants()
+    test_page = get_kit_banner_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
+        banner_elements = region.find_all("div", class_="fl-banner-kit")
+        assert len(banner_elements) == len(banners)
+
+        heading_index_offset = region_index * len(banners)
+
+        for index, banner in enumerate(banners):
+            banner_element = banner_elements[index]
+
+            settings = banner["value"]["settings"]
+            theme = settings["theme"].replace("filled-", "").replace("filled", "")
+            if theme:
+                assert f"fl-banner-kit-{theme}" in banner_element["class"]
+            anchor_id = settings.get("anchor_id")
+            if anchor_id:
+                assert banner_element.parent.get("id") == anchor_id
+
+            heading_block = banner["value"]["heading"]
+            assert_section_heading_attributes(
+                section_element=banner_element,
+                heading_data=heading_block,
+                index=heading_index_offset + index,
+            )
+
+            heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+            buttons = banner["value"]["buttons"]
+            button_elements = banner_element.find_all("a", class_="fl-button")
+            for button_index, button in enumerate(buttons):
+                button_element = button_elements[button_index]
+                cta_position = f"{region_name}-block-{index + 1}-kit_banner.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_element,
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
 
 
 # Homepage
