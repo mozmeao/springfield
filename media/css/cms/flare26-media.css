@@ -91,7 +91,7 @@
     z-index: 1;
 }
 
-.fl-video:not(.fl-animation) .fl-video-play-icon {
+.fl-video:not(.fl-animation):not(.fl-video-is-animation) .fl-video-play-icon {
     block-size: 48px;
     inline-size: 48px;
     inset-block-start: 50%;

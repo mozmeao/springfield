@@ -30,7 +30,7 @@
 
 .fl-banner-kit .fl-banner-content-inner,
 .fl-banner-kit .fl-heading-group {
-    gap: var(--token-spacing-3xl);
+    gap: var(--token-spacing-2xl);
 }
 
 .fl-banner-kit .fl-heading {
@@ -65,6 +65,7 @@
 
 .fl-banner-kit .fl-superheading {
     color: var(--fl-theme-color-text);
+    margin: 0;
 }
 
 .fl-banner-kit-small,
