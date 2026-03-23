@@ -294,7 +294,7 @@ def test_CMSLocaleFallbackMiddleware_alias_locale_serves_fallback_page_transpare
     middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
     response = middleware(request)
 
-    # The user is served the pt_br_page content at the URL for the pt-PR locale.
+    # The user is served the pt_br_page content at the URL for the pt-PT locale.
     assert response.status_code == 200
     assert request.content_locale == "pt-BR"
     assert pt_br_page.title in response.content.decode("utf-8")

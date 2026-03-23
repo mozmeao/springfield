@@ -148,7 +148,7 @@ def test_get_locales_for_cms_page__multiple_aliases_for_same_target_all_added(ti
     assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
         translation_locales
     )
-    # Since "en-MX" is a fallback locale for "es-AR" and "es-CL", we expect that
+    # Since "es-MX" is a fallback locale for "es-AR" and "es-CL", we expect that
     # "es-AR" and "es-CL" are included in the results of get_locales_for_cms_page().
     expected_result = translation_locales + ["es-AR", "es-CL"]
     result = get_locales_for_cms_page(en_us_test_page)

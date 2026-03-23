@@ -303,7 +303,7 @@ class TestL10nTemplateView(TestCase):
         (False, "", False, "", "en-US", "en-US"),
     ),
 )
-def test_get_locale_prefernce_order(locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected):
+def test_get_locale_preference_order(locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected):
     """
     Test the order of preference that get_locale() uses to determine the value to return.
 
@@ -316,7 +316,7 @@ def test_get_locale_prefernce_order(locale_is_set, locale_value, content_locale_
     if locale_is_set:
         request.locale = locale_value
     if content_locale_is_set:
-        request.locale = content_locale_value
+        request.content_locale = content_locale_value
 
     with override_settings(LANGUAGE_CODE=language_code_settting):
         result = l10n_utils.get_locale(request)
