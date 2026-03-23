@@ -98,7 +98,6 @@
 
 .fl-c-release-notes-pre-footer {
     --release-notes-padding: 0px;
-    background: var(--fl-theme-background);
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     padding: var(--token-spacing-md);
