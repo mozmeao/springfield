@@ -780,6 +780,11 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             default=False,
             help_text="Show 'Set as default browser' checkbox to Windows users. Attention! This will affect all download buttons on the page.",
         )
+        show_extra_links = blocks.BooleanBlock(
+            required=False,
+            default=True,
+            help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
+        )
 
         class Meta:
             icon = "cog"
@@ -2147,7 +2152,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
