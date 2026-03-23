@@ -6,14 +6,14 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
-from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_2026_test_index_page,
     get_article_index_test_page,
     get_placeholder_images,
     get_test_index_page,
 )
-from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.button_fixtures import get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_filled_cards_test_page,
     get_icon_cards_test_page,
@@ -21,18 +21,37 @@ from springfield.cms.fixtures.card_fixtures import (
     get_step_cards_test_page,
     get_sticker_cards_test_page,
 )
+from springfield.cms.fixtures.card_gallery_2026_fixtures import get_card_gallery_2026_test_page
+from springfield.cms.fixtures.cards_2026_fixtures import (
+    get_illustration_cards_2026_test_page,
+    get_outlined_cards_2026_test_page,
+    get_step_cards_2026_test_page,
+    get_sticker_cards_2026_test_page,
+)
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
-from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
+from springfield.cms.fixtures.freeformpage_2026 import (
+    get_freeform_page_2026_test_page,
+    get_mobile_store_qr_code_test_page,
+)
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
+from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import get_icon_list_with_image_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
 )
+from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
+from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
+from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
+from springfield.cms.fixtures.whats_new_page_fixtures import (
+    get_whats_new_page_2026_with_qr_snippet,
+    get_whats_new_page_with_qr_snippet,
+    get_whatsnew_index_page,
+)
 
 
 class Command(BaseCommand):
@@ -72,6 +91,45 @@ class Command(BaseCommand):
         home_page = get_home_test_page()
         self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
 
+        mobile_store_qr_code_page = get_mobile_store_qr_code_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Mobile Store QR Code test page loaded: {mobile_store_qr_code_page.slug}"))
+
+        freeform_2026_page = get_freeform_page_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 test page loaded: {freeform_2026_page.slug}"))
+
+        intro_2026_page = get_intro_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Intro 2026 test page loaded: {intro_2026_page.slug}"))
+
+        sticker_cards_2026_page = get_sticker_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Sticker Cards 2026 test page loaded: {sticker_cards_2026_page.slug}"))
+
+        illustration_cards_2026_page = get_illustration_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Illustration Cards 2026 test page loaded: {illustration_cards_2026_page.slug}"))
+
+        outlined_cards_2026_page = get_outlined_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Outlined Cards 2026 test page loaded: {outlined_cards_2026_page.slug}"))
+
+        step_cards_2026_page = get_step_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Step Cards 2026 test page loaded: {step_cards_2026_page.slug}"))
+
+        icon_list_with_image_page = get_icon_list_with_image_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Icon List with Image 2026 test page loaded: {icon_list_with_image_page.slug}"))
+
+        showcase_2026_page = get_showcase_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Showcase 2026 test page loaded: {showcase_2026_page.slug}"))
+
+        card_gallery_2026_page = get_card_gallery_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Card Gallery 2026 test page loaded: {card_gallery_2026_page.slug}"))
+
+        notification_page = get_notification_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
+
+        banner_2026_page = get_banner_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))
+
+        buttons_2026_page = get_buttons_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Buttons 2026 test page loaded: {buttons_2026_page.slug}"))
+
         download_pages = get_download_pages()
         for download_page in download_pages.values():
             self.stdout.write(self.style.SUCCESS(f"Download test page loaded: {download_page.slug}"))
@@ -92,17 +150,16 @@ class Command(BaseCommand):
         artcle_theme_hub_page = get_article_theme_hub_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
 
-        feature_theme_page, feature_index_page, feature_pages = load_feature_page_fixtures()
-        if not no_refresh:
-            # Delete existing feature theme page children (index page + detail pages)
-            feature_theme_page.get_children().delete()
-            self.stdout.write(self.style.SUCCESS("Existing feature pages deleted."))
-        self.stdout.write(self.style.SUCCESS(f"Feature Theme page loaded: {feature_theme_page.slug}"))
-        self.stdout.write(self.style.SUCCESS(f"Feature Index page loaded: {feature_index_page.slug}"))
-        for page in feature_pages:
-            self.stdout.write(self.style.SUCCESS(f"Feature page loaded: {page.slug}"))
+        whats_new_index_page = get_whatsnew_index_page()
+        self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))
+
+        whats_new_page_2026 = get_whats_new_page_2026_with_qr_snippet()
+        self.stdout.write(self.style.SUCCESS(f"What's New 2026 with QR snippet test page loaded: {whats_new_page_2026.slug}"))
 
         # 2025 pages
+
+        whats_new_page_2025 = get_whats_new_page_with_qr_snippet()
+        self.stdout.write(self.style.SUCCESS(f"What's New with QR snippet test page loaded: {whats_new_page_2025.slug}"))
 
         inline_notification_page = get_inline_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Inline Notification test page loaded: {inline_notification_page.slug}"))

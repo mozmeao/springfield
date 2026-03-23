@@ -12,7 +12,10 @@
   {% set qr_code = value.media[0].value.data %}
 {% endif %}
 
-<include:conditional-display condition="{{ value.settings.show_to }}">
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
 
   <include:banner
     theme="{{ value.settings.theme }}"
@@ -25,7 +28,7 @@
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
       <include:heading
         level="{{ heading_level }}"
-        heading_size="fl-heading-size-2"
+        heading_size="fl-heading-size-3"
         alignment_class=""
         superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
         heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"

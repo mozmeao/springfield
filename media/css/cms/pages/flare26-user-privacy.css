@@ -82,10 +82,6 @@
     display: block;
 }
 
-.fl-page-user-privacy .fl-banner h2 {
-    font-size: var(--fl-theme-font-size-heading-md);
-}
-
 .fl-page-user-privacy .fl-fx-download-container {
     display: inline-flex;
 }
@@ -93,6 +89,10 @@
 .fl-page-user-privacy .fl-privacy-link {
     display: none;
     margin: 0;
+}
+
+.fl-page-user-privacy .fl-banner-content {
+    max-inline-size: none;
 }
 
 .fl-page-user-privacy .fl-intro-body .fl-button {
@@ -149,7 +149,9 @@ body.data-uitour #privacy-settings {
         color: var(--sidebar-selected-text-color);
     }
 
-    .fl-page-user-privacy .main-content .sidebar li a {
+    .fl-page-user-privacy .main-content .sidebar li a,
+    /* regular link styles should be also applied to none first current items */
+    .fl-page-user-privacy .main-content .sidebar li.current + li.current a {
         align-items: center;
         color: var(--sidebar-text-color);
         display: flex;

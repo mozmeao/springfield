@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
+from django.forms.widgets import CheckboxSelectMultiple
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -308,20 +309,27 @@ ICON_CHOICES = [
     ("xr-true", "XR True"),
 ]
 
-CONDITIONAL_DISPLAY_CHOICES = [
-    ("all", "All Users"),
-    ("is-firefox", "Firefox Users"),
-    ("not-firefox", "Non Firefox Users"),
-    ("state-fxa-supported-signed-in", "Signed-in Users"),
-    ("state-fxa-supported-signed-out", "Signed-out Users"),
-    ("osx", "macOS Users"),
-    ("linux", "Linux Users"),
-    ("windows", "Windows Users"),
-    ("windows-10-plus", "Windows 10+ Users"),
-    ("windows-10-plus-signed-in", "Signed-in Windows 10+ Users"),
-    ("windows-10-plus-signed-out", "Signed-out Windows 10+ Users"),
-    ("unsupported", "Unsupported OS Users"),
-    ("other-os", "Other OS Users"),  # iOS, Android, Other
+PLATFORM_CHOICES = [
+    ("osx", "macOS"),
+    ("linux", "Linux"),
+    ("windows", "Windows"),
+    ("windows-10-plus", "Windows 10+"),
+    ("android", "Android"),
+    ("ios", "iOS"),
+    ("other-os", "Other OS"),
+    ("unsupported", "Unsupported OS"),
+]
+
+FIREFOX_CHOICES = [
+    ("", "No restriction"),
+    ("is-firefox", "Firefox only"),
+    ("not-firefox", "Non-Firefox only"),
+]
+
+AUTH_CHOICES = [
+    ("", "No restriction"),
+    ("state-fxa-supported-signed-in", "Signed-in only"),
+    ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
 
 
@@ -332,6 +340,9 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
+UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
+UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
@@ -341,6 +352,9 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
@@ -349,6 +363,8 @@ BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
+STORE_BUTTON_TYPE = "store_button"
+FOCUS_BUTTON_TYPE = "focus_button"
 
 
 BUTTON_PRIMARY = ""
@@ -380,18 +396,15 @@ def validate_video_url(value):
 
 
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
-    """A SnippetChooserBlock that returns the live localized version of the selected snippet."""
+    """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
-    def _localize(self, instance):
-        if instance and hasattr(instance, "get_localized"):
-            instance = instance.get_localized()
-        return instance
-
-    def to_python(self, value):
-        return self._localize(super().to_python(value))
-
-    def bulk_to_python(self, values):
-        return [self._localize(instance) for instance in super().bulk_to_python(values)]
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        if value and hasattr(value, "get_localized"):
+            localized_instance = value.get_localized()
+            context[self.TEMPLATE_VAR] = localized_instance
+            context["self"] = localized_instance
+        return context
 
     def clean(self, value):
         if value and not value.live:
@@ -404,6 +417,36 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+
+
+class ConditionalDisplayBlock(blocks.StructBlock):
+    platforms = blocks.MultipleChoiceBlock(
+        choices=PLATFORM_CHOICES,
+        required=False,
+        help_text="Show to specific platforms. Leave empty to show to all platforms.",
+        widget=CheckboxSelectMultiple,
+    )
+    firefox = blocks.ChoiceBlock(
+        choices=FIREFOX_CHOICES,
+        default="",
+        required=False,
+        label="Firefox",
+        help_text="Filter by Firefox browser. Leave empty for no restriction.",
+    )
+    auth_state = blocks.ChoiceBlock(
+        choices=AUTH_CHOICES,
+        default="",
+        required=False,
+        label="Login state",
+        help_text="Filter by login state. Leave empty for no restriction.",
+    )
+
+    class Meta:
+        label = "Conditional Display"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
+        icon = "eye"
+        collapsed = True
+        form_classname = "compact-form struct-block"
 
 
 # Element blocks
@@ -437,8 +480,8 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE]
+        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -669,6 +712,9 @@ class UITourButtonValue(BaseButtonValue):
             UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
             UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
             UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
             UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
         }
         theme_classes += " " + classes.get(button_type, "")
@@ -762,6 +808,42 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     return _DownloadFirefoxButtonBlock(**kwargs)
 
 
+class StoreButtonBlock(blocks.StructBlock):
+    store = blocks.ChoiceBlock(
+        choices=[
+            ("android", "Android (Google Play)"),
+            ("ios", "iOS (App Store)"),
+        ],
+        label="Store",
+    )
+
+    class Meta:
+        label = "Store Button"
+        label_format = "Store Button - {store}"
+        template = "cms/blocks/store-button.html"
+
+
+def FirefoxFocusButtonBlock(themes=None, **kwargs):
+    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
+        store = blocks.ChoiceBlock(
+            choices=[
+                ("android", "Android (Google Play)"),
+                ("ios", "iOS (App Store)"),
+            ],
+            label="Store",
+        )
+
+        class Meta:
+            label = "Firefox Focus Button"
+            label_format = "Firefox Focus Button - {label}"
+            template = "cms/blocks/firefox-focus-button.html"
+            value_class = BaseButtonValue
+
+    return _FirefoxFocusButtonBlock(**kwargs)
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -783,6 +865,8 @@ def MixedButtonsBlock(
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
+        STORE_BUTTON_TYPE: StoreButtonBlock(),
+        FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -906,14 +990,17 @@ class ImageVariantsBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ImageVariantsBlock(blocks.StructBlock):
-    image = ImageChooserBlock()
-    settings = ImageVariantsBlockSettings()
+def ImageVariantsBlock(required=True, *args, **kwargs):
+    class _ImageVariantsBlock(blocks.StructBlock):
+        image = ImageChooserBlock(required=required)
+        settings = ImageVariantsBlockSettings()
 
-    class Meta:
-        label = "Image"
-        label_format = "Image - {image}"
-        template = "cms/blocks/image-variants.html"
+        class Meta:
+            label = "Image"
+            label_format = "Image - {image}"
+            template = "cms/blocks/image-variants.html"
+
+    return _ImageVariantsBlock(*args, **kwargs)
 
 
 class VideoBlock(blocks.StructBlock):
@@ -931,29 +1018,33 @@ class VideoBlock(blocks.StructBlock):
         template = "cms/blocks/video.html"
 
 
-class AnimationBlock(blocks.StructBlock):
-    video_url = blocks.URLBlock(
-        label="Animation URL",
-        help_text="Link to a webm video from assets.mozilla.net.",
-        validators=[validate_animation_url],
-    )
-    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
-    poster = ImageChooserBlock(help_text="Poster image displayed before the animation is played.")
-    playback = blocks.ChoiceBlock(
-        choices=[
-            ("autoplay_loop", "Autoplay (loop)"),
-            ("autoplay_once", "Autoplay (play once)"),
-        ],
-        default="autoplay_loop",
-        label="Playback",
-        help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
-        inline_form=True,
-    )
+def AnimationBlock(required=True, *args, **kwargs):
+    class _AnimationBlock(blocks.StructBlock):
+        video_url = blocks.URLBlock(
+            required=required,
+            label="Animation URL",
+            help_text="Link to a webm video from assets.mozilla.net.",
+            validators=[validate_animation_url],
+        )
+        alt = blocks.CharBlock(required=required, label="Alt Text", help_text="Text for screen readers describing the video.")
+        poster = ImageChooserBlock(required=required, help_text="Poster image displayed before the animation is played.")
+        playback = blocks.ChoiceBlock(
+            choices=[
+                ("autoplay_loop", "Autoplay (loop)"),
+                ("autoplay_once", "Autoplay (play once)"),
+            ],
+            default="autoplay_loop",
+            label="Playback",
+            help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
+            inline_form=True,
+        )
 
-    class Meta:
-        label = "Animation"
-        label_format = "Animation - {video_url}"
-        template = "cms/blocks/animation.html"
+        class Meta:
+            label = "Animation"
+            label_format = "Animation - {video_url}"
+            template = "cms/blocks/animation.html"
+
+    return _AnimationBlock(*args, **kwargs)
 
 
 class QRCodeBlock(blocks.StructBlock):
@@ -1028,6 +1119,26 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     return _MediaContentBlock(*args, **kwargs)
 
 
+class IconListItemBlock(blocks.StructBlock):
+    icon = IconChoiceBlock()
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List Item"
+        label_format = "{text}"
+
+
+class IconListWithImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock()
+    list_items = blocks.ListBlock(IconListItemBlock())
+
+    class Meta:
+        label = "Icon List with Image"
+        label_format = "Icon List with Image"
+        template = "cms/blocks/icon-list-with-image.html"
+
+
 # Cards
 
 
@@ -1037,11 +1148,8 @@ class BaseCardSettings(blocks.StructBlock):
         default=False,
         help_text="Expand the link click area to the whole card",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1049,7 +1157,7 @@ class BaseCardSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show To: {show_to}"
+        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1288,7 +1396,7 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
+            themes=[BUTTON_LINK],
             min_num=0,
             max_num=1,
             required=False,
@@ -1339,7 +1447,7 @@ def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=1,
+            max_num=2,
             required=False,
         )
 
@@ -1381,6 +1489,35 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     return _IllustrationCardBlock(*args, **kwargs)
 
 
+def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
+    """Factory function to create OutlinedCardBlock with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _OutlinedCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        sticker = ImageVariantsBlock(required=False)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/outlined-card.html"
+            label = "Outlined Card"
+            label_format = "Outlined Card - {headline}"
+
+    return _OutlinedCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1394,6 +1531,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
             ]
         )
 
@@ -1632,11 +1770,8 @@ class InlineNotificationSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Show close button",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
 
@@ -1644,7 +1779,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show To: {show_to}"
+        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1655,6 +1790,54 @@ class InlineNotificationBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/inline-notification.html"
         label = "Inline Notification"
+        label_format = "{message}"
+        form_classname = "compact-form struct-block"
+
+
+class NotificationSettings(blocks.StructBlock):
+    icon = IconChoiceBlock(required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("green", "Green"),
+            ("orange", "Orange"),
+            ("red", "Red"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    stacked = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Stack icon above message",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button. Not available for stacked layout.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class NotificationBlock(blocks.StructBlock):
+    settings = NotificationSettings()
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/notification.html"
+        label = "Notification"
         label_format = "{message}"
         form_classname = "compact-form struct-block"
 
@@ -1706,6 +1889,33 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
     return _IntroBlock(*args, **kwargs)
 
 
+class IntroBlockSettings2026(blocks.StructBlock):
+    layout = blocks.ChoiceBlock(
+        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        default="vertical",
+        label="Layout",
+        inline_form=True,
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        form_classname = "compact-form struct-block"
+
+
 def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create IntroBlock with appropriate button types.
 
@@ -1715,15 +1925,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _IntroBlock(blocks.StructBlock):
-        media = blocks.StreamBlock(
-            [
-                ("image", ImageVariantsBlock()),
-                ("video", VideoBlock()),
-            ],
-            label="Media",
-            required=False,
-            max_num=1,
-        )
+        settings = IntroBlockSettings2026()
+        media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
@@ -1742,11 +1945,8 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
 
 
 class SectionBlockSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1758,7 +1958,7 @@ class SectionBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1803,9 +2003,12 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -1842,10 +2045,11 @@ class SubscriptionBlock(blocks.StructBlock):
 class BannerSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
+            ("default", "Default"),
             ("outlined", "Outlined"),
             ("purple", "Purple"),
         ),
-        default="outlined",
+        default="default",
         inline_form=True,
     )
     media_after = blocks.BooleanBlock(
@@ -1855,11 +2059,8 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Place media after text content on desktop.",
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1871,7 +2072,7 @@ class BannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Media After: {media_after} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Media After: {media_after} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -1905,15 +2106,13 @@ class KitBannerSettings(blocks.StructBlock):
             ("filled-large", "With Large Curious Kit"),
             ("filled-face", "With Sitting Kit"),
             ("filled-tail", "With Kit Tail"),
+            ("curious-animation", "With Curious Kit Animation"),
         ),
         default="filled",
         inline_form=True,
     )
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -1925,11 +2124,11 @@ class KitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Theme: {theme} - Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Theme: {theme} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
-def KitBannerBlock(allow_uitour=False, *args, **kwargs):
+def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, **kwargs):
     """Factory function to create KitBannerBlock with appropriate button types."""
 
     class _KitBannerBlock(blocks.StructBlock):
@@ -1937,6 +2136,7 @@ def KitBannerBlock(allow_uitour=False, *args, **kwargs):
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
+            themes=button_themes,
             min_num=0,
             max_num=2,
             required=False,
@@ -1974,7 +2174,22 @@ class HomeCarouselSlide(blocks.StructBlock):
     image = ImageVariantsBlock()
 
 
+class HomeCarouselSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
 class HomeCarouselBlock(blocks.StructBlock):
+    settings = HomeCarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
@@ -2063,11 +2278,8 @@ class CardGalleryBlock(blocks.StructBlock):
 
 
 class HomeKitBannerSettings(blocks.StructBlock):
-    show_to = blocks.ChoiceBlock(
-        choices=CONDITIONAL_DISPLAY_CHOICES,
-        default="all",
+    show_to = ConditionalDisplayBlock(
         label="Show To",
-        inline_form=True,
         help_text="Control which users can see this content block",
     )
     anchor_id = blocks.CharBlock(
@@ -2079,7 +2291,7 @@ class HomeKitBannerSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Show To: {show_to} - Anchor ID: {anchor_id}"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -2104,6 +2316,28 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)
+
+
+# Mobile
+
+
+class MobileStoreQRCodeBlock(blocks.StructBlock):
+    """Block for displaying mobile app store buttons with a QR code."""
+
+    heading = HeadingBlock()
+    qr_code_data = blocks.CharBlock(
+        label="QR Code Data",
+        help_text="The URL or text encoded in the QR code.",
+    )
+    mobile_image = ImageChooserBlock(
+        label="Mobile Image",
+        help_text="Image shown on mobile instead of the QR code.",
+    )
+
+    class Meta:
+        template = "cms/blocks/sections/mobile-store-qr-code.html"
+        label = "Mobile Store Button / QR Code"
+        label_format = "{heading}"
 
 
 # Thanks Page

@@ -24,11 +24,13 @@ test.describe(
         });
 
         test('should not have any detectable a11y issues', async ({ page }) => {
-            const resourcesLink = page.getByTestId(
-                'm24-navigation-link-resources'
+            // distinguish from ie-only nav
+            const mainNav = page.getByTestId('navigation-menu-items');
+            const resourcesLink = mainNav.getByTestId(
+                'navigation-link-resources'
             );
-            const resourcesMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
+            const resourcesMenu = mainNav.getByTestId(
+                'navigation-menu-resources'
             );
 
             // Hover over resources link to open menu
@@ -61,13 +63,15 @@ test.describe(
 
         test('should not have any detectable a11y issues', async ({ page }) => {
             const navigationMenuButton = page.getByTestId(
-                'm24-navigation-menu-button'
+                'navigation-menu-button'
             );
             const navigationMenuItems = page.getByTestId(
-                'm24-navigation-menu-items'
+                'navigation-menu-items'
             );
-            const resourcesMenu = page.getByTestId(
-                'm24-navigation-menu-resources'
+            // distinguish from ie-only nav
+            const mainNav = page.getByTestId('navigation-menu-items');
+            const resourcesMenu = mainNav.getByTestId(
+                'navigation-menu-resources'
             );
 
             // Open navigation menu

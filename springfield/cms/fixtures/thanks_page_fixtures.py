@@ -6,7 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_banner_snippet, get_pre_footer_cta_form_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_banner_snippet, get_pre_footer_cta_form_snippet, get_qr_code_snippet
 from springfield.cms.models import ThanksPage
 
 
@@ -76,7 +76,7 @@ def get_windows_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "windows", "anchor_id": ""},
+            "settings": {"show_to": {"platforms": ["windows"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
             "heading": {
                 "superheading_text": "Windows Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
@@ -93,7 +93,7 @@ def get_linux_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "linux", "anchor_id": ""},
+            "settings": {"show_to": {"platforms": ["linux"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
             "heading": {
                 "superheading_text": "Linux Users",
                 "heading_text": '<p data-block-key="x4k4z">Almost there!</p>',
@@ -110,7 +110,7 @@ def get_unsupported_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "unsupported", "anchor_id": ""},
+            "settings": {"show_to": {"platforms": ["unsupported"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
             "heading": {
                 "superheading_text": "Unsupported OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Your download was interrupted. But all is not lost.</p>',
@@ -127,7 +127,7 @@ def get_other_os_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "other-os", "anchor_id": ""},
+            "settings": {"show_to": {"platforms": ["other-os", "android", "ios"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
             "heading": {
                 "superheading_text": "Other OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
@@ -146,7 +146,7 @@ def get_mac_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": "osx", "anchor_id": ""},
+            "settings": {"show_to": {"platforms": ["osx"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
             "heading": {
                 "superheading_text": "Mac Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
@@ -186,6 +186,7 @@ def get_thanks_page() -> ThanksPage:
     image, _, _, _ = get_placeholder_images()
 
     get_pre_footer_cta_form_snippet()
+    get_qr_code_snippet()
 
     content = [
         get_windows_section(),
@@ -206,6 +207,7 @@ def get_thanks_page() -> ThanksPage:
         )
         index_page.add_child(instance=page)
 
+    page.show_qr_code_snippet = True
     page.platform = "linux"
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'

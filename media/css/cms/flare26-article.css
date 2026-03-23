@@ -62,6 +62,16 @@
     color: var(--token-color-white);
 }
 
+.article-featured-image {
+    margin-inline: max(-100px, calc((100% - 100vw) / 2));
+    padding-inline: var(--token-spacing-lg);
+}
+
+.article-featured-image img {
+    inline-size: 100%;
+    max-inline-size: 100%;
+}
+
 @media (--viewport-sm-up) {
     .fl-article-page .fl-main {
         padding-block-start: var(--token-layout-lg);

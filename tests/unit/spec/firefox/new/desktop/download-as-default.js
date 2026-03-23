@@ -71,6 +71,20 @@ describe('download-as-default.es6.js', function () {
             expect(result).toBeFalse();
         });
 
+        it('should return false if analytics attribution is not allowed', function () {
+            // consent required geo with no explict analytics allowed cookie
+            spyOn(window.Mozilla.Cookies, 'hasItem')
+                .withArgs('moz-consent-pref')
+                .and.returnValue(false);
+
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'True');
+
+            const result = DownloadAsDefault.meetsRequirements();
+            expect(result).toBeFalse();
+        });
+
         it('should return true if attribution requirements are satisfied', function () {
             const result = DownloadAsDefault.meetsRequirements();
             expect(result).toBeTrue();

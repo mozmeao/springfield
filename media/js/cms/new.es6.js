@@ -342,6 +342,38 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function initAnimationPauseButtons() {
+        const pauseButtons = document.querySelectorAll('.js-animation-pause');
+
+        pauseButtons.forEach(function (button) {
+            const container = button.closest('.fl-video');
+            if (!container) return;
+
+            const video = container.querySelector('video');
+            if (!video) return;
+
+            const pauseIcon = button.querySelector('.js-pause-icon');
+            const playIcon = button.querySelector('.js-play-icon');
+
+            button.addEventListener('click', function () {
+                if (video.paused) {
+                    video.play().catch();
+                    button.setAttribute(
+                        'aria-label',
+                        button.dataset.labelPause
+                    );
+                    pauseIcon.hidden = false;
+                    playIcon.hidden = true;
+                } else {
+                    video.pause();
+                    button.setAttribute('aria-label', button.dataset.labelPlay);
+                    pauseIcon.hidden = true;
+                    playIcon.hidden = false;
+                }
+            });
+        });
+    }
+
     function initDownloadDropdown() {
         const dropdownEl = document.querySelector('.fl-platform-dropdown');
 
@@ -368,6 +400,34 @@ if (typeof window.cms === 'undefined') {
                     dropdownEl.classList.remove('dropdown-is-open');
                 }
             });
+        }
+    }
+
+    function initQRCodeSnippet() {
+        const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
+
+        if (qrCodeSnippetEl) {
+            const closeButton = qrCodeSnippetEl.querySelector(
+                '.fl-qr-code-snippet-close'
+            );
+
+            qrCodeSnippetEl.setAttribute('aria-live', 'polite');
+
+            setTimeout(function () {
+                qrCodeSnippetEl.classList.add('is-open');
+            }, 3000);
+
+            if (
+                qrCodeSnippetEl.classList.contains(
+                    'fl-qr-code-snippet-closable'
+                )
+            ) {
+                if (closeButton) {
+                    closeButton.addEventListener('click', function () {
+                        qrCodeSnippetEl.classList.remove('is-open');
+                    });
+                }
+            }
         }
     }
 
@@ -405,7 +465,9 @@ if (typeof window.cms === 'undefined') {
             applyVideoAspectRatios();
             initVideoPlayers();
             initAnimations();
+            initAnimationPauseButtons();
             initDownloadDropdown();
+            initQRCodeSnippet();
             Flare26.initDialogs();
         });
     } else {
@@ -416,6 +478,7 @@ if (typeof window.cms === 'undefined') {
         initVideoPlayers();
         initAnimations();
         initDownloadDropdown();
+        initQRCodeSnippet();
         Flare26.initDialogs();
     }
 

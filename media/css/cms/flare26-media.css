@@ -56,6 +56,7 @@
     display: flex;
     inline-size: 100%;
     justify-content: center;
+    margin: 0;
     padding: 0;
     position: relative;
 }
@@ -74,15 +75,20 @@
     inline-size: 100%;
     inset-block-start: 0;
     inset-inline-start: 0;
+    margin: 0;
     object-fit: cover;
     position: absolute;
 }
 
 .fl-video-play-icon {
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-    position: relative;
+    position: absolute;
     transition: transform 0.2s ease;
     z-index: 1;
+}
+
+.fl-video-play-icon svg {
+    margin: 0;
 }
 
 .fl-video iframe,
@@ -92,11 +98,13 @@
     inline-size: 100%;
     inset-block-start: 0;
     inset-inline-start: 0;
+    margin: 0;
     position: absolute;
 }
 
 /* Animation component with playback modes */
 .fl-animation video {
+    margin: 0;
     opacity: 0;
     transition:
         opacity 0.4s ease,

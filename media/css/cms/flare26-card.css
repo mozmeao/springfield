@@ -87,6 +87,11 @@ Card Grid - Flare 2026 Design System Cards
         margin-inline: auto;
         max-inline-size: var(--token-width-desktop-content-lg);
     }
+
+    /* make outline cards slightly wider */
+    .fl-card-grid:has(.fl-card:nth-child(3):last-child) {
+        max-inline-size: var(--token-width-desktop-wide-banner);
+    }
 }
 
 .fl-card-heading .fl-heading-group {
@@ -135,11 +140,6 @@ Card Grid - Flare 2026 Design System Cards
         h6.fl-heading
     ) {
     text-decoration: underline;
-}
-
-.fl-body a {
-    color: var(--fl-theme-color-text);
-    text-decoration: none;
 }
 
 /* =====================================================================

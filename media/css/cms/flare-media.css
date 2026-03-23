@@ -58,6 +58,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
 }
 
 .fl-video-play:hover .fl-video-play-icon {
@@ -79,7 +80,7 @@
 }
 
 .fl-video-play-icon {
-    position: relative;
+    position: absolute;
     z-index: 1;
     transition: transform 0.2s ease;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
@@ -100,6 +101,8 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.4s ease, visibility 0.4s;
+    margin: 0;
+    border-radius: calc(var(--token-scale-16) * 1px);
 }
 
 .fl-animation .fl-video-play {

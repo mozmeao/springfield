@@ -25,10 +25,12 @@ from springfield.cms.tests.factories import (
     ArticleThemePageFactory,
     DownloadIndexPageFactory,
     DownloadPageFactory,
+    FreeFormPage2026Factory,
     FreeFormPageFactory,
     LocaleFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
     WhatsNewPageFactory,
 )
 
@@ -164,6 +166,15 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     assert response.status_code == 302
     assert response.headers["location"].endswith(v124_page.url)
 
+    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
+    v125_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v125_page.url)
+
 
 def test_whats_new_index_page_redirects_to_home_if_no_children(
     minimal_site,
@@ -244,6 +255,19 @@ def test_freeform_page(minimal_site, rf):
 
     _relative_url = page.relative_url(minimal_site)
     assert _relative_url == "/en-US/freeform-page/"
+
+    request = rf.get(_relative_url)
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_freeform_page_2026(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
+    page.save()
+
+    _relative_url = page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/freeform-2026-page/"
 
     request = rf.get(_relative_url)
     response = page.specific.serve(request)
@@ -418,7 +442,7 @@ def test_article_index_and_detail_pages_2026(minimal_site, rf):
     # Articles are ordered by the first_published_at field in descending order,
     # but in this test we only verify their presence on the page.
     for i in range(1, 3):
-        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h3").text)
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h2").text)
         assert f"Description for Featured Article {i}" in matching_card.text
         assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
         superheading = matching_card.find(class_="fl-superheading")

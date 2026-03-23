@@ -26,9 +26,26 @@ if (typeof window.dataLayer === 'undefined') {
 }
 
 /**
- * Set Gtag consent defaults to false unless there is a
- * consent pref cookie allowing analytics OR there's no
- * consent required and we're on /landing/get
+ * Checks for marketing consent param from /landing/get
+ * This means the user did not change opt-out checkbox default on that page
+ * Only applies on the /thanks page
+ * @returns {Boolean}
+ */
+GTMSnippet.hasLandingGetMarketingConsent = (href) => {
+    if (!GTMSnippet.isFirefoxDownloadThanks()) {
+        return false;
+    }
+
+    const url = new URL(href);
+    const params = new URLSearchParams(url.search);
+    return params.has('marketing_consent', 1);
+};
+
+/**
+ * Set Gtag consent defaults based on consent cookie or
+ * visitor region. Visitors outside EU/EAA default to
+ * granted analytics; visitors inside EU/EAA default to
+ * denied until explicit consent is given.
  */
 GTMSnippet.setGtagConsentDefaults = () => {
     const cookie = getConsentCookie();
@@ -38,13 +55,12 @@ GTMSnippet.setGtagConsentDefaults = () => {
         setGtagAdsConsentMode(cookie.analytics, 'default');
         setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
-        setGtagAdsConsentMode(false, 'default');
-        setGtagAnalyticsConsentMode(
-            GTMSnippet.isFirefoxLandingGet() && !consentRequired()
-                ? true
-                : false,
+        setGtagAdsConsentMode(
+            (GTMSnippet.isFirefoxLandingGet() && !consentRequired()) ||
+                GTMSnippet.hasLandingGetMarketingConsent(window.location.href),
             'default'
         );
+        setGtagAnalyticsConsentMode(!consentRequired(), 'default');
     }
 };
 

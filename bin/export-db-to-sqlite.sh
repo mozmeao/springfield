@@ -103,7 +103,10 @@ check_status_and_handle_failure "Dumping wagtailcore.Locale"
 # wagtailusers.UserProfile      # Excluded: PII
 # wagtailimages.Rendition       # Excluded: Renditions
 # wagtail_localize_smartling    # Excluded wholesale: translation data may leak draft content
-# wagtail_localize              # Excluded wholesale: translation data may leak draft content
+# wagtail_localize              # Excluded wholesale: translation data may leak draft content
+#                               # However, it is possible to link the translated pages and strings
+#                               # in the export by running the link_translations_after_export
+#                               # management command.
 # wagtailsearch.IndexEntry      # Excluded: WagtailSearch indices need rebuilding and search history is not important
 # wagtailcore.Locale            # Excluded: dumped separately
 # wagtailcore.ModelLogEntry     # Excluded: may contain PII
@@ -158,8 +161,10 @@ python manage.py dumpdata \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
     cms.FreeFormPage \
+    cms.FreeFormPage2026 \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
+    cms.WhatsNewPage2026 \
     cms.SpringfieldImage \
     cms.ArticleIndexPage \
     cms.ArticleDetailPage \
@@ -319,6 +324,13 @@ echo "Restored original DATABASE_URL to $DATABASE_URL"
 check_status_and_handle_failure "Checking all_well at the end of the run"
 
 echo "Export to $output_db successful"
+
+echo ""
+echo "NOTE: Translation linking is not run automatically."
+echo "To link translated pages so they appear connected in the Wagtail admin, run:"
+echo "  DATABASE_URL=sqlite:///$output_db python manage.py link_translations_after_export"
+echo "This takes a few minutes to complete."
+echo ""
 
 # If all is well, ping DMS to avoid an alert being raised.
 if [[ -n "${DB_EXPORT_SCRIPT_DMS_URL}" ]]; then

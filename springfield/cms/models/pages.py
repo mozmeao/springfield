@@ -5,6 +5,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.expressions import Case, F, Value, When
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -30,6 +31,8 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
+    MobileStoreQRCodeBlock,
+    NotificationBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -310,9 +313,14 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     def clean(self):
@@ -323,14 +331,16 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         first_block = self.content[0]
         if first_block.block_type != "section":
             raise ValidationError("The first block must be a 'Section' block.")
-        if first_block.value["settings"].get("show_to") != "all":
+        if first_block.value["settings"].get("show_to", {}).get("platforms"):
             section_blocks = [block for block in self.content if block.block_type == "section"]
-            conditional_sections = [block for block in section_blocks if block.value["settings"].get("show_to") != "all"]
-            conditions = {block.value["settings"].get("show_to") for block in conditional_sections}
-            if not {"windows", "osx", "linux", "unsupported", "other-os"}.issubset(conditions):
+            covered_platforms = set()
+            for block in section_blocks:
+                if platforms := block.value["settings"].get("show_to", {}).get("platforms"):
+                    covered_platforms.update(platforms)
+            if not {"windows", "osx", "linux", "android", "ios", "unsupported", "other-os"}.issubset(covered_platforms):
                 raise ValidationError(
                     "When using conditional display in sections, all platform conditions "
-                    "('Windows', 'macOS', 'Linux',  'Other OS Users', and 'Unsupported OS Users') must be included."
+                    "('Windows', 'macOS', 'Linux', 'Android', 'iOS', 'Other OS Users', and 'Unsupported OS Users') must be included."
                 )
 
     def get_utm_campaign(self):
@@ -643,8 +653,40 @@ def _get_freeform_page_blocks(allow_uitour=False):
     ]
 
 
+def _get_freeform_page_blocks_2026(allow_uitour=False):
+    """Factory function to create block list for FreeFormPage2026 with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
+                      If False, only allows regular buttons.
+
+    Returns:
+        List of tuples containing block names and instances configured
+        with the appropriate button types.
+    """
+    return [
+        ("notification", NotificationBlock()),
+        ("intro", IntroBlock2026(allow_uitour=allow_uitour)),
+        ("section", SectionBlock2026(allow_uitour=allow_uitour)),
+        ("showcase", ShowcaseBlock()),
+        ("card_gallery", CardGalleryBlock()),
+        ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+        ("banner", BannerBlock()),
+        (
+            "banner_snippet",
+            LocalizedLiveSnippetChooserBlock(
+                target_model="cms.BannerSnippet",
+                template="cms/snippets/banner-snippet.html",
+                label="Banner Snippet",
+            ),
+        ),
+    ]
+
+
 FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
+FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=False)
+WHATS_NEW_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 
 
 class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -657,6 +699,47 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
 
+class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A flexible 2026 page type with optional upper/lower split layout."""
+
+    upper_content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+        blank=True,
+        null=True,
+        help_text="Optional upper content. If present, the page will use a split layout.",
+    )
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+    show_pre_footer = models.BooleanField(
+        default=True,
+        help_text="If true, the page will display the default pre-footer section.",
+    )
+
+    show_nav_cta = models.BooleanField(
+        default=True,
+        help_text="If true, the download button will appear in the navigation bar for this page.",
+    )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+        FieldPanel("show_pre_footer"),
+        FieldPanel("show_nav_cta"),
+        FieldPanel("show_qr_code_snippet"),
+    ]
+
+    class Meta:
+        verbose_name = "Free Form 2026 Page"
+        verbose_name_plural = "Free Form 2026 Pages"
+
+
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
 
@@ -664,14 +747,29 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     # Only one instance of this page should exist
     # When a HomePage is implemented, this page should be moved to be a child of HomePage
     # parent_page_types = []
-    subpage_types = ["cms.WhatsNewPage"]
+    subpage_types = ["cms.WhatsNewPage", "cms.WhatsNewPage2026"]
 
     class Meta:
         verbose_name = "What's New Index Page"
         verbose_name_plural = "What's New Index Pages"
 
     def serve(self, request):
-        latest_whats_new = self.get_children().live().public().order_by("-whatsnewpage__version").first()
+        latest_whats_new = (
+            self.get_children()
+            .live()
+            .public()
+            .annotate(
+                version=Case(
+                    When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
+                    When(whatsnewpage2026__version__isnull=False, then=F("whatsnewpage2026__version")),
+                    default=Value(None),
+                    output_field=models.CharField(),
+                )
+            )
+            .order_by("-version")
+            .specific()
+            .first()
+        )
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
         else:
@@ -691,11 +789,16 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="The version of Firefox this What's New page refers to.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
@@ -704,6 +807,57 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ]
         verbose_name = "What's New Page"
         verbose_name_plural = "What's New Pages"
+
+    def get_utm_campaign(self):
+        return f"whatsnew-{self.version}"
+
+    @property
+    def noindex(self):
+        return True
+
+
+class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A 2026 version of the What's New page with optional upper/lower split layout."""
+
+    parent_page_types = ["cms.WhatsNewIndexPage"]
+    subpage_types = []
+
+    ftl_files = ["firefox/whatsnew/evergreen"]
+
+    version = models.CharField(
+        max_length=10,
+        help_text="The version of Firefox this What's New page refers to.",
+    )
+    upper_content = StreamField(
+        WHATS_NEW_PAGE_BLOCKS_2026,
+        use_json_field=True,
+        blank=True,
+        null=True,
+        help_text="Optional upper content. If present, the page will use a split layout.",
+    )
+    content = StreamField(
+        WHATS_NEW_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
+
+    content_panels = [
+        FieldPanel("title"),
+        TitleFieldPanel("version", placeholder="123"),
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
+    ]
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["version"]),
+        ]
+        verbose_name = "What's New 2026 Page"
+        verbose_name_plural = "What's New 2026 Pages"
 
     def get_utm_campaign(self):
         return f"whatsnew-{self.version}"

@@ -206,6 +206,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     vertical-align: baseline;
 }
 
+[dir='rtl'] .fl-footer-section a[href^='http']::after {
+    transform: scaleX(-1);
+}
+
 /* -------------------------------------------------------------------------- */
 
 /* Secondary Section */
@@ -262,6 +266,75 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     text-decoration: underline;
 }
 
+.fl-footer-links {
+    grid-column: 1;
+}
+
+.fl-footer-links ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-footer-links a {
+    color: var(--token-neutrals-grey-3);
+}
+
+.fl-footer-link-has-icon {
+    align-items: baseline;
+    display: flex;
+    gap: var(--token-spacing-xs);
+}
+
+.fl-footer-link-has-icon svg,
+.fl-footer-link-has-icon .fl-icon {
+    margin: 0;
+}
+
+.fl-footer-logo {
+    padding-block: var(--token-spacing-lg);
+}
+
+.fl-footer-logo a {
+    aspect-ratio: 200/57;
+    background: var(--fl-logo-url) no-repeat center;
+    background-size: contain;
+    color: transparent;
+    display: block;
+    font-size: 0;
+    inline-size: 200px;
+    line-height: 0;
+}
+
+.fl-footer-top {
+    padding-block-start: var(--fl-section-v-padding);
+}
+
+.fl-footer-bottom {
+    padding-block: calc(var(--fl-section-v-padding) / 2);
+}
+
+.fl-footer-title {
+    margin-block-end: 0;
+}
+
+.fl-footer-note {
+    font-size: var(--fl-theme-font-size-body-xs);
+    margin-block-start: var(--token-spacing-md);
+    text-align: center;
+}
+
+.fl-footer-cta {
+    padding-block-start: var(--token-spacing-lg);
+}
+
+.fl-footer-cta .fl-button {
+    display: block;
+    text-align: center;
+}
+
 @media (--viewport-below-md) {
     .fl-footer-terms li {
         display: block;
@@ -272,5 +345,30 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @media (--viewport-md-up) {
     .fl-footer-terms {
         gap: var(--token-spacing-sm) var(--token-spacing-2xl);
+    }
+
+    .fl-footer-top {
+        display: grid;
+        grid-template-areas: 'text logo' 'links logo';
+        grid-template-columns: auto 1fr;
+    }
+
+    .fl-footer-copy {
+        grid-area: text;
+    }
+
+    .fl-footer-links {
+        grid-area: links;
+    }
+
+    .fl-footer-logo {
+        grid-area: logo;
+        justify-self: end;
+        padding: 0;
+    }
+
+    .fl-footer-bottom {
+        display: flex;
+        justify-content: space-between;
     }
 }

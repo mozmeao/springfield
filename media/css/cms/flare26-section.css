@@ -45,6 +45,11 @@
     margin-block-end: var(--fl-section-heading-margin-bottom);
 }
 
+/* todo: I'm specifying this for the freeform page, but this how it should be everywhere. */
+.fl-freeform-2026-page .fl-heading-group {
+    margin-block-end: 0;
+}
+
 .fl-heading-group > *:last-child {
     margin-block-end: 0;
 }

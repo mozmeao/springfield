@@ -10,6 +10,14 @@
     --kit-img-size: min(90%, 400px) max(20%, 120px);
     --kit-banner-padding-right: 24px;
     --kit-img-position: bottom center;
+    --kit-animation-block-size: max(20%, 120px);
+    --kit-animation-inline-size: min(90%, 400px);
+    --kit-animation-right: calc(50% - var(--kit-animation-inline-size) / 2);
+    --fl-theme-color-headings-primary: var(--token-neutrals-white);
+    --fl-theme-color-text-primary: var(--token-neutrals-white);
+    --fl-theme-color-link: var(--token-blue-light-blue);
+    --fl-theme-color-link-visited: var(--token-purple-light-purple);
+    --fl-theme-color-link-strong: var(--token-blue-light-blue);
     background-image: var(--kit-img), var(--token-noise-bg-texture), var(--token-gradient-radial-purple);
     background-size: var(--kit-img-size), 600px 600px, cover;
     background-position: var(--kit-img-position), center, center;
@@ -30,7 +38,8 @@
 
 .fl-banner-kit-small,
 .fl-banner-kit-large,
-.fl-banner-kit-face {
+.fl-banner-kit-face,
+.fl-banner-kit-curious-animation {
     --kit-banner-padding-bottom: 160px;
 }
 
@@ -50,6 +59,66 @@
     --kit-banner-padding-bottom: 210px;
 }
 
+.fl-banner-kit-curious-animation {
+    position: relative;
+}
+
+.fl-banner-kit-curious-animation .fl-banner-animation {
+    position: absolute;
+    block-size: var(--kit-animation-block-size);
+    inline-size: var(--kit-animation-inline-size);
+    bottom: 0;
+    right: var(--kit-animation-right);
+}
+
+.fl-banner-animation {
+    display: flex;
+    align-items: end;
+}
+
+.fl-banner-animation .fl-video-play-icon {
+    position: absolute;
+    right: 2px;
+    bottom: 10px;
+    inline-size: 40px;
+}
+
+.fl-banner-kit-curious-animation .fl-banner-content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.fl-banner-kit .fl-button:not([class*="button-"]) {
+    color: var(--token-neutrals-white);
+    border-color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button:not([class*="button-"]):hover,
+.fl-banner-kit .fl-button:not([class*="button-"]):focus,
+.fl-banner-kit .fl-button:not([class*="button-"]):active {
+    color: var(--token-purple-dark-purple);
+    background-color: var(--token-neutrals-ash);
+    border-color: var(--token-neutrals-charcoal);
+}
+
+.fl-banner-kit .fl-button.button-ghost {
+    color: var(--token-neutrals-white);
+}
+
+.fl-banner-kit .fl-button.button-ghost:hover,
+.fl-banner-kit .fl-button.button-ghost:focus,
+.fl-banner-kit .fl-button.button-ghost:active {
+    background: var(--token-neutrals-white);
+    color: var(--token-purple-dark-purple);
+}
+
+.fl-banner-kit .fl-button.button-secondary:hover,
+.fl-banner-kit .fl-button.button-secondary:focus,
+.fl-banner-kit .fl-button.button-secondary:active {
+    background: var(--token-blue-medium-blue);
+    color: var(--token-neutrals-white);
+}
+
 @media (--viewport-sm-up) {
     .fl-banner-kit {
         --kit-banner-padding-right: 48px;
@@ -57,7 +126,8 @@
     }
 
     .fl-banner-kit-large .fl-banner-content,
-    .fl-banner-kit-tail .fl-banner-content {
+    .fl-banner-kit-tail .fl-banner-content,
+    .fl-banner-kit-curious-animation .fl-banner-content {
         text-align: left;
         align-items: initial;
         margin-left: 0;
@@ -69,13 +139,15 @@
     }
 
     .fl-banner-kit-large .fl-buttons,
-    .fl-banner-kit-tail .fl-buttons {
+    .fl-banner-kit-tail .fl-buttons,
+    .fl-banner-kit-curious-animation .fl-buttons {
         justify-content: left;
     }
 
     .fl-banner-kit-small,
     .fl-banner-kit-large,
-    .fl-banner-kit-tail {
+    .fl-banner-kit-tail,
+    .fl-banner-kit-curious-animation {
         --kit-banner-padding-bottom: 200px;
         --kit-img-position: bottom right;
     }
@@ -84,10 +156,22 @@
         --kit-img-size: 40% auto;
     }
 
-    .fl-banner-kit-large {
+    .fl-banner-kit-large,
+    .fl-banner-kit-curious-animation {
         --kit-img-size: 55% auto;
         --kit-img-position: bottom right -10%;
         --kit-banner-padding-bottom: 140px;
+    }
+
+    .fl-banner-kit-curious-animation {
+        --kit-animation-block-size: auto;
+        --kit-animation-inline-size: 55%;
+        --kit-animation-right: 0;
+    }
+
+    .fl-banner-animation .fl-video-play-icon {
+        right: 16px;
+        bottom: 16px;
     }
 
     .fl-banner-kit-face {
@@ -106,7 +190,8 @@
     .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-face,
-    .fl-banner-kit-tail {
+    .fl-banner-kit-tail,
+    .fl-banner-kit-curious-animation {
         --kit-banner-padding-bottom: 80px;
     }
 
@@ -122,7 +207,8 @@
 
     .fl-banner-kit-large,
     .fl-banner-kit-face,
-    .fl-banner-kit-tail {
+    .fl-banner-kit-tail,
+    .fl-banner-kit-curious-animation {
         --kit-banner-padding-right: 400px;
     }
 
@@ -141,6 +227,10 @@
     .fl-banner-kit-tail .fl-banner-content {
         margin: 0 auto;
     }
+
+    .fl-banner-kit-curious-animation .fl-banner-content {
+        margin: 0 auto 0 min(10vw,100px);
+    }
 }
 
 @media (--viewport-lg-up) {
@@ -150,7 +240,8 @@
     }
 
     .fl-banner-kit-large,
-    .fl-banner-kit-face {
+    .fl-banner-kit-face,
+    .fl-banner-kit-curious-animation {
         --kit-banner-padding-right: 400px;
     }
 }

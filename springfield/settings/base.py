@@ -821,6 +821,7 @@ TEMPLATES = [
                 "springfield.base.context_processors.canonical_path",
                 "springfield.base.context_processors.current_year",
                 "springfield.firefox.context_processors.latest_firefox_versions",
+                "springfield.cms.pattern_contexts.pattern_library_l10n_context",
             ],
             "extensions": [
                 "jinja2.ext.do",
@@ -1390,6 +1391,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     ),
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
+    "EXCLUDE_LOCALES": ["en-CA", "en-GB"],
 }
 
 WAGTAILDRAFTSHARING = {
@@ -1451,8 +1453,10 @@ _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
     "cms.FreeFormPage",
+    "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
+    "cms.WhatsNewPage2026",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.ArticleThemePage",
@@ -1501,3 +1505,4 @@ BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
 PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
 DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
+QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)

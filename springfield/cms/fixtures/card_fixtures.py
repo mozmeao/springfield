@@ -10,6 +10,8 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants, get_ct
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.models import FreeFormPage
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+
 
 def get_sticker_card_variants() -> list[dict]:
     buttons = get_button_variants()
@@ -367,7 +369,7 @@ def get_cards_list_variants(cards, heading_1=None, heading_2=None) -> list[dict]
         {
             "type": "section",
             "value": {
-                "settings": {"show_to": "all"},
+                "settings": {"show_to": SHOW_TO_ALL},
                 "heading": {
                     "superheading_text": "",
                     "heading_text": f'<p data-block-key="avdst">{heading_1}</p>',
@@ -387,7 +389,7 @@ def get_cards_list_variants(cards, heading_1=None, heading_2=None) -> list[dict]
         {
             "type": "section",
             "value": {
-                "settings": {"show_to": "all"},
+                "settings": {"show_to": SHOW_TO_ALL},
                 "heading": {
                     "superheading_text": "",
                     "heading_text": f'<p data-block-key="avdst">{heading_2}</p>',

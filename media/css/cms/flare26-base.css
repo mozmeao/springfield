@@ -1,3 +1,5 @@
+/* stylelint-disable csstools/use-logical, declaration-no-important */
+
 /*
 * This Source Code Form is subject to the terms of the Mozilla Public
 * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -89,13 +91,11 @@ body {
         sans-serif;
     font-weight: 400;
     margin: 0 auto;
-    /* stylelint-disable-next-line csstools/use-logical */
     max-width: 100%;
     max-inline-size: 100%;
     min-block-size: 100vh;
     padding: 0;
     text-rendering: optimizeLegibility;
-    /* stylelint-disable-next-line csstools/use-logical */
     width: 700px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -200,12 +200,13 @@ picture,
 video,
 canvas,
 svg {
-    block-size: auto;
     display: block;
+    height: auto;
     margin: 0 0 16px; /* IE 8 fallback */
     margin: 0 0 1rem;
-    max-inline-size: 100%;
+    max-width: 100%;
     vertical-align: middle; /* when images are reset to inline, remove bottom padding */
+    width: auto;
 }
 
 /* Very likely to be icons within links or buttons */
@@ -242,31 +243,31 @@ textarea {
 }
 
 button,
-[role='button'] {
+[role='button'],
+.fl-button {
     background: #7543e3; /* color-vibrant-purple from Figma */
     border: none;
-    border-radius: 8px;
+    border-radius: 32px;
     color: #fff;
     cursor: pointer;
     display: inline-block;
-    margin: 0 0 16px;
-    margin: 0 0 1rem;
-    padding: 16px 32px;
+    margin: 0;
+    padding: 4px 16px;
     text-decoration: none;
 }
 
 button:active,
 button:focus,
 button:visited,
-[role='button']:active,
-[role='button']:focus,
-[role='button']:visited {
+.fl-button:active,
+.fl-button:focus,
+.fl-button:visited {
     background: #7543e3; /* color-vibrant-purple from Figma */
     color: #fff;
 }
 
 button:hover,
-[role='button']:hover {
+.fl-button:hover {
     background: #6132bc; /* color-link-purple from Figma */
     color: #fff;
 }
@@ -302,4 +303,8 @@ td {
     padding: 8px 12px; /* IE 8 fallback */
     padding: 0.5rem 0.75rem;
     vertical-align: top;
+}
+
+.fl-ie-only {
+    display: none !important;
 }

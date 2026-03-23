@@ -6,13 +6,15 @@
 
 .fl-banner {
     --fl-theme-color-text: var(--fl-theme-color-banner-text);
+    --fl-banner-padding: var(--token-layout-3xs);
+    --fl-banner-border-radius: var(--token-border-radius-md);
     align-items: center;
-    border-radius: var(--token-border-radius-md);
+    border-radius: var(--fl-banner-border-radius);
     color: var(--fl-theme-color-text);
     display: flex;
     justify-content: center;
     overflow: hidden;
-    padding: var(--token-layout-3xs);
+    padding: var(--fl-banner-padding);
     position: relative;
     text-align: center;
 }
@@ -30,20 +32,20 @@
 .fl-banner .fl-heading-group {
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-3xl);
     margin-block-end: 0;
 }
 
 .fl-banner .fl-heading,
-.fl-banner .fl-subheading {
+.fl-banner .fl-subheading,
+.fl-banner .fl-superheading {
     margin: 0;
 }
 
 .fl-banner .fl-heading {
     display: block;
-    font-size: var(--fl-theme-font-size-heading-xl);
     inline-size: 100%;
     line-height: 0.9;
+    margin-block-end: var(--token-spacing-2xl);
     text-wrap: balance;
 }
 
@@ -53,36 +55,69 @@
     text-wrap: balance;
 }
 
-.fl-banner-outlined {
+.fl-banner.fl-banner-outlined {
     --fl-theme-color-banner-text: var(--fl-theme-color-text);
-    border: 1px solid var(--token-color-black-1);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    border: 1px solid var(--token-color-grey-3);
 }
 
-.fl-banner-purple {
+.fl-banner.fl-banner-default {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
+    border-radius: 0;
+    padding: 0;
+}
+
+.fl-banner.fl-banner-bottom-cta {
     --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-color-link: var(--token-color-white);
-    --fl-theme-color-link-visited: var(--token-color-white);
-    --fl-theme-color-link-strong: var(--token-color-white);
     background-image: var(--token-gradient-purple);
-    background-position: center;
-    background-repeat: no-repeat;
+
+    --fl-banner-border-radius: var(--token-border-radius-xl);
+    --fl-banner-padding: var(--token-layout-lg);
+}
+
+.fl-banner.fl-banner-bottom-cta .fl-banner-content-inner {
+    gap: 0;
+}
+
+.fl-banner.fl-banner-purple {
+    --fl-theme-color-link: var(--token-color-soft-purple-4);
+    --fl-theme-color-link-hover: var(--token-color-white);
+    --fl-theme-color-text: var(--token-color-white);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+    background-position: center bottom;
     background-size: cover;
 }
 
 .fl-banner-dark-purple {
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
-    --fl-theme-color-link-visited: var(--token-color-white);
-    --fl-theme-color-link-strong: var(--token-color-white);
     background-image: var(--token-gradient-radial-purple);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-.fl-banner-purple .fl-superheading,
-.fl-banner-dark-purple .fl-superheading {
-    color: var(--fl-theme-color-text);
+.fl-banner .fl-superheading {
+    color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-label-caps-sm);
+    letter-spacing: 0.0175rem;
+    line-height: 1.2;
+    margin-block-end: var(--token-spacing-md);
+    text-transform: uppercase;
+}
+
+.fl-banner-purple .fl-button.button-ghost {
+    border-color: var(--token-color-white);
+    color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button.button-ghost:hover,
+.fl-banner-purple .fl-button.button-ghost:focus,
+.fl-banner-purple .fl-button.button-ghost:active {
+    background: var(--token-color-white);
+    color: var(--token-color-dark-purple);
 }
 
 .fl-banner-media {
@@ -185,9 +220,10 @@
 .fl-banner-layout {
     align-items: center;
     display: grid;
-    gap: var(--token-spacing-xl);
     grid-template-columns: 1fr;
     inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     position: relative;
     z-index: 2;
 }
@@ -197,17 +233,18 @@
 }
 
 .fl-banner-slim .fl-banner {
-    border-radius: var(--token-border-radius-xl-half);
+    --fl-banner-border-radius: var(--token-border-radius-xl-half);
     padding: var(--token-layout-xs) var(--token-layout-2xs);
 }
 
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */
-.fl-main:has(.fl-split-page-lower > .fl-banner:last-child) {
+.fl-main:has(.fl-split-page-lower > .fl-banner:last-child),
+.fl-main:has(.fl-split-page-lower > .fl-banner-container:last-child) {
     padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-split-page-lower > .fl-banner:last-child {
-    border-radius: calc(
+    --fl-banner-border-radius: calc(
         var(--token-border-radius-xl) - var(--token-spacing-lg)
     );
     margin-inline: var(--token-spacing-lg);
@@ -215,11 +252,16 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
+        --fl-banner-padding: var(--token-layout-md);
+        --fl-banner-border-radius: var(--token-border-radius-lg);
         align-items: initial;
-        border-radius: var(--token-border-radius-lg);
         justify-content: initial;
-        padding: var(--token-layout-md);
         text-align: initial;
+    }
+
+    .fl-banner.fl-banner-purple,
+    .fl-banner.fl-banner-outlined {
+        --fl-banner-padding: var(--token-layout-2xs);
     }
 
     .fl-banner-container {
@@ -227,10 +269,11 @@
     }
 
     .fl-banner-slim .fl-banner {
-        padding: var(--token-layout-md);
+        --fl-banner-padding: var(--token-layout-md);
     }
 
-    .fl-banner-media img {
+    .fl-banner-media img,
+    .fl-banner-media video {
         border-radius: var(--token-spacing-lg);
     }
 
@@ -250,8 +293,13 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        border-radius: var(--token-border-radius-xl);
-        padding: var(--token-layout-lg);
+        --fl-banner-padding: var(--token-layout-lg);
+        --fl-banner-border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-banner.fl-banner-purple,
+    .fl-banner.fl-banner-outlined {
+        --fl-banner-padding: var(--token-layout-xs);
     }
 
     .fl-banner-container {
@@ -259,7 +307,7 @@
     }
 
     .fl-banner-layout:has(.fl-banner-media) {
-        gap: var(--token-layout-xs);
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
     }
 
@@ -285,5 +333,90 @@
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
         justify-content: left;
+    }
+}
+
+/* Phone QR Banner */
+
+.fl-banner-phone-qr {
+    max-inline-size: none;
+}
+
+.fl-banner-phone-qr .fl-banner {
+    padding: 0;
+}
+
+.fl-banner-phone-qr .fl-banner-content {
+    grid-row: 1;
+    padding: var(--fl-banner-padding);
+    padding-block-start: calc(var(--fl-banner-padding) * 2);
+}
+
+.fl-banner-phone-qr .fl-banner-qr {
+    align-items: end;
+    aspect-ratio: 2 / 3; /* ratio of phone image */
+    background-image: url('/media/img/firefox/flare/phone_screen.png');
+    background-position: center bottom -10px;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    display: flex;
+    grid-row: 2;
+    inline-size: calc(100% - var(--fl-banner-border-radius));
+    justify-content: center;
+    max-inline-size: 330px;
+    padding-block-end: calc(var(--fl-banner-padding) * 2);
+    position: relative;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg {
+    inline-size: 90%;
+    inset-block-end: 15%;
+    position: absolute;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner-phone-qr .fl-banner-content {
+        padding-block-start: var(--fl-banner-padding);
+    }
+}
+
+@media (--viewport-md-only) {
+    .fl-banner-phone-qr .fl-banner-content {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-banner-phone-qr .fl-banner-layout {
+        gap: var(--token-layout-md);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr {
+        align-self: end;
+        background-position: center bottom -60px;
+        grid-row: 1;
+        justify-content: center;
+        max-inline-size: 330px;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr svg {
+        inset-block-end: 7%;
+    }
+
+    .fl-banner-phone-qr .fl-banner-content {
+        grid-area: 1 / 2;
+        padding-inline: 0 calc(var(--fl-banner-padding) / 2);
+    }
+
+    .fl-split-page-lower > .fl-banner-phone-qr:last-child {
+        inline-size: calc(100% + var(--token-spacing-xl) * 2);
+        margin-block-end: calc(var(--token-spacing-3xl) * -1);
+        margin-inline: calc(var(--token-spacing-xl) * -1);
     }
 }

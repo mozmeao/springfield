@@ -23,4 +23,12 @@
 .compact-form .w-panel__content > div:has(.w-field--draftail_rich_text_area, input[type="text"]) {
     width: 100%;
 }
+
+.compact-form > div:has(.w-panel) {
+    width: 100%;
+}
+
+.compact-form > .c-sf-help {
+    width: 100%;
+}
 /* stylelint-enable */
