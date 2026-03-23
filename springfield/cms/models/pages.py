@@ -867,11 +867,3 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
-
-
-class UserPrivacyPage(FreeFormPage2026):
-    """A page that displays user privacy topics."""
-
-    class Meta:
-        verbose_name = "User Privacy Page"
-        verbose_name_plural = "User Privacy Pages"
