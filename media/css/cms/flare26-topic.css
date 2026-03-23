@@ -22,6 +22,8 @@
 
 .fl-topic-list-sidebar {
     display: none;
+    max-inline-size: 15%;
+    min-inline-size: 15%;
 }
 
 .fl-topic-list-sidebar ul,
@@ -94,7 +96,6 @@
 
     .fl-topic-list-sidebar li {
         margin-block-end: var(--token-spacing-xl);
-        min-inline-size: max-content;
     }
 
     .fl-topic-list-sidebar li.current {
