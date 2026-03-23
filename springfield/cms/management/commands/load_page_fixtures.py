@@ -47,6 +47,7 @@ from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_te
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
+from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
     get_whats_new_page_2026_with_qr_snippet,
     get_whats_new_page_with_qr_snippet,
@@ -155,6 +156,9 @@ class Command(BaseCommand):
 
         whats_new_page_2026 = get_whats_new_page_2026_with_qr_snippet()
         self.stdout.write(self.style.SUCCESS(f"What's New 2026 with QR snippet test page loaded: {whats_new_page_2026.slug}"))
+
+        topic_list_2026_page = get_topic_list_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
 
         # 2025 pages
 
