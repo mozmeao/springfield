@@ -351,6 +351,7 @@ video[autoplay] {
     }
 
     @media (--viewport-md-up) {
+        align-items: start;
         display: flex;
 
         .release-note-progressive-rollout-indicator {
