@@ -156,6 +156,11 @@
    Menu Panel Styles
    ================================================ */
 
+.fl-menu-heading {
+    display: flex;
+    gap: var(--token-spacing-xs);
+}
+
 .fl-menu-title,
 .fl-menu-title h2,
 .fl-menu-subtitle {
