@@ -22,8 +22,8 @@
 
 .fl-topic-list-sidebar {
     display: none;
-    max-inline-size: 15%;
-    min-inline-size: 15%;
+    max-inline-size: 20%;
+    min-inline-size: 20%;
 }
 
 .fl-topic-list-sidebar ul,
