@@ -2070,13 +2070,16 @@ def TopicBlock(allow_uitour=False, *args, **kwargs):
     return _TopicBlock(*args, **kwargs)
 
 
-class TopicListBlock(blocks.StructBlock):
-    topics = blocks.ListBlock(TopicBlock(), min=1)
+def TopicListBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicListBlock(blocks.StructBlock):
+        topics = blocks.ListBlock(TopicBlock(allow_uitour=allow_uitour), min=1)
 
-    class Meta:
-        template = "cms/blocks/sections/topic-list.html"
-        label = "Topic List"
-        label_format = "{heading}"
+        class Meta:
+            template = "cms/blocks/sections/topic-list.html"
+            label = "Topic List"
+            label_format = "{heading}"
+
+    return _TopicListBlock(*args, **kwargs)
 
 
 # Banners
