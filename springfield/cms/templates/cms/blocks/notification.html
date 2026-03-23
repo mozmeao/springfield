@@ -16,6 +16,6 @@
     stacked="{{ value.settings.stacked }}"
     closable="{{ value.settings.closable }}"
   >
-    {{ value.message|richtext }}
+    {{ value.message|richtext|remove_p_tag }}
   </include:notification>
 </include:conditional-display>

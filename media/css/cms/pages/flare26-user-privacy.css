@@ -84,10 +84,6 @@
     display: block;
 }
 
-.fl-page-user-privacy .fl-banner h2 {
-    font-size: var(--fl-theme-font-size-heading-md);
-}
-
 .fl-page-user-privacy .fl-fx-download-container {
     display: inline-flex;
 }
@@ -95,6 +91,10 @@
 .fl-page-user-privacy .fl-privacy-link {
     display: none;
     margin: 0;
+}
+
+.fl-page-user-privacy .fl-banner-content {
+    max-inline-size: none;
 }
 
 .fl-page-user-privacy .fl-intro-body .fl-button {

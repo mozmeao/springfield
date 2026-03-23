@@ -1056,6 +1056,14 @@
 }
 
 /*
+    FIXME: Downscaled from Acorn desktop's experiments-20 (which really is 40px), not in Figma:
+*/
+
+.fl-icon-experiments {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/experiments/experiments-16.svg');
+}
+
+/*
     Note: these are the only edge-cases that we kept from the
     previous build. They should be added to Figma so we have
     one source-of-truth.

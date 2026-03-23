@@ -8,7 +8,7 @@
 
 
 {% block flare_header %}
-  {% set theme = "dark" if page.upper_content else "light" %}
+  {% set theme = "dark" if page.upper_content else None %}
   <include:flare26-header theme="{{ theme }}" no_menu disable_sticky/>
 {% endblock %}
 

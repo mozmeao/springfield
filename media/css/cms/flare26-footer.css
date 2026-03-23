@@ -283,8 +283,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-footer-link-has-icon {
-    align-items: center;
+    align-items: baseline;
     display: flex;
+    gap: var(--token-spacing-xs);
+}
+
+.fl-footer-link-has-icon svg,
+.fl-footer-link-has-icon .fl-icon {
+    margin: 0;
 }
 
 .fl-footer-logo {
