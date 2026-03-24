@@ -149,6 +149,7 @@
 }
 
 .fl-home-intro .fl-superheading {
+    align-items: center;
     background: linear-gradient(
         180deg,
         var(--token-color-light-purple-40) 0%,
@@ -158,6 +159,7 @@
     display: inline-flex;
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
+    line-height: 1;
     margin: 0;
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
