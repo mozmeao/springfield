@@ -47,11 +47,11 @@ def create_alias_locales(apps, schema_editor):
         # copy_for_translation()'s parent-translation check to fail.
         #
         # keep_live=False ensures Wagtail won't serve this page at
-        # /<alias-locale>/ — the fallback middleware will handle the request
-        # and serve the canonical locale's content with the correct canonical
-        # link.  The non-live root still gives the alias locale its own page
-        # tree so that Wagtail routes within it and produces a genuine 404 for
-        # unknown paths, rather than silently falling back to the en-US tree.
+        # /<alias-locale>/ — the fallback middleware handles those requests
+        # and serves the canonical locale's content with the correct canonical
+        # link.  The root page is a structural record; the fallback machinery
+        # (wagtail_serve_with_locale_fallback + find_fallback_page_for_locale)
+        # does not require it to exist.
         en_us_locale_root.copy(
             to=wagtail_root,
             update_attrs={
