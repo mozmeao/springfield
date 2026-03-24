@@ -173,7 +173,7 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
 
     # Content locales: locales with content (not including alias locales that
     # serve another locale's content).
-    # For CMS pages, _content_locales_via_cms  only includes aliases that have
+    # For CMS pages, _content_locales_via_cms only includes aliases that have
     # their own translated page.
     # For non-CMS pages, translations already excludes aliases (they are added
     # later by get_locale_options for the language picker only).
