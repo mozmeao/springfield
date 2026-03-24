@@ -509,3 +509,90 @@ def test_non_cms_page_hreflang_alternates(client):
     # es-AR and es-CL should NOT appear in alternates.
     assert 'hreflang="es-AR"' not in html
     assert 'hreflang="es-CL"' not in html
+
+
+# ---------------------------------------------------------------------------
+# Alias-locale fallback serving — alias root page state
+# ---------------------------------------------------------------------------
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_alias_locale_with_live_root_page_serves_fallback_transparently(client):
+    """
+    The full stack serves the fallback locale's page when the alias locale has a live root page.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+    es_mx_page = SimpleRichTextPageFactory(title="ES-MX Test Page", slug="test-page", locale=es_mx_locale, parent=es_mx_root)
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+    es_ar_root.refresh_from_db()
+    assert es_ar_root.live is True
+    assert not Page.objects.filter(locale=es_ar_locale, slug="test-page").exists()
+
+    es_mx_page.refresh_from_db()
+    response = client.get(es_mx_page.url.replace("es-MX", "es-AR"))
+
+    assert response.status_code == 200
+    assert es_mx_page.title in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_alias_locale_with_draft_root_page_serves_fallback_transparently(client):
+    """
+    The full stack serves the fallback locale's page when the alias locale has a draft root page.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+    es_mx_page = SimpleRichTextPageFactory(title="ES-MX Test Page", slug="test-page", locale=es_mx_locale, parent=es_mx_root)
+
+    # copy_for_translation creates a draft by default — do not publish.
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.refresh_from_db()
+    assert es_ar_root.live is False
+    assert not Page.objects.filter(locale=es_ar_locale, slug="test-page").exists()
+
+    es_mx_page.refresh_from_db()
+    response = client.get(es_mx_page.url.replace("es-MX", "es-AR"))
+
+    assert response.status_code == 200
+    assert es_mx_page.title in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_alias_locale_with_no_root_page_serves_fallback_transparently(client):
+    """
+    The full stack serves the fallback locale's page when the alias locale has no root page.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+    es_mx_page = SimpleRichTextPageFactory(title="ES-MX Test Page", slug="test-page", locale=es_mx_locale, parent=es_mx_root)
+
+    # No root page created for es-AR.
+    assert not Page.objects.filter(translation_key=en_us_root.translation_key, locale=es_ar_locale).exists()
+    assert not Page.objects.filter(locale=es_ar_locale, slug="test-page").exists()
+
+    es_mx_page.refresh_from_db()
+    response = client.get(es_mx_page.url.replace("es-MX", "es-AR"))
+
+    assert response.status_code == 200
+    assert es_mx_page.title in response.content.decode("utf-8")
