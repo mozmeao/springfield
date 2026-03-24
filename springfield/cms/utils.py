@@ -58,7 +58,8 @@ def find_fallback_page_for_locale(locale_code, url_path):
         return None
     try:
         locale_root = site.root_page.get_translation(fallback_locale)
-    except Exception:
+    except Page.DoesNotExist:
+        logger.exception("No root page translation found for fallback locale %r", fallback_locale_code)
         return None
 
     # Normalize here; caller passes raw sub_path to avoid double normalization.

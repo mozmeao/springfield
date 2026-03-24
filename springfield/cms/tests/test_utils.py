@@ -355,10 +355,26 @@ def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no
 
 
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
-def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_page_tree(tiny_localized_site):
-    """Returns None when the fallback Locale record exists but has no page tree."""
-    LocaleFactory(language_code="es-MX")
-    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_page_tree(tiny_localized_site, caplog):
+    """
+    Returns None when the fallback Locale record exists but has no root page translation.
+
+    get_translation raises Page.DoesNotExist in this case; find_fallback_page_for_locale()
+    catches the exception, logs it, and returns None.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    site = Site.objects.get(is_default_site=True)
+
+    # Confirm that get_translation raises Page.DoesNotExist for this locale —
+    # this is the exception find_fallback_page_for_locale must catch.
+    with pytest.raises(Page.DoesNotExist):
+        site.root_page.get_translation(es_mx_locale)
+
+    with caplog.at_level("ERROR", logger="springfield.cms.utils"):
+        result = find_fallback_page_for_locale("es-AR", "test-page/")
+
+    assert result is None
+    assert "No root page translation found for fallback locale 'es-MX'" in caplog.text
 
 
 @override_settings(FALLBACK_LOCALES={})
