@@ -17,7 +17,7 @@ Use `make test` for the containerized pytest + Jasmine suite, `uv run pytest spr
 Python targets 3.13 with Ruff enforcing ≤150-character lines and import ordering of Django → third-party → first-party.
 Prefer snake_case for functions, `CamelCase` for Django classes, and descriptive template names under `springfield/<app>/templates/`.
 JavaScript follows the ESLint + Prettier ruleset with `const`/`let`; run `npm run format` before committing.
-Sass in `media/css/` keeps the existing block–element naming pattern.
+Sass in `media/css/` keeps the existing block–element naming    pattern.
 
 ## Testing Guidelines
 
@@ -39,6 +39,11 @@ Keep commit titles short, imperative, and linked to issues when available (e.g.,
 * Where necessary (eg JSON credential files) store machine-specific credentials in `local-credentials/`.
 * Install the local git hooks via `make install-custom-git-hooks`.
 * If a changeset includes a GitHub Action or Workflow, use [Zizmor](https://zizmor.sh/) to check it for security issues before considering the work complete.
+
+## Wagtail CMS
+
+* When planning Wagtail work, remember that <https://docs.wagtail.org/en/7.3/llms.txt> and the full version at <https://docs.wagtail.org/en/7.3/llms-full.txt> contain LLM-appropriate documentation.
+* If the version of Wagtail (not counting patch releases) in requirements/prod.in doesn't match the version in the LLM-appropriate URLs mentioned, please update this AGENTS.md then load the new info
 
 ## LLM assistance
 
