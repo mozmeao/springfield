@@ -48,7 +48,7 @@
     "focus-trap": "^8.0.1",
     "globals": "^17.4.0",
     "jasmine-browser-runner": "^3.0.0",
-    "jasmine-core": "^5.12.1",
+    "jasmine-core": "^6.1.0",
     "prettier": "^3.7.4",
     "prettier-plugin-css-order": "^2.2.0",
     "sinon": "^21.0.0",
