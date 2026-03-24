@@ -237,9 +237,11 @@
               {% endblock %}
             {% endif %}
 
-            {% with location = 'top' %}
-              {% include "firefox/releases/partials/notes_pagination.html" %}
-            {% endwith %}
+            {% if release.is_public %}
+              {% with location = 'top' %}
+                {% include "firefox/releases/partials/notes_pagination.html" %}
+              {% endwith %}
+            {% endif %}
 
             <section class="c-release-notes fl-c-release-notes-content fl-l-release-notes-wrapper">
               {% if release.is_public and release_notes %}
