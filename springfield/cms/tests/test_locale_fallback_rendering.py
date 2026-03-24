@@ -596,3 +596,35 @@ def test_alias_locale_with_no_root_page_serves_fallback_transparently(client):
 
     assert response.status_code == 200
     assert es_mx_page.title in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_promoted_alias_locale_serves_own_page_directly(client):
+    """
+    When an alias locale has its own content, it is served directly without fallback.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+    es_mx_page = SimpleRichTextPageFactory(title="ES-MX Test Page", slug="test-page", locale=es_mx_locale, parent=es_mx_root)
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+    es_ar_root.refresh_from_db()
+    assert es_ar_root.live is True
+
+    es_ar_page = es_mx_page.copy_for_translation(es_ar_locale)
+    es_ar_page.title = "ES-AR Test Page"
+    es_ar_page.save_revision().publish()
+    es_ar_page.refresh_from_db()
+
+    response = client.get(es_ar_page.url)
+
+    assert response.status_code == 200
+    assert es_ar_page.title in response.content.decode("utf-8")
+    assert es_mx_page.title not in response.content.decode("utf-8")
