@@ -41,7 +41,6 @@ py-svg-hush==0.2.0
 PyGithub==2.8.1
 PyYAML==6.0.3
 qrcode==8.2
-querystringsafe-base64==1.1.1  # Pinned to maintain stub attribution signatures https://github.com/mozilla/bedrock/issues/11156
 requests==2.32.5
 sentry-processor==0.0.1
 sentry-sdk==2.52.0

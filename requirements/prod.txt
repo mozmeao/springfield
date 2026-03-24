@@ -34,13 +34,13 @@ beautifulsoup4==4.14.3 \
     --hash=sha256:0918bfe44902e6ad8d57732ba310582e98da931428d231a5ecb9e7c703a735bb \
     --hash=sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86
     # via wagtail
-boto3==1.42.71 \
-    --hash=sha256:500edd2699a3f479053bbfb407b06c231d1ff1e574f7c90d269d605a6a1f8160 \
-    --hash=sha256:a89fae01c4bc948671e99440ddc0f10bc73cc72d83218656057f730df0898eab
+boto3==1.42.73 \
+    --hash=sha256:1f81b79b873f130eeab14bb556417a7c66d38f3396b7f2fe3b958b3f9094f455 \
+    --hash=sha256:d37b58d6cd452ca808dd6823ae19ca65b6244096c5125ef9052988b337298bae
     # via -r requirements/prod.in
-botocore==1.42.71 \
-    --hash=sha256:6b3796c76edeb78afee325a54e23508bbd57624faea1e4aeb8f6e9c1e1e79a0f \
-    --hash=sha256:e6b7c611eeacbfa6a5a08cd56889b7a63eced48e99f8db9b270eeaf2c0b62796
+botocore==1.42.73 \
+    --hash=sha256:575858641e4949aaf2af1ced145b8524529edf006d075877af6b82ff96ad854c \
+    --hash=sha256:7b62e2a12f7a1b08eb7360eecd23bb16fe3b7ab7f5617cf91b25476c6f86a0fe
     # via
     #   boto3
     #   s3transfer
@@ -537,9 +537,9 @@ google-cloud-core==2.5.0 \
     --hash=sha256:67d977b41ae6c7211ee830c7912e41003ea8194bff15ae7d72fd6f51e57acabc \
     --hash=sha256:7c1b7ef5c92311717bd05301aa1a91ffbc565673d3b0b4163a52d8413a186963
     # via google-cloud-storage
-google-cloud-storage==3.10.0 \
-    --hash=sha256:0072e7783b201e45af78fd9779894cdb6bec2bf922ee932f3fcc16f8bce9b9a3 \
-    --hash=sha256:1aeebf097c27d718d84077059a28d7e87f136f3700212215f1ceeae1d1c5d504
+google-cloud-storage==3.10.1 \
+    --hash=sha256:97db9aa4460727982040edd2bd13ff3d5e2260b5331ad22895802da1fc2a5286 \
+    --hash=sha256:a72f656759b7b99bda700f901adcb3425a828d4a29f911bc26b3ea79c5b1217f
     # via django-storages
 google-crc32c==1.8.0 \
     --hash=sha256:014a7e68d623e9a4222d663931febc3033c5c7c9730785727de2a81f87d5bab8 \
@@ -758,9 +758,9 @@ jq==1.11.0 \
     --hash=sha256:fbb189af2000458bbd59d291c73d5257b46d2ca9ef00c3d76b410fbb7dc0fd33 \
     --hash=sha256:fe1c5facefd0f1197fb95cda8f31195487f431e4c4699cb0cb207efc47553504
     # via -r requirements/prod.in
-justhtml==1.12.0 \
-    --hash=sha256:4ca4d110694d51c4643e992ee72fe68c1eca343011de3370f54c15cab32c24a8 \
-    --hash=sha256:ef6d6b020c690db07db4359e2c921e7fc3770e8e61887ea4b57b2d53388c2265
+justhtml==1.13.0 \
+    --hash=sha256:6538a8b54a51d99fc11574a11afe968b64b002247045c8b3f46f1b6f64d8ce78 \
+    --hash=sha256:9a10d606bbf9185d53cdf940528c80d8d8e13c714e4c0c2a8d66ef5ffefed99c
     # via -r requirements/prod.in
 laces==0.1.2 \
     --hash=sha256:3218e09c1889ae5cf3fc7a82f5bb63ec0c7879889b6a9760bfc42323c694b84d \
@@ -1446,9 +1446,6 @@ pyyaml==6.0.3 \
 qrcode==8.2 \
     --hash=sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f \
     --hash=sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c
-    # via -r requirements/prod.in
-querystringsafe-base64==1.1.1 \
-    --hash=sha256:bad9187c0406456020ee354be7f51d2e0dfc262dadde0449cbdd1fd78d437eed
     # via -r requirements/prod.in
 redis==7.3.0 \
     --hash=sha256:4d1b768aafcf41b01022410b3cc4f15a07d9b3d6fe0c66fc967da2c88e551034 \
