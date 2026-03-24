@@ -18,17 +18,24 @@ class FlareTestView(TemplateView):
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
     """
-    Return True if the alias locale requires interception before Wagtail handles the request.
+    Return True if the alias locale requires interception before Wagtail handles the request:
 
-    Pre-Wagtail interception is needed when Wagtail cannot correctly serve pages
-    for this alias locale on its own. Either of these:
-     - No Locale DB record exists, OR
-     - The Locale record exists but site.root_page has no live translation
-      in this locale
+        1. if lang_prefix is not a configured alias locale, then we do not intercept the request
+        2. Otherwise, pre-Wagtail interception is needed when Wagtail cannot correctly
+           serve pages for this alias locale on its own. Either of these:
+           a. No Locale DB record exists, OR
+           b. The Locale record exists but site.root_page has no live translation in this locale
     Wagtail's default behavior would serve the en-US homepage, which is not
     what we want to happen for alias locales. Instead, we would want to serve
     the fallback locale's Page for the request's URL.
     """
+    # 1. If the lang_prefix is not a fallback locale, then we do not need to intercept the request.
+    fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+    if lang_prefix not in fallback_locales:
+        return False
+
+    # 2a. We know that the lang_prefix is an alias locale; if the locale deosn't
+    # exist, then we intercept the request.
     alias_locale = WagtailLocale.objects.filter(language_code=lang_prefix).first()
     if not alias_locale:
         return True
@@ -37,6 +44,8 @@ def _alias_needs_prewagtail_intercept(lang_prefix):
     if not site:
         return False
 
+    # 2b. If site.root_page has no live translation in this locale, then we
+    # intercept the request.
     alias_root = site.root_page.get_translation_or_none(alias_locale)
     return not alias_root or not alias_root.live
 
@@ -91,7 +100,7 @@ def wagtail_serve_with_locale_fallback(request, path=""):
     lang_prefix, _, sub_path = _path.partition("/")
     fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
 
-    if lang_prefix in fallback_locales and _alias_needs_prewagtail_intercept(lang_prefix):
+    if _alias_needs_prewagtail_intercept(lang_prefix):
         response = _serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
         if response is not None:
             return response
