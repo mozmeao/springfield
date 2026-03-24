@@ -40,7 +40,7 @@ from springfield.cms.fixtures.inline_notification_fixtures import (
 )
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
-from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
@@ -127,6 +127,9 @@ class Command(BaseCommand):
 
         banner_2026_page = get_banner_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))
+
+        kit_banner_2026_page = get_kit_banner_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Banner 2026 test page loaded: {kit_banner_2026_page.slug}"))
 
         buttons_2026_page = get_buttons_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons 2026 test page loaded: {buttons_2026_page.slug}"))

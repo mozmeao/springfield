@@ -81,10 +81,22 @@
 }
 
 .fl-video-play-icon {
+    block-size: 36px;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    inline-size: 36px;
+    inset-block-end: var(--token-layout-3xs);
+    inset-inline-end: var(--token-layout-3xs);
     position: absolute;
     transition: transform 0.2s ease;
     z-index: 1;
+}
+
+.fl-video:not(.fl-animation):not(.fl-video-is-animation) .fl-video-play-icon {
+    block-size: 48px;
+    inline-size: 48px;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .fl-video-play-icon svg {

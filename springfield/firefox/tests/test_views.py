@@ -11,10 +11,10 @@ from django.test import override_settings
 from django.test.client import RequestFactory
 
 import pytest
-import querystringsafe_base64
 from pyquery import PyQuery as pq
 from waffle.testutils import override_switch
 
+from lib import querystringsafe_base64
 from springfield.base.tests import TestCase
 from springfield.firefox import views
 from springfield.firefox.views import detect_download_platform, download_redirect

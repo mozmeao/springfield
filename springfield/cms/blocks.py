@@ -2021,6 +2021,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("article_cards_list", ArticleCardsListBlock()),
                 ("icon_list_with_image", IconListWithImageBlock()),
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )

@@ -11,7 +11,7 @@
 
 import M24PencilBanner from '../../../../media/js/base/banners/m24-pencil-banner.es6';
 
-describe('mozilla-banner.es6.js', function () {
+describe('m24-pencil-banner.es6.js', function () {
     beforeEach(function () {
         const content = `<aside class="m24-pencil-banner">
             <div class="m24-pencil-banner-copy">
