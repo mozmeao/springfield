@@ -6,10 +6,12 @@ import sys
 
 from django.db import migrations
 
+from springfield.base.config_manager import config
+
 
 def create_alias_locales(apps, schema_editor):
     # Skip in test environments — test fixtures create the locale records they need.
-    if "pytest" in sys.modules:
+    if "pytest" in sys.modules or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return
 
     from wagtail.models import Locale, Page, Site
@@ -64,7 +66,7 @@ def create_alias_locales(apps, schema_editor):
 
 
 def remove_alias_locales(apps, schema_editor):
-    if "pytest" in sys.modules:
+    if "pytest" in sys.modules or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return
 
     from wagtail.models import Locale, Page
