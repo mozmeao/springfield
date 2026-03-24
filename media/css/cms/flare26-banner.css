@@ -43,6 +43,7 @@
 
 .fl-banner .fl-heading {
     display: block;
+    font-size: var(--fl-theme-font-size-heading-lg);
     inline-size: 100%;
     line-height: 0.9;
     margin-block-end: var(--token-spacing-2xl);
@@ -194,7 +195,7 @@
     inline-size: 100%;
     justify-content: center;
     margin: 0 auto;
-    max-inline-size: 840px;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     min-inline-size: 0;
     text-align: center;
 }
@@ -235,6 +236,10 @@
 .fl-banner-slim .fl-banner {
     --fl-banner-border-radius: var(--token-border-radius-xl-half);
     padding: var(--token-layout-xs) var(--token-layout-2xs);
+}
+
+.fl-banner-slim .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-md);
 }
 
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */

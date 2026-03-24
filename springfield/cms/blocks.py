@@ -2132,7 +2132,7 @@ class BannerSettings(blocks.StructBlock):
         default=False,
         label="Slim Layout",
         inline_form=True,
-        help_text="Use a more compact layout with reduced spacing.",
+        help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
 
     class Meta:

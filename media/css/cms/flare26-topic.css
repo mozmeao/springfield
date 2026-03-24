@@ -14,10 +14,11 @@
 
 .fl-topic img {
     margin-block-end: var(--token-spacing-2xl);
+    max-inline-size: 90px;
 }
 
 .fl-topic .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-sm);
+    font-size: var(--fl-theme-font-size-heading-md);
 }
 
 .fl-topic-list-sidebar {
@@ -52,13 +53,17 @@
     text-decoration: none;
 }
 
+.fl-topic-content {
+    max-inline-size: 80ch;
+}
+
 .fl-topic-list-content a {
     --fl-theme-color-link: var(--fl-theme-color-text);
 }
 
 .fl-topic-buttons {
     display: grid;
-    gap: var(--token-spacing-xs);
+    gap: var(--token-spacing-lg);
     grid-template-columns: 1fr;
 }
 
@@ -80,7 +85,7 @@
     .fl-topic-list {
         display: flex;
         gap: var(--token-layout-md);
-        justify-content: space-between;
+        justify-content: start;
         padding-block-start: var(
             --token-layout-lg
         ); /* vertically align with text on the side */
