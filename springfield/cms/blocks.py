@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -571,7 +572,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                     # we reconstruct the URL using the URL-facing locale prefix.
                     active_lang = normalize_language(translation.get_language()) or locale.language_code
                     return f"/{active_lang}/{path.lstrip('/')}"
-                except Exception:
+                except SpringfieldLocale.DoesNotExist:
                     return path
             return path
 
@@ -591,7 +592,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # The translated page doesn not match the active language;
                         # we reconstruct the URL using the URL-facing locale prefix.
                         return self._with_locale_prefix(translated_page.url, active_lang)
-                    except Exception:
+                    except Page.DoesNotExist:
                         # This means that this page has no translation for this locale.
                         # In case this is rendered as a fallback page (the user
                         # requested /es-AR/somepage, but that page doesn't exist
@@ -602,7 +603,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # the /features/control/ page, we want to return
                         # /es-AR/features/control/ (not /es-MX/features/control/).
                         return self._with_locale_prefix(page.url, active_lang)
-                except Exception:
+                except SpringfieldLocale.DoesNotExist:
                     return page.url
             return None
 

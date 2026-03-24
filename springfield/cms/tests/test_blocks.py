@@ -88,6 +88,7 @@ from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_te
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
+from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
@@ -3108,12 +3109,12 @@ def test_springfield_link_block_relative_url_uses_url_locale_when_alias_and_fall
 
 
 def test_springfield_link_block_relative_url_falls_back_when_get_active_raises():
-    """Falls back to the raw path when SpringfieldLocale.get_active() raises an exception."""
+    """Falls back to the raw path when SpringfieldLocale.get_active() raises SpringfieldLocale.DoesNotExist."""
     link_value = _springfield_link_value("relative_url", relative_url="/features/")
 
     with mock.patch(
         "springfield.cms.models.locale.SpringfieldLocale.get_active",
-        side_effect=Exception("simulated locale failure"),
+        side_effect=SpringfieldLocale.DoesNotExist,
     ):
         url = link_value.get_url()
 
@@ -3142,17 +3143,32 @@ def test_springfield_link_block_page_returns_locale_aware_url(tiny_localized_sit
 
 @pytest.mark.django_db
 def test_springfield_link_block_page_falls_back_when_get_active_raises(tiny_localized_site):
-    """Falls back to the page's own URL when SpringfieldLocale.get_active() raises."""
+    """Falls back to the page's own URL when SpringfieldLocale.get_active() raises SpringfieldLocale.DoesNotExist."""
     en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
     link_value = _springfield_link_value("page", page=en_us_page.pk)
 
     with mock.patch(
         "springfield.cms.models.locale.SpringfieldLocale.get_active",
-        side_effect=Exception("simulated locale failure"),
+        side_effect=SpringfieldLocale.DoesNotExist,
     ):
         url = link_value.get_url()
 
     assert url == en_us_page.url
+
+
+@pytest.mark.django_db
+def test_springfield_link_block_page_falls_back_to_locale_prefix_when_get_translation_raises(tiny_localized_site):
+    """Falls back to /{active_lang}/{path} when page.get_translation() raises Page.DoesNotExist."""
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    link_value = _springfield_link_value("page", page=en_us_page.pk)
+
+    with (
+        mock.patch("django.utils.translation.get_language", return_value="fr"),
+        mock.patch.object(en_us_page.__class__, "get_translation", side_effect=Page.DoesNotExist),
+    ):
+        url = link_value.get_url()
+
+    assert url == "/fr/test-page/"
 
 
 @pytest.mark.django_db
