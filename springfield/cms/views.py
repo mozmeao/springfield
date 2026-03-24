@@ -17,9 +17,10 @@ class FlareTestView(TemplateView):
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
-    """Return True if the alias locale requires pre-interception.
+    """
+    Return True if the alias locale requires interception before Wagtail handles the request.
 
-    Pre-interception is needed when Wagtail cannot correctly serve pages
+    Pre-Wagtail interception is needed when Wagtail cannot correctly serve pages
     for this alias locale on its own. Either of these:
      - No Locale DB record exists, OR
      - The Locale record exists but site.root_page has no live translation

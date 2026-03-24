@@ -143,7 +143,7 @@ def prefer_cms(
             try:
                 # Does Wagtail have a route that matches this? If so, show that page.
                 # wagtail_serve_with_locale_fallback handles alias-locale
-                # pre-interception before deferring to Wagtail's serve().
+                # interception before deferring to Wagtail's serve().
                 wagtail_response = wagtail_serve_with_locale_fallback(request, path)
                 if wagtail_response.status_code == HTTP_200_OK:
                     return wagtail_response
