@@ -99,20 +99,8 @@ def compute_cms_page_locales(page):
     # e.g. if es-MX is in the list, also add es-AR and es-CL.
     alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in content_locales]
 
-    seen = set()
-    all_locales = []
-    for locale in content_locales + alias_additions:
-        if locale not in seen:
-            seen.add(locale)
-            all_locales.append(locale)
-
-    # Deduplicate content_locales preserving order.
-    seen = set()
-    deduped_content = []
-    for locale in content_locales:
-        if locale not in seen:
-            seen.add(locale)
-            deduped_content.append(locale)
+    all_locales = list(dict.fromkeys(content_locales + alias_additions))
+    deduped_content = list(dict.fromkeys(content_locales))
 
     return all_locales, deduped_content
 
