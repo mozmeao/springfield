@@ -12,6 +12,8 @@ const baseConfig = require('./playwright.config');
 module.exports = defineConfig({
     ...baseConfig,
     fullyParallel: false,
+    grepInvert: undefined,
+    grep: /@visual-regression/,
     workers: 1,
     expect: {
         toHaveScreenshot: {
