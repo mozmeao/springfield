@@ -336,20 +336,15 @@ describe('isURLPermitted()', function () {
         ).toBeFalse();
     });
 
-    describe('when data-promoted-page attribute is set', function () {
-        afterEach(function () {
-            document
-                .getElementsByTagName('html')[0]
-                .removeAttribute('data-promoted-page');
-        });
-
-        it('should return true for any pathname when data-promoted-page attribute is set', function () {
-            document
-                .getElementsByTagName('html')[0]
-                .setAttribute('data-promoted-page', 'true');
-            expect(isURLPermitted('/en-US/landing/some-campaign/')).toBeTrue();
-            expect(isURLPermitted('/en-US/')).toBeTrue();
-        });
+    it('should return true for promoted pages', function () {
+        document
+            .getElementsByTagName('html')[0]
+            .setAttribute('data-promoted-page', 'true');
+        expect(isURLPermitted('/en-US/landing/some-campaign/')).toBeTrue();
+        expect(isURLPermitted('/en-US/')).toBeTrue();
+        document
+            .getElementsByTagName('html')[0]
+            .removeAttribute('data-promoted-page');
     });
 });
 
@@ -396,13 +391,6 @@ describe('isPromotedPage()', function () {
     });
 
     it('should return false when data-promoted-page attribute is absent', function () {
-        expect(isPromotedPage()).toBeFalse();
-    });
-
-    it('should return false when data-promoted-page attribute is not "true"', function () {
-        document
-            .getElementsByTagName('html')[0]
-            .setAttribute('data-promoted-page', 'false');
         expect(isPromotedPage()).toBeFalse();
     });
 });

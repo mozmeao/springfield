@@ -196,9 +196,8 @@ function isFirefoxDownloadThanks(location) {
  * @return {Boolean}.
  */
 function isPromotedPage() {
-    return (
-        document.documentElement.getAttribute('data-promoted-page') === 'true'
-    );
+    const attr = document.documentElement.getAttribute('data-promoted-page');
+    return attr ? attr.toLowerCase() === 'true' : false;
 }
 
 /**
