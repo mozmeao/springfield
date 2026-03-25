@@ -347,9 +347,7 @@ describe('isURLPermitted()', function () {
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-promoted-page', 'true');
-            expect(
-                isURLPermitted('/en-US/landing/some-campaign/')
-            ).toBeTrue();
+            expect(isURLPermitted('/en-US/landing/some-campaign/')).toBeTrue();
             expect(isURLPermitted('/en-US/')).toBeTrue();
         });
     });
