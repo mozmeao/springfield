@@ -39,7 +39,7 @@ function setGtagAdsConsentMode(hasConsent, type = 'update') {
 
 /**
  * Sets GTAG analytics consent mode
- * @param {Boolean} hasConsent - based on /landing/get default or analytics cookie
+ * @param {Boolean} hasConsent - based on promoted page default or analytics cookie
  * @param {String} type - one of consent mode types (default|update)
  * @returns {Boolean}
  */
@@ -191,15 +191,14 @@ function isFirefoxDownloadThanks(location) {
 }
 
 /**
- * Determine if the current page is /landing/get.
- * @param {String} location - The current page URL.
+ * Determine if the current page is a promoted landing page.
+ * Checks for the `data-promoted-page` attribute on the <html> element.
  * @return {Boolean}.
  */
-function isFirefoxLandingGet(location) {
-    if (typeof location !== 'string') {
-        return false;
-    }
-    return location.indexOf('/landing/get') > -1;
+function isPromotedPage() {
+    return (
+        document.documentElement.getAttribute('data-promoted-page') === 'true'
+    );
 }
 
 /**
@@ -222,6 +221,11 @@ function isURLExceptionAllowed(search) {
  * @returns {Boolean}
  */
 function isURLPermitted(pathname) {
+    // Promoted pages are always permitted for the consent banner.
+    if (isPromotedPage()) {
+        return true;
+    }
+
     let currentPath = pathname;
 
     // Remove locale from current URL pathname;
@@ -297,7 +301,7 @@ export {
     gpcEnabled,
     hasConsentCookie,
     isFirefoxDownloadThanks,
-    isFirefoxLandingGet,
+    isPromotedPage,
     isURLExceptionAllowed,
     isURLPermitted,
     setConsentCookie,

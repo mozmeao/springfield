@@ -193,7 +193,7 @@ describe('gtm-snippet.es6.js', function () {
 
         it('should grant ads defaults on /thanks/ when marketing_consent param is present', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
             spyOn(GTMSnippet, 'hasLandingGetMarketingConsent').and.returnValue(
                 true
             );
@@ -229,7 +229,7 @@ describe('gtm-snippet.es6.js', function () {
 
         it('should grant analytics default and deny ads default when no consent cookie and visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'False');
@@ -244,9 +244,9 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should grant ads and analytics defaults on /landing/get when visitor is outside EU/EAA', function () {
+        it('should grant ads and analytics defaults on promoted page when visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'False');
@@ -261,9 +261,9 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should deny all defaults on /landing/get when visitor is in EU/EAA', function () {
+        it('should deny all defaults on promoted page when visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'True');
@@ -280,7 +280,7 @@ describe('gtm-snippet.es6.js', function () {
 
         it('should deny all defaults when no consent cookie and visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'True');
