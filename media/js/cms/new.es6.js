@@ -405,7 +405,7 @@ if (typeof window.cms === 'undefined') {
     }
 
     function initQRCodeSnippet() {
-        const COOKIE_ID = 'qr-snippet-dismissed';
+        const COOKIE_ID = 'moz-qr-snippet-dismissed';
         const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
 
         if (!qrCodeSnippetEl) {
