@@ -17,10 +17,6 @@
     max-inline-size: 90px;
 }
 
-.fl-topic .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-md);
-}
-
 .fl-topic-list-sidebar {
     display: none;
     max-inline-size: 20%;
