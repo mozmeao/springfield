@@ -237,9 +237,11 @@
               {% endblock %}
             {% endif %}
 
-            {% with location = 'top' %}
-              {% include "firefox/releases/partials/notes_pagination.html" %}
-            {% endwith %}
+            {% if release.is_public %}
+              {% with location = 'top' %}
+                {% include "firefox/releases/partials/notes_pagination.html" %}
+              {% endwith %}
+            {% endif %}
 
             <section class="c-release-notes fl-c-release-notes-content fl-l-release-notes-wrapper">
               {% if release.is_public and release_notes %}
@@ -268,6 +270,41 @@
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article fl-l-release-notes-main">
+                        <ul>
+                  {% endif %}
+                  {{ note_entry(note) }}
+                  {% if loop.last %}
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+
+                {% for note in release_notes if note.tag == "Labs" %}
+                  {% if loop.first %}
+                    <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
+                      <div class="mzp-l-sidebar">
+                        {% if switch('flare26_enabled') %}
+                          {% set tag_heading %}
+                            <span class="fl-c-release-notes-heading">
+                              <include:icon
+                                icon_name="experiments"
+                                hidden="true"
+                              />
+                              Firefox Labs
+                            </span>
+                          {% endset %}
+                          <include:heading
+                            level="h3"
+                            heading_size="fl-heading-xs"
+                            heading_text="{{ tag_heading | safe }}"
+                          />
+                        {% else %}
+                          <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/labs.svg') }}" width="30" height="30">
+                          <h3>Firefox Labs</h3>
+                        {% endif %}
+                      </div>
+                      <div class="mzp-l-main mzp-l-article">
                         <ul>
                   {% endif %}
                   {{ note_entry(note) }}
@@ -340,7 +377,7 @@
                       <div class="mzp-l-main mzp-l-article">
                         <ul>
                   {% endif %}
-                    {{ note_entry(note) }}
+                  {{ note_entry(note) }}
                   {% if loop.last %}
                         </ul>
                       </div>
@@ -495,41 +532,6 @@
                   {% endif %}
                 {% endfor %}
 
-                {% for note in release_notes if note.tag == "Labs" %}
-                  {% if loop.first %}
-                    <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
-                      <div class="mzp-l-sidebar">
-                        {% if switch('flare26_enabled') %}
-                          {% set tag_heading %}
-                            <span class="fl-c-release-notes-heading">
-                              <include:icon
-                                icon_name="trending"
-                                hidden="true"
-                              />
-                              {{ note.tag }}
-                            </span>
-                          {% endset %}
-                          <include:heading
-                            level="h3"
-                            heading_size="fl-heading-xs"
-                            heading_text="{{ tag_heading | safe }}"
-                          />
-                        {% else %}
-                          <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/labs.svg') }}" width="30" height="30">
-                          <h3>{{ note.tag }}</h3>
-                        {% endif %}
-                      </div>
-                      <div class="mzp-l-main mzp-l-article">
-                        <ul>
-                  {% endif %}
-                  {{ note_entry(note) }}
-                  {% if loop.last %}
-                        </ul>
-                      </div>
-                    </div>
-                  {% endif %}
-                {% endfor %}
-
                 {% for note in release_notes if not note.tag %}
                   {% if loop.first %}
                     <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-right fl-l-release-notes-with-sidebar fl-t-sidebar-end">
@@ -620,9 +622,11 @@
         </section>
       </div>
 
+      <div class="fl-section fl-t-section-no-gap">
       {% with location = 'bottom' %}
         {% include "firefox/releases/partials/notes_pagination.html" %}
       {% endwith %}
+      </div>
 
       {% if switch('flare26_enabled') %}
       <div class="fl-download-section-container">

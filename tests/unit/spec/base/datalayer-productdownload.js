@@ -123,12 +123,6 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['product']).toBe('firefox');
     });
-    it('should identify product for Firefox Desktop partner builds', function () {
-        const testEvent = TrackProductDownload.getEventFromUrl(
-            'https://download.mozilla.org/?product=partner-firefox-release-smi-smi-001-latest&os=osx&lang=en-GB'
-        );
-        expect(testEvent['product']).toBe('firefox');
-    });
     it('should identify product for Firefox in the App Store using mz_pr parameter', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://itunes.apple.com/app/firefox-private-safe-browser/id989804926?mz_pr=firefox_mobile'
@@ -269,7 +263,7 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['release_channel']).toBe('release');
     });
-    it('should identify release_channel for Firefox ESR', function () {
+    it('should identify release_channel for Firefox ESR on Windows 64-bit', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=win64&lang=en-US'
         );

@@ -32,11 +32,13 @@ from springfield.cms.blocks import (
     KitBannerBlock,
     LocalizedLiveSnippetChooserBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
+    TopicListBlock,
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
@@ -652,7 +654,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
     ]
 
 
-def _get_freeform_page_blocks_2026(allow_uitour=False):
+def _get_freeform_page_blocks_2026(allow_uitour=True):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -664,11 +666,16 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
         with the appropriate button types.
     """
     return [
+        ("notification", NotificationBlock()),
         ("intro", IntroBlock2026(allow_uitour=allow_uitour)),
         ("section", SectionBlock2026(allow_uitour=allow_uitour)),
         ("showcase", ShowcaseBlock()),
         ("card_gallery", CardGalleryBlock()),
+        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour)),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+        ("banner", BannerBlock(allow_uitour=allow_uitour)),
+        ("topic_list", TopicListBlock(allow_uitour=allow_uitour)),
+        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(
@@ -682,7 +689,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
 
 FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=False)
+FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 WHATS_NEW_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 
 

@@ -1,3 +1,5 @@
+/* TODO: remove unused css when the cms version goes live */
+
 .fl-main.fl-page-user-privacy {
     padding-block-end: 0;
 }
@@ -82,10 +84,6 @@
     display: block;
 }
 
-.fl-page-user-privacy .fl-banner h2 {
-    font-size: var(--fl-theme-font-size-heading-md);
-}
-
 .fl-page-user-privacy .fl-fx-download-container {
     display: inline-flex;
 }
@@ -93,6 +91,10 @@
 .fl-page-user-privacy .fl-privacy-link {
     display: none;
     margin: 0;
+}
+
+.fl-page-user-privacy .fl-banner-content {
+    max-inline-size: none;
 }
 
 .fl-page-user-privacy .fl-intro-body .fl-button {
@@ -177,4 +179,45 @@ body.data-uitour #privacy-settings {
         .table-content-icon {
         color: var(--token-color-light-purple);
     }
+}
+
+/* CMS version overrides */
+
+.fl-page-user-privacy.fl-page-user-privacy-cms .fl-section:first-child {
+    padding-block: var(--fl-section-v-padding) 0;
+}
+
+.fl-page-user-privacy.fl-page-user-privacy-cms
+    .fl-section:first-child
+    + .fl-section {
+    padding-block-start: 0;
+}
+
+.fl-page-user-privacy.fl-page-user-privacy-cms .fl-section:last-child {
+    padding-block-end: 0;
+}
+
+.fl-page-user-privacy.fl-page-user-privacy-cms
+    .fl-section:last-child
+    .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
+.fl-page-user-privacy .has-gradient-bottom::before {
+    --gradient-height: 30vh;
+}
+
+.fl-page-user-privacy.fl-page-user-privacy-cms
+    .mzp-c-button-download-privacy-link {
+    display: none;
+}
+
+/* clip-path clips visually without creating a scroll container, so position: sticky
+   still works in descendants (unlike overflow: hidden). */
+.fl-page-user-privacy.fl-page-user-privacy-cms .has-gradient-bottom {
+    clip-path: inset(
+        0 round 0 0 var(--fl-theme-main-border-radius)
+            var(--fl-theme-main-border-radius)
+    );
+    overflow: visible;
 }

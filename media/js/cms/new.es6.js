@@ -473,6 +473,43 @@ if (typeof window.cms === 'undefined') {
         }
     }
 
+    function initTopicListSidebar() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const id = entry.target.getAttribute('id');
+                if (entry.intersectionRatio > 0) {
+                    // try/catch because it errors if there's no matching selector
+                    try {
+                        document
+                            .querySelector(
+                                `.fl-topic-list-sidebar li a[href="#${id}"]`
+                            )
+                            .parentElement.classList.add('current');
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                } else {
+                    // try/catch because it errors if there's no matching selector
+                    try {
+                        document
+                            .querySelector(
+                                `.fl-topic-list-sidebar li a[href="#${id}"]`
+                            )
+                            .parentElement.classList.remove('current');
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.fl-topic').forEach((section) => {
+            observer.observe(section);
+        });
+    }
+
     Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
@@ -510,6 +547,7 @@ if (typeof window.cms === 'undefined') {
             initAnimationPauseButtons();
             initDownloadDropdown();
             initQRCodeSnippet();
+            initTopicListSidebar();
             Flare26.initDialogs();
         });
     } else {
@@ -521,6 +559,7 @@ if (typeof window.cms === 'undefined') {
         initAnimations();
         initDownloadDropdown();
         initQRCodeSnippet();
+        initTopicListSidebar();
         Flare26.initDialogs();
     }
 

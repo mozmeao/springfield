@@ -87,7 +87,11 @@ body.fl-modal-open {
 }
 
 .has-gradient-bottom {
-    overflow: hidden;
+    clip-path: inset(
+        0 round 0 0 var(--fl-theme-main-border-radius)
+            var(--fl-theme-main-border-radius)
+    );
+    overflow: visible;
     position: relative;
     z-index: 0;
 }
