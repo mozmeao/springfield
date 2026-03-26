@@ -1,0 +1,59 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text = block_text ~ " - " ~ value.label %}
+{% set dialog_id = "set-as-default-dialog" %}
+
+<include:button
+  extra_classes="fl-dialog-trigger fl-set-as-default-button"
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  size_class="{{ size_class }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+  data_target_id="{{ dialog_id }}"
+/>
+
+<include:dialog id="{{ dialog_id }}">
+  <content:heading>
+    <include:heading
+      heading_text="{{ ftl('set-as-default-thanks-set-as-default-thanks-for-choosing-firefox') }}"
+    />
+  </content:heading>
+  <content:body>
+    <div class="conditional-display conditional-not-firefox">
+      <p>
+        ftl('set-as-default-thanks-looks-like-youre-using-a')
+      </p>
+      {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
+    </div>
+    <div class="conditional-display condition-is-not-default">
+      <div class="condition-linux condition-windows condition-osx">
+        <p>ftl('set-as-default-thanks-youre-almost-done-just-change')</p>
+
+        <p class="thanks-help-text">
+          <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ params }}">
+            ftl('set-as-default-thanks-having-trouble-setting-your')
+          </a>
+        </p>
+      </div>
+      <p class="conditional-display condition-android">
+        ftl('set-as-default-thanks-heres-everything-you-need-android',
+            android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params)
+      </p>
+      <p class="conditional-display condition-ios">
+        ftl('set-as-default-thanks-heres-everything-you-need-ios',
+            ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ params)
+      </p>
+    </div>
+    <p class="conditional-display condition-is-default">
+      ftl('set-as-default-thanks-youre-all-set')
+    </p>
+  </content:body>
+</include:dialog>

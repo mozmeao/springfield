@@ -362,6 +362,7 @@ UITOUR_BUTTON_CHOICES = (
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+SET_AS_DEFAULT_BUTTON = "set_as_default_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
@@ -479,9 +480,10 @@ def get_button_types(allow_uitour=False):
     Returns:
         List of button type strings.
     """
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+        return [*base_button_types, UITOUR_BUTTON_TYPE]
+    return base_button_types
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -754,6 +756,20 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def SetAsDefaultButtonBlock(themes=None, **kwargs):
+    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text")
+
+        class Meta:
+            template = "cms/blocks/set_as_default_button.html"
+            label = "Set As Default Button"
+            label_format = "Set As Default Button"
+            value_class = BaseButtonValue
+
+    return _SetAsDefaultButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=None, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -863,6 +879,7 @@ def MixedButtonsBlock(
     button_blocks = {
         BUTTON_TYPE: ButtonBlock(themes=themes),
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
+        SET_AS_DEFAULT_BUTTON: SetAsDefaultButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
         STORE_BUTTON_TYPE: StoreButtonBlock(),
