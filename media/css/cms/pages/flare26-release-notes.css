@@ -94,6 +94,10 @@
     display: flex;
     font-size: 1.5rem; /* 24px - static */
     gap: var(--token-spacing-sm);
+
+    .fl-icon {
+        flex-shrink: 0;
+    }
 }
 
 .fl-c-release-notes-pre-footer {
