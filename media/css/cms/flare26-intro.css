@@ -59,7 +59,7 @@
     align-items: center;
 }
 
-.fl-intro-vertical .fl-buttons > * {
+.fl-intro-vertical .fl-buttons > *:not(.fl-dialog) {
     block-size: fit-content;
 }
 

@@ -221,7 +221,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-inline-end: auto;
 }
 
-.fl-buttons > * {
+.fl-buttons > *:not(.fl-dialog) {
     display: inline-flex;
 }
 
