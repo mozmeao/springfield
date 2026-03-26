@@ -457,6 +457,96 @@ if (typeof window.cms === 'undefined') {
         }
     };
 
+    Flare26.setAsDefaultPage = {
+        checkTimer: undefined,
+        isDefaultBrowser() {
+            return new window.Promise(function (resolve, reject) {
+                Mozilla.UITour.getConfiguration('appinfo', function (details) {
+                    if (details.defaultBrowser) {
+                        resolve();
+                    } else {
+                        reject(details.canSetDefaultBrowserInBackground);
+                    }
+                });
+            });
+        },
+        trySetDefaultBrowser() {
+            Mozilla.UITour.setConfiguration('defaultBrowser');
+        },
+        onDefaultSwitch() {
+            document
+                .querySelector('html')
+                .classList.remove('firefox-is-not-default');
+            document.querySelector('html').classList.add('firefox-is-default');
+            // GA4
+            window.dataLayer.push({
+                event: 'default_browser_set'
+            });
+            window.dataLayer.push({
+                event: 'dimension_set',
+                firefox_is_default: true
+            });
+        },
+        checkForDefaultSwitch() {
+            Flare26.setAsDefaultPage
+                .isDefaultBrowser()
+                .then(function () {
+                    Flare26.setAsDefaultPage.onDefaultSwitch();
+                    clearInterval(Flare26.setAsDefaultPage.checkTimer);
+                })
+                .catch(function () {
+                    // do nothing
+                });
+        },
+        onLoad() {
+            const setAsDefaultDialogEl = document.getElementById(
+                'set-as-default-dialog'
+            );
+            const setAsDefaultButtonEl = document.querySelector(
+                '.fl-set-as-default-button'
+            );
+
+            if (!(setAsDefaultDialogEl && setAsDefaultButtonEl)) {
+                return;
+            }
+
+            setAsDefaultButtonEl.addEventListener('click', () => {
+                Flare26.setAsDefaultPage.trySetDefaultBrowser();
+            });
+
+            Flare26.setAsDefaultPage
+                .isDefaultBrowser()
+                .then(function () {
+                    document
+                        .querySelector('html')
+                        .classList.add('firefox-is-default');
+                    // GA4
+                    window.dataLayer.push({
+                        event: 'dimension_set',
+                        firefox_is_default: true
+                    });
+                })
+                .catch(function () {
+                    document
+                        .querySelector('html')
+                        .classList.add('firefox-is-not-default');
+
+                    window.setTimeout(function () {
+                        Flare26.setAsDefaultPage.checkTimer = setInterval(
+                            Flare26.setAsDefaultPage.checkForDefaultSwitch,
+                            1000
+                        );
+                    }, 1500);
+
+                    // GA4
+                    window.dataLayer.push({
+                        event: 'dimension_set',
+                        firefox_is_default: false
+                    });
+                });
+        }
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initNewsletterForm();
@@ -469,6 +559,7 @@ if (typeof window.cms === 'undefined') {
             initDownloadDropdown();
             initQRCodeSnippet();
             Flare26.initDialogs();
+            Flare26.setAsDefaultPage.onLoad();
         });
     } else {
         initNewsletterForm();
@@ -480,6 +571,7 @@ if (typeof window.cms === 'undefined') {
         initDownloadDropdown();
         initQRCodeSnippet();
         Flare26.initDialogs();
+        Flare26.setAsDefaultPage.onLoad();
     }
 
     window.cms.Flare26 = Flare26;
