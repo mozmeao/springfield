@@ -671,6 +671,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         ("section", SectionBlock2026(allow_uitour=allow_uitour)),
         ("showcase", ShowcaseBlock()),
         ("card_gallery", CardGalleryBlock()),
+        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour)),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
         ("banner", BannerBlock(allow_uitour=allow_uitour)),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour)),
