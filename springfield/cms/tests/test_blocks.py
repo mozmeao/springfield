@@ -87,6 +87,7 @@ from springfield.cms.fixtures.notification_fixtures import get_notification_test
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page, get_showcase_2026_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
+from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -1563,6 +1564,72 @@ def test_kit_banner_curious_animation(index_page, rf):
     play_icon = pause_button.find(class_="js-play-icon")
     assert play_icon is not None
     assert play_icon.get("hidden") is not None
+
+
+def test_topic_list_2026_block(index_page, placeholder_images, rf):
+    upper_variants = get_topic_list_upper_variants()
+    lower_variants = get_topic_list_lower_variants()
+    test_page = get_topic_list_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region, variants in [("upper", upper, upper_variants), ("lower", lower, lower_variants)]:
+        topic_lists = region.find_all("div", class_="fl-topic-list")
+        assert len(topic_lists) == len(variants)
+
+        for block_index, (topic_list_element, variant) in enumerate(zip(topic_lists, variants)):
+            topics = variant["value"]["topics"]
+
+            # Sidebar links match anchor IDs
+            sidebar_links = topic_list_element.find("div", class_="fl-topic-list-sidebar").find_all("a")
+            assert len(sidebar_links) == len(topics)
+            for topic, link in zip(topics, sidebar_links):
+                assert link["href"] == f"#{topic['value']['anchor_id']}"
+                assert topic["value"]["short_title"] in link.get_text()
+
+            # Topic sections have correct anchor IDs, image, heading and content
+            topic_sections = topic_list_element.find("div", class_="fl-topic-list-content").find_all("section", class_="fl-topic")
+            assert len(topic_sections) == len(topics)
+            for topic_index, (topic, section) in enumerate(zip(topics, topic_sections)):
+                assert section["id"] == topic["value"]["anchor_id"]
+
+                # Image — rendered with "width-400" spec
+                img_tag = section.find("img")
+                assert img_tag
+                assert "width-400" in img_tag["src"]
+
+                # Heading
+                heading_text = BeautifulSoup(topic["value"]["heading"]["heading_text"], "html.parser").get_text()
+                heading = section.find("h2", class_="fl-heading")
+                assert heading and heading_text in heading.get_text()
+
+                # Content
+                content_text = BeautifulSoup(topic["value"]["content"], "html.parser").get_text()
+                assert content_text in section.get_text()
+
+                # Buttons
+                buttons = topic["value"]["buttons"]
+                button_elements = section.find_all("a", class_="fl-button")
+                for button_index, button in enumerate(buttons):
+                    button_element = button_elements[button_index]
+                    cta_position = f"{region_name}-block-{block_index + 1}-topic_list.topic-{topic_index + 1}.button-{button_index + 1}"
+                    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                    assert_button_attributes(
+                        button_element=button_element,
+                        button_data=button,
+                        context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
+                    )
 
 
 def test_kit_banner_2026_block(index_page, placeholder_images, rf):

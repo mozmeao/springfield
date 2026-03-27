@@ -819,6 +819,11 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             default=False,
             help_text="Show 'Set as default browser' checkbox to Windows users. Attention! This will affect all download buttons on the page.",
         )
+        show_extra_links = blocks.BooleanBlock(
+            required=False,
+            default=True,
+            help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
+        )
 
         class Meta:
             icon = "cog"
@@ -1883,7 +1888,7 @@ class NotificationBlock(blocks.StructBlock):
 
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before")),
+        choices=(("after", "After"), ("before", "Before"), ("right", "Right"), ("left", "Left")),
         default="after",
         label="Media Position",
         inline_form=True,
@@ -1897,7 +1902,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}"
+        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}..."
         form_classname = "compact-form struct-block"
 
 
@@ -1935,6 +1940,13 @@ class IntroBlockSettings2026(blocks.StructBlock):
         label="Layout",
         inline_form=True,
     )
+    full_width = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Full Width",
+        inline_form=True,
+        help_text="Renders content using all available horizontal space.",
+    )
     slim = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -1971,7 +1983,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
@@ -2069,6 +2081,52 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+# Topic list
+
+
+def TopicBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicBlock(blocks.StructBlock):
+        short_title = blocks.CharBlock(
+            label="Short Title",
+            help_text="Text to be used on the sidebar link.",
+        )
+        anchor_id = blocks.CharBlock(
+            help_text="Add an ID to make this section linkable from the sidebar (e.g., 'privacy-online', 'data-control')",
+        )
+        image = ImageChooserBlock(
+            label="Image",
+            help_text="Image shown at the top of the topic heading.",
+        )
+        heading = HeadingBlock()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/topic.html"
+            label = "Topic"
+            label_format = "{heading}"
+
+    return _TopicBlock(*args, **kwargs)
+
+
+def TopicListBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicListBlock(blocks.StructBlock):
+        topics = blocks.ListBlock(TopicBlock(allow_uitour=allow_uitour), min=1)
+
+        class Meta:
+            template = "cms/blocks/sections/topic-list.html"
+            label = "Topic List"
+            label_format = "{heading}"
+
+    return _TopicListBlock(*args, **kwargs)
+
+
 # Banners
 
 
@@ -2088,6 +2146,7 @@ class BannerSettings(blocks.StructBlock):
             ("default", "Default"),
             ("outlined", "Outlined"),
             ("purple", "Purple"),
+            ("dark-purple", "Dark Purple"),
         ),
         default="default",
         inline_form=True,
@@ -2106,6 +2165,13 @@ class BannerSettings(blocks.StructBlock):
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
 
     class Meta:
@@ -2126,7 +2192,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 

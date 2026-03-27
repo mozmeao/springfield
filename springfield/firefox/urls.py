@@ -206,12 +206,16 @@ urlpatterns = (
     # 2. New version format, which should be served from the CMS, but falls back to evergreen page
     re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
-    page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
     path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
 )
 
 if settings.ENABLE_CMS_REFRESH_REDIRECTS:
     urlpatterns += (
+        path(
+            "user-privacy/",
+            prefer_cms(L10nTemplateView.as_view(template_name="firefox/data.html")),
+            name="firefox.user-privacy",
+        ),
         path(
             "download/android/",
             prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"])),
@@ -235,6 +239,7 @@ if settings.ENABLE_CMS_REFRESH_REDIRECTS:
     )
 else:
     urlpatterns += (
+        page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
         page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
         page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
         path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
