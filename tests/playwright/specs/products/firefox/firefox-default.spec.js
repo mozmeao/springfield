@@ -28,9 +28,9 @@ test.describe(
                 waitUntil: 'commit'
             });
 
-            const downloadButton = page.getByTestId(
-                'download-firefox-button__download-link'
-            );
+            const downloadButton = page
+                .locator('.thanks-state-not-firefox')
+                .getByTestId('download-firefox-button__download-link');
             const defaultMessaging = page.getByTestId(
                 'firefox-not-default-message'
             );
