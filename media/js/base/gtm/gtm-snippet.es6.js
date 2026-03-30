@@ -10,7 +10,7 @@ import {
     getConsentCookie,
     gpcEnabled,
     isFirefoxDownloadThanks,
-    isFirefoxLandingGet,
+    isPromotedPage,
     setGtagAdsConsentMode,
     setGtagAnalyticsConsentMode
 } from '../consent/utils.es6';
@@ -26,9 +26,9 @@ if (typeof window.dataLayer === 'undefined') {
 }
 
 /**
- * Checks for marketing consent param from /landing/get
- * This means the user did not change opt-out checkbox default on that page
- * Only applies on the /thanks page
+ * Checks for marketing consent param from a promoted landing page.
+ * This means the user did not change opt-out checkbox default on that page.
+ * Only applies on the /thanks page.
  * @returns {Boolean}
  */
 GTMSnippet.hasLandingGetMarketingConsent = (href) => {
@@ -56,7 +56,7 @@ GTMSnippet.setGtagConsentDefaults = () => {
         setGtagAnalyticsConsentMode(cookie.analytics, 'default');
     } else {
         setGtagAdsConsentMode(
-            (GTMSnippet.isFirefoxLandingGet() && !consentRequired()) ||
+            (GTMSnippet.isPromotedPage() && !consentRequired()) ||
                 GTMSnippet.hasLandingGetMarketingConsent(window.location.href),
             'default'
         );
@@ -95,11 +95,11 @@ GTMSnippet.isFirefoxDownloadThanks = () => {
 };
 
 /**
- * Determine if the current page is /landing/get.
+ * Determine if the current page is a promoted landing page.
  * @returns {Boolean}
  */
-GTMSnippet.isFirefoxLandingGet = () => {
-    return isFirefoxLandingGet(window.location.href);
+GTMSnippet.isPromotedPage = () => {
+    return isPromotedPage();
 };
 
 /**

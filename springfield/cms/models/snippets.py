@@ -13,6 +13,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
@@ -240,6 +241,10 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         FieldPanel("content"),
         FieldPanel("qr_code"),
         FieldPanel("closable"),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_code"),
     ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):

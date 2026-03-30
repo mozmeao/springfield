@@ -1,91 +1,79 @@
-
 {#
  This Source Code Form is subject to the terms of the Mozilla Public
  License, v. 2.0. If a copy of the MPL was not distributed with this
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "base-protocol.html" %}
-{% from "macros-protocol.html" import callout, picto with context %}
+{% extends "cms/base-flare26.html" %}
 
 {% block page_title %}{{ ftl('set-as-default-landing-make-firefox-your-default') }}{% endblock %}
 {% block page_desc %}{{ ftl('set-as-default-landing-choose-the-browser') }}{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('protocol-picto') }}
-  {{ css_bundle('protocol-callout') }}
   {{ css_bundle('firefox-default-landing') }}
 {% endblock %}
 
-{% set landing_header = ftl('set-as-default-landing-you-should-get') %}
-{% set landing_body = ftl('set-as-default-landing-if-you-recently') %}
-
 {% block content %}
-  <main>
-    {% call callout(
-      title=ftl('set-as-default-landing-make-sure-youre-protected'),
-      desc=ftl('set-as-default-landing-thanks-for-using-the'),
-      class='mzp-t-hero mzp-t-product-firefox',
-      include_cta=True,
-      heading_level=1,
-      brand=True,
-      brand_product='firefox',
-      brand_type='logo',
-      brand_size='lg',
-    ) %}
-      <div class="cta-container">
-        <div class="mzp-c-button-download-container">
-          <a id="set-as-default-button" href="{{ url('firefox.default.thanks') }}" class="mzp-c-button mzp-t-product" data-cta-text="Make Firefox your default browser" data-testid="button-set-as-default">
-            {{ ftl('set-as-default-landing-make-firefox-your-default') }}
-          </a>
-        </div>
-      </div>
-    {% endcall %}
-    <ul class="mzp-l-columns mzp-t-columns-three mzp-l-content mzp-t-content-lg">
-      {% call picto(
-        title=ftl('set-as-default-landing-choose-automatic-privacy'),
-        image=resp_img(
-          url='protocol/img/icons/brand/violet/no-eye.svg',
-          optional_attributes={
-            'class': 'mzp-c-picto-image',
-            'width': '64',
-            'loading': 'lazy'
-          }
-        ),
-        body=true,
-      ) %}
-        <p>{{ ftl('set-as-default-landing-companies-keep-finding') }}</p>
-      {% endcall %}
+<main class="fl-main">
+  <include:intro vertical=true media_position="before">
+    <content:media>
+      <img src="{{ static('img/logos/firefox/firefox-logo.svg') }}" width="96" height="96" alt="" class="landing-logo">
+    </content:media>
+    <content:heading>
+      <include:heading level="h1" heading_size="fl-heading-size-2"
+        heading_text="{{ ftl('set-as-default-landing-make-sure-youre-protected') }}"
+        subheading_text="{{ ftl('set-as-default-landing-thanks-for-using-the') }}" />
+    </content:heading>
+    <content:actions>
+      <a id="set-as-default-button" href="{{ url('firefox.default.thanks') }}" class="fl-button" data-cta-text="Make Firefox your default browser" data-testid="button-set-as-default">
+        {{ ftl('set-as-default-landing-make-firefox-your-default') }}
+      </a>
+    </content:actions>
+  </include:intro>
 
-      {% call picto(
-        title=ftl('set-as-default-landing-choose-freedom-on-every'),
-        image=resp_img(
-          url='protocol/img/icons/brand/orange/devices.svg',
-          optional_attributes={
-            'class': 'mzp-c-picto-image',
-            'width': '64',
-            'loading': 'lazy'
-          }
-        ),
-        body=true,
-      ) %}
-        <p>{{ ftl('set-as-default-landing-firefox-is-fast-and') }}</p>
-      {% endcall %}
+  <include:section>
+    <content:content>
+    <include:cards-list>
+      <include:illustration-card-2026 variant="icon">
+        <content:media>
+          <img src="{{ static('protocol/img/icons/brand/violet/no-eye.svg') }}" width="48" height="48" alt="" loading="lazy">
+        </content:media>
+        <content:heading>
+          <include:heading level="h2" heading_size="fl-heading-size-5"
+            heading_text="{{ ftl('set-as-default-landing-choose-automatic-privacy') }}" />
+        </content:heading>
+        <content:body>
+          <p>{{ ftl('set-as-default-landing-companies-keep-finding') }}</p>
+        </content:body>
+      </include:illustration-card-2026>
 
-      {% call picto(
-        title=ftl('set-as-default-landing-choose-corporate-independence'),
-        image=resp_img(
-          url='protocol/img/icons/brand/blue/mountain.svg',
-          optional_attributes={
-            'class': 'mzp-c-picto-image',
-            'width': '64',
-            'loading': 'lazy'
-          }
-        ),
-        body=true,
-      ) %}
-        <p>{{ ftl('set-as-default-landing-firefox-is-the-only') }}</p>
-      {% endcall %}
-    </ul>
-  </main>
+      <include:illustration-card-2026 variant="icon">
+        <content:media>
+          <img src="{{ static('protocol/img/icons/brand/orange/devices.svg') }}" width="48" height="48" alt="" loading="lazy">
+        </content:media>
+        <content:heading>
+          <include:heading level="h2" heading_size="fl-heading-size-5"
+            heading_text="{{ ftl('set-as-default-landing-choose-freedom-on-every') }}" />
+        </content:heading>
+        <content:body>
+          <p>{{ ftl('set-as-default-landing-firefox-is-fast-and') }}</p>
+        </content:body>
+      </include:illustration-card-2026>
+
+      <include:illustration-card-2026 variant="icon">
+        <content:media>
+          <img src="{{ static('protocol/img/icons/brand/blue/mountain.svg') }}" width="48" height="48" alt="" loading="lazy">
+        </content:media>
+        <content:heading>
+          <include:heading level="h2" heading_size="fl-heading-size-5"
+            heading_text="{{ ftl('set-as-default-landing-choose-corporate-independence') }}" />
+        </content:heading>
+        <content:body>
+          <p>{{ ftl('set-as-default-landing-firefox-is-the-only') }}</p>
+        </content:body>
+      </include:illustration-card-2026>
+    </include:cards-list>
+    </content:content>
+  </include:section>
+</main>
 {% endblock %}
