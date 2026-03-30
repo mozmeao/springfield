@@ -20,40 +20,21 @@
   data_target_id="{{ dialog_id }}"
 />
 
-<include:dialog id="{{ dialog_id }}">
-  <content:heading>
-    <include:heading
-      heading_text="{{ ftl('set-as-default-thanks-set-as-default-thanks-for-choosing-firefox') }}"
-    />
-  </content:heading>
-  <content:body>
-    <div class="conditional-display conditional-not-firefox">
-      <p>
-        ftl('set-as-default-thanks-looks-like-youre-using-a')
-      </p>
-      {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
-    </div>
-    <div class="conditional-display condition-is-not-default">
-      <div class="condition-linux condition-windows condition-osx">
-        <p>ftl('set-as-default-thanks-youre-almost-done-just-change')</p>
-
-        <p class="thanks-help-text">
-          <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ params }}">
-            ftl('set-as-default-thanks-having-trouble-setting-your')
-          </a>
-        </p>
-      </div>
-      <p class="conditional-display condition-android">
-        ftl('set-as-default-thanks-heres-everything-you-need-android',
-            android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params)
-      </p>
-      <p class="conditional-display condition-ios">
-        ftl('set-as-default-thanks-heres-everything-you-need-ios',
-            ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ params)
-      </p>
-    </div>
-    <p class="conditional-display condition-is-default">
-      ftl('set-as-default-thanks-youre-all-set')
-    </p>
-  </content:body>
-</include:dialog>
+{% set set_as_default_snippet = get_set_as_default_snippet() %}
+{% if set_as_default_snippet %}
+  {% set value = set_as_default_snippet %}
+  <div class="fl-set-as-default-dialog">
+    <include:dialog id="{{ dialog_id }}">
+      <content:heading>
+        <include:heading
+          heading_text="{{ value.heading_text }}"
+        />
+      </content:heading>
+      <content:body>
+        {% include "cms/snippets/set-as-default-snippet.html" %}
+      </content:body>
+   </include:dialog>
+  </div>
+{% else %}
+  <p class="fl-notification fl-notification-red">The Set as Default button requires a Set as Default snippet. Please add one in the CMS.</p>
+{% endif %}
