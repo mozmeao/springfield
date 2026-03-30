@@ -1,0 +1,45 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block content %}
+  <div class="fl-main">
+    <div class="fl-section">
+      Heading text:
+      <h1>{{ object.heading_text }}</h1>
+      <hr/>
+      <div class=" conditional-not-firefox">
+        Not firefox:
+        {{ object.not_firefox_content|richtext }}
+        {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
+      </div>
+      <hr/>
+      <div class=" condition-is-not-default">
+        <div class="condition-linux condition-windows condition-osx">
+          Firefox desktop:
+          {{ object.not_default_desktop_content|richtext }}
+        </div>
+      <hr/>
+        <p class=" condition-android">
+          Firefox android:
+          {{ object.not_default_android_content|richtext }}
+        </p>
+      <hr/>
+        <p class=" condition-ios">
+          Firefox ios:
+          {{ object.not_default_ios_content|richtext }}
+        </p>
+      <hr/>
+      </div>
+      <p class=" condition-is-default">
+        Success message:
+        {{ object.success_content|richtext }}
+      </p>
+      <hr/>
+    </div>
+  </div>
+{% endblock content %}

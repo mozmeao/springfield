@@ -256,3 +256,39 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
 
 
 register_snippet(QRCodeSnippet)
+
+
+class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render the modal content for the 'set as default' button."""
+
+    heading_text = models.CharField()
+    not_firefox_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for non-Firefox users. A download button will be shown below it."
+    )
+    not_default_desktop_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for desktop users that haven't set the browser as default yet with instructions."
+    )
+    not_default_android_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for android users that haven't set the browser as default yet with instructions."
+    )
+    not_default_ios_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for ios users that haven't set the browser as default yet with instructions."
+    )
+    success_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown after user has successfully set Firefox as default browser."
+    )
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Set as Default Snippet"
+        verbose_name_plural = "Set as Default Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading_text))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/set-as-default-snippet-preview.html"
+
+
+register_snippet(SetAsDefaultSnippet)

@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if value %}
+  <div class="conditional-display conditional-not-firefox">
+    {{ value.not_firefox_content|richtext }}
+    {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
+  </div>
+  <div class="conditional-display condition-is-not-default">
+    <div class="condition-linux condition-windows condition-osx">
+      {{ value.not_default_desktop_content|richtext }}
+    </div>
+    <div class="conditional-display condition-android">
+      {{ value.not_default_android_content|richtext }}
+    </div>
+    <div class="conditional-display condition-ios">
+      {{ value.not_default_ios_content|richtext }}
+    </div>
+  </div>
+  <div class="conditional-display condition-is-default">
+    {{ value.success_content|richtext }}
+  </div>
+{% endif %}
