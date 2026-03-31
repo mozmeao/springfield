@@ -114,6 +114,7 @@ def download_firefox(
     button_class="mzp-t-xl",
     locale_in_transition=False,
     download_location=None,
+    force_arch=None,
 ):
     """Output a "download firefox" button.
 
@@ -171,6 +172,7 @@ def download_firefox(
         "button_class": button_class,
         "download_location": download_location,
         "fluent_l10n": ctx["fluent_l10n"],
+        "force_arch": force_arch,
     }
 
     html = render_to_string("firefox/includes/download-button.html", data, request=ctx["request"])
