@@ -67,6 +67,7 @@ class InstallerHelpView(L10nTemplateView):
         installer_arch = self.request.GET.get("installer_arch", None)
         ctx["installer_lang"] = None
         ctx["installer_channel"] = None
+        ctx["installer_arch"] = None
 
         if installer_arch is not None:
             ctx["installer_arch"] = {"1": "win", "2": "win64", "3": "win64-aarch64"}[installer_arch]
