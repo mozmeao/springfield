@@ -2,31 +2,30 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
-
-@use '~@mozilla-protocol/core/protocol/css/components/notification-bar';
-@use '~@mozilla-protocol/core/protocol/css/components/logos/logo';
-@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-firefox';
-@use '~@mozilla-protocol/core/protocol/css/components/logos/logo-product-mozilla';
-
 // * -------------------------------------------------------------------------- */
-// Main Hero
+// Logo
 
-.mzp-c-callout.mzp-t-product-firefox.mzp-t-hero {
-    background: $color-white;
-
-    .mzp-c-callout-desc {
-        @include text-title-xs;
-    }
-
-    .thanks-help-text {
-        @include text-title-2xs;
-        margin-top: $layout-lg;
-    }
+.thanks-logo {
+    width: 96px;
+    height: 96px;
 }
 
 // * -------------------------------------------------------------------------- */
-// Conditional State
+// Help text
+
+.thanks-help-text {
+    margin-top: var(--token-spacing-lg);
+}
+
+// * -------------------------------------------------------------------------- */
+// Not Firefox state
+
+.thanks-state-not-firefox .fl-button {
+    margin-top: var(--token-spacing-md);
+}
+
+// * -------------------------------------------------------------------------- */
+// Conditional State — all conditional states hidden by default
 
 .thanks-state-not-default-desktop,
 .thanks-state-not-default-android,
@@ -35,12 +34,22 @@
     display: none;
 }
 
-/* Fade in success message. */
-.thanks-state-is-default,
-.thanks-extra-links {
-    @include animation(mzp-a-fade-in 300ms ease-in 0ms 1 normal both);
+// Fade in success message
+.thanks-state-is-default {
+    animation: fade-in 300ms ease-in 0ms 1 normal both;
 }
 
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Firefox user, not default: show desktop instructions
 .is-firefox {
     .thanks-state-not-firefox {
         display: none;
@@ -49,12 +58,9 @@
     .thanks-state-not-default-desktop {
         display: block;
     }
-
-    .thanks-extra-links {
-        visibility: hidden;
-    }
 }
 
+// Firefox Android
 .is-firefox.android {
     .thanks-state-not-default-desktop {
         display: none;
@@ -65,6 +71,7 @@
     }
 }
 
+// Firefox iOS
 .is-firefox.ios {
     .thanks-state-not-default-desktop {
         display: none;
@@ -75,6 +82,7 @@
     }
 }
 
+// Firefox IS default: show success
 .is-firefox-default {
     .thanks-state-not-default-desktop {
         display: none;
@@ -83,57 +91,4 @@
     .thanks-state-is-default {
         display: block;
     }
-
-    .thanks-extra-links {
-        visibility: visible;
-    }
-}
-
-// * -------------------------------------------------------------------------- */
-// Extra links section
-
-.thanks-extra-links {
-    background-color: $color-marketing-gray-20;
-    padding: $layout-md 0;
-
-    .thanks-extra-links-item {
-        @include border-box;
-        margin-bottom: $spacing-lg;
-        padding: 0 $spacing-md;
-
-        &.mobile .thanks-extra-links-heading {
-            background-image: url('/media/img/firefox/default/thanks/mobile.svg');
-        }
-
-        &.join .thanks-extra-links-heading {
-            @include background-size(30px 30px);
-            background-image: url('/media/protocol/img/logos/mozilla/logo-flat.svg');
-        }
-
-        &.help .thanks-extra-links-heading {
-            @include background-size(29px 29px);
-            background-image: url('/media/img/firefox/default/thanks/help.svg');
-        }
-    }
-
-    .thanks-extra-links-heading {
-        background-repeat: no-repeat;
-        padding-top: $spacing-2xl;
-    }
-
-    @media #{$mq-lg} {
-        @include clearfix;
-        padding: $layout-lg 0;
-
-        .thanks-extra-links-item {
-            width: 33.3%;
-            @include bidi((
-                (float, left, right),
-            ));
-        }
-    }
-}
-
-.thanks-extra-links-heading {
-    @include text-title-xs;
 }

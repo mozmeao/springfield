@@ -11,7 +11,7 @@ import {
     getHostName,
     hasConsentCookie,
     isFirefoxDownloadThanks,
-    isFirefoxLandingGet,
+    isPromotedPage,
     isURLExceptionAllowed,
     isURLPermitted,
     setConsentCookie,
@@ -335,6 +335,17 @@ describe('isURLPermitted()', function () {
             isURLPermitted('/en-US/privacy/websites/cookie-settings/')
         ).toBeFalse();
     });
+
+    it('should return true for promoted pages', function () {
+        document
+            .getElementsByTagName('html')[0]
+            .setAttribute('data-promoted-page', 'true');
+        expect(isURLPermitted('/en-US/landing/some-campaign/')).toBeTrue();
+        expect(isURLPermitted('/en-US/')).toBeTrue();
+        document
+            .getElementsByTagName('html')[0]
+            .removeAttribute('data-promoted-page');
+    });
 });
 
 describe('setConsentCookie()', function () {
@@ -365,33 +376,22 @@ describe('setConsentCookie()', function () {
     });
 });
 
-describe('isFirefoxLandingGet()', function () {
-    it('should return true if URL contains /landing/get', function () {
-        expect(
-            isFirefoxLandingGet('https://www.mozilla.org/en-US/landing/get/')
-        ).toBeTrue();
-        expect(
-            isFirefoxLandingGet('https://www.allizom.org/en-US/landing/get/')
-        ).toBeTrue();
-        expect(
-            isFirefoxLandingGet('https://localhost:8000/en-US/landing/get/')
-        ).toBeTrue();
+describe('isPromotedPage()', function () {
+    afterEach(function () {
+        document
+            .getElementsByTagName('html')[0]
+            .removeAttribute('data-promoted-page');
     });
 
-    it('should return false if URL is not /landing/get', function () {
-        expect(
-            isFirefoxLandingGet('https://www.mozilla.org/en-US/')
-        ).toBeFalse();
-        expect(
-            isFirefoxLandingGet('https://www.allizom.org/en-US/')
-        ).toBeFalse();
-        expect(
-            isFirefoxLandingGet('https://localhost:8000/en-US/')
-        ).toBeFalse();
-        expect(isFirefoxLandingGet('')).toBeFalse();
-        expect(isFirefoxLandingGet(null)).toBeFalse();
-        expect(isFirefoxLandingGet(undefined)).toBeFalse();
-        expect(isFirefoxLandingGet(true)).toBeFalse();
+    it('should return true when data-promoted-page attribute is "true"', function () {
+        document
+            .getElementsByTagName('html')[0]
+            .setAttribute('data-promoted-page', 'true');
+        expect(isPromotedPage()).toBeTrue();
+    });
+
+    it('should return false when data-promoted-page attribute is absent', function () {
+        expect(isPromotedPage()).toBeFalse();
     });
 });
 
