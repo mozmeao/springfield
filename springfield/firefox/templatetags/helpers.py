@@ -175,6 +175,9 @@ def download_firefox(
         "force_arch": force_arch,
     }
 
+    if force_arch is not None:
+        data["force_arch"] = force_arch
+
     html = render_to_string("firefox/includes/download-button.html", data, request=ctx["request"])
     return Markup(html)
 
