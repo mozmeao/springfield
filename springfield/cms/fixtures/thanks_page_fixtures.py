@@ -76,7 +76,15 @@ def get_windows_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": {"platforms": ["windows"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
+            "settings": {
+                "show_to": {
+                    "platforms": ["windows"],
+                    "firefox": "",
+                    "auth_state": "",
+                    "default_browser": "",
+                },
+                "anchor_id": "",
+            },
             "heading": {
                 "superheading_text": "Windows Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
@@ -93,7 +101,15 @@ def get_linux_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": {"platforms": ["linux"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
+            "settings": {
+                "show_to": {
+                    "platforms": ["linux"],
+                    "firefox": "",
+                    "auth_state": "",
+                    "default_browser": "",
+                },
+                "anchor_id": "",
+            },
             "heading": {
                 "superheading_text": "Linux Users",
                 "heading_text": '<p data-block-key="x4k4z">Almost there!</p>',
@@ -110,7 +126,15 @@ def get_unsupported_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": {"platforms": ["unsupported"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
+            "settings": {
+                "show_to": {
+                    "platforms": ["unsupported"],
+                    "firefox": "",
+                    "auth_state": "",
+                    "default_browser": "",
+                },
+                "anchor_id": "",
+            },
             "heading": {
                 "superheading_text": "Unsupported OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Your download was interrupted. But all is not lost.</p>',
@@ -127,7 +151,15 @@ def get_other_os_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": {"platforms": ["other-os", "android", "ios"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
+            "settings": {
+                "show_to": {
+                    "platforms": ["other-os", "android", "ios"],
+                    "firefox": "",
+                    "auth_state": "",
+                    "default_browser": "",
+                },
+                "anchor_id": "",
+            },
             "heading": {
                 "superheading_text": "Other OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
@@ -146,7 +178,15 @@ def get_mac_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": {"platforms": ["osx"], "firefox": "", "auth_state": ""}, "anchor_id": ""},
+            "settings": {
+                "show_to": {
+                    "platforms": ["osx"],
+                    "firefox": "",
+                    "auth_state": "",
+                    "default_browser": "",
+                },
+                "anchor_id": "",
+            },
             "heading": {
                 "superheading_text": "Mac Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',

@@ -7,7 +7,7 @@ from django.conf import settings
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):

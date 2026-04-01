@@ -154,8 +154,8 @@ class Command(BaseCommand):
         article_theme_page = get_article_theme_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
 
-        artcle_theme_hub_page = get_article_theme_hub_page()
-        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
+        article_theme_hub_page = get_article_theme_hub_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {article_theme_hub_page.slug}"))
 
         whats_new_index_page = get_whatsnew_index_page()
         self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))

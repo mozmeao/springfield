@@ -4,26 +4,23 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="conditional-display conditional-not-firefox {% if is_preview %}is-preview{% endif %}">
-  {% if is_preview %}<span class="preview-indicator">Condition: Not Firefox</span>{% endif %}
+<include:conditional-display firefox_condition="not-firefox">
   {{ object.not_firefox_content|richtext }}
   {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
-</div>
-<div class="conditional-display condition-is-not-default {% if is_preview %}is-preview{% endif %}">
-  <div class="condition-linux condition-windows condition-osx">
-    {% if is_preview %}<span class="preview-indicator">Condition: Not Default Desktop</span>{% endif %}
-    {{ object.not_default_desktop_content|richtext }}
-  </div>
-  <div class="conditional-display condition-android {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}<span class="preview-indicator">Condition: Not Default Android</span>{% endif %}
-    {{ object.not_default_android_content|richtext }}
-  </div>
-  <div class="conditional-display condition-ios {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}<span class="preview-indicator">Condition: Not Default iOS</span>{% endif %}
-    {{ object.not_default_ios_content|richtext }}
-  </div>
-</div>
-<div class="conditional-display condition-is-default {% if is_preview %}is-preview{% endif %}">
-  {% if is_preview %}<span class="preview-indicator">Condition: Default</span>{% endif %}
+</include:conditional-display>
+
+<include:conditional-display platform_conditions="{{ ['linux', 'windows', 'osx']}}" default_browser_condition="is-not-default">
+  {{ object.not_default_desktop_content|richtext }}
+</include:conditional-display>
+
+<include:conditional-display platform_conditions="{{ ['android'] }}" default_browser_condition="is-not-default">
+  {{ object.not_default_android_content|richtext }}
+</include:conditional-display>
+
+<include:conditional-display platform_conditions="{{ ['ios'] }}" default_browser_condition="is-not-default">
+  {{ object.not_default_ios_content|richtext }}
+</include:conditional-display>
+
+<include:conditional-display default_browser_condition="is-default">
   {{ object.success_content|richtext }}
-</div>
+</include:conditional-display>
