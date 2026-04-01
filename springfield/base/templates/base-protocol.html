@@ -36,7 +36,7 @@
     <meta property="og:site_name" content="Firefox">
     <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
     <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
-    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('protocol/img/logos/firefox/browser/og.png') }}{% endblock %}{% endfilter %}">
+    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('img/firefox/flare/og.png') }}{% endblock %}{% endfilter %}">
     <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ self.page_title() }}{% endblock %}{% endfilter %}">
     <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ self.page_desc() }}{% endblock %}{% endfilter %}">
     <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
