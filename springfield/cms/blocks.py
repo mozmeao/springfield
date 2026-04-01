@@ -319,19 +319,20 @@ PLATFORM_CHOICES = [
     ("other-os", "Other OS"),
     ("unsupported", "Unsupported OS"),
 ]
-
 FIREFOX_CHOICES = [
     ("", "No restriction"),
     ("is-firefox", "Firefox only"),
     ("not-firefox", "Non-Firefox only"),
 ]
-
 AUTH_CHOICES = [
     ("", "No restriction"),
     ("state-fxa-supported-signed-in", "Signed-in only"),
     ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
-
+DEFAULT_BROWSER_CHOICES = [
+    ("is-default", "Firefox is default browser"),
+    ("is-not-default", "Firefox is not default browser"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"

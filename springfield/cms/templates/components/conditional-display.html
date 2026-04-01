@@ -27,8 +27,18 @@
     {% endif %}
 {% endif %}
 
+{% if default_browser_condition %}
+  <div class="conditional-display condition-{{ default_browser_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ default_browser_condition }}</span>
+    {% endif %}
+{% endif %}
+
 {{ contents }}
 
+{% if default_browser_condition  %}
+  </div>
+{% endif %}
 {% if auth_state_condition  %}
   </div>
 {% endif %}

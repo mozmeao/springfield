@@ -7,7 +7,7 @@ from springfield.cms.fixtures.freeformpage_2026 import get_mobile_store_qr_code
 from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage, WhatsNewPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_whatsnew_index_page() -> WhatsNewIndexPage:
