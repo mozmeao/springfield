@@ -1077,6 +1077,16 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+class SmartWindowInstructionsBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
+
+    class Meta:
+        label = "Smart Window Instructions"
+        label_format = "Smart Window Instructions - {instructions}"
+        template = "cms/blocks/smart-window-instructions.html"
+
+
 class MediaContentSettings(blocks.StructBlock):
     media_after = blocks.BooleanBlock(
         required=False,
@@ -1113,6 +1123,7 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
         content = blocks.StreamBlock(
             [
                 ("rich_text", blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("smart_window_instructions", SmartWindowInstructionsBlock()),
             ]
         )
         buttons = MixedButtonsBlock(
