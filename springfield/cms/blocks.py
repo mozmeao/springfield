@@ -442,6 +442,13 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    default_browser = blocks.ChoiceBlock(
+        choices=DEFAULT_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Default Browser",
+        help_text="Filter by default browser state. Leave empty for no restriction.",
+    )
 
     class Meta:
         label = "Conditional Display"
