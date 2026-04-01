@@ -719,6 +719,8 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content = StreamField(
         FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
+        blank=True,
+        null=True,
     )
     show_pre_footer = models.BooleanField(
         default=True,
