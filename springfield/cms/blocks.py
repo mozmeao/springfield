@@ -1838,6 +1838,7 @@ class NotificationSettings(blocks.StructBlock):
 
 class NotificationBlock(blocks.StructBlock):
     settings = NotificationSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:

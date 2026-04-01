@@ -3346,6 +3346,16 @@ def test_notification_block(index_page, rf):
             elif closable:
                 assert div.find("button", class_="fl-notification-close")
 
+            headline_raw = notification["value"].get("headline", "")
+            heading_el = div.find("p", class_="fl-notification-heading")
+            assert heading_el
+            if headline_raw:
+                headline_text = BeautifulSoup(headline_raw, "html.parser").get_text()
+                assert headline_text in heading_el.get_text()
+                assert message in div.get_text()
+            else:
+                assert message in heading_el.get_text()
+
 
 def test_uuid_block_is_not_translatable():
     """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
