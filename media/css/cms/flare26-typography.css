@@ -214,6 +214,13 @@ span.fl-fx-logo {
     vertical-align: bottom;
 }
 
+.fl-fx-logo.is-standalone {
+    block-size: var(--token-layout-sm);
+    display: block;
+    inline-size: var(--token-layout-sm);
+    margin: 0 auto var(--token-spacing-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-heading-condensed-on-sm-up {
         font-variation-settings:

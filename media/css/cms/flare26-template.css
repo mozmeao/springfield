@@ -95,7 +95,7 @@ body.fl-modal-open {
         0 round 0 0 var(--fl-theme-main-border-radius)
             var(--fl-theme-main-border-radius)
     );
-    overflow: visible;
+    overflow: hidden;
     position: relative;
     z-index: 0;
 }

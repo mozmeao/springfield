@@ -22,5 +22,11 @@
 </include:conditional-display>
 
 <include:conditional-display default_browser_condition="is-default">
-  {{ object.success_content|richtext }}
+    <include:notification
+      color="green"
+      icon="checkmark"
+      reverse_icon=True
+    >
+    {{ object.success_content|richtext }}
+  </include:notification>
 </include:conditional-display>

@@ -32,7 +32,11 @@
     color: var(--fl-theme-color-text);
     cursor: pointer;
     font-size: 16px;
-    inset-block-start: var(--token-spacing-lg);
-    inset-inline-end: var(--token-spacing-lg);
+    inset-block-start: var(--token-spacing-xl);
+    inset-inline-end: var(--token-spacing-xl);
     position: absolute;
+}
+
+.fl-dialog-content-text {
+    padding-block: var(--token-spacing-lg);
 }
