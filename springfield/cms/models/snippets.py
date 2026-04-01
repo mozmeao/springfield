@@ -283,14 +283,21 @@ class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         features=EXPANDED_TEXT_FEATURES, help_text="Content shown after user has successfully set Firefox as default browser."
     )
 
+    panels = [
+        FieldPanel("heading_text"),
+        FieldPanel("not_firefox_content"),
+        FieldPanel("not_default_desktop_content"),
+        FieldPanel("not_default_android_content"),
+        FieldPanel("not_default_ios_content"),
+        FieldPanel("success_content"),
+    ]
+
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Set as Default Snippet"
         verbose_name_plural = "Set as Default Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
-        return f"{remove_tags(richtext(self.heading_text))} – {self.locale}"
+        return f"{self.heading_text} – {self.locale}"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/set-as-default-snippet-preview.html"

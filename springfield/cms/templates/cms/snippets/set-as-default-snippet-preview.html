@@ -9,37 +9,28 @@
 {% block content %}
   <div class="fl-main">
     <div class="fl-section">
-      Heading text:
-      <h1>{{ object.heading_text }}</h1>
-      <hr/>
-      <div class=" conditional-not-firefox">
-        Not firefox:
-        {{ object.not_firefox_content|richtext }}
-        {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
-      </div>
-      <hr/>
-      <div class=" condition-is-not-default">
-        <div class="condition-linux condition-windows condition-osx">
-          Firefox desktop:
-          {{ object.not_default_desktop_content|richtext }}
+      <h1>Click the button to see the snippet</h1>
+
+        {% set dialog_id = "set-as-default-dialog" %}
+        <include:button
+          extra_classes="fl-dialog-trigger fl-set-as-default-button"
+          label="Set Firefox as your default browser"
+          data_target_id="{{ dialog_id }}"
+        />
+
+        <div class="fl-set-as-default-dialog">
+          <include:dialog id="{{ dialog_id }}">
+            <content:heading>
+              <include:heading
+                heading_text="{{ object.heading_text }}"
+              />
+            </content:heading>
+            <content:body>
+              {% include "cms/snippets/set-as-default-snippet.html" %}
+            </content:body>
+        </include:dialog>
         </div>
-      <hr/>
-        <p class=" condition-android">
-          Firefox android:
-          {{ object.not_default_android_content|richtext }}
-        </p>
-      <hr/>
-        <p class=" condition-ios">
-          Firefox ios:
-          {{ object.not_default_ios_content|richtext }}
-        </p>
-      <hr/>
-      </div>
-      <p class=" condition-is-default">
-        Success message:
-        {{ object.success_content|richtext }}
-      </p>
-      <hr/>
+
     </div>
   </div>
 {% endblock content %}

@@ -103,31 +103,6 @@ def test_set_as_default_dialog_renders_snippet_text(minimal_site, rf):
     assert "You're all set" in dialog_text, "Success content should be rendered"
 
 
-def test_set_as_default_button_shows_error_when_no_snippet(minimal_site, rf):
-    """When no SetAsDefaultSnippet exists, an error notification should be rendered instead of the dialog."""
-    from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
-    from springfield.cms.fixtures.freeformpage_2026 import get_set_as_default_button_block
-    from springfield.cms.models import FreeFormPage2026
-
-    index_page = get_2026_test_index_page()
-    slug = "freeform-2026-no-snippet"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="No Snippet Test")
-        index_page.add_child(instance=page)
-    page.content = [get_set_as_default_button_block()]
-    page.save_revision().publish()
-
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    assert not _get_set_as_default_dialog(soup), "Dialog should not render when no snippet exists"
-    notification = soup.find("p", class_="fl-notification-red")
-    assert "The Set as Default button requires a Set as Default snippet. Please add one in the CMS." in notification.get_text()
-
-
 def test_set_as_default_snippet_str(minimal_site):
     snippet = get_set_as_default_snippet()
     assert "Thanks for choosing Firefox" in str(snippet)

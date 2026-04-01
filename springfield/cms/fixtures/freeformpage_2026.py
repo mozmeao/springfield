@@ -198,6 +198,7 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
 
 
 def get_set_as_default_button_block() -> dict:
+    snippet = get_set_as_default_snippet()
     return {
         "type": "intro",
         "value": {
@@ -223,6 +224,7 @@ def get_set_as_default_button_block() -> dict:
                             "analytics_id": "sad00001-0000-0000-0000-000000000001",
                         },
                         "label": "Set Firefox as default",
+                        "snippet": snippet.id,
                     },
                     "id": "sad00001-0000-0000-0000-000000000002",
                 }
@@ -233,7 +235,6 @@ def get_set_as_default_button_block() -> dict:
 
 
 def get_freeform_page_2026_with_set_as_default_button() -> FreeFormPage2026:
-    get_set_as_default_snippet()
     index_page = get_2026_test_index_page()
 
     slug = "freeform-2026-with-set-as-default"

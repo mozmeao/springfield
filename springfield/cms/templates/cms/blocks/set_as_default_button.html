@@ -20,21 +20,17 @@
   data_target_id="{{ dialog_id }}"
 />
 
-{% set set_as_default_snippet = get_set_as_default_snippet() %}
-{% if set_as_default_snippet %}
-  {% set value = set_as_default_snippet %}
-  <div class="fl-set-as-default-dialog">
-    <include:dialog id="{{ dialog_id }}">
-      <content:heading>
-        <include:heading
-          heading_text="{{ value.heading_text }}"
-        />
-      </content:heading>
-      <content:body>
+<div class="fl-set-as-default-dialog">
+  <include:dialog id="{{ dialog_id }}">
+    <content:heading>
+      <include:heading
+        heading_text="{{ value.snippet.heading_text }}"
+      />
+    </content:heading>
+    <content:body>
+      {% with object = value.snippet %}
         {% include "cms/snippets/set-as-default-snippet.html" %}
-      </content:body>
-   </include:dialog>
-  </div>
-{% else %}
-  <p class="fl-notification fl-notification-red">The Set as Default button requires a Set as Default snippet. Please add one in the CMS.</p>
-{% endif %}
+      {% endwith %}
+    </content:body>
+</include:dialog>
+</div>

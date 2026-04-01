@@ -4,23 +4,26 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% if value %}
-  <div class="conditional-display conditional-not-firefox">
-    {{ value.not_firefox_content|richtext }}
-    {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
+<div class="conditional-display conditional-not-firefox {% if is_preview %}is-preview{% endif %}">
+  {% if is_preview %}<span class="preview-indicator">Condition: Not Firefox</span>{% endif %}
+  {{ object.not_firefox_content|richtext }}
+  {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
+</div>
+<div class="conditional-display condition-is-not-default {% if is_preview %}is-preview{% endif %}">
+  <div class="condition-linux condition-windows condition-osx">
+    {% if is_preview %}<span class="preview-indicator">Condition: Not Default Desktop</span>{% endif %}
+    {{ object.not_default_desktop_content|richtext }}
   </div>
-  <div class="conditional-display condition-is-not-default">
-    <div class="condition-linux condition-windows condition-osx">
-      {{ value.not_default_desktop_content|richtext }}
-    </div>
-    <div class="conditional-display condition-android">
-      {{ value.not_default_android_content|richtext }}
-    </div>
-    <div class="conditional-display condition-ios">
-      {{ value.not_default_ios_content|richtext }}
-    </div>
+  <div class="conditional-display condition-android {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}<span class="preview-indicator">Condition: Not Default Android</span>{% endif %}
+    {{ object.not_default_android_content|richtext }}
   </div>
-  <div class="conditional-display condition-is-default">
-    {{ value.success_content|richtext }}
+  <div class="conditional-display condition-ios {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}<span class="preview-indicator">Condition: Not Default iOS</span>{% endif %}
+    {{ object.not_default_ios_content|richtext }}
   </div>
-{% endif %}
+</div>
+<div class="conditional-display condition-is-default {% if is_preview %}is-preview{% endif %}">
+  {% if is_preview %}<span class="preview-indicator">Condition: Default</span>{% endif %}
+  {{ object.success_content|richtext }}
+</div>

@@ -760,6 +760,7 @@ def SetAsDefaultButtonBlock(themes=None, **kwargs):
     class _SetAsDefaultButtonBlock(blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         label = blocks.CharBlock(label="Button Text")
+        snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
 
         class Meta:
             template = "cms/blocks/set_as_default_button.html"

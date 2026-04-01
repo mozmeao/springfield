@@ -93,9 +93,9 @@ def get_qr_code_snippet() -> QRCodeSnippet:
 
 def get_set_as_default_snippet() -> SetAsDefaultSnippet:
     locale = Locale.get_default()
-    snippet = SetAsDefaultSnippet.objects.filter(locale=locale).first()
+    snippet = SetAsDefaultSnippet.objects.filter(id=settings.SET_AS_DEFAULT_SNIPPET_ID).first()
     if not snippet:
-        snippet = SetAsDefaultSnippet(locale=locale)
+        snippet = SetAsDefaultSnippet(id=settings.SET_AS_DEFAULT_SNIPPET_ID, locale=locale)
 
     snippet.heading_text = "Thanks for choosing Firefox"
     snippet.not_firefox_content = (
