@@ -1856,6 +1856,7 @@ class NotificationSettings(blocks.StructBlock):
 
 class NotificationBlock(blocks.StructBlock):
     settings = NotificationSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
@@ -2238,28 +2239,43 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
 # Homepage
 
 
-class HomeIntroBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    buttons = MixedButtonsBlock(
-        button_types=get_button_types(),
-        themes=BUTTON_THEMES_2026,
-        min_num=0,
-        max_num=2,
+class KitBlockSettings(blocks.StructBlock):
+    slim = blocks.BooleanBlock(
         required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
     )
 
-    class Meta:
-        template = "cms/blocks/home-intro.html"
-        label = "Home Intro"
-        label_format = "{heading}"
+
+def KitIntroBlock(allow_uitour=False, *args, **kwargs):
+    class _KitIntroBlock(blocks.StructBlock):
+        settings = KitBlockSettings()
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            allow_uitour=allow_uitour,
+            button_types=get_button_types(),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/home-intro.html"
+            label = "Kit Intro"
+            label_format = "{heading}"
+
+    return _KitIntroBlock(*args, **kwargs)
 
 
-class HomeCarouselSlide(blocks.StructBlock):
+class CarouselSlide(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     image = ImageVariantsBlock()
 
 
-class HomeCarouselSettings(blocks.StructBlock):
+class CarouselSettings(blocks.StructBlock):
     show_to = ConditionalDisplayBlock(
         label="Show To",
         help_text="Control which users can see this content block",
@@ -2273,8 +2289,8 @@ class HomeCarouselSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class HomeCarouselBlock(blocks.StructBlock):
-    settings = HomeCarouselSettings()
+class CarouselBlock(blocks.StructBlock):
+    settings = CarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
@@ -2282,11 +2298,11 @@ class HomeCarouselBlock(blocks.StructBlock):
         max_num=2,
         required=False,
     )
-    slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
+    slides = blocks.ListBlock(CarouselSlide(), min_num=2, max_num=5)
 
     class Meta:
         template = "cms/blocks/sections/home-carousel.html"
-        label = "Home Carousel"
+        label = "Carousel"
         label_format = "{heading}"
 
 
