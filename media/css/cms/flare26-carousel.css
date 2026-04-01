@@ -19,6 +19,10 @@
     text-align: center;
 }
 
+.fl-carousel-heading .fl-heading-group {
+    margin-block-end: var(--fl-section-heading-margin-bottom);
+}
+
 .fl-carousel-heading .fl-buttons {
     justify-content: center;
 }
@@ -69,6 +73,7 @@
 
 .fl-carousel-control-item {
     align-items: center;
+    color: var(--token-color-white);
     cursor: pointer;
     display: flex;
     inline-size: 100%;
@@ -94,7 +99,7 @@
     background-color: var(--token-color-dark-purple-30);
     block-size: var(--counter-size);
     border-radius: 50%;
-    color: rgb(var(--token-color-white));
+    color: var(--token-color-white);
     display: flex;
     flex-shrink: 0;
     font-weight: var(--token-font-weight-bold);
