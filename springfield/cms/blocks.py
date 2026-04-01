@@ -2220,8 +2220,19 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
 # Homepage
 
 
+class KitBlockSettings(blocks.StructBlock):
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
+    )
+
+
 def KitIntroBlock(allow_uitour=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
+        settings = KitBlockSettings()
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             allow_uitour=allow_uitour,
