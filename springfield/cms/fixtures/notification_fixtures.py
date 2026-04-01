@@ -145,6 +145,54 @@ def get_notification_variants() -> list[dict]:
             },
             "id": "notif009-0000-0000-0000-000000000009",
         },
+        # With headline, no color or icon
+        {
+            "type": "notification",
+            "value": {
+                "settings": {
+                    "icon": "",
+                    "color": "",
+                    "stacked": False,
+                    "closable": False,
+                    "show_to": _SHOW_TO_ALL,
+                },
+                "headline": '<p data-block-key="notif10h">Important update</p>',
+                "message": '<p data-block-key="notif10">Notification with headline and no color or icon.</p>',
+            },
+            "id": "notif010-0000-0000-0000-000000000010",
+        },
+        # With headline, purple, icon, closable
+        {
+            "type": "notification",
+            "value": {
+                "settings": {
+                    "icon": "single-user",
+                    "color": "purple",
+                    "stacked": False,
+                    "closable": True,
+                    "show_to": _SHOW_TO_ALL,
+                },
+                "headline": '<p data-block-key="notif11h">Sign in to continue</p>',
+                "message": '<p data-block-key="notif11">Purple closable notification with headline and icon.</p>',
+            },
+            "id": "notif011-0000-0000-0000-000000000011",
+        },
+        # With headline, stacked
+        {
+            "type": "notification",
+            "value": {
+                "settings": {
+                    "icon": "checkmark-circle-fill",
+                    "color": "green",
+                    "stacked": True,
+                    "closable": False,
+                    "show_to": _SHOW_TO_ALL,
+                },
+                "headline": '<p data-block-key="notif12h">Download complete</p>',
+                "message": '<p data-block-key="notif12">Green stacked notification with headline and icon.</p>',
+            },
+            "id": "notif012-0000-0000-0000-000000000012",
+        },
     ]
 
 

@@ -28,6 +28,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_step_cards_2026_test_page,
     get_sticker_cards_2026_test_page,
 )
+from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
@@ -42,6 +43,7 @@ from springfield.cms.fixtures.inline_notification_fixtures import (
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
+from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
@@ -152,8 +154,8 @@ class Command(BaseCommand):
         article_theme_page = get_article_theme_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
 
-        artcle_theme_hub_page = get_article_theme_hub_page()
-        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
+        article_theme_hub_page = get_article_theme_hub_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {article_theme_hub_page.slug}"))
 
         whats_new_index_page = get_whatsnew_index_page()
         self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))
@@ -166,6 +168,12 @@ class Command(BaseCommand):
 
         set_as_default_page = get_freeform_page_2026_with_set_as_default_button()
         self.stdout.write(self.style.SUCCESS(f"Free Form 2026 with Set as Default Button test page loaded: {set_as_default_page.slug}"))
+
+        carousel_page = get_carousel_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
+
+        kit_intro_page = get_kit_intro_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
 
         # 2025 pages
 
