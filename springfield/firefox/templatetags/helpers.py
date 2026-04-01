@@ -41,16 +41,6 @@ def desktop_builds(
     for plat_os, plat_os_pretty in firefox_desktop.platforms(channel, classified):
         os_pretty = plat_os_pretty
 
-        # Firefox Nightly: The Windows stub installer is now universal,
-        # automatically detecting a 32-bit and 64-bit desktop, so the
-        # win64-specific entry can be skipped.
-        if channel == "nightly":
-            if plat_os == "win":
-                continue
-            if plat_os == "win64":
-                plat_os = "win"
-                os_pretty = "Windows 32/64-bit"
-
         # And generate all the info
         download_link = firefox_desktop.get_download_url(
             channel,
