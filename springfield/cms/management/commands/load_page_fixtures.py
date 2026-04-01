@@ -43,6 +43,7 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
 from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
+from springfield.cms.fixtures.media_content_2026_fixtures import get_media_content_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
@@ -170,6 +171,9 @@ class Command(BaseCommand):
 
         kit_intro_page = get_kit_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
+
+        media_content_page = get_media_content_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Media Content 2026 test page loaded: {media_content_page.slug}"))
 
         # 2025 pages
 

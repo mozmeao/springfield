@@ -80,6 +80,11 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page, get_kit_banner_variants
 from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page, get_kit_intro_2026_variants
+from springfield.cms.fixtures.media_content_2026_fixtures import (
+    get_media_content_2026_sections,
+    get_media_content_2026_test_page,
+    get_media_content_2026_variants,
+)
 from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
@@ -237,13 +242,14 @@ def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
     title = tag_data["value"]["title"]
     icon = tag_data["value"]["icon"]
     icon_position = tag_data["value"]["icon_position"]
-    corners = tag_data["value"]["corners"]
+    corners = tag_data["value"].get("corners")
     color = tag_data["value"]["color"]
 
     assert title in tag_element.get_text()
     if color:
         assert f"fl-tag-{color}" in tag_element["class"]
-    assert f"fl-tag-{corners}" in tag_element["class"]
+    if corners:
+        assert f"fl-tag-{corners}" in tag_element["class"]
     icon_span = tag_element.find("span", class_="fl-icon")
     assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
     if icon_position == "before":
@@ -706,7 +712,8 @@ def test_media_content_block(index_page, placeholder_images, rf):
         # Content
         eyebrow_text = BeautifulSoup(media_content["value"]["eyebrow"], "html.parser").get_text()
         headline_text = BeautifulSoup(media_content["value"]["headline"], "html.parser").get_text()
-        content_text = BeautifulSoup(media_content["value"]["content"], "html.parser").get_text()
+        content_html = media_content["value"]["content"][0]["value"]
+        content_text = BeautifulSoup(content_html, "html.parser").get_text()
 
         eyebrow = div.find("p", class_="fl-superheading")
         headline = div.find("h2", class_="fl-heading")
@@ -752,6 +759,83 @@ def test_media_content_block(index_page, placeholder_images, rf):
         for index, tag in enumerate(tags):
             tag_element = tag_elements[index]
             assert_tag_attributes(tag_element, tag)
+
+
+def test_media_content_2026_block(index_page, placeholder_images, rf):
+    sections = get_media_content_2026_sections()
+    variants = get_media_content_2026_variants()
+    page = get_media_content_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region, block_prefix in [(upper, "upper-block"), (lower, "lower-block")]:
+        section_elements = region.find_all("section", class_="fl-section")
+        assert len(section_elements) == len(sections)
+
+        media_content_divs = section_elements[0].find_all("div", class_="fl-mediacontent")
+        assert len(media_content_divs) == len(variants)
+
+        for index, variant in enumerate(variants):
+            div = media_content_divs[index]
+            value = variant["value"]
+
+            # Headline
+            headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
+            headline = div.find(class_="fl-heading")
+            assert headline and headline_text in headline.get_text()
+
+            # Eyebrow (optional)
+            if value.get("eyebrow"):
+                eyebrow_text = BeautifulSoup(value["eyebrow"], "html.parser").get_text()
+                eyebrow = div.find("p", class_="fl-superheading")
+                assert eyebrow and eyebrow_text in eyebrow.get_text()
+
+            # Content (StreamBlock — first rich_text block)
+            content_html = value["content"][0]["value"]
+            content_text = BeautifulSoup(content_html, "html.parser").get_text()
+            body = div.find("div", class_="fl-body")
+            assert body and content_text in body.get_text()
+
+            # Buttons
+            button = value["buttons"][0]
+            button_element = div.find("a", class_="fl-button")
+            cta_position = f"{block_prefix}-1-section.item-{index + 1}-media_content.button-1"
+            cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+            assert_button_attributes(
+                button_element=button_element,
+                button_data=button,
+                context=context,
+                cta_position=cta_position,
+                cta_text=cta_text,
+            )
+
+            # Media
+            media_element = div.find("div", class_="fl-mediacontent-media")
+            assert media_element
+
+            media_value = value["media"][0]
+            if media_value["type"] == "image":
+                assert_image_variants_attributes(images_element=media_element, images_value=media_value["value"])
+            elif media_value["type"] == "video":
+                video_div = div.find("div", class_="fl-video")
+                assert_video_attributes(video_div, media_value)
+
+            # Tags
+            tags = value["tags"]
+            if tags:
+                tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
+                assert len(tag_elements) == len(tags)
+                for i, tag in enumerate(tags):
+                    assert_tag_attributes(tag_elements[i], tag)
 
 
 def test_icon_card_block(index_page, rf):
