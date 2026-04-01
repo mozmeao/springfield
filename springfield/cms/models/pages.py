@@ -22,14 +22,14 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    CarouselBlock,
     DownloadSupportBlock,
-    HomeCarouselBlock,
-    HomeIntroBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
+    KitIntroBlock,
     LocalizedLiveSnippetChooserBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
@@ -138,9 +138,9 @@ class UTMParamsMixin:
 class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
-            ("intro", HomeIntroBlock()),
+            ("intro", KitIntroBlock()),
             ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
-            ("carousel", HomeCarouselBlock()),
+            ("carousel", CarouselBlock()),
         ],
         use_json_field=True,
     )
@@ -666,22 +666,25 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         with the appropriate button types.
     """
     return [
-        ("notification", NotificationBlock()),
-        ("intro", IntroBlock2026(allow_uitour=allow_uitour)),
-        ("section", SectionBlock2026(allow_uitour=allow_uitour)),
-        ("showcase", ShowcaseBlock()),
-        ("card_gallery", CardGalleryBlock()),
-        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour)),
-        ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
-        ("banner", BannerBlock(allow_uitour=allow_uitour)),
-        ("topic_list", TopicListBlock(allow_uitour=allow_uitour)),
-        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+        ("notification", NotificationBlock(group="Notification")),
+        ("intro", IntroBlock2026(allow_uitour=allow_uitour, group="Intro")),
+        ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
+        ("showcase", ShowcaseBlock(group="Media")),
+        ("carousel", CarouselBlock(group="Media")),
+        ("card_gallery", CardGalleryBlock(group="Media")),
+        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
+        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
+        ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(
                 target_model="cms.BannerSnippet",
                 template="cms/snippets/banner-snippet.html",
                 label="Banner Snippet",
+                group="Banners",
             ),
         ),
     ]
