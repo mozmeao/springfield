@@ -367,6 +367,15 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     other_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES)
     other_articles_subheading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+    show_sibling_detail_pages = models.BooleanField(
+        default=False,
+        help_text=(
+            "If checked, ArticleDetailPage siblings of this index page are included "
+            "in the article listing alongside its children. Enable for index pages "
+            "whose detail pages are siblings. Disable for index pages whose detail "
+            "pages are children."
+        ),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
@@ -374,11 +383,24 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("other_articles_subheading"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("show_sibling_detail_pages"),
+    ]
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
 
         child_ids = self.get_children().live().public().values_list("pk", flat=True)
-        sibling_ids = self.get_siblings(inclusive=False).live().public().values_list("pk", flat=True)
+
+        # Sometimes, when an ArticleIndexPage exists at the same hierarchical level as
+        # ArticleDetailPage, we want to include those ArticleDetailPages on the
+        # ArticleIndexPage; other times we do not. Make the determination based
+        # on the show_sibling_detail_pages field.
+        if self.show_sibling_detail_pages:
+            sibling_ids = self.get_siblings(inclusive=False).live().public().values_list("pk", flat=True)
+        else:
+            sibling_ids = []
+
         all_articles = ArticleDetailPage.objects.filter(pk__in=[*child_ids, *sibling_ids]).order_by("-first_published_at")
 
         featured_articles = [page for page in all_articles if page.featured]
