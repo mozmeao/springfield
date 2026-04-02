@@ -64,7 +64,7 @@ def test_set_as_default_dialog_contains_all_content_sections(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     dialog_wrapper = _get_set_as_default_dialog(soup)
 
-    assert dialog_wrapper.find("div", class_="conditional-not-firefox"), "Not-Firefox content section should be rendered"
+    assert dialog_wrapper.find("div", class_="condition-not-firefox"), "Not-Firefox content section should be rendered"
     assert dialog_wrapper.find("div", class_="condition-is-not-default"), "Not-default content section should be rendered"
     assert dialog_wrapper.find("div", class_="condition-is-default"), "Success content section should be rendered"
 
