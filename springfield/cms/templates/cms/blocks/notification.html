@@ -16,6 +16,11 @@
     stacked="{{ value.settings.stacked }}"
     closable="{{ value.settings.closable }}"
   >
+    {% if value.headline %}
+      <content:heading>
+        {{ value.headline|richtext|remove_p_tag }}
+      </content:heading>
+    {% endif %}
     {{ value.message|richtext|remove_p_tag }}
   </include:notification>
 </include:conditional-display>
