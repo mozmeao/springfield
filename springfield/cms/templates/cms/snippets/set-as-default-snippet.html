@@ -9,16 +9,18 @@
   {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
 </include:conditional-display>
 
-<include:conditional-display platform_conditions="{{ ['linux', 'windows', 'osx']}}" default_browser_condition="is-not-default">
-  {{ object.not_default_desktop_content|richtext }}
-</include:conditional-display>
+<include:conditional-display firefox_condition="is-firefox" default_browser_condition="is-not-default">
+  <include:conditional-display platform_conditions="{{ ['linux', 'windows', 'osx']}}" >
+    {{ object.not_default_desktop_content|richtext }}
+  </include:conditional-display>
 
-<include:conditional-display platform_conditions="{{ ['android'] }}" default_browser_condition="is-not-default">
-  {{ object.not_default_android_content|richtext }}
-</include:conditional-display>
+  <include:conditional-display platform_conditions="{{ ['android'] }}">
+    {{ object.not_default_android_content|richtext }}
+  </include:conditional-display>
 
-<include:conditional-display platform_conditions="{{ ['ios'] }}" default_browser_condition="is-not-default">
-  {{ object.not_default_ios_content|richtext }}
+  <include:conditional-display platform_conditions="{{ ['ios'] }}">
+    {{ object.not_default_ios_content|richtext }}
+  </include:conditional-display>
 </include:conditional-display>
 
 <include:conditional-display default_browser_condition="is-default">
