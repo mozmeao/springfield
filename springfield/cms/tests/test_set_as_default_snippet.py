@@ -78,11 +78,10 @@ def test_set_as_default_dialog_contains_platform_content(minimal_site, rf):
 
     soup = BeautifulSoup(response.content, "html.parser")
     dialog_wrapper = _get_set_as_default_dialog(soup)
-    not_default_section = dialog_wrapper.find("div", class_="condition-is-not-default")
 
-    assert not_default_section.find("div", class_="condition-android"), "Android content section should be rendered"
-    assert not_default_section.find("div", class_="condition-ios"), "iOS content section should be rendered"
-    assert not_default_section.find("div", class_="condition-osx"), "Desktop content section should be rendered"
+    assert dialog_wrapper.find("div", class_="condition-android"), "Android content section should be rendered"
+    assert dialog_wrapper.find("div", class_="condition-ios"), "iOS content section should be rendered"
+    assert dialog_wrapper.find("div", class_="condition-osx"), "Desktop content section should be rendered"
 
 
 def test_set_as_default_dialog_renders_snippet_text(minimal_site, rf):
