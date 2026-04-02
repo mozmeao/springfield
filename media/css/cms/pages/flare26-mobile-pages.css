@@ -14,7 +14,7 @@
 .fl-mobile-subpage,
 .fl-mobile-subpage .fl-section:first-child,
 .fl-mobile-subpage .fl-split-page-lower {
-    overflow: hidden;
+    contain: paint;
     padding-block: 0;
 }
 
