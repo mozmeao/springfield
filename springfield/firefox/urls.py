@@ -108,7 +108,7 @@ urlpatterns = (
     path(
         "landing/get/",
         VariationTemplateView.as_view(
-            template_name="firefox/landing/get.html",
+            template_name="firefox/landing/get-new.html",
             template_name_variations=["treatment"],
             variation_locales=["en-US"],
             ftl_files=["firefox/download/desktop", "firefox/download/home"],

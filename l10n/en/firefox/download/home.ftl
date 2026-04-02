@@ -38,6 +38,36 @@ firefox-home-get-firefox-mobile = Get { -brand-name-firefox } mobile so your pas
 firefox-home-privacy-built-in = Privacy built in
 firefox-home-personal-data-not-for-sale = Your personal data isn’t for sale. Trackers and 3rd party cookies are blocked by default, so you can just … browse.
 firefox-home-learn-data-protection = Learn how { -brand-name-firefox } protects your data
+firefox-home-focus = Focus
+firefox-home-control = Control
+firefox-home-protection = Protection
+firefox-home-pick-up-where = Pick up where you left off
+firefox-home-firefox-view-lets = { -brand-name-firefox } View lets you see your tabs open on other devices and recent history.
+firefox-home-browse-knowing = Browse knowing you’re protected
+firefox-home-firefox-total-cookie =  { -brand-name-firefox }’s Total cookie protection gives you outstanding privacy by default.
+firefox-home-edit-your = Edit your PDFs directly
+firefox-home-forget-printing = Forget printing a PDF ever again. Start editing forms in { -brand-name-firefox } directly.
+firefox-home-vpn = VPN
+
+## Do what you do section
+
+firefox-home-do-what-you-do = Do what you do online.<br> { -brand-name-firefox-browser } has got you covered.
+firefox-home-see-your-protection = See your protection support
+firefox-home-available-in-over = Available in over 90 languages, and compatible with Windows, Mac and  Linux machines, { -brand-name-firefox } works no matter what you’re using or where you  are. Make sure your operating system is up to date for the best  experience.
+firefox-home-do-it-all = Do it all with { -brand-name-firefox }
+
+firefox-home-google-play = { -brand-name-google-play }
+firefox-home-app-store = { -brand-name-app-store }
+
+## Make Firefox your own section
+
+firefox-home-make-firefox-your = Make { -brand-name-firefox } your own
+firefox-home-backed-by-the = Backed by the non-profit that puts people first
+
+firefox-home-questions = Questions?
+# Variables:
+#   $attrs (attrs) - link to https://addons.mozilla.org/firefox/extensions/
+firefox-home-mozilla-support-has = <a { $attrs }>{ -brand-name-mozilla } support</a> has you covered.
 
 ## Customization
 
