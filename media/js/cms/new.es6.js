@@ -536,16 +536,34 @@ if (typeof window.cms === 'undefined') {
         }
     };
 
+    Flare26.isUITourEnabled = function (timeout) {
+        const delay = timeout || 500;
+        return new window.Promise(function (resolve, reject) {
+            const timer = window.setTimeout(reject, delay);
+            Mozilla.UITour.ping(function () {
+                window.clearTimeout(timer);
+                resolve();
+            });
+        });
+    };
+
     Flare26.setAsDefaultPage = {
         checkTimer: undefined,
         isDefaultBrowser() {
-            return new window.Promise(function (resolve, reject) {
-                Mozilla.UITour.getConfiguration('appinfo', function (details) {
-                    if (details.defaultBrowser) {
-                        resolve();
-                    } else {
-                        reject(details.canSetDefaultBrowserInBackground);
-                    }
+            return Flare26.isUITourEnabled().then(function () {
+                return new window.Promise(function (resolve, reject) {
+                    Mozilla.UITour.getConfiguration(
+                        'appinfo',
+                        function (details) {
+                            if (details.defaultBrowser) {
+                                resolve();
+                            } else {
+                                reject(
+                                    details.canSetDefaultBrowserInBackground
+                                );
+                            }
+                        }
+                    );
                 });
             });
         },
