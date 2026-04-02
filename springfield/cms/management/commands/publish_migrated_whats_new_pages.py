@@ -94,6 +94,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"  Locale {locale_new_page.locale.language_code}: '{locale_new_slug}' → '{locale_original_slug}'")
 
                 # Step 1: Find the legacy page for this locale+slug and rename it.
+                legacy_page = None
                 try:
                     legacy_page = WhatsNewPage.objects.get(
                         slug=locale_original_slug,

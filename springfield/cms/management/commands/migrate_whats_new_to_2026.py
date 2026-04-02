@@ -343,7 +343,7 @@ def create_migrated_page(source_page, new_slug, new_translation_key, stdout=None
     # Override translation_key after creation so all locale variants share
     # the same new key (Wagtail assigns a random key on add_child).
     WhatsNewPage2026.objects.filter(pk=new_page.pk).update(translation_key=new_translation_key)
-
+    new_page.translation_key = new_translation_key  # Update the instance in memory as well
     new_page.save_revision()
 
     if stdout:
