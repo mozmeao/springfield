@@ -134,6 +134,44 @@ services:
       - ./locale/:/app/locale:delegated
       - ./l10n/:/app/l10n:delegated
 
+  playwright-visual-regression:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://host.docker.internal:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js"
+
+  playwright-visual-regression-ui:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://host.docker.internal:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --ui --ui-host=0.0.0.0 --ui-port=8085"
+
+  playwright-update-screenshots:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://host.docker.internal:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --update-snapshots"
+
   builder:
     build:
       context: .
@@ -159,3 +197,4 @@ services:
 
 volumes:
   media_volume:
+  playwright_node_modules:

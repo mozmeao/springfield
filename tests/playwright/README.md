@@ -6,6 +6,7 @@ End-to-end, accessibility, and visual regression tests for Springfield, built wi
 
 - Node.js
 - A running Springfield instance (defaults to `http://localhost:8000`)
+- Docker (for visual regression tests)
 
 ## Setup
 
@@ -48,15 +49,33 @@ Pages scanned are defined in [specs/a11y/includes/urls.js](specs/a11y/includes/u
 
 Screenshot comparison tests tagged `@visual-regression`. Uses a single Chromium worker with a pixel-diff threshold to avoid flaky results. Baseline screenshots are committed to the repo.
 
+These tests run inside Docker using the official Playwright image to ensure consistent screenshots across machines. Your local Springfield instance must be running before executing them.
+
 ```sh
 # Run comparisons against existing baselines
 npm run visual-regression-tests
 
-# Open the interactive Playwright UI
+# Open the interactive Playwright UI (available at http://localhost:8085)
 npm run visual-regression-tests:ui
 
 # Regenerate baseline screenshots
 npm run update-screenshots
+```
+
+Screenshots are written directly to the `specs/visual-regression/` snapshot directories on your host machine via a volume mount.
+
+By default the tests reach your local dev server at `http://host.docker.internal:8000`. If you're running Springfield inside Docker instead, set in the root `.env`:
+
+```sh
+PLAYWRIGHT_BASE_URL=http://assets:8000
+```
+
+To run without Docker, use the `local:` variants:
+
+```sh
+npm run local:visual-regression-tests
+npm run local:visual-regression-tests:ui
+npm run local:update-screenshots
 ```
 
 The visual regression config (`playwright.visual-regression.config.js`) extends the base config but disables parallelism and restricts runs to Chromium.
