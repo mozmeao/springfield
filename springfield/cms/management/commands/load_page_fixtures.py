@@ -28,6 +28,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_step_cards_2026_test_page,
     get_sticker_cards_2026_test_page,
 )
+from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
@@ -41,6 +42,7 @@ from springfield.cms.fixtures.inline_notification_fixtures import (
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
+from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
@@ -162,6 +164,12 @@ class Command(BaseCommand):
 
         topic_list_2026_page = get_topic_list_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
+
+        carousel_page = get_carousel_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
+
+        kit_intro_page = get_kit_intro_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
 
         # 2025 pages
 

@@ -61,3 +61,7 @@
 .fl-section .fl-heading-group:last-child {
     margin-block-end: 0;
 }
+
+.fl-notification-wrapper ~ .fl-section:has(.fl-intro) {
+    padding-block-start: 0;
+}
