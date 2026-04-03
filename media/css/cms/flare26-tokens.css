@@ -133,6 +133,9 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-dark-purple) 100%
     );
 
+    /* Radial purple noise */
+    --token-noise-gradient: url('/media/img/firefox/flare/noise-gradient.png');
+
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #ffe500 0%, #ff980e 100%);
 
@@ -193,7 +196,7 @@ Static values extracted from Figma that do not change based on context.
     --token-font-weight-medium: 500;
     --token-font-weight-semibold: 600;
     --token-font-weight-bold: 700;
-    --token-font-condensed-width: 65; /* used in variable font to build condensed heads at larger sizes */
+    --token-font-condensed-width: 75; /* used in variable font to build condensed heads at larger sizes */
 
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;

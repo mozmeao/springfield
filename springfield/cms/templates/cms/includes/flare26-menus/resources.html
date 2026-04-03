@@ -6,7 +6,7 @@
 
 {% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
 
-<li class="fl-menu-category">
+<li class="fl-menu-category" data-testid="menu-category-resources">
   <a
     href="#"
     class="fl-menu-title"
@@ -14,7 +14,7 @@
     aria-controls="fl-menu-panel-resources"
     data-testid="navigation-link-resources"
   >
-    <h2>
+    <h2 class="fl-menu-heading">
       {{ ftl('navigation-resources') }}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </h2>

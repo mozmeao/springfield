@@ -29,25 +29,27 @@ from springfield.cms.blocks import (
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
+    CarouselBlock,
     CodeBlock,
     DownloadSupportBlock,
     HeadingBlock,
-    HomeCarouselBlock,
-    HomeIntroBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
+    KitIntroBlock,
     LocalizedLiveSnippetChooserBlock,
     MediaBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     QuoteBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
     SubscriptionBlock,
+    TopicListBlock,
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
@@ -147,9 +149,9 @@ class UTMParamsMixin:
 class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
-            ("intro", HomeIntroBlock()),
+            ("intro", KitIntroBlock()),
             ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
-            ("carousel", HomeCarouselBlock()),
+            ("carousel", CarouselBlock()),
         ],
         use_json_field=True,
     )
@@ -323,9 +325,14 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     def clean(self):
@@ -658,7 +665,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
     ]
 
 
-def _get_freeform_page_blocks_2026(allow_uitour=False):
+def _get_freeform_page_blocks_2026(allow_uitour=True):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -670,17 +677,25 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
         with the appropriate button types.
     """
     return [
-        ("intro", IntroBlock2026(allow_uitour=allow_uitour)),
-        ("section", SectionBlock2026(allow_uitour=allow_uitour)),
-        ("showcase", ShowcaseBlock()),
-        ("card_gallery", CardGalleryBlock()),
-        ("mobile_store_qr_code", MobileStoreQRCodeBlock()),
+        ("notification", NotificationBlock(group="Notification")),
+        ("intro", IntroBlock2026(allow_uitour=allow_uitour, group="Intro")),
+        ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
+        ("showcase", ShowcaseBlock(group="Media")),
+        ("carousel", CarouselBlock(group="Media")),
+        ("card_gallery", CardGalleryBlock(group="Media")),
+        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
+        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
+        ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
             LocalizedLiveSnippetChooserBlock(
                 target_model="cms.BannerSnippet",
                 template="cms/snippets/banner-snippet.html",
                 label="Banner Snippet",
+                group="Banners",
             ),
         ),
     ]
@@ -688,7 +703,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=False):
 
 FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=False)
+FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 WHATS_NEW_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
 
 
@@ -715,6 +730,8 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content = StreamField(
         FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
+        blank=True,
+        null=True,
     )
     show_pre_footer = models.BooleanField(
         default=True,
@@ -725,12 +742,17 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=True,
         help_text="If true, the download button will appear in the navigation bar for this page.",
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
         FieldPanel("show_pre_footer"),
         FieldPanel("show_nav_cta"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
@@ -787,11 +809,16 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="The version of Firefox this What's New page refers to.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
@@ -832,12 +859,17 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         WHATS_NEW_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:

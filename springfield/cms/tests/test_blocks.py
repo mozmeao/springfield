@@ -28,7 +28,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_intro,
     get_theme_page_sticker_row_section,
 )
-from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
@@ -56,6 +56,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_sticker_card_2026_variants,
     get_sticker_cards_2026_test_page,
 )
+from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page, get_carousel_2026_variants
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
     get_mobile_store_qr_code,
@@ -77,14 +78,17 @@ from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import (
 from springfield.cms.fixtures.inline_notification_fixtures import get_inline_notification_test_page, get_inline_notification_variants
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page, get_intro_2026_variants
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
-from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page, get_kit_banner_variants
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page, get_kit_banner_variants
+from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page, get_kit_intro_2026_variants
 from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_test_page,
     get_section_with_media_content_variants,
 )
+from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page, get_showcase_2026_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
+from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.firefox.firefox_details import firefox_desktop
@@ -1390,6 +1394,81 @@ def test_banner_block(index_page, placeholder_images, rf):
                     assert media_element.find("img")
 
 
+def test_banner_2026_block(index_page, placeholder_images, rf):
+    banners = get_banner_2026_variants()
+    test_page = get_banner_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
+        banner_divs = region.find_all("div", class_="fl-banner")
+        assert len(banner_divs) == len(banners)
+
+        # The page template shares a heading counter across upper and lower content,
+        # so lower-region banners always render as h2 (counter > 0 after upper).
+        heading_index_offset = region_index * len(banners)
+
+        for index, banner in enumerate(banners):
+            banner_element = banner_divs[index]
+
+            settings = banner["value"]["settings"]
+            assert f"fl-banner-{settings['theme']}" in banner_element["class"]
+            if settings.get("media_after"):
+                assert "fl-banner-reverse" in banner_element["class"]
+            anchor_id = settings.get("anchor_id")
+            if anchor_id:
+                assert banner_element.parent.get("id") == anchor_id
+
+            heading_block = banner["value"]["heading"]
+            assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=heading_index_offset + index)
+
+            heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+            buttons = banner["value"]["buttons"]
+            button_elements = banner_element.find_all("a", class_="fl-button")
+            for button_index, button in enumerate(buttons):
+                button_element = button_elements[button_index]
+                cta_position = f"{region_name}-block-{index + 1}-banner.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_element,
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
+
+            if media := banner["value"]["media"]:
+                media = media[0]
+                media_element = banner_element.find("div", class_="fl-banner-media")
+                assert media_element
+
+                media_value = media["value"]
+                if media["type"] == "image":
+                    images_element = media_element.find("div", class_="image-variants-display")
+                    assert_image_variants_attributes(images_element=images_element, images_value=media_value)
+                elif media["type"] == "video":
+                    video_div = banner_element.find("div", class_="fl-video")
+                    assert_video_attributes(video_div, media)
+                elif media["type"] == "animation":
+                    animation_div = banner_element.find("div", class_="fl-video")
+                    assert_animation_attributes(animation_div, media)
+                elif media["type"] == "qr_code":
+                    assert "has-qr-code" in media_element["class"]
+                    assert media_element.find("div", class_="fl-banner-qr").find("svg")
+                    if media_value.get("background"):
+                        assert media_element.find("img")
+
+
 def test_kit_banner_block(index_page, rf):
     banners = get_kit_banner_variants()
     test_page = get_kit_banner_test_page()
@@ -1484,6 +1563,128 @@ def test_kit_banner_curious_animation(index_page, rf):
     play_icon = pause_button.find(class_="js-play-icon")
     assert play_icon is not None
     assert play_icon.get("hidden") is not None
+
+
+def test_topic_list_2026_block(index_page, placeholder_images, rf):
+    upper_variants = get_topic_list_upper_variants()
+    lower_variants = get_topic_list_lower_variants()
+    test_page = get_topic_list_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region, variants in [("upper", upper, upper_variants), ("lower", lower, lower_variants)]:
+        topic_lists = region.find_all("div", class_="fl-topic-list")
+        assert len(topic_lists) == len(variants)
+
+        for block_index, (topic_list_element, variant) in enumerate(zip(topic_lists, variants)):
+            topics = variant["value"]["topics"]
+
+            # Sidebar links match anchor IDs
+            sidebar_links = topic_list_element.find("div", class_="fl-topic-list-sidebar").find_all("a")
+            assert len(sidebar_links) == len(topics)
+            for topic, link in zip(topics, sidebar_links):
+                assert link["href"] == f"#{topic['value']['anchor_id']}"
+                assert topic["value"]["short_title"] in link.get_text()
+
+            # Topic sections have correct anchor IDs, image, heading and content
+            topic_sections = topic_list_element.find("div", class_="fl-topic-list-content").find_all("section", class_="fl-topic")
+            assert len(topic_sections) == len(topics)
+            for topic_index, (topic, section) in enumerate(zip(topics, topic_sections)):
+                assert section["id"] == topic["value"]["anchor_id"]
+
+                # Image — rendered with "width-400" spec
+                img_tag = section.find("img")
+                assert img_tag
+                assert "width-400" in img_tag["src"]
+
+                # Heading
+                heading_text = BeautifulSoup(topic["value"]["heading"]["heading_text"], "html.parser").get_text()
+                heading = section.find("h2", class_="fl-heading")
+                assert heading and heading_text in heading.get_text()
+
+                # Content
+                content_text = BeautifulSoup(topic["value"]["content"], "html.parser").get_text()
+                assert content_text in section.get_text()
+
+                # Buttons
+                buttons = topic["value"]["buttons"]
+                button_elements = section.find_all("a", class_="fl-button")
+                for button_index, button in enumerate(buttons):
+                    button_element = button_elements[button_index]
+                    cta_position = f"{region_name}-block-{block_index + 1}-topic_list.topic-{topic_index + 1}.button-{button_index + 1}"
+                    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                    assert_button_attributes(
+                        button_element=button_element,
+                        button_data=button,
+                        context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
+                    )
+
+
+def test_kit_banner_2026_block(index_page, placeholder_images, rf):
+    banners = get_kit_banner_variants()
+    test_page = get_kit_banner_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    context = test_page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
+        banner_elements = region.find_all("div", class_="fl-banner-kit")
+        assert len(banner_elements) == len(banners)
+
+        heading_index_offset = region_index * len(banners)
+
+        for index, banner in enumerate(banners):
+            banner_element = banner_elements[index]
+
+            settings = banner["value"]["settings"]
+            theme = settings["theme"].replace("filled-", "").replace("filled", "")
+            if theme:
+                assert f"fl-banner-kit-{theme}" in banner_element["class"]
+            anchor_id = settings.get("anchor_id")
+            if anchor_id:
+                assert banner_element.parent.get("id") == anchor_id
+
+            heading_block = banner["value"]["heading"]
+            assert_section_heading_attributes(
+                section_element=banner_element,
+                heading_data=heading_block,
+                index=heading_index_offset + index,
+            )
+
+            heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+            buttons = banner["value"]["buttons"]
+            button_elements = banner_element.find_all("a", class_="fl-button")
+            for button_index, button in enumerate(buttons):
+                button_element = button_elements[button_index]
+                cta_position = f"{region_name}-block-{index + 1}-kit_banner.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_element,
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
 
 
 # Homepage
@@ -2859,6 +3060,110 @@ def _springfield_link_data(link_to, **fields):
     return data
 
 
+def test_kit_intro_2026_block(index_page, rf):
+    variants = get_kit_intro_2026_variants()
+    page = get_kit_intro_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        intro_divs = region.find_all("div", class_="fl-home-intro")
+        assert len(intro_divs) == len(variants)
+
+        for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+            value = variant["value"]
+
+            heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
+            heading = intro_el.find(class_="fl-heading")
+            assert heading and heading_text in heading.get_text()
+
+            if value["heading"]["superheading_text"]:
+                superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
+                superheading = intro_el.find("p", class_="fl-superheading")
+                assert superheading and superheading_text in superheading.get_text()
+
+            buttons = value["buttons"]
+            button_elements = intro_el.find_all("a", class_="fl-button")
+            assert len(button_elements) == len(buttons)
+            for button_index, button in enumerate(buttons):
+                cta_position = f"{region_name}-block-{index + 1}-kit_intro.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_elements[button_index],
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
+
+
+def test_carousel_2026_block(index_page, placeholder_images, rf):
+    variants = get_carousel_2026_variants()
+    page = get_carousel_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        carousel_divs = region.find_all("div", class_="fl-carousel")
+        assert len(carousel_divs) == len(variants)
+
+        for index, (carousel_el, variant) in enumerate(zip(carousel_divs, variants)):
+            value = variant["value"]
+
+            heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
+            heading = carousel_el.find(class_="fl-heading")
+            assert heading and heading_text in heading.get_text()
+
+            slides = value["slides"]
+            slides_element = carousel_el.find("div", class_="fl-carousel-slides")
+            assert slides_element
+
+            control_elements = slides_element.find_all("li", class_="fl-carousel-control-item")
+            assert len(control_elements) == len(slides)
+
+            slide_elements = slides_element.find_all("div", class_="fl-carousel-slide")
+            assert len(slide_elements) == len(slides)
+
+            for slide_index, slide in enumerate(slides):
+                slide_headline = BeautifulSoup(slide["value"]["headline"], "html.parser").get_text()
+                assert control_elements[slide_index].get_text().strip() == slide_headline.strip()
+
+                images_element = slide_elements[slide_index].find("div", class_="fl-carousel-image")
+                assert images_element and images_element.find("img")
+
+            buttons = value["buttons"]
+            button_elements = carousel_el.find_all("a", class_="fl-button")
+            assert len(button_elements) == len(buttons)
+            for button_index, button in enumerate(buttons):
+                cta_position = f"{region_name}-block-{index + 1}-carousel.button-{button_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                assert_button_attributes(
+                    button_element=button_elements[button_index],
+                    button_data=button,
+                    context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
+                )
+
+
 def test_springfield_link_block_clean_accepts_valid_relative_url():
     """clean() passes for a locale-free path."""
     result = SpringfieldLinkBlock().clean(_springfield_link_data("relative_url", relative_url="/features/"))
@@ -2999,6 +3304,57 @@ def test_springfield_link_block_page_none_returns_none():
     link_value = _springfield_link_value("page", page=None)
 
     assert link_value.get_url() is None
+
+
+def test_notification_block(index_page, rf):
+    variants = get_notification_variants()
+    page = get_notification_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in [upper, lower]:
+        notification_divs = region.find_all("div", class_="fl-notification")
+        assert len(notification_divs) == len(variants)
+
+        for index, notification in enumerate(variants):
+            div = notification_divs[index]
+            message = BeautifulSoup(notification["value"]["message"], "html.parser").get_text()
+            settings = notification["value"]["settings"]
+            color = settings.get("color")
+            icon = settings.get("icon")
+            closable = settings.get("closable")
+            stacked = settings.get("stacked")
+
+            assert message in div.get_text()
+            if color:
+                assert f"fl-notification-{color}" in div["class"]
+            if icon:
+                icon_el = div.find("span", class_="fl-icon")
+                assert icon_el and f"fl-icon-{icon}" in icon_el["class"]
+            if stacked:
+                assert "fl-notification-stacked" in div["class"]
+                # stacked disables closable per the component template
+                assert not div.find("button", class_="fl-notification-close")
+            elif closable:
+                assert div.find("button", class_="fl-notification-close")
+
+            headline_raw = notification["value"].get("headline", "")
+            heading_el = div.find("p", class_="fl-notification-heading")
+            assert heading_el
+            if headline_raw:
+                headline_text = BeautifulSoup(headline_raw, "html.parser").get_text()
+                assert headline_text in heading_el.get_text()
+                assert message in div.get_text()
+            else:
+                assert message in heading_el.get_text()
 
 
 def test_uuid_block_is_not_translatable():

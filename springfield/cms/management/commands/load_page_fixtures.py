@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
-from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
+from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_2026_test_index_page,
     get_article_index_test_page,
@@ -29,6 +29,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_step_cards_2026_test_page,
     get_sticker_cards_2026_test_page,
 )
+from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
@@ -41,12 +42,20 @@ from springfield.cms.fixtures.inline_notification_fixtures import (
 )
 from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
-from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
+from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
+from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
+from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
+from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
+from springfield.cms.fixtures.whats_new_page_fixtures import (
+    get_whats_new_page_2026_with_qr_snippet,
+    get_whats_new_page_with_qr_snippet,
+    get_whatsnew_index_page,
+)
 
 
 class Command(BaseCommand):
@@ -116,6 +125,15 @@ class Command(BaseCommand):
         card_gallery_2026_page = get_card_gallery_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Card Gallery 2026 test page loaded: {card_gallery_2026_page.slug}"))
 
+        notification_page = get_notification_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
+
+        banner_2026_page = get_banner_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))
+
+        kit_banner_2026_page = get_kit_banner_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Banner 2026 test page loaded: {kit_banner_2026_page.slug}"))
+
         buttons_2026_page = get_buttons_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Buttons 2026 test page loaded: {buttons_2026_page.slug}"))
 
@@ -146,7 +164,25 @@ class Command(BaseCommand):
         for page in blog_pages:
             self.stdout.write(self.style.SUCCESS(f"Blog Article test page loaded: {page.slug}"))
 
+        whats_new_index_page = get_whatsnew_index_page()
+        self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))
+
+        whats_new_page_2026 = get_whats_new_page_2026_with_qr_snippet()
+        self.stdout.write(self.style.SUCCESS(f"What's New 2026 with QR snippet test page loaded: {whats_new_page_2026.slug}"))
+
+        topic_list_2026_page = get_topic_list_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
+
+        carousel_page = get_carousel_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
+
+        kit_intro_page = get_kit_intro_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
+
         # 2025 pages
+
+        whats_new_page_2025 = get_whats_new_page_with_qr_snippet()
+        self.stdout.write(self.style.SUCCESS(f"What's New with QR snippet test page loaded: {whats_new_page_2025.slug}"))
 
         inline_notification_page = get_inline_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Inline Notification test page loaded: {inline_notification_page.slug}"))

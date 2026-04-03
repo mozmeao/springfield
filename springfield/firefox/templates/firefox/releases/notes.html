@@ -63,38 +63,32 @@
 {% set download_title = download_title|default('Get the most recent version') %}
 
 {% block sub_navigation %}
-  {{ sub_nav(
-    title={
-      'text':  ftl('sub-navigation-release-notes')
-    },
-    links=[
+  <include:subnav
+    heading_text="{{ ftl('sub-navigation-release-notes') }}"
+    links="{{ [
     {
       'text': ftl('sub-navigation-desktop'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox for Android' and equivalent_release_url else url('firefox.notes'),
-      'cta_name': "Desktop"
     },
     {
       'text': ftl('sub-navigation-desktop-beta-and-developer'),
       'href': url('firefox.notes', channel='beta'),
-      'cta_name': "Desktop Beta and Developer Edition"
     },
     {
       'text': ftl('sub-navigation-desktop-nightly'),
       'href': url('firefox.notes', channel='nightly'),
-      'cta_name': "Desktop Nightly"
     },
     {
       'text': ftl('sub-navigation-android'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox' and equivalent_release_url else url('firefox.notes', platform='android'),
-      'cta_name': "Android"
     },
     {
       'text': ftl('sub-navigation-ios'),
       'href': url('firefox.notes', platform='ios'),
-      'cta_name': "iOS"
-    }],
-    force_dark_theme=True
-  ) }}
+    }] }}"
+    theme="dark"
+  >
+  </include:subnav>
 {% endblock %}
 
 {% set feedback_url='https://connect.mozilla.org/' %}
@@ -243,9 +237,11 @@
               {% endblock %}
             {% endif %}
 
-            {% with location = 'top' %}
-              {% include "firefox/releases/partials/notes_pagination.html" %}
-            {% endwith %}
+            {% if release.is_public %}
+              {% with location = 'top' %}
+                {% include "firefox/releases/partials/notes_pagination.html" %}
+              {% endwith %}
+            {% endif %}
 
             <section class="c-release-notes fl-c-release-notes-content fl-l-release-notes-wrapper">
               {% if release.is_public and release_notes %}
@@ -274,6 +270,41 @@
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article fl-l-release-notes-main">
+                        <ul>
+                  {% endif %}
+                  {{ note_entry(note) }}
+                  {% if loop.last %}
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+
+                {% for note in release_notes if note.tag == "Labs" %}
+                  {% if loop.first %}
+                    <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
+                      <div class="mzp-l-sidebar">
+                        {% if switch('flare26_enabled') %}
+                          {% set tag_heading %}
+                            <span class="fl-c-release-notes-heading">
+                              <include:icon
+                                icon_name="experiments"
+                                hidden="true"
+                              />
+                              Firefox Labs
+                            </span>
+                          {% endset %}
+                          <include:heading
+                            level="h3"
+                            heading_size="fl-heading-xs"
+                            heading_text="{{ tag_heading | safe }}"
+                          />
+                        {% else %}
+                          <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/labs.svg') }}" width="30" height="30">
+                          <h3>Firefox Labs</h3>
+                        {% endif %}
+                      </div>
+                      <div class="mzp-l-main mzp-l-article">
                         <ul>
                   {% endif %}
                   {{ note_entry(note) }}
@@ -346,7 +377,7 @@
                       <div class="mzp-l-main mzp-l-article">
                         <ul>
                   {% endif %}
-                    {{ note_entry(note) }}
+                  {{ note_entry(note) }}
                   {% if loop.last %}
                         </ul>
                       </div>
@@ -417,7 +448,7 @@
                           />
                         {% else %}
                           <img class="sidebar-icon" alt="" src="{{ static('protocol/img/icons/developer.svg') }}" width="30" height="30">
-                          <h3>Developer</h3>
+                          <h3>{{ note.tag }}</h3>
                         {% endif %}
                       </div>
                       <div class="mzp-l-main mzp-l-article">
@@ -526,7 +557,7 @@
                                 icon_name="critical"
                                 hidden="true"
                               />
-                              {{ note.tag }}
+                              Unresolved
                             </span>
                           {% endset %}
                           <include:heading
@@ -561,7 +592,7 @@
                                 icon_name="avatar-signed-out"
                                 hidden="true"
                               />
-                              {{ note.tag }}
+                              Community Contributions
                             </span>
                           {% endset %}
                           <include:heading
@@ -591,9 +622,11 @@
         </section>
       </div>
 
+      <div class="fl-section fl-t-section-no-gap">
       {% with location = 'bottom' %}
         {% include "firefox/releases/partials/notes_pagination.html" %}
       {% endwith %}
+      </div>
 
       {% if switch('flare26_enabled') %}
       <div class="fl-download-section-container">

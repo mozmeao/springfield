@@ -1,6 +1,5 @@
 -r prod.txt
 
-bpython==0.26
 braceexpand==0.1.7
 django-silk==5.4.3
 factory-boy==3.3.3
@@ -21,6 +20,9 @@ responses==0.25.8
 ruff==0.14.14
 selenium==4.9.1  # Pinned to 4.9.1 until https://github.com/pytest-dev/pytest-selenium/issues/315 is resolved
 translate-toolkit==3.18.1
+# unicode-segmentation-rs 0.2.2+ doesn't have the pre-built wheel we need,
+# so it tries to build from source and fails without a C compiler in the devapp Docker image.
+unicode-segmentation-rs==0.2.1
 uv==0.10.2
 wagtail-factories==4.4.0
 # Related to moz-l10n-lint, used in CI

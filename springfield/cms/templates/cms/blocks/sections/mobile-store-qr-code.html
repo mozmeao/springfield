@@ -14,7 +14,7 @@
       {% set heading_level = "h" ~ block_level if block_level else "h2" %}
       <include:heading
         level="{{ heading_level }}"
-        heading_size="fl-heading-size-2"
+        heading_size="fl-heading-size-1"
         alignment_class="fl-text-align-center"
         superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag if value.heading.superheading_text else '' }}"
         heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"

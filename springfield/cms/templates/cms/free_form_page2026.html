@@ -8,7 +8,7 @@
 
 
 {% block flare_header %}
-  {% set theme = "dark" if page.upper_content else "light" %}
+  {% set theme = "dark" if page.upper_content else None %}
   {% set hide_nav_cta = not page.show_nav_cta %}
   <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" />
 {% endblock %}
@@ -34,20 +34,22 @@
         {% endfor %}
       </div>
 
-      <div class="fl-split-page-lower no-gap">
-        {% for block in page.content %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
+      {% if page.content %}
+        <div class="fl-split-page-lower no-gap">
+          {% for block in page.content %}
+            {% set block_index = loop.index %}
+            {% set block_type = block.block_type %}
+            {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
 
-          {% if block.value.heading and block.value.heading.heading_text %}
-            {% set block_level = 1 if ns.headings == 0 else 2 %}
-            {% set ns.headings = ns.headings + 1 %}
-          {% endif %}
+            {% if block.value.heading and block.value.heading.heading_text %}
+              {% set block_level = 1 if ns.headings == 0 else 2 %}
+              {% set ns.headings = ns.headings + 1 %}
+            {% endif %}
 
-          {% include_block block %}
-        {% endfor %}
-      </div>
+            {% include_block block %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </main>
   {% else %}
     <main class="fl-main has-gradient-bottom">
@@ -75,3 +77,13 @@
     {{ super() }}
   {% endif %}
 {% endblock pre_footer %}
+
+{% block qr_code_snippet %}
+  {% if page.show_qr_code_snippet %}
+    {% set qr_code_snippet = get_qr_code_snippet() %}
+    {% if qr_code_snippet %}
+      {% set value = qr_code_snippet %}
+      {% include "cms/snippets/qr-code-snippet.html" %}
+    {% endif %}
+  {% endif %}
+{% endblock qr_code_snippet %}

@@ -81,7 +81,8 @@ Card Grid - Flare 2026 Design System Cards
     .fl-card-grid:has(
         > *:nth-child(3):last-child .fl-illustration-card-default
     ),
-    .fl-card-grid:has(.fl-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         inline-size: 100%;
         margin-inline: auto;
@@ -89,7 +90,8 @@ Card Grid - Flare 2026 Design System Cards
     }
 
     /* make outline cards slightly wider */
-    .fl-card-grid:has(.fl-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
         max-inline-size: var(--token-width-desktop-wide-banner);
     }
 }
@@ -140,11 +142,6 @@ Card Grid - Flare 2026 Design System Cards
         h6.fl-heading
     ) {
     text-decoration: underline;
-}
-
-.fl-body a {
-    color: var(--fl-theme-color-text);
-    text-decoration: none;
 }
 
 /* =====================================================================

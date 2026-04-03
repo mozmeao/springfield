@@ -13,6 +13,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
@@ -219,3 +220,45 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
 
 
 register_snippet(Tag)
+
+
+class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a floating QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    qr_code = models.CharField(blank=True)
+    closable = models.BooleanField(default=False, help_text="Whether the QR code can be closed by the user.")
+
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("qr_code"),
+        FieldPanel("closable"),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_code"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "QR Code Snippet"
+        verbose_name_plural = "QR Code Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-snippet-preview.html"
+
+
+register_snippet(QRCodeSnippet)

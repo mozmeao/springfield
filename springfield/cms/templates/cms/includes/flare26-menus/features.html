@@ -4,19 +4,19 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<li class="fl-menu-category">
+<li class="fl-menu-category" data-testid="menu-category-features">
   <a
     class="fl-menu-title"
     href="{{ url('firefox.features.index') }}"
     aria-haspopup="true"
     aria-controls="fl-menu-panel-features"
   >
-    <h2>
+    <h2 class="fl-menu-heading">
       {{ ftl('navigation-features') }}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </h2>
   </a>
-  <div class="fl-menu-panel" id="fl-menu-panel-features">
+  <div class="fl-menu-panel" id="fl-menu-panel-features" data-testid="menu-panel-features">
     <button class="fl-menu-close-button">
       <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
     </button>

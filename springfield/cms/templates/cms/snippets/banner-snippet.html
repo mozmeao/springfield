@@ -10,6 +10,7 @@
       <content:heading>
         <include:heading
           level="h2"
+          heading_size="fl-heading-lg"
           heading_text="{{ value.heading|richtext|remove_p_tag }}"
         />
       </content:heading>
@@ -25,7 +26,7 @@
       {% endif %}
     </include:kit-banner>
   {% else %}
-    <include:banner theme="purple" qr_code="{{ value.qr_code }}" phone_qr_bg>
+    <include:banner theme="bottom-cta" qr_code="{{ value.qr_code }}" phone_qr_bg>
       <content:heading>
         <include:heading
           level="h2"

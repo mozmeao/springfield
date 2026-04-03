@@ -1,0 +1,54 @@
+name: Topic list 2026
+context:
+  topics:
+    - image: "/media/img/firefox/flare/2026/user-privacy/fingerprint-tracking.svg"
+      anchor_id: "privacy-online"
+      short_title: "Privacy Online"
+      heading: "Your privacy always comes first."
+      content: "<p>For example, when you sync your history or bookmarks, Firefox has to send data to Mozilla servers so you can seamlessly access them across devices. The difference is, we use end-to-end encryption before it leaves your device, so even we can’t see what sites you’re visiting.</p>"
+      buttons:
+        - theme_class: button-link
+          label: "See Firefox’s data collection guidelines"
+          link: "#"
+    - image: "/media/img/firefox/flare/2026/user-privacy/privacy-shield.svg"
+      anchor_id: "tracking-protection"
+      short_title: "Tracking Protection"
+      heading: "You’re automatically protected."
+      content: "<p>Firefox’s Enhanced Tracking Protection (ETP) and Total Cookie Protection (TCP) work together to protect you from the tracking tech that follows you from site to site, most often without your knowledge or consent. Firefox cuts off cross-site tracking right at the source by locking cookies to the site where they were created. So you stay private without needing to change a single setting.</p>"
+      buttons:
+        - theme_class: button-link
+          label: "More about Enhanced Tracking Protection"
+          link: "#"
+        - theme_class: button-link
+          label: "More about Total Cookie Protection"
+          link: "#"
+    - image: "/media/img/firefox/flare/2026/user-privacy/tab-groups.svg"
+      anchor_id: "data-control"
+      short_title: "Control Your Data"
+      heading: "You’re in control."
+      content: "<p>The best way to keep your data safe is to keep it on your device. Firefox features like Link Previews and Smart Tab Groups use on-device models which give you AI assistance without data leaving your computer. And if you choose to add a third-party AI chatbot (like ChatGPT or Claude) in Firefox, Mozilla has no access to your chats—they remain between you and the chatbot provider.</p>"
+      buttons:
+        - theme_class: button-link
+          label: "More about on-device AI models"
+          link: "#"
+        - theme_class: button-link
+          label: "More about AI chatbots"
+          link: "#"
+    - image: "/media/img/firefox/flare/2026/user-privacy/devices.svg"
+      anchor_id: "advertising"
+      short_title: "Advertising"
+      heading: "Ads? Totally up to you."
+      content: "<p>Firefox has optional ads on the homepage to support Firefox development and Mozilla’s mission. You can turn them off if you like (and you’re always welcome to do so). If you keep ads on, your privacy remains protected. Unlike other browsers, the ads we display in Firefox use a privacy-first architecture which is designed to prevent advertisers from learning who you are.</p><p>And it’s worth repeating: we never sell your personal data to any advertiser. Want to go further? Go ahead and turn off ads across the web. Firefox delivers more ad blocker options than any other browser because we support Manifest v2 browser extensions.</p>"
+      buttons:
+        - theme_class: button-link
+          label: "More about ads and privacy"
+          link: "#"
+    - image: "/media/img/firefox/flare/2026/user-privacy/cursor.svg"
+      anchor_id: "built-different"
+      short_title: "Built Different"
+      heading: "Privacy is a team effort."
+      content: "<p>We build Firefox together with contributors and software developers around the world in the service of a safe, accessible, and proudly public internet. Firefox isn’t just a clone of another popular browser – it runs on Gecko, Mozilla’s independent and open source browser engine. In addition to giving Firefox the freedom to do things differently, Gecko helps advance web standards and influence public policy.</p>"
+      buttons:
+        - theme_class: button-link
+          label: "Get to know Gecko"
+          link: "#"

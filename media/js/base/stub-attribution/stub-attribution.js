@@ -521,10 +521,37 @@ if (typeof window.Mozilla === 'undefined') {
             ? null
             : StubAttribution.getGtagClientID();
 
+        var campaignForce = document.documentElement.getAttribute(
+            'data-stub-attribution-campaign-force'
+        );
+        var campaignOverride = document.documentElement.getAttribute(
+            'data-stub-attribution-campaign-override'
+        );
+        var campaignDefault = document.documentElement.getAttribute(
+            'data-stub-attribution-campaign'
+        );
+        var utmCampaign;
+
+        if (campaignForce !== null) {
+            // Force always wins and clears existing cookie
+            utmCampaign = campaignForce;
+        } else if (campaignOverride !== null) {
+            // Explicit override via data attribute
+            utmCampaign = campaignOverride;
+        } else if (
+            typeof utms.utm_campaign !== 'undefined' &&
+            utms.utm_campaign !== null
+        ) {
+            // URL param wins over default data attribute, even if falsy like 0
+            utmCampaign = utms.utm_campaign;
+        } else {
+            utmCampaign = campaignDefault;
+        }
+
         var data = {
             utm_source: utms.utm_source,
             utm_medium: utms.utm_medium,
-            utm_campaign: utms.utm_campaign,
+            utm_campaign: utmCampaign,
             utm_content: utms.utm_content,
             referrer: referrer,
             ua: ua,
@@ -671,6 +698,19 @@ if (typeof window.Mozilla === 'undefined') {
 
         if (typeof timeoutCallback === 'function') {
             StubAttribution.timeoutCallback = timeoutCallback;
+        }
+
+        /**
+         * If the page forces a campaign value, invalidate any
+         * existing cookie so the forced value is picked up.
+         */
+        if (
+            StubAttribution.hasCookie() &&
+            document.documentElement.getAttribute(
+                'data-stub-attribution-campaign-force'
+            )
+        ) {
+            StubAttribution.removeCookie();
         }
 
         /**

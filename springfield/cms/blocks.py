@@ -340,6 +340,9 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
+UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
+UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
@@ -349,6 +352,9 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
 )
 
@@ -706,6 +712,9 @@ class UITourButtonValue(BaseButtonValue):
             UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
             UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
             UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+            UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
             UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
         }
         theme_classes += " " + classes.get(button_type, "")
@@ -770,6 +779,11 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=False,
             default=False,
             help_text="Show 'Set as default browser' checkbox to Windows users. Attention! This will affect all download buttons on the page.",
+        )
+        show_extra_links = blocks.BooleanBlock(
+            required=False,
+            default=True,
+            help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
         )
 
         class Meta:
@@ -1814,9 +1828,58 @@ class InlineNotificationBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class NotificationSettings(blocks.StructBlock):
+    icon = IconChoiceBlock(required=False, inline_form=True)
+    color = blocks.ChoiceBlock(
+        choices=[
+            ("purple", "Purple"),
+            ("green", "Green"),
+            ("orange", "Orange"),
+            ("red", "Red"),
+        ],
+        required=False,
+        inline_form=True,
+    )
+    stacked = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Stack icon above message",
+    )
+    closable = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        inline_form=True,
+        help_text="Show close button. Not available for stacked layout.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class NotificationBlock(blocks.StructBlock):
+    settings = NotificationSettings()
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        template = "cms/blocks/notification.html"
+        label = "Notification"
+        label_format = "{message}"
+        form_classname = "compact-form struct-block"
+
+
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before")),
+        choices=(("after", "After"), ("before", "Before"), ("right", "Right"), ("left", "Left")),
         default="after",
         label="Media Position",
         inline_form=True,
@@ -1830,7 +1893,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}"
+        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}..."
         form_classname = "compact-form struct-block"
 
 
@@ -1868,6 +1931,13 @@ class IntroBlockSettings2026(blocks.StructBlock):
         label="Layout",
         inline_form=True,
     )
+    full_width = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Full Width",
+        inline_form=True,
+        help_text="Renders content using all available horizontal space.",
+    )
     slim = blocks.BooleanBlock(
         required=False,
         default=False,
@@ -1904,7 +1974,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
@@ -1980,6 +2050,8 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
                 ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2000,6 +2072,52 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+# Topic list
+
+
+def TopicBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicBlock(blocks.StructBlock):
+        short_title = blocks.CharBlock(
+            label="Short Title",
+            help_text="Text to be used on the sidebar link.",
+        )
+        anchor_id = blocks.CharBlock(
+            help_text="Add an ID to make this section linkable from the sidebar (e.g., 'privacy-online', 'data-control')",
+        )
+        image = ImageChooserBlock(
+            label="Image",
+            help_text="Image shown at the top of the topic heading.",
+        )
+        heading = HeadingBlock()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/topic.html"
+            label = "Topic"
+            label_format = "{heading}"
+
+    return _TopicBlock(*args, **kwargs)
+
+
+def TopicListBlock(allow_uitour=False, *args, **kwargs):
+    class _TopicListBlock(blocks.StructBlock):
+        topics = blocks.ListBlock(TopicBlock(allow_uitour=allow_uitour), min=1)
+
+        class Meta:
+            template = "cms/blocks/sections/topic-list.html"
+            label = "Topic List"
+            label_format = "{heading}"
+
+    return _TopicListBlock(*args, **kwargs)
+
+
 # Banners
 
 
@@ -2016,10 +2134,12 @@ class SubscriptionBlock(blocks.StructBlock):
 class BannerSettings(blocks.StructBlock):
     theme = blocks.ChoiceBlock(
         (
+            ("default", "Default"),
             ("outlined", "Outlined"),
             ("purple", "Purple"),
+            ("dark-purple", "Dark Purple"),
         ),
-        default="outlined",
+        default="default",
         inline_form=True,
     )
     media_after = blocks.BooleanBlock(
@@ -2036,6 +2156,13 @@ class BannerSettings(blocks.StructBlock):
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
+    )
+    slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
 
     class Meta:
@@ -2056,7 +2183,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=2,
+            max_num=3,
             required=False,
         )
 
@@ -2123,28 +2250,43 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
 # Homepage
 
 
-class HomeIntroBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-    buttons = MixedButtonsBlock(
-        button_types=get_button_types(),
-        themes=BUTTON_THEMES_2026,
-        min_num=0,
-        max_num=2,
+class KitBlockSettings(blocks.StructBlock):
+    slim = blocks.BooleanBlock(
         required=False,
+        default=False,
+        label="Slim Layout",
+        inline_form=True,
+        help_text="Use a more compact layout with reduced spacing.",
     )
 
-    class Meta:
-        template = "cms/blocks/home-intro.html"
-        label = "Home Intro"
-        label_format = "{heading}"
+
+def KitIntroBlock(allow_uitour=False, *args, **kwargs):
+    class _KitIntroBlock(blocks.StructBlock):
+        settings = KitBlockSettings()
+        heading = HeadingBlock()
+        buttons = MixedButtonsBlock(
+            allow_uitour=allow_uitour,
+            button_types=get_button_types(),
+            themes=BUTTON_THEMES_2026,
+            min_num=0,
+            max_num=2,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/home-intro.html"
+            label = "Kit Intro"
+            label_format = "{heading}"
+
+    return _KitIntroBlock(*args, **kwargs)
 
 
-class HomeCarouselSlide(blocks.StructBlock):
+class CarouselSlide(blocks.StructBlock):
     headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     image = ImageVariantsBlock()
 
 
-class HomeCarouselSettings(blocks.StructBlock):
+class CarouselSettings(blocks.StructBlock):
     show_to = ConditionalDisplayBlock(
         label="Show To",
         help_text="Control which users can see this content block",
@@ -2158,8 +2300,8 @@ class HomeCarouselSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class HomeCarouselBlock(blocks.StructBlock):
-    settings = HomeCarouselSettings()
+class CarouselBlock(blocks.StructBlock):
+    settings = CarouselSettings()
     heading = HeadingBlock()
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
@@ -2167,11 +2309,11 @@ class HomeCarouselBlock(blocks.StructBlock):
         max_num=2,
         required=False,
     )
-    slides = blocks.ListBlock(HomeCarouselSlide(), min_num=2, max_num=5)
+    slides = blocks.ListBlock(CarouselSlide(), min_num=2, max_num=5)
 
     class Meta:
         template = "cms/blocks/sections/home-carousel.html"
-        label = "Home Carousel"
+        label = "Carousel"
         label_format = "{heading}"
 
 

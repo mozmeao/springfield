@@ -62,6 +62,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   </head>
 
   <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+    {{ wagtailuserbar() }}
 
     {% block flare_header %}
     <include:flare26-header />
@@ -121,6 +122,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block consent_banner %}
       {% include 'includes/banners/consent-banner-flare26.html' %}
     {% endblock %}
+
+    {% block qr_code_snippet %}{% endblock %}
 
 
     {# Issue 8444 #}

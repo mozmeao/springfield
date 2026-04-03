@@ -191,6 +191,26 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
+        it('should grant ads defaults on /thanks/ when marketing_consent param is present', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
+            spyOn(GTMSnippet, 'hasLandingGetMarketingConsent').and.returnValue(
+                true
+            );
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'False');
+            GTMSnippet.setGtagConsentDefaults();
+            expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+                ad_user_data: 'granted',
+                ad_personalization: 'granted',
+                ad_storage: 'granted'
+            });
+            expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+                analytics_storage: 'granted'
+            });
+        });
+
         it('should set denied defaults when consent cookie rejects analytics', function () {
             const obj = { analytics: false, preference: false };
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
@@ -209,7 +229,7 @@ describe('gtm-snippet.es6.js', function () {
 
         it('should grant analytics default and deny ads default when no consent cookie and visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'False');
@@ -224,9 +244,9 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should grant ads and analytics defaults on /landing/get when visitor is outside EU/EAA', function () {
+        it('should grant ads and analytics defaults on promoted page when visitor is outside EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'False');
@@ -241,9 +261,9 @@ describe('gtm-snippet.es6.js', function () {
             });
         });
 
-        it('should deny all defaults on /landing/get when visitor is in EU/EAA', function () {
+        it('should deny all defaults on promoted page when visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(true);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(true);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'True');
@@ -260,7 +280,7 @@ describe('gtm-snippet.es6.js', function () {
 
         it('should deny all defaults when no consent cookie and visitor is in EU/EAA', function () {
             spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(false);
-            spyOn(GTMSnippet, 'isFirefoxLandingGet').and.returnValue(false);
+            spyOn(GTMSnippet, 'isPromotedPage').and.returnValue(false);
             document
                 .getElementsByTagName('html')[0]
                 .setAttribute('data-needs-consent', 'True');
@@ -311,6 +331,32 @@ describe('gtm-snippet.es6.js', function () {
             expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
                 analytics_storage: 'denied'
             });
+        });
+    });
+
+    describe('GTMSnippet.hasLandingGetMarketingConsent()', function () {
+        it('should return true when marketing_consent param is present', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(true);
+            const result = GTMSnippet.hasLandingGetMarketingConsent(
+                'https://www.firefox.com/en-US/thanks/?marketing_consent=1'
+            );
+            expect(result).toBeTrue();
+        });
+
+        it('should return false when marketing_consent param is absent', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(true);
+            const result = GTMSnippet.hasLandingGetMarketingConsent(
+                'https://www.firefox.com/en-US/thanks/'
+            );
+            expect(result).toBeFalse();
+        });
+
+        it('should return false when not on /thanks/ page', function () {
+            spyOn(GTMSnippet, 'isFirefoxDownloadThanks').and.returnValue(false);
+            const result = GTMSnippet.hasLandingGetMarketingConsent(
+                'https://www.firefox.com/en-US/landing/get/?marketing_consent=1'
+            );
+            expect(result).toBeFalse();
         });
     });
 });

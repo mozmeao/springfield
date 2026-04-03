@@ -1392,6 +1392,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     ),
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
+    "EXCLUDE_LOCALES": ["en-CA", "en-GB"],
 }
 
 WAGTAILDRAFTSHARING = {
@@ -1461,6 +1462,7 @@ _allowed_page_models = [
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
+    "cms.WhatsNewPage2026",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.ArticleThemePage",
@@ -1509,3 +1511,4 @@ BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
 PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
 DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
+QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)

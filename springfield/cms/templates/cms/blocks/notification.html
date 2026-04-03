@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text = value.message|richtext|remove_tags %}
+
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
+  <include:notification
+    icon="{{ value.settings.icon }}"
+    color="{{ value.settings.color }}"
+    stacked="{{ value.settings.stacked }}"
+    closable="{{ value.settings.closable }}"
+  >
+    {% if value.headline %}
+      <content:heading>
+        {{ value.headline|richtext|remove_p_tag }}
+      </content:heading>
+    {% endif %}
+    {{ value.message|richtext|remove_p_tag }}
+  </include:notification>
+</include:conditional-display>

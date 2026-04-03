@@ -32,12 +32,12 @@
 .fl-banner .fl-heading-group {
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-3xl);
     margin-block-end: 0;
 }
 
 .fl-banner .fl-heading,
-.fl-banner .fl-subheading {
+.fl-banner .fl-subheading,
+.fl-banner .fl-superheading {
     margin: 0;
 }
 
@@ -45,6 +45,7 @@
     display: block;
     inline-size: 100%;
     line-height: 0.9;
+    margin-block-end: var(--token-spacing-2xl);
     text-wrap: balance;
 }
 
@@ -54,36 +55,68 @@
     text-wrap: balance;
 }
 
-.fl-banner-outlined {
+.fl-banner.fl-banner-outlined {
     --fl-theme-color-banner-text: var(--fl-theme-color-text);
-    border: 1px solid var(--token-color-black-1);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    border: 1px solid var(--token-color-grey-3);
 }
 
-.fl-banner-purple {
+.fl-banner.fl-banner-default {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
+    border-radius: 0;
+}
+
+.fl-banner.fl-banner-bottom-cta {
     --fl-theme-color-text: var(--token-color-white);
-    --fl-theme-color-link: var(--token-color-white);
-    --fl-theme-color-link-visited: var(--token-color-white);
-    --fl-theme-color-link-strong: var(--token-color-white);
     background-image: var(--token-gradient-purple);
-    background-position: center;
-    background-repeat: no-repeat;
+
+    --fl-banner-border-radius: var(--token-border-radius-xl);
+    --fl-banner-padding: var(--token-layout-lg);
+}
+
+.fl-banner.fl-banner-bottom-cta .fl-banner-content-inner {
+    gap: 0;
+}
+
+.fl-banner.fl-banner-purple {
+    --fl-theme-color-link: var(--token-color-soft-purple-4);
+    --fl-theme-color-link-hover: var(--token-color-white);
+    --fl-theme-color-text: var(--token-color-white);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+    background-position: center bottom;
     background-size: cover;
 }
 
 .fl-banner-dark-purple {
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
-    --fl-theme-color-link-visited: var(--token-color-white);
-    --fl-theme-color-link-strong: var(--token-color-white);
     background-image: var(--token-gradient-radial-purple);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-.fl-banner-purple .fl-superheading,
-.fl-banner-dark-purple .fl-superheading {
-    color: var(--fl-theme-color-text);
+.fl-banner .fl-superheading {
+    color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-label-caps-sm);
+    letter-spacing: 0.0175rem;
+    line-height: 1.2;
+    margin-block-end: var(--token-spacing-md);
+    text-transform: uppercase;
+}
+
+.fl-banner-purple .fl-button.button-ghost {
+    border-color: var(--token-color-white);
+    color: var(--token-color-white);
+}
+
+.fl-banner-purple .fl-button.button-ghost:hover,
+.fl-banner-purple .fl-button.button-ghost:focus,
+.fl-banner-purple .fl-button.button-ghost:active {
+    background: var(--token-color-white);
+    color: var(--token-color-dark-purple);
 }
 
 .fl-banner-media {
@@ -160,7 +193,7 @@
     inline-size: 100%;
     justify-content: center;
     margin: 0 auto;
-    max-inline-size: 840px;
+    max-inline-size: var(--token-width-desktop-wide-banner);
     min-inline-size: 0;
     text-align: center;
 }
@@ -194,13 +227,9 @@
     z-index: 2;
 }
 
-.fl-banner-slim.fl-banner-container {
-    padding: 0;
-}
-
 .fl-banner-slim .fl-banner {
     --fl-banner-border-radius: var(--token-border-radius-xl-half);
-    padding: var(--token-layout-xs) var(--token-layout-2xs);
+    padding: var(--token-layout-2xs) var(--token-layout-3xs);
 }
 
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */
@@ -218,7 +247,7 @@
 
 @media (--viewport-sm-up) {
     .fl-banner {
-        --fl-banner-padding: var(--token-layout-md);
+        --fl-banner-padding: var(--token-layout-2xs);
         --fl-banner-border-radius: var(--token-border-radius-lg);
         align-items: initial;
         justify-content: initial;
@@ -230,7 +259,7 @@
     }
 
     .fl-banner-slim .fl-banner {
-        --fl-banner-padding: var(--token-layout-md);
+        --fl-banner-padding: var(--token-layout-3xs);
     }
 
     .fl-banner-media img,
@@ -254,7 +283,7 @@
 
 @media (--viewport-md-up) {
     .fl-banner {
-        --fl-banner-padding: var(--token-layout-lg);
+        --fl-banner-padding: var(--token-layout-xs);
         --fl-banner-border-radius: var(--token-border-radius-xl);
     }
 
@@ -263,7 +292,7 @@
     }
 
     .fl-banner-layout:has(.fl-banner-media) {
-        gap: var(--token-layout-xs);
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
     }
 
