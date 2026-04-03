@@ -98,7 +98,7 @@ def remove_alias_locales(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0058_qrcodesnippet_content_and_more"),
+        ("cms", "0059_alter_freeformpage2026_content"),
     ]
 
     operations = [
