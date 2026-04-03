@@ -15,6 +15,13 @@
     z-index: 10;
 }
 
+/* When a notification immediately precedes an intro or home intro component, tighten up the space between them */
+
+.fl-notification-wrapper + .fl-section:has(.fl-intro) .fl-intro,
+.fl-notification-wrapper + .fl-section:has(.fl-home-intro) .fl-intro {
+    padding-block-start: var(--token-spacing-2xl);
+}
+
 .fl-notification {
     align-items: center;
     background: var(--notification-bg);
