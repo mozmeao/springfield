@@ -45,7 +45,7 @@ def enable_siblings_for_feature_index_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0059_create_alias_locale_records"),
+        ("cms", "0060_create_alias_locale_records"),
     ]
 
     operations = [
