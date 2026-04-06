@@ -4,6 +4,10 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+.fl-freeform-2026-page .fl-split-page-upper:has(.fl-intro:first-child) {
+    padding-block-start: 0;
+}
+
 .fl-intro {
     padding: var(--token-layout-md) var(--fl-section-h-padding);
     position: relative;
