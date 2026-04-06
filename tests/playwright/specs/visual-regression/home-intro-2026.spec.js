@@ -17,13 +17,11 @@ test.describe(
         tag: '@visual-regression'
     },
     () => {
-        test.use({ colorScheme: 'dark' });
-
         test.beforeEach(async ({ page, browserName }) => {
             await openPage(url, page, browserName);
         });
 
-        test('dark theme', async ({ page }) => {
+        test('base variant', async ({ page }) => {
             await expectComponentScreenshot(page, 'home-intro');
         });
     }
