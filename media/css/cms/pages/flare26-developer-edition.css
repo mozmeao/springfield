@@ -9,7 +9,6 @@
 .fl-main.fl-page-developer .fl-section:last-child {
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
-    overflow: hidden;
     padding-block-end: var(--fl-theme-main-border-radius);
 }
 
