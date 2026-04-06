@@ -359,6 +359,15 @@ Sticker Card
     margin-block-end: 0;
 }
 
+.fl-sticker-card .fl-body a:not(.fl-button) {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.fl-sticker-card .fl-body a:not(.fl-button):hover {
+    text-decoration: none;
+}
+
 .fl-sticker-card .fl-buttons {
     align-items: center;
     display: flex;
