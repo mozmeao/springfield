@@ -2,7 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import tempfile
 from io import StringIO
+from pathlib import Path
 from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
@@ -473,3 +475,127 @@ class TestLinkTranslationsAfterExport:
         assert Translation.objects.filter(source=en_home_source, target_locale__language_code="de")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="fr")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="de")
+
+
+class TestGenerateFlareIconCssCommand(TestCase):
+    """Tests for the generate_flare_icon_css management command."""
+
+    def _run_command(self, icon_dir, output):
+        out = StringIO()
+        call_command("generate_flare_icon_css", icon_dir=str(icon_dir), output=str(output), stdout=out)
+        return out.getvalue()
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.icon_dir = self.tmp / "icons"
+        self.icon_dir.mkdir()
+        self.output_file = self.tmp / "out.css"
+
+    def _make_svg(self, *parts):
+        """Create an SVG file at icon_dir / *parts, creating parent dirs as needed."""
+        path = self.icon_dir.joinpath(*parts)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("<svg/>")
+        return path
+
+    def _run(self):
+        # icon_dir is self.tmp / "icons"; static_dir is self.tmp so that
+        # icon_dir_static_path resolves to "icons" and static() produces /static/icons/...
+        with patch("django.conf.settings.ROOT_PATH", self.tmp), patch("django.conf.settings.STATICFILES_DIRS", [self.tmp]):
+            return self._run_command(
+                icon_dir=Path("icons"),
+                output=Path("out.css"),
+            )
+
+    def test_generates_rule_for_each_svg(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        self._make_svg("c", "icon-c.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert css.count("{") == 3
+
+    def test_class_name_is_stem_without_size_suffix(self):
+        self._make_svg("activity", "activity-16.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-activity {" in css
+        assert ".fl-icon-activity-16 {" not in css
+
+    def test_icon_url_value(self):
+        self._make_svg("activity", "activity-16.svg")
+        with patch("django.conf.settings.ROOT_PATH", self.tmp), patch("django.conf.settings.STATICFILES_DIRS", [self.tmp]):
+            self._run_command(icon_dir=Path("icons"), output=Path("out.css"))
+        css = self.output_file.read_text()
+        assert "--icon-src: url(" in css
+        assert "activity-16.svg" in css
+
+    def test_conflict_detection_adds_folder_prefix(self):
+        self._make_svg("arrows", "left-16.svg")
+        self._make_svg("user", "left-16.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-arrows-left {" in css
+        assert ".fl-icon-user-left {" in css
+        assert ".fl-icon-left {" not in css
+
+    def test_non_svg_files_excluded(self):
+        self._make_svg("a", "icon.svg")
+        (self.icon_dir / "a" / "readme.txt").write_text("text")
+        (self.icon_dir / "a" / "data.json").write_text("{}")
+        self._run()
+        css = self.output_file.read_text()
+        assert css.count("{") == 1
+
+    def test_hidden_files_excluded(self):
+        self._make_svg("a", "visible.svg")
+        (self.icon_dir / "a" / ".hidden.svg").write_text("<svg/>")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-visible {" in css
+        assert ".fl-icon-.hidden {" not in css
+        assert css.count("{") == 1
+
+    def test_mpl_header_present(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert "Mozilla Public" in css
+        assert "https://mozilla.org/MPL/2.0/" in css
+
+    def test_run_command_comment_present(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert "generate_flare_icon_css" in css
+
+    def test_output_file_written(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        assert self.output_file.exists()
+
+    def test_summary_line_printed(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        out = self._run()
+        assert "Generated 2 rules" in out
+
+    def test_conflict_warning_printed(self):
+        self._make_svg("arrows", "left-16.svg")
+        self._make_svg("user", "left-16.svg")
+        out = self._run()
+        assert "conflict" in out.lower()
+        assert "ACTION REQUIRED" in out
+
+    def test_no_conflict_warning_when_no_conflicts(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        out = self._run()
+        assert "ACTION REQUIRED" not in out
+
+    def test_missing_icon_dir_raises_command_error(self):
+        from django.core.management.base import CommandError
+
+        with patch("django.conf.settings.ROOT_PATH", self.tmp):
+            with self.assertRaises(CommandError):
+                self._run_command(icon_dir=Path("nonexistent"), output=Path("out.css"))
