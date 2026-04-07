@@ -30,10 +30,8 @@
 
     if (client.isFirefoxDesktop) {
         if (client._getFirefoxMajorVersion() >= 136) {
-            // show "See what Firefox has blocked for you" links.
-            document
-                .querySelector('body')
-                .classList.add('data-uitour');
+            // show "See your protection report" link.
+            document.querySelector('body').classList.add('data-uitour');
 
             // Intercept link clicks to open about:protections page using UITour.
             Mozilla.UITour.ping(function () {
