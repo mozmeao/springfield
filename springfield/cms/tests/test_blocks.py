@@ -3536,7 +3536,6 @@ class TestIconListItemValue:
     """Tests for IconListItemValue computed properties."""
 
     def _make_value(self, icon_path, thumbnail_directory="img/firefox/flare/2026/icons"):
-
         from springfield.cms.blocks import IconListItemBlock
 
         block = IconListItemBlock()
