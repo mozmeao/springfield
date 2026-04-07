@@ -38,7 +38,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "secondary",
-                    "icon": "forward",
+                    "icon": "desktop-16/arrows-and-chevrons/forward-16",
                     "icon_position": "right",
                     "analytics_id": "cfdf0d2c-7eee-49c2-8747-80450e22dbdd",
                 },
@@ -62,7 +62,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "back",
+                    "icon": "desktop-16/arrows-and-chevrons/back-16",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
@@ -86,7 +86,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "ghost",
-                    "icon": "comment",
+                    "icon": "desktop-16/comment/comment-16",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
@@ -153,7 +153,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "secondary",
-                    "icon": "forward",
+                    "icon": "desktop-16/arrows-and-chevrons/forward-16",
                     "icon_position": "right",
                     "analytics_id": "b4adffda-872a-4f2b-b45a-63ac7cb71e91",
                 },
@@ -177,7 +177,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "export-data",
+                    "icon": "desktop-16/import-and-export/export-data-16",
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
                 },
@@ -201,7 +201,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "ghost",
-                    "icon": "search",
+                    "icon": "desktop-16/search/search-16",
                     "icon_position": "left",
                     "analytics_id": "4c411613-ef35-46c0-9eff-3a1bef76dabd",
                 },
@@ -225,7 +225,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "tertiary",
-                    "icon": "single-user",
+                    "icon": "desktop-16/user/single-user-16",
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
                 },
@@ -239,7 +239,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "label": "Get Firefox",
                 "settings": {
                     "theme": "",
-                    "icon": "downloads",
+                    "icon": "desktop-16/downloads/downloads-16",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
                     "show_default_browser_checkbox": False,
@@ -253,7 +253,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "label": "Get Firefox",
                 "settings": {
                     "theme": "secondary",
-                    "icon": "downloads",
+                    "icon": "desktop-16/downloads/downloads-16",
                     "icon_position": "right",
                     "analytics_id": "d414c71a-feef-4106-8e77-26b01ea38237",
                     "show_default_browser_checkbox": True,
@@ -276,7 +276,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "",
-                    "icon": "downloads",
+                    "icon": "desktop-16/downloads/downloads-16",
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000001",
                 },
@@ -290,7 +290,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "value": {
                 "settings": {
                     "theme": "secondary",
-                    "icon": "downloads",
+                    "icon": "desktop-16/downloads/downloads-16",
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000003",
                 },
@@ -310,7 +310,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "tertiary",
-                            "icon": "back",
+                            "icon": "desktop-16/arrows-and-chevrons/back-16",
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
                         },
@@ -334,7 +334,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "ghost",
-                            "icon": "diamond",
+                            "icon": "desktop-16/profile/diamond-16",
                             "icon_position": "left",
                             "analytics_id": "151a5822-63b4-4621-b146-4135044f21b8",
                         },
@@ -358,7 +358,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "tertiary",
-                            "icon": "paperclip",
+                            "icon": "desktop-16/paperclip/paperclip-16",
                             "icon_position": "left",
                             "analytics_id": "2ce75501-5dc6-44cf-8609-61ee89c914b0",
                         },
@@ -382,7 +382,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "secondary",
-                            "icon": "email-shield",
+                            "icon": "desktop-16/mail/email-shield-16",
                             "icon_position": "left",
                             "analytics_id": "569de137-625d-48f7-bbfb-0fe87b43da83",
                         },
@@ -406,7 +406,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "value": {
                         "settings": {
                             "theme": "",
-                            "icon": "plane",
+                            "icon": "desktop-16/profile/plane-16",
                             "icon_position": "left",
                             "analytics_id": "db29813f-1941-4e78-83ac-856943e34490",
                         },

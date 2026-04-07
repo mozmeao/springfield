@@ -48,9 +48,9 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "value": {
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "list_items": [
-                    _list_item("checkmark", "Block harmful trackers automatically", "il2026i1a"),
-                    _list_item("lock", "Keep your passwords safe and synced", "il2026i1b"),
-                    _list_item("shield", "Browse without leaving a trace", "il2026i1c"),
+                    _list_item("desktop-16/checkmarks/checkmark-16", "Block harmful trackers automatically", "il2026i1a"),
+                    _list_item("desktop-16/lock/lock-16", "Keep your passwords safe and synced", "il2026i1b"),
+                    _list_item("desktop-16/shield/shield-16", "Browse without leaving a trace", "il2026i1c"),
                 ],
             },
             "id": "2026il01-0000-0000-0000-000000000001",
@@ -60,11 +60,11 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "value": {
                 "image": settings.PLACEHOLDER_IMAGE_ID,
                 "list_items": [
-                    _list_item("bookmark", "Save pages and sync across devices", "il2026i2a"),
-                    _list_item("history", "Access your browsing history anywhere", "il2026i2b"),
-                    _list_item("tab", "Manage tabs with ease", "il2026i2c"),
-                    _list_item("extension", "Add extensions to customize your experience", "il2026i2d"),
-                    _list_item("themes", "Personalize with themes", "il2026i2e"),
+                    _list_item("desktop-16/bookmarks/bookmark-16", "Save pages and sync across devices", "il2026i2a"),
+                    _list_item("desktop-16/history/history-16", "Access your browsing history anywhere", "il2026i2b"),
+                    _list_item("desktop-16/tabs/tab-16", "Manage tabs with ease", "il2026i2c"),
+                    _list_item("desktop-16/extensions/extension-16", "Add extensions to customize your experience", "il2026i2d"),
+                    _list_item("desktop-16/themes/themes-16", "Personalize with themes", "il2026i2e"),
                 ],
             },
             "id": "2026il01-0000-0000-0000-000000000002",
