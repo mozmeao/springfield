@@ -178,6 +178,7 @@ python manage.py dumpdata \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
     cms.Tag \
+    cms.SetAsDefaultSnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \
