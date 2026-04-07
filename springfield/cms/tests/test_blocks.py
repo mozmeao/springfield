@@ -189,16 +189,17 @@ def assert_download_button_attributes(
     icon_position = settings["icon_position"]
     analytics_id = settings["analytics_id"]
 
+    locale = get_locale(context["request"])
+
     assert label in button_element.get_text()
     assert "download-link" in button_element["class"]
-    assert button_element["href"] == "/thanks/"
+    assert button_element["href"] == f"/{locale}/thanks/"
 
     assert "c-button-download-thanks" in button_element.parent["class"]
     assert button_data["value"]["settings"]["analytics_id"] == button_element.parent["id"]
 
     channel = "release"
     version = firefox_desktop.latest_version(channel)
-    locale = get_locale(context["request"])
     download_link_direct = firefox_desktop.get_download_url(
         channel=channel,
         version=version,
@@ -2036,7 +2037,8 @@ def test_home_pre_footer_cta(index_page, rf):
 
     # data might be pointing the link to a different host,
     # so we only validate the remainder
-    assert strip_host(link_element["href"]) == "/thanks/"
+    locale = get_locale(request)
+    assert strip_host(link_element["href"]) == f"/{locale}/thanks/"
     assert link_element["data-cta-position"] == "pre-footer-cta"
     assert link_element["data-cta-text"] == pre_footer_cta.label.strip()
     assert link_element["data-cta-uid"] == pre_footer_cta.analytics_id
