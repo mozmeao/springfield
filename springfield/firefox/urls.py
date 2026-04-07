@@ -237,6 +237,7 @@ if settings.ENABLE_CMS_REFRESH_REDIRECTS:
         path(
             "mobile/focus/",
             prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"])),
+            name="firefox.browsers.mobile.focus",
         ),
     )
 else:
