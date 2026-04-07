@@ -3530,3 +3530,41 @@ def test_uuid_block_is_not_translatable():
     from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+class TestIconListItemValue:
+    """Tests for IconListItemValue computed properties."""
+
+    def _make_value(self, icon_path, thumbnail_directory="img/firefox/flare/2026/icons"):
+
+        from springfield.cms.blocks import IconListItemBlock
+
+        block = IconListItemBlock()
+        # Patch the _thumbnail_directory on the child icon block so icon_url uses our value
+        block.child_blocks["icon"]._thumbnail_directory = thumbnail_directory
+        value = block.to_python({"icon": icon_path, "text": "<p>hello</p>"})
+        return value
+
+    def test_icon_name_returns_stem_without_size_suffix(self):
+        value = self._make_value("desktop-16/arrows-and-chevrons/arrow-clockwise-16")
+        assert value.icon_name == "arrow-clockwise"
+
+    def test_icon_name_flat_value(self):
+        value = self._make_value("activity-16")
+        assert value.icon_name == "activity"
+
+    @override_settings(STATIC_URL="/static/")
+    def test_icon_url_starts_with_static_url(self):
+        value = self._make_value("desktop-16/activity/activity-16")
+        assert value.icon_url.startswith("/static/")
+
+    @override_settings(STATIC_URL="/static/")
+    def test_icon_url_ends_with_svg(self):
+        value = self._make_value("desktop-16/activity/activity-16")
+        assert value.icon_url.endswith(".svg")
+
+    @override_settings(STATIC_URL="/static/")
+    def test_icon_url_contains_directory_and_path(self):
+        value = self._make_value("desktop-16/activity/activity-16", thumbnail_directory="img/firefox/flare/2026/icons")
+        assert "img/firefox/flare/2026/icons" in value.icon_url
+        assert "activity-16" in value.icon_url
