@@ -63,7 +63,7 @@
     align-items: center;
 }
 
-.fl-intro-vertical .fl-buttons > *:not(.fl-dialog) {
+.fl-intro-vertical .fl-buttons > *:not(.fl-set-as-default-dialog) {
     block-size: fit-content;
 }
 
