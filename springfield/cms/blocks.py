@@ -426,10 +426,13 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
-    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
-        choices = choices or ICON_CHOICES
-        thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
-        super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+    def __init__(self, thumbnail_size=20, **kwargs):
+        super().__init__(
+            thumbnail_directory="img/firefox/flare/2026/icons",
+            thumbnail_directory_label_fn=icon_display_label,
+            thumbnail_size=thumbnail_size,
+            **kwargs,
+        )
 
 
 class ConditionalDisplayBlock(blocks.StructBlock):
@@ -497,6 +500,13 @@ def get_button_types(allow_uitour=False):
     return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
 
 
+class IconStructValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        raw = self.get("icon") or ""
+        return icon_css_name(raw.split("/")[-1]) if raw else ""
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
@@ -548,6 +558,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             label = "Settings"
             label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _BaseButtonSettings(**kwargs)
 
@@ -845,6 +856,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _DownloadFirefoxButtonSettings(**kwargs)
 
@@ -990,6 +1002,7 @@ class TagBlock(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class TagBlock2026(blocks.StructBlock):
@@ -1018,6 +1031,7 @@ class TagBlock2026(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class ImageVariantsBlockSettings(blocks.StructBlock):
@@ -1322,6 +1336,7 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/icon-card.html"
             label = "Icon Card"
             label_format = "Icon Card - {headline}"
+            value_class = IconStructValue
 
     return _IconCardBlock(*args, **kwargs)
 
@@ -1737,12 +1752,12 @@ class BaseArticleValue(blocks.StructValue):
     def get_icon(self) -> str:
         overrides = self.get("overrides", {})
         if icon := overrides.get("icon"):
-            return icon
+            return icon_css_name(icon.split("/")[-1])
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "icon") and article_page.icon:
-                return article_page.icon
+                return icon_css_name(article_page.icon.split("/")[-1])
         return "globe"
 
     def get_link_url(self) -> str:
@@ -1859,6 +1874,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class InlineNotificationBlock(blocks.StructBlock):
@@ -1907,6 +1923,7 @@ class NotificationSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class NotificationBlock(blocks.StructBlock):
@@ -2406,6 +2423,9 @@ class CardGalleryCard(blocks.StructBlock):
         required=False,
     )
     image = ImageVariantsBlock()
+
+    class Meta:
+        value_class = IconStructValue
 
 
 class CardGalleryCallout(blocks.StructBlock):

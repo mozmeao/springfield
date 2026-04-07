@@ -18,13 +18,13 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
-    ICON_CHOICES,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
     DownloadSupportBlock,
     HomeKitBannerBlock,
+    IconChoiceBlock,
     InlineNotificationBlock,
     IntroBlock,
     IntroBlock2026,
@@ -49,6 +49,10 @@ BASE_UTM_PARAMETERS = {
     "utm_source": "www.firefox.com",
     "utm_medium": "referral",
 }
+
+# Pre-built widget for the ArticleDetailPage.icon model field — reuses the same
+# directory scan and thumbnail map as IconChoiceBlock used in StreamFields.
+_icon_choice_widget = IconChoiceBlock(required=False).field.widget
 
 
 class StructuralPage(AbstractSpringfieldCMSPage):
@@ -494,10 +498,9 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="Optional dark mode mobile variant of the sticker.",
     )
     icon = models.CharField(
-        max_length=50,
+        max_length=100,
         blank=True,
         default="",
-        choices=ICON_CHOICES,
         help_text="Optional icon to display on icon article cards.",
     )
     index_page_heading = models.CharField(
@@ -594,7 +597,8 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel(
                     "icon",
                     widget=ThumbnailRadioSelect(
-                        thumbnail_template_mapping={choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in ICON_CHOICES},
+                        choices=_icon_choice_widget.choices,
+                        thumbnail_mapping=_icon_choice_widget.thumbnail_mapping,
                         thumbnail_size=20,
                     ),
                 ),
