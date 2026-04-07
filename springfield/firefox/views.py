@@ -1020,8 +1020,8 @@ def landing_get_page(request):
         template_name = "firefox/landing/get.html"
 
     context = {
-        "entrypoint_experiment": experiment,
-        "entrypoint_variation": variation,
+        "experiment": experiment,
+        "variation": variation,
     }
 
     return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)
