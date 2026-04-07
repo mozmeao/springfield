@@ -6,7 +6,7 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link(locale_in_transition=True) %}
 
 {#
   Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
