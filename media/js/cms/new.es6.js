@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import VideoEngagement from '../base/datalayer-videoengagement.es6';
 import { getConsentCookie } from '../base/consent/utils.es6';
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -604,20 +604,32 @@ if (typeof window.cms === 'undefined') {
                 });
         },
         onLoad() {
-            const setAsDefaultDialogEl = document.getElementById(
-                'set-as-default-dialog'
-            );
-            const setAsDefaultButtonEl = document.querySelector(
+            const setAsDefaultButtonEls = document.querySelectorAll(
                 '.fl-set-as-default-button'
             );
 
-            if (!(setAsDefaultDialogEl && setAsDefaultButtonEl)) {
+            if (!setAsDefaultButtonEls.length) return;
+
+            let hasValidSetAsDefaultTrigger = false;
+
+            setAsDefaultButtonEls.forEach((setAsDefaultButtonEl) => {
+                const targetId =
+                    setAsDefaultButtonEl.getAttribute('data-target-id');
+                const setAsDefaultDialogEl = targetId
+                    ? document.getElementById(targetId)
+                    : null;
+                if (!setAsDefaultDialogEl) {
+                    return;
+                }
+                hasValidSetAsDefaultTrigger = true;
+                setAsDefaultButtonEl.addEventListener('click', () => {
+                    Flare26.setAsDefaultPage.trySetDefaultBrowser();
+                });
+            });
+
+            if (!hasValidSetAsDefaultTrigger) {
                 return;
             }
-
-            setAsDefaultButtonEl.addEventListener('click', () => {
-                Flare26.setAsDefaultPage.trySetDefaultBrowser();
-            });
 
             Flare26.setAsDefaultPage
                 .isDefaultBrowser()
