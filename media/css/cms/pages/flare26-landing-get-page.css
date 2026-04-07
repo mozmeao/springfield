@@ -5,11 +5,11 @@
 */
 
 .fl-landing-get .fl-main {
-    padding-bottom: 0;
+    padding-block-end: 0;
 }
 
 .fl-landing-get .fl-section-container {
-    margin-bottom: var(--token-layout-sm);
+    margin-block-end: var(--token-layout-sm);
 }
 
 .fl-landing-get .fl-icon-wrap {
@@ -54,7 +54,7 @@
 
 /* Firefox Got You Covered section */
 .fl-landing-get .fl-firefox-has-got-you {
-    padding-top: var(--token-layout-lg);
+    padding-block-start: var(--token-layout-lg);
 }
 
 /* only include cta if UITour JS runs */
@@ -75,7 +75,7 @@ body.data-uitour .landing-get-uitour-report {
 
 .fl-landing-get .fl-do-it-all .icon-text-list li {
     flex-direction: column;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-do-it-all .icon-text-list > li {
@@ -85,7 +85,7 @@ body.data-uitour .landing-get-uitour-report {
 .fl-landing-get .fl-do-it-all .icon-text-list li ul {
     list-style: square;
     list-style-position: inside;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
@@ -94,13 +94,13 @@ body.data-uitour .landing-get-uitour-report {
 
 .fl-landing-get .fl-do-it-all h3 {
     font-size: 1rem;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
 .fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
     margin: 0 auto;
-    max-width: 60%;
+    max-inline-size: 60%;
 }
 
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
@@ -125,27 +125,27 @@ body.data-uitour .landing-get-uitour-report {
 
 .fl-landing-get .fl-make-firefox-your-own h3 {
     font-size: 1.5rem;
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-make-firefox-your-own p {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-make-firefox-your-own img {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-landing-get .fl-section-container.fl-make-firefox-your-own {
-    margin-bottom: 0;
+    margin-block-end: 0;
 }
 
 .fl-section:has(.fl-make-firefox-your-own) {
-    padding-bottom: 0;
+    padding-block-end: 0;
 }
 
 .fl-split-page-upper:has(.fl-make-firefox-your-own) {
-    padding-bottom: 0;
+    padding-block-end: 0;
 }
 
 /* Non-profit section */
@@ -155,7 +155,7 @@ body.data-uitour .landing-get-uitour-report {
 
 .fl-landing-get .fl-non-profit .keyhole {
     margin: auto;
-    max-width: 243px;
+    max-inline-size: 243px;
 }
 
 /* Support banner */
@@ -174,7 +174,7 @@ body.data-uitour .landing-get-uitour-report {
 
     .fl-landing-get .fl-banner-kit-face {
         --kit-img-size: auto 180px;
-        --kit-banner-padding-bottom: 200px;
+        --kit-banner-padding-block-end: 200px;
     }
 }
 
@@ -211,6 +211,6 @@ body.data-uitour .landing-get-uitour-report {
 
 @media (--viewport-lg-up) {
     .fl-landing-get .fl-section-container {
-        margin-bottom: var(--token-layout-lg);
+        margin-block-end: var(--token-layout-lg);
     }
 }
