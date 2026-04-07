@@ -18,9 +18,9 @@
 
 /* Opt-out checkbox */
 .fl-landing-get .c-intro-download {
+    align-items: flex-start;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     font-size: var(--fl-theme-font-size-body-xs);
 }
 
@@ -28,9 +28,9 @@
     margin-block-end: 40px;
 }
 
-.fl-landing-get .c-intro-download > label input[type='checkbox']{
-    inline-size: 14px;
+.fl-landing-get .c-intro-download > label input[type='checkbox'] {
     block-size: 14px;
+    inline-size: 14px;
     vertical-align: baseline;
 }
 
@@ -48,8 +48,8 @@
 
 /* Latest Features section */
 .fl-landing-get .fl-release-notes-link {
-    max-inline-size: fit-content;
     margin: 0 auto;
+    max-inline-size: fit-content;
 }
 
 /* Firefox Got You Covered section */
@@ -83,9 +83,9 @@ body.data-uitour .landing-get-uitour-report {
 }
 
 .fl-landing-get .fl-do-it-all .icon-text-list li ul {
-    margin-bottom: 0;
     list-style: square;
     list-style-position: inside;
+    margin-bottom: 0;
 }
 
 .fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
@@ -99,8 +99,8 @@ body.data-uitour .landing-get-uitour-report {
 
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
 .fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
-    max-width: 60%;
     margin: 0 auto;
+    max-width: 60%;
 }
 
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
@@ -154,8 +154,8 @@ body.data-uitour .landing-get-uitour-report {
 }
 
 .fl-landing-get .fl-non-profit .keyhole {
-    max-width: 243px;
     margin: auto;
+    max-width: 243px;
 }
 
 /* Support banner */
@@ -192,12 +192,14 @@ body.data-uitour .landing-get-uitour-report {
     }
 
     .fl-landing-get .fl-non-profit .fl-card-gallery-grid {
-      grid-template-areas:
-        'main secondary'
-        'main secondary';
+        grid-template-areas:
+            'main secondary'
+            'main secondary';
     }
 
-    .fl-landing-get .fl-favorite-browser .fl-card-grid:has(.fl-illustration-card-default) {
+    .fl-landing-get
+        .fl-favorite-browser
+        .fl-card-grid:has(.fl-illustration-card-default) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
 
