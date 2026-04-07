@@ -82,9 +82,14 @@ body.data-uitour .landing-get-uitour-report {
     align-items: flex-start;
 }
 
-.fl-landing-get .fl-do-it-all .icon-text-list > li ul {
+.fl-landing-get .fl-do-it-all .icon-text-list li ul {
     margin-bottom: 0;
     list-style: square;
+    list-style-position: inside;
+}
+
+.fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
+    display: list-item;
 }
 
 .fl-landing-get .fl-do-it-all h3 {
