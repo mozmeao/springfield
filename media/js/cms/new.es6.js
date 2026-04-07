@@ -569,6 +569,7 @@ if (typeof window.cms === 'undefined') {
         },
         trySetDefaultBrowser() {
             Mozilla.UITour.setConfiguration('defaultBrowser');
+            Flare26.setAsDefaultPage.checkForDefaultSwitch();
         },
         onDefaultSwitch() {
             document
@@ -592,7 +593,14 @@ if (typeof window.cms === 'undefined') {
                     clearInterval(Flare26.setAsDefaultPage.checkTimer);
                 })
                 .catch(function () {
-                    // do nothing
+                    if (!Flare26.setAsDefaultPage.checkTimer) {
+                        window.setTimeout(function () {
+                            Flare26.setAsDefaultPage.checkTimer = setInterval(
+                                Flare26.setAsDefaultPage.checkForDefaultSwitch,
+                                1000
+                            );
+                        }, 1500);
+                    }
                 });
         },
         onLoad() {
@@ -627,13 +635,6 @@ if (typeof window.cms === 'undefined') {
                     document
                         .querySelector('html')
                         .classList.add('firefox-is-not-default');
-
-                    window.setTimeout(function () {
-                        Flare26.setAsDefaultPage.checkTimer = setInterval(
-                            Flare26.setAsDefaultPage.checkForDefaultSwitch,
-                            1000
-                        );
-                    }, 1500);
 
                     // GA4
                     window.dataLayer.push({
