@@ -133,8 +133,6 @@ firefox-desktop-download-as-the-internet = As the internet grows and changes, { 
 #   $attrs (attrs) - link to https://accounts.firefox.com/signin
 firefox-desktop-download-firefox-is-available-v2 = { -brand-name-firefox } is available on all your devices; take your tabs, history and bookmarks with you. All you need is a <a { $attrs }>{ -brand-name-mozilla-account }</a> and you’ll get access to syncing and more { -brand-name-mozilla } products.
 
-firefox-desktop-download-screenshots = Screenshots
-
 # Variables:
 #   $attrs (attrs) - link to https://support.mozilla.org/kb/firefox-screenshots
 firefox-desktop-download-grab-a-high = Grab a high-resolution image of anything online with our <a { $attrs }>screenshot</a> tool built right in the browser
