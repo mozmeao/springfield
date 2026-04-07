@@ -489,9 +489,9 @@ def get_button_types(allow_uitour=False):
     Returns:
         List of button type strings.
     """
-    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [*base_button_types, UITOUR_BUTTON_TYPE]
+        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON]
     return base_button_types
 
 
