@@ -8,6 +8,7 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple
+from django.templatetags.static import static
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -22,6 +23,7 @@ from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
+from springfield.cms.icon_utils import icon_css_name
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -395,6 +397,15 @@ def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
     return value
+
+
+def icon_display_label(stem: str) -> str:
+    """
+    Define how an icon name should be displayed to Wagtail users.
+
+    'arrow-clockwise-16' -> 'Arrow Clockwise'
+    """
+    return icon_css_name(stem).replace("-", " ").title()
 
 
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
@@ -1163,14 +1174,37 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     return _MediaContentBlock(*args, **kwargs)
 
 
+class IconListItemValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        """
+        Determine the icon's name, to be used in HTML templats.
+
+        CSS class stem: last path component of the stored value, with size suffix stripped.
+        e.g. 'desktop-16/arrows-and-chevrons/arrow-clockwise-16' → 'arrow-clockwise'
+        """
+        return icon_css_name(self["icon"].split("/")[-1])
+
+    @property
+    def icon_url(self):
+        icon_block = self.block.child_blocks["icon"]
+        directory = icon_block._thumbnail_directory
+        return static(f"{directory}/{self['icon']}.svg")
+
+
 class IconListItemBlock(blocks.StructBlock):
-    icon = IconChoiceBlock()
+    icon = ThumbnailChoiceBlock(
+        thumbnail_directory="img/firefox/flare/2026/icons",
+        thumbnail_directory_label_fn=icon_display_label,
+        thumbnail_size=20,
+    )
     text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         icon = "list-ul"
         label = "Icon List Item"
         label_format = "{text}"
+        value_class = IconListItemValue
 
 
 class IconListWithImageBlock(blocks.StructBlock):
