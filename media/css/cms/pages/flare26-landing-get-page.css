@@ -4,6 +4,10 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+.fl-landing-get .fl-main {
+    padding-bottom: 0;
+}
+
 .fl-landing-get .fl-section-container {
     margin-bottom: var(--token-layout-sm);
 }
@@ -88,12 +92,14 @@ body.data-uitour .landing-get-uitour-report {
     margin-bottom: 0;
 }
 
-.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label {
+.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
+.fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
     max-width: 60%;
     margin: 0 auto;
 }
 
-.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input {
+.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
+.fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-input {
     block-size: 16px;
     inline-size: 16px;
 }
@@ -147,6 +153,11 @@ body.data-uitour .landing-get-uitour-report {
     margin: auto;
 }
 
+/* Support banner */
+.fl-landing-get .fl-banner-kit-face {
+    --kit-img: url('/media/img/firefox/landing/get/kit-tilted.svg');
+}
+
 @media (--viewport-sm-up) {
     .fl-landing-get .fl-do-it-all .icon-text-list {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
@@ -154,6 +165,11 @@ body.data-uitour .landing-get-uitour-report {
 
     .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
         flex-direction: row;
+    }
+
+    .fl-landing-get .fl-banner-kit-face {
+        --kit-img-size: auto 180px;
+        --kit-banner-padding-bottom: 200px;
     }
 }
 
@@ -178,6 +194,11 @@ body.data-uitour .landing-get-uitour-report {
 
     .fl-landing-get .fl-favorite-browser .fl-card-grid:has(.fl-illustration-card-default) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .fl-landing-get .fl-banner-kit-face {
+        --kit-img-size: 280px auto;
+        --kit-img-position: bottom right 18%;
     }
 }
 
