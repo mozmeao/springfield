@@ -1000,6 +1000,7 @@ class WhatsnewView(L10nTemplateView):
         # return a list to conform with original intention
         return [template]
 
+
 @require_safe
 def landing_get_page(request):
     ftl_files = ["firefox/download/desktop", "firefox/download/home"]
@@ -1013,7 +1014,7 @@ def landing_get_page(request):
     if experiment not in ["download-privacy"]:
         experiment = None
 
-    if request.locale== "ja":
+    if request.locale == "ja":
         template_name = "firefox/landing/get-new.html"
     else:
         template_name = "firefox/landing/get.html"
