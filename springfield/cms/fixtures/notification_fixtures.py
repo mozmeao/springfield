@@ -30,7 +30,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "single-user",
+                    "icon": "desktop-16/user/single-user-16",
                     "color": "purple",
                     "stacked": False,
                     "closable": True,
@@ -45,7 +45,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "single-user",
+                    "icon": "desktop-16/user/single-user-16",
                     "color": "purple",
                     "stacked": True,
                     "closable": False,
@@ -60,7 +60,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "checkmark-circle-fill",
+                    "icon": "desktop-16/checkmarks/checkmark-circle-fill-16",
                     "color": "green",
                     "stacked": False,
                     "closable": True,
@@ -75,7 +75,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "checkmark-circle-fill",
+                    "icon": "desktop-16/checkmarks/checkmark-circle-fill-16",
                     "color": "green",
                     "stacked": True,
                     "closable": False,
@@ -90,7 +90,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "warning",
+                    "icon": "desktop-16/alerts-notifications-help/warning-16",
                     "color": "orange",
                     "stacked": False,
                     "closable": False,
@@ -105,7 +105,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "warning",
+                    "icon": "desktop-16/alerts-notifications-help/warning-16",
                     "color": "orange",
                     "stacked": True,
                     "closable": True,
@@ -120,7 +120,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "warning",
+                    "icon": "desktop-16/alerts-notifications-help/warning-16",
                     "color": "red",
                     "stacked": False,
                     "closable": True,
@@ -135,7 +135,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "warning",
+                    "icon": "desktop-16/alerts-notifications-help/warning-16",
                     "color": "red",
                     "stacked": True,
                     "closable": False,
@@ -166,7 +166,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "single-user",
+                    "icon": "desktop-16/user/single-user-16",
                     "color": "purple",
                     "stacked": False,
                     "closable": True,
@@ -182,7 +182,7 @@ def get_notification_variants() -> list[dict]:
             "type": "notification",
             "value": {
                 "settings": {
-                    "icon": "checkmark-circle-fill",
+                    "icon": "desktop-16/checkmarks/checkmark-circle-fill-16",
                     "color": "green",
                     "stacked": True,
                     "closable": False,
