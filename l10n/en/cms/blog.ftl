@@ -4,6 +4,9 @@
 
 blog-all-topics = All Topics
 blog-view-all-topics = View all topics
+blog-all-articles = All Articles
+blog-read-more = Read more
+blog-view-all = View All
 blog-back = Back
 blog-related-articles = Related Articles
 blog-pagination-label = Pagination

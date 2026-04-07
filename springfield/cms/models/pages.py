@@ -9,10 +9,8 @@ from django.db import models
 from django.db.models import Count
 from django.db.models.expressions import Case, F, Value, When
 from django.forms.widgets import CheckboxSelectMultiple
-from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -27,6 +25,8 @@ from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ICON_CHOICES,
     BannerBlock,
+    BlogArticleBlock,
+    BlogCardsListBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
@@ -900,89 +900,81 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         null=True,
         blank=True,
     )
+    featured_articles = StreamField(
+        [("article", BlogArticleBlock())],
+        max_num=8,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text="Up to 8 featured articles shown at the top of the index page.",
+    )
     more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
+    cards_lists = StreamField(
+        [("cards_list", BlogCardsListBlock())],
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("page_heading"),
+        FieldPanel("featured_articles"),
         FieldPanel("more_articles_heading"),
+        FieldPanel("cards_lists"),
     ]
 
     class Meta:
         verbose_name = "Blog Index Page"
         verbose_name_plural = "Blog Index Pages"
 
-    @cached_property
-    def base_articles_qs(self):
-        return (
-            BlogArticlePage.objects.child_of(self)
-            .live()
-            .public()
-            .select_related(
-                "topic",
-                "image",
-                "image_dark_mode",
-                "image_mobile",
-                "image_dark_mode_mobile",
-                "featured_image",
-                "featured_image_dark_mode",
-                "featured_image_mobile",
-                "featured_image_dark_mode_mobile",
-            )
+    def _prefetch_streamfield_articles(self):
+        """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
+        and populate _article_cache on each block value to avoid per-block DB queries."""
+        # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
+        # ListBlock iteration yields StructValues (BlockArticleValue) directly.
+        fa_values = [b.value for b in (self.featured_articles or [])]
+        cl_values = []
+        for cards_list_block in self.cards_lists or []:
+            cl_values.extend(list(cards_list_block.value["articles"]))
+
+        all_values = fa_values + cl_values
+        pks = [v["article"].pk for v in all_values if v.get("article")]
+
+        if not pks:
+            return
+
+        articles_by_pk = {
+            a.pk: a
+            for a in BlogArticlePage.objects.filter(pk__in=pks)
+            .select_related("topic", "image", "image_dark_mode", "image_mobile", "image_dark_mode_mobile")
             .prefetch_related(
                 "tags",
                 "image__renditions",
                 "image_dark_mode__renditions",
                 "image_mobile__renditions",
                 "image_dark_mode_mobile__renditions",
-                "featured_image__renditions",
-                "featured_image_dark_mode__renditions",
-                "featured_image_mobile__renditions",
-                "featured_image_dark_mode_mobile__renditions",
             )
-        )
+        }
 
-    @cached_property
-    def featured_articles(self):
-        base_qs = self.base_articles_qs
-
-        if topic := getattr(self, "topic", None):
-            base_qs = base_qs.filter(topic=topic)
-
-        featured_articles = base_qs.filter(featured=True).order_by("-first_published_at")[:5]
-
-        # Only display the featured article cards if there are at least 3 cards
-        # The first featured article is displayed as a media content block
-        if featured_articles and len(featured_articles) < 4:
-            featured_articles = [featured_articles[0]]
-
-        return featured_articles
-
-    @cached_property
-    def list_articles_paginator(self):
-        base_qs = self.base_articles_qs
-
-        if topic := getattr(self, "topic", None):
-            base_qs = base_qs.filter(topic=topic)
-
-        list_articles_qs = base_qs.order_by("-first_published_at").exclude(id__in=[article.id for article in self.featured_articles])
-        return Paginator(list_articles_qs, 10)
+        for v in all_values:
+            page = v.get("article")
+            if page and page.pk in articles_by_pk:
+                v._article_cache = articles_by_pk[page.pk]
 
     def get_context(self, request, *args, **kwargs):
         from springfield.cms.models.snippets import Tag
 
         context = super().get_context(request, *args, **kwargs)
 
-        paginator = self.list_articles_paginator
-        list_articles = paginator.get_page(request.GET.get("page", 1))
-        top_topics = (
-            Tag.objects.filter(locale=self.locale, blog_articles__in=self.base_articles_qs.values("pk"))
-            .annotate(article_count=Count("blog_articles"))
-            .order_by("-article_count")[:5]
-        )
+        self._prefetch_streamfield_articles()
 
-        context["featured_articles"] = self.featured_articles
-        context["list_articles"] = list_articles
-        context["top_topics"] = top_topics
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+        all_topics = (
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("-article_count")
+        )
+        context["all_topics"] = all_topics
         return context
 
     def _render_route(self, request, template, extra_context=None):
@@ -999,33 +991,60 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("topics/")
     def topics_route(self, request):
+        return self._render_route(request, "cms/blog_topics_page.html")
+
+    @path("all/")
+    def all_route(self, request):
         from springfield.cms.models.snippets import Tag
 
-        base_qs = BlogArticlePage.objects.child_of(self).live().public()
-        all_topics = (
-            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
-            .annotate(article_count=Count("blog_articles"))
-            .order_by("name")
+        base_qs = (
+            BlogArticlePage.objects.child_of(self)
+            .live()
+            .public()
+            .select_related(
+                "topic",
+                "image",
+                "image_dark_mode",
+                "image_mobile",
+                "image_dark_mode_mobile",
+            )
+            .prefetch_related(
+                "tags",
+                "image__renditions",
+                "image_dark_mode__renditions",
+                "image_mobile__renditions",
+                "image_dark_mode_mobile__renditions",
+            )
         )
-        return self._render_route(request, "cms/blog_topics_page.html", {"all_topics": all_topics})
 
-    @path("topics/<slug:topic_slug>/")
-    def topic_route(self, request, topic_slug):
-        from springfield.cms.models.snippets import Tag
+        topic = None
+        topic_slug = request.GET.get("topic")
+        if topic_slug:
+            topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
+            base_qs = base_qs.filter(topic=topic)
 
-        try:
-            topic = Tag.objects.get(slug=topic_slug, locale=self.locale)
-        except Tag.DoesNotExist:
-            raise Http404
+        featured = base_qs.filter(featured=True).order_by("-first_published_at")[:5]
 
-        # Store the topic on the instance for use in article queries
-        self.topic = topic
-        paginator = self.list_articles_paginator
-        topic.article_count = paginator.count
+        # Only display the featured article cards if there are at least 3 cards
+        # The first featured article is displayed as a media content block
+        if featured and len(featured) < 4:
+            featured = [featured[0]]
+
+        list_articles_qs = base_qs.order_by("-first_published_at").exclude(id__in=[article.id for article in featured])
+        paginator = Paginator(list_articles_qs, 10)
+
+        if topic:
+            topic.article_count = paginator.count
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+
         return self._render_route(
             request,
-            "cms/blog_index_page.html",
-            {"topic": topic},
+            "cms/blog_all_page.html",
+            {
+                "featured_articles": featured,
+                "list_articles": list_articles,
+                "topic": topic,
+            },
         )
 
 
@@ -1043,36 +1062,6 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     featured = models.BooleanField(
         default=False,
         help_text="Check to set as a featured article on the index page.",
-    )
-    featured_image = models.ForeignKey(
-        "cms.SpringfieldImage",
-        on_delete=models.PROTECT,
-        related_name="+",
-        help_text="A portrait-oriented image used in featured article cards.",
-    )
-    featured_image_dark_mode = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-        help_text="Optional dark mode variant of the featured image.",
-    )
-    featured_image_mobile = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-        help_text="Optional mobile variant of the featured image.",
-    )
-    featured_image_dark_mode_mobile = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-        help_text="Optional dark mode mobile variant of the featured image.",
     )
 
     topic = models.ForeignKey(
@@ -1131,20 +1120,6 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("description"),
                 FieldPanel("featured"),
-                FieldPanel("featured_image"),
-                MultiFieldPanel(
-                    [
-                        FieldRowPanel(
-                            [
-                                FieldPanel("featured_image_dark_mode"),
-                                FieldPanel("featured_image_mobile"),
-                                FieldPanel("featured_image_dark_mode_mobile"),
-                            ]
-                        )
-                    ],
-                    heading="Featured Image Variants",
-                    classname="collapsed",
-                ),
             ],
             heading="Index Page Settings",
         ),
@@ -1182,3 +1157,13 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Blog Article Page"
         verbose_name_plural = "Blog Article Pages"
+
+    def get_topic(self):
+        if self.topic:
+            return self.topic.get_localized()
+        return None
+
+    def get_tags(self):
+        if self.tags.all():
+            return [tag.get_localized() for tag in self.tags.all()]
+        return None

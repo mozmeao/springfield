@@ -28,7 +28,7 @@
         {% if all_topics %}
           <div class="fl-blog-topics-list">
             {% for topic in all_topics %}
-              <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', None, {'topic_slug': topic.slug}) }}" class="fl-blog-topic-link">
+              <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
                 <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
                 {{ topic.name }}
                 <include:tag

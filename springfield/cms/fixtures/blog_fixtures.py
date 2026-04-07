@@ -42,12 +42,9 @@ PRIVACY_EXTRA_FEATURED_DESCRIPTIONS = [_desc(f"pf{i:04d}", n) for i, n in enumer
 PRIVACY_EXTRA_REGULAR_DESCRIPTIONS = [_desc(f"pr{i:04d}", n) for i, n in enumerate((1, 3, 2, 1, 3, 2, 1, 3), start=1)]
 
 # 5 featured + 3 extra Privacy featured + 12 regular + 8 extra Privacy regular = 28 total articles
-# BlogIndexPage.get_context() limits featured_articles to [:5], so the 3 overflow privacy
-# featured articles fall into the paginated list alongside the 20 regular articles (23 list total).
-# Privacy topic page: 4 featured (1 hero + 3 cards) + 11 regular (2 pages of pagination)
-NUM_FEATURED = 5  # articles shown in the index featured section (context limits to [:5])
-NUM_FEATURED_INDEX_SHOWN = 5  # index template shows 1 hero + up to 4 illustration cards
+NUM_FEATURED = 5
 NUM_LIST_ARTICLES = 23  # articles in the paginated list (20 regular + 3 overflow featured)
+NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
 def get_blog_topics() -> dict[str, Tag]:
@@ -118,18 +115,16 @@ def _create_blog_article(
     topic: Tag,
     tags: list[Tag],
     image,
-    featured_image,
     description: str,
     content: list,
 ) -> BlogArticlePage:
     article = BlogArticlePage.objects.filter(slug=slug).first()
     if not article:
-        article = BlogArticlePage(title=title, slug=slug, featured_image=featured_image, topic=topic)
+        article = BlogArticlePage(title=title, slug=slug, topic=topic)
         index_page.add_child(instance=article)
 
     article.title = title
     article.featured = featured
-    article.featured_image = featured_image
     article.topic = topic
     article.image = image
     article.description = description
@@ -161,7 +156,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
 
     All articles use all available content block types: text, media, code, quote.
     """
-    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+    image, dark_image, *_ = get_placeholder_images()
     topics = get_blog_topics()
     index_page = get_blog_index_page()
     content = get_blog_article_content(image)
@@ -181,7 +176,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             topic=topic,
             tags=topic_list[:2],
             image=image,
-            featured_image=mobile_image,
             description=FEATURED_DESCRIPTIONS[i - 1],
             content=content,
         )
@@ -197,7 +191,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             topic=privacy,
             tags=topic_list[:2],
             image=image,
-            featured_image=mobile_image,
             description=description,
             content=content,
         )
@@ -214,7 +207,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             topic=topic,
             tags=[topic_list[i % len(topic_list)]],
             image=dark_image,
-            featured_image=dark_mobile_image,
             description=REGULAR_DESCRIPTIONS[i - 1],
             content=content,
         )
@@ -230,10 +222,77 @@ def get_blog_pages() -> list[BlogArticlePage]:
             topic=privacy,
             tags=[topic_list[i % len(topic_list)]],
             image=dark_image,
-            featured_image=dark_mobile_image,
             description=description,
             content=content,
         )
         articles.append(article)
+
+    def _article_block(article, block_id, block_type="article"):
+        return {
+            "type": block_type,
+            "value": {
+                "article": article.pk,
+                "image": {
+                    "image": None,
+                    "settings": {
+                        "dark_mode_image": None,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
+                "topic": "",
+                "title": "",
+                "description": "",
+                "tags": [],
+            },
+            "id": block_id,
+        }
+
+    index_page.page_heading = [
+        {
+            "type": "heading",
+            "value": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="ph0001">The Firefox Blog</p>',
+                "subheading_text": "",
+            },
+            "id": "ph000001-0000-0000-0000-000000000001",
+        }
+    ]
+    index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
+    index_page.featured_articles = [_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
+    index_page.cards_lists = [
+        {
+            "type": "cards_list",
+            "value": {
+                "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
+                "articles": [
+                    _article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
+                ],
+            },
+            "id": "cl000001-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "cards_list",
+            "value": {
+                "heading_text": '<p data-block-key="clh00002">More Articles 2</p>',
+                "articles": [
+                    _article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
+                ],
+            },
+            "id": "cl000002-0000-0000-0000-000000000002",
+        },
+        {
+            "type": "cards_list",
+            "value": {
+                "heading_text": '<p data-block-key="clh00003">More Articles 3</p>',
+                "articles": [
+                    _article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
+                ],
+            },
+            "id": "cl000003-0000-0000-0000-000000000003",
+        },
+    ]
+    index_page.save_revision().publish()
 
     return articles

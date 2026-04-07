@@ -1470,6 +1470,8 @@ _allowed_page_models = [
     "cms.DownloadIndexPage",
     "cms.DownloadPage",
     "cms.ThanksPage",
+    "cms.BlogIndexPage",
+    "cms.BlogArticlePage",
 ]
 
 if DEV is True:

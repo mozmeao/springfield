@@ -116,19 +116,19 @@
                     {% endfor %}
                   </content:tags>
                 {% endif %}
-                {% if show_image %}
-                  {% set img_classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                {% if show_image and article.image %}
+                  {% set img_classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
                   <content:image>
                     <div class="image-variants-display">
-                      {{ srcset_image(article.featured_image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
-                      {% if article.featured_image_mobile %}
-                        {{ srcset_image(article.featured_image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}
+                      {{ srcset_image(article.image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
+                      {% if article.image_mobile %}
+                        {{ srcset_image(article.image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}
                       {% endif %}
-                      {% if article.featured_image_dark_mode %}
-                        {{ srcset_image(article.featured_image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}
+                      {% if article.image_dark_mode %}
+                        {{ srcset_image(article.image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}
                       {% endif %}
-                      {% if article.featured_image_dark_mode_mobile %}
-                        {{ srcset_image(article.featured_image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}
+                      {% if article.image_dark_mode_mobile %}
+                        {{ srcset_image(article.image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}
                       {% endif %}
                     </div>
                   </content:image>
