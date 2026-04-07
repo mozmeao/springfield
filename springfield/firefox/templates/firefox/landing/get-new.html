@@ -178,13 +178,7 @@
                 heading_text="{{ ftl('firefox-desktop-download-we-block-the-ad') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-ads-are-distracting') }}"
               />
-              <include:uitour_button
-                theme_class="landing-get-uitour-report button-ghost fl-button-small"
-                label="{{ ftl('firefox-home-see-your-protection') }}"
-                analytics_text="{{ ftl('firefox-home-see-your-protection') }}"
-                analytics_position="landing-get-refresh"
-                analytics_id="landing-get-uitour-report"
-              />
+              <button id="protection-report" type="button" class="button-ghost fl-button-small">{{ ftl('firefox-desktop-download-see-your-report') }}</button>
             </content:heading>
 
             <content:media>
@@ -556,4 +550,8 @@
     </div>
   </main>
 </div>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('landing_get_report') }}
 {% endblock %}

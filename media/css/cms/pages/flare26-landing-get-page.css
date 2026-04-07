@@ -58,11 +58,11 @@
 }
 
 /* only include cta if UITour JS runs */
-.landing-get-uitour-report {
+#protection-report {
     display: none;
 }
 
-body.data-uitour .landing-get-uitour-report {
+body.data-uitour #protection-report {
     display: inline-block;
 }
 
