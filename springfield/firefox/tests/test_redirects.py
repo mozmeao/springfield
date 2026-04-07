@@ -108,6 +108,9 @@ def _get_refresh_middleware():
         ("/browsers/mobile/android/", "/download/android/"),
         ("/browsers/mobile/ios/", "/download/ios/"),
         ("/browsers/desktop/chromebook/", "/download/chromebook/"),
+        ("/browsers/enterprise/", "/enterprise/"),
+        ("/channel/desktop/developer/", "/developer/"),
+        ("/browsers/mobile/", "/mobile/"),
     ),
 )
 def test_refresh_redirect_destinations(source, destination, permanent):
