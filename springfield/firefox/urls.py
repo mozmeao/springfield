@@ -261,6 +261,20 @@ else:
             ),
             name="firefox.browsers.mobile",
         ),
-        page("browsers/mobile/focus/", "firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-        page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
+        path(
+            "mobile/focus/",
+            prefer_cms(
+                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+                fallback_ftl_files=["firefox/browsers/mobile/focus"],
+            ),
+            name="firefox.browsers.mobile.focus",
+        ),
+        path(
+            "mobile/get-app/",
+            prefer_cms(
+                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
+                fallback_ftl_files=["firefox/browsers/mobile/get-app"],
+            ),
+            name="firefox.browsers.mobile.get_app",
+        ),
     )
