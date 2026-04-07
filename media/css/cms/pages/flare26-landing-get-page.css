@@ -66,6 +66,10 @@ body.data-uitour .landing-get-uitour-report {
     display: inline-block;
 }
 
+.fl-landing-get .fl-download-store-links a {
+    text-decoration: none;
+}
+
 /* Do it All section */
 .fl-landing-get .fl-do-it-all .icon-text-list {
     --fl-card-grid-columns: repeat(1, minmax(0, 1fr));

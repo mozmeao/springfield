@@ -214,20 +214,9 @@
                 heading_text="{{ ftl('firefox-desktop-download-all-your-devices') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-take-your-privacy') }}"
               />
-              <div>
-                <include:button
-                  theme_class="button-secondary fl-button-small ga-product-download "
-                  label="{{ ftl('firefox-home-google-play') }}"
-                  link="https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source=www.firefox.com&utm_medium=referral&utm_campaign=download"
-                />
-
-                <include:button
-                  theme_class="button-secondary fl-button-small"
-                  label="{{ ftl('firefox-home-app-store') }}"
-                  link="https://apps.apple.com/app/apple-store/id989804926"
-                />
-                {{ google_play_button('button-secondary fl-button-small') }}
-                {{ apple_app_store_button('button-secondary fl-button-small', href=ios_url) }}
+              <div class="fl-download-store-links">
+                {{ google_play_button() }}
+                {{ apple_app_store_button(href=ios_url) }}
               </div>
             </content:heading>
 
