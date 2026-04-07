@@ -330,6 +330,7 @@ AUTH_CHOICES = [
     ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
 DEFAULT_BROWSER_CHOICES = [
+    ("", "No restriction"),
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
