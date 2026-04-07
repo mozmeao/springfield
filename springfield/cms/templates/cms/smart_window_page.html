@@ -1,0 +1,90 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+
+{% block flare_header %}
+  <include:flare26-header theme="dark" hide_nav_cta />
+{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-freeform-2026-page">
+    <main class="fl-main has-gradient-bottom">
+
+      <div class="fl-split-page-upper has-gradient-bottom no-gap fl-smart-window-intro">
+        <hgroup class="fl-heading-group">
+          <img src="/media/img/firefox/flare/smart-window-logo.png" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
+          <h1 class="fl-heading">{{ page.heading_text|richtext|remove_p_tag }}</h1>
+          <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
+        </hgroup>
+
+        {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+        <div class="fl-smart-window-intro-featured-image">
+          <div class="image-variants-display">
+            {{ srcset_image(
+                page.image,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.image.width,
+                height=page.image.height,
+                loading="lazy",
+                class=classes.primary,
+            ) }}
+            {% if page.image_mobile %}
+              {{ srcset_image(
+                  page.image_mobile,
+                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                  sizes="(min-width: 900px) 810px, 100vw",
+                  width=page.image_mobile.width,
+                  height=page.image_mobile.height,
+                  loading="lazy",
+                  class=classes.mobile,
+              ) }}
+            {% endif %}
+            {% if page.image_dark_mode_mobile %}
+              {{ srcset_image(
+                  page.image_dark_mode_mobile,
+                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                  sizes="(min-width: 900px) 810px, 100vw",
+                  width=page.image_dark_mode_mobile.width,
+                  height=page.image_dark_mode_mobile.height,
+                  loading="lazy",
+                  class=classes.dark_mode_mobile,
+              ) }}
+            {% endif %}
+            {% if page.image_dark_mode %}
+              {{ srcset_image(
+                  page.image_dark_mode,
+                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                  sizes="(min-width: 900px) 810px, 100vw",
+                  width=page.image_dark_mode.width,
+                  height=page.image_dark_mode.height,
+                  loading="lazy",
+                  class=classes.dark_mode,
+              ) }}
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="fl-split-page-lower no-gap">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+          {% set block_level = 2 %}
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    </main>
+</div>
+{% endblock %}
+
+
+{% block pre_footer %}
+{% endblock pre_footer %}

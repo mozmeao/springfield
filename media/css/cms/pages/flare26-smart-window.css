@@ -1,0 +1,30 @@
+.fl-smart-window-intro {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-layout-sm);
+    padding: var(--token-layout-lg) var(--fl-section-h-padding) 0;
+    text-align: center;
+}
+
+.fl-smart-window-intro .fl-heading-group {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-smart-window-intro .fl-subheading {
+    max-inline-size: 800px;
+    text-wrap: balance;
+}
+
+.fl-smart-window-intro-featured-image {
+    padding-block-start: var(--token-spacing-md);
+    padding-inline: var(--fl-section-h-padding);
+}
+
+.fl-smart-window-intro-featured-image img {
+    inline-size: 810px;
+    margin-block-end: -4px;
+    max-inline-size: 100%;
+}

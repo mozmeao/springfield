@@ -874,3 +874,68 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
+
+
+class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page to promote Smart Window"""
+
+    heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the image.",
+    )
+
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("heading_text"),
+        FieldPanel("subheading_text"),
+        FieldPanel("image"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                )
+            ],
+            heading="Image Variants",
+            classname="collapsed",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Page"
+        verbose_name_plural = "Smart Window Pages"
