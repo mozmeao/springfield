@@ -78,17 +78,25 @@ import Headroom from 'headroom.js';
     });
 
     const menuTitles = document.querySelectorAll('.fl-menu-title');
+    let focusedMenu = null;
 
     // keyboard is being used
     menuTitles.forEach(function (title) {
+        // when focusing a menu title, close all menus
+        title.addEventListener('focus', function () {
+            menuCategories.forEach(function (category) {
+                if (category.classList.contains('is-active')) {
+                    focusedMenu = category;
+                }
+                category.classList.remove('is-active');
+            });
+        });
+
+        // when leaving the last link of a menu, close all menus
         const menuLinks = title
             .closest('.fl-menu-category')
             .querySelectorAll('a');
 
-        // focus events are no good here as we mix in a click handler below
-        // which is also triggered after our focus would run
-
-        // when leaving the last link of a menu, close all menus
         menuLinks[menuLinks.length - 1].addEventListener(
             'keydown',
             function (event) {
@@ -100,20 +108,18 @@ import Headroom from 'headroom.js';
             }
         );
 
-        // when leaving the first link of a menu, close all menus
-        menuLinks[0].addEventListener('keydown', function (event) {
-            if (event.key === 'Tab' && event.shiftKey) {
-                menuCategories.forEach(function (category) {
-                    category.classList.remove('is-active');
-                });
-            }
-        });
-
         // when clicking or pressing enter, toggle the menu
         title.addEventListener('click', function (event) {
             event.preventDefault();
 
             const menuPanel = event.target.closest('.fl-menu-category');
+
+            // focus runs first then click. if we click a menu that was closed
+            // by focus don't open it again immediately
+            if (focusedMenu === menuPanel) {
+                focusedMenu = null;
+                return;
+            }
 
             if (menuPanel.classList.contains('is-active')) {
                 menuPanel.classList.remove('is-active');
