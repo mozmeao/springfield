@@ -949,11 +949,7 @@ class IconListItemValue(blocks.StructValue):
 
 
 class IconListItemBlock(blocks.StructBlock):
-    icon = ThumbnailChoiceBlock(
-        thumbnail_directory="img/firefox/flare/2026/icons",
-        thumbnail_directory_label_fn=icon_display_label,
-        thumbnail_size=20,
-    )
+    icon = IconChoiceBlock()
     text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
