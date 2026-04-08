@@ -2,8 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from uuid import uuid4
 
+from django.conf import settings
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import format_html
@@ -16,6 +18,7 @@ from wagtail.admin.menu import MenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
 )
+from wagtail.models import Locale as WagtailLocale
 
 from springfield.base.templatetags.helpers import css_bundle
 
@@ -48,6 +51,29 @@ def global_admin_css():
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
+
+
+@hooks.register("insert_global_admin_js")
+def mark_locale_roles_in_admin():
+    """Adds 'alias → X' badges next to alias locale names on the locales list page.
+
+    Injects the alias map as window.WAGTAIL_LOCALE_ALIAS_MAP, then loads the
+    static JS file that reads it and applies the badges to the DOM.
+    """
+
+    fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+    if not fallback_locales:
+        return ""
+
+    alias_rows = WagtailLocale.objects.filter(language_code__in=fallback_locales.keys()).values_list("id", "language_code")
+    alias_id_map = {id: fallback_locales[code] for id, code in alias_rows}
+    if not alias_id_map:
+        return ""
+
+    return mark_safe(
+        f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};</script>"
+        f'<script src="{static("js/wagtailadmin-locale-badges.js")}"></script>'
+    )
 
 
 class FXAEntityElementHandler(InlineEntityElementHandler):

@@ -23,6 +23,20 @@ def clear_waffle_cache():
     yield
 
 
+@pytest.fixture(autouse=True)
+def reset_translation():
+    """Reset Django's active language after each test.
+
+    Requests to locale-prefixed URLs (e.g. /pt-PT/...) call
+    translation.activate() inside the URL resolver. If not cleaned up, the
+    activated language leaks into subsequent tests and causes them to render
+    with the wrong locale."""
+    from django.utils import translation
+
+    yield
+    translation.deactivate()
+
+
 @pytest.fixture
 def minimal_site(
     client,

@@ -380,9 +380,11 @@ CANONICAL_LOCALES = {
 # but sometimes it would be better to offer another locale as fallback. This map
 # specifies such cases.
 FALLBACK_LOCALES = {
-    "es-AR": "es-ES",
-    "es-CL": "es-ES",
-    "es-MX": "es-ES",
+    "es-AR": "es-MX",
+    "es-CL": "es-MX",
+    "pt-PT": "pt-BR",
+    "en-GB": "en-US",
+    "en-CA": "en-US",
 }
 
 
@@ -1257,6 +1259,10 @@ WAGTAIL_GRAVATAR_PROVIDER_URL = None
 
 WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="")
 
+# Disable Wagtail autosave - doesn't play well with our infra, resulting in false notifications of stale pages
+# https://docs.wagtail.org/en/stable/reference/settings.html#wagtail-autosave-interval
+WAGTAIL_AUTOSAVE_INTERVAL = 0
+
 # We're sticking to LTS releases of Wagtail, so we don't want to be told there's a new version if that's not LTS
 WAGTAIL_ENABLE_UPDATE_CHECK = False
 
@@ -1311,6 +1317,8 @@ def lazy_wagtail_langs():
         ("en-CA", "English (Canada)"),
         ("de", "German"),
         ("fr", "French"),
+        ("es-AR", "Spanish (Argentina)"),
+        ("es-CL", "Spanish (Chile)"),
         ("es-ES", "Spanish (Spain)"),
         ("es-MX", "Spanish (México)"),
         ("it", "Italian"),
@@ -1318,6 +1326,7 @@ def lazy_wagtail_langs():
         ("nl", "Dutch (Netherlands)"),
         ("pl", "Polish"),
         ("pt-BR", "Portuguese (Brazil)"),
+        ("pt-PT", "Portuguese (Portugal)"),
         ("ru", "Russian"),
         ("zh-CN", "Chinese (China-Simplified)"),
         ("id", "Indonesian"),
@@ -1437,6 +1446,18 @@ WAGTAILIMAGES_FORMAT_CONVERSIONS = {
     "jpeg": "webp",
     "webp": "webp",
 }
+
+
+def _localize_dashboard_column_filter_options():
+    alias_codes = sorted(FALLBACK_LOCALES.keys())
+    non_alias_codes = sorted(code for code, _label in lazy_wagtail_langs() if code not in FALLBACK_LOCALES)
+    return [
+        ("alias", "Alias locales", alias_codes),
+        ("non_alias", "Non-alias locales", non_alias_codes),
+    ]
+
+
+WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.

@@ -207,7 +207,7 @@
     border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
     font-style: normal;
-    margin-inline-end: var(--token-spacing-xs);
+    margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     text-transform: uppercase;
 }
