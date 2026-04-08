@@ -15,7 +15,7 @@ import springfield.cms.models.pages
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0060_create_alias_locale_records"),
+        ("cms", "0061_migrate_media_content_content_to_streamblock"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

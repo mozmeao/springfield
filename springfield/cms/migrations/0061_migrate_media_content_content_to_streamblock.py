@@ -111,7 +111,7 @@ def update_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0059_alter_freeformpage2026_content"),
+        ("cms", "0060_create_alias_locale_records"),
     ]
 
     operations = [
