@@ -37,10 +37,10 @@ test.describe(
             });
         });
 
-        test.describe('dark theme', () => {
+        test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
-            test('dark theme', async ({ page }) => {
+            test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
                     'topic-list',

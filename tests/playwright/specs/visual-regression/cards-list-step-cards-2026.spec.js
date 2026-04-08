@@ -21,11 +21,11 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('light theme', async ({ page }) => {
+        test('light mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'step-cards-light');
         });
 
-        test('dark theme', async ({ page }) => {
+        test('dark mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'step-cards-dark');
         });
     }

@@ -21,7 +21,7 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('light theme', async ({ page }) => {
+        test('light mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'cards-list-sticker');
         });
     }

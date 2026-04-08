@@ -21,14 +21,14 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('light theme', async ({ page }) => {
+        test('light mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'card-gallery');
         });
 
-        test.describe('dark theme', () => {
+        test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
-            test('dark theme', async ({ page }) => {
+            test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
                     'card-gallery',
