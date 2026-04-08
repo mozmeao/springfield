@@ -94,7 +94,6 @@ firefox-desktop-download-your-privacy-comes = Your privacy comes first
 # The strong tag wraps a word that gets highlighted with a colorful underline for emphasis. The underline breaks if it is on two words, please omit the strong tags if they need to be around multiple words in your language
 firefox-desktop-download-keep-all-your = Keep all your favorite browser features — and <strong>discover</strong> new ones.
 # Gmail and Docs are product names and should not be translated
-firefox-desktop-work-with-google = Works with Google products
 firefox-desktop-download-all-your-favourite = All your favorite { -brand-name-google } tools (like Gmail and Docs) work seamlessly in the { -brand-name-firefox-browser }.
 firefox-desktop-download-facebook-container = { -brand-name-facebook-container }
 

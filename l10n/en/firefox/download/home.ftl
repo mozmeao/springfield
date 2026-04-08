@@ -51,23 +51,11 @@ firefox-home-vpn = VPN
 
 ## Do what you do section
 
-firefox-home-do-what-you-do = Do what you do online.<br> { -brand-name-firefox-browser } has got you covered.
 firefox-home-see-your-protection = See your protection support
 firefox-home-available-in-over = Available in over 90 languages, and compatible with Windows, Mac and  Linux machines, { -brand-name-firefox } works no matter what you’re using or where you  are. Make sure your operating system is up to date for the best  experience.
-firefox-home-do-it-all = Do it all with { -brand-name-firefox }
 
 firefox-home-google-play = { -brand-name-google-play }
 firefox-home-app-store = { -brand-name-app-store }
-
-## Make Firefox your own section
-
-firefox-home-make-firefox-your = Make { -brand-name-firefox } your own
-firefox-home-backed-by-the = Backed by the non-profit that puts people first
-
-firefox-home-questions = Questions?
-# Variables:
-#   $attrs (attrs) - link to https://addons.mozilla.org/firefox/extensions/
-firefox-home-mozilla-support-has = <a { $attrs }>{ -brand-name-mozilla } support</a> has you covered.
 
 ## Customization
 
