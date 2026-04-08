@@ -26,12 +26,10 @@
 
         <form id="newsletter-form" class="fl-smart-window-form fl-newsletterform hidden" action="{{ settings.BASKET_SUBSCRIBE_URL }}" method="post" novalidate data-testid="newsletter-form">
           <div hidden>
-            {# TODO: get the right value for the newsletter checkbox #}
             <input type="checkbox" name="newsletters" value="smart-window-waitlist" checked>
           </div>
           <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
-          {# TODO: should we hardcode to English? #}
-          <input type="hidden" name="lang" id="id_lang" value="{{ LANG[:2] if LANG.startswith('en-') else LANG }}">
+          <input type="hidden" name="lang" id="id_lang" value="en">
           <div class="fl-newsletterform-field">
             <label class="fl-newsletterform-label visually-hidden" for="newsletter-email">{{ ftl('newsletter-form-your-email-address') }}</label>
             <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') }}" autocomplete="email" data-testid="newsletter-email-input">

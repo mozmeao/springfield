@@ -1490,6 +1490,34 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+def IconCardBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IconCardBlock2026 with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IconCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        icon = IconChoiceBlock(inline_form=True)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/icon-card-2026.html"
+            label = "Icon Card"
+            label_format = "Icon Card - {headline}"
+
+    return _IconCardBlock(*args, **kwargs)
+
+
 def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create StickerCardBlock with appropriate button types.
 
@@ -1593,6 +1621,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
+                ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
             ]
         )
 

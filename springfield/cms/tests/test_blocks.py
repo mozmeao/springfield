@@ -72,6 +72,10 @@ from springfield.cms.fixtures.homepage_fixtures import (
     get_kit_banner,
     get_showcase_variants,
 )
+from springfield.cms.fixtures.icon_cards_2026_fixtures import (
+    get_icon_card_2026_variants,
+    get_icon_cards_2026_test_page,
+)
 from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import (
     get_icon_list_with_image_test_page,
     get_icon_list_with_image_variants,
@@ -1239,12 +1243,18 @@ def test_buttons(index_page, rf):
         button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]
         assert len(button_elements) == len(non_store_data)
 
+        heading_text = BeautifulSoup(block["value"]["heading"]["heading_text"], "html.parser").get_text()
+
         for btn_index, (button_data, button_element) in enumerate(zip(non_store_data, button_elements)):
             if button_data["type"] == "button":
+                cta_position = f"block-{block_index + 1}-intro.button-{btn_index + 1}"
+                cta_text = f"{heading_text.strip()} - {button_data['value']['label'].strip()}"
                 assert_button_attributes(
                     button_element=button_element,
                     button_data=button_data,
                     context=context,
+                    cta_position=cta_position,
+                    cta_text=cta_text,
                 )
             elif button_data["type"] == "fxa_button":
                 utm_parameters = context["utm_parameters"]
@@ -1260,7 +1270,6 @@ def test_buttons(index_page, rf):
                     }
                     icon_html = render_to_string("components/icon.html", icon_context)
                     inner_html = f"{icon_html}{button_data['value']['label']}"
-                heading_text = BeautifulSoup(block["value"]["heading"]["heading_text"], "html.parser").get_text()
                 rendered_fxa_button = fxa_button(
                     ctx=context,
                     entrypoint=entrypoint,
@@ -1338,12 +1347,18 @@ def test_buttons_2026(index_page, rf):
             button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]
             assert len(button_elements) == len(non_store_data)
 
+            heading_text = BeautifulSoup(block["value"]["heading"]["heading_text"], "html.parser").get_text()
+
             for btn_index, (button_data, button_element) in enumerate(zip(non_store_data, button_elements)):
                 if button_data["type"] == "button":
+                    cta_position = f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}"
+                    cta_text = f"{heading_text.strip()} - {button_data['value']['label'].strip()}"
                     assert_button_attributes(
                         button_element=button_element,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
                 elif button_data["type"] == "fxa_button":
                     utm_parameters = context["utm_parameters"]
@@ -1359,7 +1374,6 @@ def test_buttons_2026(index_page, rf):
                         }
                         icon_html = render_to_string("components/icon.html", icon_context)
                         inner_html = f"{icon_html}{button_data['value']['label']}"
-                    heading_text = BeautifulSoup(block["value"]["heading"]["heading_text"], "html.parser").get_text()
                     rendered_fxa_button = fxa_button(
                         ctx=context,
                         entrypoint=entrypoint,
@@ -2676,7 +2690,7 @@ def test_sticker_cards_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_name, region in [("upper", upper), ("lower", lower)]:
         sections = region.find_all("section", class_="fl-section")
         assert len(sections) == 2
 
@@ -2718,10 +2732,14 @@ def test_sticker_cards_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-2-section.item-1-cards_list.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
 
 
@@ -2740,7 +2758,7 @@ def test_illustration_cards_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_name, region in [("upper", upper), ("lower", lower)]:
         sections = region.find_all("section", class_="fl-section")
         assert len(sections) == 2
 
@@ -2779,10 +2797,14 @@ def test_illustration_cards_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-2-section.item-1-cards_list.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
 
 
@@ -2801,7 +2823,7 @@ def test_step_cards_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_name, region in [("upper", upper), ("lower", lower)]:
         sections = region.find_all("section", class_="fl-section")
         assert len(sections) == 2
 
@@ -2845,10 +2867,14 @@ def test_step_cards_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-2-section.item-1-step_cards.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
 
 
@@ -2867,7 +2893,7 @@ def test_outlined_cards_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_name, region in [("upper", upper), ("lower", lower)]:
         sections = region.find_all("section", class_="fl-section")
         assert len(sections) == 2
 
@@ -2910,11 +2936,80 @@ def test_outlined_cards_2026_block(index_page, placeholder_images, rf):
             for button_data in value["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-2-section.item-1-cards_list.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
+
+
+def test_icon_cards_2026_block(index_page, placeholder_images, rf):
+    variants = get_icon_card_2026_variants()
+    page = get_icon_cards_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        sections = region.find_all("section", class_="fl-section")
+        assert len(sections) == 2
+
+        # First section has 3 cards, second has 4
+        assert len(sections[0].find_all("article", class_="fl-illustration-icon-card")) == 3
+        assert len(sections[1].find_all("article", class_="fl-illustration-icon-card")) == 4
+
+        for section_index, section in enumerate(sections):
+            section_variants = variants[:3] if section_index == 0 else variants
+            cards = section.find_all("article", class_="fl-illustration-icon-card")
+            for i, variant in enumerate(section_variants):
+                card_el = cards[i]
+                value = variant["value"]
+
+                # Headline
+                headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
+                heading = card_el.find(class_="fl-heading")
+                assert heading and headline_text in heading.get_text()
+
+                # Expand link
+                if value["settings"].get("expand_link"):
+                    assert "fl-card-expand-link" in card_el.get("class", [])
+                else:
+                    assert "fl-card-expand-link" not in card_el.get("class", [])
+
+                # Content body
+                content_text = BeautifulSoup(value["content"], "html.parser").get_text()
+                body = card_el.find(class_="fl-body")
+                assert body and content_text in body.get_text()
+
+                # Icon
+                icon_el = card_el.find("span", class_="fl-icon")
+                assert icon_el and f"fl-icon-{value['icon']}" in icon_el.get("class", [])
+
+                # Buttons
+                for button_data in value["buttons"]:
+                    if button_data["type"] == "button":
+                        button_el = card_el.find("a", class_="fl-button")
+                        cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_position = f"{region_name}-block-{section_index + 1}-section.item-1-cards_list.card-{i + 1}.button-1"
+                        assert_button_attributes(
+                            button_element=button_el,
+                            button_data=button_data,
+                            context=context,
+                            cta_position=cta_position,
+                            cta_text=cta_text,
+                        )
 
 
 def test_icon_list_with_image_block(index_page, placeholder_images, rf):
@@ -3022,11 +3117,11 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_name, region in [("upper", upper), ("lower", lower)]:
         gallery_sections = region.find_all("section", class_="fl-section")
         assert len(gallery_sections) == len(variants)
 
-        for gallery_el, variant in zip(gallery_sections, variants):
+        for gallery_index, (gallery_el, variant) in enumerate(zip(gallery_sections, variants)):
             gallery = gallery_el.find("div", class_="fl-card-gallery")
             assert gallery
 
@@ -3049,13 +3144,18 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
                 main_superheading_text = BeautifulSoup(variant["value"]["main_card"]["superheading"], "html.parser").get_text()
                 assert main_superheading_text in main_card.get_text()
 
+            main_headline_text = BeautifulSoup(variant["value"]["main_card"]["headline"], "html.parser").get_text()
             for button_data in variant["value"]["main_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = main_card.find("a", class_="fl-button")
+                    cta_text = f"{main_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.main-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
 
             main_figure = main_card.find("figure", class_="fl-card-gallery-card-figure")
@@ -3082,13 +3182,18 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
                 secondary_superheading_text = BeautifulSoup(variant["value"]["secondary_card"]["superheading"], "html.parser").get_text()
                 assert secondary_superheading_text in secondary_card.get_text()
 
+            secondary_headline_text = BeautifulSoup(variant["value"]["secondary_card"]["headline"], "html.parser").get_text()
             for button_data in variant["value"]["secondary_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = secondary_card.find("a", class_="fl-button")
+                    cta_text = f"{secondary_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.secondary-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
                         context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
                     )
 
             secondary_figure = secondary_card.find("figure", class_="fl-card-gallery-card-figure")
@@ -3115,13 +3220,18 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             if variant["value"].get("cta"):
                 cta_wrap = gallery.find("div", class_="fl-section-cta-wrap")
                 assert cta_wrap
+                gallery_heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
                 for button_data in variant["value"]["cta"]:
                     if button_data["type"] == "button":
                         button_el = cta_wrap.find("a", class_="fl-button")
+                        cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,
                             context=context,
+                            cta_position=cta_position,
+                            cta_text=cta_text,
                         )
 
 

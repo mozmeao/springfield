@@ -35,6 +35,7 @@ from springfield.cms.fixtures.freeformpage_2026 import (
     get_mobile_store_qr_code_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
+from springfield.cms.fixtures.icon_cards_2026_fixtures import get_icon_cards_2026_test_page
 from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import get_icon_list_with_image_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
@@ -112,6 +113,9 @@ class Command(BaseCommand):
 
         outlined_cards_2026_page = get_outlined_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Outlined Cards 2026 test page loaded: {outlined_cards_2026_page.slug}"))
+
+        icon_cards_2026_page = get_icon_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Icon Cards 2026 test page loaded: {icon_cards_2026_page.slug}"))
 
         step_cards_2026_page = get_step_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Step Cards 2026 test page loaded: {step_cards_2026_page.slug}"))
