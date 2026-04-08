@@ -16,9 +16,17 @@
     border-radius: var(--token-spacing-sm);
 }
 
+.fl-landing-get .fl-hero {
+    padding: 0;
+}
+
+.fl-landing-get .fl-hero > .fl-section .fl-section-container {
+    margin-block-end: 0;
+}
+
 /* Opt-out checkbox */
 .fl-landing-get .c-intro-download {
-    align-items: flex-start;
+    align-items: center;
     display: flex;
     flex-direction: column;
     font-size: var(--fl-theme-font-size-body-xs);
@@ -173,6 +181,10 @@ body.data-uitour #protection-report {
 }
 
 @media (--viewport-sm-up) {
+    .fl-landing-get .c-intro-download {
+        align-items: flex-start;
+    }
+
     .fl-landing-get .fl-do-it-all .icon-text-list {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
