@@ -11,9 +11,9 @@
     align-items: center;
     border-radius: var(--fl-banner-border-radius);
     color: var(--fl-theme-color-text);
+    contain: paint;
     display: flex;
     justify-content: center;
-    overflow: hidden;
     padding: var(--fl-banner-padding);
     position: relative;
     text-align: center;
