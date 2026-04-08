@@ -916,6 +916,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("heading_text"),
         FieldPanel("subheading_text"),
@@ -932,6 +936,14 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ],
             heading="Image Variants",
             classname="collapsed",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("waitlist_button_label"),
+                FieldPanel("form_submit_label"),
+                FieldPanel("thank_you_message"),
+            ],
+            heading="Waitlist Form",
         ),
         FieldPanel("content"),
     ]

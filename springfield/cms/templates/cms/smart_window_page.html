@@ -22,6 +22,49 @@
           <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
         </hgroup>
 
+        <button id="smart-window-cta" class="fl-button">{{ page.waitlist_button_label }}</button>
+
+        <form id="newsletter-form" class="fl-smart-window-form fl-newsletterform hidden" action="{{ settings.BASKET_SUBSCRIBE_URL }}" method="post" novalidate data-testid="newsletter-form">
+          <div hidden>
+            {# TODO: get the right value for the newsletter checkbox #}
+            <input type="checkbox" name="newsletters" value="smart-window-waitlist" checked>
+          </div>
+          <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
+          {# TODO: should we hardcode to English? #}
+          <input type="hidden" name="lang" id="id_lang" value="{{ LANG[:2] if LANG.startswith('en-') else LANG }}">
+          <div class="fl-newsletterform-field">
+            <label class="fl-newsletterform-label visually-hidden" for="newsletter-email">{{ ftl('newsletter-form-your-email-address') }}</label>
+            <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') }}" autocomplete="email" data-testid="newsletter-email-input">
+          </div>
+          <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
+            <div class="fl-newsletterform-consent">
+              <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
+                <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
+                {% if LANG == 'de' %}
+                  {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Nutzungsbedingungen</a> und <a href="https://www.mozilla.org/privacy/websites/">Datenschutzrichtlinie</a> von Firefox.' %}
+                {% elif LANG == 'fr' %}
+                  {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Conditions d’utilisation</a> de Firefox et <a href="https://www.mozilla.org/privacy/websites/">Politique de confidentialité</a>.' %}
+                {% else %}
+                  {% set legal_links = 'Firefox <a href="https://www.mozilla.org/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="https://www.mozilla.org/privacy/websites/">Privacy Policy</a>.' %}
+                {% endif %}
+                {# TODO: Privacy notice should be FTL or a page field? #}
+                <span class="fl-newsletterform-checkbox-text">{{ legal_links|safe }} {{ ftl('newsletter-form-we-will-only-send-firefox-v2') }}</span>
+              </label>
+            </div>
+          </div>
+          <button id="newsletter-submit" class="fl-button" type="submit" disabled data-testid="newsletter-submit-button">{{ page.form_submit_label }}</button>
+          <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+            <ul class="fl-newsletterform-error-list mzp-u-list-styled">
+              <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>
+              <li class="error-try-again-later hidden">{{ ftl('newsletter-form-we-are-sorry-but-there') }}</li>
+            </ul>
+          </div>
+        </form>
+
+        <div id="newsletter-thanks" class="fl-smart-window-thankyou hidden" data-testid="newsletter-thanks-message">
+          {{ page.thank_you_message|richtext }}
+        </div>
+
         {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
         <div class="fl-smart-window-intro-featured-image">
           <div class="image-variants-display">
@@ -88,3 +131,8 @@
 
 {% block pre_footer %}
 {% endblock pre_footer %}
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('smart_window_newsletter') }}
+{% endblock js %}

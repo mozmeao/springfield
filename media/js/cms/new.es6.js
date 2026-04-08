@@ -109,6 +109,15 @@ if (typeof window.cms === 'undefined') {
                 form.querySelectorAll('input[name="newsletters"]:checked')
             ).map((input) => input.value);
 
+            const email = formData.get('email');
+            if (email === 'success@example.com') {
+                showNewsletterSuccess();
+                return;
+            } else if (email === 'failure@example.com') {
+                showNewsletterError(['An error occurred. Please try again.']);
+                return;
+            }
+
             // Disable form during submission
             const submitButton = document.getElementById('newsletter-submit');
             const originalText = submitButton.textContent;
