@@ -47,15 +47,6 @@ firefox-home-browse-knowing = Browse knowing you’re protected
 firefox-home-firefox-total-cookie =  { -brand-name-firefox }’s Total cookie protection gives you outstanding privacy by default.
 firefox-home-edit-your = Edit your PDFs directly
 firefox-home-forget-printing = Forget printing a PDF ever again. Start editing forms in { -brand-name-firefox } directly.
-firefox-home-vpn = VPN
-
-## Do what you do section
-
-firefox-home-see-your-protection = See your protection support
-firefox-home-available-in-over = Available in over 90 languages, and compatible with Windows, Mac and  Linux machines, { -brand-name-firefox } works no matter what you’re using or where you  are. Make sure your operating system is up to date for the best  experience.
-
-firefox-home-google-play = { -brand-name-google-play }
-firefox-home-app-store = { -brand-name-app-store }
 
 ## Customization
 
