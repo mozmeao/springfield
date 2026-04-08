@@ -6,7 +6,7 @@
 
 <div class="pl-frame pl-frame--white">
   <h4>Button variants</h4>
-  <div class="pl-row">
+  <div class="pl-row" data-testid="button-round-corners">
     <h5>Round Corners</h5>
     <div class="pl-grid-4">
       {% for column in main_grid_round.columns %}
@@ -29,7 +29,7 @@
       {% endfor %}
     </div>
   </div>
-  <div class="pl-row">
+  <div class="pl-row" data-testid="button-square-corners">
     <h5>Square Corners</h5>
     <div class="pl-grid-4">
       {% for column in main_grid_square.columns %}
@@ -52,7 +52,7 @@
       {% endfor %}
     </div>
   </div>
-  <div class="pl-row">
+  <div class="pl-row" data-testid="button-stacked">
     <h5>Stacked</h5>
     {% set orientation = stacked.orientation %}
     {% set buttons = stacked.buttons %}
