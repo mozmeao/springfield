@@ -118,6 +118,10 @@ refresh_redirects = (
     redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=permanent),
     redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=permanent),
     redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=permanent),
+    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=permanent),
+    redirect(r"^browsers/mobile/$", "/mobile/", permanent=permanent),
+    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=permanent),
+    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=permanent),
 )
 
 if settings.ENABLE_CMS_REFRESH_REDIRECTS:
