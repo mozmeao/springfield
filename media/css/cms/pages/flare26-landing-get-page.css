@@ -52,6 +52,11 @@
     max-inline-size: fit-content;
 }
 
+/* Hide section since content not ready for JA */
+.fl-latest-features {
+    display: none;
+}
+
 /* Firefox Got You Covered section */
 .fl-landing-get .fl-firefox-has-got-you {
     padding-block-start: var(--token-layout-lg);
