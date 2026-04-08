@@ -1116,6 +1116,16 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+class SmartWindowInstructionsBlock(blocks.StructBlock):
+    heading = HeadingBlock()
+    instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
+
+    class Meta:
+        label = "Smart Window Instructions"
+        label_format = "Smart Window Instructions - {instructions}"
+        template = "cms/blocks/smart-window-instructions.html"
+
+
 class MediaContentSettings(blocks.StructBlock):
     media_after = blocks.BooleanBlock(
         required=False,
@@ -1133,21 +1143,28 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def MediaContentBlock(allow_uitour=False, *args, **kwargs):
+def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     """Factory function to create MediaContentBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
+        is_2026: If True, uses the 2026 version of the block.
     """
+    tag_block = TagBlock2026() if is_2026 else TagBlock()
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        content = blocks.StreamBlock(
+            [
+                ("rich_text", blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("smart_window_instructions", SmartWindowInstructionsBlock()),
+            ]
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -2055,7 +2072,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),

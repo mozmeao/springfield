@@ -26,7 +26,13 @@
   {% endif %}
 
   <content:body>
-    {{ value.content|richtext }}
+    {% for block in value.content %}
+      {# In case a block with a heading is included, increment the block level #}
+      {# Add 2 because this block already has a heading #}
+      {% with block_level = block_level + 2 if block_level else 3 %}
+        {% include_block block %}
+      {% endwith %}
+    {% endfor %}
   </content:body>
 
   {% if value.buttons %}

@@ -1,0 +1,14 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-smart-window-instructions">
+  <div class="fl-smart-window-instructions-heading">
+    {% include_block value.heading %}
+  </div>
+  <div class="fl-smart-window-instructions-body">
+    {{ value.instructions|richtext }}
+  </div>
+</div>
