@@ -85,6 +85,10 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page, get_intro_variants
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page, get_kit_banner_variants
 from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page, get_kit_intro_2026_variants
+from springfield.cms.fixtures.line_cards_fixtures import (
+    get_line_card_variants,
+    get_line_cards_test_page,
+)
 from springfield.cms.fixtures.media_content_2026_fixtures import (
     get_media_content_2026_sections,
     get_media_content_2026_test_page,
@@ -3003,6 +3007,72 @@ def test_icon_cards_2026_block(index_page, placeholder_images, rf):
                         button_el = card_el.find("a", class_="fl-button")
                         cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
                         cta_position = f"{region_name}-block-{section_index + 1}-section.item-1-cards_list.card-{i + 1}.button-1"
+                        assert_button_attributes(
+                            button_element=button_el,
+                            button_data=button_data,
+                            context=context,
+                            cta_position=cta_position,
+                            cta_text=cta_text,
+                        )
+
+
+def test_line_cards_block(index_page, placeholder_images, rf):
+    card_variants = get_line_card_variants()
+    page = get_line_cards_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    # block-1: standalone line_cards (4 cards), block-2: section containing line_cards (2 cards)
+    blocks_under_test = [
+        {"variants": card_variants, "cta_position_prefix": "{region_name}-block-1-line_cards"},
+        {"variants": card_variants[:2], "cta_position_prefix": "{region_name}-block-2-section.item-1-line_cards"},
+    ]
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        article_lists = region.find_all("div", class_="fl-stacked-article-list")
+        assert len(article_lists) == 2
+        assert len(article_lists[0].find_all("article", class_="fl-article-item")) == 4
+        assert len(article_lists[1].find_all("article", class_="fl-article-item")) == 2
+
+        for list_index, block_info in enumerate(blocks_under_test):
+            cards = article_lists[list_index].find_all("article", class_="fl-article-item")
+            position_prefix = block_info["cta_position_prefix"].format(region_name=region_name)
+
+            for i, variant in enumerate(block_info["variants"]):
+                card_el = cards[i]
+                value = variant["value"]
+
+                # Headline
+                headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
+                heading = card_el.find(class_="fl-heading")
+                assert heading and headline_text in heading.get_text()
+
+                # Superheading (optional)
+                if value.get("superheading"):
+                    superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
+                    superheading_el = card_el.find(class_="fl-superheading")
+                    assert superheading_el and superheading_text in superheading_el.get_text()
+
+                # Content
+                content_text = BeautifulSoup(value["content"], "html.parser").get_text()
+                assert content_text in card_el.get_text()
+
+                # Buttons
+                for button_index, button_data in enumerate(value["buttons"]):
+                    if button_data["type"] == "button":
+                        button_els = card_el.find_all("a", class_="fl-button")
+                        button_el = button_els[button_index]
+                        cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_position = f"{position_prefix}.button-{button_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,

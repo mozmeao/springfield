@@ -30,6 +30,7 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
+    LineCardsBlock,
     LocalizedLiveSnippetChooserBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
@@ -677,6 +678,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",

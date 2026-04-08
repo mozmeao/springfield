@@ -44,6 +44,7 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
 from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
+from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_page
 from springfield.cms.fixtures.media_content_2026_fixtures import get_media_content_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
@@ -122,6 +123,9 @@ class Command(BaseCommand):
 
         icon_list_with_image_page = get_icon_list_with_image_test_page()
         self.stdout.write(self.style.SUCCESS(f"Icon List with Image 2026 test page loaded: {icon_list_with_image_page.slug}"))
+
+        line_cards_page = get_line_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Line Cards 2026 test page loaded: {line_cards_page.slug}"))
 
         showcase_2026_page = get_showcase_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Showcase 2026 test page loaded: {showcase_2026_page.slug}"))

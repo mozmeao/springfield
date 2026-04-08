@@ -1633,6 +1633,29 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     return _CardsListBlock(*args, **kwargs)
 
 
+class CardLineItemBlock(blocks.StructBlock):
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        themes=BUTTON_THEMES_2026,
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+
+class LineCardsBlock(blocks.StructBlock):
+    heading = HeadingBlock(required=False)
+    cards = blocks.ListBlock(CardLineItemBlock())
+
+    class Meta:
+        template = "cms/blocks/line-cards.html"
+        label = "Line Cards"
+        label_format = "Line Cards"
+
+
 # Article Cards
 
 
@@ -2108,6 +2131,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("icon_list_with_image", IconListWithImageBlock()),
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )

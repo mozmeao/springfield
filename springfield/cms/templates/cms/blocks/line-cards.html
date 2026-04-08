@@ -1,0 +1,32 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h2' %}
+
+<div class="fl-stacked-article-list">
+  {% for card in value.cards %}
+    {% set block_text =  card.headline|richtext|remove_tags %}
+    <include:line-card>
+      <content:heading>
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-3"
+          superheading_text="{{ card.superheading|richtext|remove_p_tag }}"
+          heading_text="{{ card.headline|richtext|remove_p_tag }}"
+        />
+      </content:heading>
+      {{ card.content|richtext }}
+      {% if card.buttons %}
+        <content:buttons>
+          {% for button in card.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+        </content:buttons>
+      {% endif %}
+    </include:line-card>
+  {% endfor %}
+</div>
