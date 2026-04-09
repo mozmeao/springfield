@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 
 from .base import flatten, url_test
 
@@ -14,6 +15,12 @@ URLS = flatten(
         url_test("/os/", "https://support.mozilla.org/products/firefox-os?redirect_source=firefox-com", status_code=301),
         url_test("/desktop/", "/browsers/desktop/", status_code=302),
         url_test("/android/", "/download/android/", status_code=302),
+        url_test("/browsers/mobile/", "/mobile/", status_code=301 if settings.PERMANENT_CMS_REFRESH_REDIRECTS else 302),
+        url_test("/browsers/mobile/focus/", "/mobile/focus/", status_code=301 if settings.PERMANENT_CMS_REFRESH_REDIRECTS else 302),
+        url_test("/browsers/mobile/get-app/", "/mobile/", status_code=301 if settings.PERMANENT_CMS_REFRESH_REDIRECTS else 302),
+        url_test(
+            "/browsers/unsupported-systems/", "/download/unsupported-systems/", status_code=301 if settings.PERMANENT_CMS_REFRESH_REDIRECTS else 302
+        ),
         url_test("/developer/", "/channel/desktop/developer/", status_code=302),
         url_test("/10/", "/features/", status_code=301),
         url_test("/independent/", "/features/", status_code=301),

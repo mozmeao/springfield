@@ -2,6 +2,7 @@ name: Showcase Variants 2026
 context:
   variants:
     - headline: Default layout  with caption title
+      testid: default-with-caption
       layout: default
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
@@ -13,6 +14,7 @@ context:
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
     - headline: Default layout without caption title
+      testid: default-without-caption
       layout: default
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
@@ -24,6 +26,7 @@ context:
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
     - headline: Expanded layout with caption title
+      testid: expanded-with-caption
       layout: expanded
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
@@ -35,6 +38,7 @@ context:
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
     - headline: Expanded layout without caption title
+      testid: expanded-without-caption
       layout: expanded
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
@@ -46,6 +50,7 @@ context:
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
     - headline: Full layout with caption title
+      testid: full-with-caption
       layout: full
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
@@ -57,6 +62,7 @@ context:
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
     - headline: Full layout without caption title
+      testid: full-without-caption
       layout: full
       desktop_image:
         url: /media/img/firefox/flare/placeholder.png
