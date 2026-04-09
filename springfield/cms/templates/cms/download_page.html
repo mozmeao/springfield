@@ -37,11 +37,13 @@
         </button>
         <ul class="fl-platform-dropdown-list" aria-role="listbox">
           {% for key, platform in platforms.items() %}
-            <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-              <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
-                {{ platform }}
-              </a>
-            </li>
+            {% if key != page.platform %}
+              <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+                <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                  {{ platform }}
+                </a>
+              </li>
+            {% endif %}
           {% endfor %}
           </ul>
         </div>
