@@ -78,6 +78,10 @@ body.data-uitour #protection-report {
 }
 
 /* Do it All section */
+.fl-landing-get .fl-do-it-all {
+    max-inline-size: var(--token-width-desktop-content-lg);
+}
+
 .fl-landing-get .fl-do-it-all .icon-text-list {
     --fl-card-grid-columns: repeat(1, minmax(0, 1fr));
     display: grid;
@@ -121,6 +125,10 @@ body.data-uitour #protection-report {
 }
 
 /* Make Firefox your own section */
+.fl-landing-get .fl-make-firefox-your-own {
+    max-inline-size: var(--token-width-desktop-content-lg);
+}
+
 .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
     display: flex;
     flex-direction: column;
