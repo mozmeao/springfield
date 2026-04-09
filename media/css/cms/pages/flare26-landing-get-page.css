@@ -60,8 +60,8 @@
 }
 
 .fl-landing-get .fl-firefox-has-got-you .ga-product-download img {
-    max-block-size: none;
     margin: 0;
+    max-block-size: none;
 }
 
 /* only include cta if UITour JS runs */
@@ -175,6 +175,11 @@ body.data-uitour #protection-report {
 .fl-landing-get .fl-non-profit .keyhole {
     margin: auto;
     max-inline-size: 243px;
+}
+
+/* Favorite browser section */
+.fl-landing-get .fl-favorite-browser {
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 /* Support banner */
