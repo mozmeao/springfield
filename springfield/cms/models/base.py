@@ -4,15 +4,17 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.models import Page as WagtailBasePage
+from wagtail.models import Locale, Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
+from springfield.base.i18n import normalize_language
 from springfield.cms.utils import compute_cms_page_locales
 
 
@@ -121,6 +123,32 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request = self._patch_request_for_springfield(request)
         request.is_preview = True
         return self._render_with_fluent_string_support(request, *args, **kwargs)
+
+    @property
+    def localized(self):
+        """
+        Extends Wagtail's localized to handle alias locales in FALLBACK_LOCALES.
+
+        When the active locale is an alias (e.g. pt-PT → pt-BR) and the page has
+        no translation in that alias locale, returns the fallback locale's translation
+        instead of the source-locale original.
+        """
+        localized = super().localized
+
+        lang_code = normalize_language(translation.get_language())
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+        if lang_code in fallback_locales:
+            fallback_code = fallback_locales[lang_code]
+            try:
+                fallback_locale = Locale.objects.get(language_code=fallback_code)
+                if localized.locale_id != fallback_locale.id:
+                    fallback_page = self.get_translation_or_none(fallback_locale)
+                    if fallback_page:
+                        return fallback_page
+            except Locale.DoesNotExist:
+                pass
+
+        return localized
 
     @property
     def og_title(self):

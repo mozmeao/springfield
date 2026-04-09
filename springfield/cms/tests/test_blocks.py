@@ -13,10 +13,10 @@ from bs4 import BeautifulSoup
 from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
-from wagtail.models import Locale, Page
+from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import SpringfieldLinkBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -93,7 +93,7 @@ from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_tes
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
-from springfield.cms.tests.factories import LocaleFactory
+from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.misc import app_store_url, fxa_button, play_store_url
 
@@ -3530,3 +3530,53 @@ def test_uuid_block_is_not_translatable():
     from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_base_article_value_get_article_returns_fallback_translation_via_multi_target_page_chooser():
+    """
+    get_article() must return the fallback locale's translation even when the
+    article chooser returns a base Page instance (not the specific type).
+
+    ArticleBlock uses target_model=("cms.ArticleDetailPage", "cms.ArticleThemePage").
+    Wagtail returns a base Page instance for multi-target choosers, so
+    self["article"].localized calls Page.localized (Wagtail's implementation),
+    which does not know about our AbstractSpringfieldCMSPage.localized override.
+    The fix is self["article"].specific.localized, which routes through our override.
+
+    This test reproduces the production bug: without .specific, get_article()
+    returns the en-US source page for pt-PT requests even when a pt-BR
+    translation exists.
+    """
+
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_article = ArticleDetailPageFactory(
+        title="en-US Article",
+        slug="en-us-article-chooser-test",
+        parent=root_page,
+    )
+    pt_br_article = en_us_article.copy_for_translation(pt_br_locale)
+    pt_br_article.title = "pt-BR Article"
+    pt_br_article.save_revision().publish()
+
+    # Simulate what Wagtail's multi-target PageChooserBlock returns: a base Page
+    # instance, not ArticleDetailPage. This is the root cause of the production bug.
+    article_as_base_page = Page.objects.get(pk=en_us_article.pk)
+    assert type(article_as_base_page) is Page, "Precondition: must be base Page, not specific subclass"
+
+    article_value = BaseArticleValue(
+        ArticleBlock(),
+        {"article": article_as_base_page, "overrides": {}},
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = article_value.get_article()
+
+    assert result.id == pt_br_article.id
+    assert result.locale == pt_br_locale

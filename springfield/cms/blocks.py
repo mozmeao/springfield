@@ -1632,7 +1632,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
 
 class BaseArticleValue(blocks.StructValue):
     def get_article(self):
-        return self["article"].localized
+        return self["article"].specific.localized
 
     def get_title(self) -> str:
         from springfield.cms.templatetags.cms_tags import remove_p_tag
