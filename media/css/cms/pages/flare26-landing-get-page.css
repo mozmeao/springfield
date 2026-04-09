@@ -59,6 +59,11 @@
     padding-block-start: var(--token-layout-lg);
 }
 
+.fl-landing-get .fl-firefox-has-got-you .ga-product-download img {
+    max-block-size: none;
+    margin: 0;
+}
+
 /* only include cta if UITour JS runs */
 #protection-report {
     display: none;
@@ -106,7 +111,7 @@ body.data-uitour #protection-report {
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
 .fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
     margin: 0 auto;
-    max-inline-size: 60%;
+    max-inline-size: 36rem;
 }
 
 .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
@@ -170,10 +175,6 @@ body.data-uitour #protection-report {
 }
 
 @media (--viewport-sm-up) {
-    .fl-landing-get .c-intro-download {
-        align-items: flex-start;
-    }
-
     .fl-landing-get .fl-do-it-all .icon-text-list {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
@@ -189,6 +190,10 @@ body.data-uitour #protection-report {
 }
 
 @media (--viewport-md-up) {
+    .fl-landing-get .c-intro-download {
+        align-items: flex-start;
+    }
+
     .fl-landing-get .fl-do-it-all .icon-text-list {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
