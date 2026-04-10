@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -24,6 +27,9 @@ from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
+
+if TYPE_CHECKING:
+    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -1631,7 +1637,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
 
 
 class BaseArticleValue(blocks.StructValue):
-    def get_article(self):
+    def get_article(self) -> ArticleDetailPage | ArticleThemePage:
         return self["article"].specific.localized
 
     def get_title(self) -> str:
@@ -1663,7 +1669,7 @@ class BaseArticleValue(blocks.StructValue):
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if tag := article_page.get_tag():
+            if hasattr(article_page, "get_tag") and (tag := article_page.get_tag()):
                 return tag.name
         return ""
 
@@ -1678,7 +1684,7 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.link_text
         return ftl("ui-learn-more", ftl_files=["ui"])
 
-    def get_featured_image(self):
+    def get_featured_image(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
         if image := overrides.get("image"):
             return image
@@ -1689,7 +1695,7 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.featured_image
         return None
 
-    def get_sticker(self):
+    def get_sticker(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
         if sticker := overrides.get("sticker"):
             return sticker
@@ -1717,8 +1723,9 @@ class BaseArticleValue(blocks.StructValue):
             url = link.get_url()
             if url:
                 return url
+
         article_page = self.get_article()
-        return article_page.url if article_page else ""
+        return article_page.get_fallback_url() if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):

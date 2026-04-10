@@ -5,6 +5,7 @@
 from unittest import mock
 
 from django.test import override_settings
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -144,6 +145,64 @@ def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_sit
 
     patched_request = en_us_test_page.specific._patch_request_for_springfield(request)
     assert patched_request.is_cms_page is True
+
+
+# ---------------------------------------------------------------------------
+# get_fallback_url
+# ---------------------------------------------------------------------------
+
+
+def test_get_fallback_url_returns_original_url(tiny_localized_site):
+    """Page in the active locale: URL is returned as-is."""
+    page = Page.objects.get(locale__language_code="en-US", slug="child-page").specific
+    with translation.override("en-US"):
+        url = page.get_fallback_url()
+    assert url == page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_get_fallback_url_returns_original_url_if_no_fallback_locales(tiny_localized_site):
+    """No FALLBACK_LOCALES: URL retains the page's own locale prefix even when active lang differs."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("en-US"):
+        url = fr_page.get_fallback_url()
+    assert url == fr_page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_fallback_url_returns_url_with_fallback_locale(tiny_localized_site):
+    """Active language is alias (pt-PT → pt-BR): URL prefix is rewritten to pt-PT."""
+    LocaleFactory(language_code="pt-PT")
+    pt_br_page = Page.objects.get(locale__language_code="pt-BR", slug="child-page").specific
+    with translation.override("pt-PT"):
+        url = pt_br_page.get_fallback_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_fallback_url_returns_original_url_if_same_as_active_locale(tiny_localized_site):
+    """Active language is pt-PT but page is already in pt-PT locale: no substitution."""
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    site.root_page.copy_for_translation(pt_pt_locale)
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.save_revision().publish()
+    with translation.override("pt-PT"):
+        url = pt_pt_page.specific.get_fallback_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_fallback_url_returns_original_url_if_active_language_not_in_fallback_locales(tiny_localized_site):
+    """Active language (fr) is not in FALLBACK_LOCALES: URL is unchanged."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("fr"):
+        url = fr_page.get_fallback_url()
+    assert "/fr/" in url
+    assert "/pt-BR/" not in url
 
 
 def test_whats_new_index_page_redirects_to_latest_whats_new(

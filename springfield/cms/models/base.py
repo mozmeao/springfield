@@ -154,6 +154,27 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
         return localized
 
+    def get_fallback_url(self, request=None):
+        """
+        Replace the URLs locale with the active locale if the page is a fallback
+        so that the user doesn't navigate away from it's preferred language.
+
+        If the active locale is an alias (e.g. pt-PT → pt-BR) and the page is in the
+        fallback locale (e.g. pt-BR), return a URL with the alias locale (e.g. pt-PT).
+        host/pt-BR/page/ → host/pt-PT/page/
+        """
+        url = super().get_url(request)
+
+        active_language = normalize_language(translation.get_language())
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        if active_language in fallback_locales:
+            fallback_code = fallback_locales[active_language]
+            if self.locale.language_code == fallback_code:
+                url = url.replace(f"/{fallback_code}/", f"/{active_language}/", 1)
+
+        return url
+
     @property
     def og_title(self):
         return self.seo_title or self.title or "Firefox"

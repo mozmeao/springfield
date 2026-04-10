@@ -3580,3 +3580,38 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
 
     assert result.id == pt_br_article.id
     assert result.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_base_article_value_get_link_url_returns_url_with_current_locale():
+    """
+    get_link_url() must return a URL with the current active locale, not the fallback article's locale.
+
+    If the user is browsing in pt-PT, and clicks a link to an article that only exists in pt-BR,
+    they should see the URL change to /pt-PT/article-slug/, not /pt-BR/article-slug/.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_article = ArticleDetailPageFactory(
+        title="en-US Article",
+        slug="article-url-locale-test",
+        parent=root_page,
+    )
+    pt_br_article = en_us_article.copy_for_translation(pt_br_locale)
+    pt_br_article.title = "pt-BR Article"
+    pt_br_article.save_revision().publish()
+
+    article_value = BaseArticleValue(
+        ArticleBlock(),
+        {"article": en_us_article, "overrides": {}},
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        url = article_value.get_link_url()
+
+    assert url == "/pt-PT/article-url-locale-test/"
