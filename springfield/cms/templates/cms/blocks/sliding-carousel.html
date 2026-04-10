@@ -1,0 +1,57 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = "h" ~ (block_level + 1) if block_level else "h2" %}
+
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}">
+  <section class="fl-section">
+    <div class="fl-section-container">
+      <div class="fl-sliding-carousel" data-js="fl-sliding-carousel">
+        <ol class="fl-sliding-carousel-controls" aria-label="Carousel slides">
+          {% for slide in value.slides %}
+            <li class="fl-sliding-carousel-control {% if loop.first %}is-active{% endif %}"
+                aria-current="{{ 'true' if loop.first else 'false' }}"
+                data-slide-index="{{ loop.index0 }}"
+                role="button"
+                tabindex="0">
+              {% set heading = slide.heading %}
+              {% if heading.superheading_text %}
+                <span class="fl-sliding-carousel-superheading fl-superheading">
+                  {{ heading.superheading_text|richtext|remove_p_tag }}
+                </span>
+              {% endif %}
+              <{{ heading_level }} class="fl-sliding-carousel-heading-text fl-heading fl-heading-size-3">
+                {{ heading.heading_text|richtext|remove_p_tag }}
+              </{{ heading_level }}>
+              {% if heading.subheading_text %}
+                <span class="fl-body fl-sliding-carousel-subheading">
+                  {{ heading.subheading_text|richtext|remove_p_tag }}
+                </span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+
+        <div class="fl-sliding-carousel-media-panel" aria-live="polite">
+          {% for slide in value.slides %}
+            <div class="fl-sliding-carousel-slide {% if loop.first %}is-active{% endif %}"
+                aria-hidden="{{ 'false' if loop.first else 'true' }}"
+                data-slide-index="{{ loop.index0 }}">
+              {% with widths="width-{400,600,800,1000,1200}", sizes="(min-width: 900px) 50vw, 100vw" %}
+                {% for block in slide.media %}
+                  {% include_block block %}
+                {% endfor %}
+              {% endwith %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+</include:conditional-display>

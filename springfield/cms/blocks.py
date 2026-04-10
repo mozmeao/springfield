@@ -470,11 +470,11 @@ class ConditionalDisplayBlock(blocks.StructBlock):
 # Element blocks
 
 
-def HeadingBlock(required=True, **kwargs):
+def HeadingBlock(required=True, all_required=False, **kwargs):
     class _HeadingBlock(blocks.StructBlock):
-        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
         heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
-        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
 
         class Meta:
             icon = "title"
@@ -2398,6 +2398,25 @@ class CarouselBlock(blocks.StructBlock):
         template = "cms/blocks/sections/home-carousel.html"
         label = "Carousel"
         label_format = "{heading}"
+
+
+class SlidingCarouselItemBlock(blocks.StructBlock):
+    heading = HeadingBlock(all_required=True)
+    media = MediaBlock(max_num=1)
+
+    class Meta:
+        label = "Slide"
+        label_format = "{heading}"
+
+
+class SlidingCarouselBlock(blocks.StructBlock):
+    settings = CarouselSettings()
+    slides = blocks.ListBlock(SlidingCarouselItemBlock(), min_num=2, max_num=6)
+
+    class Meta:
+        template = "cms/blocks/sliding-carousel.html"
+        label = "Sliding Carousel"
+        label_format = "Sliding Carousel"
 
 
 class ShowcaseSettings(blocks.StructBlock):

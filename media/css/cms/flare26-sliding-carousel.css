@@ -1,0 +1,148 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-sliding-carousel {
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+}
+
+/* Controls — left column on desktop */
+
+.fl-sliding-carousel-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-sliding-carousel-control {
+    background: none;
+    border-radius: 0;
+    color: inherit;
+    cursor: pointer;
+    padding-block: var(--token-spacing-md);
+    padding-inline: var(--token-spacing-lg);
+    position: relative;
+}
+
+.fl-sliding-carousel-control.is-active {
+    cursor: default;
+}
+
+.fl-superheading.fl-sliding-carousel-superheading {
+    color: var(--token-color-grey-4);
+    text-transform: uppercase;
+}
+
+/* Collapsed: show only superheading */
+
+.fl-sliding-carousel-heading-text,
+.fl-sliding-carousel-subheading {
+    display: none;
+}
+
+/* Active: show all heading fields */
+
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-heading-text,
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading {
+    display: block;
+}
+
+.fl-sliding-carousel-control.is-active
+    .fl-superheading.fl-sliding-carousel-superheading {
+    color: var(--fl-theme-color-brand-text);
+}
+
+.fl-sliding-carousel-superheading {
+    display: block;
+}
+
+/* 4px vertical bar: static base layer (inactive color) */
+
+.fl-sliding-carousel-control::before {
+    block-size: 100%;
+    border-radius: 2px;
+    content: '';
+    inline-size: 4px;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    position: absolute;
+}
+
+.fl-sliding-carousel-control::after {
+    border-radius: 2px;
+    content: '';
+    inline-size: 4px;
+    inset-inline-start: 0;
+    position: absolute;
+}
+
+.fl-sliding-carousel-control:not(.is-active)::after {
+    background-color: var(--token-color-grey-4);
+    block-size: 4px;
+    inset-block-start: calc(50% - 2px);
+}
+
+/* 4px vertical bar: animated progress fill on active item */
+
+.fl-sliding-carousel-control.is-active::before {
+    background-color: var(--token-color-soft-purple);
+}
+
+.fl-sliding-carousel-control.is-active::after {
+    animation: fl-sliding-carousel-progress 10000ms linear forwards;
+    background-color: var(--token-color-light-purple);
+    block-size: 0%;
+    inset-block-start: 0;
+}
+
+.fl-sliding-carousel.is-paused .fl-sliding-carousel-control.is-active::after {
+    animation: none;
+    block-size: 100%;
+}
+
+@keyframes fl-sliding-carousel-progress {
+    from {
+        block-size: 0%;
+    }
+
+    to {
+        block-size: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-sliding-carousel-control.is-active::after {
+        animation: none;
+        block-size: 100%;
+    }
+}
+
+/* Media panel */
+
+.fl-sliding-carousel-media-panel {
+    position: relative;
+}
+
+.fl-sliding-carousel-slide {
+    display: none;
+}
+
+.fl-sliding-carousel-slide.is-active {
+    display: block;
+}
+
+/* Desktop: side-by-side */
+
+@media (--viewport-md-up) {
+    .fl-sliding-carousel {
+        align-items: start;
+        grid-template-columns: 1fr 1fr;
+    }
+}

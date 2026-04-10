@@ -58,6 +58,83 @@ function initFlare26Carousel(rootEl) {
     });
 }
 
+const AUTO_PLAY_INTERVAL_MS = 10000;
+
+function initSlidingCarousel(rootEl) {
+    const controls = Array.from(
+        rootEl.querySelectorAll('.fl-sliding-carousel-control')
+    );
+    const slides = Array.from(
+        rootEl.querySelectorAll('.fl-sliding-carousel-slide')
+    );
+
+    if (controls.length === 0 || slides.length === 0) {
+        return;
+    }
+
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+    let autoPlayActive = true;
+
+    function activate(index) {
+        controls[currentIndex].classList.remove('is-active');
+        controls[currentIndex].setAttribute('aria-current', 'false');
+        slides[currentIndex].classList.remove('is-active');
+        slides[currentIndex].setAttribute('aria-hidden', 'true');
+
+        currentIndex = index;
+
+        controls[currentIndex].classList.add('is-active');
+        controls[currentIndex].setAttribute('aria-current', 'true');
+        slides[currentIndex].classList.add('is-active');
+        slides[currentIndex].setAttribute('aria-hidden', 'false');
+    }
+
+    function startAutoPlay() {
+        autoPlayTimer = setInterval(() => {
+            activate((currentIndex + 1) % slides.length);
+        }, AUTO_PLAY_INTERVAL_MS);
+    }
+
+    function stopAutoPlay() {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+        autoPlayActive = false;
+        rootEl.classList.add('is-paused');
+    }
+
+    controls.forEach((control, idx) => {
+        control.addEventListener('click', () => {
+            if (autoPlayActive) {
+                stopAutoPlay();
+            }
+            if (idx !== currentIndex) {
+                activate(idx);
+            }
+        });
+
+        control.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                control.click();
+            }
+        });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(autoPlayTimer);
+        } else if (autoPlayActive) {
+            startAutoPlay();
+        }
+    });
+
+    startAutoPlay();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
+    document
+        .querySelectorAll('[data-js="fl-sliding-carousel"]')
+        .forEach(initSlidingCarousel);
 });

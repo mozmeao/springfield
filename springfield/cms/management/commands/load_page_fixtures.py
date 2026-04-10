@@ -49,6 +49,7 @@ from springfield.cms.fixtures.media_content_2026_fixtures import get_media_conte
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
+from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
@@ -176,6 +177,9 @@ class Command(BaseCommand):
 
         carousel_page = get_carousel_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
+
+        sliding_carousel_page = get_sliding_carousel_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Sliding Carousel 2026 test page loaded: {sliding_carousel_page.slug}"))
 
         kit_intro_page = get_kit_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))

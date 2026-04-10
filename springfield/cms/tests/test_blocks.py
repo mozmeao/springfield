@@ -100,6 +100,10 @@ from springfield.cms.fixtures.media_content_fixtures import (
 )
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page, get_showcase_2026_variants
+from springfield.cms.fixtures.sliding_carousel_fixtures import (
+    get_sliding_carousel_slides,
+    get_sliding_carousel_test_page,
+)
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
@@ -3429,6 +3433,59 @@ def test_carousel_2026_block(index_page, placeholder_images, rf):
                     cta_position=cta_position,
                     cta_text=cta_text,
                 )
+
+
+def test_sliding_carousel_block(index_page, placeholder_images, rf):
+    slides = get_sliding_carousel_slides()
+    page = get_sliding_carousel_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in [upper, lower]:
+        carousel_el = region.find("div", class_="fl-sliding-carousel")
+
+        controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
+        assert len(controls) == len(slides)
+
+        slide_panels = carousel_el.find_all("div", class_="fl-sliding-carousel-slide")
+        assert len(slide_panels) == len(slides)
+
+        # First control is active
+        assert "is-active" in controls[0].get("class", [])
+        assert controls[0].get("aria-current") == "true"
+        assert "is-active" not in controls[1].get("class", [])
+
+        # First slide is visible
+        assert "is-active" in slide_panels[0].get("class", [])
+        assert slide_panels[0].get("aria-hidden") == "false"
+        assert "is-active" not in slide_panels[1].get("class", [])
+        assert slide_panels[1].get("aria-hidden") == "true"
+
+        for i, slide in enumerate(slides):
+            value = slide["value"]
+            heading = value["heading"]
+
+            # Superheading visible in control when present
+            if heading["superheading_text"]:
+                superheading_text = BeautifulSoup(heading["superheading_text"], "html.parser").get_text()
+                superheading_el = controls[i].find(class_="fl-sliding-carousel-superheading")
+                assert superheading_el and superheading_text in superheading_el.get_text()
+
+            # Heading text present in control
+            heading_text = BeautifulSoup(heading["heading_text"], "html.parser").get_text()
+            heading_el = controls[i].find(class_="fl-sliding-carousel-heading-text")
+            assert heading_el and heading_text in heading_el.get_text()
+
+            # Media rendered in slide panel
+            assert slide_panels[i].find("img")
 
 
 def test_springfield_link_block_clean_accepts_valid_relative_url():
