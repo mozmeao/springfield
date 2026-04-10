@@ -5,6 +5,7 @@
 from unittest import mock
 from urllib.parse import urlparse, urlunparse
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import override_settings
 
@@ -103,6 +104,13 @@ from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_te
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
     get_sliding_carousel_test_page,
+)
+from springfield.cms.fixtures.smart_window_page_fixtures import (
+    get_smart_window_icon_cards,
+    get_smart_window_illustration_cards,
+    get_smart_window_line_cards,
+    get_smart_window_sliding_carousel,
+    get_smart_window_test_page,
 )
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
@@ -3486,6 +3494,129 @@ def test_sliding_carousel_block(index_page, placeholder_images, rf):
 
             # Media rendered in slide panel
             assert slide_panels[i].find("img")
+
+
+def test_smart_window_page(index_page, placeholder_images, rf):
+    carousel_fixture = get_smart_window_sliding_carousel()
+    line_cards_fixture = get_smart_window_line_cards()
+    illustration_cards_fixture = get_smart_window_illustration_cards()
+    icon_cards_fixture = get_smart_window_icon_cards()
+    page = get_smart_window_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Hero: heading and form present
+    assert soup.find("h1", class_="fl-heading")
+    form = soup.find("form", {"data-testid": "newsletter-form"})
+    assert form
+    assert form["id"] == "newsletter-form"
+    assert settings.BASKET_SUBSCRIBE_URL in form["action"]
+
+    # Newsletter id hidden checkbox
+    newsletter_checkbox = form.find("input", {"name": "newsletters", "type": "checkbox"})
+    assert newsletter_checkbox
+    assert newsletter_checkbox["value"] == "smart-window-waitlist"
+
+    # Language hidden input
+    lang_input = form.find("input", {"id": "id_lang", "name": "lang"})
+    assert lang_input
+    assert lang_input["value"] == "en"
+
+    # Email input
+    email_input = form.find("input", {"data-testid": "newsletter-email-input"})
+    assert email_input
+    assert email_input["name"] == "email"
+    assert email_input["type"] == "email"
+
+    # Thanks message (hidden by default)
+    thanks = soup.find(attrs={"data-testid": "newsletter-thanks-message"})
+    assert thanks
+    assert "hidden" in thanks.get("class", [])
+
+    # Error message (hidden by default)
+    error = soup.find(attrs={"data-testid": "newsletter-error-message"})
+    assert error
+    assert "hidden" in error.get("class", [])
+
+    content_region = soup.find("div", class_="fl-split-page-lower")
+    assert content_region
+
+    # --- Sliding carousel: 4 slides ---
+    carousel_el = content_region.find("div", class_="fl-sliding-carousel")
+    assert carousel_el
+    slides_data = carousel_fixture["value"]["slides"]
+    controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
+    slide_panels = carousel_el.find_all("div", class_="fl-sliding-carousel-slide")
+    assert len(controls) == len(slides_data) == 4
+    assert len(slide_panels) == 4
+
+    for i, slide in enumerate(slides_data):
+        heading_text = BeautifulSoup(slide["value"]["heading"]["heading_text"], "html.parser").get_text()
+        heading_el = controls[i].find(class_="fl-sliding-carousel-heading-text")
+        assert heading_el and heading_text in heading_el.get_text()
+        assert slide_panels[i].find("img")
+
+    # --- Line cards: 2 cards, no buttons ---
+    article_list = content_region.find("div", class_="fl-stacked-article-list")
+    assert article_list
+    card_els = article_list.find_all("article", class_="fl-article-item")
+    line_cards_data = line_cards_fixture["value"]["cards"]
+    assert len(card_els) == len(line_cards_data) == 2
+
+    for i, card in enumerate(line_cards_data):
+        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
+        assert headline_text in card_els[i].get_text()
+        assert not card_els[i].find("a", class_="fl-button")
+
+    # --- Illustration cards and icon cards: each cards_list renders in a fl-card-grid ---
+    card_grids = content_region.find_all("div", class_="fl-card-grid")
+    assert len(card_grids) == 2
+
+    illustration_cards_data = illustration_cards_fixture["value"]["cards"]
+    illustration_grid = card_grids[0]
+    illustration_card_els = illustration_grid.find_all("article")
+    assert len(illustration_card_els) == len(illustration_cards_data) == 3
+
+    for i, card in enumerate(illustration_cards_data):
+        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
+        assert headline_text in illustration_card_els[i].get_text()
+
+    icon_cards_data = icon_cards_fixture["value"]["cards"]
+    icon_grid = card_grids[1]
+    icon_card_els = icon_grid.find_all("article")
+    assert len(icon_card_els) == len(icon_cards_data) == 3
+
+    for i, card in enumerate(icon_cards_data):
+        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
+        assert headline_text in icon_card_els[i].get_text()
+
+    # --- UITour buttons: render when ?smart-window=true ---
+    sw_request = rf.get(page.get_full_url(), {"smart-window": "true"})
+    sw_response = page.serve(sw_request)
+    assert sw_response.status_code == 200
+    sw_soup = BeautifulSoup(sw_response.content, "html.parser")
+
+    # No form in the UITour state
+    assert not sw_soup.find("form", {"data-testid": "newsletter-form"})
+
+    uitour_buttons = sw_soup.find_all("button", attrs={"data-cta-uid": True})
+    uitour_by_id = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
+
+    # Nav button
+    nav_btn = uitour_by_id.get("nav-try-smart-window")
+    assert nav_btn
+    assert nav_btn["data-cta-position"] == "nav"
+    assert nav_btn.get_text(strip=True) == page.waitlist_button_label
+
+    # Intro (upper content) button
+    intro_btn = uitour_by_id.get("intro-try-smart-window")
+    assert intro_btn
+    assert intro_btn["data-cta-position"] == "intro"
+    assert intro_btn.get_text(strip=True) == page.waitlist_button_label
 
 
 def test_springfield_link_block_clean_accepts_valid_relative_url():

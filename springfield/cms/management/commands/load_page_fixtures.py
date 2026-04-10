@@ -50,6 +50,7 @@ from springfield.cms.fixtures.media_content_fixtures import get_media_content_te
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
+from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
@@ -180,6 +181,9 @@ class Command(BaseCommand):
 
         sliding_carousel_page = get_sliding_carousel_test_page()
         self.stdout.write(self.style.SUCCESS(f"Sliding Carousel 2026 test page loaded: {sliding_carousel_page.slug}"))
+
+        smart_window_page = get_smart_window_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Smart Window test page loaded: {smart_window_page.slug}"))
 
         kit_intro_page = get_kit_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
