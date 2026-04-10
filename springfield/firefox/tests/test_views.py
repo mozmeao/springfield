@@ -537,7 +537,7 @@ class TestFirefoxGetExperiment(TestCase):
     def test_firefox_get_default(self):
         """Default"""
         response = self.client.get("/en-US/landing/get/")
-        assert response.templates[0].name == "firefox/landing/get-new.html"
+        assert response.templates[0].name == "firefox/landing/get.html"
 
     def test_firefox_get_control(self):
         """Control parameters"""
