@@ -1014,12 +1014,12 @@ def landing_get_page(request):
     if experiment not in ["download-privacy"]:
         experiment = None
 
-    if request.locale == "ja":
-        template_name = "firefox/landing/get-new.html"
-    elif request.locale == "en-US" and experiment == "download-privacy" and variation == "treatment":
+    if request.locale == "en-US" and experiment == "download-privacy" and variation == "treatment":
         template_name = "firefox/landing/get-treatment.html"
-    else:
+    elif request.locale == "en-US" and experiment == "download-privacy" and variation == "control":
         template_name = "firefox/landing/get.html"
+    else:
+        template_name = "firefox/landing/get-new.html"
 
     context = {
         "experiment": experiment,

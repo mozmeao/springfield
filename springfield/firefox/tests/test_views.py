@@ -537,7 +537,7 @@ class TestFirefoxGetExperiment(TestCase):
     def test_firefox_get_default(self):
         """Default"""
         response = self.client.get("/en-US/landing/get/")
-        assert response.templates[0].name == "firefox/landing/get.html"
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
     def test_firefox_get_control(self):
         """Control parameters"""
@@ -546,13 +546,13 @@ class TestFirefoxGetExperiment(TestCase):
 
     def test_firefox_get_treatment(self):
         """Treatment parameters"""
-        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
+        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=treatment")
         assert response.templates[0].name == "firefox/landing/get-treatment.html"
 
     def test_firefox_get_not_en_us_locale(self):
         """Default"""
-        response = self.client.get("/en-CA/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
-        assert response.templates[0].name == "firefox/landing/get.html"
+        response = self.client.get("/en-CA/landing/get/?experiment=download-privacy&variation=treatment")
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
 
 @override_settings(DEV=False)
