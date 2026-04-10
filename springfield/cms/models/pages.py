@@ -19,6 +19,8 @@ from lib.l10n_utils.fluent import ftl
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ICON_CHOICES,
+    UI_TOUR_CLASSES,
+    UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
@@ -953,3 +955,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Smart Window Page"
         verbose_name_plural = "Smart Window Pages"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        # TODO: implement the show logic
+        context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
+        context["show_try_smart_window"] = request.GET.get("smart-window") == "true"
+        return context
