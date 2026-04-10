@@ -136,6 +136,10 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         localized = super().localized
 
         lang_code = normalize_language(translation.get_language())
+
+        if localized.locale.language_code == lang_code:
+            return localized
+
         fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
         if lang_code in fallback_locales:
             fallback_code = fallback_locales[lang_code]

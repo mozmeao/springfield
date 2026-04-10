@@ -739,6 +739,37 @@ def test_page_localized_returns_translation_when_active_locale_has_one():
     assert result.locale == pt_br_locale
 
 
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_translation_when_fallback_locale_has_translation():
+    """
+    When the active locale (pt-PT) has a translation, localized returns the locale's translation.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+    root_page.copy_for_translation(pt_pt_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-normal-locale-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.title = "pt-PT Article"
+    pt_pt_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == pt_pt_page.id
+    assert result.locale == pt_pt_locale
+
+
 def test_page_localized_returns_self_when_no_translation_and_locale_not_in_fallback_locales():
     """
     When the active locale (fr) is not in FALLBACK_LOCALES and the page has no
