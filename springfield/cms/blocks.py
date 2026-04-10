@@ -346,6 +346,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimen
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
+UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -358,8 +359,23 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
+    (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
 )
 
+UI_TOUR_CLASSES = {
+    UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
+    UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+}
 
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
@@ -743,20 +759,7 @@ class UITourButtonValue(BaseButtonValue):
         """
         theme_classes = super().theme_class()
         button_type = self.get("button_type", "")
-        classes = {
-            UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
-            UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
-            UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
-        }
-        theme_classes += " " + classes.get(button_type, "")
+        theme_classes += " " + UI_TOUR_CLASSES.get(button_type, "")
         return theme_classes
 
 
