@@ -154,7 +154,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
         return localized
 
-    def get_fallback_url(self, request=None):
+    def get_active_locale_url(self, request=None):
         """
         Replace the URLs locale with the active locale if the page is a fallback
         so that the user doesn't navigate away from it's preferred language.

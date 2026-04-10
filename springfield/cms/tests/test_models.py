@@ -148,40 +148,40 @@ def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_sit
 
 
 # ---------------------------------------------------------------------------
-# get_fallback_url
+# get_active_locale_url
 # ---------------------------------------------------------------------------
 
 
-def test_get_fallback_url_returns_original_url(tiny_localized_site):
+def test_get_active_locale_url_returns_original_url(tiny_localized_site):
     """Page in the active locale: URL is returned as-is."""
     page = Page.objects.get(locale__language_code="en-US", slug="child-page").specific
     with translation.override("en-US"):
-        url = page.get_fallback_url()
+        url = page.get_active_locale_url()
     assert url == page.get_url()
 
 
 @override_settings(FALLBACK_LOCALES={})
-def test_get_fallback_url_returns_original_url_if_no_fallback_locales(tiny_localized_site):
+def test_get_active_locale_url_returns_original_url_if_no_fallback_locales(tiny_localized_site):
     """No FALLBACK_LOCALES: URL retains the page's own locale prefix even when active lang differs."""
     fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
     with translation.override("en-US"):
-        url = fr_page.get_fallback_url()
+        url = fr_page.get_active_locale_url()
     assert url == fr_page.get_url()
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
-def test_get_fallback_url_returns_url_with_fallback_locale(tiny_localized_site):
+def test_get_active_locale_url_returns_url_with_fallback_locale(tiny_localized_site):
     """Active language is alias (pt-PT → pt-BR): URL prefix is rewritten to pt-PT."""
     LocaleFactory(language_code="pt-PT")
     pt_br_page = Page.objects.get(locale__language_code="pt-BR", slug="child-page").specific
     with translation.override("pt-PT"):
-        url = pt_br_page.get_fallback_url()
+        url = pt_br_page.get_active_locale_url()
     assert "/pt-PT/" in url
     assert "/pt-BR/" not in url
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
-def test_get_fallback_url_returns_original_url_if_same_as_active_locale(tiny_localized_site):
+def test_get_active_locale_url_returns_original_url_if_same_as_active_locale(tiny_localized_site):
     """Active language is pt-PT but page is already in pt-PT locale: no substitution."""
     pt_pt_locale = LocaleFactory(language_code="pt-PT")
     site = Site.objects.get(is_default_site=True)
@@ -190,17 +190,17 @@ def test_get_fallback_url_returns_original_url_if_same_as_active_locale(tiny_loc
     pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
     pt_pt_page.save_revision().publish()
     with translation.override("pt-PT"):
-        url = pt_pt_page.specific.get_fallback_url()
+        url = pt_pt_page.specific.get_active_locale_url()
     assert "/pt-PT/" in url
     assert "/pt-BR/" not in url
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
-def test_get_fallback_url_returns_original_url_if_active_language_not_in_fallback_locales(tiny_localized_site):
+def test_get_active_locale_url_returns_original_url_if_active_language_not_in_fallback_locales(tiny_localized_site):
     """Active language (fr) is not in FALLBACK_LOCALES: URL is unchanged."""
     fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
     with translation.override("fr"):
-        url = fr_page.get_fallback_url()
+        url = fr_page.get_active_locale_url()
     assert "/fr/" in url
     assert "/pt-BR/" not in url
 

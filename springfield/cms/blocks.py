@@ -1725,7 +1725,7 @@ class BaseArticleValue(blocks.StructValue):
                 return url
 
         article_page = self.get_article()
-        return article_page.get_fallback_url() if article_page else ""
+        return article_page.get_active_locale_url() if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
