@@ -1251,3 +1251,77 @@ def test_download_page_featured_image_variants(
     assert len(variants_div.find_all("img")) == expected_img_count
 
     _check_image_variant_classes(variants_div, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+# Snippets
+def test_get_localized_snippet_returns_translation(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Extrait traduit"
+
+
+def test_get_localized_snippet_returns_none_if_translation_is_not_published(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.live = False
+    translated_snippet.save()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet is None
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    translated_snippet.name = "Snippet traduzido"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Snippet traduzido"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_translated_instance_despite_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+
+    pt_br_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    pt_br_snippet.name = "Snippet traduzido"
+    pt_br_snippet.save()
+    pt_br_snippet.save_revision().publish()
+
+    pt_pt_snippet = original_snippet.copy_for_translation(pt_pt_locale)
+    pt_pt_snippet.name = "Trecho traduzido"
+    pt_pt_snippet.save()
+    pt_pt_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == pt_pt_snippet.id
+        assert localized_snippet.name == "Trecho traduzido"
