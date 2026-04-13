@@ -6,7 +6,7 @@
 
 {% set block_level = block_level or 1 %}
 
-<include:cards-list scroll="{{ value.settings.scroll }}">
+<include:cards-list scroll="{{ value.settings.scroll if value.settings is defined else False }}">
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}

@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models.expressions import Case, F, Value, When
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import add_never_cache_headers
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -20,6 +21,7 @@ from wagtail.models import Page as WagtailBasePage
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
+from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ICON_CHOICES,
@@ -933,6 +935,15 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    show_smart_window_button = models.CharField(
+        choices=(
+            ("all", "Show to all users"),
+            ("us_ca", "US and Canada only"),
+            ("never", "Never show to any users"),
+        ),
+        default="us_ca",
+        help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
+    )
     waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
     form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
     thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
@@ -956,11 +967,12 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         MultiFieldPanel(
             [
+                FieldPanel("show_smart_window_button"),
                 FieldPanel("waitlist_button_label"),
                 FieldPanel("form_submit_label"),
                 FieldPanel("thank_you_message"),
             ],
-            heading="Waitlist Form",
+            heading="Smart Window button and Waitlist Form",
         ),
         FieldPanel("content"),
     ]
@@ -969,9 +981,17 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name = "Smart Window Page"
         verbose_name_plural = "Smart Window Pages"
 
+    def serve(self, request, *args, **kwargs):
+        response = super().serve(request, *args, **kwargs)
+        if self.show_smart_window_button == "us_ca":
+            add_never_cache_headers(response)
+        return response
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        # TODO: implement the show logic
+        country = get_country_from_request(request)
         context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
-        context["show_try_smart_window"] = request.GET.get("smart-window") == "true"
+        context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
+            self.show_smart_window_button == "us_ca" and country in {"US", "CA"}
+        )
         return context

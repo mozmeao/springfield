@@ -3559,6 +3559,8 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     icon_cards_fixture = get_smart_window_icon_cards()
     page = get_smart_window_test_page()
 
+    # show_smart_window_button="never" ensures the newsletter form is rendered
+    page.show_smart_window_button = "never"
     request = rf.get(page.get_full_url())
     response = page.serve(request)
     assert response.status_code == 200
@@ -3650,8 +3652,9 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
         assert headline_text in icon_card_els[i].get_text()
 
-    # --- UITour buttons: render when ?smart-window=true ---
-    sw_request = rf.get(page.get_full_url(), {"smart-window": "true"})
+    # --- UITour buttons: rendered when show_smart_window_button="all" ---
+    page.show_smart_window_button = "all"
+    sw_request = rf.get(page.get_full_url())
     sw_response = page.serve(sw_request)
     assert sw_response.status_code == 200
     sw_soup = BeautifulSoup(sw_response.content, "html.parser")
@@ -3673,6 +3676,44 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     assert intro_btn
     assert intro_btn["data-cta-position"] == "intro"
     assert intro_btn.get_text(strip=True) == page.waitlist_button_label
+
+
+@pytest.mark.parametrize(
+    "show_button,country,expected",
+    [
+        ("all", "US", True),
+        ("all", "DE", True),
+        ("all", None, True),
+        ("us_ca", "US", True),
+        ("us_ca", "CA", True),
+        ("us_ca", "DE", False),
+        ("us_ca", None, False),
+        ("never", "US", False),
+        ("never", None, False),
+    ],
+)
+def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, show_button, country, expected):
+    page = get_smart_window_test_page()
+    page.show_smart_window_button = show_button
+
+    with mock.patch("springfield.cms.models.pages.get_country_from_request", return_value=country):
+        request = rf.get(page.get_full_url())
+        response = page.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    form = soup.find("form", {"data-testid": "newsletter-form"})
+    nav_button = soup.find("button", {"data-cta-uid": "nav-try-smart-window"})
+    intro_button = soup.find("button", {"data-cta-uid": "intro-try-smart-window"})
+
+    if expected:
+        assert nav_button, f"Expected nav UITour button for show_button={show_button!r}, country={country!r}"
+        assert intro_button, f"Expected intro UITour button for show_button={show_button!r}, country={country!r}"
+        assert not form, f"Expected no form for show_button={show_button!r}, country={country!r}"
+    else:
+        assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
+        assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
+        assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
 
 
 def test_springfield_link_block_clean_accepts_valid_relative_url():
