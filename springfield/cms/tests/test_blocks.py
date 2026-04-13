@@ -111,6 +111,7 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_line_cards,
     get_smart_window_sliding_carousel,
     get_smart_window_test_page,
+    get_smart_window_testimonial_cards,
 )
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
@@ -3557,6 +3558,7 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     line_cards_fixture = get_smart_window_line_cards()
     illustration_cards_fixture = get_smart_window_illustration_cards()
     icon_cards_fixture = get_smart_window_icon_cards()
+    testimonial_cards_fixture = get_smart_window_testimonial_cards()
     page = get_smart_window_test_page()
 
     # show_smart_window_button="never" ensures the newsletter form is rendered
@@ -3630,9 +3632,9 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         assert headline_text in card_els[i].get_text()
         assert not card_els[i].find("a", class_="fl-button")
 
-    # --- Illustration cards and icon cards: each cards_list renders in a fl-card-grid ---
+    # --- Illustration, icon, and testimonial cards_list blocks render in fl-card-grid ---
     card_grids = content_region.find_all("div", class_="fl-card-grid")
-    assert len(card_grids) == 2
+    assert len(card_grids) == 3
 
     illustration_cards_data = illustration_cards_fixture["value"]["cards"]
     illustration_grid = card_grids[0]
@@ -3651,6 +3653,16 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     for i, card in enumerate(icon_cards_data):
         headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
         assert headline_text in icon_card_els[i].get_text()
+
+    testimonial_cards_data = testimonial_cards_fixture["value"]["cards"]
+    testimonial_grid = card_grids[2]
+    assert "fl-card-grid-scroll" in testimonial_grid.get("class", [])
+    testimonial_card_els = testimonial_grid.find_all("article", class_="fl-testimonial-card")
+    assert len(testimonial_card_els) == len(testimonial_cards_data) == 6
+
+    for i, card in enumerate(testimonial_cards_data):
+        attribution_text = BeautifulSoup(card["value"]["attribution"], "html.parser").get_text()
+        assert attribution_text in testimonial_card_els[i].get_text()
 
     # --- UITour buttons: rendered when show_smart_window_button="all" ---
     page.show_smart_window_button = "all"
