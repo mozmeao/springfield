@@ -14,6 +14,7 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -606,11 +607,42 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
+        pretranslated_label = LocalizedLiveSnippetChooserBlock(
+            "cms.ButtonLabelSnippet",
+            required=False,
+            label="Pre-translated Text",
+            help_text="Select a pre-translated label. Takes precedence over Custom Text.",
+        )
+        custom_label = blocks.CharBlock(
+            required=False,
+            label="Custom Text",
+            help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
+        )
+
+        def clean(self, value):
+            errors = {}
+            has_pretranslated = bool(value.get("pretranslated_label"))
+            has_custom = bool((value.get("custom_label") or "").strip())
+            if not has_pretranslated and not has_custom:
+                errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
+            if has_pretranslated and has_custom:
+                errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
+            if errors:
+                raise StructBlockValidationError(block_errors=errors)
+            return super().clean(value)
+
+        def get_context(self, value, parent_context=None):
+            context = super().get_context(value, parent_context)
+            pretranslated = value.get("pretranslated_label")
+            if pretranslated:
+                localized = pretranslated.get_localized()
+                context["button_label"] = (localized or pretranslated).label
+            elif value.get("custom_label"):
+                context["button_label"] = value.get("custom_label", "")
+            return context
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
