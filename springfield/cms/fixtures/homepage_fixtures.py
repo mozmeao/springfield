@@ -6,7 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_button_label_snippets, get_pre_footer_cta_snippet
 from springfield.cms.models import HomePage
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -316,8 +316,9 @@ def get_kit_banner():
 def get_home_test_page() -> HomePage:
     index_page = get_2026_test_index_page()
 
-    # Make sure the Pre-Footer CTA Snippet is created
+    # Make sure required snippets exist
     get_pre_footer_cta_snippet()
+    get_button_label_snippets()
 
     page = HomePage.objects.filter(slug="test-home-page").first()
     if not page:
