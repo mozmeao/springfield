@@ -999,3 +999,31 @@ class WhatsnewView(L10nTemplateView):
 
         # return a list to conform with original intention
         return [template]
+
+
+@require_safe
+def landing_get_page(request):
+    ftl_files = ["firefox/download/desktop", "firefox/download/home"]
+    experiment = request.GET.get("experiment", None)
+    variation = request.GET.get("variation", None)
+
+    # ensure experiment parameters matches pre-defined values
+    if variation not in ["treatment", "control"]:
+        variation = None
+
+    if experiment not in ["download-privacy"]:
+        experiment = None
+
+    if request.locale == "en-US" and experiment == "download-privacy" and variation == "treatment":
+        template_name = "firefox/landing/get-treatment.html"
+    elif request.locale == "en-US":
+        template_name = "firefox/landing/get.html"
+    else:
+        template_name = "firefox/landing/get-new.html"
+
+    context = {
+        "experiment": experiment,
+        "variation": variation,
+    }
+
+    return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)

@@ -2,6 +2,7 @@ name: "Intro variants 2026"
 context:
   variants:
     - title: Intro With Media
+      testid: media-after
       media_position: 'after'
       heading:
         heading_text: Heading
@@ -26,32 +27,8 @@ context:
         alt: PlaceholderImage
 
     - title: Intro With Media (Media Before)
+      testid: media-before
       media_position: 'before'
-      heading:
-        heading_text: Heading
-        superheading_text: Superheading
-        subheading_text: Subheading
-        alignment: center
-        subheading_size: 3
-      buttons:
-        - label: Learn More
-          link: testurl
-          external: true
-          icon_name: forward
-          icon_position: right
-        - label: Sign Up
-          link: testurl
-          external: false
-          icon_name: back
-          icon_position: left
-      fine_print: Fine print
-      image:
-        url: /media/img/firefox/flare/placeholder.png
-        alt: PlaceholderImage
-
-    - title: Vertical Intro With Media (Media Before)
-      media_position: 'before'
-      vertical: true
       heading:
         heading_text: Heading
         superheading_text: Superheading
@@ -75,6 +52,7 @@ context:
         alt: PlaceholderImage
 
     - title: Intro Without Media
+      testid: no-media
       heading:
         heading_text: Heading
         superheading_text: Superheading
@@ -95,6 +73,7 @@ context:
       fine_print: Fine print
 
     - title: Intro With Video
+      testid: video
       media_position: 'after'
       heading:
         heading_text: Heading

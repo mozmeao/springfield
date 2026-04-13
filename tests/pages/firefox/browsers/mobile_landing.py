@@ -8,7 +8,7 @@ from pages.base import BasePage
 
 
 class FirefoxMobilePage(BasePage):
-    _URL_TEMPLATE = "/{locale}/browsers/mobile/"
+    _URL_TEMPLATE = "/{locale}/mobile/"
 
     _android_download_link_locator = (By.CSS_SELECTOR, "[href*='play.google.com'][data-cta-type='firefox_mobile']")
     _ios_download_link_locator = (By.CSS_SELECTOR, "[href*='apps.apple.com'][data-cta-type='firefox_mobile']")

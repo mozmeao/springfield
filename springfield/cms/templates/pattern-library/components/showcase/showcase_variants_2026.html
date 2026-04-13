@@ -7,6 +7,7 @@
 
 <div class="pl-dash-border">
   {% for variant in variants %}
+    <div data-testid="showcase-{{ variant.testid }}">
     <include:showcase layout="{{ variant.layout }}">
       <content:heading>
         <include:heading
@@ -27,5 +28,6 @@
         <p>{{ variant.caption_description }}</p>
       </content:caption>
     </include:showcase>
+    </div>
   {% endfor %}
 </div>
