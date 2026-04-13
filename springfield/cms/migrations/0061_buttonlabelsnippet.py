@@ -12,7 +12,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0066_migrate_icon_choice_values"),
+        ("cms", "0060_create_alias_locale_records"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

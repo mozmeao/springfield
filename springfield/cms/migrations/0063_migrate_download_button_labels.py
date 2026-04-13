@@ -22,7 +22,7 @@ def migrate_labels(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0068_create_button_label_snippets"),
+        ("cms", "0062_create_button_label_snippets"),
     ]
 
     operations = [
