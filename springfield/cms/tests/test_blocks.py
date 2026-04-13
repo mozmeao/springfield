@@ -90,7 +90,7 @@ from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_te
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
-from springfield.cms.models import ArticleDetailPage, SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, ButtonLabelSnippet, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
@@ -179,10 +179,21 @@ def assert_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
 
+def _resolve_download_button_label(button_data: dict) -> str:
+    """Resolve the rendered button label from pretranslated_label (snippet) or custom_label."""
+    value = button_data["value"]
+    snippet_id = value.get("pretranslated_label")
+    if snippet_id:
+        snippet = ButtonLabelSnippet.objects.filter(pk=snippet_id).first()
+        if snippet:
+            return snippet.label
+    return value.get("custom_label", "")
+
+
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = button_data["value"]["label"]
+    label = _resolve_download_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -1718,7 +1729,7 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+    cta_text = f"{heading_text.strip()} - {_resolve_download_button_label(button).strip()}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
