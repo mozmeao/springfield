@@ -55,11 +55,24 @@ class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, Revi
         return SpringfieldLocale.get_active()
 
     def get_localized(self):
-        """Get the localized instance of this snippet for the active locale, or None if not available in the active locale."""
-        instance = self.localized
-        if instance and (instance.locale_id != self.active_locale.id or not instance.live):
-            return None
-        return instance
+        """Get the localized instance of this snippet for the active locale or for the fallback locale,
+        or None if not available in the active locale."""
+        localized = self.localized
+
+        active_lang_code = self.active_locale.language_code
+
+        if localized.locale.language_code != active_lang_code:
+            fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+            if fallback_code := fallback_locales.get(active_lang_code):
+                if fallback_locale := SpringfieldLocale.objects.filter(language_code=fallback_code).first():
+                    if fallback_snippet := self.get_translation_or_none(fallback_locale):
+                        localized = fallback_snippet
+            else:
+                return None
+
+        if localized.live:
+            return localized
+        return None
 
 
 class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):

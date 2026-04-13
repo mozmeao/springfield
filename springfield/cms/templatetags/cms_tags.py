@@ -258,7 +258,7 @@ def richtext(context, value: str) -> str:
 def get_pre_footer_cta_snippet(context):
     """
     Retrieves the PreFooterCTASnippet for the current locale.
-    Returns the first available snippet for the locale, or None if not found.
+    Returns the first live available snippet for the locale, or None if not found.
 
     Usage in templates:
         {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
@@ -339,7 +339,7 @@ def get_download_firefox_cta_snippet(context):
         locale = context["self"].locale
 
     if locale:
-        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).first()
+        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).live().first()
 
     return None
 
