@@ -995,3 +995,25 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             self.show_smart_window_button == "us_ca" and country in {"US", "CA"}
         )
         return context
+
+
+class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A Smart Window themed page"""
+
+    upper_content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Explainer Page"
+        verbose_name_plural = "Smart Window Explainer Pages"
