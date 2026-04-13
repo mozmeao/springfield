@@ -21,6 +21,12 @@
   "scripts": {
     "install-deps": "npx playwright install --with-deps",
     "integration-tests": "npx playwright test --grep-invert @a11y",
-    "a11y-tests": "npx playwright test --grep @a11y --project=chromium"
+    "visual-regression-tests": "docker compose -f ../../docker-compose.yml run --rm playwright-visual-regression",
+    "visual-regression-tests:ui": "docker compose -f ../../docker-compose.yml run --rm --service-ports playwright-visual-regression-ui",
+    "update-screenshots": "docker compose -f ../../docker-compose.yml run --rm playwright-update-screenshots",
+    "a11y-tests": "npx playwright test --grep @a11y --project=chromium",
+    "local:visual-regression-tests": "npx playwright test --config playwright.visual-regression.config.js --grep @visual-regression",
+    "local:visual-regression-tests:ui": "npx playwright test --config playwright.visual-regression.config.js --grep @visual-regression --ui",
+    "local:update-screenshots": "npm run local:visual-regression-tests -- --update-snapshots"
   }
 }

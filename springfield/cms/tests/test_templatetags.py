@@ -5,12 +5,15 @@ from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models.snippets import DownloadFirefoxCallToActionSnippet
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
+    get_download_firefox_cta_snippet,
     remove_p_tag,
     remove_tags,
     richtext,
@@ -196,3 +199,58 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
         expected_url = original_url
     expected_html = f'<p>Check out <a href="{expected_url}">this page</a>.</p>'
     assert BeautifulSoup(output_html, "html.parser") == BeautifulSoup(expected_html, "html.parser")
+
+
+@pytest.mark.django_db
+def test_get_download_firefox_cta_snippet_returns_live_snippet():
+    locale = Locale.objects.get(language_code="en-US")
+    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
+        locale=locale,
+        heading="<p>Live Heading</p>",
+        description="<p>Live Description</p>",
+        live=True,
+    )
+    context = {"page": type("Page", (), {"locale": locale})()}
+    result = get_download_firefox_cta_snippet(context)
+    assert result == snippet
+
+
+@pytest.mark.django_db
+def test_get_download_firefox_cta_snippet_excludes_draft_snippet():
+    locale = Locale.objects.get(language_code="en-US")
+    DownloadFirefoxCallToActionSnippet.objects.create(
+        locale=locale,
+        heading="<p>Draft Heading</p>",
+        description="<p>Draft Description</p>",
+        live=False,
+    )
+    context = {"page": type("Page", (), {"locale": locale})()}
+    result = get_download_firefox_cta_snippet(context)
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_download_firefox_cta_snippet_prefers_live_over_draft():
+    locale = Locale.objects.get(language_code="en-US")
+    DownloadFirefoxCallToActionSnippet.objects.create(
+        locale=locale,
+        heading="<p>Draft Heading</p>",
+        description="<p>Draft Description</p>",
+        live=False,
+    )
+    live_snippet = DownloadFirefoxCallToActionSnippet.objects.create(
+        locale=locale,
+        heading="<p>Live Heading</p>",
+        description="<p>Live Description</p>",
+        live=True,
+    )
+    context = {"page": type("Page", (), {"locale": locale})()}
+    result = get_download_firefox_cta_snippet(context)
+    assert result == live_snippet
+
+
+@pytest.mark.django_db
+def test_get_download_firefox_cta_snippet_returns_none_without_locale():
+    context = {}
+    result = get_download_firefox_cta_snippet(context)
+    assert result is None

@@ -16,6 +16,7 @@ services:
       - ./media/:/app/media:delegated
       - ./springfield/:/app/springfield:delegated
       - ./assets/:/app/assets:delegated
+      - ./webpack.config.js:/app/webpack.config.js:delegated
     environment:
       WP_PROXY_URL: "http://app:8080"
 
@@ -134,6 +135,39 @@ services:
       - ./locale/:/app/locale:delegated
       - ./l10n/:/app/l10n:delegated
 
+  playwright-visual-regression:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    network_mode: host
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://localhost:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js"
+
+  playwright-visual-regression-ui:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    network_mode: host
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://localhost:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --ui --ui-host=0.0.0.0 --ui-port=8085"
+
+  playwright-update-screenshots:
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /app/tests/playwright
+    network_mode: host
+    volumes:
+      - ./tests/playwright:/app/tests/playwright
+      - playwright_node_modules:/app/tests/playwright/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://localhost:8000}"
+    command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --update-snapshots"
+
   builder:
     build:
       context: .
@@ -159,3 +193,4 @@ services:
 
 volumes:
   media_volume:
+  playwright_node_modules:

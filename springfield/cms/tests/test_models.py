@@ -5,6 +5,7 @@
 from unittest import mock
 
 from django.test import override_settings
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -28,6 +29,7 @@ from springfield.cms.tests.factories import (
     FreeFormPage2026Factory,
     FreeFormPageFactory,
     LocaleFactory,
+    SimpleRichTextPageFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
@@ -143,6 +145,64 @@ def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_sit
 
     patched_request = en_us_test_page.specific._patch_request_for_springfield(request)
     assert patched_request.is_cms_page is True
+
+
+# ---------------------------------------------------------------------------
+# get_active_locale_url
+# ---------------------------------------------------------------------------
+
+
+def test_get_active_locale_url_returns_original_url(tiny_localized_site):
+    """Page in the active locale: URL is returned as-is."""
+    page = Page.objects.get(locale__language_code="en-US", slug="child-page").specific
+    with translation.override("en-US"):
+        url = page.get_active_locale_url()
+    assert url == page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_get_active_locale_url_returns_original_url_if_no_fallback_locales(tiny_localized_site):
+    """No FALLBACK_LOCALES: URL retains the page's own locale prefix even when active lang differs."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("en-US"):
+        url = fr_page.get_active_locale_url()
+    assert url == fr_page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_url_with_fallback_locale(tiny_localized_site):
+    """Active language is alias (pt-PT → pt-BR): URL prefix is rewritten to pt-PT."""
+    LocaleFactory(language_code="pt-PT")
+    pt_br_page = Page.objects.get(locale__language_code="pt-BR", slug="child-page").specific
+    with translation.override("pt-PT"):
+        url = pt_br_page.get_active_locale_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_original_url_if_same_as_active_locale(tiny_localized_site):
+    """Active language is pt-PT but page is already in pt-PT locale: no substitution."""
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    site.root_page.copy_for_translation(pt_pt_locale)
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.save_revision().publish()
+    with translation.override("pt-PT"):
+        url = pt_pt_page.specific.get_active_locale_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_original_url_if_active_language_not_in_fallback_locales(tiny_localized_site):
+    """Active language (fr) is not in FALLBACK_LOCALES: URL is unchanged."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("fr"):
+        url = fr_page.get_active_locale_url()
+    assert "/fr/" in url
+    assert "/pt-BR/" not in url
 
 
 def test_whats_new_index_page_redirects_to_latest_whats_new(
@@ -613,6 +673,220 @@ def test_springfield_locale_get_active_falls_back_to_default():
         assert active_locale.language_code == "en-US"
 
 
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_locale_get_active_uses_configured_fallback_locale():
+    """
+    When an alias locale (pt-PT) has no Locale DB record, get_active() should
+    return the configured fallback locale (pt-BR) rather than jumping straight
+    to en-US.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    # Deliberately do NOT create a pt-PT Locale record
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    # Django returns lowercase codes; pt-PT becomes "pt-pt"
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == pt_br_locale.id
+    assert active_locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_locale_get_active_falls_back_to_default_when_fallback_locale_also_missing():
+    """
+    When the alias locale has no DB record and the configured fallback locale
+    also has no DB record, get_active() should still fall back safely to en-US.
+    """
+    # Neither pt-PT nor pt-BR exists
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+    assert not Locale.objects.filter(language_code="pt-BR").exists()
+
+    default_locale = Locale.objects.get(language_code="en-US")
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == default_locale.id
+    assert active_locale.language_code == "en-US"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_fallback_locale_page_when_alias_locale_has_no_db_record():
+    """
+    When Django's active language is an alias locale (pt-PT) with no Locale DB
+    record, page.localized should return the fallback locale's (pt-BR)
+    translation rather than the en-US original.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    # copy_for_translation requires the parent to exist in the target locale
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-localized-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized = en_us_page.localized
+
+    assert localized.id == pt_br_page.id
+    assert localized.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_uses_fallback_locale_when_alias_locale_exists_but_no_translation():
+    """
+    When the alias locale (pt-PT) has a Locale DB record but the page has no
+    pt-PT translation, page.localized should return the fallback locale's (pt-BR)
+    translation rather than the en-US original.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")  # Locale exists in DB
+    # Deliberately do NOT create a pt-PT translation of the article
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-fallback-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == pt_br_page.id
+    assert result.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_translation_when_active_locale_has_one():
+    """
+    When the active locale (pt-BR) has a published translation, localized
+    returns it directly without consulting FALLBACK_LOCALES.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-normal-locale-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-br"):
+        result = en_us_page.localized
+
+    assert result.id == pt_br_page.id
+    assert result.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_translation_when_fallback_locale_has_translation():
+    """
+    When the active locale (pt-PT) has a translation, localized returns the locale's translation.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+    root_page.copy_for_translation(pt_pt_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-normal-locale-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.title = "pt-PT Article"
+    pt_pt_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == pt_pt_page.id
+    assert result.locale == pt_pt_locale
+
+
+def test_page_localized_returns_self_when_no_translation_and_locale_not_in_fallback_locales():
+    """
+    When the active locale (fr) is not in FALLBACK_LOCALES and the page has no
+    French translation, localized returns the source page unchanged.
+    """
+    _fr_locale = LocaleFactory(language_code="fr")
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-no-fallback-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
+def test_page_localized_returns_self_for_source_locale():
+    """
+    When the active locale is the source locale (en-US), localized returns
+    the page unchanged without any extra lookups.
+    """
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-source-locale-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="en-us"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_self_when_fallback_locale_also_has_no_translation():
+    """
+    When the alias locale (pt-PT) maps to pt-BR via FALLBACK_LOCALES but the
+    page has no pt-BR translation either, localized returns the source page.
+    """
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    _pt_br_locale = LocaleFactory(language_code="pt-BR")
+    # No pt-PT or pt-BR translation created for the page
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-no-fallback-translation-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
 def test_thanks_page_get_template_default(rf):
     page = ThanksPage()
     request = rf.get("/thanks/")
@@ -978,3 +1252,77 @@ def test_download_page_featured_image_variants(
     assert len(variants_div.find_all("img")) == expected_img_count
 
     _check_image_variant_classes(variants_div, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+# Snippets
+def test_get_localized_snippet_returns_translation(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Extrait traduit"
+
+
+def test_get_localized_snippet_returns_none_if_translation_is_not_published(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.live = False
+    translated_snippet.save()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet is None
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    translated_snippet.name = "Snippet traduzido"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Snippet traduzido"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_translated_instance_despite_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+
+    pt_br_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    pt_br_snippet.name = "Snippet traduzido"
+    pt_br_snippet.save()
+    pt_br_snippet.save_revision().publish()
+
+    pt_pt_snippet = original_snippet.copy_for_translation(pt_pt_locale)
+    pt_pt_snippet.name = "Trecho traduzido"
+    pt_pt_snippet.save()
+    pt_pt_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == pt_pt_snippet.id
+        assert localized_snippet.name == "Trecho traduzido"
