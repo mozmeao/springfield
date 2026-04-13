@@ -3,6 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+from django.conf import settings
+
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
@@ -236,7 +238,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
+                "custom_label": "",
                 "settings": {
                     "theme": "",
                     "icon": "desktop-16/downloads/downloads-16",
@@ -250,7 +253,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
+                "custom_label": "",
                 "settings": {
                     "theme": "secondary",
                     "icon": "desktop-16/downloads/downloads-16",

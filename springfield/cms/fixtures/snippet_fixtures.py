@@ -8,7 +8,15 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, QRCodeSnippet, Tag
+from springfield.cms.models import (
+    BannerSnippet,
+    ButtonLabelSnippet,
+    DownloadFirefoxCallToActionSnippet,
+    PreFooterCTAFormSnippet,
+    PreFooterCTASnippet,
+    QRCodeSnippet,
+    Tag,
+)
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -81,6 +89,31 @@ def get_qr_code_snippet() -> QRCodeSnippet:
         },
     )
     return snippet
+
+
+def get_button_label_snippets() -> tuple[ButtonLabelSnippet, ButtonLabelSnippet]:
+    locale = Locale.get_default()
+    get_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+        id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "key": "get_firefox",
+            "label": "Get Firefox",
+            "live": True,
+            "translation_key": "f25078fd-50e4-4a73-acbc-6355bfa7de6e",
+        },
+    )
+    download_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+        id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "key": "download_firefox",
+            "label": "Download Firefox",
+            "live": True,
+            "translation_key": "e13dc0ed-aa51-4077-b011-fb20958ffefd",
+        },
+    )
+    return get_firefox, download_firefox
 
 
 def get_tags() -> list[Tag]:
