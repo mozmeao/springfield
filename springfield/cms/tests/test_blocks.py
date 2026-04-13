@@ -114,6 +114,10 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
 )
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
+from springfield.cms.fixtures.testimonial_card_fixtures import (
+    get_testimonial_card_2026_variants,
+    get_testimonial_cards_2026_test_page,
+)
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
@@ -3026,6 +3030,58 @@ def test_icon_cards_2026_block(index_page, placeholder_images, rf):
                             cta_position=cta_position,
                             cta_text=cta_text,
                         )
+
+
+def test_testimonial_cards_2026_block(index_page, placeholder_images, rf):
+    variants = get_testimonial_card_2026_variants()
+    page = get_testimonial_cards_2026_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in [upper, lower]:
+        sections = region.find_all("section", class_="fl-section")
+        assert len(sections) == 2
+
+        assert len(sections[0].find_all("article", class_="fl-testimonial-card")) == 3
+        assert len(sections[1].find_all("article", class_="fl-testimonial-card")) == 4
+
+        cards = sections[1].find_all("article", class_="fl-testimonial-card")
+        for i, variant in enumerate(variants):
+            card_el = cards[i]
+            value = variant["value"]
+
+            # Quote content
+            content_text = BeautifulSoup(value["content"], "html.parser").get_text()
+            quote_el = card_el.find("blockquote", class_="fl-testimonial-card-quote")
+            assert quote_el and content_text in quote_el.get_text()
+
+            # Attribution (always present)
+            attribution_text = BeautifulSoup(value["attribution"], "html.parser").get_text()
+            cite_el = card_el.find("cite", class_="fl-testimonial-card-attribution")
+            assert cite_el and attribution_text in cite_el.get_text()
+
+            # Attribution role (optional)
+            if value.get("attribution_role"):
+                role_text = BeautifulSoup(value["attribution_role"], "html.parser").get_text()
+                role_el = card_el.find("span", class_="fl-testimonial-card-role")
+                assert role_el and role_text in role_el.get_text()
+            else:
+                assert not card_el.find("span", class_="fl-testimonial-card-role")
+
+            # Attribution image (optional)
+            image_container = card_el.find("div", class_="fl-testimonial-card-image")
+            if value["attribution_image"]["image"]:
+                assert image_container and image_container.find("img")
+            else:
+                assert not image_container
 
 
 def test_line_cards_block(index_page, placeholder_images, rf):

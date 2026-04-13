@@ -84,7 +84,9 @@ Card Grid - Flare 2026 Design System Cards
     .fl-card-grid:has(.fl-illustration-icon-card:nth-child(3):last-child),
     .fl-card-grid:has(> *:nth-child(3):last-child .fl-illustration-icon-card),
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
+    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         inline-size: 100%;
         margin-inline: auto;
@@ -93,7 +95,9 @@ Card Grid - Flare 2026 Design System Cards
 
     /* make outline cards slightly wider */
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
+    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
         max-inline-size: var(--token-width-desktop-wide-banner);
     }
 }
@@ -629,5 +633,114 @@ Illustration Card
         --media-border-radius: var(--token-border-radius-sm);
         --media-padding: var(--token-spacing-lg);
         --media-size: 102px;
+    }
+}
+
+/* =====================================================================
+Testimonial Card
+===================================================================== */
+
+.fl-testimonial-card {
+    background: var(--fl-theme-default-card-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    padding: var(--token-spacing-2xl);
+    position: relative;
+    transition: transform var(--token-transition-base);
+}
+
+.fl-testimonial-card::after {
+    border-radius: inherit;
+    box-shadow: 0 20px 46px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-testimonial-card:hover {
+    transform: translateY(-2px);
+}
+
+.fl-testimonial-card:hover::after {
+    opacity: 1;
+}
+
+.fl-testimonial-card-quote {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-testimonial-card-footer {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-start: auto;
+}
+
+.fl-testimonial-card-image {
+    block-size: 48px;
+    border-radius: var(--token-border-radius-xs);
+    flex-shrink: 0;
+    inline-size: 48px;
+    overflow: hidden;
+}
+
+.fl-testimonial-card-image img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-testimonial-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xs);
+}
+
+.fl-testimonial-card-attribution {
+    font-style: normal;
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-testimonial-card-role {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-xs);
+    opacity: 0.7;
+}
+
+/* =====================================================================
+Card Grid - Scroll variant
+===================================================================== */
+
+.fl-card-grid-scroll {
+    --fl-card-grid-columns: none;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--token-spacing-lg);
+    overflow: hidden;
+
+    /* Extra block padding so card shadows aren't clipped */
+    padding-block: var(--token-layout-sm);
+}
+
+.fl-card-grid-scroll > * {
+    flex: 0 0 auto;
+    inline-size: clamp(260px, 30vw, 360px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-card-grid-scroll {
+        /* When motion is reduced, let the user scroll manually */
+        overflow-x: auto;
     }
 }

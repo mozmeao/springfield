@@ -53,6 +53,7 @@ from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carou
 from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
+from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_cards_2026_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
@@ -119,6 +120,9 @@ class Command(BaseCommand):
 
         icon_cards_2026_page = get_icon_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Icon Cards 2026 test page loaded: {icon_cards_2026_page.slug}"))
+
+        testimonial_cards_2026_page = get_testimonial_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Testimonial Cards 2026 test page loaded: {testimonial_cards_2026_page.slug}"))
 
         step_cards_2026_page = get_step_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Step Cards 2026 test page loaded: {step_cards_2026_page.slug}"))

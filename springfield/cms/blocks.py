@@ -1616,6 +1616,34 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
     return _OutlinedCardBlock(*args, **kwargs)
 
 
+def TestimonialCardBlock(*args, **kwargs):
+    class _TestimonialCardSettings(blocks.StructBlock):
+        show_to = ConditionalDisplayBlock(
+            label="Show To",
+            help_text="Control which users can see this content block",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
+    class _TestimonialCardBlock(blocks.StructBlock):
+        settings = _TestimonialCardSettings()
+        attribution_image = ImageVariantsBlock(required=False)
+        attribution = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution_role = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+        class Meta:
+            template = "cms/blocks/testimonial-card.html"
+            label = "Testimonial Card"
+            label_format = "Testimonial - {attribution}"
+
+    return _TestimonialCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1624,13 +1652,28 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
                       If False, only allows regular buttons.
     """
 
+    class _CardsListSettings(blocks.StructBlock):
+        scroll = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Display all cards in a single scrolling row",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
     class _CardsListBlock(blocks.StructBlock):
+        settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
                 ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
+                ("testimonial_card", TestimonialCardBlock()),
             ]
         )
 

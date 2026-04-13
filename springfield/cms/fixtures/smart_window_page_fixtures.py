@@ -121,12 +121,129 @@ def get_smart_window_icon_cards() -> dict:
     }
 
 
+def get_smart_window_testimonial_cards() -> dict:
+    img = settings.PLACEHOLDER_IMAGE_ID
+    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    _image = {
+        "image": img,
+        "settings": {
+            "dark_mode_image": dark,
+            "mobile_image": None,
+            "dark_mode_mobile_image": None,
+        },
+    }
+    _no_image = {
+        "image": None,
+        "settings": {
+            "dark_mode_image": None,
+            "mobile_image": None,
+            "dark_mode_mobile_image": None,
+        },
+    }
+    cards = [
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _image,
+                "attribution": '<p data-block-key="swptc1a">Layla Hassan</p>',
+                "attribution_role": '<p data-block-key="swptc1r">Product Designer</p>',
+                "content": (
+                    '<p data-block-key="swptc1c">Smart Window changed how I work. '
+                    "I keep my research on one side and my design tool on the other "
+                    "\u2014 no more alt-tabbing chaos.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _no_image,
+                "attribution": '<p data-block-key="swptc2a">Marcus Osei</p>',
+                "attribution_role": '<p data-block-key="swptc2r">Software Engineer</p>',
+                "content": (
+                    '<p data-block-key="swptc2c">I run documentation next to my terminal all day. '
+                    "Smart Window snaps them perfectly without me thinking about it.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000002",
+        },
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _image,
+                "attribution": '<p data-block-key="swptc3a">Priya Nair</p>',
+                "attribution_role": '<p data-block-key="swptc3r">Journalist</p>',
+                "content": (
+                    '<p data-block-key="swptc3c">Writing while fact-checking used to mean constant switching. '
+                    "Smart Window lets me keep my sources visible while I type.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000003",
+        },
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _no_image,
+                "attribution": '<p data-block-key="swptc4a">Tom Reyes</p>',
+                "attribution_role": "",
+                "content": (
+                    '<p data-block-key="swptc4c">Finally a browser feature that understands how people actually work. '
+                    "My multitasking got significantly faster.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000004",
+        },
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _image,
+                "attribution": '<p data-block-key="swptc5a">Yuki Tanaka</p>',
+                "attribution_role": '<p data-block-key="swptc5r">UX Researcher</p>',
+                "content": (
+                    '<p data-block-key="swptc5c">I tested Smart Window with dozens of users. '
+                    "The consistent feedback: it just makes sense. The learning curve is nearly zero.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000005",
+        },
+        {
+            "type": "testimonial_card",
+            "value": {
+                "settings": {"show_to": _SHOW_TO_ALL},
+                "attribution_image": _no_image,
+                "attribution": '<p data-block-key="swptc6a">Ana Ferreira</p>',
+                "attribution_role": '<p data-block-key="swptc6r">Student</p>',
+                "content": (
+                    '<p data-block-key="swptc6c">Taking notes while watching lectures used to be painful. '
+                    "Smart Window makes it effortless \u2014 both windows side by side, perfectly sized.</p>"
+                ),
+            },
+            "id": "swptc01-0000-0000-0000-000000000006",
+        },
+    ]
+    return {
+        "type": "cards_list",
+        "value": {
+            "settings": {"scroll": True},
+            "cards": cards,
+        },
+        "id": "swptc01-0000-0000-0000-000000000001",
+    }
+
+
 def get_smart_window_page_content() -> list[dict]:
     return [
         get_smart_window_sliding_carousel(),
         get_smart_window_line_cards(),
         get_smart_window_illustration_cards(),
         get_smart_window_icon_cards(),
+        get_smart_window_testimonial_cards(),
     ]
 
 
