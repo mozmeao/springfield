@@ -105,15 +105,7 @@ urlpatterns = (
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
     # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
-    path(
-        "landing/get/",
-        VariationTemplateView.as_view(
-            template_name="firefox/landing/get.html",
-            template_name_variations=["treatment"],
-            variation_locales=["en-US"],
-            ftl_files=["firefox/download/desktop", "firefox/download/home"],
-        ),
-    ),
+    path("landing/get/", views.landing_get_page, name="landing.get"),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),

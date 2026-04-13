@@ -242,6 +242,7 @@ input[type='checkbox']:disabled:checked {
 
     input[type='checkbox']:not(:disabled):hover:checked {
         background-color: var(--checkbox-hover-color);
+        background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-16.svg');
         cursor: pointer;
     }
 }

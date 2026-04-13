@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -44,6 +48,10 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 
 from .base import AbstractSpringfieldCMSPage
+
+if TYPE_CHECKING:
+    from springfield.cms.models import Tag
+
 
 BASE_UTM_PARAMETERS = {
     "utm_source": "www.firefox.com",
@@ -600,7 +608,10 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("related_articles"),
     ]
 
-    def get_tag(self):
+    if TYPE_CHECKING:
+        tag: Tag | None
+
+    def get_tag(self) -> Tag | None:
         if self.tag:
             return self.tag.get_localized()
         return None

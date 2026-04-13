@@ -137,6 +137,7 @@ module.exports = {
     },
     devServer: {
         port: 8000,
+        allowedHosts: 'all',
         open: false,
         hot: false,
         static: false,
