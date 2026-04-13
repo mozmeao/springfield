@@ -19,8 +19,11 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
 )
 from wagtail.models import Locale as WagtailLocale
+from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.snippets import SnippetViewSet
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.models import ButtonLabelSnippet
 
 
 @hooks.register("register_admin_menu_item")
@@ -262,3 +265,18 @@ def register_firefox_logo_feature(features):
     # Add the feature to the default features list to make it available
     # on rich text fields that do not specify an explicit 'features' list
     features.default_features.append(feature_name)
+
+
+class ButtonLabelViewSet(SnippetViewSet):
+    model = ButtonLabelSnippet
+    icon = "tag"
+    menu_label = "Button Labels"
+    menu_name = "button_labels"
+    menu_order = 500
+    add_to_admin_menu = True
+    list_display = ["label", "key", "locale", "live"]
+    list_filter = ["key", "locale"]
+    search_fields = ["label", "key"]
+
+
+register_snippet(ButtonLabelViewSet)
