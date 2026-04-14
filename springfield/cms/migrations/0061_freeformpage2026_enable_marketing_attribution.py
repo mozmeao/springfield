@@ -18,7 +18,13 @@ class Migration(migrations.Migration):
             name="enable_marketing_attribution",
             field=models.BooleanField(
                 default=False,
-                help_text="Enable marketing attribution for externally promoted pages. Adds the 'Share how you discovered Firefox' opt-out checkbox, consent banner support for EU visitors, and stub attribution for CPA tracking. Must not be used together with the 'Set as default browser' checkbox on download buttons.",
+                help_text=(
+                    "Enable marketing attribution for externally promoted pages."
+                    " Adds the 'Share how you discovered Firefox' opt-out checkbox,"
+                    " consent banner support for EU visitors, and stub attribution"
+                    " for CPA tracking. Must not be used together with the 'Set as"
+                    " default browser' checkbox on download buttons."
+                ),
             ),
         ),
     ]
