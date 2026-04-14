@@ -47,7 +47,7 @@ from springfield.cms.blocks import (
 )
 from springfield.cms.fields import StreamField
 
-from .base import AbstractSpringfieldCMSPage
+from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -717,7 +717,7 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
 
-class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -755,9 +755,17 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("show_qr_code_snippet"),
     ]
 
+    promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
