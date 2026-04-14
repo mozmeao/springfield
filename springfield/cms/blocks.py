@@ -1143,6 +1143,13 @@ class MediaContentSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Place media after text content on desktop",
     )
+    narrow = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Narrow Layout",
+        inline_form=True,
+        help_text="Narrow the media element",
+    )
 
     class Meta:
         icon = "cog"

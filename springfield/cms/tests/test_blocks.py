@@ -91,6 +91,7 @@ from springfield.cms.fixtures.line_cards_fixtures import (
     get_line_cards_test_page,
 )
 from springfield.cms.fixtures.media_content_2026_fixtures import (
+    get_media_content_2026_narrow_variants,
     get_media_content_2026_sections,
     get_media_content_2026_test_page,
     get_media_content_2026_variants,
@@ -399,11 +400,12 @@ def assert_card_attributes(
     card_data: dict,
     context: dict,
     cta_position: str | None = None,
+    heading_tag: str = "h3",
 ):
     headline_text = BeautifulSoup(card_data["value"]["headline"], "html.parser").get_text()
     content_text = BeautifulSoup(card_data["value"]["content"], "html.parser").get_text()
 
-    headline = card_element.find(class_="fl-heading")
+    headline = card_element.find(heading_tag, class_="fl-heading")
     content = card_element.find(class_="fl-body")
 
     assert headline and headline_text in headline.get_text()
@@ -789,9 +791,76 @@ def test_media_content_block(index_page, placeholder_images, rf):
             assert_tag_attributes(tag_element, tag)
 
 
+def _assert_media_content_2026_variants(region, variants, section_prefix, context, heading_tag="h3"):
+    for index, variant in enumerate(variants):
+        div = region.find_all("div", class_="fl-mediacontent")[index]
+        value = variant["value"]
+
+        # Headline
+        headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
+        headline = div.find(heading_tag, class_="fl-heading")
+        assert headline and headline_text in headline.get_text()
+
+        # Eyebrow (optional)
+        if value.get("eyebrow"):
+            eyebrow_text = BeautifulSoup(value["eyebrow"], "html.parser").get_text()
+            eyebrow = div.find("p", class_="fl-superheading")
+            assert eyebrow and eyebrow_text in eyebrow.get_text()
+
+        # Content (StreamBlock — first rich_text block)
+        content_html = value["content"][0]["value"]
+        content_text = BeautifulSoup(content_html, "html.parser").get_text()
+        body = div.find("div", class_="fl-body")
+        assert body and content_text in body.get_text()
+
+        # Buttons
+        button = value["buttons"][0]
+        button_element = div.find("a", class_="fl-button")
+        cta_position = f"{section_prefix}.item-{index + 1}-media_content.button-1"
+        cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+        assert_button_attributes(
+            button_element=button_element,
+            button_data=button,
+            context=context,
+            cta_position=cta_position,
+            cta_text=cta_text,
+        )
+
+        # Media
+        media_element = div.find("div", class_="fl-mediacontent-media")
+        assert media_element
+
+        media_value = value["media"][0]
+        if media_value["type"] == "image":
+            assert_image_variants_attributes(images_element=media_element, images_value=media_value["value"])
+        elif media_value["type"] == "video":
+            video_div = div.find("div", class_="fl-video")
+            assert_video_attributes(video_div, media_value)
+
+        # Tags
+        tags = value["tags"]
+        if tags:
+            tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
+            assert len(tag_elements) == len(tags)
+            for i, tag in enumerate(tags):
+                assert_tag_attributes(tag_elements[i], tag)
+
+        # Settings: media_after → fl-mediacontent-reverse; narrow → is-narrow
+        if value["settings"].get("media_after"):
+            assert "fl-mediacontent-reverse" in div.get("class", [])
+        else:
+            assert "fl-mediacontent-reverse" not in div.get("class", [])
+
+        if value["settings"].get("narrow"):
+            assert "is-narrow" in div.get("class", [])
+        else:
+            assert "is-narrow" not in div.get("class", [])
+
+
 def test_media_content_2026_block(index_page, placeholder_images, rf):
     sections = get_media_content_2026_sections()
     variants = get_media_content_2026_variants()
+    narrow_variants = get_media_content_2026_narrow_variants()
     page = get_media_content_2026_test_page()
 
     request = rf.get(page.get_full_url())
@@ -805,65 +874,21 @@ def test_media_content_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region, block_prefix in [(upper, "upper-block"), (lower, "lower-block")]:
-        section_elements = region.find_all("section", class_="fl-section")
-        assert len(section_elements) == len(sections)
+    # Upper region: section 1 has block_level=1 (children get h2), section 2 has block_level=2 (children get h3)
+    upper_section_elements = upper.find_all("section", class_="fl-section")
+    assert len(upper_section_elements) == len(sections)
+    assert len(upper_section_elements[0].find_all("div", class_="fl-mediacontent")) == len(variants)
+    assert len(upper_section_elements[1].find_all("div", class_="fl-mediacontent")) == len(narrow_variants)
+    _assert_media_content_2026_variants(upper_section_elements[0], variants, "upper-block-1-section", context, heading_tag="h2")
+    _assert_media_content_2026_variants(upper_section_elements[1], narrow_variants, "upper-block-2-section", context, heading_tag="h3")
 
-        media_content_divs = section_elements[0].find_all("div", class_="fl-mediacontent")
-        assert len(media_content_divs) == len(variants)
-
-        for index, variant in enumerate(variants):
-            div = media_content_divs[index]
-            value = variant["value"]
-
-            # Headline
-            headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-            headline = div.find(class_="fl-heading")
-            assert headline and headline_text in headline.get_text()
-
-            # Eyebrow (optional)
-            if value.get("eyebrow"):
-                eyebrow_text = BeautifulSoup(value["eyebrow"], "html.parser").get_text()
-                eyebrow = div.find("p", class_="fl-superheading")
-                assert eyebrow and eyebrow_text in eyebrow.get_text()
-
-            # Content (StreamBlock — first rich_text block)
-            content_html = value["content"][0]["value"]
-            content_text = BeautifulSoup(content_html, "html.parser").get_text()
-            body = div.find("div", class_="fl-body")
-            assert body and content_text in body.get_text()
-
-            # Buttons
-            button = value["buttons"][0]
-            button_element = div.find("a", class_="fl-button")
-            cta_position = f"{block_prefix}-1-section.item-{index + 1}-media_content.button-1"
-            cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
-            assert_button_attributes(
-                button_element=button_element,
-                button_data=button,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-            # Media
-            media_element = div.find("div", class_="fl-mediacontent-media")
-            assert media_element
-
-            media_value = value["media"][0]
-            if media_value["type"] == "image":
-                assert_image_variants_attributes(images_element=media_element, images_value=media_value["value"])
-            elif media_value["type"] == "video":
-                video_div = div.find("div", class_="fl-video")
-                assert_video_attributes(video_div, media_value)
-
-            # Tags
-            tags = value["tags"]
-            if tags:
-                tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
-                assert len(tag_elements) == len(tags)
-                for i, tag in enumerate(tags):
-                    assert_tag_attributes(tag_elements[i], tag)
+    # Lower region: all sections have block_level=2 (children get h3)
+    lower_section_elements = lower.find_all("section", class_="fl-section")
+    assert len(lower_section_elements) == len(sections)
+    assert len(lower_section_elements[0].find_all("div", class_="fl-mediacontent")) == len(variants)
+    assert len(lower_section_elements[1].find_all("div", class_="fl-mediacontent")) == len(narrow_variants)
+    _assert_media_content_2026_variants(lower_section_elements[0], variants, "lower-block-1-section", context, heading_tag="h3")
+    _assert_media_content_2026_variants(lower_section_elements[1], narrow_variants, "lower-block-2-section", context, heading_tag="h3")
 
 
 def test_icon_card_block(index_page, rf):
@@ -918,11 +943,13 @@ def test_icon_card_block(index_page, rf):
 
         for card_index, card in enumerate(cards):
             card_element = card_divs[card_index]
+            # icon-card.html uses block_level directly; section 0 children are h2, section 1 are h3
             assert_card_attributes(
                 card_element=card_element,
                 card_data=card,
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
+                heading_tag="h2" if list_index == 0 else "h3",
             )
             icon_element = card_element.find("span", class_="fl-icon")
             assert icon_element and f"fl-icon-{card['value']['icon']}" in icon_element["class"]
@@ -980,11 +1007,13 @@ def test_sticker_card_block(index_page, placeholder_images, rf):
 
         for card_index, card in enumerate(cards):
             card_element = card_divs[card_index]
+            # sticker-card.html uses block_level directly; section 0 children are h2, section 1 are h3
             assert_card_attributes(
                 card_element=card_element,
                 card_data=card,
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
+                heading_tag="h2" if list_index == 0 else "h3",
             )
 
             images_element = card_element.find("div", class_="fl-card-sticker")
@@ -1047,11 +1076,13 @@ def test_filled_card_block(index_page, rf):
 
         for card_index, card in enumerate(cards):
             card_element = card_divs[card_index]
+            # filled-card.html uses block_level directly; section 0 children are h2, section 1 are h3
             assert_card_attributes(
                 card_element=card_element,
                 card_data=card,
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
+                heading_tag="h2" if list_index == 0 else "h3",
             )
             tags = card["value"]["tags"]
             tag_elements = card_element.find_all("span", class_="fl-tag")
@@ -1113,11 +1144,13 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
 
         for card_index, card in enumerate(cards):
             card_element = card_divs[card_index]
+            # illustration-card.html uses block_level directly; section 0 children are h2, section 1 are h3
             assert_card_attributes(
                 card_element=card_element,
                 card_data=card,
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
+                heading_tag="h2" if list_index == 0 else "h3",
             )
             images_element = card_element.find("div", class_="image-variants-display")
             images_value = card["value"]["image"]
@@ -1181,11 +1214,13 @@ def test_step_card_block(index_page, placeholder_images, rf):
 
         for card_index, card in enumerate(cards):
             card_element = card_divs[card_index]
+            # step-card.html uses block_level directly; section 0 children are h2, section 1 are h3
             assert_card_attributes(
                 card_element=card_element,
                 card_data=card,
                 context=context,
                 cta_position=f"block-{list_index + 1}-section.item-1-step_cards.card-{card_index + 1}.button-1",
+                heading_tag="h2" if list_index == 0 else "h3",
             )
             superheading = card_element.find("p", class_="fl-superheading")
             assert superheading and superheading.get_text().strip() == f"Step {(card_index + 1):>02}"
@@ -1874,6 +1909,7 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
             card_element=card_element,
             card_data=card,
             context=context,
+            heading_tag="h2",
         )
 
         images_element = card_element.find("div", class_="fl-card-sticker")
@@ -2633,7 +2669,7 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
     assert lower, "Lower section should exist"
 
     # Both upper and lower contain all variants
-    for region in [upper, lower]:
+    for region_index, region in enumerate([upper, lower]):
         intro_divs = region.find_all("div", class_="fl-intro")
         assert len(intro_divs) == len(variants)
 
@@ -2642,9 +2678,10 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
             value = variant["value"]
             intro_classes = intro_el.get("class", [])
 
-            # Heading
+            # Heading: first block in upper gets h1, all others get h2
             heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-            heading = intro_el.find(class_="fl-heading")
+            heading_tag = "h1" if (region_index == 0 and index == 0) else "h2"
+            heading = intro_el.find(heading_tag, class_="fl-heading")
             assert heading and heading_text in heading.get_text()
 
             # Settings: layout
@@ -2719,12 +2756,12 @@ def test_sticker_cards_2026_block(index_page, placeholder_images, rf):
         assert len(sections[0].find_all("article", class_="fl-sticker-card")) == 3
         assert len(sections[1].find_all("article", class_="fl-sticker-card")) == 4
 
-        # Verify card content in the 4-card section
+        # Verify card content in the 4-card section (second section, block_level=2, cards get h3)
         cards = sections[1].find_all("article", class_="fl-sticker-card")
         for i, variant in enumerate(variants):
             card_el = cards[i]
             headline_text = BeautifulSoup(variant["value"]["headline"], "html.parser").get_text()
-            heading = card_el.find(class_="fl-heading")
+            heading = card_el.find("h3", class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
             if variant["value"]["settings"].get("expand_link"):
@@ -2786,11 +2823,12 @@ def test_illustration_cards_2026_block(index_page, placeholder_images, rf):
         assert len(sections[0].find_all("article", class_="fl-illustration-card")) == 3
         assert len(sections[1].find_all("article", class_="fl-illustration-card")) == 4
 
+        # Second section (block_level=2), section children get block_level=3 → cards h3
         cards = sections[1].find_all("article", class_="fl-illustration-card")
         for i, variant in enumerate(variants):
             card_el = cards[i]
             headline_text = BeautifulSoup(variant["value"]["headline"], "html.parser").get_text()
-            heading = card_el.find(class_="fl-heading")
+            heading = card_el.find("h3", class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
             if variant["value"]["settings"].get("expand_link"):
@@ -2851,11 +2889,12 @@ def test_step_cards_2026_block(index_page, placeholder_images, rf):
         assert len(sections[0].find_all("article", class_="fl-step-card")) == 3
         assert len(sections[1].find_all("article", class_="fl-step-card")) == 4
 
+        # Second section (block_level=2), section children get block_level=3 → cards h3
         cards = sections[1].find_all("article", class_="fl-step-card")
         for i, variant in enumerate(variants):
             card_el = cards[i]
             headline_text = BeautifulSoup(variant["value"]["headline"], "html.parser").get_text()
-            heading = card_el.find(class_="fl-heading")
+            heading = card_el.find("h3", class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
             # Step index is rendered as a span
@@ -2922,7 +2961,7 @@ def test_outlined_cards_2026_block(index_page, placeholder_images, rf):
         assert len(sections[0].find_all("article", class_="fl-card")) == 3
         assert len(sections[1].find_all("article", class_="fl-card")) == 4
 
-        # Verify card content in the 4-card section
+        # Verify card content in the 4-card section (second section, block_level=2, cards get h3)
         cards = sections[1].find_all("article", class_="fl-card")
         for i, variant in enumerate(variants):
             card_el = cards[i]
@@ -2930,7 +2969,7 @@ def test_outlined_cards_2026_block(index_page, placeholder_images, rf):
 
             # Headline
             headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-            heading = card_el.find(class_="fl-heading")
+            heading = card_el.find("h3", class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
             # Expand link
@@ -2983,7 +3022,7 @@ def test_icon_cards_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
         sections = region.find_all("section", class_="fl-section")
         assert len(sections) == 2
 
@@ -2994,13 +3033,15 @@ def test_icon_cards_2026_block(index_page, placeholder_images, rf):
         for section_index, section in enumerate(sections):
             section_variants = variants[:3] if section_index == 0 else variants
             cards = section.find_all("article", class_="fl-illustration-icon-card")
+            # Upper first section: block_level=1, children h2; all other sections: children h3
+            heading_tag = "h2" if (region_index == 0 and section_index == 0) else "h3"
             for i, variant in enumerate(section_variants):
                 card_el = cards[i]
                 value = variant["value"]
 
                 # Headline
                 headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-                heading = card_el.find(class_="fl-heading")
+                heading = card_el.find(heading_tag, class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
                 # Expand link
@@ -3100,21 +3141,31 @@ def test_line_cards_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    # block-1: standalone line_cards (4 cards), block-2: section containing line_cards (2 cards)
-    blocks_under_test = [
-        {"variants": card_variants, "cta_position_prefix": "{region_name}-block-1-line_cards"},
-        {"variants": card_variants[:2], "cta_position_prefix": "{region_name}-block-2-section.item-1-line_cards"},
-    ]
+    # block-1: section containing line_cards (2 cards), block-2: standalone line_cards (4 cards)
+    # Upper: section at block_level=1 (children h2), standalone at block_level=2 (h2)
+    # Lower: section at block_level=2 (children h3), standalone at block_level=2 (h2)
+    for region_name, region, in_section_heading_tag in [("upper", upper, "h2"), ("lower", lower, "h3")]:
+        blocks_under_test = [
+            {
+                "variants": card_variants[:2],
+                "cta_position_prefix": f"{region_name}-block-1-section.item-1-line_cards",
+                "heading_tag": in_section_heading_tag,
+            },
+            {
+                "variants": card_variants,
+                "cta_position_prefix": f"{region_name}-block-2-line_cards",
+                "heading_tag": "h2",
+            },
+        ]
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
         article_lists = region.find_all("div", class_="fl-stacked-article-list")
         assert len(article_lists) == 2
-        assert len(article_lists[0].find_all("article", class_="fl-article-item")) == 4
-        assert len(article_lists[1].find_all("article", class_="fl-article-item")) == 2
+        assert len(article_lists[0].find_all("article", class_="fl-article-item")) == 2
+        assert len(article_lists[1].find_all("article", class_="fl-article-item")) == 4
 
         for list_index, block_info in enumerate(blocks_under_test):
             cards = article_lists[list_index].find_all("article", class_="fl-article-item")
-            position_prefix = block_info["cta_position_prefix"].format(region_name=region_name)
+            position_prefix = block_info["cta_position_prefix"]
 
             for i, variant in enumerate(block_info["variants"]):
                 card_el = cards[i]
@@ -3122,7 +3173,7 @@ def test_line_cards_block(index_page, placeholder_images, rf):
 
                 # Headline
                 headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-                heading = card_el.find(class_="fl-heading")
+                heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
                 # Superheading (optional)
@@ -3202,16 +3253,18 @@ def test_showcase_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region in [upper, lower]:
+    for region_index, region in enumerate([upper, lower]):
         showcase_sections = region.find_all("section", class_="fl-showcase")
         assert len(showcase_sections) == len(variants)
 
-        for showcase_el, variant in zip(showcase_sections, variants):
+        for showcase_index, (showcase_el, variant) in enumerate(zip(showcase_sections, variants)):
             layout = variant["value"]["settings"]["layout"]
             assert f"fl-showcase-{layout}" in showcase_el.get("class", [])
 
             headline_text = BeautifulSoup(variant["value"]["headline"], "html.parser").get_text()
-            heading = showcase_el.find(class_="fl-heading")
+            # First showcase in upper region gets h1, all others get h2
+            heading_tag = "h1" if (region_index == 0 and showcase_index == 0) else "h2"
+            heading = showcase_el.find(heading_tag, class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
             figure = showcase_el.find("figure", class_="fl-showcase-image")
@@ -3256,7 +3309,7 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
         gallery_sections = region.find_all("section", class_="fl-section")
         assert len(gallery_sections) == len(variants)
 
@@ -3264,9 +3317,10 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             gallery = gallery_el.find("div", class_="fl-card-gallery")
             assert gallery
 
-            # Gallery heading
+            # Gallery heading: first gallery in upper region gets h1, all others get h2
             heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
-            gallery_heading = gallery.find(class_="fl-heading")
+            heading_tag = "h1" if (region_index == 0 and gallery_index == 0) else "h2"
+            gallery_heading = gallery.find(heading_tag, class_="fl-heading")
             assert gallery_heading and heading_text in gallery_heading.get_text()
 
             # Main card
@@ -3419,7 +3473,9 @@ def test_kit_intro_2026_block(index_page, rf):
             value = variant["value"]
 
             heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-            heading = intro_el.find(class_="fl-heading")
+            # Kit intro is first block in upper (h1), lower blocks follow upper (h2)
+            heading_tag = "h1" if region_name == "upper" else "h2"
+            heading = intro_el.find(heading_tag, class_="fl-heading")
             assert heading and heading_text in heading.get_text()
 
             if value["heading"]["superheading_text"]:
@@ -3457,7 +3513,7 @@ def test_carousel_2026_block(index_page, placeholder_images, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    for region_index, (region_name, region) in enumerate([("upper", upper), ("lower", lower)]):
         carousel_divs = region.find_all("div", class_="fl-carousel")
         assert len(carousel_divs) == len(variants)
 
@@ -3465,7 +3521,9 @@ def test_carousel_2026_block(index_page, placeholder_images, rf):
             value = variant["value"]
 
             heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-            heading = carousel_el.find(class_="fl-heading")
+            # First carousel in upper region gets h1, all others get h2
+            heading_tag = "h1" if (region_index == 0 and index == 0) else "h2"
+            heading = carousel_el.find(heading_tag, class_="fl-heading")
             assert heading and heading_text in heading.get_text()
 
             slides = value["slides"]

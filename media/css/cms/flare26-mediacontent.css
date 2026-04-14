@@ -84,6 +84,10 @@
         margin-inline: auto;
         max-inline-size: var(--token-width-desktop-wide-banner);
     }
+
+    .fl-mediacontent.fl-mediacontent-reverse.is-narrow {
+        grid-template-columns: minmax(0, 9fr) minmax(0, 6fr);
+    }
 }
 
 @media (--viewport-xs) {

@@ -5,8 +5,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<include:media-content media_after="{{ value.settings.media_after }}">
+{% set row_heading_level = 'h' ~ block_level if block_level else 'h2' %}
+
+<include:media-content media_after="{{ value.settings.media_after }}" narrow="{{ value.settings.narrow }}">
   {% if value.eyebrow %}
     <content:eyebrow>
       {{ value.eyebrow|richtext|remove_p_tag }}
@@ -28,8 +29,8 @@
   <content:body>
     {% for block in value.content %}
       {# In case a block with a heading is included, increment the block level #}
-      {# Add 2 because this block already has a heading #}
-      {% with block_level = block_level + 2 if block_level else 3 %}
+      {# Add 1 because this block already has a heading #}
+      {% with block_level = block_level + 1 if block_level else 3 %}
         {% include_block block %}
       {% endwith %}
     {% endfor %}

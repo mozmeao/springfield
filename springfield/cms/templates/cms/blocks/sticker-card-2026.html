@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
 
 <include:conditional-display

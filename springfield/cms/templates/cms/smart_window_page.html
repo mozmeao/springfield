@@ -168,7 +168,7 @@
           {% set block_index = loop.index %}
           {% set block_type = block.block_type %}
           {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
-          {% set block_level = 1 %}
+          {% set block_level = 2 %}
           {% include_block block %}
         {% endfor %}
       </div>

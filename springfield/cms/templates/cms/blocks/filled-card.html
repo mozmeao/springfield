@@ -5,7 +5,7 @@
 #}
 
 {% set block_text =  value.headline|richtext|remove_tags %}
-{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 
 <include:conditional-display
   platform_conditions="{{ value.settings.show_to.platforms }}"

@@ -121,12 +121,12 @@ def get_line_cards_test_page() -> FreeFormPage2026:
 
     variants = get_line_cards_variants()
     page_content = [
-        variants[0],
         _section(
             "Line Cards Inside a Section",
             [variants[1]],
             "2026lcs1-0000-0000-0000-000000000001",
         ),
+        variants[0],
     ]
     page.upper_content = page_content
     page.content = page_content

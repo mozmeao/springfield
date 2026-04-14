@@ -161,6 +161,56 @@ def get_media_content_2026_variants() -> list[dict]:
     ]
 
 
+def get_media_content_2026_narrow_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        {
+            "type": "media_content",
+            "value": {
+                "settings": {"media_after": False, "narrow": True},
+                "media": [
+                    {
+                        "type": "image",
+                        "value": _IMAGE_VARIANTS,
+                        "id": "2026mcn1-0000-0000-0000-000000000010",
+                    }
+                ],
+                "eyebrow": '<p data-block-key="2026mcn1e">Narrow Layout</p>',
+                "headline": '<p data-block-key="2026mcn1h">Narrow — Media Right</p>',
+                "tags": _TAGS[:2],
+                "content": _rich_text(
+                    '<p data-block-key="2026mcn1c">Narrow layout narrows the media column, giving more space to the content.</p>',
+                    "2026mcn1-0000-0000-0000-000000000011",
+                ),
+                "buttons": [buttons["primary"]],
+            },
+            "id": "2026mcn1-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "media_content",
+            "value": {
+                "settings": {"media_after": True, "narrow": True},
+                "media": [
+                    {
+                        "type": "image",
+                        "value": _IMAGE_VARIANTS,
+                        "id": "2026mcn2-0000-0000-0000-000000000020",
+                    }
+                ],
+                "eyebrow": '<p data-block-key="2026mcn2e">Narrow Layout</p>',
+                "headline": '<p data-block-key="2026mcn2h">Narrow — Media Left</p>',
+                "tags": _TAGS[3:5],
+                "content": _rich_text(
+                    '<p data-block-key="2026mcn2c">Narrow layout with media on the left side.</p>',
+                    "2026mcn2-0000-0000-0000-000000000021",
+                ),
+                "buttons": [buttons["secondary"]],
+            },
+            "id": "2026mcn2-0000-0000-0000-000000000002",
+        },
+    ]
+
+
 def get_media_content_2026_sections() -> list[dict]:
     return [
         _section(
@@ -168,6 +218,12 @@ def get_media_content_2026_sections() -> list[dict]:
             subheading_text="Media content blocks in the 2026 design system.",
             content_blocks=get_media_content_2026_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000001",
+        ),
+        _section(
+            heading_text="Media + Content 2026 — Narrow",
+            subheading_text="Narrow layout narrows the media element relative to the content.",
+            content_blocks=get_media_content_2026_narrow_variants(),
+            section_id="2026mcs1-0000-0000-0000-000000000002",
         ),
     ]
 
