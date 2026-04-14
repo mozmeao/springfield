@@ -55,12 +55,30 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     gap: 16px;
 }
 
-/* download as default checkbox label */
-.fl-download-firefox-button .default-browser-label {
+/* download button checkbox labels */
+.fl-download-firefox-button .default-browser-label,
+.fl-download-firefox-button .marketing-opt-out-checkbox-label {
     align-items: center;
     display: flex;
-    gap: 12px;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-sm);
     justify-content: flex-start;
+}
+
+.fl-download-firefox-button .default-browser-label input[type='checkbox'],
+.fl-download-firefox-button
+    .marketing-opt-out-checkbox-label
+    input[type='checkbox'] {
+    block-size: 16px;
+    inline-size: 16px;
+    min-block-size: 16px;
+    min-inline-size: 16px;
+}
+
+/* Left-align download button contents when in a split layout with media */
+.fl-intro-media-right .fl-download-firefox-button,
+.fl-intro-media-left .fl-download-firefox-button {
+    align-items: flex-start;
 }
 
 .fl-privacy-link {
