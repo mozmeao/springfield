@@ -91,6 +91,13 @@ Static values extracted from Figma that do not change based on context.
         var(--token-color-white) 0%,
         var(--token-color-grey-2) 100%
     );
+    --token-gradient-smart-window-instructions: linear-gradient(
+        116.61deg,
+        #321bfd -17.87%,
+        #cf30e2 52.93%,
+        #f90 89.02%,
+        #f5c451 109.44%
+    );
 
     /* using manual OCLCH copies of var(--token-color-light-purple)
        and var(--token-color-dark-purple), plus some tweaking of the color stops

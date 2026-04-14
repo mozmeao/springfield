@@ -1,0 +1,15 @@
+.fl-typewriter {
+    animation: blink-caret 0.75s step-end infinite;
+    border-inline-end: 0.15em solid currentColor; /* The typwriter cursor */
+}
+
+@keyframes blink-caret {
+    0%,
+    100% {
+        border-color: transparent;
+    }
+
+    50% {
+        border-color: currentColor;
+    }
+}
