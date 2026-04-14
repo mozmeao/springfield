@@ -519,6 +519,30 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function initTypewriter() {
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            Flare26.typewriter(el);
+        });
+    }
+
+    Flare26.typewriter = function (el, speed) {
+        const text = el.textContent;
+        const interval = speed || 30;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        el.textContent = '';
+        let i = 0;
+        const timer = setInterval(function () {
+            el.textContent += text[i++];
+            if (i >= text.length) {
+                clearInterval(timer);
+            }
+        }, interval);
+    };
+
     Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
@@ -557,6 +581,7 @@ if (typeof window.cms === 'undefined') {
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
+            initTypewriter();
             Flare26.initDialogs();
         });
     } else {
@@ -569,6 +594,7 @@ if (typeof window.cms === 'undefined') {
         initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();
+        initTypewriter();
         Flare26.initDialogs();
     }
 
