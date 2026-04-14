@@ -1,4 +1,5 @@
 name: Smart Window Instructions 2026
 context:
+  pre_typewriter_text: "Type this"
   typewriter_text: "Summarize the main differences between the four types of soil I have open."
   body: "<p>Smart Window reads all your open tabs at once and gives you a single consolidated comparison. The tabs it used appear as inline chips in the response — click any one to check the source. If it pulled in a tab you didn't want included, remove it and ask again.</p>"
