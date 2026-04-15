@@ -29,7 +29,7 @@
     "swiper": "^12.1.2",
     "terser-webpack-plugin": "^5.4.0",
     "webpack": "^5.105.4",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^7.0.2"
   },
   "repository": {
     "type": "git",
