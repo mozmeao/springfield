@@ -954,23 +954,36 @@ class WhatsnewView(L10nTemplateView):
         _path = request.path.lstrip("/")
         lang_code, _, _ = _path.partition("/")
 
-        # Determine which CMS locale to check for a General WNP
+        # Build an ordered list of CMS locale codes to check for a General WNP.
+        # Always check the request locale first (if it's a CMS locale), then its
+        # configured fallback (if any). This handles two cases:
+        #   1. Pure alias locales (e.g. es-AR → es-MX): only the fallback is checked.
+        #   2. CMS locales that also have a fallback (e.g. en-GB → en-US): the
+        #      direct locale is checked first; if it has no General WNP we also
+        #      check the fallback so that a redirect is still issued and
+        #      CMSLocaleFallbackMiddleware can transparently serve the fallback
+        #      locale's content at the alias URL.
         cms_language_codes = dict(settings.WAGTAIL_CONTENT_LANGUAGES)
         fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
 
+        locale_codes_to_check = []
         if lang_code in cms_language_codes:
-            effective_locale_code = lang_code
-        elif lang_code in fallback_locales:
-            effective_locale_code = fallback_locales[lang_code]
+            locale_codes_to_check.append(lang_code)
+        fallback_locale_code = fallback_locales.get(lang_code)
+        if fallback_locale_code and fallback_locale_code not in locale_codes_to_check:
+            locale_codes_to_check.append(fallback_locale_code)
+
+        if not locale_codes_to_check:
+            return None
+
+        for locale_code in locale_codes_to_check:
+            try:
+                locale = WagtailLocale.objects.get(language_code=locale_code)
+            except WagtailLocale.DoesNotExist:
+                continue
+            if WhatsNewPage2026.objects.live().public().filter(slug="general", locale=locale).exists():
+                break
         else:
-            return None
-
-        try:
-            locale = WagtailLocale.objects.get(language_code=effective_locale_code)
-        except WagtailLocale.DoesNotExist:
-            return None
-
-        if not WhatsNewPage2026.objects.live().public().filter(slug="general", locale=locale).exists():
             return None
 
         # Merge the version into the existing querystring (defence in depth validation)

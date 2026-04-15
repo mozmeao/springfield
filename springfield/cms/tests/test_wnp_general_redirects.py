@@ -111,6 +111,35 @@ def test_general_wnp_url_served_directly_without_loop(general_wnp, client):
 
 
 # ---------------------------------------------------------------------------
+# CMS locale with a fallback (en-GB → en-US)
+# ---------------------------------------------------------------------------
+
+
+def test_cms_locale_with_fallback_redirects_when_only_fallback_has_general_wnp(
+    general_wnp,
+    wnp_index_page,
+    client,
+):
+    """
+    en-GB is a CMS locale AND has a fallback to en-US in FALLBACK_LOCALES.
+    If en-GB has no General WNP but en-US does, we should still redirect to
+    /en-GB/whatsnew/general/ so CMSLocaleFallbackMiddleware can transparently
+    serve the en-US content at that URL.
+    """
+    with override_settings(
+        FALLBACK_LOCALES={"en-GB": "en-US"},
+        WAGTAIL_CONTENT_LANGUAGES=[("en-US", "English (US)"), ("en-GB", "English (GB)")],
+    ):
+        # general_wnp fixture publishes the General WNP in en-US only
+        response = client.get("/en-GB/whatsnew/151/")
+
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/en-GB/whatsnew/general/")
+    assert "version=151" in location
+
+
+# ---------------------------------------------------------------------------
 # Alias locale redirect
 # ---------------------------------------------------------------------------
 
