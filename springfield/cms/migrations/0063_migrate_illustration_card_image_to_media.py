@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# Data migration to convert MediaContentBlock.content from RichTextBlock (string)
-# to StreamBlock format (list of {type, value, id} dicts).
+# Data migration to convert IllustrationCard2026Block.image (ImageVariantsBlock)
+# to IllustrationCard2026Block.media (MediaBlock StreamBlock list).
 
 import json
 from collections.abc import MutableSequence
@@ -12,36 +12,37 @@ from uuid import uuid4
 from django.db import migrations
 
 
-def migrate_media_content_block(block_data):
-    """Convert media_content block's content field from RichTextBlock to StreamBlock."""
-    if block_data.get("type") != "media_content":
+def migrate_illustration_card_block(block_data):
+    """Convert illustration_card block's image field to media StreamBlock."""
+    if block_data.get("type") != "illustration_card":
         return block_data
 
     value = {**block_data.get("value", {})}
-    content = value.get("content")
+    image = value.get("image")
 
-    if isinstance(content, str):
-        value["content"] = [
+    if image is not None and "media" not in value:
+        value["media"] = [
             {
-                "type": "rich_text",
-                "value": content,
+                "type": "image",
+                "value": image,
                 "id": str(uuid4()),
             }
         ]
+        del value["image"]
         block_data["value"] = value
 
     return block_data
 
 
 def walk_and_transform(data):
-    """Recursively walk through the block tree and migrate media_content blocks."""
+    """Recursively walk through the block tree and migrate illustration_card blocks."""
     if isinstance(data, dict):
-        if data.get("type") == "media_content":
-            data = migrate_media_content_block(data)
-
-        for key, value in data.items():
-            if isinstance(value, (dict, list, MutableSequence)):
-                data[key] = walk_and_transform(value)
+        if data.get("type") == "illustration_card":
+            data = migrate_illustration_card_block(data)
+        else:
+            for key, value in data.items():
+                if isinstance(value, (dict, list, MutableSequence)):
+                    data[key] = walk_and_transform(value)
 
     elif isinstance(data, (list, MutableSequence)):
         for i, item in enumerate(data):
@@ -79,9 +80,8 @@ def update_pages(apps, schema_editor):
     ContentType = apps.get_model("contenttypes", "ContentType")
 
     page_configs = [
-        ("FreeFormPage", ["content"]),
+        ("HomePage", ["upper_content"]),
         ("FreeFormPage2026", ["upper_content", "content"]),
-        ("WhatsNewPage", ["content"]),
         ("WhatsNewPage2026", ["upper_content", "content"]),
         ("DownloadPage", ["content"]),
         ("ThanksPage", ["content"]),
@@ -111,7 +111,7 @@ def update_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0060_create_alias_locale_records"),
+        ("cms", "0062_migrate_media_content_content_to_streamblock"),
     ]
 
     operations = [
