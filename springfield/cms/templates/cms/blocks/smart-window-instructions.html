@@ -6,11 +6,8 @@
 
 {% set block_level = block_level or 3 %}
 
-<div class="fl-smart-window-instructions">
-  <div class="fl-smart-window-instructions-heading">
-    {% include_block value.heading %}
-  </div>
-  <div class="fl-smart-window-instructions-body">
-    {{ value.instructions|richtext }}
-  </div>
-</div>
+<include:smart-window-instructions>
+  <content:pre_typewriter_text>{{ value.pre_typewriter_text }}</content:pre_typewriter_text>
+  <content:typewriter_text>{{ value.typewriter_text }}</content:typewriter_text>
+  <content:body>{{ value.instructions|richtext }}</content:body>
+</include:smart-window-instructions>

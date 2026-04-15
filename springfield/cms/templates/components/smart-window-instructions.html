@@ -1,0 +1,18 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-smart-window-instructions">
+  {% if contents.typewriter_text %}
+    <div class="fl-smart-window-instructions-heading">
+      <img src="/media/img/firefox/flare/smart-window-instruction-icon.svg" alt=""/>
+      <p>{{ contents.pre_typewriter_text }}:
+      <span class="fl-typewriter">"{{ contents.typewriter_text }}"</span></p>
+    </div>
+  {% endif %}
+  {% if contents.body %}
+    <div class="fl-smart-window-instructions-body">{{ contents.body }}</div>
+  {% endif %}
+</div>

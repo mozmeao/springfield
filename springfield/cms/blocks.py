@@ -1126,7 +1126,8 @@ class MediaBlock(blocks.StreamBlock):
 
 
 class SmartWindowInstructionsBlock(blocks.StructBlock):
-    heading = HeadingBlock()
+    pre_typewriter_text = blocks.CharBlock(default="Type this")
+    typewriter_text = blocks.CharBlock()
     instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
 
     class Meta:
