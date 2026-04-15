@@ -4,6 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import DownloadAttribution from './download-attribution-init.js';
+import DownloadAttribution from './download-attribution.es6';
 
 DownloadAttribution.init();
