@@ -790,6 +790,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             self.get_children()
             .live()
             .public()
+            .exclude(slug="general")
             .annotate(
                 version=Case(
                     When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
@@ -804,8 +805,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         )
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        else:
-            return redirect("/")
+        return redirect("/")
 
 
 class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -818,7 +818,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     version = models.CharField(
         max_length=10,
-        help_text="The version of Firefox this What's New page refers to.",
+        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
     show_qr_code_snippet = models.BooleanField(
@@ -858,7 +858,7 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     version = models.CharField(
         max_length=10,
-        help_text="The version of Firefox this What's New page refers to.",
+        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     upper_content = StreamField(
         WHATS_NEW_PAGE_BLOCKS_2026,
