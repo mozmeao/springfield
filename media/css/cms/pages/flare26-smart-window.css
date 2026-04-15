@@ -57,12 +57,17 @@
 }
 
 .fl-smart-window-intro-featured-image {
+    max-inline-size: 100%;
     padding-block-start: var(--token-spacing-md);
     padding-inline: var(--fl-section-h-padding);
 }
 
-.fl-smart-window-intro-featured-image img {
-    inline-size: 810px;
+.fl-smart-window-intro-featured-image img,
+.fl-smart-window-intro-featured-image .fl-video {
+    border-start-end-radius: var(--token-border-radius-xs);
+    border-start-start-radius: var(--token-border-radius-xs);
+    inline-size: var(--token-width-desktop-content-lg);
     margin-block-end: -4px;
+    margin-inline: auto;
     max-inline-size: 100%;
 }

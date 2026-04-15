@@ -52,6 +52,7 @@ from springfield.cms.blocks import (
     SubscriptionBlock,
     TopicListBlock,
     VideoBlock,
+    validate_animation_url,
 )
 from springfield.cms.fields import StreamField
 
@@ -903,10 +904,11 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+
+    animation = models.URLField(blank=True, validators=[validate_animation_url], help_text="Link to a webm video from assets.mozilla.net.")
+    animation_alt = models.CharField(max_length=255, blank=True, help_text="Text for screen readers describing the video.")
     image = models.ForeignKey(
-        "cms.SpringfieldImage",
-        on_delete=models.PROTECT,
-        related_name="+",
+        "cms.SpringfieldImage", on_delete=models.PROTECT, related_name="+", help_text="Used as fallback if an animation is provided."
     )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -960,21 +962,23 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("heading_text"),
-        FieldPanel("subheading_text"),
-        FieldPanel("image"),
         MultiFieldPanel(
             [
+                FieldPanel("heading_text"),
+                FieldPanel("subheading_text"),
+                FieldPanel("animation"),
+                FieldPanel("animation_alt"),
+                FieldPanel("image"),
                 FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
                         FieldPanel("image_mobile"),
                         FieldPanel("image_dark_mode_mobile"),
-                    ]
-                )
+                    ],
+                    heading="Image Variants",
+                ),
             ],
-            heading="Image Variants",
-            classname="collapsed",
+            heading="Intro",
         ),
         MultiFieldPanel(
             [
