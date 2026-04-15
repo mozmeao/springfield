@@ -6,4 +6,18 @@
 
 import DownloadAttribution from './download-attribution.es6';
 
-DownloadAttribution.init();
+DownloadAttribution.applyAttributionDataToLinks();
+
+if (
+    document.documentElement.hasAttribute(
+        'data-stub-attribution-campaign-force'
+    )
+) {
+    DownloadAttribution.initEssential();
+}
+
+window.addEventListener('gtm-marketing-consent', (e) => {
+    if (e && e.detail && e.detail.state) {
+        DownloadAttribution.initMarketing(e.detail.state);
+    }
+});

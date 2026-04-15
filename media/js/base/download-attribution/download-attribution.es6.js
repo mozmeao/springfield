@@ -14,27 +14,32 @@ window.dataLayer = window.dataLayer || [];
  * service is also stored in a cookie to save multiple requests when navigating pages.
  * Original Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1279291
  *
- * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
  * In 2026, this file was renamed from Stub Attribution to Download Attribution to more
  * clearly indicate this is information provided through the download. References to the Stub
  * Attribution Service remain as the website code connects to an external service that uses
  * this name: https://github.com/mozilla-services/stubattribution.
+ * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
+ *
+ * Essential and marketing attribution are driven by independent triggers and know
+ * nothing about each other:
+ *  - Essential (rtamo, download_as_default, smart_window) is required for functional
+ *    post-download behavior. It runs without consent gating or sample-rate limiting,
+ *    triggered by a `data-stub-attribution-campaign-force` attribute on the current page.
+ *  - Marketing is consent-gated and sample-rated, triggered by a `gtm-marketing-consent`
+ *    event dispatched from GTM.
+ * Each trigger reads the other's last-captured raw data from a side cookie so it can
+ * re-sign the combined payload without the other trigger having fired on this page.
  */
 const DownloadAttribution = {
     COOKIE_CODE_ID: 'moz-download-attribution-code',
     COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
+    COOKIE_ESSENTIAL_RAW_ID: 'moz-download-attribution-essential-raw',
+    COOKIE_MARKETING_RAW_ID: 'moz-download-attribution-marketing-raw',
     DLSOURCE: 'fxdotcom',
 
     /**
-     * Experiment name and variation globals. These values can be set directly by a
-     * page's JS instead of relying on supplied URL query parameters.
-     */
-    experimentName: undefined,
-    experimentVariation: undefined,
-
-    /**
      * Custom event handler callback globals. These can be defined as functions when
-     * calling DownloadAttribution.init();
+     * calling DownloadAttribution.initEssential() or .initMarketing().
      */
     successCallback: undefined,
     timeoutCallback: undefined,
@@ -55,17 +60,17 @@ const DownloadAttribution = {
     getAttributionRate: () => {
         const rate = document
             .getElementsByTagName('html')[0]
-            .getAttribute('data-download-attribution-rate');
+            .getAttribute('data-stub-attribution-rate');
         return isNaN(rate) || !rate
             ? 0
             : Math.min(Math.max(parseFloat(rate), 0), 1);
     },
 
     /**
-     * Returns true if both cookies exist.
+     * Returns true if both signed cookies exist.
      * @return {Boolean} data.
      */
-    hasCookie: () => {
+    hasSignedCookie: () => {
         return (
             Mozilla.Cookies.hasItem(DownloadAttribution.COOKIE_CODE_ID) &&
             Mozilla.Cookies.hasItem(DownloadAttribution.COOKIE_SIGNATURE_ID)
@@ -73,10 +78,10 @@ const DownloadAttribution = {
     },
 
     /**
-     * Stores a cookie with download attribution data values.
+     * Stores the signed download attribution data values.
      * @param {Object} data - attribution_code, attribution_sig.
      */
-    setCookie: (data) => {
+    setSignedCookie: (data) => {
         if (!data.attribution_code || !data.attribution_sig) {
             return;
         }
@@ -107,9 +112,9 @@ const DownloadAttribution = {
     },
 
     /**
-     * Removes download attribution cookie.
+     * Removes the signed download attribution cookies.
      */
-    removeCookie: () => {
+    removeSignedCookie: () => {
         window.Mozilla.Cookies.removeItem(
             DownloadAttribution.COOKIE_CODE_ID,
             '/',
@@ -128,10 +133,10 @@ const DownloadAttribution = {
     },
 
     /**
-     * Gets download attribution data from cookie.
+     * Gets signed download attribution data from cookie.
      * @return {Object} - attribution_code, attribution_sig.
      */
-    getCookie: () => {
+    getSignedCookie: () => {
         return {
             attribution_code: Mozilla.Cookies.getItem(
                 DownloadAttribution.COOKIE_CODE_ID
@@ -140,6 +145,55 @@ const DownloadAttribution = {
                 DownloadAttribution.COOKIE_SIGNATURE_ID
             )
         };
+    },
+
+    /**
+     * Stores a raw attribution data object as a JSON-encoded cookie.
+     * Raw cookies preserve the inputs used to build the signed payload so
+     * either trigger (essential or marketing) can re-sign the combined
+     * payload without the other having fired on the current page.
+     * @param {String} id - COOKIE_ESSENTIAL_RAW_ID or COOKIE_MARKETING_RAW_ID.
+     * @param {Object} data - Raw attribution data to preserve.
+     */
+    setRawCookie: (id, data) => {
+        const date = new Date();
+        date.setTime(date.getTime() + 1 * 24 * 60 * 60 * 1000);
+        const expires = date.toUTCString();
+
+        Mozilla.Cookies.setItem(
+            id,
+            JSON.stringify(data),
+            expires,
+            '/',
+            undefined,
+            false,
+            'lax'
+        );
+    },
+
+    /**
+     * Gets a raw attribution data object from cookie.
+     * @param {String} id - Cookie id.
+     * @return {Object | null} - Parsed data, or null if missing or unparseable.
+     */
+    getRawCookie: (id) => {
+        const raw = Mozilla.Cookies.getItem(id);
+        if (!raw) {
+            return null;
+        }
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    },
+
+    /**
+     * Removes a raw attribution data cookie.
+     * @param {String} id - Cookie id.
+     */
+    removeRawCookie: (id) => {
+        window.Mozilla.Cookies.removeItem(id, '/', undefined, false, 'lax');
     },
 
     /**
@@ -155,7 +209,7 @@ const DownloadAttribution = {
         if (
             !data.attribution_code ||
             !data.attribution_sig ||
-            !DownloadAttribution.meetsRequirements()
+            !DownloadAttribution.meetsFunctionalRequirements()
         ) {
             return;
         }
@@ -256,7 +310,13 @@ const DownloadAttribution = {
     },
 
     removeAttributionData: () => {
-        DownloadAttribution.removeCookie();
+        DownloadAttribution.removeSignedCookie();
+        DownloadAttribution.removeRawCookie(
+            DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+        );
+        DownloadAttribution.removeRawCookie(
+            DownloadAttribution.COOKIE_MARKETING_RAW_ID
+        );
         DownloadAttribution.cleanBouncerLinks();
         DownloadAttribution.requestComplete = false;
     },
@@ -297,7 +357,7 @@ const DownloadAttribution = {
             // Update download links on the current page.
             DownloadAttribution.updateBouncerLinks(data);
             // Store attribution data in a cookie should the user navigate.
-            DownloadAttribution.setCookie(data);
+            DownloadAttribution.setSignedCookie(data);
 
             DownloadAttribution.requestComplete = true;
 
@@ -486,106 +546,75 @@ const DownloadAttribution = {
     },
 
     /**
-     * Gets utm parameters and referrer information from the web page if they exist.
-     * @param {String} ref - Optional referrer to facilitate testing.
-     * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential.
-     * @return {Object} - Download attribution data object.
+     * Gets the forced campaign value used for essential attribution flows.
+     * This value triggers specific functionality after download
+     * i.e. "rtamo" redirects a user to install the extension they have chosen
+     * whilst browsing AMO using a different browser.
+     * @return {String | null} - Campaign value, or null if unset.
      */
-    getAttributionData: (ref, omitNonEssentialFields) => {
-        const params = new window._SearchParams();
-        const utms = params.utmParams();
-        const experiment = omitNonEssentialFields
-            ? null
-            : params.get('experiment') || DownloadAttribution.experimentName;
-        const variation = omitNonEssentialFields
-            ? null
-            : params.get('variation') ||
-              DownloadAttribution.experimentVariation;
-        const referrer = typeof ref === 'string' ? ref : document.referrer;
-        const ua = omitNonEssentialFields
-            ? 'other'
-            : DownloadAttribution.getUserAgent();
-        const clientIDGA4 = omitNonEssentialFields
-            ? null
-            : DownloadAttribution.getGtagClientID();
-
-        const campaignForce = document.documentElement.getAttribute(
-            'data-download-attribution-campaign-force'
+    getEssentialCampaign: () => {
+        return document.documentElement.getAttribute(
+            'data-stub-attribution-campaign-force'
         );
-        const campaignOverride = document.documentElement.getAttribute(
-            'data-download-attribution-campaign-override'
-        );
-        const campaignDefault = document.documentElement.getAttribute(
-            'data-download-attribution-campaign'
-        );
-        let utmCampaign;
-
-        if (campaignForce !== null) {
-            // Force always wins and clears existing cookie
-            utmCampaign = campaignForce;
-        } else if (campaignOverride !== null) {
-            // Explicit override via data attribute
-            utmCampaign = campaignOverride;
-        } else if (
-            typeof utms.utm_campaign !== 'undefined' &&
-            utms.utm_campaign !== null
-        ) {
-            // URL param wins over default data attribute, even if falsy like 0
-            utmCampaign = utms.utm_campaign;
-        } else {
-            utmCampaign = campaignDefault;
-        }
-
-        const data = {
-            utm_source: utms.utm_source,
-            utm_medium: utms.utm_medium,
-            utm_campaign: utmCampaign,
-            utm_content: utms.utm_content,
-            referrer: referrer,
-            ua: ua,
-            experiment: experiment,
-            variation: variation,
-            client_id_ga4: clientIDGA4,
-            session_id: clientIDGA4
-                ? DownloadAttribution.createSessionID()
-                : null,
-            dlsource: DownloadAttribution.DLSOURCE
-        };
-
-        // Remove any undefined values.
-        for (const key of Object.keys(data)) {
-            if (typeof data[key] === 'undefined' || data[key] === null) {
-                delete data[key];
-            }
-        }
-
-        return data;
     },
 
-    checkDataAndRequestAuth: (omitNonEssentialFields = false) => {
-        // get attribution data
-        const data = DownloadAttribution.getAttributionData(
-            null,
-            omitNonEssentialFields
-        );
-
-        if (
-            data &&
-            DownloadAttribution.withinAttributionRate() &&
-            DownloadAttribution.hasValidData(data)
-        ) {
-            // if data is valid and we are in sample rate:
-            // request authentication from stub attribution service
-            DownloadAttribution.requestAuthentication(data);
-
-            // Send the session ID to GA4
-            if (!omitNonEssentialFields && data.client_id_ga4) {
-                window.dataLayer.push({
-                    event: 'stub_session_set',
-                    id: data.session_id
-                });
-            }
+    /**
+     * Gets the marketing campaign value: utm_campaign from the URL, falling
+     * back to the page-level default campaign attribute.
+     * @param {Object} params - URL params.
+     * @return {String | null} - Campaign value, or null.
+     */
+    getMarketingCampaign: (params) => {
+        const utms = params.utmParams();
+        if (utms.utm_campaign !== undefined) {
+            return utms.utm_campaign;
         }
+        return document.documentElement.getAttribute(
+            'data-stub-attribution-campaign'
+        );
+    },
+
+    /**
+     * Gets essential data for download.
+     * Until the stub attribution service is updated to accept dedicated
+     * essential fields, essential data carries its campaign in utm_campaign;
+     * essential wins on key collisions with marketing when merged.
+     * @return {Object} - Essential data object, or {} if the current page
+     *   does not carry a recognized essential campaign.
+     */
+    getEssentialData: () => {
+        // NOTE: in future, this will return product context and install
+        // options fields based on data attributes.
+        const campaign = DownloadAttribution.getEssentialCampaign();
+        if (campaign) {
+            return {
+                utm_campaign: campaign
+            };
+        }
+        return {};
+    },
+
+    /**
+     * Gets marketing data for download. Requires GA4 wait.
+     * @param {String} ref - Optional referrer to facilitate testing.
+     * @param {Object} params - URL params.
+     * @return {Object} - Marketing download attribution data object.
+     */
+    getMarketingData: (ref, params) => {
+        const utms = params.utmParams();
+        return {
+            utm_source: utms.utm_source,
+            utm_medium: utms.utm_medium,
+            utm_campaign: DownloadAttribution.getMarketingCampaign(params),
+            utm_content: utms.utm_content,
+            referrer: typeof ref === 'string' ? ref : document.referrer,
+            ua: DownloadAttribution.getUserAgent(),
+            experiment: params.get('experiment'),
+            variation: params.get('variation'),
+            client_id_ga4: DownloadAttribution.getGtagClientID(),
+            session_id: DownloadAttribution.createSessionID(),
+            dlsource: DownloadAttribution.DLSOURCE
+        };
     },
 
     hasValidData: (data) => {
@@ -626,16 +655,36 @@ const DownloadAttribution = {
     },
 
     /**
-     * Determine if the current page is /download/thanks
-     * This is needed as /thanks auto-initiates the download. There is little point
-     * trying to make an XHR request here before the download begins, and we don't
-     * want to make the request a dependency on the download starting.
-     * @return {Boolean}.
+     * Merges essential and marketing data and requests an updated signed
+     * payload from the stub attribution service. Essential keys override
+     * marketing on collision (today only utm_campaign collides; a pending
+     * service update will give essential dedicated fields).
+     * @param {Object | null} essential - Essential data, or null.
+     * @param {Object | null} marketing - Marketing data, or null.
      */
-    isFirefoxDownloadThanks: (location) => {
-        location =
-            typeof location !== 'undefined' ? location : window.location.href;
-        return location.indexOf('/thanks/') > -1;
+    requestCombinedAuth: (essential, marketing) => {
+        const combined = Object.assign({}, marketing || {}, essential || {});
+
+        // Remove undefined / null values.
+        for (const key of Object.keys(combined)) {
+            if (
+                typeof combined[key] === 'undefined' ||
+                combined[key] === null
+            ) {
+                delete combined[key];
+            }
+        }
+
+        if (Object.keys(combined).length === 0) {
+            return;
+        }
+
+        if (!DownloadAttribution.hasValidData(combined)) {
+            return;
+        }
+
+        DownloadAttribution.requestComplete = false;
+        DownloadAttribution.requestAuthentication(combined);
     },
 
     /**
@@ -643,7 +692,7 @@ const DownloadAttribution = {
      * Download attribution is only applicable to Windows/macOS users on desktop.
      * @return {Boolean}.
      */
-    meetsRequirements: () => {
+    meetsFunctionalRequirements: () => {
         if (
             typeof window.site === 'undefined' ||
             typeof Mozilla.Cookies === 'undefined' ||
@@ -664,20 +713,34 @@ const DownloadAttribution = {
     },
 
     /**
-     * Determines whether to make a request to the stub authentication service.
+     * Applies existing attribution data to download links. Safe to call on
+     * every page; does nothing if no signed cookie is present.
      */
-    init: (
-        successCallback,
-        timeoutCallback,
-        omitNonEssentialFields = false
-    ) => {
-        let data = {};
-
-        if (!DownloadAttribution.meetsRequirements()) {
+    applyAttributionDataToLinks: () => {
+        if (!DownloadAttribution.meetsFunctionalRequirements()) {
             return;
         }
 
-        // Support custom callback functions for success and timeout.
+        if (DownloadAttribution.hasSignedCookie()) {
+            const data = DownloadAttribution.getSignedCookie();
+            DownloadAttribution.updateBouncerLinks(data);
+        }
+    },
+
+    /**
+     * Essential trigger entry point. Runs on pages that carry essential
+     * download data (functional post-download behavior such as rtamo).
+     * Does not gate on marketing consent or sample rate: essential data
+     * must always be carried so the installer can deliver its promised
+     * functionality after download.
+     * @param {Function} successCallback - Optional.
+     * @param {Function} timeoutCallback - Optional.
+     */
+    initEssential: (successCallback, timeoutCallback) => {
+        if (!DownloadAttribution.meetsFunctionalRequirements()) {
+            return;
+        }
+
         if (typeof successCallback === 'function') {
             DownloadAttribution.successCallback = successCallback;
         }
@@ -686,41 +749,90 @@ const DownloadAttribution = {
             DownloadAttribution.timeoutCallback = timeoutCallback;
         }
 
-        /**
-         * If the page forces a campaign value, invalidate any
-         * existing cookie so the forced value is picked up.
-         */
-        if (
-            DownloadAttribution.hasCookie() &&
-            document.documentElement.getAttribute(
-                'data-download-attribution-campaign-force'
-            )
-        ) {
-            DownloadAttribution.removeCookie();
+        const essential = DownloadAttribution.getEssentialData();
+
+        if (Object.keys(essential).length === 0) {
+            return;
         }
 
-        /**
-         * If cookie already exists, update download links on the page,
-         * else make a request to the service if within attribution rate.
-         */
-        if (DownloadAttribution.hasCookie()) {
-            data = DownloadAttribution.getCookie();
-            DownloadAttribution.updateBouncerLinks(data);
-            // As long as the user is not already on the automatic download page,
-            // make the XHR request to the stub authentication service.
-        } else if (!DownloadAttribution.isFirefoxDownloadThanks()) {
-            if (omitNonEssentialFields) {
-                // Skip GA4 wait if we're only doing essential fields
-                DownloadAttribution.checkDataAndRequestAuth(
-                    omitNonEssentialFields
+        const marketing = DownloadAttribution.getRawCookie(
+            DownloadAttribution.COOKIE_MARKETING_RAW_ID
+        );
+
+        DownloadAttribution.setRawCookie(
+            DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID,
+            essential
+        );
+
+        DownloadAttribution.requestCombinedAuth(essential, marketing);
+    },
+
+    /**
+     * Marketing trigger entry point. Called in response to a GTM
+     * `gtm-marketing-consent` event. On 'granted', captures marketing data
+     * from the current URL and re-signs the combined payload. On 'denied',
+     * clears marketing data; if essential data is also absent, the full
+     * attribution state is removed.
+     * @param {String} consentState - 'granted' or 'denied'.
+     * @param {Function} successCallback - Optional.
+     * @param {Function} timeoutCallback - Optional.
+     */
+    initMarketing: (consentState, successCallback, timeoutCallback) => {
+        if (!DownloadAttribution.meetsFunctionalRequirements()) {
+            return;
+        }
+
+        if (typeof successCallback === 'function') {
+            DownloadAttribution.successCallback = successCallback;
+        }
+
+        if (typeof timeoutCallback === 'function') {
+            DownloadAttribution.timeoutCallback = timeoutCallback;
+        }
+
+        if (consentState === 'granted') {
+            if (!DownloadAttribution.withinAttributionRate()) {
+                return;
+            }
+
+            DownloadAttribution.waitForGoogleAnalyticsThen(() => {
+                const params = new window._SearchParams();
+                const marketing = DownloadAttribution.getMarketingData(
+                    null,
+                    params
                 );
+
+                DownloadAttribution.setRawCookie(
+                    DownloadAttribution.COOKIE_MARKETING_RAW_ID,
+                    marketing
+                );
+
+                const essential = DownloadAttribution.getRawCookie(
+                    DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+                );
+
+                DownloadAttribution.requestCombinedAuth(essential, marketing);
+
+                if (marketing.client_id_ga4) {
+                    window.dataLayer.push({
+                        event: 'stub_session_set',
+                        id: marketing.session_id
+                    });
+                }
+            });
+        } else if (consentState === 'denied') {
+            DownloadAttribution.removeRawCookie(
+                DownloadAttribution.COOKIE_MARKETING_RAW_ID
+            );
+
+            const essential = DownloadAttribution.getRawCookie(
+                DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+            );
+
+            if (essential) {
+                DownloadAttribution.requestCombinedAuth(essential, null);
             } else {
-                // Wait for GA4 to load and return client IDs
-                DownloadAttribution.waitForGoogleAnalyticsThen(() => {
-                    DownloadAttribution.checkDataAndRequestAuth(
-                        omitNonEssentialFields
-                    );
-                });
+                DownloadAttribution.removeAttributionData();
             }
         }
     }
