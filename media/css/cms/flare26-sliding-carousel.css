@@ -45,6 +45,11 @@
 .fl-sliding-carousel-heading-text,
 .fl-sliding-carousel-subheading {
     display: none;
+    opacity: 0;
+    transition:
+        display 500ms,
+        opacity 500ms;
+    transition-behavior: allow-discrete;
 }
 
 /* Active: show all heading fields */
@@ -52,6 +57,14 @@
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-heading-text,
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading {
     display: block;
+    opacity: 1;
+}
+
+@starting-style {
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-heading-text,
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading {
+        opacity: 0;
+    }
 }
 
 .fl-sliding-carousel-control.is-active
@@ -121,6 +134,11 @@
     .fl-sliding-carousel-control.is-active::after {
         animation: none;
         block-size: 100%;
+    }
+
+    .fl-sliding-carousel-heading-text,
+    .fl-sliding-carousel-subheading {
+        transition: none;
     }
 }
 
