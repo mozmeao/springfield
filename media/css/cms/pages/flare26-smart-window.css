@@ -82,3 +82,30 @@
     margin-inline: auto;
     max-inline-size: 100%;
 }
+
+/* Play/pause buttons */
+
+.fl-smart-window-page .fl-video-play-icon,
+.fl-smart-window-explainer-page .fl-video-play-icon {
+    background: var(--smart-window-play-icon-background);
+    block-size: 28px;
+    border: 1px solid var(--smart-window-play-icon-border-color);
+    border-radius: var(--token-border-radius-2xs);
+    inline-size: 28px;
+}
+
+.fl-smart-window-page .fl-video-play-icon svg,
+.fl-smart-window-explainer-page .fl-video-play-icon svg {
+    block-size: 28px;
+    inline-size: 28px;
+}
+
+.fl-smart-window-page .fl-video-play-icon circle,
+.fl-smart-window-explainer-page .fl-video-play-icon circle {
+    display: none;
+}
+
+.fl-smart-window-page .fl-video-play-icon path,
+.fl-smart-window-explainer-page .fl-video-play-icon path {
+    fill: var(--smart-window-play-icon-fill-color);
+}

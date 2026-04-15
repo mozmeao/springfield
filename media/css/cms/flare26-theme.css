@@ -181,11 +181,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-black-1);
 
-    /* Smart window instructions */
+    /* Smart window */
     --smart-window-instructions-heading-text-color: var(
         --token-color-dark-purple
     );
     --smart-window-instructions-content-text-color: var(--token-color-grey-4);
+    --smart-window-play-icon-background: var(--token-color-white);
+    --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-fill-color: var(--token-color-black-4);
 }
 
 .fl-split-page-upper,
@@ -292,9 +295,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-grey-1);
 
-    /* Smart window instructions */
+    /* Smart window */
     --smart-window-instructions-heading-text-color: var(--token-color-white);
     --smart-window-instructions-content-text-color: var(--token-color-white);
+    --smart-window-play-icon-background: var(--token-color-medium-purple);
+    --smart-window-play-icon-border-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color: var(--token-color-white);
 }
 
 .fl-force-light-theme {
@@ -385,11 +391,14 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-black-1);
 
-    /* Smart window instructions */
+    /* Smart window */
     --smart-window-instructions-heading-text-color: var(
         --token-color-dark-purple
     );
     --smart-window-instructions-content-text-color: var(--token-color-grey-4);
+    --smart-window-play-icon-background: var(--token-color-white);
+    --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-fill-color: var(--token-color-black-4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -494,13 +503,16 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         /* Release notes */
         --release-notes-text-color-secondary: var(--token-color-grey-1);
 
-        /* Smart window instructions */
+        /* Smart window */
         --smart-window-instructions-heading-text-color: var(
             --token-color-white
         );
         --smart-window-instructions-content-text-color: var(
             --token-color-white
         );
+        --smart-window-play-icon-background: var(--token-color-medium-purple);
+        --smart-window-play-icon-border-color: var(--token-color-dark-purple);
+        --smart-window-play-icon-fill-color: var(--token-color-white);
     }
 }
 

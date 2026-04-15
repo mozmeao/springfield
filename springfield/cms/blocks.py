@@ -1091,6 +1091,7 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
             inline_form=True,
         )
+        show_pause_button = blocks.BooleanBlock(default=False, required=False)
 
         class Meta:
             label = "Animation"
