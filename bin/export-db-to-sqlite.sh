@@ -163,6 +163,7 @@ python manage.py dumpdata \
     cms.FreeFormPage \
     cms.FreeFormPage2026 \
     cms.SmartWindowPage \
+    cms.SmartWindowExplainerPage \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
     cms.WhatsNewPage2026 \
