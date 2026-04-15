@@ -15,17 +15,20 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
 
 from product_details import product_details
+from wagtail.models import Locale as WagtailLocale
 
 from lib import l10n_utils, querystringsafe_base64
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
 from springfield.base import waffle
 from springfield.base.urlresolvers import reverse
+from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.firefox.firefox_details import (
     firefox_android,
     firefox_desktop,
     firefox_ios,
 )
+from springfield.firefox.redirects import validate_param_value
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
 
@@ -939,6 +942,58 @@ class WhatsnewView(L10nTemplateView):
 
     # Nimbus experiment variation expected values
     nimbus_variations = ["v1", "v2", "v3", "v4"]
+
+    def _get_general_wnp_redirect(self, request, version):
+        """
+        If a General WNP (slug='general') exists in the CMS for the request locale
+        (or its configured CMS fallback locale), return a 302 redirect to it,
+        preserving existing querystring params and appending ?version=VERSION.
+        Returns None if no redirect is warranted.
+        """
+        # Extract the raw locale code from the URL path (e.g. "it", "es-AR")
+        _path = request.path.lstrip("/")
+        lang_code, _, _ = _path.partition("/")
+
+        # Determine which CMS locale to check for a General WNP
+        cms_language_codes = dict(settings.WAGTAIL_CONTENT_LANGUAGES)
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        if lang_code in cms_language_codes:
+            effective_locale_code = lang_code
+        elif lang_code in fallback_locales:
+            effective_locale_code = fallback_locales[lang_code]
+        else:
+            return None
+
+        try:
+            locale = WagtailLocale.objects.get(language_code=effective_locale_code)
+        except WagtailLocale.DoesNotExist:
+            return None
+
+        if not WhatsNewPage2026.objects.live().public().filter(slug="general", locale=locale).exists():
+            return None
+
+        # Merge the version into the existing querystring (defence in depth validation)
+        params = request.GET.copy()
+        safe_version = validate_param_value(version)
+        if safe_version:
+            params["version"] = safe_version
+
+        # Use the original lang_code in the redirect URL so that alias locales
+        # (e.g. es-AR) redirect to their alias URL; Wagtail's locale-fallback
+        # machinery then transparently serves the fallback locale's content.
+        redirect_path = f"/{lang_code}/whatsnew/general/"
+        query_string = params.urlencode()
+        redirect_url = f"{redirect_path}?{query_string}" if query_string else redirect_path
+
+        return HttpResponseRedirect(redirect_url)
+
+    def get(self, request, *args, **kwargs):
+        version = self.kwargs.get("version", "")
+        redirect_response = self._get_general_wnp_redirect(request, version)
+        if redirect_response:
+            return redirect_response
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
