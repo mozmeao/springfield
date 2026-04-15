@@ -15,7 +15,9 @@
     expand_link="{{ value.settings.expand_link }}"
   >
     <content:media>
-      {{ value.image }}
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
     </content:media>
     <content:heading>
       <include:heading

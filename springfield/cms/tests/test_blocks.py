@@ -2845,12 +2845,20 @@ def test_illustration_cards_2026_block(index_page, placeholder_images, rf):
                 eyebrow_el = card_el.find(class_="fl-superheading")
                 assert eyebrow_el and eyebrow_text in eyebrow_el.get_text()
 
-            # Image variants
+            # Media (first item)
             media_el = card_el.find("div", class_="fl-card-media")
-            assert_image_variants_attributes(
-                images_element=media_el,
-                images_value=variant["value"]["image"],
-            )
+            media_value = variant["value"]["media"][0]
+            if media_value["type"] == "image":
+                assert_image_variants_attributes(
+                    images_element=media_el,
+                    images_value=media_value["value"],
+                )
+            elif media_value["type"] == "video":
+                video_div = media_el.find("div", class_="fl-video")
+                assert_video_attributes(video_div, media_value)
+            elif media_value["type"] == "animation":
+                animation_div = media_el.find("div", class_="fl-video")
+                assert_animation_attributes(animation_div, media_value)
 
             # Buttons
             for button_data in variant["value"]["buttons"]:
