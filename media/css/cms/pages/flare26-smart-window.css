@@ -24,6 +24,17 @@
     .fl-smart-window-explainer-page .fl-header .fl-nav {
         background: transparent;
     }
+
+    .fl-smart-window-page
+        .fl-card-grid:has(
+            .fl-illustration-card-default:nth-child(3):last-child
+        ),
+    .fl-smart-window-page
+        .fl-card-grid:has(
+            > *:nth-child(3):last-child .fl-illustration-card-default
+        ) {
+        max-inline-size: var(--token-width-desktop-wide-banner);
+    }
 }
 
 .fl-smart-window-explainer-page .fl-split-page-upper {
