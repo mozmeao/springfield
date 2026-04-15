@@ -3744,13 +3744,13 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     uitour_by_id = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
 
     # Nav button
-    nav_btn = uitour_by_id.get("nav-try-smart-window")
+    nav_btn = uitour_by_id.get(str(page.nav_button_uid))
     assert nav_btn
     assert nav_btn["data-cta-position"] == "nav"
     assert nav_btn.get_text(strip=True) == page.waitlist_button_label
 
     # Intro (upper content) button
-    intro_btn = uitour_by_id.get("intro-try-smart-window")
+    intro_btn = uitour_by_id.get(str(page.intro_button_uid))
     assert intro_btn
     assert intro_btn["data-cta-position"] == "intro"
     assert intro_btn.get_text(strip=True) == page.waitlist_button_label
@@ -3781,8 +3781,8 @@ def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, 
     soup = BeautifulSoup(response.content, "html.parser")
 
     form = soup.find("form", {"data-testid": "newsletter-form"})
-    nav_button = soup.find("button", {"data-cta-uid": "nav-try-smart-window"})
-    intro_button = soup.find("button", {"data-cta-uid": "intro-try-smart-window"})
+    nav_button = soup.find("button", {"data-cta-uid": str(page.nav_button_uid)})
+    intro_button = soup.find("button", {"data-cta-uid": str(page.intro_button_uid)})
 
     if expected:
         assert nav_button, f"Expected nav UITour button for show_button={show_button!r}, country={country!r}"
