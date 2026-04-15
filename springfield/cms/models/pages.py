@@ -991,6 +991,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("show_smart_window_button"),
+                FieldPanel("redirect_page"),
                 FieldPanel("waitlist_button_label"),
                 FieldPanel("form_submit_label"),
                 FieldPanel("thank_you_message"),
@@ -1021,6 +1022,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
             self.show_smart_window_button == "us_ca" and country in {"US", "CA"}
         )
+        context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
         return context
 
 

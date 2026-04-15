@@ -30,8 +30,8 @@
           analytics_text="Try Smart Window"
           analytics_position="nav"
           analytics_id="{{ page.nav_button_uid }}"
-          {% if page.redirect_page %}
-          next_url="{{ page.redirect_page.get_url() }}"
+          {% if redirect_url %}
+          next_url="{{ redirect_url }}"
           {% endif %}
         />
         </include:conditional-display>
@@ -72,8 +72,8 @@
               analytics_text="Try Smart Window"
               analytics_position="intro"
               analytics_id="{{ page.intro_button_uid }}"
-              {% if page.redirect_page %}
-              next_url="{{ page.redirect_page.get_url() }}"
+              {% if redirect_url %}
+              next_url="{{ redirect_url }}"
               {% endif %}
             />
           </include:conditional-display>
