@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from django.conf import settings
@@ -946,9 +947,17 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default="us_ca",
         help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
     )
+    nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
+    intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
     waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
     form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
     thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("heading_text"),
@@ -973,6 +982,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("waitlist_button_label"),
                 FieldPanel("form_submit_label"),
                 FieldPanel("thank_you_message"),
+                FieldPanel("nav_button_uid"),
+                FieldPanel("intro_button_uid"),
+                FieldPanel("waitlist_submit_uid"),
+                FieldPanel("privacy_notice"),
             ],
             heading="Smart Window button and Waitlist Form",
         ),

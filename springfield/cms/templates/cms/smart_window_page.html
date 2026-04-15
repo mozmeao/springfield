@@ -28,7 +28,7 @@
           label="{{ page.waitlist_button_label }}"
           analytics_text="Try Smart Window"
           analytics_position="nav"
-          analytics_id="nav-try-smart-window"
+          analytics_id="{{ page.nav_button_uid }}"
         />
         </include:conditional-display>
       {% endif %}
@@ -67,7 +67,7 @@
               label="{{ page.waitlist_button_label }}"
               analytics_text="Try Smart Window"
               analytics_position="intro"
-              analytics_id="intro-try-smart-window"
+              analytics_id="{{ page.intro_button_uid }}"
             />
           </include:conditional-display>
         {% else %}
@@ -98,7 +98,16 @@
                   </label>
                 </div>
               </div>
-              <button id="newsletter-submit" class="fl-button" type="submit" disabled data-testid="newsletter-submit-button">{{ page.form_submit_label }}</button>
+              <button
+                id="newsletter-submit"
+                class="fl-button"
+                type="submit"
+                data-cta-uid="{{ page.waitlist_submit_uid }}"
+                data-cta-text="{{ page.form_submit_label }}"
+                data-cta-position="intro"
+                disabled
+                data-testid="newsletter-submit-button"
+              >{{ page.form_submit_label }}</button>
               <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
                 <ul class="fl-newsletterform-error-list mzp-u-list-styled">
                   <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>
