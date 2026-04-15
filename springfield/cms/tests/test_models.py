@@ -237,6 +237,32 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     assert response.headers["location"].endswith(v125_page.url)
 
 
+def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
+    minimal_site,
+    rf,
+):
+    """General WNP (slug='general') must not be treated as the 'latest' version.
+    The index page should redirect to the highest numeric version, not to the
+    general page (which sorts after digits lexicographically)."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew-2")
+
+    v150_page = WhatsNewPage2026Factory(parent=index_page, slug="150", version="150")
+    v150_page.save()
+
+    from springfield.cms.tests.factories import GeneralWhatsNewPage2026Factory
+
+    general_page = GeneralWhatsNewPage2026Factory(parent=index_page)
+    general_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v150_page.url)
+
+
 def test_whats_new_index_page_redirects_to_home_if_no_children(
     minimal_site,
     rf,
