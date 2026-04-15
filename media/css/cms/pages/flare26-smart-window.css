@@ -1,3 +1,41 @@
+.fl-smart-window-page .fl-header,
+.fl-smart-window-page .fl-header .fl-nav,
+.fl-smart-window-page .fl-split-page-upper {
+    background:
+        radial-gradient(
+            29.9% 38.82% at 50% 44.86%,
+            rgba(216, 202, 247, 0.2) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0) 65.89%
+        ),
+        radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
+}
+
+.fl-smart-window-page .fl-menu-panel,
+.fl-smart-window-page .fl-nav-mobile-download-link {
+    background: transparent;
+}
+
+@media (--viewport-md-up) {
+    .fl-smart-window-page .fl-header .fl-nav {
+        background: transparent;
+    }
+}
+
+.fl-smart-window-page .fl-split-page-upper {
+    --fl-theme-color-text: var(--token-color-black-4);
+}
+
+.fl-smart-window-page .fl-header {
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: 100% 600px;
+}
+
 .fl-smart-window-intro {
     align-items: center;
     display: flex;
