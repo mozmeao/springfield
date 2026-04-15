@@ -4,98 +4,87 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Create namespace
-if (typeof window.Mozilla === 'undefined') {
-    window.Mozilla = {};
-}
+window.dataLayer = window.dataLayer || [];
 
-(function () {
-    'use strict';
-
-    window.dataLayer = window.dataLayer || [];
-
-    /**
-     * Constructs attribution data based on utm parameters, referrer information, and
-     * essential product context / install options for relay to the Firefox stub installer.
-     * Data is first signed and encoded via an XHR request to the `stub_attribution_code` service,
-     * before being appended to Bouncer download URLs as query parameters. Data returned from the
-     * service is also stored in a cookie to save multiple requests when navigating pages.
-     * Original Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1279291
-     *
-     * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
-     * In 2026, this file was renamed from Stub Attribution to Download Attribution to more
-     * clearly indicate this is information provided through the download. References to the Stub
-     * Attribution Service remain as the website code connects to an external service that uses
-     * this name: https://github.com/mozilla-services/stubattribution.
-     */
-    var DownloadAttribution = {};
-
-    DownloadAttribution.COOKIE_CODE_ID = 'moz-download-attribution-code';
-    DownloadAttribution.COOKIE_SIGNATURE_ID = 'moz-download-attribution-sig';
-    DownloadAttribution.DLSOURCE = 'fxdotcom';
+/**
+ * Constructs attribution data based on utm parameters, referrer information, and
+ * essential product context / install options for relay to the Firefox stub installer.
+ * Data is first signed and encoded via an XHR request to the `stub_attribution_code` service,
+ * before being appended to Bouncer download URLs as query parameters. Data returned from the
+ * service is also stored in a cookie to save multiple requests when navigating pages.
+ * Original Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1279291
+ *
+ * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
+ * In 2026, this file was renamed from Stub Attribution to Download Attribution to more
+ * clearly indicate this is information provided through the download. References to the Stub
+ * Attribution Service remain as the website code connects to an external service that uses
+ * this name: https://github.com/mozilla-services/stubattribution.
+ */
+const DownloadAttribution = {
+    COOKIE_CODE_ID: 'moz-download-attribution-code',
+    COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
+    DLSOURCE: 'fxdotcom',
 
     /**
      * Experiment name and variation globals. These values can be set directly by a
      * page's JS instead of relying on supplied URL query parameters.
      */
-    DownloadAttribution.experimentName;
-    DownloadAttribution.experimentVariation;
+    experimentName: undefined,
+    experimentVariation: undefined,
 
     /**
      * Custom event handler callback globals. These can be defined as functions when
      * calling DownloadAttribution.init();
      */
-    DownloadAttribution.successCallback;
-    DownloadAttribution.timeoutCallback;
-    DownloadAttribution.requestComplete = false;
+    successCallback: undefined,
+    timeoutCallback: undefined,
+    requestComplete: false,
 
     /**
      * Determines if session falls within the predefined download attribution sample rate.
      * @return {Boolean}.
      */
-    DownloadAttribution.withinAttributionRate = function () {
-        return Math.random() < DownloadAttribution.getAttributionRate()
-            ? true
-            : false;
-    };
+    withinAttributionRate: () => {
+        return Math.random() < DownloadAttribution.getAttributionRate();
+    },
 
     /**
      * Returns download attribution value used for rate limiting.
      * @return {Number} float between 0 and 1.
      */
-    DownloadAttribution.getAttributionRate = function () {
-        var rate = document
+    getAttributionRate: () => {
+        const rate = document
             .getElementsByTagName('html')[0]
             .getAttribute('data-download-attribution-rate');
         return isNaN(rate) || !rate
             ? 0
             : Math.min(Math.max(parseFloat(rate), 0), 1);
-    };
+    },
 
     /**
      * Returns true if both cookies exist.
      * @return {Boolean} data.
      */
-    DownloadAttribution.hasCookie = function () {
+    hasCookie: () => {
         return (
             Mozilla.Cookies.hasItem(DownloadAttribution.COOKIE_CODE_ID) &&
             Mozilla.Cookies.hasItem(DownloadAttribution.COOKIE_SIGNATURE_ID)
         );
-    };
+    },
 
     /**
      * Stores a cookie with download attribution data values.
      * @param {Object} data - attribution_code, attribution_sig.
      */
-    DownloadAttribution.setCookie = function (data) {
+    setCookie: (data) => {
         if (!data.attribution_code || !data.attribution_sig) {
             return;
         }
 
         // set cookie to expire in 24 hours
-        var date = new Date();
+        const date = new Date();
         date.setTime(date.getTime() + 1 * 24 * 60 * 60 * 1000);
-        var expires = date.toUTCString();
+        const expires = date.toUTCString();
 
         Mozilla.Cookies.setItem(
             DownloadAttribution.COOKIE_CODE_ID,
@@ -115,12 +104,12 @@ if (typeof window.Mozilla === 'undefined') {
             false,
             'lax'
         );
-    };
+    },
 
     /**
      * Removes download attribution cookie.
      */
-    DownloadAttribution.removeCookie = function () {
+    removeCookie: () => {
         window.Mozilla.Cookies.removeItem(
             DownloadAttribution.COOKIE_CODE_ID,
             '/',
@@ -136,13 +125,13 @@ if (typeof window.Mozilla === 'undefined') {
             false,
             'lax'
         );
-    };
+    },
 
     /**
      * Gets download attribution data from cookie.
      * @return {Object} - attribution_code, attribution_sig.
      */
-    DownloadAttribution.getCookie = function () {
+    getCookie: () => {
         return {
             attribution_code: Mozilla.Cookies.getItem(
                 DownloadAttribution.COOKIE_CODE_ID
@@ -151,14 +140,14 @@ if (typeof window.Mozilla === 'undefined') {
                 DownloadAttribution.COOKIE_SIGNATURE_ID
             )
         };
-    };
+    },
 
     /**
      * Updates all download links on the page with additional query params for
      * download attribution.
      * @param {Object} data - attribution_code, attribution_sig.
      */
-    DownloadAttribution.updateBouncerLinks = function (data) {
+    updateBouncerLinks: (data) => {
         /**
          * If data is missing or the browser does not meet requirements for
          * download attribution, then do nothing.
@@ -172,12 +161,11 @@ if (typeof window.Mozilla === 'undefined') {
         }
 
         // target download buttons and other-platforms modal links.
-        var downloadLinks = document.querySelectorAll('.download-link');
+        const downloadLinks = document.querySelectorAll('.download-link');
 
-        for (var i = 0; i < downloadLinks.length; i++) {
-            var link = downloadLinks[i];
-            var version;
-            var directLink;
+        for (const link of downloadLinks) {
+            let version;
+            let directLink;
             // Append download attribution data to direct download links.
             if (
                 link.href &&
@@ -196,7 +184,7 @@ if (typeof window.Mozilla === 'undefined') {
 
                 // Append attribution params to Windows links.
                 if (version && /win/.test(version)) {
-                    link.href = Mozilla.DownloadAttribution.appendToDownloadURL(
+                    link.href = DownloadAttribution.appendToDownloadURL(
                         link.href,
                         data
                     );
@@ -207,7 +195,7 @@ if (typeof window.Mozilla === 'undefined') {
                     /osx/.test(version) &&
                     !/product=firefox-esr/.test(link.href)
                 ) {
-                    link.href = Mozilla.DownloadAttribution.appendToDownloadURL(
+                    link.href = DownloadAttribution.appendToDownloadURL(
                         link.href,
                         data
                     );
@@ -219,7 +207,7 @@ if (typeof window.Mozilla === 'undefined') {
                 if (directLink) {
                     link.setAttribute(
                         'data-direct-link',
-                        Mozilla.DownloadAttribution.appendToDownloadURL(
+                        DownloadAttribution.appendToDownloadURL(
                             directLink,
                             data
                         )
@@ -227,12 +215,12 @@ if (typeof window.Mozilla === 'undefined') {
                 }
             }
         }
-    };
+    },
 
-    DownloadAttribution.removeLinkAttributionParams = function (href) {
+    removeLinkAttributionParams: (href) => {
         if (href.indexOf('?') > 0) {
-            var params = new window._SearchParams(href.split('?')[1]);
-            var origin = href.split('?')[0];
+            const params = new window._SearchParams(href.split('?')[1]);
+            const origin = href.split('?')[0];
 
             if (
                 params.has('attribution_code') &&
@@ -247,31 +235,31 @@ if (typeof window.Mozilla === 'undefined') {
         }
 
         return href;
-    };
+    },
 
-    DownloadAttribution.cleanBouncerLinks = function () {
-        var downloadLinks = document.querySelectorAll('.download-link');
+    cleanBouncerLinks: () => {
+        const downloadLinks = document.querySelectorAll('.download-link');
 
-        for (var i = 0; i < downloadLinks.length; i++) {
-            downloadLinks[i].href =
-                DownloadAttribution.removeLinkAttributionParams(
-                    downloadLinks[i].href
-                );
+        for (const link of downloadLinks) {
+            link.href = DownloadAttribution.removeLinkAttributionParams(
+                link.href
+            );
 
-            if (downloadLinks[i].hasAttribute('data-direct-link')) {
-                var attribute = DownloadAttribution.removeLinkAttributionParams(
-                    downloadLinks[i].getAttribute('data-direct-link')
-                );
-                downloadLinks[i].setAttribute('data-direct-link', attribute);
+            if (link.hasAttribute('data-direct-link')) {
+                const attribute =
+                    DownloadAttribution.removeLinkAttributionParams(
+                        link.getAttribute('data-direct-link')
+                    );
+                link.setAttribute('data-direct-link', attribute);
             }
         }
-    };
+    },
 
-    DownloadAttribution.removeAttributionData = function () {
+    removeAttributionData: () => {
         DownloadAttribution.removeCookie();
         DownloadAttribution.cleanBouncerLinks();
         DownloadAttribution.requestComplete = false;
-    };
+    },
 
     /**
      * Appends download attribution data as URL parameters.
@@ -280,32 +268,27 @@ if (typeof window.Mozilla === 'undefined') {
      * @param {Object} data - attribution_code, attribution_sig.
      * @return {String} url + additional parameters.
      */
-    DownloadAttribution.appendToDownloadURL = function (url, data) {
+    appendToDownloadURL: (url, data) => {
         if (!data.attribution_code || !data.attribution_sig) {
             return url;
         }
 
         // append download attribution query params.
-        for (var key in data) {
-            if (Object.prototype.hasOwnProperty.call(data, key)) {
-                if (key === 'attribution_code' || key === 'attribution_sig') {
-                    url +=
-                        (url.indexOf('?') > -1 ? '&' : '?') +
-                        key +
-                        '=' +
-                        data[key];
-                }
+        for (const key of Object.keys(data)) {
+            if (key === 'attribution_code' || key === 'attribution_sig') {
+                url +=
+                    (url.indexOf('?') > -1 ? '&' : '?') + key + '=' + data[key];
             }
         }
 
         return url;
-    };
+    },
 
     /**
      * Handles XHR request from `stub_attribution_code` service.
      * @param {Object} data - attribution_code, attribution_sig.
      */
-    DownloadAttribution.onRequestSuccess = function (data) {
+    onRequestSuccess: (data) => {
         if (
             data.attribution_code &&
             data.attribution_sig &&
@@ -322,9 +305,9 @@ if (typeof window.Mozilla === 'undefined') {
                 DownloadAttribution.successCallback();
             }
         }
-    };
+    },
 
-    DownloadAttribution.onRequestTimeout = function () {
+    onRequestTimeout: () => {
         if (!DownloadAttribution.requestComplete) {
             DownloadAttribution.requestComplete = true;
 
@@ -332,21 +315,21 @@ if (typeof window.Mozilla === 'undefined') {
                 DownloadAttribution.timeoutCallback();
             }
         }
-    };
+    },
 
     /**
      * AJAX request to springfield service to authenticate download attribution request.
      * @param {Object} data - utm params and referrer.
      */
-    DownloadAttribution.requestAuthentication = function (data) {
-        var SERVICE_URL =
+    requestAuthentication: (data) => {
+        const SERVICE_URL =
             window.location.protocol +
             '//' +
             window.location.host +
             '/en-US/stub_attribution_code/';
-        var xhr = new window.XMLHttpRequest();
-        var timeoutValue = 10000;
-        var timeout = setTimeout(
+        const xhr = new window.XMLHttpRequest();
+        const timeoutValue = 10000;
+        const timeout = setTimeout(
             DownloadAttribution.onRequestTimeout,
             timeoutValue
         );
@@ -360,12 +343,12 @@ if (typeof window.Mozilla === 'undefined') {
         // use readystate change over onload for IE8 support.
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
-                var status = xhr.status;
+                const status = xhr.status;
                 if (status && status >= 200 && status < 400) {
                     try {
-                        var data = JSON.parse(xhr.responseText);
+                        const responseData = JSON.parse(xhr.responseText);
                         clearTimeout(timeout);
-                        DownloadAttribution.onRequestSuccess(data);
+                        DownloadAttribution.onRequestSuccess(responseData);
                     } catch (e) {
                         // something went wrong, fallback to the timeout handler.
                         DownloadAttribution.onRequestTimeout();
@@ -377,7 +360,7 @@ if (typeof window.Mozilla === 'undefined') {
         // must come after open call above for IE 10 & 11
         xhr.timeout = timeoutValue;
         xhr.send();
-    };
+    },
 
     /**
      * Returns a browser name based on coarse UA string detection for only major browsers.
@@ -385,7 +368,7 @@ if (typeof window.Mozilla === 'undefined') {
      * @param {String} ua - Optional user agent string to facilitate testing.
      * @returns {String} - Browser name.
      */
-    DownloadAttribution.getUserAgent = function (ua) {
+    getUserAgent: (ua) => {
         ua = typeof ua !== 'undefined' ? ua : navigator.userAgent;
 
         if (/MSIE|Trident/i.test(ua)) {
@@ -405,22 +388,22 @@ if (typeof window.Mozilla === 'undefined') {
         }
 
         return 'other';
-    };
+    },
 
     /**
      * Attempts to retrieve the GA4 client from the dataLayer
      * The GTAG GET API tag will write it to the dataLayer once GTM has loaded it
      * https://www.simoahava.com/gtmtips/write-client-id-other-gtag-fields-datalayer/
      */
-    DownloadAttribution.getGtagClientID = function (dataLayer) {
+    getGtagClientID: (dataLayer) => {
         // need to pass in dataLayer for testing purposes, use global dataLayer if it's not passed
         dataLayer =
             typeof dataLayer !== 'undefined' ? dataLayer : window.dataLayer;
 
-        var clientID = null;
+        let clientID = null;
 
-        function _findAPI(obj) {
-            for (var key in obj) {
+        const _findAPI = (obj) => {
+            for (const key in obj) {
                 if (
                     typeof obj[key] === 'object' &&
                     Object.prototype.hasOwnProperty.call(obj, key)
@@ -437,11 +420,11 @@ if (typeof window.Mozilla === 'undefined') {
                     }
                 }
             }
-        }
+        };
 
         try {
             if (typeof dataLayer === 'object') {
-                dataLayer.forEach(function (layer) {
+                dataLayer.forEach((layer) => {
                     _findAPI(layer);
                 });
             }
@@ -455,7 +438,7 @@ if (typeof window.Mozilla === 'undefined') {
         }
 
         return clientID;
-    };
+    },
 
     /**
      * Returns a random identifier that we use to associate a
@@ -464,24 +447,24 @@ if (typeof window.Mozilla === 'undefined') {
      * to GA, and also to the stub attribution service as session_id.
      * @returns {String} session ID.
      */
-    DownloadAttribution.createSessionID = function () {
+    createSessionID: () => {
         return Math.floor(1000000000 + Math.random() * 9000000000).toString();
-    };
+    },
 
     /**
      * A crude check to see if Google Analytics has loaded.
      * @param {Function} callback
      */
-    DownloadAttribution.waitForGoogleAnalyticsThen = function (callback) {
-        var timeout;
-        var pollRetry = 0;
-        var interval = 100;
-        var limit = 20; // (100 x 20) / 1000 = 2 seconds
+    waitForGoogleAnalyticsThen: (callback) => {
+        let timeout;
+        let pollRetry = 0;
+        const interval = 100;
+        const limit = 20; // (100 x 20) / 1000 = 2 seconds
 
         // Tries to get client IDs at a set interval
-        function _checkGA() {
+        const _checkGA = () => {
             clearTimeout(timeout);
-            var clientIDGA4 = DownloadAttribution.getGtagClientID();
+            const clientIDGA4 = DownloadAttribution.getGtagClientID();
 
             if (clientIDGA4) {
                 callback(true);
@@ -497,10 +480,10 @@ if (typeof window.Mozilla === 'undefined') {
                     }
                 }
             }
-        }
+        };
 
         _checkGA();
-    };
+    },
 
     /**
      * Gets utm parameters and referrer information from the web page if they exist.
@@ -508,37 +491,34 @@ if (typeof window.Mozilla === 'undefined') {
      * @param {Boolean} omitNonEssentialFields - Optional flag to omit fields that are nonEssential.
      * @return {Object} - Download attribution data object.
      */
-    DownloadAttribution.getAttributionData = function (
-        ref,
-        omitNonEssentialFields
-    ) {
-        var params = new window._SearchParams();
-        var utms = params.utmParams();
-        var experiment = omitNonEssentialFields
+    getAttributionData: (ref, omitNonEssentialFields) => {
+        const params = new window._SearchParams();
+        const utms = params.utmParams();
+        const experiment = omitNonEssentialFields
             ? null
             : params.get('experiment') || DownloadAttribution.experimentName;
-        var variation = omitNonEssentialFields
+        const variation = omitNonEssentialFields
             ? null
             : params.get('variation') ||
               DownloadAttribution.experimentVariation;
-        var referrer = typeof ref === 'string' ? ref : document.referrer;
-        var ua = omitNonEssentialFields
+        const referrer = typeof ref === 'string' ? ref : document.referrer;
+        const ua = omitNonEssentialFields
             ? 'other'
             : DownloadAttribution.getUserAgent();
-        var clientIDGA4 = omitNonEssentialFields
+        const clientIDGA4 = omitNonEssentialFields
             ? null
             : DownloadAttribution.getGtagClientID();
 
-        var campaignForce = document.documentElement.getAttribute(
+        const campaignForce = document.documentElement.getAttribute(
             'data-download-attribution-campaign-force'
         );
-        var campaignOverride = document.documentElement.getAttribute(
+        const campaignOverride = document.documentElement.getAttribute(
             'data-download-attribution-campaign-override'
         );
-        var campaignDefault = document.documentElement.getAttribute(
+        const campaignDefault = document.documentElement.getAttribute(
             'data-download-attribution-campaign'
         );
-        var utmCampaign;
+        let utmCampaign;
 
         if (campaignForce !== null) {
             // Force always wins and clears existing cookie
@@ -556,7 +536,7 @@ if (typeof window.Mozilla === 'undefined') {
             utmCampaign = campaignDefault;
         }
 
-        var data = {
+        const data = {
             utm_source: utms.utm_source,
             utm_medium: utms.utm_medium,
             utm_campaign: utmCampaign,
@@ -573,22 +553,18 @@ if (typeof window.Mozilla === 'undefined') {
         };
 
         // Remove any undefined values.
-        for (var key in data) {
-            if (Object.prototype.hasOwnProperty.call(data, key)) {
-                if (typeof data[key] === 'undefined' || data[key] === null) {
-                    delete data[key];
-                }
+        for (const key of Object.keys(data)) {
+            if (typeof data[key] === 'undefined' || data[key] === null) {
+                delete data[key];
             }
         }
 
         return data;
-    };
+    },
 
-    DownloadAttribution.checkDataAndRequestAuth = function (
-        omitNonEssentialFields = false
-    ) {
+    checkDataAndRequestAuth: (omitNonEssentialFields = false) => {
         // get attribution data
-        let data = DownloadAttribution.getAttributionData(
+        const data = DownloadAttribution.getAttributionData(
             null,
             omitNonEssentialFields
         );
@@ -610,15 +586,15 @@ if (typeof window.Mozilla === 'undefined') {
                 });
             }
         }
-    };
+    },
 
-    DownloadAttribution.hasValidData = function (data) {
+    hasValidData: (data) => {
         if (
             typeof data.utm_content === 'string' &&
             typeof data.referrer === 'string'
         ) {
-            var content = data.utm_content;
-            var charLimit = 150;
+            let content = data.utm_content;
+            const charLimit = 150;
 
             // If utm_content is unusually long, return false early.
             if (content.length > charLimit) {
@@ -628,7 +604,7 @@ if (typeof window.Mozilla === 'undefined') {
             // Attribution data can be double encoded
             while (content.indexOf('%') !== -1) {
                 try {
-                    var result = decodeURIComponent(content);
+                    const result = decodeURIComponent(content);
                     if (result === content) {
                         break;
                     }
@@ -647,7 +623,7 @@ if (typeof window.Mozilla === 'undefined') {
             }
         }
         return true;
-    };
+    },
 
     /**
      * Determine if the current page is /download/thanks
@@ -656,18 +632,18 @@ if (typeof window.Mozilla === 'undefined') {
      * want to make the request a dependency on the download starting.
      * @return {Boolean}.
      */
-    DownloadAttribution.isFirefoxDownloadThanks = function (location) {
+    isFirefoxDownloadThanks: (location) => {
         location =
             typeof location !== 'undefined' ? location : window.location.href;
         return location.indexOf('/thanks/') > -1;
-    };
+    },
 
     /**
      * Determines if requirements for download attribution to work are satisfied.
      * Download attribution is only applicable to Windows/macOS users on desktop.
      * @return {Boolean}.
      */
-    DownloadAttribution.meetsRequirements = function () {
+    meetsRequirements: () => {
         if (
             typeof window.site === 'undefined' ||
             typeof Mozilla.Cookies === 'undefined' ||
@@ -685,17 +661,17 @@ if (typeof window.Mozilla === 'undefined') {
         }
 
         return true;
-    };
+    },
 
     /**
      * Determines whether to make a request to the stub authentication service.
      */
-    DownloadAttribution.init = function (
+    init: (
         successCallback,
         timeoutCallback,
         omitNonEssentialFields = false
-    ) {
-        var data = {};
+    ) => {
+        let data = {};
 
         if (!DownloadAttribution.meetsRequirements()) {
             return;
@@ -740,14 +716,16 @@ if (typeof window.Mozilla === 'undefined') {
                 );
             } else {
                 // Wait for GA4 to load and return client IDs
-                DownloadAttribution.waitForGoogleAnalyticsThen(function () {
+                DownloadAttribution.waitForGoogleAnalyticsThen(() => {
                     DownloadAttribution.checkDataAndRequestAuth(
                         omitNonEssentialFields
                     );
                 });
             }
         }
-    };
+    }
+};
 
-    window.Mozilla.DownloadAttribution = DownloadAttribution;
-})();
+window.Mozilla.DownloadAttribution = DownloadAttribution;
+
+export default DownloadAttribution;
