@@ -196,13 +196,8 @@ function init() {
             if (typeof window.dataLayer === 'undefined') {
                 window.dataLayer = [];
             }
-            // TODO: define data layer props
-            window.dataLayer.push({
-                event: 'widget_action',
-                type: 'smart window sign in',
-                action: 'open',
-                label: 'FxA Smart Window Sign-In'
-            });
+
+            const nextURL = button.dataset.nextUrl || null;
 
             // Add an event listener to the button.
             button.addEventListener(
@@ -212,6 +207,10 @@ function init() {
 
                     // Show the Firefox Accounts sign-in flow for the AI Window feature.
                     Mozilla.UITour.showFirefoxAccountsForAIWindow();
+
+                    if (nextURL) {
+                        window.location.href = nextURL;
+                    }
                 },
                 false
             );
@@ -231,6 +230,10 @@ function init() {
 
                         // Show the Firefox Accounts sign-in flow for the AI Window feature.
                         Mozilla.UITour.showFirefoxAccountsForAIWindow();
+
+                        if (nextURL) {
+                            window.location.href = nextURL;
+                        }
                     },
                     false
                 );

@@ -960,6 +960,14 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
         '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
     )
+    redirect_page = models.ForeignKey(
+        "cms.SmartWindowExplainerPage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="The page users will be taken to after clicking the Smart Window button.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
