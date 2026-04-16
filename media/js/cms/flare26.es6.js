@@ -72,34 +72,12 @@ function initSlidingCarousel(rootEl) {
         return;
     }
 
-    pauseAllVideos();
-
     let currentIndex = 0;
     let autoSlideTimer = null;
     let autoSlideActive = true;
     let userPaused = false;
 
-    function activate(index) {
-        controls[currentIndex].classList.remove('is-active');
-        controls[currentIndex].setAttribute('aria-current', 'false');
-        slides[currentIndex].classList.remove('is-active');
-        slides[currentIndex].setAttribute('aria-hidden', 'true');
-
-        pauseAllVideos();
-
-        currentIndex = index;
-
-        controls[currentIndex].classList.add('is-active');
-        controls[currentIndex].setAttribute('aria-current', 'true');
-        slides[currentIndex].classList.add('is-active');
-        slides[currentIndex].setAttribute('aria-hidden', 'false');
-        if (!userPaused) {
-            const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) {
-                playVideo(videoEl);
-            }
-        }
-    }
+    // --- Video helpers ---
 
     function getVideoFromSlide(slideEl) {
         return slideEl.querySelector('video');
@@ -108,16 +86,6 @@ function initSlidingCarousel(rootEl) {
     function getAnimationButton(videoEl) {
         const container = videoEl.closest('.fl-video');
         return container && container.querySelector('.js-animation-pause');
-    }
-
-    function pauseAllVideos() {
-        slides.forEach(function (slide) {
-            const videoEl = getVideoFromSlide(slide);
-            if (videoEl) {
-                videoEl.currentTime = 0;
-                pauseVideo(videoEl);
-            }
-        });
     }
 
     function pauseVideo(videoEl) {
@@ -142,26 +110,46 @@ function initSlidingCarousel(rootEl) {
         }
     }
 
-    slides.forEach((slide) => {
-        const btn = slide.querySelector('.js-animation-pause');
-        if (!btn) return;
-        btn.addEventListener('click', () => {
+    function pauseAllVideos() {
+        slides.forEach((slide) => {
             const videoEl = getVideoFromSlide(slide);
-            if (!videoEl) return;
-            if (userPaused) {
-                userPaused = false;
-                playVideo(videoEl);
-            } else {
-                userPaused = true;
+            if (videoEl) {
+                videoEl.currentTime = 0;
                 pauseVideo(videoEl);
             }
         });
-    });
+    }
+
+    // --- Slide activation ---
+
+    function activateSlideByIndex(index) {
+        controls[currentIndex].classList.remove('is-active');
+        controls[currentIndex].setAttribute('aria-current', 'false');
+        slides[currentIndex].classList.remove('is-active');
+        slides[currentIndex].setAttribute('aria-hidden', 'true');
+
+        pauseAllVideos();
+        currentIndex = index;
+
+        controls[currentIndex].classList.add('is-active');
+        controls[currentIndex].setAttribute('aria-current', 'true');
+        slides[currentIndex].classList.add('is-active');
+        slides[currentIndex].setAttribute('aria-hidden', 'false');
+
+        if (!userPaused) {
+            const videoEl = getVideoFromSlide(slides[currentIndex]);
+            if (videoEl) {
+                playVideo(videoEl);
+            }
+        }
+    }
+
+    // --- Auto-slide ---
 
     function startAutoSlide() {
-        activate(0);
+        activateSlideByIndex(0);
         autoSlideTimer = setInterval(() => {
-            activate((currentIndex + 1) % slides.length);
+            activateSlideByIndex((currentIndex + 1) % slides.length);
         }, AUTO_PLAY_INTERVAL_MS);
     }
 
@@ -172,13 +160,15 @@ function initSlidingCarousel(rootEl) {
         rootEl.classList.add('is-paused');
     }
 
+    // --- Event wiring ---
+
     controls.forEach((control, idx) => {
         control.addEventListener('click', () => {
             if (autoSlideActive) {
                 stopAutoSlide();
             }
             if (idx !== currentIndex) {
-                activate(idx);
+                activateSlideByIndex(idx);
             }
         });
 
@@ -186,6 +176,21 @@ function initSlidingCarousel(rootEl) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 control.click();
+            }
+        });
+    });
+
+    slides.forEach((slide) => {
+        const btn = slide.querySelector('.js-animation-pause');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            const videoEl = getVideoFromSlide(slide);
+            if (!videoEl) return;
+            userPaused = !userPaused;
+            if (userPaused) {
+                pauseVideo(videoEl);
+            } else {
+                playVideo(videoEl);
             }
         });
     });
@@ -198,6 +203,9 @@ function initSlidingCarousel(rootEl) {
         }
     });
 
+    // --- Init ---
+
+    pauseAllVideos();
     startAutoSlide();
 }
 
