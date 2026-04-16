@@ -753,10 +753,10 @@ Card Grid - Scroll variant
 .fl-card-grid-scroll-inner {
     box-sizing: content-box;
     display: flex;
+    inline-size: 100%;
     padding-inline-start: var(--token-spacing-lg);
     position: relative;
     transition-property: transform;
-    width: 100%;
     z-index: 1;
 }
 
