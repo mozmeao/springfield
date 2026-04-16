@@ -106,8 +106,12 @@ from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
     get_sliding_carousel_test_page,
 )
+from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
+    get_smart_window_explainer_content,
+    get_smart_window_explainer_intro,
+    get_smart_window_explainer_test_page,
+)
 from springfield.cms.fixtures.smart_window_page_fixtures import (
-    get_smart_window_icon_cards,
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
     get_smart_window_sliding_carousel,
@@ -3623,7 +3627,6 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     carousel_fixture = get_smart_window_sliding_carousel()
     line_cards_fixture = get_smart_window_line_cards()
     illustration_cards_fixture = get_smart_window_illustration_cards()
-    icon_cards_fixture = get_smart_window_icon_cards()
     testimonial_cards_fixture = get_smart_window_testimonial_cards()
     page = get_smart_window_test_page()
 
@@ -3635,8 +3638,9 @@ def test_smart_window_page(index_page, placeholder_images, rf):
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    # Hero: heading and form present
+    # Hero: heading, animation, and form present
     assert soup.find("h1", class_="fl-heading")
+    assert soup.find("div", class_="fl-smart-window-intro-featured-image")
     form = soup.find("form", {"data-testid": "newsletter-form"})
     assert form
     assert form["id"] == "newsletter-form"
@@ -3671,20 +3675,19 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     content_region = soup.find("div", class_="fl-split-page-lower")
     assert content_region
 
-    # --- Sliding carousel: 4 slides ---
+    # --- Sliding carousel: 3 slides ---
     carousel_el = content_region.find("div", class_="fl-sliding-carousel")
     assert carousel_el
     slides_data = carousel_fixture["value"]["slides"]
     controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
     slide_panels = carousel_el.find_all("div", class_="fl-sliding-carousel-slide")
-    assert len(controls) == len(slides_data) == 4
-    assert len(slide_panels) == 4
+    assert len(controls) == len(slides_data) == 3
+    assert len(slide_panels) == 3
 
     for i, slide in enumerate(slides_data):
         heading_text = BeautifulSoup(slide["value"]["heading"]["heading_text"], "html.parser").get_text()
         heading_el = controls[i].find(class_="fl-sliding-carousel-heading-text")
         assert heading_el and heading_text in heading_el.get_text()
-        assert slide_panels[i].find("img")
 
     # --- Line cards: 2 cards, no buttons ---
     article_list = content_region.find("div", class_="fl-stacked-article-list")
@@ -3698,9 +3701,9 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         assert headline_text in card_els[i].get_text()
         assert not card_els[i].find("a", class_="fl-button")
 
-    # --- Illustration, icon, and testimonial cards_list blocks render in fl-card-grid ---
+    # --- Illustration and testimonial cards_list blocks render in fl-card-grid ---
     card_grids = content_region.find_all("div", class_="fl-card-grid")
-    assert len(card_grids) == 3
+    assert len(card_grids) == 2
 
     illustration_cards_data = illustration_cards_fixture["value"]["cards"]
     illustration_grid = card_grids[0]
@@ -3711,17 +3714,8 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
         assert headline_text in illustration_card_els[i].get_text()
 
-    icon_cards_data = icon_cards_fixture["value"]["cards"]
-    icon_grid = card_grids[1]
-    icon_card_els = icon_grid.find_all("article")
-    assert len(icon_card_els) == len(icon_cards_data) == 3
-
-    for i, card in enumerate(icon_cards_data):
-        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
-        assert headline_text in icon_card_els[i].get_text()
-
     testimonial_cards_data = testimonial_cards_fixture["value"]["cards"]
-    testimonial_grid = card_grids[2]
+    testimonial_grid = card_grids[1]
     assert "fl-card-grid-scroll" in testimonial_grid.get("class", [])
     testimonial_card_els = testimonial_grid.find_all("article", class_="fl-testimonial-card")
     assert len(testimonial_card_els) == len(testimonial_cards_data) == 6
@@ -3792,6 +3786,49 @@ def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, 
         assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
         assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
         assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
+
+
+def test_smart_window_explainer_page(index_page, rf):
+    intro_fixture = get_smart_window_explainer_intro()
+    content_fixture = get_smart_window_explainer_content()
+    page = get_smart_window_explainer_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Intro: h1 heading present, no media
+    upper = soup.find("div", class_="fl-split-page-upper")
+    assert upper
+    intro_el = upper.find("div", class_="fl-intro")
+    assert intro_el
+    assert "fl-intro-has-media" not in intro_el.get("class", [])
+    intro_h1 = intro_el.find("h1", class_="fl-heading")
+    assert intro_h1
+    intro_heading = BeautifulSoup(intro_fixture["value"]["heading"]["heading_text"], "html.parser").get_text()
+    assert intro_heading in intro_h1.get_text()
+
+    # Lower content: 3 media_content blocks, each with headline (h2) and SmartWindowInstructionsBlock
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert lower
+
+    media_content_headings = lower.find_all("h2", class_="fl-heading")
+    assert len(media_content_headings) == len(content_fixture) == 3
+
+    instructions_els = lower.find_all("div", class_="fl-smart-window-instructions")
+    assert len(instructions_els) == len(content_fixture) == 3
+
+    for i, media_content in enumerate(content_fixture):
+        headline_text = BeautifulSoup(media_content["value"]["headline"], "html.parser").get_text()
+        assert headline_text in media_content_headings[i].get_text()
+
+        instructions_block = media_content["value"]["content"][1]
+        typewriter_text = instructions_block["value"]["typewriter_text"]
+        typewriter_el = instructions_els[i].find(class_="fl-typewriter")
+        assert typewriter_el
+        assert typewriter_text in typewriter_el.get_text()
 
 
 def test_springfield_link_block_clean_accepts_valid_relative_url():

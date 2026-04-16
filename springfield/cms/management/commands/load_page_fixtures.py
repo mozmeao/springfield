@@ -50,6 +50,7 @@ from springfield.cms.fixtures.media_content_fixtures import get_media_content_te
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
+from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
@@ -168,8 +169,8 @@ class Command(BaseCommand):
         article_theme_page = get_article_theme_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme test page loaded: {article_theme_page.slug}"))
 
-        artcle_theme_hub_page = get_article_theme_hub_page()
-        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {artcle_theme_hub_page.slug}"))
+        article_theme_hub_page = get_article_theme_hub_page()
+        self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {article_theme_hub_page.slug}"))
 
         whats_new_index_page = get_whatsnew_index_page()
         self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))
@@ -185,6 +186,9 @@ class Command(BaseCommand):
 
         sliding_carousel_page = get_sliding_carousel_test_page()
         self.stdout.write(self.style.SUCCESS(f"Sliding Carousel 2026 test page loaded: {sliding_carousel_page.slug}"))
+
+        smart_window_explainer_page = get_smart_window_explainer_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Smart Window Explainer test page loaded: {smart_window_explainer_page.slug}"))
 
         smart_window_page = get_smart_window_test_page()
         self.stdout.write(self.style.SUCCESS(f"Smart Window test page loaded: {smart_window_page.slug}"))
