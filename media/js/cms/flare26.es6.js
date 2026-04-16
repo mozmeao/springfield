@@ -5,7 +5,7 @@
  */
 
 import Swiper from 'swiper';
-import { Autoplay, EffectFade, FreeMode } from 'swiper/modules';
+import { Autoplay, EffectFade } from 'swiper/modules';
 
 function initFlare26Carousel(rootEl) {
     const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
@@ -290,26 +290,69 @@ function initSlidingCarousel(rootEl) {
     startAutoSlide();
 }
 
-function initScrollingCardGrid(el) {
+function initScrollingCardGrid(swiperWrapperEl) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    new Swiper(el, {
-        modules: [FreeMode, Autoplay],
+    let duration;
+    let distanceRatio;
+    let startTimer;
+
+    const swiperInstance = new Swiper(swiperWrapperEl, {
+        modules: [Autoplay],
         wrapperClass: 'fl-card-grid-scroll-inner',
         slideClass: 'fl-card-grid-scroll-item',
         slidesPerView: 'auto',
         loop: true,
-        freeMode: {
-            enabled: true,
-            momentum: false
-        },
-        speed: 1000,
+        speed: 8000,
         spaceBetween: 16, // --token-spacing-lg
         autoplay: {
-            delay: 3000,
+            delay: 0,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true
+            waitForTransition: true
         }
+    });
+
+    const setEasing = (easing = 'ease') => {
+        swiperWrapperEl.style.setProperty('--easing', easing);
+    };
+
+    // based on https://codepen.io/jarvis73045/pen/rNgwbNJ
+    swiperWrapperEl.addEventListener('mouseover', () => {
+        if (startTimer) clearTimeout(startTimer);
+
+        // Stop slide at current translate.
+        swiperInstance.setTranslate(swiperInstance.getTranslate());
+
+        // Calculating the distance between current slide and next slide.
+        // 0.3 is equal to 30% distance to the next slide.
+        // distanceRatio = Math.abs((swiper.width * swiper.activeIndex + swiper.getTranslate()) / swiper.width);
+
+        // currentSlideWidth for slidesPerView > 1
+        const currentSlideWidth =
+            swiperInstance.slides[swiperInstance.activeIndex].offsetWidth;
+        distanceRatio = Math.abs(
+            (currentSlideWidth * swiperInstance.activeIndex +
+                swiperInstance.getTranslate()) /
+                currentSlideWidth
+        );
+
+        // The duration that playing to the next slide
+        duration = swiperInstance.params.speed * distanceRatio;
+        swiperInstance.autoplay.stop();
+    });
+
+    swiperWrapperEl.addEventListener('mouseout', () => {
+        const distance =
+            swiperInstance.width * swiperInstance.activeIndex +
+            swiperInstance.getTranslate();
+
+        // Avoid distance that is exactly 0
+        duration = distance !== 0 ? duration : 0;
+        swiperInstance.slideTo(swiperInstance.activeIndex, duration);
+        startTimer = setTimeout(() => {
+            setEasing('linear');
+            swiperInstance.autoplay.start();
+        }, duration);
     });
 }
 

@@ -751,12 +751,14 @@ Card Grid - Scroll variant
 
 /* Mirrors swiper-wrapper core CSS for our custom class name */
 .fl-card-grid-scroll-inner {
+    --easing: linear;
     box-sizing: content-box;
     display: flex;
     inline-size: 100%;
     padding-inline-start: var(--token-spacing-lg);
     position: relative;
     transition-property: transform;
+    transition-timing-function: var(--easing);
     z-index: 1;
 }
 
