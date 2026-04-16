@@ -55,9 +55,8 @@ Run `npm outdated --long` to find outdated packages in `package.json`.
 
 ### pre-commit (`pre-commit` or `all`)
 
-Run `pre-commit autoupdate --dry-run` to check for newer hook versions.
+Check for newer hook versions by comparing current revs against latest tags:
 
-If that fails, fall back to checking manually:
 - Read `.pre-commit-config.yaml`
 - For each repo `rev`, run `git ls-remote --tags <repo-url>` and compare the current rev against the latest tag
 - Report repos where the rev is behind the latest tag
@@ -199,7 +198,7 @@ Present a final summary:
 4. **Suggested commit message**: Draft a commit message summarizing the updates (imperative mood, short title, details in body)
 5. **Offer to commit**: Ask if the user wants to commit the changes now
 
-When committing, do NOT include Claude/Anthropic as a co-author.
+When committing, do NOT include Claude/Anthropic as a co-author (no `Co-Authored-By` trailer for Claude or Anthropic).
 
 ---
 

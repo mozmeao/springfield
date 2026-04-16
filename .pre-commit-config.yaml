@@ -89,10 +89,10 @@ repos:
     hooks:
       - id: stylelint
         additional_dependencies:
-          - "stylelint@16.10.0"
+          - "stylelint@16.26.1"
           - "stylelint-config-standard-scss@13.1.0"
           - "postcss-scss@4.0.9"
-          - "postcss@8.4.38"
+          - "postcss@8.5.8"
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2
     hooks:
@@ -100,10 +100,10 @@ repos:
         files: media/css/.*/flare26.*\.css$
         args: [-c, .stylelintrc-flare26]
         additional_dependencies:
-          - "stylelint@16.10.0"
+          - "stylelint@16.26.1"
           - "stylelint-config-standard-scss@13.1.0"
           - "postcss-scss@4.0.9"
-          - "postcss@8.4.38"
+          - "postcss@8.5.8"
           - "stylelint-use-logical@2.1.3"
   - repo: https://github.com/eslint/eslint
     rev: v10.2.0
