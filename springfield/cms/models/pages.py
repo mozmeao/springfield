@@ -902,6 +902,10 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
+    ALLOWED_TERRITORIES = {"US", "CA"}
+    ALLOWED_TERRITORIES_OPTION = "allowed_territories"
+    ALLOWED_TERRITORIES_LABEL = "US and Canada only"
+
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
 
@@ -941,12 +945,13 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     show_smart_window_button = models.CharField(
+        max_length=20,
         choices=(
             ("all", "Show to all users"),
-            ("us_ca", "US and Canada only"),
+            (ALLOWED_TERRITORIES_OPTION, ALLOWED_TERRITORIES_LABEL),
             ("never", "Never show to any users"),
         ),
-        default="us_ca",
+        default=ALLOWED_TERRITORIES_OPTION,
         help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
     )
     nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
@@ -1011,16 +1016,19 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def serve(self, request, *args, **kwargs):
         response = super().serve(request, *args, **kwargs)
-        if self.show_smart_window_button == "us_ca":
+        if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
             add_never_cache_headers(response)
         return response
+
+    def get_utm_campaign(self):
+        return "smart_window"
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         country = get_country_from_request(request)
         context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
         context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
-            self.show_smart_window_button == "us_ca" and country in {"US", "CA"}
+            self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
         )
         context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
         return context
