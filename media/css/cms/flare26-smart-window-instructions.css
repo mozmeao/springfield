@@ -11,6 +11,7 @@
 
 .fl-smart-window-instructions::before {
     background: var(--token-gradient-smart-window-instructions);
+    block-size: 100%;
     border-radius: inherit;
     content: '';
     inset: 0;
