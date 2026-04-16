@@ -5,6 +5,7 @@
 from uuid import uuid4
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -274,3 +275,43 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
 
 
 register_snippet(QRCodeSnippet)
+
+
+class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a floating QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+    qr_code_url = models.CharField(blank=True)
+    qr_code_image = models.ForeignKey("wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    default_open = models.BooleanField(default=False)
+
+    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("qr_code_url"), FieldPanel("qr_code_image"), FieldPanel("default_open")]
+
+    override_translatable_fields = [SynchronizedField("qr_code_uri"), SynchronizedField("qr_code_image")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "QR Code Floating Snippet"
+        verbose_name_plural = "QR Code Floating Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-floating-snippet-preview.html"
+
+    def clean(self):
+        if not self.qr_code_url or not self.qr_code_image:
+            raise ValidationError("Missing qr_code_url and or qr_code_image")
+        return super().clean()
+
+
+register_snippet(QRCodeFloatingSnippet)
