@@ -122,3 +122,12 @@
         display: none;
     }
 }
+
+.fl-qr-code-image {
+    block-size: 160px;
+    inline-size: 160px;
+}
+
+.fl-qr-code-close {
+    display: flex;
+}

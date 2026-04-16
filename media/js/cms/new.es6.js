@@ -457,6 +457,11 @@ if (typeof window.cms === 'undefined') {
                     if (qrCodeSnippetEl.classList.contains('is-open')) {
                         qrCodeSnippetEl.classList.remove('is-open');
 
+                        const toggleButton =
+                            document.querySelector('.fl-icon-subtract');
+                        toggleButton.classList.remove('fl-icon-subtract');
+                        toggleButton.classList.add('fl-icon-add');
+
                         if (!cookiesEnabled) {
                             return;
                         }
@@ -490,6 +495,10 @@ if (typeof window.cms === 'undefined') {
                             'lax'
                         );
                     } else {
+                        const toggleButton =
+                            document.querySelector('.fl-icon-add');
+                        toggleButton.classList.remove('fl-icon-add');
+                        toggleButton.classList.add('fl-icon-subtract');
                         qrCodeSnippetEl.classList.add('is-open');
                     }
                 });

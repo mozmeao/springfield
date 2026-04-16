@@ -56,6 +56,7 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.qr import resolve_qr_source
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -384,9 +385,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     qr_code_floating_button = models.ForeignKey("QRCodeFloatingSnippet", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
-    qr_override_url = models.CharField(blank=True)
-    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    qr_override_default_open = models.BooleanField(default=False)
+    override_url = models.CharField(blank=True)
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_default_open = models.BooleanField(default=False)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
@@ -396,9 +397,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldRowPanel(
                     [
                         FieldPanel("qr_code_floating_button"),
-                        FieldPanel("qr_override_url"),
-                        FieldPanel("qr_override_image"),
-                        FieldPanel("qr_override_default_open"),
+                        FieldPanel("override_url"),
+                        FieldPanel("override_image"),
+                        FieldPanel("override_default_open"),
                     ]
                 ),
             ],
@@ -408,18 +409,25 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     override_translatable_fields = [
-        SynchronizedField("qr_override_url"),
-        SynchronizedField("qr_override_image"),
-        SynchronizedField("qr_override_default_open"),
+        SynchronizedField("override_url"),
+        SynchronizedField("override_image"),
+        SynchronizedField("override_default_open"),
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        context["qr"] = resolve_qr_source(self, self.qr_code_floating_button)
+
+        return context
 
     def __str__(self):
         return f"ThanksPage: {self.title} - {self.locale}"
 
     def clean(self):
         super().clean()
-        if self.qr_override_url and self.qr_override_image:
-            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")
@@ -850,9 +858,9 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
-    qr_override_url = models.CharField(blank=True)
-    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    qr_override_default_open = models.BooleanField(default=False)
+    override_url = models.CharField(blank=True)
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_default_open = models.BooleanField(default=False)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -865,9 +873,9 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldRowPanel(
                     [
                         FieldPanel("qr_code_floating_button"),
-                        FieldPanel("qr_override_url"),
-                        FieldPanel("qr_override_image"),
-                        FieldPanel("qr_override_default_open"),
+                        FieldPanel("override_url"),
+                        FieldPanel("override_image"),
+                        FieldPanel("override_default_open"),
                     ]
                 ),
             ],
@@ -877,15 +885,15 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     override_translatable_fields = [
-        SynchronizedField("qr_override_url"),
-        SynchronizedField("qr_override_image"),
-        SynchronizedField("qr_override_default_open"),
+        SynchronizedField("override_url"),
+        SynchronizedField("override_image"),
+        SynchronizedField("override_default_open"),
     ]
 
     def clean(self):
         super().clean()
-        if self.qr_override_url and self.qr_override_image:
-            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
     class Meta:
         verbose_name = "Free Form 2026 Page"
@@ -954,9 +962,9 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
-    qr_override_url = models.CharField(blank=True)
-    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    qr_override_default_open = models.BooleanField(default=False)
+    override_url = models.CharField(blank=True)
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_default_open = models.BooleanField(default=False)
 
     content_panels = [
         FieldPanel("title"),
@@ -968,9 +976,9 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldRowPanel(
                     [
                         FieldPanel("qr_code_floating_button"),
-                        FieldPanel("qr_override_url"),
-                        FieldPanel("qr_override_image"),
-                        FieldPanel("qr_override_default_open"),
+                        FieldPanel("override_url"),
+                        FieldPanel("override_image"),
+                        FieldPanel("override_default_open"),
                     ]
                 ),
             ],
@@ -980,15 +988,15 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     override_translatable_fields = [
-        SynchronizedField("qr_override_url"),
-        SynchronizedField("qr_override_image"),
-        SynchronizedField("qr_override_default_open"),
+        SynchronizedField("override_url"),
+        SynchronizedField("override_image"),
+        SynchronizedField("override_default_open"),
     ]
 
     def clean(self):
         super().clean()
-        if self.qr_override_url and self.qr_override_image:
-            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
     class Meta:
         indexes = [
@@ -1038,9 +1046,9 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
-    qr_override_url = models.CharField(blank=True)
-    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    qr_override_default_open = models.BooleanField(default=False)
+    override_url = models.CharField(blank=True)
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_default_open = models.BooleanField(default=False)
 
     content_panels = [
         FieldPanel("title"),
@@ -1053,9 +1061,9 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldRowPanel(
                     [
                         FieldPanel("qr_code_floating_button"),
-                        FieldPanel("qr_override_url"),
-                        FieldPanel("qr_override_image"),
-                        FieldPanel("qr_override_default_open"),
+                        FieldPanel("override_url"),
+                        FieldPanel("override_image"),
+                        FieldPanel("override_default_open"),
                     ]
                 ),
             ],
@@ -1065,15 +1073,15 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     override_translatable_fields = [
-        SynchronizedField("qr_override_url"),
-        SynchronizedField("qr_override_image"),
-        SynchronizedField("qr_override_default_open"),
+        SynchronizedField("override_url"),
+        SynchronizedField("override_image"),
+        SynchronizedField("override_default_open"),
     ]
 
     def clean(self):
         super().clean()
-        if self.qr_override_url and self.qr_override_image:
-            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
     class Meta:
         indexes = [
