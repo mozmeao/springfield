@@ -61,6 +61,13 @@ function initFlare26Carousel(rootEl) {
 const AUTO_PLAY_INTERVAL_MS = 10000;
 
 function initSlidingCarousel(rootEl) {
+    const controlsSwiperEl = rootEl.querySelector(
+        '.fl-sliding-carousel-controls-swiper'
+    );
+    const paginationEl = rootEl.querySelector(
+        '.fl-sliding-carousel-pagination'
+    );
+
     const controls = Array.from(
         rootEl.querySelectorAll('.fl-sliding-carousel-control')
     );
@@ -68,7 +75,7 @@ function initSlidingCarousel(rootEl) {
         rootEl.querySelectorAll('.fl-sliding-carousel-slide')
     );
 
-    if (controls.length === 0 || slides.length === 0) {
+    if (!controlsSwiperEl || controls.length === 0 || slides.length === 0) {
         return;
     }
 
@@ -76,6 +83,25 @@ function initSlidingCarousel(rootEl) {
     let autoSlideTimer = null;
     let autoSlideActive = true;
     let userPaused = false;
+    let controlsSwiper = null;
+
+    // --- Dot pagination ---
+
+    const dots = [];
+
+    if (paginationEl) {
+        slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'fl-sliding-carousel-dot';
+            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            dot.addEventListener('click', () => {
+                if (autoSlideActive) stopAutoSlide();
+                goToSlide(i);
+            });
+            paginationEl.appendChild(dot);
+            dots.push(dot);
+        });
+    }
 
     // --- Video helpers ---
 
@@ -122,11 +148,13 @@ function initSlidingCarousel(rootEl) {
 
     // --- Slide activation ---
 
-    function activateSlideByIndex(index) {
+    function goToSlide(index) {
         controls[currentIndex].classList.remove('is-active');
         controls[currentIndex].setAttribute('aria-current', 'false');
         slides[currentIndex].classList.remove('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'true');
+        if (dots[currentIndex])
+            dots[currentIndex].classList.remove('is-active');
 
         pauseAllVideos();
         currentIndex = index;
@@ -135,21 +163,23 @@ function initSlidingCarousel(rootEl) {
         controls[currentIndex].setAttribute('aria-current', 'true');
         slides[currentIndex].classList.add('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'false');
+        if (dots[currentIndex]) dots[currentIndex].classList.add('is-active');
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) {
-                playVideo(videoEl);
-            }
+            if (videoEl) playVideo(videoEl);
+        }
+
+        if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {
+            controlsSwiper.slideToLoop(currentIndex);
         }
     }
 
-    // --- Auto-slide ---
+    // --- Autoplay ---
 
     function startAutoSlide() {
-        activateSlideByIndex(0);
         autoSlideTimer = setInterval(() => {
-            activateSlideByIndex((currentIndex + 1) % slides.length);
+            goToSlide((currentIndex + 1) % slides.length);
         }, AUTO_PLAY_INTERVAL_MS);
     }
 
@@ -160,25 +190,23 @@ function initSlidingCarousel(rootEl) {
         rootEl.classList.add('is-paused');
     }
 
-    // --- Event wiring ---
+    // --- Controls (desktop click + keyboard) ---
 
-    controls.forEach((control, idx) => {
-        control.addEventListener('click', () => {
-            if (autoSlideActive) {
-                stopAutoSlide();
-            }
-            if (idx !== currentIndex) {
-                activateSlideByIndex(idx);
-            }
+    controls.forEach((ctrl, idx) => {
+        ctrl.addEventListener('click', () => {
+            if (autoSlideActive) stopAutoSlide();
+            if (idx !== currentIndex) goToSlide(idx);
         });
 
-        control.addEventListener('keydown', (e) => {
+        ctrl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                control.click();
+                ctrl.click();
             }
         });
     });
+
+    // --- Video pause buttons ---
 
     slides.forEach((slide) => {
         const btn = slide.querySelector('.js-animation-pause');
@@ -195,6 +223,58 @@ function initSlidingCarousel(rootEl) {
         });
     });
 
+    // --- Mobile controls Swiper ---
+
+    const mq = window.matchMedia('(min-width: 900px)');
+
+    const controlsListEl = controlsSwiperEl.querySelector(
+        '.fl-sliding-carousel-controls'
+    );
+
+    function initControlsSwiper() {
+        if (controlsSwiper) return;
+        // Set row layout BEFORE Swiper measures slide widths
+        if (controlsListEl) controlsListEl.style.flexDirection = 'row';
+        controlsSwiper = new Swiper(controlsSwiperEl, {
+            wrapperClass: 'fl-sliding-carousel-controls',
+            slideClass: 'fl-sliding-carousel-control',
+            centeredSlides: true,
+            slidesPerView: 1.2,
+            spaceBetween: 16,
+            speed: 400,
+            rewind: true
+        });
+        controlsSwiper.on('slideChange', () => {
+            const idx = controlsSwiper.realIndex;
+            if (idx !== currentIndex) {
+                if (autoSlideActive) stopAutoSlide();
+                goToSlide(idx);
+            }
+        });
+        controlsSwiper.slideToLoop(currentIndex, 0);
+    }
+
+    function destroyControlsSwiper() {
+        if (!controlsSwiper) return;
+        controlsSwiper.destroy(true, true);
+        controlsSwiper = null;
+        if (controlsListEl) controlsListEl.style.flexDirection = '';
+    }
+
+    mq.addEventListener('change', (e) => {
+        if (e.matches) {
+            destroyControlsSwiper();
+        } else {
+            initControlsSwiper();
+        }
+    });
+
+    if (!mq.matches) {
+        initControlsSwiper();
+    }
+
+    // --- Visibility ---
+
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             clearInterval(autoSlideTimer);
@@ -206,6 +286,7 @@ function initSlidingCarousel(rootEl) {
     // --- Init ---
 
     pauseAllVideos();
+    goToSlide(0);
     startAutoSlide();
 }
 
