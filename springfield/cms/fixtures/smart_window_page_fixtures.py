@@ -300,11 +300,7 @@ def get_smart_window_page_content() -> list[dict]:
             content_blocks=[get_smart_window_illustration_cards()],
             section_id="swpsec2-0000-0000-0000-000000000001",
         ),
-        _section(
-            heading_text="Sed do eiusmod tempor",
-            content_blocks=[get_smart_window_testimonial_cards()],
-            section_id="swpsec3-0000-0000-0000-000000000001",
-        ),
+        get_smart_window_testimonial_cards(),
     ]
 
 
