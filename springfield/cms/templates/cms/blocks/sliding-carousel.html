@@ -23,7 +23,9 @@
                   data-slide-index="{{ loop.index0 }}"
                   role="button"
                   tabindex="0">
-                <div class="fl-sliding-carousel-progress" aria-hidden="true"></div>
+                <div class="fl-sliding-carousel-progress-wrapper" aria-hidden="true">
+                  <div class="fl-sliding-carousel-progress" aria-hidden="true"></div>
+                </div>
                 <div class="fl-sliding-carousel-box">
                 {% set heading = slide.heading %}
                 {% if heading.superheading_text %}

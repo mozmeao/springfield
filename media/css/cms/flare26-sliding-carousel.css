@@ -68,13 +68,19 @@
 
 /* 4px progress bar */
 
-.fl-sliding-carousel-progress {
-    block-size: 4px;
+.fl-sliding-carousel-progress-wrapper {
     border-radius: 2px;
-    display: none;
+    contain: paint;
     inset-block-start: 0;
     inset-inline: 0;
+    padding-inline: 22px;
     position: absolute;
+}
+
+.fl-sliding-carousel-progress {
+    block-size: 3px;
+    display: none;
+    position: relative;
 }
 
 .fl-sliding-carousel-control:not(.is-active) .fl-sliding-carousel-progress {
@@ -89,7 +95,6 @@
     animation: fl-sliding-carousel-progress 10000ms linear forwards;
     background-color: var(--token-color-light-purple);
     block-size: 100%;
-    border-radius: 2px;
     content: '';
     inline-size: 0%;
     inset: 0;
