@@ -5,11 +5,14 @@
 #}
 
 {% set block_level = block_level or 1 %}
+{% set is_scroll = value.settings.scroll if value.settings is defined else False %}
 
-<include:cards-list scroll="{{ value.settings.scroll if value.settings is defined else False }}">
+<include:cards-list scroll="{{ is_scroll }}">
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}
+    {% if is_scroll %}<div class="fl-card-grid-scroll-item">{% endif %}
     {% include_block card %}
+    {% if is_scroll %}</div>{% endif %}
   {% endfor %}
 </include:cards-list>

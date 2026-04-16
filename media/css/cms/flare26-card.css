@@ -739,23 +739,51 @@ Card Grid - Scroll variant
 
 .fl-card-grid-scroll {
     --fl-card-grid-columns: none;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: var(--token-spacing-lg);
+    display: block; /* override display: grid from .fl-card-grid */
+    gap: 0;
     overflow: hidden;
 
     /* Extra block padding so card shadows aren't clipped */
     padding-block: var(--token-layout-sm);
+    position: relative;
+    z-index: 1;
 }
 
-.fl-card-grid-scroll > * {
-    flex: 0 0 auto;
+/* Mirrors swiper-wrapper core CSS for our custom class name */
+.fl-card-grid-scroll-inner {
+    box-sizing: content-box;
+    display: flex;
+    padding-inline-start: var(--token-spacing-lg);
+    position: relative;
+    transition-property: transform;
+    width: 100%;
+    z-index: 1;
+}
+
+/* Mirrors swiper-slide core CSS for our custom class name */
+.fl-card-grid-scroll-item {
+    flex-shrink: 0;
     inline-size: clamp(260px, 30vw, 360px);
+    position: relative;
+    transition-property: transform;
+}
+
+/* Stretch card to fill slide so all cards share the same height */
+.fl-card-grid-scroll-item > * {
+    block-size: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
+    /* When motion is reduced JS doesn't run, cards are direct children */
     .fl-card-grid-scroll {
-        /* When motion is reduced, let the user scroll manually */
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
         overflow-x: auto;
+    }
+
+    .fl-card-grid-scroll > * {
+        flex: 0 0 auto;
+        inline-size: clamp(260px, 30vw, 360px);
     }
 }

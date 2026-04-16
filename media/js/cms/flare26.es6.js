@@ -5,7 +5,7 @@
  */
 
 import Swiper from 'swiper';
-import { EffectFade } from 'swiper/modules';
+import { Autoplay, EffectFade, FreeMode } from 'swiper/modules';
 
 function initFlare26Carousel(rootEl) {
     const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
@@ -212,82 +212,24 @@ function initSlidingCarousel(rootEl) {
 function initScrollingCardGrid(el) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const SPEED = 0.3; // pixels per frame
-    let paused = false;
-    let position = 0;
-
-    // Clone all children for a seamless loop
-    const originals = Array.from(el.children);
-    originals.forEach((card) => {
-        const clone = card.cloneNode(true);
-        clone.setAttribute('aria-hidden', 'true');
-        el.appendChild(clone);
-    });
-
-    // Measure the width of one full set (originals only)
-    function getLoopWidth() {
-        const gap = parseFloat(getComputedStyle(el).gap) || 0;
-        return originals.reduce((sum, card) => sum + card.offsetWidth + gap, 0);
-    }
-
-    function step() {
-        if (!paused) {
-            position += SPEED;
-            const loopWidth = getLoopWidth();
-            if (position >= loopWidth) {
-                position -= loopWidth;
-            }
-            el.scrollLeft = Math.floor(position);
+    new Swiper(el, {
+        modules: [FreeMode, Autoplay],
+        wrapperClass: 'fl-card-grid-scroll-inner',
+        slideClass: 'fl-card-grid-scroll-item',
+        slidesPerView: 'auto',
+        loop: true,
+        freeMode: {
+            enabled: true,
+            momentum: false
+        },
+        speed: 1000,
+        spaceBetween: 16, // --token-spacing-lg
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true
         }
-        requestAnimationFrame(step);
-    }
-
-    // --- Hover pause ---
-    el.addEventListener('mouseenter', () => {
-        paused = true;
     });
-    el.addEventListener('mouseleave', () => {
-        paused = false;
-    });
-    el.addEventListener('focusin', () => {
-        paused = true;
-    });
-    el.addEventListener('focusout', () => {
-        paused = false;
-    });
-
-    // --- Click-and-drag scroll ---
-    let dragging = false;
-    let dragStartX = 0;
-    let dragStartPosition = 0;
-
-    el.addEventListener('mousedown', (e) => {
-        dragging = true;
-        paused = true;
-        dragStartX = e.clientX;
-        dragStartPosition = position;
-        el.style.cursor = 'grabbing';
-        e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (!dragging) return;
-        const delta = dragStartX - e.clientX;
-        const loopWidth = getLoopWidth();
-        position =
-            (((dragStartPosition + delta) % loopWidth) + loopWidth) % loopWidth;
-        el.scrollLeft = Math.floor(position);
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (!dragging) return;
-        dragging = false;
-        el.style.cursor = '';
-        // Keep paused only if mouse is still over the element
-        if (!el.matches(':hover')) paused = false;
-    });
-
-    requestAnimationFrame(step);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
