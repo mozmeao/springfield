@@ -605,7 +605,8 @@ if (typeof window.cms === 'undefined') {
         applyVideoAspectRatios();
         initVideoPlayers();
         initAnimations();
-        initDownloadDropdown();
+        initAnimations();
+        initAnimationPauseButtons();
         initQRCodeSnippet();
         initTopicListSidebar();
         initTypewriter();
