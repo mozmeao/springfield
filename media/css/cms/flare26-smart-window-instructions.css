@@ -2,14 +2,16 @@
     max-block-size: 30px;
 }
 
-.fl-smart-window-instructions {
+.fl-smart-window-instructions,
+.fl-sliding-carousel-box {
     border-radius: var(--token-border-radius-xs);
     margin-block-end: var(--token-spacing-lg);
     padding: var(--token-spacing-2xl);
     position: relative;
 }
 
-.fl-smart-window-instructions::before {
+.fl-smart-window-instructions::before,
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::before {
     background: var(--token-gradient-smart-window-instructions);
     block-size: 100%;
     border-radius: inherit;
