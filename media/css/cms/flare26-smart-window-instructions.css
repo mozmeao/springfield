@@ -1,3 +1,7 @@
+.fl-smart-window-heading-logo {
+    max-block-size: 30px;
+}
+
 .fl-smart-window-instructions {
     border-radius: var(--token-border-radius-xs);
     padding: var(--token-spacing-2xl);
@@ -9,6 +13,7 @@
     border-radius: inherit;
     content: '';
     inset: 0;
+    margin-block-end: var(--token-spacing-lg);
     -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);

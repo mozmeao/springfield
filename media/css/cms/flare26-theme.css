@@ -190,6 +190,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-background: var(--token-color-white);
     --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
     --smart-window-play-icon-fill-color: var(--token-color-black-4);
+    --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo-dark.svg');
+    --smart-window-background-gradient:
+        radial-gradient(
+            29.9% 38.82% at 50% 44.86%,
+            rgba(216, 202, 247, 0.2) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0) 65.89%
+        ),
+        radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
 }
 
 .fl-split-page-upper,
@@ -305,6 +318,27 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-background: var(--token-color-medium-purple);
     --smart-window-play-icon-border-color: var(--token-color-dark-purple);
     --smart-window-play-icon-fill-color: var(--token-color-white);
+    --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
+    --smart-window-background-gradient:
+        radial-gradient(
+            150% 100% at 100% 0%,
+            rgba(67, 20, 102, 0.55) 0%,
+            rgba(67, 20, 102, 0.25) 40%,
+            rgba(67, 20, 102, 0) 75%
+        ),
+        radial-gradient(
+            150% 100% at 0% 100%,
+            rgba(67, 27, 129, 1) 0%,
+            rgba(67, 27, 129, 0.18) 55%,
+            rgba(67, 27, 129, 0) 100%
+        ),
+        radial-gradient(
+            150% 100% at 0% 0%,
+            rgba(78, 24, 94, 0.9) 0%,
+            rgba(55, 14, 78, 0.88) 25%,
+            rgba(42, 7, 68, 0.95) 55%,
+            rgb(34, 4, 66) 80%
+        );
 }
 
 .fl-force-light-theme {
@@ -521,6 +555,27 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --smart-window-play-icon-background: var(--token-color-medium-purple);
         --smart-window-play-icon-border-color: var(--token-color-dark-purple);
         --smart-window-play-icon-fill-color: var(--token-color-white);
+        --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
+        --smart-window-background-gradient:
+            radial-gradient(
+                150% 100% at 100% 0%,
+                rgba(67, 20, 102, 0.55) 0%,
+                rgba(67, 20, 102, 0.25) 40%,
+                rgba(67, 20, 102, 0) 75%
+            ),
+            radial-gradient(
+                150% 100% at 0% 100%,
+                rgba(67, 27, 129, 1) 0%,
+                rgba(67, 27, 129, 0.18) 55%,
+                rgba(67, 27, 129, 0) 100%
+            ),
+            radial-gradient(
+                150% 100% at 0% 0%,
+                rgba(78, 24, 94, 0.9) 0%,
+                rgba(55, 14, 78, 0.88) 25%,
+                rgba(42, 7, 68, 0.95) 55%,
+                rgb(34, 4, 66) 80%
+            );
     }
 }
 

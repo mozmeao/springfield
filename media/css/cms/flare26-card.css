@@ -556,6 +556,10 @@ Illustration Card
     margin: 0;
 }
 
+.fl-illustration-card .fl-card-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-spacing-xl);
@@ -567,6 +571,16 @@ Illustration Card
     flex-direction: column;
     flex-grow: 1;
     gap: var(--token-spacing-lg);
+}
+
+.fl-illustration-card .fl-video {
+    aspect-ratio: 11/12;
+    border-radius: var(--token-spacing-xl);
+}
+
+.fl-illustration-card .fl-video video {
+    object-fit: cover;
+    object-position: center;
 }
 
 .fl-illustration-card .fl-heading,
@@ -584,7 +598,7 @@ Illustration Card
 }
 
 .fl-illustration-card .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-2xs);
+    font-size: var(--fl-theme-font-size-heading-xs);
     font-variation-settings: unset;
     line-height: 1.1;
 }

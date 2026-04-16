@@ -148,6 +148,15 @@
     position: relative;
 }
 
+.fl-sliding-carousel-media-panel .fl-video {
+    aspect-ratio: 1 / 1;
+}
+
+.fl-sliding-carousel-media-panel .fl-video video {
+    border-radius: var(--token-border-radius-sm);
+    object-fit: cover;
+}
+
 .fl-sliding-carousel-slide {
     display: none;
 }

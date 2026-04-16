@@ -47,7 +47,7 @@
 
       <div class="fl-split-page-upper has-gradient-bottom no-gap fl-smart-window-intro">
         <hgroup class="fl-heading-group">
-          <img src="/media/img/firefox/flare/smart-window-logo.png" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
+          <img src="/media/img/firefox/flare/smart-window-logo.svg" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
           <h1 class="fl-heading">{{ page.heading_text|richtext|remove_p_tag }}</h1>
           <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
         </hgroup>
@@ -93,15 +93,7 @@
                 <div class="fl-newsletterform-consent">
                   <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
                     <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
-                    {% if LANG == 'de' %}
-                      {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Nutzungsbedingungen</a> und <a href="https://www.mozilla.org/privacy/websites/">Datenschutzrichtlinie</a> von Firefox.' %}
-                    {% elif LANG == 'fr' %}
-                      {% set legal_links = '<a href="https://www.mozilla.org/about/legal/terms/firefox/">Conditions d’utilisation</a> de Firefox et <a href="https://www.mozilla.org/privacy/websites/">Politique de confidentialité</a>.' %}
-                    {% else %}
-                      {% set legal_links = 'Firefox <a href="https://www.mozilla.org/about/legal/terms/firefox/">Terms of Use</a> &amp; <a href="https://www.mozilla.org/privacy/websites/">Privacy Policy</a>.' %}
-                    {% endif %}
-                    {# TODO: Privacy notice should be FTL or a page field? #}
-                    <span class="fl-newsletterform-checkbox-text">{{ legal_links|safe }} {{ ftl('newsletter-form-we-will-only-send-firefox-v2') }}</span>
+                    <span class="fl-newsletterform-checkbox-text">{{ page.privacy_notice|richtext }}</span>
                   </label>
                 </div>
               </div>
@@ -123,7 +115,14 @@
               </div>
             </form>
             <div id="newsletter-thanks" class="fl-smart-window-thankyou hidden" data-testid="newsletter-thanks-message">
-              {{ page.thank_you_message|richtext }}
+
+              <include:inline-notification
+                message="{{ page.thank_you_message|richtext }}"
+                color="green"
+                icon="checkmark"
+              />
+
+
             </div>
           </include:conditional-display>
         {% endif %}

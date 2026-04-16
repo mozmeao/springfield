@@ -9,7 +9,6 @@
 {% block body_class %}fl-smart-window-explainer-page{% endblock %}
 
 {% block flare_header %}
-  <include:flare26-header theme="smart-window" hide_nav_cta disable_sticky />
 {% endblock %}
 
 {% block content %}
@@ -18,7 +17,8 @@
     {% set ns = namespace(headings=0) %}
     {% set block_level = 1 %}
 
-    <div class="fl-split-page-upper">
+    <div class="fl-smart-window-explainer-hero">
+      <include:flare26-header hide_nav_cta disable_sticky no_menu />
       {% for block in page.upper_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
