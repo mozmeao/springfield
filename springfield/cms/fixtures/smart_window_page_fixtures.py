@@ -20,6 +20,7 @@ def _animation_media(image_id, block_id=None):
             "alt": "Lorem ipsum animation.",
             "poster": image_id,
             "playback": "autoplay_loop",
+            "show_pause_button": True,
         },
         "id": block_id,
     }
