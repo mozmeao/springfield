@@ -4,6 +4,7 @@
 
 .fl-smart-window-instructions {
     border-radius: var(--token-border-radius-xs);
+    margin-block-end: var(--token-spacing-lg);
     padding: var(--token-spacing-2xl);
     position: relative;
 }
