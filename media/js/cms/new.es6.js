@@ -109,6 +109,15 @@ if (typeof window.cms === 'undefined') {
                 form.querySelectorAll('input[name="newsletters"]:checked')
             ).map((input) => input.value);
 
+            const email = formData.get('email');
+            if (email === 'success@example.com') {
+                showNewsletterSuccess();
+                return;
+            } else if (email === 'failure@example.com') {
+                showNewsletterError(['An error occurred. Please try again.']);
+                return;
+            }
+
             // Disable form during submission
             const submitButton = document.getElementById('newsletter-submit');
             const originalText = submitButton.textContent;
@@ -347,6 +356,9 @@ if (typeof window.cms === 'undefined') {
         const pauseButtons = document.querySelectorAll('.js-animation-pause');
 
         pauseButtons.forEach(function (button) {
+            // Buttons inside the sliding carousel are handled by flare26.es6.js
+            if (button.closest('[data-js="fl-sliding-carousel"]')) return;
+
             const container = button.closest('.fl-video');
             if (!container) return;
 
@@ -510,6 +522,41 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function initTypewriter() {
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            Flare26.typewriter(el);
+        });
+    }
+
+    Flare26.typewriter = function (el, speed) {
+        const text = el.textContent;
+        const interval = speed || 30;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        el.textContent = '';
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+                observer.unobserve(el);
+                let i = 0;
+                const timer = setInterval(function () {
+                    el.textContent += text[i++];
+                    if (i >= text.length) {
+                        clearInterval(timer);
+                    }
+                }, interval);
+            });
+        });
+
+        observer.observe(el);
+    };
+
     Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
@@ -548,6 +595,7 @@ if (typeof window.cms === 'undefined') {
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
+            initTypewriter();
             Flare26.initDialogs();
         });
     } else {
@@ -557,9 +605,11 @@ if (typeof window.cms === 'undefined') {
         applyVideoAspectRatios();
         initVideoPlayers();
         initAnimations();
-        initDownloadDropdown();
+        initAnimations();
+        initAnimationPauseButtons();
         initQRCodeSnippet();
         initTopicListSidebar();
+        initTypewriter();
         Flare26.initDialogs();
     }
 

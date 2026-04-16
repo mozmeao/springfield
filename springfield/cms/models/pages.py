@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from django.conf import settings
@@ -12,6 +13,7 @@ from django.db import models
 from django.db.models.expressions import Case, F, Value, When
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import add_never_cache_headers
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -20,9 +22,12 @@ from wagtail.models import Page as WagtailBasePage
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
+from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ICON_CHOICES,
+    UI_TOUR_CLASSES,
+    UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
@@ -34,16 +39,20 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
+    LineCardsBlock,
     LocalizedLiveSnippetChooserBlock,
+    MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
+    SlidingCarouselBlock,
     SubscriptionBlock,
     TopicListBlock,
     VideoBlock,
+    validate_animation_url,
 )
 from springfield.cms.fields import StreamField
 
@@ -683,11 +692,14 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
         ("showcase", ShowcaseBlock(group="Media")),
         ("carousel", CarouselBlock(group="Media")),
+        ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
+        ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -885,3 +897,160 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def noindex(self):
         return True
+
+
+class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page to promote Smart Window"""
+
+    ALLOWED_TERRITORIES = {"US", "CA"}
+    ALLOWED_TERRITORIES_OPTION = "allowed_territories"
+    ALLOWED_TERRITORIES_LABEL = "US and Canada only"
+
+    heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+
+    animation = models.URLField(blank=True, validators=[validate_animation_url], help_text="Link to a webm video from assets.mozilla.net.")
+    animation_alt = models.CharField(max_length=255, blank=True, help_text="Text for screen readers describing the video.")
+    image = models.ForeignKey(
+        "cms.SpringfieldImage", on_delete=models.PROTECT, related_name="+", help_text="Used as fallback if an animation is provided."
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the image.",
+    )
+
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    show_smart_window_button = models.CharField(
+        max_length=20,
+        choices=(
+            ("all", "Show to all users"),
+            (ALLOWED_TERRITORIES_OPTION, ALLOWED_TERRITORIES_LABEL),
+            ("never", "Never show to any users"),
+        ),
+        default=ALLOWED_TERRITORIES_OPTION,
+        help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
+    )
+    nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
+    intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
+    waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
+    redirect_page = models.ForeignKey(
+        "cms.SmartWindowExplainerPage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="The page users will be taken to after clicking the Smart Window button.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("heading_text"),
+                FieldPanel("subheading_text"),
+                FieldPanel("animation"),
+                FieldPanel("animation_alt"),
+                FieldPanel("image"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ],
+                    heading="Image Variants",
+                ),
+            ],
+            heading="Intro",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_smart_window_button"),
+                FieldPanel("redirect_page"),
+                FieldPanel("waitlist_button_label"),
+                FieldPanel("form_submit_label"),
+                FieldPanel("thank_you_message"),
+                FieldPanel("nav_button_uid"),
+                FieldPanel("intro_button_uid"),
+                FieldPanel("waitlist_submit_uid"),
+                FieldPanel("privacy_notice"),
+            ],
+            heading="Smart Window button and Waitlist Form",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Page"
+        verbose_name_plural = "Smart Window Pages"
+
+    def serve(self, request, *args, **kwargs):
+        response = super().serve(request, *args, **kwargs)
+        if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
+            add_never_cache_headers(response)
+        return response
+
+    def get_utm_campaign(self):
+        return "smart_window"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        country = get_country_from_request(request)
+        context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
+        context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
+            self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
+        )
+        context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
+        return context
+
+
+class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A Smart Window themed page"""
+
+    upper_content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Explainer Page"
+        verbose_name_plural = "Smart Window Explainer Pages"

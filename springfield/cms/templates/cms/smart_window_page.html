@@ -1,0 +1,207 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-smart-window-page{% endblock %}
+
+{% block flare_header %}
+  {% set custom_nav_cta %}
+    <div class="nav-cta-wrap">
+      <include:conditional-display firefox_condition="not-firefox">
+        <include:download-firefox-button
+          analytics_id="nav-download-firefox"
+          label="{{ ftl('navigation-get-firefox') }}"
+          cta_text="{{ ftl('navigation-get-firefox') }}"
+          icon_name="downloads"
+          icon_position="left"
+          block_position="nav"
+          exclude_unsupported_content="True"
+        />
+      </include:conditional-display>
+      {% if show_try_smart_window %}
+        <include:conditional-display firefox_condition="is-firefox">
+         <include:uitour_button
+          theme_class="{{ ui_tour_class }}"
+          label="{{ page.waitlist_button_label }}"
+          analytics_text="{{ page.waitlist_button_label }}"
+          analytics_position="nav"
+          analytics_id="{{ page.nav_button_uid }}"
+          {% if redirect_url %}
+          next_url="{{ redirect_url }}"
+          {% endif %}
+        />
+        </include:conditional-display>
+      {% endif %}
+    </div>
+  {% endset %}
+  <include:flare26-header theme="dark" hide_nav_cta disable_sticky no_menu_dropdowns />
+{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-freeform-2026-page">
+    <main class="fl-main has-gradient-bottom">
+
+      <div class="fl-split-page-upper has-gradient-bottom no-gap fl-smart-window-intro">
+        <hgroup class="fl-heading-group">
+          <img src="/media/img/firefox/flare/smart-window-logo.svg" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
+          <h1 class="fl-heading">{{ page.heading_text|richtext|remove_p_tag }}</h1>
+          <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
+        </hgroup>
+
+        <include:conditional-display firefox_condition="not-firefox">
+          <include:download-firefox-button
+            analytics_id="intro-download-firefox"
+            label="{{ ftl('navigation-get-firefox') }}"
+            cta_text="{{ ftl('navigation-get-firefox') }}"
+            icon_name="downloads"
+            icon_position="left"
+            block_position="intro"
+            exclude_unsupported_content="True"
+          />
+        </include:conditional-display>
+
+        {% if show_try_smart_window %}
+          <include:conditional-display firefox_condition="is-firefox">
+            <include:uitour_button
+              theme_class="{{ ui_tour_class }}"
+              label="{{ page.waitlist_button_label }}"
+              analytics_text="Try Smart Window"
+              analytics_position="intro"
+              analytics_id="{{ page.intro_button_uid }}"
+              {% if redirect_url %}
+              next_url="{{ redirect_url }}"
+              {% endif %}
+            />
+          </include:conditional-display>
+        {% else %}
+          <include:conditional-display firefox_condition="is-firefox">
+            <form id="newsletter-form" class="fl-smart-window-form fl-newsletterform" action="{{ settings.BASKET_SUBSCRIBE_URL }}" method="post" novalidate data-testid="newsletter-form">
+              <div hidden>
+                <input type="checkbox" name="newsletters" value="smart-window-waitlist" checked>
+              </div>
+              <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
+              <input type="hidden" name="lang" id="id_lang" value="en">
+              <div class="fl-newsletterform-field">
+                <label class="fl-newsletterform-label visually-hidden" for="newsletter-email">{{ ftl('newsletter-form-your-email-address') }}</label>
+                <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') }}" autocomplete="email" data-testid="newsletter-email-input">
+              </div>
+              <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
+                <div class="fl-newsletterform-consent">
+                  <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
+                    <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
+                    <span class="fl-newsletterform-checkbox-text">{{ page.privacy_notice|richtext }}</span>
+                  </label>
+                </div>
+              </div>
+              <button
+                id="newsletter-submit"
+                class="fl-button"
+                type="submit"
+                data-cta-uid="{{ page.waitlist_submit_uid }}"
+                data-cta-text="{{ page.form_submit_label }}"
+                data-cta-position="intro"
+                disabled
+                data-testid="newsletter-submit-button"
+              >{{ page.form_submit_label }}</button>
+              <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
+                <ul class="fl-newsletterform-error-list mzp-u-list-styled">
+                  <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>
+                  <li class="error-try-again-later hidden">{{ ftl('newsletter-form-we-are-sorry-but-there') }}</li>
+                </ul>
+              </div>
+            </form>
+            <div id="newsletter-thanks" class="fl-smart-window-thankyou hidden" data-testid="newsletter-thanks-message">
+
+              <include:inline-notification
+                message="{{ page.thank_you_message|richtext }}"
+                color="green"
+                icon="checkmark"
+              />
+
+
+            </div>
+          </include:conditional-display>
+        {% endif %}
+
+        {% if page.animation %}
+          {% set img = image(page.image, "width-1200") %}
+          <div class="fl-smart-window-intro-featured-image">
+            <include:animation
+              video_url="{{ page.animation }}"
+              alt="{{ page.animation_alt }}"
+              poster="{{ img.url }}"
+              playback="autoplay_loop"
+              show_pause_button="true"
+            />
+          </div>
+        {% else %}
+          {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+          <div class="fl-smart-window-intro-featured-image">
+            <div class="image-variants-display">
+              {{ srcset_image(
+                  page.image,
+                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                  sizes="(min-width: 900px) 810px, 100vw",
+                  width=page.image.width,
+                  height=page.image.height,
+                  loading="lazy",
+                  class=classes.primary,
+              ) }}
+              {% if page.image_mobile %}
+                {{ srcset_image(
+                    page.image_mobile,
+                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                    sizes="(min-width: 900px) 810px, 100vw",
+                    width=page.image_mobile.width,
+                    height=page.image_mobile.height,
+                    loading="lazy",
+                    class=classes.mobile,
+                ) }}
+              {% endif %}
+              {% if page.image_dark_mode_mobile %}
+                {{ srcset_image(
+                    page.image_dark_mode_mobile,
+                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                    sizes="(min-width: 900px) 810px, 100vw",
+                    width=page.image_dark_mode_mobile.width,
+                    height=page.image_dark_mode_mobile.height,
+                    loading="lazy",
+                    class=classes.dark_mode_mobile,
+                ) }}
+              {% endif %}
+              {% if page.image_dark_mode %}
+                {{ srcset_image(
+                    page.image_dark_mode,
+                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                    sizes="(min-width: 900px) 810px, 100vw",
+                    width=page.image_dark_mode.width,
+                    height=page.image_dark_mode.height,
+                    loading="lazy",
+                    class=classes.dark_mode,
+                ) }}
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="fl-split-page-lower no-gap">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+          {% set block_level = 2 %}
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    </main>
+</div>
+{% endblock %}
+
+
+{% block pre_footer %}
+{% endblock pre_footer %}

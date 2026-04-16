@@ -6,6 +6,7 @@
 #}
 
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
+
 <include:conditional-display
   platform_conditions="{{ value.settings.show_to.platforms }}"
   firefox_condition="{{ value.settings.show_to.firefox }}"
@@ -19,7 +20,9 @@
     <content:content>
       {% for block in value.content %}
         {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ block.block_type %}
-        {% include_block block %}
+        {% with block_level = block_level + 1 if block_level else 2 %}
+          {% include_block block %}
+        {% endwith %}
       {% endfor %}
     </content:content>
     {% if value.cta %}
