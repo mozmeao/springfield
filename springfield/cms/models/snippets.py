@@ -309,7 +309,7 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return "cms/snippets/qr-code-floating-snippet-preview.html"
 
     def clean(self):
-        if not self.qr_code_url or not self.qr_code_image:
+        if not self.qr_code_url and not self.qr_code_image:
             raise ValidationError("Missing qr_code_url and or qr_code_image")
         return super().clean()
 
