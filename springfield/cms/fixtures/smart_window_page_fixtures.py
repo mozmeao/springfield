@@ -328,7 +328,7 @@ def get_smart_window_test_page() -> SmartWindowPage:
     page.image_dark_mode = dark_image
     page.animation = _ANIMATION_URL
     page.animation_alt = "Lorem ipsum animation."
-    page.show_smart_window_button = "us_ca"
+    page.show_smart_window_button = "allowed_territories"
     page.redirect_page = explainer_page
     page.content = get_smart_window_page_content()
     page.save_revision().publish()
