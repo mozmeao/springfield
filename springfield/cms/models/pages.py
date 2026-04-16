@@ -19,6 +19,7 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, Tit
 from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
+from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
@@ -381,9 +382,35 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
+    qr_code_floating_button = models.ForeignKey("QRCodeFloatingSnippet", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+
+    qr_override_url = models.CharField(blank=True)
+    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    qr_override_default_open = models.BooleanField(default=False)
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
         FieldPanel("show_qr_code_snippet"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("qr_override_url"),
+                        FieldPanel("qr_override_image"),
+                        FieldPanel("qr_override_default_open"),
+                    ]
+                ),
+            ],
+            heading="QR Code Floating Button",
+            classname="collapsed",
+        ),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_override_url"),
+        SynchronizedField("qr_override_image"),
+        SynchronizedField("qr_override_default_open"),
     ]
 
     def __str__(self):
@@ -391,6 +418,8 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def clean(self):
         super().clean()
+        if self.qr_override_url and self.qr_override_image:
+            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")
@@ -819,13 +848,44 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+
+    qr_override_url = models.CharField(blank=True)
+    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    qr_override_default_open = models.BooleanField(default=False)
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
         FieldPanel("show_pre_footer"),
         FieldPanel("show_nav_cta"),
         FieldPanel("show_qr_code_snippet"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("qr_override_url"),
+                        FieldPanel("qr_override_image"),
+                        FieldPanel("qr_override_default_open"),
+                    ]
+                ),
+            ],
+            heading="QR Code Floating Button",
+            classname="collapsed",
+        ),
     ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_override_url"),
+        SynchronizedField("qr_override_image"),
+        SynchronizedField("qr_override_default_open"),
+    ]
+
+    def clean(self):
+        super().clean()
+        if self.qr_override_url and self.qr_override_image:
+            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
 
     class Meta:
         verbose_name = "Free Form 2026 Page"
@@ -892,12 +952,43 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+
+    qr_override_url = models.CharField(blank=True)
+    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    qr_override_default_open = models.BooleanField(default=False)
+
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
         FieldPanel("show_qr_code_snippet"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("qr_override_url"),
+                        FieldPanel("qr_override_image"),
+                        FieldPanel("qr_override_default_open"),
+                    ]
+                ),
+            ],
+            heading="QR Code Floating Button",
+            classname="collapsed",
+        ),
     ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_override_url"),
+        SynchronizedField("qr_override_image"),
+        SynchronizedField("qr_override_default_open"),
+    ]
+
+    def clean(self):
+        super().clean()
+        if self.qr_override_url and self.qr_override_image:
+            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
 
     class Meta:
         indexes = [
@@ -945,13 +1036,44 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+
+    qr_override_url = models.CharField(blank=True)
+    qr_override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    qr_override_default_open = models.BooleanField(default=False)
+
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
         FieldPanel("show_qr_code_snippet"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("qr_override_url"),
+                        FieldPanel("qr_override_image"),
+                        FieldPanel("qr_override_default_open"),
+                    ]
+                ),
+            ],
+            heading="QR Code Floating Button",
+            classname="collapsed",
+        ),
     ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_override_url"),
+        SynchronizedField("qr_override_image"),
+        SynchronizedField("qr_override_default_open"),
+    ]
+
+    def clean(self):
+        super().clean()
+        if self.qr_override_url and self.qr_override_image:
+            raise ValidationError("Only one of qr_override_url and qr_override_image is allowed.")
 
     class Meta:
         indexes = [

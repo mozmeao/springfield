@@ -418,7 +418,9 @@ if (typeof window.cms === 'undefined') {
 
     function initQRCodeSnippet() {
         const COOKIE_ID = 'moz-qr-snippet-dismissed';
-        const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
+        const qrCodeSnippetEl =
+            document.querySelector('.fl-qr-code-floating-snippet') ||
+            document.querySelector('.fl-qr-code-snippet');
 
         if (!qrCodeSnippetEl) {
             return;
@@ -441,7 +443,7 @@ if (typeof window.cms === 'undefined') {
 
         setTimeout(function () {
             qrCodeSnippetEl.classList.add('is-open');
-        }, 3000);
+        }, 0);
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
             if (closeButton) {
