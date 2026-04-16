@@ -973,6 +973,30 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="The page users will be taken to after clicking the Smart Window button.",
     )
+    download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
+    update_button_label = models.CharField(
+        max_length=255, default="How to update Firefox", help_text="Label for the button that appears if the user needs to update Firefox."
+    )
+    update_instructions = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default="<p data-block-key='abcdef'>Before you can try Smart Window, you’ll need to download the latest version of Firefox.</p>",
+        help_text="Instructions displayed to the user if they need to update Firefox before trying Smart Window.",
+    )
+    update_link = models.URLField(
+        default="https://support.mozilla.org/en-US/products/firefox/installation-and-updates",
+        help_text="URL for the update Firefox instructions page.",
+    )
+    copy_to_clipboard_label = models.CharField(
+        max_length=255, default="Copy link to page", help_text="Label for the button that copies the page link to the clipboard."
+    )
+    copy_success_label = models.CharField(
+        max_length=255, default="Copied", help_text="Label displayed when the link is successfully copied to the clipboard."
+    )
+    post_download_instructions = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default="<p data-block-key='abcdef'>Return to this page after updating Firefox to unlock access to Smart Window BETA.</p>",
+        help_text="Instructions displayed to the user for next steps after downloading Firefox.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         MultiFieldPanel(
@@ -996,12 +1020,18 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("show_smart_window_button"),
+                FieldPanel("nav_button_uid"),
+                FieldPanel("intro_button_uid"),
                 FieldPanel("redirect_page"),
+                FieldPanel("download_button_label"),
+                FieldPanel("update_button_label"),
+                FieldPanel("update_link"),
+                FieldPanel("copy_to_clipboard_label"),
+                FieldPanel("copy_success_label"),
+                FieldPanel("post_download_instructions"),
                 FieldPanel("waitlist_button_label"),
                 FieldPanel("form_submit_label"),
                 FieldPanel("thank_you_message"),
-                FieldPanel("nav_button_uid"),
-                FieldPanel("intro_button_uid"),
                 FieldPanel("waitlist_submit_uid"),
                 FieldPanel("privacy_notice"),
             ],

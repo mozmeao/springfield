@@ -259,3 +259,11 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 .ui-tour.is-hidden {
     display: none;
 }
+
+/* =====================================================================
+Copy-to-Clipboard Button
+===================================================================== */
+
+.fl-copy-to-clipboard-button:disabled {
+    cursor: default;
+}

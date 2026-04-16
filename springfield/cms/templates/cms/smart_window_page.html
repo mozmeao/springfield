@@ -53,29 +53,63 @@
         </hgroup>
 
         <include:conditional-display firefox_condition="not-firefox">
-          <include:download-firefox-button
-            analytics_id="intro-download-firefox"
-            label="{{ ftl('navigation-get-firefox') }}"
-            cta_text="{{ ftl('navigation-get-firefox') }}"
-            icon_name="downloads"
-            icon_position="left"
-            block_position="intro"
-            exclude_unsupported_content="True"
-          />
+          <div class="fl-smart-window-instructions-container">
+            <div class="fl-buttons">
+              <include:download-firefox-button
+                analytics_id="intro-download-firefox"
+                label="{{ page.download_button_label }}"
+                cta_text="{{ page.download_button_label }}"
+                icon_name="downloads"
+                icon_position="left"
+                block_position="intro-download"
+                exclude_unsupported_content="True"
+              />
+              <include:copy-to-clipboard-button
+                theme_class="button-secondary"
+                value="{{ request.build_absolute_uri() }}"
+                label="{{ page.copy_to_clipboard_label }}"
+                success_label="{{ page.copy_success_label }}"
+              />
+            </div>
+            <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
+          </div>
         </include:conditional-display>
 
         {% if show_try_smart_window %}
           <include:conditional-display firefox_condition="is-firefox">
-            <include:uitour_button
-              theme_class="{{ ui_tour_class }}"
-              label="{{ page.waitlist_button_label }}"
-              analytics_text="Try Smart Window"
-              analytics_position="intro"
-              analytics_id="{{ page.intro_button_uid }}"
-              {% if redirect_url %}
-              next_url="{{ redirect_url }}"
-              {% endif %}
-            />
+            {# Show Smart Window button for Firefox >= 150 #}
+            <div class="fl-condition-version" data-min-version="150">
+              <include:uitour_button
+                theme_class="{{ ui_tour_class }}"
+                label="{{ page.waitlist_button_label }}"
+                analytics_text="{{ page.waitlist_button_label }}"
+                analytics_position="intro-smart-window"
+                analytics_id="{{ page.intro_button_uid }}"
+                {% if redirect_url %}
+                next_url="{{ redirect_url }}"
+                {% endif %}
+              />
+            </div>
+            {# Show Update instructions for Firefox < 150 #}
+            <div class="fl-smart-window-instructions-container fl-condition-version hidden" data-max-version="149">
+              <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
+              <div class="fl-buttons is-horizontal">
+                <include:button
+                  href="{{ page.update_link }}"
+                  label="{{ page.update_button_label }}"
+                  analytics_text="{{ page.update_button_label }}"
+                  analytics_position="intro-update"
+                  analytics_id="intro-update-button"
+                />
+                <include:copy-to-clipboard-button
+                  theme_class="button-secondary"
+                  value="{{ request.build_absolute_uri() }}"
+                  label="{{ page.copy_to_clipboard_label }}"
+                  success_label="{{ page.copy_success_label }}"
+                />
+              </div>
+              <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
+            </div>
           </include:conditional-display>
         {% else %}
           <include:conditional-display firefox_condition="is-firefox">
