@@ -288,13 +288,17 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         features=EXPANDED_TEXT_FEATURES,
         blank=True,
     )
-    qr_code_url = models.CharField(blank=True)
-    qr_code_image = models.ForeignKey("wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    default_open = models.BooleanField(default=False)
+    url = models.CharField(blank=True)
+    image = models.ForeignKey("wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
-    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("qr_code_url"), FieldPanel("qr_code_image"), FieldPanel("default_open")]
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("url"),
+        FieldPanel("image"),
+    ]
 
-    override_translatable_fields = [SynchronizedField("qr_code_uri"), SynchronizedField("qr_code_image")]
+    override_translatable_fields = [SynchronizedField("url"), SynchronizedField("image")]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "QR Code Floating Snippet"
@@ -309,8 +313,8 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return "cms/snippets/qr-code-floating-snippet-preview.html"
 
     def clean(self):
-        if not self.qr_code_url and not self.qr_code_image:
-            raise ValidationError("Missing qr_code_url and or qr_code_image")
+        if not self.url and not self.image:
+            raise ValidationError("Missing url or image")
         return super().clean()
 
 
