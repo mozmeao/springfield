@@ -39,20 +39,21 @@
 
 .fl-sliding-carousel-control {
     background: none;
-    border-radius: 0;
     color: inherit;
     cursor: pointer;
     margin: 0;
+    opacity: 0.7;
     padding: 0;
     position: relative;
 }
 
 .fl-sliding-carousel-control.is-active {
     cursor: default;
+    opacity: 1;
 }
 
 .fl-superheading.fl-sliding-carousel-superheading {
-    color: var(--token-color-grey-2);
+    color: var(--token-color-grey-4);
     text-transform: uppercase;
 }
 
@@ -103,7 +104,13 @@
 }
 
 .fl-sliding-carousel-box {
+    border: 2px solid var(--token-color-soft-purple-2);
+    border-radius: var(--token-border-radius-sm);
     margin-block-end: 0;
+}
+
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-box {
+    border: none;
 }
 
 @keyframes fl-sliding-carousel-progress {
@@ -230,7 +237,7 @@
         padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
     }
 
-    .fl-sliding-carousel-progress {
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
         display: block;
     }
 
