@@ -180,7 +180,6 @@
 
 .fl-sliding-carousel-controls-swiper.swiper-initialized
     .fl-sliding-carousel-control {
-    background: var(--token-color-white);
     background-clip: padding-box;
     border: 2px solid var(--token-color-soft-purple-2);
     border-radius: var(--token-border-radius-sm);
