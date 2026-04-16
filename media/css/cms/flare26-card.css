@@ -564,6 +564,7 @@ Illustration Card
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-spacing-xl);
     inline-size: 100%;
+    margin-block-end: var(--token-spacing-lg);
 }
 
 .fl-illustration-card .fl-card-content {
