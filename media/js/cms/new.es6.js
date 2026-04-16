@@ -356,6 +356,9 @@ if (typeof window.cms === 'undefined') {
         const pauseButtons = document.querySelectorAll('.js-animation-pause');
 
         pauseButtons.forEach(function (button) {
+            // Buttons inside the sliding carousel are handled by flare26.es6.js
+            if (button.closest('[data-js="fl-sliding-carousel"]')) return;
+
             const container = button.closest('.fl-video');
             if (!container) return;
 
