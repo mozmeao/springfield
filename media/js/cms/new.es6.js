@@ -534,13 +534,24 @@ if (typeof window.cms === 'undefined') {
         }
 
         el.textContent = '';
-        let i = 0;
-        const timer = setInterval(function () {
-            el.textContent += text[i++];
-            if (i >= text.length) {
-                clearInterval(timer);
-            }
-        }, interval);
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+                observer.unobserve(el);
+                let i = 0;
+                const timer = setInterval(function () {
+                    el.textContent += text[i++];
+                    if (i >= text.length) {
+                        clearInterval(timer);
+                    }
+                }, interval);
+            });
+        });
+
+        observer.observe(el);
     };
 
     Flare26.initDialogs = () => {
