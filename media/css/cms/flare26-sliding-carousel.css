@@ -204,7 +204,7 @@
 .fl-sliding-carousel-controls-swiper.swiper-initialized
     .fl-sliding-carousel-control.is-active::before {
     background: var(--token-gradient-smart-window-instructions);
-    border-radius: var(--token-border-radius-xs);
+    border-radius: var(--token-border-radius-sm);
     content: '';
     inset: -2px;
     mask:
@@ -265,7 +265,7 @@
     }
 
     .fl-sliding-carousel-box {
-        border-radius: var(--token-border-radius-xs);
+        border-radius: var(--token-border-radius-sm);
         margin-block-end: var(--token-spacing-lg);
         padding: var(--token-spacing-2xl);
         position: relative;
