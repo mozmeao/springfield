@@ -72,9 +72,12 @@ function initSlidingCarousel(rootEl) {
         return;
     }
 
+    pauseAllVideos();
+
     let currentIndex = 0;
-    let autoPlayTimer = null;
-    let autoPlayActive = true;
+    let autoSlideTimer = null;
+    let autoSlideActive = true;
+    let userPaused = false;
 
     function activate(index) {
         controls[currentIndex].classList.remove('is-active');
@@ -82,31 +85,97 @@ function initSlidingCarousel(rootEl) {
         slides[currentIndex].classList.remove('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'true');
 
+        pauseAllVideos();
+
         currentIndex = index;
 
         controls[currentIndex].classList.add('is-active');
         controls[currentIndex].setAttribute('aria-current', 'true');
         slides[currentIndex].classList.add('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'false');
+        if (!userPaused) {
+            const videoEl = getVideoFromSlide(slides[currentIndex]);
+            if (videoEl) {
+                playVideo(videoEl);
+            }
+        }
     }
 
-    function startAutoPlay() {
-        autoPlayTimer = setInterval(() => {
+    function getVideoFromSlide(slideEl) {
+        return slideEl.querySelector('video');
+    }
+
+    function getAnimationButton(videoEl) {
+        const container = videoEl.closest('.fl-video');
+        return container && container.querySelector('.js-animation-pause');
+    }
+
+    function pauseAllVideos() {
+        slides.forEach(function (slide) {
+            const videoEl = getVideoFromSlide(slide);
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                pauseVideo(videoEl);
+            }
+        });
+    }
+
+    function pauseVideo(videoEl) {
+        videoEl.pause();
+        videoEl.autoplay = false;
+        const btn = getAnimationButton(videoEl);
+        if (btn) {
+            btn.querySelector('.js-pause-icon').hidden = true;
+            btn.querySelector('.js-play-icon').hidden = false;
+            btn.setAttribute('aria-label', btn.dataset.labelPlay);
+        }
+    }
+
+    function playVideo(videoEl) {
+        videoEl.play();
+        videoEl.autoplay = true;
+        const btn = getAnimationButton(videoEl);
+        if (btn) {
+            btn.querySelector('.js-pause-icon').hidden = false;
+            btn.querySelector('.js-play-icon').hidden = true;
+            btn.setAttribute('aria-label', btn.dataset.labelPause);
+        }
+    }
+
+    slides.forEach((slide) => {
+        const btn = slide.querySelector('.js-animation-pause');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            const videoEl = getVideoFromSlide(slide);
+            if (!videoEl) return;
+            if (userPaused) {
+                userPaused = false;
+                playVideo(videoEl);
+            } else {
+                userPaused = true;
+                pauseVideo(videoEl);
+            }
+        });
+    });
+
+    function startAutoSlide() {
+        activate(0);
+        autoSlideTimer = setInterval(() => {
             activate((currentIndex + 1) % slides.length);
         }, AUTO_PLAY_INTERVAL_MS);
     }
 
-    function stopAutoPlay() {
-        clearInterval(autoPlayTimer);
-        autoPlayTimer = null;
-        autoPlayActive = false;
+    function stopAutoSlide() {
+        clearInterval(autoSlideTimer);
+        autoSlideTimer = null;
+        autoSlideActive = false;
         rootEl.classList.add('is-paused');
     }
 
     controls.forEach((control, idx) => {
         control.addEventListener('click', () => {
-            if (autoPlayActive) {
-                stopAutoPlay();
+            if (autoSlideActive) {
+                stopAutoSlide();
             }
             if (idx !== currentIndex) {
                 activate(idx);
@@ -123,13 +192,13 @@ function initSlidingCarousel(rootEl) {
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            clearInterval(autoPlayTimer);
-        } else if (autoPlayActive) {
-            startAutoPlay();
+            clearInterval(autoSlideTimer);
+        } else if (autoSlideActive) {
+            startAutoSlide();
         }
     });
 
-    startAutoPlay();
+    startAutoSlide();
 }
 
 function initScrollingCardGrid(el) {
