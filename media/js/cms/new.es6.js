@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import VideoEngagement from '../base/datalayer-videoengagement.es6';
 import { getConsentCookie } from '../base/consent/utils.es6';
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -605,8 +605,8 @@ if (typeof window.cms === 'undefined') {
         applyVideoAspectRatios();
         initVideoPlayers();
         initAnimations();
-        initAnimations();
         initAnimationPauseButtons();
+        initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();
         initTypewriter();
