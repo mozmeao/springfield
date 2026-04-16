@@ -418,9 +418,11 @@ if (typeof window.cms === 'undefined') {
 
     function initQRCodeSnippet() {
         const COOKIE_ID = 'moz-qr-snippet-dismissed';
+        const oldSnippet = document.querySelector('.fl-qr-code-snippet');
+
         const qrCodeSnippetEl =
             document.querySelector('.fl-qr-code-floating-snippet') ||
-            document.querySelector('.fl-qr-code-snippet');
+            oldSnippet;
 
         if (!qrCodeSnippetEl) {
             return;
@@ -431,11 +433,15 @@ if (typeof window.cms === 'undefined') {
             window.Mozilla.Cookies.enabled();
 
         // Don't show if previously dismissed.
-        if (cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID)) {
+        if (
+            cookiesEnabled &&
+            Mozilla.Cookies.hasItem(COOKIE_ID) &&
+            oldSnippet
+        ) {
             return;
         }
 
-        const closeButton = qrCodeSnippetEl.querySelector(
+        const showHideButton = qrCodeSnippetEl.querySelector(
             '.fl-qr-code-snippet-close'
         );
 
@@ -446,42 +452,46 @@ if (typeof window.cms === 'undefined') {
         }, 0);
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
-            if (closeButton) {
-                closeButton.addEventListener('click', function () {
-                    qrCodeSnippetEl.classList.remove('is-open');
+            if (showHideButton) {
+                showHideButton.addEventListener('click', function () {
+                    if (qrCodeSnippetEl.classList.contains('is-open')) {
+                        qrCodeSnippetEl.classList.remove('is-open');
 
-                    if (!cookiesEnabled) {
-                        return;
+                        if (!cookiesEnabled) {
+                            return;
+                        }
+
+                        /**
+                         * Set a preference cookie to remember the user dismissed
+                         * the QR code snippet. Legal are OK to set this without
+                         * explicit consent because:
+                         *
+                         * 1) The cookie is not used for tracking purposes.
+                         * 2) The cookie is set only after an explicit user action.
+                         *
+                         * We still honor not setting this cookie if preference
+                         * cookies have been explicitly rejected by the user.
+                         */
+                        const cookie = getConsentCookie();
+                        if (cookie && !cookie.preference) {
+                            return;
+                        }
+
+                        const date = new Date();
+                        const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
+                        date.setTime(date.getTime() + cookieDuration);
+                        Mozilla.Cookies.setItem(
+                            COOKIE_ID,
+                            true,
+                            date.toUTCString(),
+                            '/',
+                            undefined,
+                            false,
+                            'lax'
+                        );
+                    } else {
+                        qrCodeSnippetEl.classList.add('is-open');
                     }
-
-                    /**
-                     * Set a preference cookie to remember the user dismissed
-                     * the QR code snippet. Legal are OK to set this without
-                     * explicit consent because:
-                     *
-                     * 1) The cookie is not used for tracking purposes.
-                     * 2) The cookie is set only after an explicit user action.
-                     *
-                     * We still honor not setting this cookie if preference
-                     * cookies have been explicitly rejected by the user.
-                     */
-                    const cookie = getConsentCookie();
-                    if (cookie && !cookie.preference) {
-                        return;
-                    }
-
-                    const date = new Date();
-                    const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
-                    date.setTime(date.getTime() + cookieDuration);
-                    Mozilla.Cookies.setItem(
-                        COOKIE_ID,
-                        true,
-                        date.toUTCString(),
-                        '/',
-                        undefined,
-                        false,
-                        'lax'
-                    );
                 });
             }
         }

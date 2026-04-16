@@ -4,19 +4,26 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<aside class="fl-qr-code-floating-snippet">
+{% if page.show_qr_code_snippet %}
+<aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable">
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
-    <span class="fl-icon fl-icon-device-mobile"></span>
-    Get Firefox for your phone
+      <span class="fl-icon fl-icon-device-mobile"></span>
+      {{ page.qr_code_floating_button.heading|striptags }}
+    </div>
+    <div class="fl-qr-code-close fl-qr-code-snippet-close">
+      <span class="fl-icon fl-icon-add"></span>
     </div>
   </div>
 
   <div class="fl-qr-code-floating-content">
-    {{ qrcode(value.qr_code, 12) }}
-    <p>Bring your tabs with you</p>
+    {% if page.qr_override_url %}
+      {{ qrcode(page.qr_override_url, 12) }}
+    {% endif %}
+    {{ page.qr_code_floating_button.content|richtext }}
   </div>
 </aside>
+{% endif %}
 
 {% if value and value.qr_code %}
   <aside class="fl-qr-code-snippet{% if value.closable %} fl-qr-code-snippet-closable{% endif %} fl-force-dark-theme">
