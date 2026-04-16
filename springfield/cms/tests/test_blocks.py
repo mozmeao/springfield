@@ -3800,7 +3800,7 @@ def test_smart_window_explainer_page(index_page, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Intro: h1 heading present, no media
-    upper = soup.find("div", class_="fl-split-page-upper")
+    upper = soup.find("div", class_="fl-smart-window-explainer-hero")
     assert upper
     intro_el = upper.find("div", class_="fl-intro")
     assert intro_el
