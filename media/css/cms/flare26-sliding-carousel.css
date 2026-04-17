@@ -6,7 +6,7 @@
 
 .fl-sliding-carousel {
     display: grid;
-    gap: var(--token-layout-md);
+    gap: var(--token-layout-2xs);
     grid-template-columns: 1fr;
 }
 
@@ -237,6 +237,7 @@
 @media (--viewport-md-up) {
     .fl-sliding-carousel {
         align-items: start;
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
     }
 
