@@ -153,11 +153,10 @@
             </form>
             <div id="newsletter-thanks" class="fl-smart-window-thankyou hidden" data-testid="newsletter-thanks-message">
 
-              <include:inline-notification
-                message="{{ page.thank_you_message|richtext }}"
-                color="green"
-                icon="checkmark"
-              />
+              <div class="fl-smart-window-thankyou-message">
+                <include:icon icon_name="checkmark" />
+                {{ page.thank_you_message|richtext }}
+              </div>
 
 
             </div>
