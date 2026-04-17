@@ -6,7 +6,12 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_banner_snippet, get_pre_footer_cta_form_snippet, get_qr_code_snippet
+from springfield.cms.fixtures.snippet_fixtures import (
+    get_banner_snippet,
+    get_floating_qr_code_snippet,
+    get_pre_footer_cta_form_snippet,
+    get_qr_code_snippet,
+)
 from springfield.cms.models import ThanksPage
 
 
@@ -187,6 +192,7 @@ def get_thanks_page() -> ThanksPage:
 
     get_pre_footer_cta_form_snippet()
     get_qr_code_snippet()
+    get_floating_qr_code_snippet()
 
     content = [
         get_windows_section(),
@@ -208,6 +214,7 @@ def get_thanks_page() -> ThanksPage:
         index_page.add_child(instance=page)
 
     page.show_qr_code_snippet = True
+    page.qr_code_floating_button = get_floating_qr_code_snippet()
     page.platform = "linux"
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'

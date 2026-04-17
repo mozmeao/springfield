@@ -9,6 +9,7 @@ from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, QRCodeSnippet, Tag
+from springfield.cms.models.snippets import QRCodeFloatingSnippet
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -78,6 +79,20 @@ def get_qr_code_snippet() -> QRCodeSnippet:
             "heading": '<p data-block-key="c1bc4d7eadf0">Get Firefox on your phone</p>',
             "qr_code": "https://www.firefox.com/browsers/mobile/",
             "closable": True,
+        },
+    )
+    return snippet
+
+
+def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
+    locale = Locale.get_default()
+    snippet, _ = QRCodeFloatingSnippet.objects.update_or_create(
+        id=settings.QR_CODE_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
+            "url": "https://www.firefox.com/browsers/mobile/",
+            "default_open": True,
         },
     )
     return snippet

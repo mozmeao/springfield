@@ -4,52 +4,29 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable">
+<aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if qr.open %}is-open{% endif %}">
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
       <span class="fl-icon fl-icon-device-mobile"></span>
-      {{ page.qr_code_floating_button.heading|striptags }}
+      {{ value.heading|striptags }}
     </div>
     <div class="fl-qr-code-close fl-qr-code-snippet-close">
-      <span class="fl-icon fl-icon-subtract"></span>
+      {%if qr.open %}
+        <span class="fl-icon fl-icon-subtract"></span>
+      {% else %}
+        <span class="fl-icon fl-icon-add"></span>
+      {% endif %}
     </div>
   </div>
 
   <div class="fl-qr-code-floating-content">
-    {% if qr.type == "image" %}
-      <img src="{{ qr.value }}" class="fl-qr-code-image">
-    {% else %}
-      {{ qrcode(qr.value, 12) }}
-    {% endif %}
-    {{ page.qr_code_floating_button.content|richtext }}
+    <div class="fl-qr-code-image">
+      {% if qr.type == "image" %}
+        <img src="{{ qr.value }}" class="fl-qr-code-image">
+      {% else %}
+        {{ qrcode(qr.value, 12) }}
+      {% endif %}
+    </div>
+    {{ value.content|richtext }}
   </div>
 </aside>
-
-{% if value and value.qr_code %}
-  <aside class="fl-qr-code-snippet{% if value.closable %} fl-qr-code-snippet-closable{% endif %} fl-force-dark-theme">
-    {% if value.closable %}
-      <button type="button" class="fl-button button-link fl-qr-code-snippet-close" aria-label="{{ ftl('ui-close') }}">
-        <include:icon icon_name="close" />
-      </button>
-    {% endif %}
-    <div class="fl-qr-code-snippet-container">
-      <div class="fl-qr-code-snippet-text">
-      {% if value.heading %}
-        <h2 class="fl-heading fl-heading-sm fl-qr-code-snippet-heading">
-          {{ value.heading|richtext|remove_p_tag }}
-        </h2>
-      {% endif %}
-
-      {% if value.content %}
-      {{ value.content|richtext }}
-      {% endif %}
-
-      </div>
-
-      <div class="fl-qr-code-snippet-kit" role="img" aria-label="QR Code">
-        {{ qrcode(value.qr_code, 12) }}
-      </div>
-
-  </div>
-  </aside>
-{% endif %}

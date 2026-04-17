@@ -289,14 +289,10 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         blank=True,
     )
     url = models.CharField(blank=True)
-    image = models.ForeignKey("wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    default_open = models.BooleanField(default=False)
 
-    panels = [
-        FieldPanel("heading"),
-        FieldPanel("content"),
-        FieldPanel("url"),
-        FieldPanel("image"),
-    ]
+    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
 
     override_translatable_fields = [SynchronizedField("url"), SynchronizedField("image")]
 

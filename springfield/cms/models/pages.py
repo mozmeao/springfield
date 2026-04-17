@@ -387,7 +387,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     override_url = models.CharField(blank=True)
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    override_default_open = models.BooleanField(default=False)
+    override_default_open = models.BooleanField(null=True, blank=True)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
