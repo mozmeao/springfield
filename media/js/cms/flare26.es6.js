@@ -290,7 +290,7 @@ function initFirefoxVersionConditionalDisplay() {
         document.documentElement.setAttribute('data-firefox-version', version);
 
         const conditionalEls = document.querySelectorAll(
-            '.fl-condition-version'
+            '.condition-fx-version'
         );
         conditionalEls.forEach((el) => {
             const minVersion = el.dataset.minVersion;
@@ -303,9 +303,9 @@ function initFirefoxVersionConditionalDisplay() {
                 show = true;
             }
             if (show) {
-                el.classList.remove('hidden');
+                el.classList.add('version-match');
             } else {
-                el.classList.add('hidden');
+                el.classList.remove('version-match');
             }
         });
     }

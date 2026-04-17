@@ -23,7 +23,7 @@
         />
       </include:conditional-display>
       {% if show_try_smart_window %}
-        <include:conditional-display firefox_condition="is-firefox">
+        <include:conditional-display firefox_condition="is-firefox" min_version="150">
          <include:uitour_button
           theme_class="{{ ui_tour_class }}"
           label="{{ page.waitlist_button_label }}"
@@ -78,7 +78,7 @@
         {% if show_try_smart_window %}
           <include:conditional-display firefox_condition="is-firefox">
             {# Show Smart Window button for Firefox >= 150 #}
-            <div class="fl-condition-version" data-min-version="150">
+            <include:conditional-display min_version="150">
               <include:uitour_button
                 theme_class="{{ ui_tour_class }}"
                 label="{{ page.waitlist_button_label }}"
@@ -89,27 +89,29 @@
                 next_url="{{ redirect_url }}"
                 {% endif %}
               />
-            </div>
+            </include:conditional-display>
             {# Show Update instructions for Firefox < 150 #}
-            <div class="fl-smart-window-instructions-container fl-condition-version hidden" data-max-version="149">
-              <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
-              <div class="fl-buttons is-horizontal">
-                <include:button
-                  link="{{ page.update_link }}"
-                  label="{{ page.update_button_label }}"
-                  analytics_text="{{ page.update_button_label }}"
-                  analytics_position="intro-update"
-                  analytics_id="intro-update-button"
-                />
-                <include:copy-to-clipboard-button
-                  theme_class="button-secondary"
-                  value="{{ request.build_absolute_uri() }}"
-                  label="{{ page.copy_to_clipboard_label }}"
-                  success_label="{{ page.copy_success_label }}"
-                />
+            <include:conditional-display max_version="149">
+              <div class="fl-smart-window-instructions-container">
+                <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
+                <div class="fl-buttons is-horizontal">
+                  <include:button
+                    link="{{ page.update_link }}"
+                    label="{{ page.update_button_label }}"
+                    analytics_text="{{ page.update_button_label }}"
+                    analytics_position="intro-update"
+                    analytics_id="intro-update-button"
+                  />
+                  <include:copy-to-clipboard-button
+                    theme_class="button-secondary"
+                    value="{{ request.build_absolute_uri() }}"
+                    label="{{ page.copy_to_clipboard_label }}"
+                    success_label="{{ page.copy_success_label }}"
+                  />
+                </div>
+                <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
               </div>
-              <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
-            </div>
+            </include:conditional-display>
           </include:conditional-display>
         {% else %}
           <include:conditional-display firefox_condition="is-firefox">

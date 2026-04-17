@@ -543,6 +543,8 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
+    max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
 
     class Meta:
         label = "Conditional Display"
