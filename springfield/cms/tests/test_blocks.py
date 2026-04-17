@@ -3724,12 +3724,62 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         attribution_text = BeautifulSoup(card["value"]["attribution"], "html.parser").get_text()
         assert attribution_text in testimonial_card_els[i].get_text()
 
-    # --- UITour buttons: rendered when show_smart_window_button="all" ---
+    # Download Firefox button (not-firefox branch)
+    download_btn = soup.find("a", {"data-cta-position": "intro-download"})
+    assert download_btn
+    assert download_btn.get_text(strip=True) == page.download_button_label
+    assert download_btn["data-cta-uid"] == str(page.intro_download_button_uid)
+    assert download_btn["data-cta-text"] == page.download_button_label
+
+    # Copy-to-clipboard button in not-firefox branch
+    copy_btns = soup.find_all("button", {"data-js": "fl-copy-to-clipboard"})
+    assert len(copy_btns) >= 1
+    # First copy button is in the not-firefox branch
+    copy_btn = copy_btns[0]
+    assert copy_btn.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == page.copy_to_clipboard_label
+    assert copy_btn["data-label-success"] == page.copy_success_label
+    assert copy_btn["data-copy-value"]  # should be the page URL
+
+    # Post-download instructions (not-firefox branch)
+    post_download_els = soup.find_all("p", class_="fl-post-download-instructions")
+    assert len(post_download_els) >= 1
+    post_download_text = BeautifulSoup(page.post_download_instructions, "html.parser").get_text()
+    assert post_download_text in post_download_els[0].get_text()
+
+    # --- UITour buttons + update branch: rendered when show_smart_window_button="all" ---
     page.show_smart_window_button = "all"
     sw_request = rf.get(page.get_full_url())
     sw_response = page.serve(sw_request)
     assert sw_response.status_code == 200
     sw_soup = BeautifulSoup(sw_response.content, "html.parser")
+
+    # Update instructions (is-firefox + Firefox < 150 branch) ---
+    # The update container has data-max-version="149" (hidden until JS reveals it for old Firefox)
+    update_container = sw_soup.find("div", {"class": "fl-condition-version", "data-max-version": "149"})
+    assert update_container
+
+    # Update instructions text
+    update_instructions_el = update_container.find("p", class_="fl-update-instructions")
+    assert update_instructions_el
+    update_instructions_text = BeautifulSoup(page.update_instructions, "html.parser").get_text()
+    assert update_instructions_text in update_instructions_el.get_text()
+
+    # Update button
+    update_btn = update_container.find("a", {"data-cta-position": "intro-update"})
+    assert update_btn
+    assert update_btn.get_text(strip=True) == page.update_button_label
+    assert update_btn["href"] == page.update_link
+
+    # Copy-to-clipboard in update branch
+    update_copy_btn = update_container.find("button", {"data-js": "fl-copy-to-clipboard"})
+    assert update_copy_btn
+    assert update_copy_btn.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == page.copy_to_clipboard_label
+    assert update_copy_btn["data-label-success"] == page.copy_success_label
+
+    # Post-download instructions in update branch
+    update_post_instructions_el = update_container.find("p", class_="fl-post-download-instructions")
+    assert update_post_instructions_el
+    assert post_download_text in update_post_instructions_el.get_text()
 
     # No form in the UITour state
     assert not sw_soup.find("form", {"data-testid": "newsletter-form"})
@@ -3746,7 +3796,7 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     # Intro (upper content) button
     intro_btn = uitour_by_id.get(str(page.intro_button_uid))
     assert intro_btn
-    assert intro_btn["data-cta-position"] == "intro"
+    assert intro_btn["data-cta-position"] == "intro-smart-window"
     assert intro_btn.get_text(strip=True) == page.waitlist_button_label
 
 

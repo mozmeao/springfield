@@ -13,7 +13,7 @@
     <div class="nav-cta-wrap">
       <include:conditional-display firefox_condition="not-firefox">
         <include:download-firefox-button
-          analytics_id="nav-download-firefox"
+          analytics_id="{{ page.nav_download_button_uid }}"
           label="{{ ftl('navigation-get-firefox') }}"
           cta_text="{{ ftl('navigation-get-firefox') }}"
           icon_name="downloads"
@@ -56,7 +56,7 @@
           <div class="fl-smart-window-instructions-container">
             <div class="fl-buttons">
               <include:download-firefox-button
-                analytics_id="intro-download-firefox"
+                analytics_id="{{ page.intro_download_button_uid }}"
                 label="{{ page.download_button_label }}"
                 cta_text="{{ page.download_button_label }}"
                 icon_name="downloads"
@@ -95,7 +95,7 @@
               <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
               <div class="fl-buttons is-horizontal">
                 <include:button
-                  href="{{ page.update_link }}"
+                  link="{{ page.update_link }}"
                   label="{{ page.update_button_label }}"
                   analytics_text="{{ page.update_button_label }}"
                   analytics_position="intro-update"
