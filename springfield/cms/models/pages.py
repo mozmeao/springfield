@@ -1137,8 +1137,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or "smart_window"
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
+    def _get_smart_window_context(self, request):
+        """Shared context logic for both serve and preview."""
+        context = {}
         context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
         context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
         context["override_view"] = request.GET.get("view")
@@ -1151,6 +1152,16 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
                 self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
             )
+        return context
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context.update(self._get_smart_window_context(request))
+        return context
+
+    def get_preview_context(self, request, *args, **kwargs):
+        context = super().get_preview_context(request, *args, **kwargs)
+        context.update(self._get_smart_window_context(request))
         return context
 
 
