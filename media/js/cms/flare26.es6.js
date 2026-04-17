@@ -5,7 +5,7 @@
  */
 
 import Swiper from 'swiper';
-import { Autoplay, EffectFade, FreeMode } from 'swiper/modules';
+import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
 
 const client = Mozilla.Client;
 
@@ -63,6 +63,13 @@ function initFlare26Carousel(rootEl) {
 const AUTO_PLAY_INTERVAL_MS = 10000;
 
 function initSlidingCarousel(rootEl) {
+    const controlsSwiperEl = rootEl.querySelector(
+        '.fl-sliding-carousel-controls-swiper'
+    );
+    const paginationEl = rootEl.querySelector(
+        '.fl-sliding-carousel-pagination'
+    );
+
     const controls = Array.from(
         rootEl.querySelectorAll('.fl-sliding-carousel-control')
     );
@@ -70,7 +77,7 @@ function initSlidingCarousel(rootEl) {
         rootEl.querySelectorAll('.fl-sliding-carousel-slide')
     );
 
-    if (controls.length === 0 || slides.length === 0) {
+    if (!controlsSwiperEl || controls.length === 0 || slides.length === 0) {
         return;
     }
 
@@ -78,6 +85,7 @@ function initSlidingCarousel(rootEl) {
     let autoSlideTimer = null;
     let autoSlideActive = true;
     let userPaused = false;
+    let controlsSwiper = null;
 
     // --- Video helpers ---
 
@@ -124,7 +132,7 @@ function initSlidingCarousel(rootEl) {
 
     // --- Slide activation ---
 
-    function activateSlideByIndex(index) {
+    function goToSlide(index) {
         controls[currentIndex].classList.remove('is-active');
         controls[currentIndex].setAttribute('aria-current', 'false');
         slides[currentIndex].classList.remove('is-active');
@@ -140,18 +148,19 @@ function initSlidingCarousel(rootEl) {
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) {
-                playVideo(videoEl);
-            }
+            if (videoEl) playVideo(videoEl);
+        }
+
+        if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {
+            controlsSwiper.slideToLoop(currentIndex);
         }
     }
 
-    // --- Auto-slide ---
+    // --- Autoplay ---
 
     function startAutoSlide() {
-        activateSlideByIndex(0);
         autoSlideTimer = setInterval(() => {
-            activateSlideByIndex((currentIndex + 1) % slides.length);
+            goToSlide((currentIndex + 1) % slides.length);
         }, AUTO_PLAY_INTERVAL_MS);
     }
 
@@ -162,25 +171,23 @@ function initSlidingCarousel(rootEl) {
         rootEl.classList.add('is-paused');
     }
 
-    // --- Event wiring ---
+    // --- Controls (desktop click + keyboard) ---
 
-    controls.forEach((control, idx) => {
-        control.addEventListener('click', () => {
-            if (autoSlideActive) {
-                stopAutoSlide();
-            }
-            if (idx !== currentIndex) {
-                activateSlideByIndex(idx);
-            }
+    controls.forEach((ctrl, idx) => {
+        ctrl.addEventListener('click', () => {
+            if (autoSlideActive) stopAutoSlide();
+            if (idx !== currentIndex) goToSlide(idx);
         });
 
-        control.addEventListener('keydown', (e) => {
+        ctrl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                control.click();
+                ctrl.click();
             }
         });
     });
+
+    // --- Video pause buttons ---
 
     slides.forEach((slide) => {
         const btn = slide.querySelector('.js-animation-pause');
@@ -197,6 +204,68 @@ function initSlidingCarousel(rootEl) {
         });
     });
 
+    // --- Mobile controls Swiper ---
+
+    const mq = window.matchMedia('(min-width: 900px)');
+
+    const controlsListEl = controlsSwiperEl.querySelector(
+        '.fl-sliding-carousel-controls'
+    );
+
+    function initControlsSwiper() {
+        if (controlsSwiper) return;
+        // Set row layout BEFORE Swiper measures slide widths
+        if (controlsListEl) controlsListEl.style.flexDirection = 'row';
+        controlsSwiper = new Swiper(controlsSwiperEl, {
+            modules: [Pagination],
+            wrapperClass: 'fl-sliding-carousel-controls',
+            slideClass: 'fl-sliding-carousel-control',
+            centeredSlides: true,
+            slidesPerView: 1.2,
+            spaceBetween: 16,
+            speed: 400,
+            rewind: true,
+            pagination: {
+                el: paginationEl,
+                clickable: true,
+                bulletClass: 'fl-sliding-carousel-dot',
+                bulletActiveClass: 'is-active',
+                // Use <button> with aria-label for accessibility
+                renderBullet: (index, className) =>
+                    `<button class="${className}" aria-label="Go to slide ${index + 1}"></button>`
+            }
+        });
+        controlsSwiper.on('slideChange', () => {
+            const idx = controlsSwiper.realIndex;
+            if (idx !== currentIndex) {
+                if (autoSlideActive) stopAutoSlide();
+                goToSlide(idx);
+            }
+        });
+        controlsSwiper.slideToLoop(currentIndex, 0);
+    }
+
+    function destroyControlsSwiper() {
+        if (!controlsSwiper) return;
+        controlsSwiper.destroy(true, true);
+        controlsSwiper = null;
+        if (controlsListEl) controlsListEl.style.flexDirection = '';
+    }
+
+    mq.addEventListener('change', (e) => {
+        if (e.matches) {
+            destroyControlsSwiper();
+        } else {
+            initControlsSwiper();
+        }
+    });
+
+    if (!mq.matches) {
+        initControlsSwiper();
+    }
+
+    // --- Visibility ---
+
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             clearInterval(autoSlideTimer);
@@ -208,29 +277,71 @@ function initSlidingCarousel(rootEl) {
     // --- Init ---
 
     pauseAllVideos();
+    goToSlide(0);
     startAutoSlide();
 }
 
-function initScrollingCardGrid(el) {
+function initScrollingCardGrid(swiperWrapperEl) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    new Swiper(el, {
-        modules: [FreeMode, Autoplay],
+    let duration;
+    let distanceRatio;
+    let startTimer;
+
+    const swiperInstance = new Swiper(swiperWrapperEl, {
+        modules: [Autoplay],
         wrapperClass: 'fl-card-grid-scroll-inner',
         slideClass: 'fl-card-grid-scroll-item',
         slidesPerView: 'auto',
         loop: true,
-        freeMode: {
-            enabled: true,
-            momentum: false
-        },
-        speed: 1000,
+        speed: 8000,
         spaceBetween: 16, // --token-spacing-lg
         autoplay: {
-            delay: 3000,
+            delay: 0,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true
+            waitForTransition: true
         }
+    });
+
+    // based on https://codepen.io/jarvis73045/pen/rNgwbNJ
+    swiperWrapperEl.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        if (startTimer) clearTimeout(startTimer);
+
+        // Stop slide at current translate.
+        swiperInstance.setTranslate(swiperInstance.getTranslate());
+
+        // Calculating the distance between current slide and next slide.
+        // 0.3 is equal to 30% distance to the next slide.
+        // distanceRatio = Math.abs((swiper.width * swiper.activeIndex + swiper.getTranslate()) / swiper.width);
+
+        // currentSlideWidth for slidesPerView > 1
+        const currentSlideWidth =
+            swiperInstance.slides[swiperInstance.activeIndex].offsetWidth;
+        distanceRatio = Math.abs(
+            (currentSlideWidth * swiperInstance.activeIndex +
+                swiperInstance.getTranslate()) /
+                currentSlideWidth
+        );
+
+        // The duration that playing to the next slide
+        duration = swiperInstance.params.speed * distanceRatio;
+        swiperInstance.autoplay.stop();
+    });
+
+    swiperWrapperEl.addEventListener('pointerleave', (e) => {
+        if (e.pointerType !== 'mouse') return;
+
+        const distance =
+            swiperInstance.width * swiperInstance.activeIndex +
+            swiperInstance.getTranslate();
+
+        // Avoid distance that is exactly 0
+        duration = distance !== 0 ? duration : 0;
+        swiperInstance.slideTo(swiperInstance.activeIndex, duration);
+        startTimer = setTimeout(() => {
+            swiperInstance.autoplay.start();
+        }, duration);
     });
 }
 
