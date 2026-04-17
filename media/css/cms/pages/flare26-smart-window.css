@@ -121,6 +121,20 @@
     max-inline-size: 100%;
 }
 
+/* Smart Window view states: version-based visibility */
+
+.sw-view-enable {
+    display: none;
+}
+
+.is-firefox-150-plus .sw-view-enable {
+    display: block;
+}
+
+.is-firefox-150-plus .sw-view-update {
+    display: none;
+}
+
 /* Play/pause buttons */
 
 .fl-smart-window-page .fl-video-play-icon,

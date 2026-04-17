@@ -1025,12 +1025,17 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        country = get_country_from_request(request)
         context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
-        context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
-            self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
-        )
         context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
+
+        # ?view=waitlist forces waitlist regardless of geo
+        if request.GET.get("view") == "waitlist":
+            context["in_supported_geo"] = False
+        else:
+            country = get_country_from_request(request)
+            context["in_supported_geo"] = self.show_smart_window_button == "all" or (
+                self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
+            )
         return context
 
 

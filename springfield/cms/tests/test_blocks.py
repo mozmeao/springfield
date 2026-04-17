@@ -3724,15 +3724,19 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         attribution_text = BeautifulSoup(card["value"]["attribution"], "html.parser").get_text()
         assert attribution_text in testimonial_card_els[i].get_text()
 
-    # --- UITour buttons: rendered when show_smart_window_button="all" ---
+    # --- In supported geo: UITour buttons + update view rendered ---
     page.show_smart_window_button = "all"
     sw_request = rf.get(page.get_full_url())
     sw_response = page.serve(sw_request)
     assert sw_response.status_code == 200
     sw_soup = BeautifulSoup(sw_response.content, "html.parser")
 
-    # No form in the UITour state
+    # No form in the in-geo state
     assert not sw_soup.find("form", {"data-testid": "newsletter-form"})
+
+    # Enable and update view containers are present
+    assert sw_soup.find("div", class_="sw-view-enable")
+    assert sw_soup.find("div", class_="sw-view-update")
 
     uitour_buttons = sw_soup.find_all("button", attrs={"data-cta-uid": True})
     uitour_by_id = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
@@ -3743,15 +3747,16 @@ def test_smart_window_page(index_page, placeholder_images, rf):
     assert nav_btn["data-cta-position"] == "nav"
     assert nav_btn.get_text(strip=True) == page.waitlist_button_label
 
-    # Intro (upper content) button
+    # Intro (upper content) button inside enable view
     intro_btn = uitour_by_id.get(str(page.intro_button_uid))
     assert intro_btn
     assert intro_btn["data-cta-position"] == "intro"
     assert intro_btn.get_text(strip=True) == page.waitlist_button_label
+    assert intro_btn.find_parent("div", class_="sw-view-enable")
 
 
 @pytest.mark.parametrize(
-    "show_button,country,expected",
+    "show_button,country,in_supported_geo",
     [
         ("all", "US", True),
         ("all", "DE", True),
@@ -3764,7 +3769,7 @@ def test_smart_window_page(index_page, placeholder_images, rf):
         ("never", None, False),
     ],
 )
-def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, show_button, country, expected):
+def test_smart_window_in_supported_geo(index_page, placeholder_images, rf, show_button, country, in_supported_geo):
     page = get_smart_window_test_page()
     page.show_smart_window_button = show_button
 
@@ -3775,17 +3780,31 @@ def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, 
     soup = BeautifulSoup(response.content, "html.parser")
 
     form = soup.find("form", {"data-testid": "newsletter-form"})
-    nav_button = soup.find("button", {"data-cta-uid": str(page.nav_button_uid)})
-    intro_button = soup.find("button", {"data-cta-uid": str(page.intro_button_uid)})
+    enable_view = soup.find("div", class_="sw-view-enable")
+    update_view = soup.find("div", class_="sw-view-update")
 
-    if expected:
-        assert nav_button, f"Expected nav UITour button for show_button={show_button!r}, country={country!r}"
-        assert intro_button, f"Expected intro UITour button for show_button={show_button!r}, country={country!r}"
+    if in_supported_geo:
+        assert enable_view, f"Expected enable view for show_button={show_button!r}, country={country!r}"
+        assert update_view, f"Expected update view for show_button={show_button!r}, country={country!r}"
         assert not form, f"Expected no form for show_button={show_button!r}, country={country!r}"
     else:
         assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
-        assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
-        assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
+        assert not enable_view, f"Expected no enable view for show_button={show_button!r}, country={country!r}"
+        assert not update_view, f"Expected no update view for show_button={show_button!r}, country={country!r}"
+
+
+def test_smart_window_waitlist_override(index_page, placeholder_images, rf):
+    """?view=waitlist forces waitlist form regardless of geo."""
+    page = get_smart_window_test_page()
+    page.show_smart_window_button = "all"  # would normally show in-geo content
+
+    request = rf.get(page.get_full_url() + "?view=waitlist")
+    response = page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    form = soup.find("form", {"data-testid": "newsletter-form"})
+    assert form, "Expected waitlist form when ?view=waitlist is set"
+    assert not soup.find("div", class_="sw-view-enable"), "Expected no enable view with ?view=waitlist"
 
 
 def test_smart_window_explainer_page(index_page, rf):
