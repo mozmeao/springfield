@@ -414,15 +414,15 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         SynchronizedField("override_default_open"),
     ]
 
+    def __str__(self):
+        return f"ThanksPage: {self.title} - {self.locale}"
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
 
         context["qr"] = resolve_qr_source(self, self.qr_code_floating_button)
 
         return context
-
-    def __str__(self):
-        return f"ThanksPage: {self.title} - {self.locale}"
 
     def clean(self):
         super().clean()
@@ -890,17 +890,17 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         SynchronizedField("override_default_open"),
     ]
 
-    def clean(self):
-        super().clean()
-        if self.override_url and self.override_image:
-            raise ValidationError("Only one of override_url and override_image is allowed.")
-
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
 
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
@@ -993,11 +993,6 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         SynchronizedField("override_default_open"),
     ]
 
-    def clean(self):
-        super().clean()
-        if self.override_url and self.override_image:
-            raise ValidationError("Only one of override_url and override_image is allowed.")
-
     class Meta:
         indexes = [
             models.Index(fields=["version"]),
@@ -1007,6 +1002,11 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
@@ -1078,11 +1078,6 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         SynchronizedField("override_default_open"),
     ]
 
-    def clean(self):
-        super().clean()
-        if self.override_url and self.override_image:
-            raise ValidationError("Only one of override_url and override_image is allowed.")
-
     class Meta:
         indexes = [
             models.Index(fields=["version"]),
@@ -1092,6 +1087,11 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewPage2026: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.override_url and self.override_image:
+            raise ValidationError("Only one of override_url and override_image is allowed.")
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
