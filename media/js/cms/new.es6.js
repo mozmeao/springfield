@@ -522,6 +522,16 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function reserveTypewriterSpace() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            const container = el.closest('p');
+            if (!container) return;
+            container.style.minHeight = container.offsetHeight + 'px';
+        });
+    }
+
     function initTypewriter() {
         document.querySelectorAll('.fl-typewriter').forEach(function (el) {
             Flare26.typewriter(el);
@@ -595,6 +605,7 @@ if (typeof window.cms === 'undefined') {
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
+            reserveTypewriterSpace();
             initTypewriter();
             Flare26.initDialogs();
         });
@@ -609,6 +620,7 @@ if (typeof window.cms === 'undefined') {
         initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();
+        reserveTypewriterSpace();
         initTypewriter();
         Flare26.initDialogs();
     }
