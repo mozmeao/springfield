@@ -5,7 +5,7 @@
  */
 
 import Swiper from 'swiper';
-import { Autoplay, EffectFade } from 'swiper/modules';
+import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
 
 function initFlare26Carousel(rootEl) {
     const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
@@ -85,24 +85,6 @@ function initSlidingCarousel(rootEl) {
     let userPaused = false;
     let controlsSwiper = null;
 
-    // --- Dot pagination ---
-
-    const dots = [];
-
-    if (paginationEl) {
-        slides.forEach((_, i) => {
-            const dot = document.createElement('button');
-            dot.className = 'fl-sliding-carousel-dot';
-            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-            dot.addEventListener('click', () => {
-                if (autoSlideActive) stopAutoSlide();
-                goToSlide(i);
-            });
-            paginationEl.appendChild(dot);
-            dots.push(dot);
-        });
-    }
-
     // --- Video helpers ---
 
     function getVideoFromSlide(slideEl) {
@@ -153,8 +135,6 @@ function initSlidingCarousel(rootEl) {
         controls[currentIndex].setAttribute('aria-current', 'false');
         slides[currentIndex].classList.remove('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'true');
-        if (dots[currentIndex])
-            dots[currentIndex].classList.remove('is-active');
 
         pauseAllVideos();
         currentIndex = index;
@@ -163,7 +143,6 @@ function initSlidingCarousel(rootEl) {
         controls[currentIndex].setAttribute('aria-current', 'true');
         slides[currentIndex].classList.add('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'false');
-        if (dots[currentIndex]) dots[currentIndex].classList.add('is-active');
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
@@ -236,13 +215,23 @@ function initSlidingCarousel(rootEl) {
         // Set row layout BEFORE Swiper measures slide widths
         if (controlsListEl) controlsListEl.style.flexDirection = 'row';
         controlsSwiper = new Swiper(controlsSwiperEl, {
+            modules: [Pagination],
             wrapperClass: 'fl-sliding-carousel-controls',
             slideClass: 'fl-sliding-carousel-control',
             centeredSlides: true,
             slidesPerView: 1.2,
             spaceBetween: 16,
             speed: 400,
-            rewind: true
+            rewind: true,
+            pagination: {
+                el: paginationEl,
+                clickable: true,
+                bulletClass: 'fl-sliding-carousel-dot',
+                bulletActiveClass: 'is-active',
+                // Use <button> with aria-label for accessibility
+                renderBullet: (index, className) =>
+                    `<button class="${className}" aria-label="Go to slide ${index + 1}"></button>`
+            }
         });
         controlsSwiper.on('slideChange', () => {
             const idx = controlsSwiper.realIndex;
