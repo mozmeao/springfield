@@ -451,7 +451,7 @@ if (typeof window.cms === 'undefined') {
             if (oldSnippet) {
                 qrCodeSnippetEl.classList.add('is-open');
             }
-        }, 0);
+        }, 3000);
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
             if (showHideButton) {

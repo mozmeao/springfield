@@ -5,7 +5,7 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import FreeFormPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -199,6 +199,7 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
 
 def get_freeform_page_2026_with_qr_snippet() -> FreeFormPage2026:
     get_qr_code_snippet()
+    get_floating_qr_code_snippet()
     index_page = get_2026_test_index_page()
 
     slug = "freeform-2026-with-qr"
