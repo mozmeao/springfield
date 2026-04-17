@@ -7,6 +7,8 @@
 import Swiper from 'swiper';
 import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
 
+const client = Mozilla.Client;
+
 function initFlare26Carousel(rootEl) {
     const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
     const controls = Array.from(
@@ -343,6 +345,83 @@ function initScrollingCardGrid(swiperWrapperEl) {
     });
 }
 
+const COPY_RESET_DELAY_MS = 2000;
+
+function initCopyToClipboardButton(buttonEl) {
+    const value = buttonEl.dataset.copyValue;
+    const labelEl = buttonEl.querySelector('.fl-copy-to-clipboard-label');
+    const successLabelEl = buttonEl.querySelector(
+        '.fl-copy-to-clipboard-label-success'
+    );
+    const iconDefault = buttonEl.querySelector(
+        '.fl-copy-to-clipboard-icon-default'
+    );
+    const iconSuccess = buttonEl.querySelector(
+        '.fl-copy-to-clipboard-icon-success'
+    );
+
+    if (!value || !labelEl || !successLabelEl || !iconDefault || !iconSuccess) {
+        return;
+    }
+
+    // Lock in the initial rendered width so the button doesn't resize when
+    // the label swaps to a shorter success text.
+    buttonEl.style.minInlineSize = `${buttonEl.offsetWidth}px`;
+
+    let resetTimer = null;
+
+    function resetButton() {
+        labelEl.classList.remove('hidden');
+        successLabelEl.classList.add('hidden');
+        iconDefault.classList.remove('hidden');
+        iconSuccess.classList.add('hidden');
+        buttonEl.disabled = false;
+        resetTimer = null;
+    }
+
+    buttonEl.addEventListener('click', () => {
+        navigator.clipboard.writeText(value).then(() => {
+            labelEl.classList.add('hidden');
+            successLabelEl.classList.remove('hidden');
+            iconDefault.classList.add('hidden');
+            iconSuccess.classList.remove('hidden');
+            buttonEl.disabled = true;
+
+            if (resetTimer) {
+                clearTimeout(resetTimer);
+            }
+            resetTimer = setTimeout(resetButton, COPY_RESET_DELAY_MS);
+        });
+    });
+}
+
+function initFirefoxVersionConditionalDisplay() {
+    const version = client._getFirefoxVersion();
+    if (version) {
+        document.documentElement.setAttribute('data-firefox-version', version);
+
+        const conditionalEls = document.querySelectorAll(
+            '.condition-fx-version'
+        );
+        conditionalEls.forEach((el) => {
+            const minVersion = el.dataset.minVersion;
+            const maxVersion = el.dataset.maxVersion;
+            let show = false;
+            if (parseFloat(minVersion) && version >= parseFloat(minVersion)) {
+                show = true;
+            }
+            if (parseFloat(maxVersion) && version <= parseFloat(maxVersion)) {
+                show = true;
+            }
+            if (show) {
+                el.classList.add('version-match');
+            } else {
+                el.classList.remove('version-match');
+            }
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
     document
@@ -351,4 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document
         .querySelectorAll('[data-js="fl-card-grid-scroll"]')
         .forEach(initScrollingCardGrid);
+    document
+        .querySelectorAll('[data-js="fl-copy-to-clipboard"]')
+        .forEach(initCopyToClipboardButton);
+    initFirefoxVersionConditionalDisplay();
 });

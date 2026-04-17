@@ -24,6 +24,13 @@
     padding-block-end: 0;
 }
 
+.fl-smart-window-instructions-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+}
+
 @media (--viewport-md-up) {
     .fl-smart-window-explainer-page .fl-header .fl-nav {
         background: transparent;

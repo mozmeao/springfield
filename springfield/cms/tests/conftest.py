@@ -8,9 +8,20 @@ import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
+
+
+@pytest.fixture
+def placeholder_images():
+    return get_placeholder_images()
+
+
+@pytest.fixture
+def index_page(minimal_site):
+    return get_test_index_page()
 
 
 @pytest.fixture(autouse=True)

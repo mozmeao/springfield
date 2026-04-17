@@ -5,7 +5,6 @@
 from unittest import mock
 from urllib.parse import urlparse, urlunparse
 
-from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import override_settings
 
@@ -31,7 +30,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_sticker_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
@@ -111,13 +110,6 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.smart_window_page_fixtures import (
-    get_smart_window_illustration_cards,
-    get_smart_window_line_cards,
-    get_smart_window_sliding_carousel,
-    get_smart_window_test_page,
-    get_smart_window_testimonial_cards,
-)
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.fixtures.testimonial_card_fixtures import (
@@ -135,16 +127,6 @@ from springfield.firefox.templatetags.misc import app_store_url, fxa_button, pla
 pytestmark = [
     pytest.mark.django_db,
 ]
-
-
-@pytest.fixture
-def placeholder_images():
-    return get_placeholder_images()
-
-
-@pytest.fixture
-def index_page(minimal_site):
-    return get_test_index_page()
 
 
 def strip_host(url):
@@ -3621,171 +3603,6 @@ def test_sliding_carousel_block(index_page, placeholder_images, rf):
 
             # Media rendered in slide panel
             assert slide_panels[i].find("img")
-
-
-def test_smart_window_page(index_page, placeholder_images, rf):
-    carousel_fixture = get_smart_window_sliding_carousel()
-    line_cards_fixture = get_smart_window_line_cards()
-    illustration_cards_fixture = get_smart_window_illustration_cards()
-    testimonial_cards_fixture = get_smart_window_testimonial_cards()
-    page = get_smart_window_test_page()
-
-    # show_smart_window_button="never" ensures the newsletter form is rendered
-    page.show_smart_window_button = "never"
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    # Hero: heading, animation, and form present
-    assert soup.find("h1", class_="fl-heading")
-    assert soup.find("div", class_="fl-smart-window-intro-featured-image")
-    form = soup.find("form", {"data-testid": "newsletter-form"})
-    assert form
-    assert form["id"] == "newsletter-form"
-    assert settings.BASKET_SUBSCRIBE_URL in form["action"]
-
-    # Newsletter id hidden checkbox
-    newsletter_checkbox = form.find("input", {"name": "newsletters", "type": "checkbox"})
-    assert newsletter_checkbox
-    assert newsletter_checkbox["value"] == "smart-window-waitlist"
-
-    # Language hidden input
-    lang_input = form.find("input", {"id": "id_lang", "name": "lang"})
-    assert lang_input
-    assert lang_input["value"] == "en"
-
-    # Email input
-    email_input = form.find("input", {"data-testid": "newsletter-email-input"})
-    assert email_input
-    assert email_input["name"] == "email"
-    assert email_input["type"] == "email"
-
-    # Thanks message (hidden by default)
-    thanks = soup.find(attrs={"data-testid": "newsletter-thanks-message"})
-    assert thanks
-    assert "hidden" in thanks.get("class", [])
-
-    # Error message (hidden by default)
-    error = soup.find(attrs={"data-testid": "newsletter-error-message"})
-    assert error
-    assert "hidden" in error.get("class", [])
-
-    content_region = soup.find("div", class_="fl-split-page-lower")
-    assert content_region
-
-    # --- Sliding carousel: 3 slides ---
-    carousel_el = content_region.find("div", class_="fl-sliding-carousel")
-    assert carousel_el
-    slides_data = carousel_fixture["value"]["slides"]
-    controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
-    slide_panels = carousel_el.find_all("div", class_="fl-sliding-carousel-slide")
-    assert len(controls) == len(slides_data) == 3
-    assert len(slide_panels) == 3
-
-    for i, slide in enumerate(slides_data):
-        heading_text = BeautifulSoup(slide["value"]["heading"]["heading_text"], "html.parser").get_text()
-        heading_el = controls[i].find(class_="fl-sliding-carousel-heading-text")
-        assert heading_el and heading_text in heading_el.get_text()
-
-    # --- Line cards: 2 cards, no buttons ---
-    article_list = content_region.find("div", class_="fl-stacked-article-list")
-    assert article_list
-    card_els = article_list.find_all("article", class_="fl-article-item")
-    line_cards_data = line_cards_fixture["value"]["cards"]
-    assert len(card_els) == len(line_cards_data) == 2
-
-    for i, card in enumerate(line_cards_data):
-        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
-        assert headline_text in card_els[i].get_text()
-        assert not card_els[i].find("a", class_="fl-button")
-
-    # --- Illustration and testimonial cards_list blocks render in fl-card-grid ---
-    card_grids = content_region.find_all("div", class_="fl-card-grid")
-    assert len(card_grids) == 2
-
-    illustration_cards_data = illustration_cards_fixture["value"]["cards"]
-    illustration_grid = card_grids[0]
-    illustration_card_els = illustration_grid.find_all("article")
-    assert len(illustration_card_els) == len(illustration_cards_data) == 3
-
-    for i, card in enumerate(illustration_cards_data):
-        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
-        assert headline_text in illustration_card_els[i].get_text()
-
-    testimonial_cards_data = testimonial_cards_fixture["value"]["cards"]
-    testimonial_grid = card_grids[1]
-    assert "fl-card-grid-scroll" in testimonial_grid.get("class", [])
-    testimonial_card_els = testimonial_grid.find_all("article", class_="fl-testimonial-card")
-    assert len(testimonial_card_els) == len(testimonial_cards_data) == 6
-
-    for i, card in enumerate(testimonial_cards_data):
-        attribution_text = BeautifulSoup(card["value"]["attribution"], "html.parser").get_text()
-        assert attribution_text in testimonial_card_els[i].get_text()
-
-    # --- UITour buttons: rendered when show_smart_window_button="all" ---
-    page.show_smart_window_button = "all"
-    sw_request = rf.get(page.get_full_url())
-    sw_response = page.serve(sw_request)
-    assert sw_response.status_code == 200
-    sw_soup = BeautifulSoup(sw_response.content, "html.parser")
-
-    # No form in the UITour state
-    assert not sw_soup.find("form", {"data-testid": "newsletter-form"})
-
-    uitour_buttons = sw_soup.find_all("button", attrs={"data-cta-uid": True})
-    uitour_by_id = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
-
-    # Nav button
-    nav_btn = uitour_by_id.get(str(page.nav_button_uid))
-    assert nav_btn
-    assert nav_btn["data-cta-position"] == "nav"
-    assert nav_btn.get_text(strip=True) == page.waitlist_button_label
-
-    # Intro (upper content) button
-    intro_btn = uitour_by_id.get(str(page.intro_button_uid))
-    assert intro_btn
-    assert intro_btn["data-cta-position"] == "intro"
-    assert intro_btn.get_text(strip=True) == page.waitlist_button_label
-
-
-@pytest.mark.parametrize(
-    "show_button,country,expected",
-    [
-        ("all", "US", True),
-        ("all", "DE", True),
-        ("all", None, True),
-        ("allowed_territories", "US", True),
-        ("allowed_territories", "CA", True),
-        ("allowed_territories", "DE", False),
-        ("allowed_territories", None, False),
-        ("never", "US", False),
-        ("never", None, False),
-    ],
-)
-def test_smart_window_show_try_smart_window(index_page, placeholder_images, rf, show_button, country, expected):
-    page = get_smart_window_test_page()
-    page.show_smart_window_button = show_button
-
-    with mock.patch("springfield.cms.models.pages.get_country_from_request", return_value=country):
-        request = rf.get(page.get_full_url())
-        response = page.serve(request)
-
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    form = soup.find("form", {"data-testid": "newsletter-form"})
-    nav_button = soup.find("button", {"data-cta-uid": str(page.nav_button_uid)})
-    intro_button = soup.find("button", {"data-cta-uid": str(page.intro_button_uid)})
-
-    if expected:
-        assert nav_button, f"Expected nav UITour button for show_button={show_button!r}, country={country!r}"
-        assert intro_button, f"Expected intro UITour button for show_button={show_button!r}, country={country!r}"
-        assert not form, f"Expected no form for show_button={show_button!r}, country={country!r}"
-    else:
-        assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
-        assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
-        assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
 
 
 def test_smart_window_explainer_page(index_page, rf):
