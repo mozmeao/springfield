@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import VideoEngagement from '../base/datalayer-videoengagement.es6';
 import { getConsentCookie } from '../base/consent/utils.es6';
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -522,6 +522,16 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function reserveTypewriterSpace() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            const container = el.closest('p');
+            if (!container) return;
+            container.style.minHeight = container.offsetHeight + 'px';
+        });
+    }
+
     function initTypewriter() {
         document.querySelectorAll('.fl-typewriter').forEach(function (el) {
             Flare26.typewriter(el);
@@ -595,6 +605,7 @@ if (typeof window.cms === 'undefined') {
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
+            reserveTypewriterSpace();
             initTypewriter();
             Flare26.initDialogs();
         });
@@ -605,10 +616,11 @@ if (typeof window.cms === 'undefined') {
         applyVideoAspectRatios();
         initVideoPlayers();
         initAnimations();
-        initAnimations();
         initAnimationPauseButtons();
+        initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();
+        reserveTypewriterSpace();
         initTypewriter();
         Flare26.initDialogs();
     }

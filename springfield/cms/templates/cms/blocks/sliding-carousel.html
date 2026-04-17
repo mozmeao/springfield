@@ -15,44 +15,58 @@
   <section class="fl-section">
     <div class="fl-section-container">
       <div class="fl-sliding-carousel" data-js="fl-sliding-carousel">
-        <ol class="fl-sliding-carousel-controls" aria-label="Carousel slides">
-          {% for slide in value.slides %}
-            <li class="fl-sliding-carousel-control {% if loop.first %}is-active{% endif %}"
-                aria-current="{{ 'true' if loop.first else 'false' }}"
-                data-slide-index="{{ loop.index0 }}"
-                role="button"
-                tabindex="0">
-              {% set heading = slide.heading %}
-              {% if heading.superheading_text %}
-                <span class="fl-sliding-carousel-superheading fl-superheading">
-                  {{ heading.superheading_text|richtext|remove_p_tag }}
-                </span>
-              {% endif %}
-              <{{ heading_level }} class="fl-sliding-carousel-heading-text fl-heading fl-heading-size-3">
-                {{ heading.heading_text|richtext|remove_p_tag }}
-              </{{ heading_level }}>
-              {% if heading.subheading_text %}
-                <span class="fl-body fl-sliding-carousel-subheading">
-                  {{ heading.subheading_text|richtext|remove_p_tag }}
-                </span>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ol>
 
-        <div class="fl-sliding-carousel-media-panel" aria-live="polite">
-          {% for slide in value.slides %}
-            <div class="fl-sliding-carousel-slide {% if loop.first %}is-active{% endif %}"
-                aria-hidden="{{ 'false' if loop.first else 'true' }}"
-                data-slide-index="{{ loop.index0 }}">
-              {% with widths="width-{400,600,800,1000,1200}", sizes="(min-width: 900px) 50vw, 100vw" %}
-                {% for block in slide.media %}
-                  {% include_block block %}
-                {% endfor %}
-              {% endwith %}
-            </div>
-          {% endfor %}
+        <!-- Controls: vertical list on desktop, horizontal Swiper on mobile -->
+        <div class="fl-sliding-carousel-controls-swiper">
+          <ol class="fl-sliding-carousel-controls" aria-label="Carousel slides">
+            {% for slide in value.slides %}
+              <li class="fl-sliding-carousel-control {% if loop.first %}is-active{% endif %}"
+                  aria-current="{{ 'true' if loop.first else 'false' }}"
+                  data-slide-index="{{ loop.index0 }}"
+                  role="button"
+                  tabindex="0">
+                <div class="fl-sliding-carousel-progress-wrapper" aria-hidden="true">
+                  <div class="fl-sliding-carousel-progress" aria-hidden="true"></div>
+                </div>
+                <div class="fl-sliding-carousel-box">
+                {% set heading = slide.heading %}
+                {% if heading.superheading_text %}
+                  <span class="fl-sliding-carousel-superheading fl-superheading">
+                    {{ heading.superheading_text|richtext|remove_p_tag }}
+                  </span>
+                {% endif %}
+                <{{ heading_level }} class="fl-sliding-carousel-heading-text fl-heading fl-heading-size-4">
+                  {{ heading.heading_text|richtext|remove_p_tag }}
+                </{{ heading_level }}>
+                {% if heading.subheading_text %}
+                  <span class="fl-body fl-sliding-carousel-subheading">
+                    {{ heading.subheading_text|richtext|remove_p_tag }}
+                  </span>
+                {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
         </div>
+
+        <!-- Media panel: plain show/hide, dot pagination below -->
+        <div class="fl-sliding-carousel-media-panel">
+          <div aria-live="polite">
+            {% for slide in value.slides %}
+              <div class="fl-sliding-carousel-slide {% if loop.first %}is-active{% endif %}"
+                  aria-hidden="{{ 'false' if loop.first else 'true' }}"
+                  data-slide-index="{{ loop.index0 }}">
+                {% with widths="width-{400,600,800,1000,1200}", sizes="(min-width: 900px) 50vw, 100vw" %}
+                  {% for block in slide.media %}
+                    {% include_block block %}
+                  {% endfor %}
+                {% endwith %}
+              </div>
+            {% endfor %}
+          </div>
+          <div class="fl-sliding-carousel-pagination"></div>
+        </div>
+
       </div>
     </div>
   </section>
