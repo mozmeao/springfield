@@ -1145,6 +1145,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
         )
         context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
+        context["override_view"] = request.GET.get("view")
         return context
 
 
