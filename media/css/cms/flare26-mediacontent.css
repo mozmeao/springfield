@@ -43,6 +43,15 @@
     }
 }
 
+.fl-mediacontent.is-narrow .fl-video {
+    aspect-ratio: 11/12;
+}
+
+.fl-mediacontent.is-narrow .fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
 @media (--viewport-md-up) {
     .fl-mediacontent {
         gap: var(--token-layout-md);
@@ -83,6 +92,10 @@
         grid-template-columns: minmax(0, 6fr) minmax(0, 9fr);
         margin-inline: auto;
         max-inline-size: var(--token-width-desktop-wide-banner);
+    }
+
+    .fl-mediacontent.fl-mediacontent-reverse.is-narrow {
+        grid-template-columns: minmax(0, 9fr) minmax(0, 6fr);
     }
 }
 

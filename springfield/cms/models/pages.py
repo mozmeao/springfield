@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from django.conf import settings
@@ -12,6 +13,7 @@ from django.db import models
 from django.db.models.expressions import Case, F, Value, When
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import add_never_cache_headers
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
@@ -20,9 +22,12 @@ from wagtail.models import Page as WagtailBasePage
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
+from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ICON_CHOICES,
+    UI_TOUR_CLASSES,
+    UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
     CardGalleryBlock,
     CardsListBlock2026,
@@ -34,16 +39,20 @@ from springfield.cms.blocks import (
     IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
+    LineCardsBlock,
     LocalizedLiveSnippetChooserBlock,
+    MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
+    SlidingCarouselBlock,
     SubscriptionBlock,
     TopicListBlock,
     VideoBlock,
+    validate_animation_url,
 )
 from springfield.cms.fields import StreamField
 
@@ -127,9 +136,48 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
         return context
 
 
-class UTMParamsMixin:
+class UTMParamsMixin(models.Model):
+    stub_attr_utm_campaign = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Stub Attribution UTM Campaign",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign` attribute on the page, used by download buttons. "
+        "The value is only used if there's no `utm_campaign` in the URL query params.",
+    )
+    stub_attr_utm_campaign_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Stub Attribution UTM Campaign Override",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign-override` attribute on the page, used by download "
+        "buttons. The value overrides any `utm_campaign` in the URL, but respects an existing attribution cookie.",
+    )
+    stub_attr_utm_campaign_force = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Stub Attribution UTM Campaign Force",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign-force` attribute on the page, used by download buttons. "
+        "The value overrides URL params AND clears any existing attribution cookie, forcing a fresh attribution request every time.",
+    )
+
+    promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("stub_attr_utm_campaign"),
+                FieldPanel("stub_attr_utm_campaign_override"),
+                FieldPanel("stub_attr_utm_campaign_force"),
+            ],
+            heading="Stub Attribution UTM Parameters",
+        ),
+    ]
+
+    class Meta:
+        abstract = True
+
+    def get_stub_attribution_utm_campaign(self):
+        return self.stub_attr_utm_campaign_force or self.stub_attr_utm_campaign_override or self.stub_attr_utm_campaign
+
     def get_utm_campaign(self):
-        return self.slug
+        return self.get_stub_attribution_utm_campaign() or self.slug
 
     def get_utm_parameters(self):
         return {
@@ -171,6 +219,9 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Home Page"
         verbose_name_plural = "Home Pages"
+
+    def __str__(self):
+        return f"HomePage: {self.title} - {self.locale}"
 
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
@@ -279,6 +330,13 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    class Meta:
+        verbose_name = "Download Page"
+        verbose_name_plural = "Download Pages"
+
+    def __str__(self):
+        return f"DownloadPage: {self.title} - {self.locale}"
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["platforms"] = dict(self.PLATFORM_CHOICES)
@@ -296,10 +354,6 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             platform_links[page.platform] = page.get_url()
         context["platform_links"] = platform_links
         return context
-
-    class Meta:
-        verbose_name = "Download Page"
-        verbose_name_plural = "Download Pages"
 
 
 class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -332,6 +386,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("show_qr_code_snippet"),
     ]
 
+    def __str__(self):
+        return f"ThanksPage: {self.title} - {self.locale}"
+
     def clean(self):
         super().clean()
         content_block_types = [block.block_type for block in self.content]
@@ -353,7 +410,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 )
 
     def get_utm_campaign(self):
-        return "firefox-download-thanks"
+        return self.get_stub_attribution_utm_campaign() or "firefox-download-thanks"
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
@@ -381,6 +438,9 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("other_articles_heading"),
         FieldPanel("other_articles_subheading"),
     ]
+
+    def __str__(self):
+        return f"ArticleIndexPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request)
@@ -611,6 +671,9 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     if TYPE_CHECKING:
         tag: Tag | None
 
+    def __str__(self):
+        return f"ArticleDetailPage: {self.title} - {self.locale}"
+
     def get_tag(self) -> Tag | None:
         if self.tag:
             return self.tag.get_localized()
@@ -642,6 +705,9 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("content"),
     ]
+
+    def __str__(self):
+        return f"ArticleThemePage: {self.title} - {self.locale}"
 
 
 def _get_freeform_page_blocks(allow_uitour=False):
@@ -683,11 +749,14 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
         ("showcase", ShowcaseBlock(group="Media")),
         ("carousel", CarouselBlock(group="Media")),
+        ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
+        ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -715,6 +784,9 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
     ]
+
+    def __str__(self):
+        return f"FreeFormPage: {self.title} - {self.locale}"
 
 
 class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -759,6 +831,9 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
 
+    def __str__(self):
+        return f"FreeFormPage2026: {self.title} - {self.locale}"
+
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
@@ -773,11 +848,15 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         verbose_name = "What's New Index Page"
         verbose_name_plural = "What's New Index Pages"
 
+    def __str__(self):
+        return f"WhatsNewIndexPage: {self.title} - {self.locale}"
+
     def serve(self, request):
         latest_whats_new = (
             self.get_children()
             .live()
             .public()
+            .exclude(slug="general")
             .annotate(
                 version=Case(
                     When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
@@ -792,8 +871,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         )
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        else:
-            return redirect("/")
+        return redirect("/")
 
 
 class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -806,7 +884,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     version = models.CharField(
         max_length=10,
-        help_text="The version of Firefox this What's New page refers to.",
+        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
     show_qr_code_snippet = models.BooleanField(
@@ -828,8 +906,11 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name = "What's New Page"
         verbose_name_plural = "What's New Pages"
 
+    def __str__(self):
+        return f"WhatsNewPage: {self.title} - {self.locale}"
+
     def get_utm_campaign(self):
-        return f"whatsnew-{self.version}"
+        return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
 
     @property
     def noindex(self):
@@ -846,7 +927,7 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     version = models.CharField(
         max_length=10,
-        help_text="The version of Firefox this What's New page refers to.",
+        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     upper_content = StreamField(
         WHATS_NEW_PAGE_BLOCKS_2026,
@@ -879,9 +960,220 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         verbose_name = "What's New 2026 Page"
         verbose_name_plural = "What's New 2026 Pages"
 
+    def __str__(self):
+        return f"WhatsNewPage2026: {self.title} - {self.locale}"
+
     def get_utm_campaign(self):
-        return f"whatsnew-{self.version}"
+        return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
 
     @property
     def noindex(self):
         return True
+
+
+class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page to promote Smart Window"""
+
+    ALLOWED_TERRITORIES = {"US", "CA"}
+    ALLOWED_TERRITORIES_OPTION = "allowed_territories"
+    ALLOWED_TERRITORIES_LABEL = "US and Canada only"
+
+    heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+
+    animation = models.URLField(blank=True, validators=[validate_animation_url], help_text="Link to a webm video from assets.mozilla.net.")
+    animation_alt = models.CharField(max_length=255, blank=True, help_text="Text for screen readers describing the video.")
+    image = models.ForeignKey(
+        "cms.SpringfieldImage", on_delete=models.PROTECT, related_name="+", help_text="Used as fallback if an animation is provided."
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the image.",
+    )
+
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    show_smart_window_button = models.CharField(
+        max_length=20,
+        choices=(
+            ("all", "Show to all users"),
+            (ALLOWED_TERRITORIES_OPTION, ALLOWED_TERRITORIES_LABEL),
+            ("never", "Never show to any users"),
+        ),
+        default=ALLOWED_TERRITORIES_OPTION,
+        help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
+    )
+    nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
+    intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
+    waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
+    redirect_page = models.ForeignKey(
+        "cms.SmartWindowExplainerPage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="The page users will be taken to after clicking the Smart Window button.",
+    )
+    download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
+    nav_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Download Firefox button.")
+    intro_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Download Firefox button.")
+    update_button_label = models.CharField(
+        max_length=255, default="How to update Firefox", help_text="Label for the button that appears if the user needs to update Firefox."
+    )
+    update_instructions = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default="<p data-block-key='abcdef'>Before you can try Smart Window, you’ll need to download the latest version of Firefox.</p>",
+        help_text="Instructions displayed to the user if they need to update Firefox before trying Smart Window.",
+    )
+    update_link = models.URLField(
+        default="https://support.mozilla.org/en-US/products/firefox/installation-and-updates",
+        help_text="URL for the update Firefox instructions page.",
+    )
+    copy_to_clipboard_label = models.CharField(
+        max_length=255, default="Copy link to page", help_text="Label for the button that copies the page link to the clipboard."
+    )
+    copy_success_label = models.CharField(
+        max_length=255, default="Copied", help_text="Label displayed when the link is successfully copied to the clipboard."
+    )
+    post_download_instructions = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default="<p data-block-key='abcdef'>Return to this page after updating Firefox to unlock access to Smart Window BETA.</p>",
+        help_text="Instructions displayed to the user for next steps after downloading Firefox.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("heading_text"),
+                FieldPanel("subheading_text"),
+                FieldPanel("animation"),
+                FieldPanel("animation_alt"),
+                FieldPanel("image"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ],
+                    heading="Image Variants",
+                ),
+            ],
+            heading="Intro",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_smart_window_button"),
+                FieldPanel("nav_button_uid"),
+                FieldPanel("intro_button_uid"),
+                FieldPanel("redirect_page"),
+                FieldPanel("download_button_label"),
+                FieldPanel("nav_download_button_uid"),
+                FieldPanel("intro_download_button_uid"),
+                FieldPanel("update_button_label"),
+                FieldPanel("update_link"),
+                FieldPanel("copy_to_clipboard_label"),
+                FieldPanel("copy_success_label"),
+                FieldPanel("post_download_instructions"),
+                FieldPanel("waitlist_button_label"),
+                FieldPanel("form_submit_label"),
+                FieldPanel("thank_you_message"),
+                FieldPanel("waitlist_submit_uid"),
+                FieldPanel("privacy_notice"),
+            ],
+            heading="Smart Window button and Waitlist Form",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Page"
+        verbose_name_plural = "Smart Window Pages"
+
+    def __str__(self):
+        return f"SmartWindowPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.animation and not self.animation_alt:
+            raise ValidationError("An alt text description is required when an animation URL is provided.")
+
+    def serve(self, request, *args, **kwargs):
+        response = super().serve(request, *args, **kwargs)
+        if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
+            add_never_cache_headers(response)
+        return response
+
+    def get_utm_campaign(self):
+        return self.get_stub_attribution_utm_campaign() or "smart_window"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["ui_tour_class"] = UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW]
+        context["redirect_url"] = self.redirect_page.get_url() if self.redirect_page else None
+        context["override_view"] = request.GET.get("view")
+
+        # ?view=waitlist forces waitlist regardless of geo
+        if context["override_view"] == "waitlist":
+            context["show_try_smart_window"] = False
+        else:
+            country = get_country_from_request(request)
+            context["show_try_smart_window"] = self.show_smart_window_button == "all" or (
+                self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION and country in self.ALLOWED_TERRITORIES
+            )
+        return context
+
+
+class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A Smart Window themed page"""
+
+    upper_content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+    content = StreamField(
+        FREEFORM_PAGE_BLOCKS_2026,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Smart Window Explainer Page"
+        verbose_name_plural = "Smart Window Explainer Pages"
+
+    def __str__(self):
+        return f"SmartWindowExplainerPage: {self.title} - {self.locale}"

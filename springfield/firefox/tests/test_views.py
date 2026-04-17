@@ -531,27 +531,17 @@ class TestFirefoxSetAsDefaultThanks(TestCase):
         assert resp.templates[0].name == "firefox/default/thanks.html"
 
 
-class TestFirefoxGetExperiment(TestCase):
-    """Tests for /landing/get/ privacy-focused download experiment."""
+class TestFirefoxGetPage(TestCase):
+    """Tests for /landing/get/ page."""
 
-    def test_firefox_get_default(self):
-        """Default"""
+    def test_firefox_get_en_us(self):
+        """en-US serves the new template"""
         response = self.client.get("/en-US/landing/get/")
-        assert response.templates[0].name == "firefox/landing/get.html"
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
-    def test_firefox_get_control(self):
-        """Control parameters"""
-        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=control")
-        assert response.templates[0].name == "firefox/landing/get.html"
-
-    def test_firefox_get_treatment(self):
-        """Treatment parameters"""
-        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=treatment")
-        assert response.templates[0].name == "firefox/landing/get-treatment.html"
-
-    def test_firefox_get_not_en_us_locale(self):
-        """Default"""
-        response = self.client.get("/en-CA/landing/get/?experiment=download-privacy&variation=treatment")
+    def test_firefox_get_not_en_us(self):
+        """Non-en-US locales serve the new template"""
+        response = self.client.get("/en-CA/landing/get/")
         assert response.templates[0].name == "firefox/landing/get-new.html"
 
 

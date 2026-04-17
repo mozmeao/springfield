@@ -84,7 +84,7 @@
   ],
   "overrides": {
     "jasmine-browser-runner": {
-      "glob": "10.5.0"
+      "path-to-regexp": "^8.4.0"
     }
   }
 }

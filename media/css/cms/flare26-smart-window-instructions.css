@@ -1,0 +1,69 @@
+.fl-smart-window-heading-logo {
+    max-block-size: 30px;
+}
+
+.fl-smart-window-instructions {
+    border-radius: var(--token-border-radius-xs);
+    margin-block-end: var(--token-spacing-lg);
+    padding: var(--token-spacing-2xl);
+    position: relative;
+}
+
+.fl-smart-window-instructions::before {
+    background: var(--token-gradient-smart-window-instructions);
+    block-size: 100%;
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    margin-block-end: var(--token-spacing-lg);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1px;
+    pointer-events: none;
+    position: absolute;
+}
+
+.fl-smart-window-instructions-heading {
+    align-items: start;
+    color: var(--smart-window-instructions-heading-text-color);
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-smart-window-instructions-heading .fl-smart-window-instructions-icon {
+    margin-block-start: 2px;
+}
+
+.fl-smart-window-instructions-heading .fl-typewriter {
+    display: inline;
+    font-weight: var(--token-font-weight-bold);
+}
+
+.fl-smart-window-instructions-body {
+    color: var(--smart-window-instructions-content-text-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-smart-window-instructions-heading > *,
+.fl-smart-window-instructions-body > * {
+    margin: 0;
+}
+
+.fl-smart-window-thankyou-message {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-md);
+}
+
+.fl-smart-window-thankyou-message p {
+    margin: 0;
+}
