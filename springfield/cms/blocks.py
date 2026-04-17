@@ -1206,8 +1206,8 @@ class MediaBlock(blocks.StreamBlock):
 
 
 class SmartWindowInstructionsBlock(blocks.StructBlock):
-    pre_typewriter_text = blocks.CharBlock(default="Type this")
-    typewriter_text = blocks.CharBlock()
+    pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
+    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
     instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
 
     class Meta:
@@ -1719,10 +1719,10 @@ def TestimonialCardBlock(*args, **kwargs):
 
     class _TestimonialCardBlock(blocks.StructBlock):
         settings = _TestimonialCardSettings()
-        attribution_image = ImageVariantsBlock(required=False)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         attribution = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         attribution_role = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution_image = ImageVariantsBlock(required=False)
 
         class Meta:
             template = "cms/blocks/testimonial-card.html"
