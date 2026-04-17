@@ -35,22 +35,14 @@
           />
       {% endset %}
 
-      {% if override_view %}
-        {% if override_view == "enable" %}
-          {{ nav_smart_window }}
-        {% elif override_view == "download" %}
-          {{ nav_download }}
-        {% endif %}
-      {% else %}
+      {% if show_try_smart_window and override_view != "waitlist" %}
         <include:conditional-display firefox_condition="not-firefox">
           {{ nav_download }}
         </include:conditional-display>
-        {% if show_try_smart_window %}
-          <include:conditional-display firefox_condition="is-firefox" min_version="150">
-            {{ nav_smart_window }}
-          </include:conditional-display>
+        <include:conditional-display firefox_condition="is-firefox" min_version="150">
+          {{ nav_smart_window }}
+        </include:conditional-display>
       {% endif %}
-    {% endif %}
     </div>
   {% endset %}
   <include:flare26-header theme="dark" hide_nav_cta disable_sticky no_menu_dropdowns />
@@ -92,7 +84,7 @@
     />
 {% endset %}
 
-{% set upload_instructions %}
+{% set update_instructions %}
   <include:button
     link="{{ page.update_link }}"
     label="{{ page.update_button_label }}"
@@ -157,38 +149,19 @@
           <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
         </hgroup>
 
-        {% if override_view == "download" %}
-          <div class="fl-smart-window-instructions-container">
-            <div class="fl-buttons">
-              {{ intro_download }}
-              {{ copy_to_clipboard }}
-            </div>
-            <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
-          </div>
-        {% elif override_view == "update" %}
-          <div class="fl-smart-window-instructions-container">
-            <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
-            <div class="fl-buttons is-horizontal">
-              {{ upload_instructions }}
-              {{ copy_to_clipboard }}
-            </div>
-            <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
-          </div>
-        {% elif override_view == "enable" %}
-          {{ intro_smart_window }}
-        {% elif override_view == "waitlist" %}
+        {% if override_view == "waitlist" %}
           {{ form }}
-        {% else %}
-          <include:conditional-display firefox_condition="not-firefox">
-            <div class="fl-smart-window-instructions-container">
-              <div class="fl-buttons">
-                {{ intro_download }}
-                {{ copy_to_clipboard }}
+        {% elif show_try_smart_window %}
+            {# In supported geo: download for non-Firefox, enable/update for Firefox #}
+            <include:conditional-display firefox_condition="not-firefox">
+              <div class="fl-smart-window-instructions-container">
+                <div class="fl-buttons">
+                  {{ intro_download }}
+                  {{ copy_to_clipboard }}
+                </div>
+                <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
               </div>
-              <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
-            </div>
-          </include:conditional-display>
-          {% if show_try_smart_window %}
+            </include:conditional-display>
             <include:conditional-display firefox_condition="is-firefox">
               {# Show Smart Window button for Firefox >= 150 #}
               <include:conditional-display min_version="150">
@@ -199,20 +172,21 @@
                 <div class="fl-smart-window-instructions-container">
                   <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
                   <div class="fl-buttons is-horizontal">
-                    {{ upload_instructions }}
+                    {{ update_instructions }}
                     {{ copy_to_clipboard }}
                   </div>
                   <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
                 </div>
               </include:conditional-display>
             </include:conditional-display>
+          {% else %}
+            {# Not in supported geo: waitlist for ALL browsers #}
+            {{ form }}
           {% endif %}
-          {% if not show_try_smart_window or is_preview %}
-            <include:conditional-display firefox_condition="is-firefox">
-              {{ form }}
-            </include:conditional-display>
+          {% if is_preview and show_try_smart_window %}
+            {# Preview mode: also show waitlist form for editors #}
+            {{ form }}
           {% endif %}
-        {% endif %}
 
         {% if page.animation %}
           {% set img = image(page.image, "width-1200") %}
@@ -289,6 +263,28 @@
 </div>
 {% endblock %}
 
+
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (!window.history || !window.history.replaceState) return;
+    var cl = document.documentElement.classList;
+    var view;
+    {% if not show_try_smart_window %}
+    view = 'waitlist';
+    {% else %}
+    if (cl.contains('not-firefox')) view = 'download';
+    else if (document.querySelector('.condition-fx-version.version-match[data-min-version="150"]')) view = 'enable';
+    else if (cl.contains('is-firefox')) view = 'update';
+    {% endif %}
+    if (view) {
+        var url = new URL(window.location);
+        url.searchParams.set('view', view);
+        window.history.replaceState({}, '', url);
+    }
+});
+</script>
+{% endblock %}
 
 {% block pre_footer %}
 {% endblock pre_footer %}
