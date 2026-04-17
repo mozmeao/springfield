@@ -87,27 +87,12 @@ def test_image_takes_precedence(minimal_site, rf):
     assert aside.find("img"), "img should be rendered if both fields are populated"
 
 
-# def test_validation_error_if_qr_not_provided(minimal_site, rf):
-#     page = get_thanks_page()
-#     page.qr_code_floating_button.url = None
-#     page.qr_code_floating_button.image = None
-
-#     request = rf.get(page.get_full_url())
-#     response = page.serve(request)
-#     assert response.status_code == 200
-
-#     soup = BeautifulSoup(response.content, "html.parser")
-#     aside = _get_qr_snippet_aside(soup)
-#     assert aside, "QR code snippet <aside> should be rendered"
-#     assert aside.find("img"), "img should be rendered if both fields are populated"
-
-
 def test_url_override_takes_precedence(minimal_site, rf):
     page = get_thanks_page()
 
     snippet = page.qr_code_floating_button
 
-    page.qr_code_floating_button.override_url = "www.firefox.org"
+    page.override_url = "www.firefox.org"
     snippet.url = "www.firefox.com"
 
     result = resolve_qr_source(page, snippet)
@@ -121,7 +106,7 @@ def test_image_override_takes_precedence(minimal_site, rf):
 
     snippet = page.qr_code_floating_button
 
-    page.qr_code_floating_button.override_image = override_image
+    page.override_image = override_image
     snippet.image = image
 
     result = resolve_qr_source(page, snippet)
@@ -133,7 +118,7 @@ def test_default_override_takes_precedence(minimal_site, rf):
 
     snippet = page.qr_code_floating_button
 
-    page.qr_code_floating_button.override_default_open = True
+    page.override_default_open = True
     snippet.default_open = False
 
     result = resolve_qr_source(page, snippet)
