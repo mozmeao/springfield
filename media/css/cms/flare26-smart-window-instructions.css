@@ -57,3 +57,13 @@
 .fl-smart-window-instructions-body > * {
     margin: 0;
 }
+
+.fl-smart-window-thankyou-message {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-md);
+}
+
+.fl-smart-window-thankyou-message p {
+    margin: 0;
+}
