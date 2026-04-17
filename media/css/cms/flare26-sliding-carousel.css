@@ -107,9 +107,12 @@
 
 .fl-sliding-carousel.is-paused
     .fl-sliding-carousel-control.is-active
-    .fl-sliding-carousel-progress::after {
+    .fl-sliding-carousel-progress::after,
+.fl-sliding-carousel.is-paused
+    .fl-sliding-carousel-control.is-active
+    .fl-sliding-carousel-progress {
     animation: none;
-    inline-size: 100%;
+    background-color: transparent;
 }
 
 .fl-sliding-carousel-box {
