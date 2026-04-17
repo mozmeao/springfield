@@ -5,7 +5,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
 <!doctype html>
-<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}" {% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}" {% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}" {% endif %} {% block html_attrs %}{% endblock %}>
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}" {% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}" {% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}" {% endif %} {% block html_attrs %}{% if page is defined and page.enable_marketing_attribution is defined %}data-promoted-page="{{ page.enable_marketing_attribution }}"{% endif %}{% endblock %}>
 
   <head>
     <meta charset="utf-8">
@@ -50,7 +50,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endif %}
     {% endblock %}
 
-    {% block page_css %}{% endblock %}
+    {% block page_css %}
+      {% if page is defined and page.enable_marketing_attribution %}
+        {{ css_bundle('firefox_marketing_opt_out') }}
+      {% endif %}
+    {% endblock %}
 
     {# site bundle must load in head before analytics #}
     {{ js_bundle('site') }}
@@ -162,6 +166,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
       {# Download as default needs to come after stub attribution #}
       {{ js_bundle('download_as_default') }}
+
+      {% if page is defined and page.enable_marketing_attribution %}
+        <!--[if IE 9]><!-->
+          {# Marketing opt-out runs on all evergreen browsers plus IE9 and above. #}
+          {{ js_bundle('firefox_marketing_opt_out') }}
+        <!--<![endif]-->
+      {% endif %}
     {% endblock %}
 
     {% block js %}
