@@ -136,7 +136,16 @@
     block-size: 28px;
     border: 1px solid var(--smart-window-play-icon-border-color);
     border-radius: var(--token-border-radius-2xs);
+    display: none;
     inline-size: 28px;
+}
+
+.fl-smart-window-page .fl-video-play:hover .fl-video-play-icon:not([hidden]),
+.fl-smart-window-explainer-page
+    .fl-video-play:hover
+    .fl-video-play-icon:not([hidden]) {
+    align-items: center;
+    display: inline-flex;
 }
 
 .fl-smart-window-page .fl-video-play-icon svg,

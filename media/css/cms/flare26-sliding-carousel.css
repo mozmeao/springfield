@@ -6,11 +6,27 @@
 
 .fl-sliding-carousel {
     display: grid;
-    gap: var(--token-spacing-xl);
+    gap: var(--token-layout-2xs);
     grid-template-columns: 1fr;
 }
 
-/* Controls — left column on desktop */
+.fl-section:has(.fl-sliding-carousel) {
+    padding: 0;
+}
+
+/* Mobile: media panel on top, controls below */
+
+.fl-sliding-carousel-media-panel {
+    order: 1;
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-sliding-carousel-controls-swiper {
+    order: 2;
+    overflow: hidden;
+}
+
+/* Controls */
 
 .fl-sliding-carousel-controls {
     display: flex;
@@ -23,48 +39,24 @@
 
 .fl-sliding-carousel-control {
     background: none;
-    border-radius: 0;
     color: inherit;
     cursor: pointer;
-    padding-block: var(--token-spacing-md);
-    padding-inline: var(--token-spacing-lg);
+    margin: 0;
+    opacity: 0.7;
+    padding: 0;
     position: relative;
 }
 
 .fl-sliding-carousel-control.is-active {
     cursor: default;
+    opacity: 1;
 }
 
 .fl-superheading.fl-sliding-carousel-superheading {
     color: var(--token-color-grey-4);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin-block-end: var(--token-spacing-lg);
     text-transform: uppercase;
-}
-
-/* Collapsed: show only superheading */
-
-.fl-sliding-carousel-heading-text,
-.fl-sliding-carousel-subheading {
-    display: none;
-    opacity: 0;
-    transition:
-        display 500ms,
-        opacity 500ms;
-    transition-behavior: allow-discrete;
-}
-
-/* Active: show all heading fields */
-
-.fl-sliding-carousel-control.is-active .fl-sliding-carousel-heading-text,
-.fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading {
-    display: block;
-    opacity: 1;
-}
-
-@starting-style {
-    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-heading-text,
-    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading {
-        opacity: 0;
-    }
 }
 
 .fl-sliding-carousel-control.is-active
@@ -76,64 +68,76 @@
     display: block;
 }
 
-/* 4px vertical bar: static base layer (inactive color) */
+/* 4px progress bar */
 
-.fl-sliding-carousel-control::before {
-    block-size: 100%;
-    border-radius: 2px;
-    content: '';
-    inline-size: 4px;
-    inset-block-start: 0;
-    inset-inline-start: 0;
+.fl-sliding-carousel-progress-wrapper {
+    border-radius: 4px;
+    contain: paint;
+    inset-block-start: 1.5px;
+    inset-inline: 0;
+    padding-inline: 22px;
     position: absolute;
 }
 
-.fl-sliding-carousel-control::after {
-    border-radius: 2px;
-    content: '';
-    inline-size: 4px;
-    inset-inline-start: 0;
-    position: absolute;
+.fl-sliding-carousel-progress {
+    block-size: 3px;
+    border-radius: 4px;
+    position: relative;
 }
 
-.fl-sliding-carousel-control:not(.is-active)::after {
-    background-color: var(--token-color-grey-4);
-    block-size: 4px;
-    inset-block-start: calc(50% - 2px);
+.fl-sliding-carousel-control:not(.is-active) .fl-sliding-carousel-progress {
+    display: none;
 }
 
-/* 4px vertical bar: animated progress fill on active item */
-
-.fl-sliding-carousel-control.is-active::before {
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
     background-color: var(--token-color-soft-purple);
+    border-radius: 4px;
 }
 
-.fl-sliding-carousel-control.is-active::after {
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after {
     animation: fl-sliding-carousel-progress 10000ms linear forwards;
     background-color: var(--token-color-light-purple);
-    block-size: 0%;
-    inset-block-start: 0;
+    block-size: 100%;
+    border-radius: 4px;
+    content: '';
+    inline-size: 0%;
+    inset: 0;
+    position: absolute;
 }
 
-.fl-sliding-carousel.is-paused .fl-sliding-carousel-control.is-active::after {
+.fl-sliding-carousel.is-paused
+    .fl-sliding-carousel-control.is-active
+    .fl-sliding-carousel-progress::after,
+.fl-sliding-carousel.is-paused
+    .fl-sliding-carousel-control.is-active
+    .fl-sliding-carousel-progress {
     animation: none;
-    block-size: 100%;
+    background-color: transparent;
+}
+
+.fl-sliding-carousel-box {
+    margin-block-end: 0;
+}
+
+.fl-sliding-carousel-heading-text {
+    margin-block-end: var(--token-spacing-lg);
 }
 
 @keyframes fl-sliding-carousel-progress {
     from {
-        block-size: 0%;
+        inline-size: 0%;
     }
 
     to {
-        block-size: 100%;
+        inline-size: 100%;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fl-sliding-carousel-control.is-active::after {
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-progress::after {
         animation: none;
-        block-size: 100%;
+        inline-size: 100%;
     }
 
     .fl-sliding-carousel-heading-text,
@@ -143,10 +147,6 @@
 }
 
 /* Media panel */
-
-.fl-sliding-carousel-media-panel {
-    position: relative;
-}
 
 .fl-sliding-carousel-media-panel .fl-video {
     aspect-ratio: 1 / 1;
@@ -165,11 +165,130 @@
     display: block;
 }
 
-/* Desktop: side-by-side */
+/* Dot pagination (mobile only) */
+
+.fl-sliding-carousel-pagination {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-xs);
+    justify-content: center;
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-sliding-carousel-dot {
+    background: var(--token-color-grey-2);
+    block-size: 8px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    inline-size: 8px;
+    padding: 0;
+}
+
+.fl-sliding-carousel-dot.is-active {
+    background: var(--fl-theme-color-brand-text);
+    block-size: 12px;
+    inline-size: 12px;
+}
+
+/* Mobile card appearance when controls Swiper is active */
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-progress {
+    display: none;
+}
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control {
+    background-clip: padding-box;
+    border: 2px solid var(--token-color-soft-purple-2);
+    border-radius: var(--token-border-radius-sm);
+    flex-shrink: 0;
+    opacity: 0.4;
+    padding: var(--token-spacing-2xl) var(--token-spacing-xl);
+    transition: opacity 0.3s;
+}
+
+/* Gradient border on active card via ::before of the progress element */
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control.is-active {
+    background: none;
+    block-size: auto;
+    border: 2px solid transparent;
+    display: block;
+    inset: 0;
+    opacity: 1;
+}
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control.is-active::before {
+    background: var(--token-gradient-smart-window-instructions);
+    border-radius: var(--token-border-radius-sm);
+    content: '';
+    inset: -2px;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    padding: 2px;
+    position: absolute;
+}
+
+/* Desktop: side-by-side, controls left, media right */
 
 @media (--viewport-md-up) {
     .fl-sliding-carousel {
         align-items: start;
+        gap: var(--token-layout-md);
         grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-section:has(.fl-sliding-carousel) {
+        padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
+    }
+
+    .fl-sliding-carousel-controls-swiper {
+        order: 1;
+    }
+
+    .fl-sliding-carousel-media-panel {
+        order: 2;
+        padding: 0;
+    }
+
+    .fl-sliding-carousel-pagination {
+        display: none;
+    }
+
+    .fl-sliding-carousel-control .fl-sliding-carousel-box::before {
+        background: var(--token-color-soft-purple-2);
+        block-size: 100%;
+        border-radius: inherit;
+        content: '';
+        inset: 0;
+        margin-block-end: var(--token-spacing-lg);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 2px;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::before {
+        background: var(--token-gradient-smart-window-instructions);
+    }
+
+    .fl-sliding-carousel-box {
+        border-radius: var(--token-border-radius-sm);
+        margin-block-end: var(--token-spacing-lg);
+        padding: var(--token-spacing-2xl);
+        position: relative;
     }
 }
