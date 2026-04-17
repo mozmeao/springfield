@@ -30,15 +30,19 @@
 }
 
 .fl-smart-window-instructions-heading {
-    align-items: center;
+    align-items: start;
     color: var(--smart-window-instructions-heading-text-color);
     display: flex;
     gap: var(--token-spacing-lg);
     margin-block-end: var(--token-spacing-lg);
 }
 
+.fl-smart-window-instructions-heading .fl-smart-window-instructions-icon {
+    margin-block-start: 2px;
+}
+
 .fl-smart-window-instructions-heading .fl-typewriter {
-    display: inline-block;
+    display: inline;
     font-weight: var(--token-font-weight-bold);
 }
 
