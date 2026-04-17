@@ -312,12 +312,9 @@ function initScrollingCardGrid(swiperWrapperEl) {
         }
     });
 
-    const setEasing = (easing = 'ease') => {
-        swiperWrapperEl.style.setProperty('--easing', easing);
-    };
-
     // based on https://codepen.io/jarvis73045/pen/rNgwbNJ
-    swiperWrapperEl.addEventListener('mouseover', () => {
+    swiperWrapperEl.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'mouse') return;
         if (startTimer) clearTimeout(startTimer);
 
         // Stop slide at current translate.
@@ -341,7 +338,9 @@ function initScrollingCardGrid(swiperWrapperEl) {
         swiperInstance.autoplay.stop();
     });
 
-    swiperWrapperEl.addEventListener('mouseout', () => {
+    swiperWrapperEl.addEventListener('pointerleave', (e) => {
+        if (e.pointerType !== 'mouse') return;
+
         const distance =
             swiperInstance.width * swiperInstance.activeIndex +
             swiperInstance.getTranslate();
@@ -350,7 +349,6 @@ function initScrollingCardGrid(swiperWrapperEl) {
         duration = distance !== 0 ? duration : 0;
         swiperInstance.slideTo(swiperInstance.activeIndex, duration);
         startTimer = setTimeout(() => {
-            setEasing('linear');
             swiperInstance.autoplay.start();
         }, duration);
     });
