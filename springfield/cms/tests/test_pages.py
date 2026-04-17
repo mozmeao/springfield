@@ -25,9 +25,9 @@ def smart_window_page(index_page, placeholder_images):
 
 @pytest.mark.django_db
 def test_smart_window_page_not_firefox(smart_window_page, rf):
-    """Not-Firefox branch: shows download button, copy link, post-download instructions, and waitlist form."""
+    """Not-Firefox branch (in supported geo): shows download button, copy link, and post-download instructions."""
     page = smart_window_page
-    page.show_smart_window_button = "never"
+    page.show_smart_window_button = "all"
     request = rf.get(page.get_full_url())
     response = page.serve(request)
     assert response.status_code == 200
