@@ -448,7 +448,9 @@ if (typeof window.cms === 'undefined') {
         qrCodeSnippetEl.setAttribute('aria-live', 'polite');
 
         setTimeout(function () {
-            qrCodeSnippetEl.classList.add('is-open');
+            if (oldSnippet) {
+                qrCodeSnippetEl.classList.add('is-open');
+            }
         }, 0);
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
