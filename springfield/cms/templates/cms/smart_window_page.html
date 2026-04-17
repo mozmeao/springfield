@@ -113,7 +113,8 @@
               </div>
             </include:conditional-display>
           </include:conditional-display>
-        {% else %}
+        {% endif %}
+        {% if not show_try_smart_window or is_preview %}
           <include:conditional-display firefox_condition="is-firefox">
             <form id="newsletter-form" class="fl-smart-window-form fl-newsletterform" action="{{ settings.BASKET_SUBSCRIBE_URL }}" method="post" novalidate data-testid="newsletter-form">
               <div hidden>
