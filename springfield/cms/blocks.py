@@ -1787,7 +1787,6 @@ class CardLineItemBlock(blocks.StructBlock):
 
 
 class LineCardsBlock(blocks.StructBlock):
-    heading = HeadingBlock(required=False)
     cards = blocks.ListBlock(CardLineItemBlock())
 
     class Meta:
