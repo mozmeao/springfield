@@ -45,13 +45,13 @@ beautifulsoup4==4.14.3 \
     # via
     #   -r requirements/prod.txt
     #   wagtail
-boto3==1.42.87 \
-    --hash=sha256:15cc1404b3ccbcfe17bd5834d467b1b28d53d9aca44e3798dc44876ac57362e6 \
-    --hash=sha256:b5b86a826f8f12c7d38679f35bd0135807a6867a21eb8be6dea7c27aeb14ec14
+boto3==1.42.91 \
+    --hash=sha256:03d70532b17f7f84df37ca7e8c21553280454dea53ae12b15d1cfef9b16fcb8a \
+    --hash=sha256:04e72071cde022951ce7f81bd9933c90095ab8923e8ced61c8dacfe9edac0f5c
     # via -r requirements/prod.txt
-botocore==1.42.87 \
-    --hash=sha256:1c6cc9555c1feec50b290a42de70ba6f04826c009562c2c12bb9990d0258482d \
-    --hash=sha256:32832df27c039cc1a518289afe0f6006296d3df26603b5f66e911457e67f0146
+botocore==1.42.91 \
+    --hash=sha256:7a28c3cc6bfab5724ad18899d52402b776a0de7d87fa20c3c5270bcaaf199ce8 \
+    --hash=sha256:d252e27bc454afdbf5ed3dc617aa423f2c855c081e98b7963093399483ecc698
     # via
     #   -r requirements/prod.txt
     #   boto3
@@ -684,9 +684,9 @@ factory-boy==3.3.3 \
     # via
     #   -r requirements/dev.in
     #   wagtail-factories
-faker==40.13.0 \
-    --hash=sha256:a0751c84c3abac17327d7bb4c98e8afe70ebf7821e01dd7d0b15cd8856415525 \
-    --hash=sha256:c1298fd0d819b3688fb5fd358c4ba8f56c7c8c740b411fd3dbd8e30bf2c05019
+faker==40.15.0 \
+    --hash=sha256:20f3a6ec8c266b74d4c554e34118b21c3c2056c0b4a519d15c8decb3a4e6e795 \
+    --hash=sha256:71ab3c3370da9d2205ab74ffb0fd51273063ad562b3a3bb69d0026a20923e318
     # via factory-boy
 filetype==1.2.0 \
     --hash=sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb \
@@ -975,9 +975,9 @@ jq==1.11.0 \
     --hash=sha256:fbb189af2000458bbd59d291c73d5257b46d2ca9ef00c3d76b410fbb7dc0fd33 \
     --hash=sha256:fe1c5facefd0f1197fb95cda8f31195487f431e4c4699cb0cb207efc47553504
     # via -r requirements/prod.txt
-justhtml==1.15.0 \
-    --hash=sha256:4dd3574872ff377ac13ae4227a7fae5ca3b5865b7da4f2425139310a0ff67ad9 \
-    --hash=sha256:e3dd8d254c969f07d937c6bd02dd9a2a11f4da5954147b7cdb04bff79ad4b8d1
+justhtml==1.16.0 \
+    --hash=sha256:8a7165d10119fda05ec6b6e0886f4343a35c9b2cda54615dd64b05e81e38d5f1 \
+    --hash=sha256:c57a6772191200d3820cccf47a38274841925eff2166bc3f3f277312d6b11193
     # via -r requirements/prod.txt
 laces==0.1.2 \
     --hash=sha256:3218e09c1889ae5cf3fc7a82f5bb63ec0c7879889b6a9760bfc42323c694b84d \
@@ -1239,9 +1239,9 @@ mdurl==0.1.2 \
 mdx-outline @ https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz#egg=mdx_outline \
     --hash=sha256:a78e112f80628246dd45858fe18404aaa8efb8dc81949bb1fbb87e91f9654afa
     # via -r requirements/prod.txt
-modelsearch==1.2 \
-    --hash=sha256:b4421c134175224e67f1aae9b4f26265347dfa617c2d433520cf379ca37c71f2 \
-    --hash=sha256:c150eb8bc0317fd5e656eb54f3b6809da313588a9998796a4e59a1cfed273ee7
+modelsearch==1.2.1 \
+    --hash=sha256:6576cb66162b8b1f80806116c2530b4b6409c50a55727735e3175556409c0355 \
+    --hash=sha256:8732cb84f424a592ea9fa44763650285af5ecf6475aa742125e7e368083d6505
     # via
     #   -r requirements/prod.txt
     #   wagtail
@@ -1261,9 +1261,9 @@ outcome==1.3.0.post0 \
     # via
     #   trio
     #   trio-websocket
-packaging==26.0 \
-    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
-    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+packaging==26.1 \
+    --hash=sha256:5d9c0669c6285e491e0ced2eee587eaf67b670d94a19e94e3984a481aba6802f \
+    --hash=sha256:f042152b681c4bfac5cae2742a55e103d27ab2ec0f3d88037136b6bfe7c9c5de
     # via
     #   -r requirements/prod.txt
     #   django-csp
@@ -1943,9 +1943,9 @@ responses==0.25.8 \
     --hash=sha256:0c710af92def29c8352ceadff0c3fe340ace27cf5af1bbe46fb71275bcd2831c \
     --hash=sha256:9374d047a575c8f781b94454db5cab590b6029505f488d12899ddb10a4af1cf4
     # via -r requirements/dev.in
-rq==2.7.0 \
-    --hash=sha256:4b320e95968208d2e249fa0d3d90ee309478e2d7ea60a116f8ff9aa343a4c117 \
-    --hash=sha256:c2156fc7249b5d43dda918c4355cfbf8d0d299a5cdd3963918e9c8daf4b1e0c0
+rq==2.8.0 \
+    --hash=sha256:49d87c8d0068b890e83052050ffd18be328339ae00c9c6d5dbf2702eb06107d2 \
+    --hash=sha256:dd75b5a19016efd235143058e82fdc5658a0c1e9a76664cc7d02f721c7308a4a
     # via
     #   -r requirements/prod.txt
     #   django-rq
@@ -2185,9 +2185,9 @@ wagtail-localize==1.13 \
     #   wagtail-localize-dashboard
     #   wagtail-localize-intentional-blanks
     #   wagtail-localize-smartling
-wagtail-localize-dashboard==0.3.0 \
-    --hash=sha256:6209b92ff78b369a68070a9706b8547610aed2062d3b86ed2871257688a471d3 \
-    --hash=sha256:c95b99bcd8331ff7138c961788a2da64d9ca92cf38a39d0acdf2f9361b2f2261
+wagtail-localize-dashboard==0.5.0 \
+    --hash=sha256:d4a2711c5317968c7eb6804cf08d5a1b8b9db7d6724dc7f41d96599d53652468 \
+    --hash=sha256:de8ba823e6c5455cf804d0414751d442c4befa22a9e2bb6742d597bf91b8db9d
     # via -r requirements/prod.txt
 wagtail-localize-intentional-blanks==0.2.4 \
     --hash=sha256:185b6010b08dce9db7d22839fb6701bb3339310fbdfd31c8c6a8c0b4ed8d38d3 \
