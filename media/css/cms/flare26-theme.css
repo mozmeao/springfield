@@ -187,9 +187,13 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --token-color-dark-purple
     );
     --smart-window-instructions-content-text-color: var(--token-color-grey-4);
-    --smart-window-play-icon-background: var(--token-color-white);
+    --smart-window-play-icon-background: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-background-hover: var(--token-color-white);
+    --smart-window-play-icon-background-active: var(--token-color-soft-purple);
     --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
-    --smart-window-play-icon-fill-color: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color-active: #42414d;
     --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo-dark.svg');
     --smart-window-background-gradient:
         radial-gradient(
@@ -316,8 +320,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-instructions-heading-text-color: var(--token-color-white);
     --smart-window-instructions-content-text-color: var(--token-color-white);
     --smart-window-play-icon-background: var(--token-color-medium-purple);
+    --smart-window-play-icon-background-hover: #7543e3;
+    --smart-window-play-icon-background-active: var(--token-color-link-purple);
     --smart-window-play-icon-border-color: var(--token-color-dark-purple);
     --smart-window-play-icon-fill-color: var(--token-color-white);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-white);
+    --smart-window-play-icon-fill-color-active: var(--token-color-white);
     --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
     --smart-window-background-gradient:
         radial-gradient(
@@ -435,9 +443,13 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --token-color-dark-purple
     );
     --smart-window-instructions-content-text-color: var(--token-color-grey-4);
-    --smart-window-play-icon-background: var(--token-color-white);
+    --smart-window-play-icon-background: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-background-hover: var(--token-color-white);
+    --smart-window-play-icon-background-active: var(--token-color-soft-purple);
     --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
-    --smart-window-play-icon-fill-color: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color-active: #42414d;
 }
 
 @media (prefers-color-scheme: dark) {

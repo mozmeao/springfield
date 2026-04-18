@@ -106,6 +106,7 @@ function initSlidingCarousel(rootEl) {
             btn.querySelector('.js-pause-icon').hidden = true;
             btn.querySelector('.js-play-icon').hidden = false;
             btn.setAttribute('aria-label', btn.dataset.labelPlay);
+            btn.classList.add('is-paused');
         }
     }
 
@@ -114,6 +115,7 @@ function initSlidingCarousel(rootEl) {
         videoEl.autoplay = true;
         const btn = getAnimationButton(videoEl);
         if (btn) {
+            btn.classList.remove('is-paused');
             btn.querySelector('.js-pause-icon').hidden = false;
             btn.querySelector('.js-play-icon').hidden = true;
             btn.setAttribute('aria-label', btn.dataset.labelPause);

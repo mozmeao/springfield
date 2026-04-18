@@ -375,6 +375,7 @@ if (typeof window.cms === 'undefined') {
                         'aria-label',
                         button.dataset.labelPause
                     );
+                    button.classList.remove('is-paused');
                     pauseIcon.hidden = false;
                     playIcon.hidden = true;
                 } else {
@@ -382,6 +383,7 @@ if (typeof window.cms === 'undefined') {
                     button.setAttribute('aria-label', button.dataset.labelPlay);
                     pauseIcon.hidden = true;
                     playIcon.hidden = false;
+                    button.classList.add('is-paused');
                 }
             });
         });
