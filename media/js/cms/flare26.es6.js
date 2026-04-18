@@ -60,7 +60,7 @@ function initFlare26Carousel(rootEl) {
     });
 }
 
-const AUTO_PLAY_INTERVAL_MS = 10000;
+const AUTO_PLAY_INTERVAL_MS = 24000;
 
 function initSlidingCarousel(rootEl) {
     const controlsSwiperEl = rootEl.querySelector(
@@ -86,6 +86,15 @@ function initSlidingCarousel(rootEl) {
     let autoSlideActive = true;
     let userPaused = false;
     let controlsSwiper = null;
+
+    // Preload all videos so they start quickly on slide change
+    slides.forEach((slide) => {
+        const video = slide.querySelector('video');
+        if (video) {
+            video.preload = 'auto';
+            video.load();
+        }
+    });
 
     // --- Video helpers ---
 
@@ -126,7 +135,6 @@ function initSlidingCarousel(rootEl) {
         slides.forEach((slide) => {
             const videoEl = getVideoFromSlide(slide);
             if (videoEl) {
-                videoEl.currentTime = 0;
                 pauseVideo(videoEl);
             }
         });
@@ -135,27 +143,48 @@ function initSlidingCarousel(rootEl) {
     // --- Slide activation ---
 
     function goToSlide(index) {
-        controls[currentIndex].classList.remove('is-active');
-        controls[currentIndex].setAttribute('aria-current', 'false');
-        slides[currentIndex].classList.remove('is-active');
-        slides[currentIndex].setAttribute('aria-hidden', 'true');
+        const prevIndex = currentIndex;
+        slides[prevIndex].classList.remove('is-active');
+        slides[prevIndex].classList.add('is-exiting');
+        slides[prevIndex].setAttribute('aria-hidden', 'true');
+        controls[prevIndex].classList.remove('is-active');
+        controls[prevIndex].setAttribute('aria-current', 'false');
 
         pauseAllVideos();
         currentIndex = index;
 
         controls[currentIndex].classList.add('is-active');
         controls[currentIndex].setAttribute('aria-current', 'true');
+
+        // Force border animation restart by toggling a class on the box
+        const box = controls[currentIndex].querySelector(
+            '.fl-sliding-carousel-box'
+        );
+        if (box) {
+            box.classList.add('no-animate');
+            void box.offsetWidth;
+            box.classList.remove('no-animate');
+        }
+
         slides[currentIndex].classList.add('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'false');
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) playVideo(videoEl);
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                playVideo(videoEl);
+            }
         }
 
         if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {
             controlsSwiper.slideToLoop(currentIndex);
         }
+
+        // Clean up exiting slide after fade completes (matches --token-transition-slow)
+        setTimeout(() => {
+            slides[prevIndex].classList.remove('is-exiting');
+        }, 300);
     }
 
     // --- Autoplay ---
@@ -170,15 +199,24 @@ function initSlidingCarousel(rootEl) {
         clearInterval(autoSlideTimer);
         autoSlideTimer = null;
         autoSlideActive = false;
-        rootEl.classList.add('is-paused');
+    }
+
+    function restartAutoSlide() {
+        clearInterval(autoSlideTimer);
+        autoSlideActive = true;
+        autoSlideTimer = setInterval(() => {
+            goToSlide((currentIndex + 1) % slides.length);
+        }, AUTO_PLAY_INTERVAL_MS);
     }
 
     // --- Controls (desktop click + keyboard) ---
 
     controls.forEach((ctrl, idx) => {
         ctrl.addEventListener('click', () => {
-            if (autoSlideActive) stopAutoSlide();
-            if (idx !== currentIndex) goToSlide(idx);
+            if (idx !== currentIndex) {
+                goToSlide(idx);
+                restartAutoSlide();
+            }
         });
 
         ctrl.addEventListener('keydown', (e) => {
@@ -200,8 +238,10 @@ function initSlidingCarousel(rootEl) {
             userPaused = !userPaused;
             if (userPaused) {
                 pauseVideo(videoEl);
+                rootEl.classList.add('is-paused');
             } else {
                 playVideo(videoEl);
+                rootEl.classList.remove('is-paused');
             }
         });
     });
