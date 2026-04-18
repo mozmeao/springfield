@@ -111,6 +111,11 @@
     justify-content: center;
 }
 
+.fl-smart-window-intro .fl-heading {
+    max-inline-size: 800px;
+    text-wrap: balance;
+}
+
 .fl-smart-window-intro .fl-subheading {
     max-inline-size: 800px;
     text-wrap: balance;
