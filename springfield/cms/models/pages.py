@@ -1016,6 +1016,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    # TODO: remove this field. This was kept here to avoid a rename migration.
+    waitlist_button_label = models.CharField(default="Try Smart Window", max_length=255)
     show_smart_window_button = models.CharField(
         max_length=20,
         choices=(

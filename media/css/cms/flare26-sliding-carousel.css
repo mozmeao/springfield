@@ -40,10 +40,12 @@
 .fl-sliding-carousel-control {
     --fl-slide-interval: 10000ms;
     background: none;
+    border-radius: var(--token-border-radius-sm);
     color: inherit;
     cursor: pointer;
     margin: 0;
     opacity: 0.7;
+    overflow: hidden;
     padding: 0;
     position: relative;
 }
@@ -72,11 +74,11 @@
 /* 4px progress bar */
 
 .fl-sliding-carousel-progress-wrapper {
-    border-radius: 4px;
+    border-radius: 4px 4px 0 0;
     contain: paint;
-    inset-block-start: 1.5px;
+    inset-block-start: 2px;
     inset-inline: 0;
-    padding-inline: 22px;
+    padding-inline: 14px;
     position: absolute;
 }
 

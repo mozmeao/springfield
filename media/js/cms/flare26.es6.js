@@ -60,7 +60,7 @@ function initFlare26Carousel(rootEl) {
     });
 }
 
-const AUTO_PLAY_INTERVAL_MS = 10000;
+const AUTO_PLAY_INTERVAL_MS = 24000;
 
 function initSlidingCarousel(rootEl) {
     const controlsSwiperEl = rootEl.querySelector(
@@ -124,7 +124,6 @@ function initSlidingCarousel(rootEl) {
         slides.forEach((slide) => {
             const videoEl = getVideoFromSlide(slide);
             if (videoEl) {
-                videoEl.currentTime = 0;
                 pauseVideo(videoEl);
             }
         });
@@ -153,7 +152,10 @@ function initSlidingCarousel(rootEl) {
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) playVideo(videoEl);
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                playVideo(videoEl);
+            }
         }
 
         if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {

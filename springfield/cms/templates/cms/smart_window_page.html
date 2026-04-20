@@ -132,7 +132,6 @@
   </form>
   <div id="newsletter-thanks" class="fl-smart-window-thankyou hidden" data-testid="newsletter-thanks-message">
     <div class="fl-smart-window-thankyou-message">
-      <include:icon icon_name="checkmark" />
       {{ page.thank_you_message|richtext }}
     </div>
   </div>
@@ -146,7 +145,7 @@
           <img src="/media/img/firefox/flare/smart-window-logo.svg" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
           <h1 class="fl-heading fl-smart-window-heading-default">{{ page.heading_text|richtext|remove_p_tag }}</h1>
           <h1 class="fl-heading fl-smart-window-heading-success">{{ page.thank_you_heading|richtext|remove_p_tag }}</h1>
-          <p class="fl-subheading">{{ page.subheading_text|richtext|remove_p_tag }}</p>
+          <p class="fl-subheading fl-smart-window-subheading-default">{{ page.subheading_text|richtext|remove_p_tag }}</p>
         </hgroup>
 
         {% if override_view == "waitlist" %}
