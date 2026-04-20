@@ -288,8 +288,11 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         features=EXPANDED_TEXT_FEATURES,
         blank=True,
     )
-    url = models.CharField(blank=True)
-    image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    url = models.CharField(blank=True, help_text="A QR code will be generated from this URL. Not used if an image is uploaded.")
+    image = models.ForeignKey(
+        "cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+",
+        help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
+    )
     default_open = models.BooleanField(default=True)
 
     panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
@@ -304,6 +307,16 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         from springfield.cms.templatetags.cms_tags import remove_tags
 
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        if self.image:
+            context["qr"] = {"type": "image", "value": self.image.file.url, "open": self.default_open}
+        elif self.url:
+            context["qr"] = {"type": "qr", "value": self.url, "open": self.default_open}
+        else:
+            context["qr"] = {"type": "qr", "value": "", "open": self.default_open}
+        return context
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/qr-code-floating-snippet-preview.html"

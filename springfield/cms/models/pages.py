@@ -56,7 +56,7 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.qr import resolve_qr_source
+from springfield.cms.qr import get_live_floating_snippet, resolve_qr_source
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -388,9 +388,12 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True)
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
+
+    # Unused — to be removed in a follow-up PR (deferred field drop).
+    qr_code_floating_button = models.ForeignKey("cms.QRCodeFloatingSnippet", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
@@ -421,13 +424,9 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"ThanksPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
-
         context = super().get_context(request, *args, **kwargs)
-
-        snippet = get_floating_qr_code_snippet()
-        context["qr"] = resolve_qr_source(self, snippet)
-
+        snippet = get_live_floating_snippet(self.locale)
+        context["qr"] = resolve_qr_source(self, snippet) if snippet else None
         return context
 
     def clean(self):
@@ -831,16 +830,6 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def __str__(self):
         return f"FreeFormPage: {self.title} - {self.locale}"
 
-    def get_context(self, request, *args, **kwargs):
-        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
-
-        context = super().get_context(request, *args, **kwargs)
-
-        snippet = get_floating_qr_code_snippet()
-        context["qr"] = resolve_qr_source(self, snippet)
-
-        return context
-
 
 class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
@@ -876,9 +865,12 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True)
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
+
+    # Unused — to be removed in a follow-up PR (deferred field drop).
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -916,13 +908,9 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
-
         context = super().get_context(request, *args, **kwargs)
-
-        snippet = get_floating_qr_code_snippet()
-        context["qr"] = resolve_qr_source(self, snippet)
-
+        snippet = get_live_floating_snippet(self.locale)
+        context["qr"] = resolve_qr_source(self, snippet) if snippet else None
         return context
 
     def clean(self):
@@ -946,16 +934,6 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewIndexPage: {self.title} - {self.locale}"
-
-    def get_context(self, request, *args, **kwargs):
-        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
-
-        context = super().get_context(request, *args, **kwargs)
-
-        snippet = get_floating_qr_code_snippet()
-        context["qr"] = resolve_qr_source(self, snippet)
-
-        return context
 
     def serve(self, request):
         latest_whats_new = (
@@ -1002,9 +980,12 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True)
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
+
+    # Unused — to be removed in a follow-up PR (deferred field drop).
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = [
         FieldPanel("title"),
@@ -1042,6 +1023,12 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewPage: {self.title} - {self.locale}"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        snippet = get_live_floating_snippet(self.locale)
+        context["qr"] = resolve_qr_source(self, snippet) if snippet else None
+        return context
 
     def clean(self):
         super().clean()
@@ -1088,9 +1075,12 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True)
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
+    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
+
+    # Unused — to be removed in a follow-up PR (deferred field drop).
+    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = [
         FieldPanel("title"),
@@ -1131,13 +1121,9 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"WhatsNewPage2026: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
-
         context = super().get_context(request, *args, **kwargs)
-
-        snippet = get_floating_qr_code_snippet()
-        context["qr"] = resolve_qr_source(self, snippet)
-
+        snippet = get_live_floating_snippet(self.locale)
+        context["qr"] = resolve_qr_source(self, snippet) if snippet else None
         return context
 
     def clean(self):

@@ -3,6 +3,13 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+def get_live_floating_snippet(locale):
+    """Return the live QRCodeFloatingSnippet for the given locale, or None."""
+    from springfield.cms.models.snippets import QRCodeFloatingSnippet
+
+    return QRCodeFloatingSnippet.objects.filter(locale=locale).live().first()
+
+
 def resolve_qr_source(page, snippet):
     resolved_image = getattr(page, "override_image", None) or getattr(snippet, "image", None)
     resolved_url = getattr(page, "override_url", None) or getattr(snippet, "url", None)

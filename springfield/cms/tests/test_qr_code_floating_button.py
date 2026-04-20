@@ -62,17 +62,10 @@ def _make_snippet(**kwargs):
     return types.SimpleNamespace(**defaults)
 
 
-# Page types that support the floating QR snippet end-to-end: their get_context()
-# calls resolve_qr_source(), which sets context["qr"] so the template can access
-# qr.type, qr.value, and qr.open correctly.
-#
-# NOTE: WhatsNewPage has the show_floating_qr_code_snippet field and the related
-# override fields, but is missing the get_context() override. Its template would
-# raise jinja2.UndefinedError if show_floating_qr_code_snippet is enabled, so
-# rendering tests for WhatsNewPage only cover the flag-off case.
 PAGES_WITH_FLOATING_QR = [
     get_thanks_page,
     get_freeform_page_2026_with_qr_snippet,
+    get_whats_new_page_with_qr_snippet,
     get_whats_new_page_2026_with_qr_snippet,
 ]
 

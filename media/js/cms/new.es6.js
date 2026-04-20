@@ -458,7 +458,7 @@ if (typeof window.cms === 'undefined') {
                 qrCodeSnippetEl.addEventListener('click', function () {
                     if (!qrCodeSnippetEl.classList.contains('is-open')) {
                         const toggleButton =
-                            document.querySelector('.fl-icon-add');
+                            qrCodeSnippetEl.querySelector('.fl-icon-add');
 
                         if (toggleButton) {
                             toggleButton.classList.remove('fl-icon-add');
@@ -474,7 +474,7 @@ if (typeof window.cms === 'undefined') {
                         qrCodeSnippetEl.classList.remove('is-open');
 
                         const toggleButton =
-                            document.querySelector('.fl-icon-subtract');
+                            qrCodeSnippetEl.querySelector('.fl-icon-subtract');
 
                         if (toggleButton) {
                             toggleButton.classList.remove('fl-icon-subtract');
@@ -515,7 +515,7 @@ if (typeof window.cms === 'undefined') {
                         );
                     } else {
                         const toggleButton =
-                            document.querySelector('.fl-icon-add');
+                            qrCodeSnippetEl.querySelector('.fl-icon-add');
 
                         if (toggleButton) {
                             toggleButton.classList.remove('fl-icon-add');

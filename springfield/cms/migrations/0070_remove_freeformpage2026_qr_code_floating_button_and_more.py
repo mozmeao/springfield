@@ -13,22 +13,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="freeformpage2026",
-            name="qr_code_floating_button",
-        ),
-        migrations.RemoveField(
-            model_name="thankspage",
-            name="qr_code_floating_button",
-        ),
-        migrations.RemoveField(
-            model_name="whatsnewpage",
-            name="qr_code_floating_button",
-        ),
-        migrations.RemoveField(
-            model_name="whatsnewpage2026",
-            name="qr_code_floating_button",
-        ),
+        # NOTE: RemoveField operations for qr_code_floating_button have been
+        # deferred to a follow-up PR to avoid dropping columns during deploy.
         migrations.AddField(
             model_name="freeformpage2026",
             name="show_floating_qr_code_snippet",

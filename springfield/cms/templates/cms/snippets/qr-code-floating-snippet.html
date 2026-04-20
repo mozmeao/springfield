@@ -4,6 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% if qr %}
 <aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if qr.open %}is-open{% endif %}">
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
@@ -11,7 +12,7 @@
       {{ value.heading|striptags }}
     </div>
     <div class="fl-qr-code-close fl-qr-code-snippet-close">
-      {%if qr.open %}
+      {% if qr.open %}
         <span class="fl-icon fl-icon-subtract"></span>
       {% else %}
         <span class="fl-icon fl-icon-add"></span>
@@ -22,7 +23,7 @@
   <div class="fl-qr-code-floating-content">
     <div class="fl-qr-code-image">
       {% if qr.type == "image" %}
-        <img src="{{ qr.value }}" class="fl-qr-code-image" alt="A QR code that directs you to {{ qr.value }}.">
+        <img src="{{ qr.value }}" class="fl-qr-code-image" alt="QR code">
       {% else %}
         {{ qrcode(qr.value, 12) }}
       {% endif %}
@@ -30,3 +31,4 @@
     {{ value.content|richtext }}
   </div>
 </aside>
+{% endif %}
