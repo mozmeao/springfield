@@ -392,8 +392,6 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
 
-    # Unused — to be removed in a follow-up PR (deferred field drop).
-    qr_code_floating_button = models.ForeignKey("cms.QRCodeFloatingSnippet", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
@@ -869,8 +867,6 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
 
-    # Unused — to be removed in a follow-up PR (deferred field drop).
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -984,8 +980,6 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
 
-    # Unused — to be removed in a follow-up PR (deferred field drop).
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = [
         FieldPanel("title"),
@@ -1079,8 +1073,6 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
     override_default_open = models.BooleanField(null=True, blank=True)
 
-    # Unused — to be removed in a follow-up PR (deferred field drop).
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     content_panels = [
         FieldPanel("title"),
