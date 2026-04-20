@@ -22,7 +22,6 @@ def _get_qr_snippet_aside(soup):
 
 def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
     page = get_thanks_page()
-    page.qr_code_floating_button = None
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -38,7 +37,6 @@ def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
 
 def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
     page = get_thanks_page()
-    page.qr_code_floating_button = None
     page.show_qr_code_snippet = False
     page.save_revision().publish()
 
@@ -52,7 +50,6 @@ def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site,
 
 def test_freeform_page_2026_renders_qr_code_snippet(minimal_site, rf):
     page = get_freeform_page_2026_with_qr_snippet()
-    page.qr_code_floating_button = None
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -84,7 +81,6 @@ def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minima
 
 def test_whats_new_page_renders_qr_code_snippet(minimal_site, rf):
     page = get_whats_new_page_with_qr_snippet()
-    page.qr_code_floating_button = None
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -99,7 +95,6 @@ def test_whats_new_page_renders_qr_code_snippet(minimal_site, rf):
 
 def test_whats_new_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
     page = get_whats_new_page_with_qr_snippet()
-    page.qr_code_floating_button = None
     page.show_qr_code_snippet = False
     page.save_revision().publish()
 
@@ -113,7 +108,6 @@ def test_whats_new_page_does_not_render_qr_code_snippet_when_flag_off(minimal_si
 
 def test_whats_new_page_2026_renders_qr_code_snippet(minimal_site, rf):
     page = get_whats_new_page_2026_with_qr_snippet()
-    page.qr_code_floating_button = None
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -128,7 +122,6 @@ def test_whats_new_page_2026_renders_qr_code_snippet(minimal_site, rf):
 
 def test_whats_new_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
     page = get_whats_new_page_2026_with_qr_snippet()
-    page.qr_code_floating_button = None
     page.show_qr_code_snippet = False
     page.save_revision().publish()
 
@@ -142,7 +135,6 @@ def test_whats_new_page_2026_does_not_render_qr_code_snippet_when_flag_off(minim
 
 def test_qr_code_snippet_not_closable(minimal_site, rf):
     page = get_freeform_page_2026_with_qr_snippet()
-    page.qr_code_floating_button = None
     snippet = get_qr_code_snippet()
     snippet.closable = False
     snippet.save()

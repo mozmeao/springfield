@@ -461,8 +461,11 @@ if (typeof window.cms === 'undefined') {
 
                         const toggleButton =
                             document.querySelector('.fl-icon-subtract');
-                        toggleButton.classList.remove('fl-icon-subtract');
-                        toggleButton.classList.add('fl-icon-add');
+
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-subtract');
+                            toggleButton.classList.add('fl-icon-add');
+                        }
 
                         if (!cookiesEnabled) {
                             return;
@@ -499,8 +502,12 @@ if (typeof window.cms === 'undefined') {
                     } else {
                         const toggleButton =
                             document.querySelector('.fl-icon-add');
-                        toggleButton.classList.remove('fl-icon-add');
-                        toggleButton.classList.add('fl-icon-subtract');
+
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-add');
+                            toggleButton.classList.add('fl-icon-subtract');
+                        }
+
                         qrCodeSnippetEl.classList.add('is-open');
                     }
                 });
