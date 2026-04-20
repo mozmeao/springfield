@@ -102,6 +102,12 @@
         font-size: var(--fl-theme-font-size-body-2xs);
         margin: var(--token-spacing-xs) 0 0 0;
     }
+
+    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-error {
+        background: var(--fl-theme-background);
+        inset-block-start: 100%;
+        position: absolute;
+    }
 }
 
 .fl-smart-window-explainer-page .fl-header {
