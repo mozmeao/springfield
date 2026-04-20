@@ -1026,18 +1026,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=ALLOWED_TERRITORIES_OPTION,
         help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
     )
+    smart_window_button_label = models.CharField(max_length=255, default="Try Smart Window")
     nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
     intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
-    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
-    smart_window_button_label = models.CharField(max_length=255, default="Try Smart Window")
-    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
-    thank_you_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">You’re on the list!</p>')
-    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
-    privacy_notice = RichTextField(
-        features=HEADING_TEXT_FEATURES,
-        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
-        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
-    )
     redirect_page = models.ForeignKey(
         "cms.SmartWindowExplainerPage",
         on_delete=models.SET_NULL,
@@ -1046,11 +1037,26 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="The page users will be taken to after clicking the Smart Window button.",
     )
+
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">You’re on the list!</p>')
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
+
     download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
     nav_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Download Firefox button.")
     intro_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Download Firefox button.")
+
     update_button_label = models.CharField(
         max_length=255, default="How to update Firefox", help_text="Label for the button that appears if the user needs to update Firefox."
+    )
+    update_button_uid = models.UUIDField(
+        default=uuid.uuid4, help_text="Unique identifier for the Update Firefox button that appears if the user needs to update."
     )
     update_instructions = RichTextField(
         features=HEADING_TEXT_FEATURES,

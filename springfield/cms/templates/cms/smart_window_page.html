@@ -14,8 +14,8 @@
       {% set nav_smart_window %}
           <include:uitour_button
             theme_class="{{ ui_tour_class }}"
-            label="{{ page.waitlist_button_label }}"
-            analytics_text="{{ page.waitlist_button_label }}"
+            label="{{ page.smart_window_button_label }}"
+            analytics_text="{{ page.smart_window_button_label }}"
             analytics_position="nav"
             analytics_id="{{ page.nav_button_uid }}"
             {% if redirect_url %}
@@ -74,8 +74,8 @@
 {% set intro_smart_window %}
     <include:uitour_button
       theme_class="{{ ui_tour_class }}"
-      label="{{ page.waitlist_button_label }}"
-      analytics_text="{{ page.waitlist_button_label }}"
+      label="{{ page.smart_window_button_label }}"
+      analytics_text="{{ page.smart_window_button_label }}"
       analytics_position="intro-smart-window"
       analytics_id="{{ page.intro_button_uid }}"
       {% if redirect_url %}
@@ -90,7 +90,7 @@
     label="{{ page.update_button_label }}"
     analytics_text="{{ page.update_button_label }}"
     analytics_position="intro-update"
-    analytics_id="intro-update-button"
+    analytics_id="{{ page.update_button_uid }}"
   />
 {% endset %}
 
