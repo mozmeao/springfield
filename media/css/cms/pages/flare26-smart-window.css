@@ -119,6 +119,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 .fl-smart-window-intro .fl-subheading {
