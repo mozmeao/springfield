@@ -275,7 +275,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--token-spacing-md);
-        height: 100%;
+        block-size: 100%;
     }
 
     .fl-sliding-carousel-control {
