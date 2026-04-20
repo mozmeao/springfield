@@ -161,6 +161,10 @@
 .fl-smart-window-page .fl-video-play-icon:active,
 .fl-smart-window-explainer-page .fl-video-play-icon:active {
     background: var(--smart-window-play-icon-background-active);
+}
+
+.fl-smart-window-page .fl-video-play-icon:active svg,
+.fl-smart-window-explainer-page .fl-video-play-icon:active svg {
     opacity: 0.8;
 }
 
