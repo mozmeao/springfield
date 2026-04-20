@@ -388,10 +388,18 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
+    override_url = models.CharField(
+        blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set."
+    )
+    override_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override with an uploaded QR code image. Takes priority over the URL.",
+    )
     override_default_open = models.BooleanField(null=True, blank=True)
-
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
@@ -863,10 +871,18 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
+    override_url = models.CharField(
+        blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set."
+    )
+    override_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override with an uploaded QR code image. Takes priority over the URL.",
+    )
     override_default_open = models.BooleanField(null=True, blank=True)
-
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -976,10 +992,18 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
+    override_url = models.CharField(
+        blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set."
+    )
+    override_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override with an uploaded QR code image. Takes priority over the URL.",
+    )
     override_default_open = models.BooleanField(null=True, blank=True)
-
 
     content_panels = [
         FieldPanel("title"),
@@ -1069,10 +1093,18 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
 
-    override_url = models.CharField(blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.")
-    override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", help_text="Override with an uploaded QR code image. Takes priority over the URL.")
+    override_url = models.CharField(
+        blank=True, help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set."
+    )
+    override_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override with an uploaded QR code image. Takes priority over the URL.",
+    )
     override_default_open = models.BooleanField(null=True, blank=True)
-
 
     content_panels = [
         FieldPanel("title"),

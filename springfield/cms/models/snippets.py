@@ -290,7 +290,11 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
     )
     url = models.CharField(blank=True, help_text="A QR code will be generated from this URL. Not used if an image is uploaded.")
     image = models.ForeignKey(
-        "cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+",
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
         help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
     )
     default_open = models.BooleanField(default=True)
