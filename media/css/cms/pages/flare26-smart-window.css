@@ -148,10 +148,20 @@
 .fl-smart-window-explainer-page .fl-video-play-icon {
     background: var(--smart-window-play-icon-background);
     block-size: 28px;
-    border: 1px solid var(--smart-window-play-icon-border-color);
     border-radius: var(--token-border-radius-2xs);
     display: none;
     inline-size: 28px;
+}
+
+.fl-smart-window-page .fl-video-play-icon:hover,
+.fl-smart-window-explainer-page .fl-video-play-icon:hover {
+    background: var(--smart-window-play-icon-background-hover);
+}
+
+.fl-smart-window-page .fl-video-play-icon:active,
+.fl-smart-window-explainer-page .fl-video-play-icon:active {
+    background: var(--smart-window-play-icon-background-active);
+    opacity: 0.8;
 }
 
 .fl-smart-window-page .fl-video-play:hover .fl-video-play-icon:not([hidden]),
