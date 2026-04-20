@@ -38,6 +38,7 @@
 }
 
 .fl-sliding-carousel-control {
+    --fl-slide-interval: 10000ms;
     background: none;
     color: inherit;
     cursor: pointer;
@@ -95,7 +96,8 @@
 }
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after {
-    animation: fl-sliding-carousel-progress 10000ms linear forwards;
+    animation: fl-sliding-carousel-progress var(--fl-slide-interval, 10000ms)
+        linear forwards;
     background-color: var(--token-color-light-purple);
     block-size: 100%;
     border-radius: 4px;
