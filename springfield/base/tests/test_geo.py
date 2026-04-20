@@ -52,3 +52,21 @@ class TestGeo(TestCase):
 
         req = self.factory.get("/", data={"geo": "france"})
         assert get_country_from_request(req) is None
+
+    def test_geo_param_allowed_in_preview(self):
+        """?geo= should be accepted on the prod host when request.is_preview is True."""
+        req = self.factory.get("/", data={"geo": "fr"}, HTTP_CF_IPCOUNTRY="de", HTTP_HOST="www.firefox.com")
+        req.is_preview = True
+        assert get_country_from_request(req) == "FR"
+
+    def test_geo_param_blocked_on_prod_without_preview(self):
+        """?geo= should be ignored on the prod host when request.is_preview is not set."""
+        req = self.factory.get("/", data={"geo": "fr"}, HTTP_CF_IPCOUNTRY="de", HTTP_HOST="www.firefox.com")
+        assert get_country_from_request(req) == "DE"
+
+    @override_settings(DEV=False)
+    def test_invalid_geo_param_in_preview(self):
+        """Invalid ?geo= values should still be ignored even in preview."""
+        req = self.factory.get("/", data={"geo": "france"}, HTTP_CF_IPCOUNTRY="de", HTTP_HOST="www.firefox.com")
+        req.is_preview = True
+        assert get_country_from_request(req) == "DE"

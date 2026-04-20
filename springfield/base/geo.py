@@ -23,8 +23,13 @@ def valid_country_code(country):
 
 def get_country_from_param(request):
     is_prod = request.get_host() == "www.firefox.com"
+    is_preview = getattr(request, "is_preview", False)
+    # Allow ?geo= param on non-prod hosts, and on preview requests
+    # (preview dummy requests have the prod hostname but aren't real user requests)
+    if is_prod and not is_preview:
+        return None
     country_code = valid_country_code(request.GET.get("geo"))
-    return country_code if not is_prod else None
+    return country_code
 
 
 def get_country_from_header(request):
