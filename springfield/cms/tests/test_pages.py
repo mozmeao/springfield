@@ -366,6 +366,25 @@ def test_smart_window_page_content_blocks(smart_window_page: SmartWindowPage, rf
 
 
 @pytest.mark.django_db
+def test_smart_window_v_product_redirects_to_start(smart_window_page: SmartWindowPage, rf):
+    """Visiting /smart-window/?v=product returns a 302 to /smart-window/start/."""
+    page = smart_window_page
+    request = rf.get(page.get_full_url(), {"v": "product"})
+    response = page.serve(request)
+    assert response.status_code == 302
+    assert response["Location"] == page.get_url() + "start/"
+
+
+@pytest.mark.django_db
+def test_smart_window_without_v_product_serves_normally(smart_window_page: SmartWindowPage, rf):
+    """Visiting /smart-window/ without ?v=product serves the page normally."""
+    page = smart_window_page
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "show_button,country,expected",
     [

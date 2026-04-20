@@ -1129,6 +1129,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             raise ValidationError("An alt text description is required when an animation URL is provided.")
 
     def serve(self, request, *args, **kwargs):
+        if request.GET.get("v") == "product":
+            return redirect(self.get_url(request).rstrip("/") + "/start/")
+
         response = super().serve(request, *args, **kwargs)
         if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
             add_never_cache_headers(response)
