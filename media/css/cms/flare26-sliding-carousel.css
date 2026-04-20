@@ -25,6 +25,7 @@
 .fl-sliding-carousel-media-panel {
     order: 1;
     padding-inline: var(--token-spacing-lg);
+    position: relative;
 }
 
 .fl-sliding-carousel-controls-swiper {
@@ -160,10 +161,6 @@
 }
 
 /* Media panel */
-
-.fl-sliding-carousel-media-panel {
-    position: relative;
-}
 
 .fl-sliding-carousel-media-panel .fl-video {
     aspect-ratio: 3 / 4;
@@ -362,7 +359,8 @@
         position: absolute;
     }
 
-    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box.no-animate::after {
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-box.no-animate::after {
         animation: none;
     }
 

@@ -157,7 +157,9 @@
 }
 
 @media (hover: hover) {
-    .fl-smart-window-page .fl-video-play:hover .fl-video-play-icon:not([hidden]),
+    .fl-smart-window-page
+        .fl-video-play:hover
+        .fl-video-play-icon:not([hidden]),
     .fl-smart-window-explainer-page
         .fl-video-play:hover
         .fl-video-play-icon:not([hidden]) {
@@ -177,7 +179,9 @@
     background: var(--smart-window-play-icon-background-active);
 }
 
-.fl-smart-window-page .fl-video-play.is-paused .fl-video-play-icon:not([hidden]),
+.fl-smart-window-page
+    .fl-video-play.is-paused
+    .fl-video-play-icon:not([hidden]),
 .fl-smart-window-explainer-page
     .fl-video-play.is-paused
     .fl-video-play-icon:not([hidden]) {
@@ -186,7 +190,9 @@
 }
 
 @media not all and (--viewport-md-up) {
-    .fl-smart-window-page .fl-video-play.is-paused .fl-video-play-icon:not([hidden]),
+    .fl-smart-window-page
+        .fl-video-play.is-paused
+        .fl-video-play-icon:not([hidden]),
     .fl-smart-window-explainer-page
         .fl-video-play.is-paused
         .fl-video-play-icon:not([hidden]) {
