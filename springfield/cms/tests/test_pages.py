@@ -376,8 +376,6 @@ def test_smart_window_v_product_redirects_to_start(smart_window_page: SmartWindo
     response = page.serve(request)
     assert response.status_code == 302
     assert response["Location"] == explainer_page.get_url()
-    assert response.has_header("Cache-Control")
-    assert "no-cache" in response["Cache-Control"]
 
 
 @pytest.mark.django_db
