@@ -290,7 +290,7 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
     )
     url = models.CharField(blank=True)
     image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    default_open = models.BooleanField(default=False)
+    default_open = models.BooleanField(default=True)
 
     panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
 
