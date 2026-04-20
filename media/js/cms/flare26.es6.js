@@ -124,7 +124,6 @@ function initSlidingCarousel(rootEl) {
         slides.forEach((slide) => {
             const videoEl = getVideoFromSlide(slide);
             if (videoEl) {
-                videoEl.currentTime = 0;
                 pauseVideo(videoEl);
             }
         });
@@ -148,7 +147,10 @@ function initSlidingCarousel(rootEl) {
 
         if (!userPaused) {
             const videoEl = getVideoFromSlide(slides[currentIndex]);
-            if (videoEl) playVideo(videoEl);
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                playVideo(videoEl);
+            }
         }
 
         if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {
