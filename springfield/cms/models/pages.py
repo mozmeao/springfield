@@ -1151,7 +1151,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def serve(self, request, *args, **kwargs):
         if request.GET.get("v") == "product":
             if child := self.get_children().live().public().filter(slug="start").first():
-                return redirect(child.get_url(request))
+                response = redirect(child.get_url(request))
+                add_never_cache_headers(response)
+                return response
 
         response = super().serve(request, *args, **kwargs)
         if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
