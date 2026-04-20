@@ -31,6 +31,20 @@
     gap: var(--token-spacing-md);
 }
 
+.fl-smart-window-heading-success {
+    display: none;
+}
+
+.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+    .fl-smart-window-heading-success {
+    display: block;
+}
+
+.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+    .fl-smart-window-heading-default {
+    display: none;
+}
+
 @media (--viewport-md-up) {
     .fl-smart-window-explainer-page .fl-header .fl-nav {
         background: transparent;
