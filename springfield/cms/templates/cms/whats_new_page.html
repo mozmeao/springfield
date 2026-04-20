@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block qr_code_snippet %}
-  {% if page.qr_code_floating_button %}
+  {% if page.show_floating_qr_code_snippet %}
     {% set qr_code_snippet = get_floating_qr_code_snippet() %}
     {% if qr_code_snippet %}
       {% set value = qr_code_snippet %}

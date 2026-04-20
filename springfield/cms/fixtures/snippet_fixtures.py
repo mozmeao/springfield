@@ -91,6 +91,7 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
         defaults={
             "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
+            "content": "Bring your tabs with you",
             "url": "https://www.firefox.com/browsers/mobile/",
             "default_open": True,
         },

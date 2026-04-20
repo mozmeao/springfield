@@ -22,7 +22,7 @@
   <div class="fl-qr-code-floating-content">
     <div class="fl-qr-code-image">
       {% if qr.type == "image" %}
-        <img src="{{ qr.value }}" class="fl-qr-code-image">
+        <img src="{{ qr.value }}" class="fl-qr-code-image" alt="A QR code that directs you to {{ qr.value }}.">
       {% else %}
         {{ qrcode(qr.value, 12) }}
       {% endif %}

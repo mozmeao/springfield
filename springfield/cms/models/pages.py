@@ -383,7 +383,10 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
-    qr_code_floating_button = models.ForeignKey("QRCodeFloatingSnippet", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    show_floating_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+    )
 
     override_url = models.CharField(blank=True)
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
@@ -396,7 +399,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldRowPanel(
                     [
-                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("override_url"),
                         FieldPanel("override_image"),
                         FieldPanel("override_default_open"),
@@ -418,9 +421,12 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"ThanksPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
+        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
+
         context = super().get_context(request, *args, **kwargs)
 
-        context["qr"] = resolve_qr_source(self, self.qr_code_floating_button)
+        snippet = get_floating_qr_code_snippet()
+        context["qr"] = resolve_qr_source(self, snippet)
 
         return context
 
@@ -825,6 +831,16 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def __str__(self):
         return f"FreeFormPage: {self.title} - {self.locale}"
 
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
+
+        context = super().get_context(request, *args, **kwargs)
+
+        snippet = get_floating_qr_code_snippet()
+        context["qr"] = resolve_qr_source(self, snippet)
+
+        return context
+
 
 class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
@@ -855,12 +871,14 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=False,
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
-
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    show_floating_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+    )
 
     override_url = models.CharField(blank=True)
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    override_default_open = models.BooleanField(default=False)
+    override_default_open = models.BooleanField(null=True, blank=True)
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -872,7 +890,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldRowPanel(
                     [
-                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("override_url"),
                         FieldPanel("override_image"),
                         FieldPanel("override_default_open"),
@@ -897,6 +915,16 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
 
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
+
+        context = super().get_context(request, *args, **kwargs)
+
+        snippet = get_floating_qr_code_snippet()
+        context["qr"] = resolve_qr_source(self, snippet)
+
+        return context
+
     def clean(self):
         super().clean()
         if self.override_url and self.override_image:
@@ -918,6 +946,16 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewIndexPage: {self.title} - {self.locale}"
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
+
+        context = super().get_context(request, *args, **kwargs)
+
+        snippet = get_floating_qr_code_snippet()
+        context["qr"] = resolve_qr_source(self, snippet)
+
+        return context
 
     def serve(self, request):
         latest_whats_new = (
@@ -959,12 +997,14 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=False,
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
-
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    show_floating_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+    )
 
     override_url = models.CharField(blank=True)
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    override_default_open = models.BooleanField(default=False)
+    override_default_open = models.BooleanField(null=True, blank=True)
 
     content_panels = [
         FieldPanel("title"),
@@ -975,7 +1015,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldRowPanel(
                     [
-                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("override_url"),
                         FieldPanel("override_image"),
                         FieldPanel("override_default_open"),
@@ -1043,12 +1083,14 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=False,
         help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
-
-    qr_code_floating_button = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    show_floating_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+    )
 
     override_url = models.CharField(blank=True)
     override_image = models.ForeignKey("cms.SpringfieldImage", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    override_default_open = models.BooleanField(default=False)
+    override_default_open = models.BooleanField(null=True, blank=True)
 
     content_panels = [
         FieldPanel("title"),
@@ -1060,7 +1102,7 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldRowPanel(
                     [
-                        FieldPanel("qr_code_floating_button"),
+                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("override_url"),
                         FieldPanel("override_image"),
                         FieldPanel("override_default_open"),
@@ -1087,6 +1129,16 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"WhatsNewPage2026: {self.title} - {self.locale}"
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
+
+        context = super().get_context(request, *args, **kwargs)
+
+        snippet = get_floating_qr_code_snippet()
+        context["qr"] = resolve_qr_source(self, snippet)
+
+        return context
 
     def clean(self):
         super().clean()

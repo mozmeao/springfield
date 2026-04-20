@@ -7,7 +7,9 @@ def resolve_qr_source(page, snippet):
     resolved_image = getattr(page, "override_image", None) or getattr(snippet, "image", None)
     resolved_url = getattr(page, "override_url", None) or getattr(snippet, "url", None)
 
-    resolved_default_open = page.override_default_open if page.override_default_open else getattr(snippet, "default_open", None)
+    override_default_open = getattr(page, "override_default_open", None)
+
+    resolved_default_open = override_default_open if override_default_open is not None else getattr(snippet, "default_open", None)
 
     if resolved_image:
         return {"type": "image", "value": resolved_image.file.url, "open": resolved_default_open}
