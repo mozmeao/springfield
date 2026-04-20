@@ -41,7 +41,9 @@
 }
 
 .fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
-    .fl-smart-window-heading-default {
+    .fl-smart-window-heading-default,
+.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+    .fl-smart-window-subheading-default {
     display: none;
 }
 
