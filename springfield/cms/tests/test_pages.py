@@ -17,7 +17,7 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
-from springfield.cms.models import FreeFormPage2026, SmartWindowPage
+from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage
 
 
 @pytest.fixture
@@ -369,10 +369,13 @@ def test_smart_window_page_content_blocks(smart_window_page: SmartWindowPage, rf
 def test_smart_window_v_product_redirects_to_start(smart_window_page: SmartWindowPage, rf):
     """Visiting /smart-window/?v=product returns a 302 to /smart-window/start/."""
     page = smart_window_page
+    explainer_page = SmartWindowExplainerPage(slug="start", title="Start")
+    page.add_child(instance=explainer_page)
+    explainer_page.save_revision().publish()
     request = rf.get(page.get_full_url(), {"v": "product"})
     response = page.serve(request)
     assert response.status_code == 302
-    assert response["Location"] == page.get_url() + "start/"
+    assert response["Location"] == explainer_page.get_url()
 
 
 @pytest.mark.django_db
@@ -380,6 +383,9 @@ def test_smart_window_without_v_product_serves_normally(smart_window_page: Smart
     """Visiting /smart-window/ without ?v=product serves the page normally."""
     page = smart_window_page
     request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+    request = rf.get(page.get_full_url() + "?v=other")
     response = page.serve(request)
     assert response.status_code == 200
 
