@@ -455,7 +455,21 @@ if (typeof window.cms === 'undefined') {
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
             if (showHideButton) {
-                showHideButton.addEventListener('click', function () {
+                qrCodeSnippetEl.addEventListener('click', function () {
+                    if (!qrCodeSnippetEl.classList.contains('is-open')) {
+                        const toggleButton =
+                            document.querySelector('.fl-icon-add');
+
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-add');
+                            toggleButton.classList.add('fl-icon-subtract');
+                        }
+
+                        qrCodeSnippetEl.classList.add('is-open');
+                    }
+                });
+                showHideButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
                     if (qrCodeSnippetEl.classList.contains('is-open')) {
                         qrCodeSnippetEl.classList.remove('is-open');
 
