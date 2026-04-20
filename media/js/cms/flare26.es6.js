@@ -60,7 +60,7 @@ function initFlare26Carousel(rootEl) {
     });
 }
 
-const AUTO_PLAY_INTERVAL_MS = 10000;
+const AUTO_PLAY_INTERVAL_MS = 24000;
 
 function initSlidingCarousel(rootEl) {
     const controlsSwiperEl = rootEl.querySelector(

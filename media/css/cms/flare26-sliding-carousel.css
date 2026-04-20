@@ -97,7 +97,7 @@
 }
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after {
-    animation: fl-sliding-carousel-progress 10000ms linear forwards;
+    animation: fl-sliding-carousel-progress 24000ms linear forwards;
     background-color: var(--token-color-light-purple);
     block-size: 100%;
     border-radius: 4px;
