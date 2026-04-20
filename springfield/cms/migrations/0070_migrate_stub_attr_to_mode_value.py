@@ -39,7 +39,6 @@ def migrate_stub_attr_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cms", "0069_add_stub_attr_mode_and_value"),
     ]
