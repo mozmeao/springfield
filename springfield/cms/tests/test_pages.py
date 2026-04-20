@@ -247,13 +247,13 @@ def test_smart_window_page_firefox_new(smart_window_page: SmartWindowPage, rf):
     nav_btn = uitour_by_ids.get(str(page.nav_button_uid))
     assert nav_btn
     assert nav_btn["data-cta-position"] == "nav"
-    assert nav_btn.get_text(strip=True) == page.waitlist_button_label
+    assert nav_btn.get_text(strip=True) == page.smart_window_button_label
 
     # Intro UITour button
     intro_btn = uitour_by_ids.get(str(page.intro_button_uid))
     assert intro_btn
     assert intro_btn["data-cta-position"] == "intro-smart-window"
-    assert intro_btn.get_text(strip=True) == page.waitlist_button_label
+    assert intro_btn.get_text(strip=True) == page.smart_window_button_label
 
 
 @pytest.mark.django_db
