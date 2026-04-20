@@ -36,6 +36,7 @@ from springfield.cms.fixtures.freeformpage_2026 import (
     get_mobile_store_qr_code_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
+from springfield.cms.fixtures.icon_cards_2026_fixtures import get_icon_cards_2026_test_page
 from springfield.cms.fixtures.icon_list_with_image_2026_fixtures import get_icon_list_with_image_test_page
 from springfield.cms.fixtures.inline_notification_fixtures import (
     get_inline_notification_test_page,
@@ -44,11 +45,17 @@ from springfield.cms.fixtures.intro_2026_fixtures import get_intro_2026_test_pag
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_2026_test_page, get_kit_banner_test_page
 from springfield.cms.fixtures.kit_intro_2026_fixtures import get_kit_intro_2026_test_page
+from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_page
+from springfield.cms.fixtures.media_content_2026_fixtures import get_media_content_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
+from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
+from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
+from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
+from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_cards_2026_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
@@ -113,11 +120,20 @@ class Command(BaseCommand):
         outlined_cards_2026_page = get_outlined_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Outlined Cards 2026 test page loaded: {outlined_cards_2026_page.slug}"))
 
+        icon_cards_2026_page = get_icon_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Icon Cards 2026 test page loaded: {icon_cards_2026_page.slug}"))
+
+        testimonial_cards_2026_page = get_testimonial_cards_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Testimonial Cards 2026 test page loaded: {testimonial_cards_2026_page.slug}"))
+
         step_cards_2026_page = get_step_cards_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Step Cards 2026 test page loaded: {step_cards_2026_page.slug}"))
 
         icon_list_with_image_page = get_icon_list_with_image_test_page()
         self.stdout.write(self.style.SUCCESS(f"Icon List with Image 2026 test page loaded: {icon_list_with_image_page.slug}"))
+
+        line_cards_page = get_line_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Line Cards 2026 test page loaded: {line_cards_page.slug}"))
 
         showcase_2026_page = get_showcase_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Showcase 2026 test page loaded: {showcase_2026_page.slug}"))
@@ -172,8 +188,20 @@ class Command(BaseCommand):
         carousel_page = get_carousel_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
 
+        sliding_carousel_page = get_sliding_carousel_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Sliding Carousel 2026 test page loaded: {sliding_carousel_page.slug}"))
+
+        smart_window_explainer_page = get_smart_window_explainer_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Smart Window Explainer test page loaded: {smart_window_explainer_page.slug}"))
+
+        smart_window_page = get_smart_window_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Smart Window test page loaded: {smart_window_page.slug}"))
+
         kit_intro_page = get_kit_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
+
+        media_content_page = get_media_content_2026_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Media Content 2026 test page loaded: {media_content_page.slug}"))
 
         # 2025 pages
 

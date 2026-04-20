@@ -1,0 +1,15 @@
+name: Copy-to-Clipboard Button 2026
+context:
+  variants:
+    - label: "Copy link"
+      success_label: "Copied!"
+      value: "https://example.com/some-link"
+      theme_class: ""
+    - label: "Copy link"
+      success_label: "Copied!"
+      value: "https://example.com/some-link"
+      theme_class: "button-secondary"
+    - label: "Copy link"
+      success_label: "Copied!"
+      value: "https://example.com/some-link"
+      theme_class: "button-ghost"

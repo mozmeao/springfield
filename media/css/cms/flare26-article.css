@@ -127,6 +127,12 @@ Stacked article list
     margin: 0;
 }
 
+.fl-article-item .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    font-size: var(--fl-theme-label-xs);
+    text-transform: uppercase;
+}
+
 /* =====================================================================
 Related articles
 ===================================================================== */

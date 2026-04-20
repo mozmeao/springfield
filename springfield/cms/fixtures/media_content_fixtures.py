@@ -14,6 +14,10 @@ from springfield.cms.models import FreeFormPage
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
+def _rich_text_stream(text, block_id):
+    return [{"type": "rich_text", "value": text, "id": block_id}]
+
+
 def get_media_content_variants() -> list[dict]:
     tags = list(get_tag_variants().values())
     buttons = get_button_variants()
@@ -40,8 +44,11 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Content Before, Media After</p>',
                 "tags": tags[:3],
-                "content": '<p data-block-key="4fkrh">The block is composed of text and media. '
-                "You can also add tags between the Headline and the Content.</p>",
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">The block is composed of text and media. '
+                    "You can also add tags between the Headline and the Content.</p>",
+                    "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
+                ),
                 "buttons": [
                     buttons["primary"],
                 ],
@@ -69,7 +76,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Content <sup>After</sup>, Media <sub>Before</sub></p>',
                 "tags": tags[3:6],
-                "content": '<p data-block-key="4fkrh">More tag variations and some <b>richtext</b> formatting examples.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">More tag variations and some <b>richtext</b> formatting examples.</p>',
+                    "d2b3c4d5-e6f7-8901-bcde-f12345678901",
+                ),
                 "buttons": [
                     buttons["secondary"],
                 ],
@@ -84,7 +94,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Video + Content</p>',
                 "tags": tags[6:9],
-                "content": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                    "e3c4d5e6-f7a8-9012-cdef-123456789012",
+                ),
                 "buttons": [
                     buttons["tertiary"],
                 ],
@@ -99,7 +112,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Video + Content Before</p>',
                 "tags": tags[9:12],
-                "content": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                    "f4d5e6f7-a8b9-0123-defa-234567890123",
+                ),
                 "buttons": [
                     buttons["ghost"],
                 ],
@@ -114,7 +130,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Animation Autoplay Loop</p>',
                 "tags": tags[:3],
-                "content": '<p data-block-key="4fkrh">Animation with autoplay loop (default). Plays continuously.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">Animation with autoplay loop (default). Plays continuously.</p>',
+                    "a5e6f7a8-b9c0-1234-efab-345678901234",
+                ),
                 "buttons": [
                     buttons["ghost"],
                 ],
@@ -129,7 +148,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">Animation Autoplay Once</p>',
                 "tags": tags[:3],
-                "content": '<p data-block-key="4fkrh">Animation with autoplay once. Plays on load then shows poster and play button.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">Animation with autoplay once. Plays on load then shows poster and play button.</p>',
+                    "b6f7a8b9-c0d1-2345-fabc-456789012345",
+                ),
                 "buttons": [
                     buttons["ghost"],
                 ],
@@ -150,7 +172,10 @@ def get_media_content_variants() -> list[dict]:
                 "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
                 "headline": '<p data-block-key="4h9nd">QR Code + Content Before</p>',
                 "tags": tags[3:6],
-                "content": '<p data-block-key="4fkrh">Add a QR Code instead of an image as the media element.</p>',
+                "content": _rich_text_stream(
+                    '<p data-block-key="4fkrh">Add a QR Code instead of an image as the media element.</p>',
+                    "c7a8b9c0-d1e2-3456-abcd-567890123456",
+                ),
                 "buttons": [
                     buttons["primary"],
                 ],

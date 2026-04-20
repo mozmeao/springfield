@@ -4,14 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+{% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
 
 <include:conditional-display
   platform_conditions="{{ value.settings.show_to.platforms }}"
   firefox_condition="{{ value.settings.show_to.firefox }}"
   auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}">
+  default_browser_condition="{{ value.settings.show_to.default_browser }}"
+  min_version="{{ value.settings.show_to.min_version }}"
+  max_version="{{ value.settings.show_to.max_version }}">
   <include:sticker-card-2026 expand_link="{{ value.settings.expand_link }}">
     <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
 

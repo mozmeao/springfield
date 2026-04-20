@@ -5,7 +5,7 @@
 #}
 
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-{% set subheading_level = 'h' ~ block_level + 1 if block_level else 'h3' %}
+{% set subheading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
 <include:showcase layout="{{ value.settings.layout }}">
   <content:heading>

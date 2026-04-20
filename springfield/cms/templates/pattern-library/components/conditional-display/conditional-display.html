@@ -8,9 +8,13 @@
   <h2>{{ variant.name }}</h2>
   <div class="{{ variant.html_class }}">
     <div class="{{ variant.body_class }}">
-      <include:conditional-display platform_conditions="{{ variant.platform_conditions }}" firefox_condition="{{ variant.firefox_condition }}" auth_state_condition="{{ variant.auth_state_condition }}">
+      <include:conditional-display platform_conditions="{{ variant.platform_conditions }}" firefox_condition="{{ variant.firefox_condition }}" auth_state_condition="{{ variant.auth_state_condition }}" min_version="{{ variant.min_version }}" max_version="{{ variant.max_version }}">
         {{ variant.contents }}
       </include:conditional-display>
+      {% if variant.min_version or variant.max_version %}
+        {{ variant.contents }}
+        <b>If the content is duplicated, it means that the JS triggered by the version conditions matched the browser's version.</b>
+      {% endif %}
       <include:conditional-display platform_conditions="{{ ['something-else'] }}">
         <p>This will not be displayed.</p>
       </include:conditional-display>

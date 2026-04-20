@@ -1478,6 +1478,8 @@ _allowed_page_models = [
     "cms.WhatsNewIndexPage",
     "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
+    "cms.SmartWindowPage",
+    "cms.SmartWindowExplainerPage",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.ArticleThemePage",
