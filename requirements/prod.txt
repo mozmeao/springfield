@@ -34,13 +34,13 @@ beautifulsoup4==4.14.3 \
     --hash=sha256:0918bfe44902e6ad8d57732ba310582e98da931428d231a5ecb9e7c703a735bb \
     --hash=sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86
     # via wagtail
-boto3==1.42.89 \
-    --hash=sha256:3e43aacc0801bba9bcd23a8c271c089af297a69565f783fcdd357ae0e330bf1e \
-    --hash=sha256:6204b189f4d0c655535f43d7eaa57ff4e8d965b8463c97e45952291211162932
+boto3==1.42.91 \
+    --hash=sha256:03d70532b17f7f84df37ca7e8c21553280454dea53ae12b15d1cfef9b16fcb8a \
+    --hash=sha256:04e72071cde022951ce7f81bd9933c90095ab8923e8ced61c8dacfe9edac0f5c
     # via -r requirements/prod.in
-botocore==1.42.89 \
-    --hash=sha256:95ac52f472dad29942f3088b278ab493044516c16dbf9133c975af16527baa99 \
-    --hash=sha256:d9b786c8d9db6473063b4cc5be0ba7e6a381082307bd6afb69d4216f9fa95f35
+botocore==1.42.91 \
+    --hash=sha256:7a28c3cc6bfab5724ad18899d52402b776a0de7d87fa20c3c5270bcaaf199ce8 \
+    --hash=sha256:d252e27bc454afdbf5ed3dc617aa423f2c855c081e98b7963093399483ecc698
     # via
     #   boto3
     #   s3transfer
@@ -355,9 +355,9 @@ dj-database-url==3.1.2 \
     --hash=sha256:544e015fee3efa5127a1eb1cca465f4ace578265b3671fe61d0ed7dbafb5ec8a \
     --hash=sha256:63c20e4bbaa51690dfd4c8d189521f6bf6bc9da9fcdb23d95d2ee8ee87f9ec62
     # via -r requirements/prod.in
-django==5.2.12 \
-    --hash=sha256:4853482f395c3a151937f6991272540fcbf531464f254a347bf7c89f53c8cff7 \
-    --hash=sha256:6b809af7165c73eff5ce1c87fdae75d4da6520d6667f86401ecf55b681eb1eeb
+django==5.2.13 \
+    --hash=sha256:5788fce61da23788a8ce6f02583765ab060d396720924789f97fa42119d37f7a \
+    --hash=sha256:a31589db5188d074c63f0945c3888fad104627dfcc236fb2b97f71f89da33bc4
     # via
     #   -r requirements/prod.in
     #   dj-database-url
@@ -457,9 +457,9 @@ django-storages[google]==1.14.4 \
     --hash=sha256:69aca94d26e6714d14ad63f33d13619e697508ee33ede184e462ed766dc2a73f \
     --hash=sha256:d61930acb4a25e3aebebc6addaf946a3b1df31c803a6bf1af2f31c9047febaa3
     # via -r requirements/prod.in
-django-stubs-ext==6.0.2 \
-    --hash=sha256:70b7b7ae837e7a6036e2facb64435550bf7cf8143c1a6e802864d4824ce6058c \
-    --hash=sha256:b35bdec1995bf49765cc39fa89aa7c23f120a23d0cb0152ab7fb4e48ff7d667b
+django-stubs-ext==6.0.3 \
+    --hash=sha256:3307d42132bc295d5744de6276bc5fdf6896efc70f891e21c0ae8bdf529d2762 \
+    --hash=sha256:9e4105955419ae310d7da9cfd808e039d4dae3092c628f021057bb4f2c237f8f
     # via django-tasks
 django-taggit==6.1.0 \
     --hash=sha256:ab776264bbc76cb3d7e49e1bf9054962457831bd21c3a42db9138b41956e4cf0 \
@@ -757,9 +757,9 @@ jq==1.11.0 \
     --hash=sha256:fbb189af2000458bbd59d291c73d5257b46d2ca9ef00c3d76b410fbb7dc0fd33 \
     --hash=sha256:fe1c5facefd0f1197fb95cda8f31195487f431e4c4699cb0cb207efc47553504
     # via -r requirements/prod.in
-justhtml==1.16.0 \
-    --hash=sha256:8a7165d10119fda05ec6b6e0886f4343a35c9b2cda54615dd64b05e81e38d5f1 \
-    --hash=sha256:c57a6772191200d3820cccf47a38274841925eff2166bc3f3f277312d6b11193
+justhtml==1.17.0 \
+    --hash=sha256:c098a5fbbd4caf646aa29dd876fe197ee17b1a4549eb19637bfc209230779381 \
+    --hash=sha256:c741b5b1100e4a3c37e74e31a86a5cbbd4eea798887e1636c00a9b127358e437
     # via -r requirements/prod.in
 laces==0.1.2 \
     --hash=sha256:3218e09c1889ae5cf3fc7a82f5bb63ec0c7879889b6a9760bfc42323c694b84d \
@@ -1007,9 +1007,9 @@ markus[datadog]==5.0.0 \
 mdx-outline @ https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz#egg=mdx_outline \
     --hash=sha256:a78e112f80628246dd45858fe18404aaa8efb8dc81949bb1fbb87e91f9654afa
     # via -r requirements/prod.in
-modelsearch==1.2 \
-    --hash=sha256:b4421c134175224e67f1aae9b4f26265347dfa617c2d433520cf379ca37c71f2 \
-    --hash=sha256:c150eb8bc0317fd5e656eb54f3b6809da313588a9998796a4e59a1cfed273ee7
+modelsearch==1.2.1 \
+    --hash=sha256:6576cb66162b8b1f80806116c2530b4b6409c50a55727735e3175556409c0355 \
+    --hash=sha256:8732cb84f424a592ea9fa44763650285af5ecf6475aa742125e7e368083d6505
     # via wagtail
 mozilla-django-oidc==5.0.2 \
     --hash=sha256:4e953dcd963c036daaa2ac42b5bb6ea89a1c6ea7be0387c2022a59aca2f83043 \
@@ -1019,9 +1019,9 @@ openpyxl==3.1.5 \
     --hash=sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2 \
     --hash=sha256:cf0e3cf56142039133628b5acffe8ef0c12bc902d2aadd3e0fe5878dc08d1050
     # via wagtail
-packaging==26.0 \
-    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
-    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+packaging==26.1 \
+    --hash=sha256:5d9c0669c6285e491e0ced2eee587eaf67b670d94a19e94e3984a481aba6802f \
+    --hash=sha256:f042152b681c4bfac5cae2742a55e103d27ab2ec0f3d88037136b6bfe7c9c5de
     # via
     #   django-csp
     #   django-includecontents
@@ -1455,9 +1455,9 @@ requests==2.33.1 \
     #   pygithub
     #   wagtail
     #   wagtail-localize-smartling
-rq==2.7.0 \
-    --hash=sha256:4b320e95968208d2e249fa0d3d90ee309478e2d7ea60a116f8ff9aa343a4c117 \
-    --hash=sha256:c2156fc7249b5d43dda918c4355cfbf8d0d299a5cdd3963918e9c8daf4b1e0c0
+rq==2.8.0 \
+    --hash=sha256:49d87c8d0068b890e83052050ffd18be328339ae00c9c6d5dbf2702eb06107d2 \
+    --hash=sha256:dd75b5a19016efd235143058e82fdc5658a0c1e9a76664cc7d02f721c7308a4a
     # via
     #   django-rq
     #   django-rq-email-backend
@@ -1553,9 +1553,9 @@ wagtail-localize-intentional-blanks==0.3.0 \
     --hash=sha256:53eba5279eba730a75a98ad27729405b45871a8411f88542c7f774f2295538f5 \
     --hash=sha256:dc16f86978671315f17ff1d9a3333592fd136f028fce290a7aa6db493a0e10d6
     # via -r requirements/prod.in
-wagtail-localize-smartling==0.12.1 \
-    --hash=sha256:0348763669a83e5164c231fa81c9f151ea3c397b41ec3c1c86bd9e372fc1663b \
-    --hash=sha256:9b0392ec7254daf75cbc12cf0b587f1a77b3f8ddd09a5ba86015b6666269cf67
+wagtail-localize-smartling==0.12.2 \
+    --hash=sha256:b5a9e7dce52a780018d846897206c4fd59b3a773130aff3915e8dde5d074907b \
+    --hash=sha256:c5a99b48b66a796973b60fef2b669bb22dc09b52d39cadaa8ee43ae2d72ed672
     # via -r requirements/prod.in
 wagtail-thumbnail-choice-block==0.2.0 \
     --hash=sha256:9a4b75d225b3e6e8614c3fd657b1c4e60639b8b7d85986bc55d162b0e03b0585 \
