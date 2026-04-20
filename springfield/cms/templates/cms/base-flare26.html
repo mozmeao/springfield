@@ -62,8 +62,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% block page_ios_icon %}{{ static('img/favicons/firefox/browser/apple-touch-icon.png') }}{% endblock %}">
     <link rel="icon" type="image/png" sizes="196x196" href="{% block page_favicon_large %}{{ static('img/favicons/firefox/browser/favicon-196x196.png') }}{% endblock %}">
     <link rel="shortcut icon" href="{% block page_favicon %}{{ static('img/favicons/firefox/browser/favicon.ico') }}{% endblock %}">
-    {# "noindex" pages should not have the canonical or hreflang tags #}
-    {% block canonical_urls %}{% if page is defined and page.noindex %}<meta name="robots" content="noindex,follow">{% else %}{% include 'includes/canonical-url.html' %}{% endif %}{% endblock %}
+    {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
     {% endblock shared_meta %}
 
     {% block site_css %}
