@@ -433,12 +433,15 @@ if (typeof window.cms === 'undefined') {
             window.Mozilla.Cookies.enabled();
 
         // Don't show if previously dismissed.
-        if (
-            cookiesEnabled &&
-            Mozilla.Cookies.hasItem(COOKIE_ID) &&
-            oldSnippet
-        ) {
+        const wasDismissed =
+            cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID);
+
+        if (wasDismissed && oldSnippet) {
             return;
+        }
+
+        if (wasDismissed) {
+            qrCodeSnippetEl.classList.remove('is-open');
         }
 
         const showHideButton = qrCodeSnippetEl.querySelector(
