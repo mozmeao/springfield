@@ -15,16 +15,15 @@
     inline-size: 22.5rem;
     inset: auto var(--token-spacing-lg) var(--token-spacing-lg) auto;
     position: fixed;
-    transition-behavior: allow-discrete;
-    transition-duration: 500ms;
-    transition-property: opacity, display, transform;
+    transition:
+        block-size 300ms ease,
+        inline-size 300ms ease;
     z-index: 5;
 }
 
 .fl-qr-code-floating-snippet.is-open {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
+    block-size: 19.188rem;
+    inline-size: 22.5rem;
 }
 
 @starting-style {
