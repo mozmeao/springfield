@@ -9,6 +9,7 @@ from django.conf import settings
 import pytest
 from bs4 import BeautifulSoup
 
+from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -16,15 +17,96 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
+from springfield.cms.models import FreeFormPage2026, SmartWindowPage
 
 
 @pytest.fixture
-def smart_window_page(index_page, placeholder_images):
+def smart_window_page(index_page, placeholder_images) -> SmartWindowPage:
     return get_smart_window_test_page()
 
 
+# Stub Attribution Campaign
+
+
+@pytest.fixture
+def free_form_2026_page(minimal_site) -> FreeFormPage2026:
+    root_page = minimal_site.root_page
+    page = FreeFormPage2026(slug="test-stub-attribution", title="Test Stub Attribution Page")
+    root_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
 @pytest.mark.django_db
-def test_smart_window_page_not_firefox(smart_window_page, rf):
+@pytest.mark.parametrize(
+    "mode,value,expected_attr",
+    [
+        ("default", "my-campaign", "data-stub-attribution-campaign"),
+        ("override", "my-campaign", "data-stub-attribution-campaign-override"),
+        ("force", "my-campaign", "data-stub-attribution-campaign-force"),
+    ],
+)
+def test_stub_attribution_html_attribute(free_form_2026_page: FreeFormPage2026, rf, mode, value, expected_attr):
+    """Each mode renders exactly one data-stub-attribution-* attribute on <html>."""
+    page = free_form_2026_page
+    page.stub_attr_utm_campaign_mode = mode
+    page.stub_attr_utm_campaign_value = value
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    html_el = BeautifulSoup(response.content, "html.parser").find("html")
+    all_attrs = {
+        "data-stub-attribution-campaign",
+        "data-stub-attribution-campaign-override",
+        "data-stub-attribution-campaign-force",
+    }
+    assert html_el.get(expected_attr) == value
+    for other in all_attrs - {expected_attr}:
+        assert html_el.get(other) is None
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "mode,value",
+    [
+        ("override", ""),  # value missing
+        ("", "my-campaign"),  # mode missing
+        ("", ""),  # neither set
+    ],
+)
+def test_stub_attribution_not_rendered_when_incomplete(free_form_2026_page: FreeFormPage2026, rf, mode, value):
+    """No stub-attribution attribute is added unless both mode and value are present."""
+    page = free_form_2026_page
+    page.stub_attr_utm_campaign_mode = mode
+    page.stub_attr_utm_campaign_value = value
+
+    response = page.serve(rf.get(page.get_full_url()))
+    html_el = BeautifulSoup(response.content, "html.parser").find("html")
+    assert html_el.get("data-stub-attribution-campaign") is None
+    assert html_el.get("data-stub-attribution-campaign-override") is None
+    assert html_el.get("data-stub-attribution-campaign-force") is None
+
+
+@pytest.mark.django_db
+def test_get_utm_campaign_uses_stub_value(free_form_2026_page: FreeFormPage2026):
+    page = free_form_2026_page
+    page.stub_attr_utm_campaign_mode = "override"
+    page.stub_attr_utm_campaign_value = "my-campaign"
+    assert page.get_utm_campaign() == "my-campaign"
+
+
+@pytest.mark.django_db
+def test_get_utm_campaign_falls_back_to_slug(free_form_2026_page: FreeFormPage2026):
+    page = free_form_2026_page
+    assert page.get_utm_campaign() == page.slug
+
+
+# Smart Window Page
+
+
+@pytest.mark.django_db
+def test_smart_window_page_not_firefox_in_supported_geo(smart_window_page: SmartWindowPage, rf):
     """Not-Firefox branch (in supported geo): shows download button, copy link, and post-download instructions."""
     page = smart_window_page
     page.show_smart_window_button = "all"
@@ -38,11 +120,18 @@ def test_smart_window_page_not_firefox(smart_window_page, rf):
     assert soup.find("h1", class_="fl-heading")
     assert soup.find("div", class_="fl-smart-window-intro-featured-image")
 
-    # Download Firefox button
+    # Intro Download Firefox button
     download_btn = soup.find("a", {"data-cta-position": "intro-download"})
     assert download_btn
     assert download_btn.get_text(strip=True) == page.download_button_label
     assert download_btn["data-cta-uid"] == str(page.intro_download_button_uid)
+    assert download_btn["data-cta-text"] == page.download_button_label
+
+    # Nav Download Firefox button
+    download_btn = soup.find("a", {"data-cta-position": "nav"})
+    assert download_btn
+    assert download_btn.get_text(strip=True) == page.download_button_label
+    assert download_btn["data-cta-uid"] == str(page.nav_download_button_uid)
     assert download_btn["data-cta-text"] == page.download_button_label
 
     # Copy-to-clipboard button
@@ -51,7 +140,7 @@ def test_smart_window_page_not_firefox(smart_window_page, rf):
     copy_btn = copy_btns[0]
     assert copy_btn.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == page.copy_to_clipboard_label
     assert copy_btn["data-label-success"] == page.copy_success_label
-    assert copy_btn["data-copy-value"]  # should be the page URL
+    assert copy_btn["data-copy-value"] == page.get_full_url()
 
     # Post-download instructions
     post_download_els = soup.find_all("p", class_="fl-post-download-instructions")
@@ -61,8 +150,44 @@ def test_smart_window_page_not_firefox(smart_window_page, rf):
 
 
 @pytest.mark.django_db
-def test_smart_window_page_firefox_old(smart_window_page, rf):
-    """Firefox < 150 branch: shows update instructions, update button, copy link, and post-download instructions."""
+def test_smart_window_page_not_firefox_in_unsupported_geo(smart_window_page: SmartWindowPage, rf):
+    """Not-Firefox branch (in unsupported geo): shows waitlist form."""
+    page = smart_window_page
+    page.show_smart_window_button = "never"
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Hero: heading and featured image
+    assert soup.find("h1", class_="fl-heading")
+    assert soup.find("div", class_="fl-smart-window-intro-featured-image")
+
+    # Download Firefox button
+    download_btn = soup.find("a", {"data-cta-position": "intro-download"})
+    assert not download_btn
+
+    # Copy-to-clipboard button
+    copy_btns = soup.find_all("button", {"data-js": "fl-copy-to-clipboard"})
+    assert not copy_btns
+
+    # Post-download instructions
+    post_download_els = soup.find_all("p", class_="fl-post-download-instructions")
+    assert not post_download_els
+
+    # Waitlist form
+    form = soup.find("form", {"data-testid": "newsletter-form"})
+    assert form
+    assert form["action"] == settings.BASKET_SUBSCRIBE_URL
+    newsletter_checkbox = form.find("input", {"name": "newsletters", "type": "checkbox"})
+    assert newsletter_checkbox
+    assert newsletter_checkbox["value"] == "smart-window-waitlist"
+
+
+@pytest.mark.django_db
+def test_smart_window_page_firefox_old(smart_window_page: SmartWindowPage, rf):
+    """Firefox <= 149 branch: shows update instructions, update button, copy link, and post-download instructions."""
     page = smart_window_page
     page.show_smart_window_button = "all"
     request = rf.get(page.get_full_url())
@@ -102,7 +227,7 @@ def test_smart_window_page_firefox_old(smart_window_page, rf):
 
 
 @pytest.mark.django_db
-def test_smart_window_page_firefox_new(smart_window_page, rf):
+def test_smart_window_page_firefox_new(smart_window_page: SmartWindowPage, rf):
     """Firefox >= 150 branch: shows UITour buttons (nav + intro), no form."""
     page = smart_window_page
     page.show_smart_window_button = "all"
@@ -115,24 +240,24 @@ def test_smart_window_page_firefox_new(smart_window_page, rf):
     # No newsletter form in this state
     assert not soup.find("form", {"data-testid": "newsletter-form"})
 
-    uitour_buttons = soup.find_all("button", attrs={"data-cta-uid": True})
-    uitour_by_id = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
+    uitour_buttons = soup.find_all("button", class_=UI_TOUR_CLASSES[UITOUR_BUTTON_SMART_WINDOW])
+    uitour_by_ids = {btn["data-cta-uid"]: btn for btn in uitour_buttons}
 
     # Nav UITour button
-    nav_btn = uitour_by_id.get(str(page.nav_button_uid))
+    nav_btn = uitour_by_ids.get(str(page.nav_button_uid))
     assert nav_btn
     assert nav_btn["data-cta-position"] == "nav"
     assert nav_btn.get_text(strip=True) == page.waitlist_button_label
 
     # Intro UITour button
-    intro_btn = uitour_by_id.get(str(page.intro_button_uid))
+    intro_btn = uitour_by_ids.get(str(page.intro_button_uid))
     assert intro_btn
     assert intro_btn["data-cta-position"] == "intro-smart-window"
     assert intro_btn.get_text(strip=True) == page.waitlist_button_label
 
 
 @pytest.mark.django_db
-def test_smart_window_page_waitlist_form(smart_window_page, rf):
+def test_smart_window_page_waitlist_form(smart_window_page: SmartWindowPage, rf):
     """Waitlist form branch (show_smart_window_button="never"): form fields and feedback elements."""
     page = smart_window_page
     page.show_smart_window_button = "never"
@@ -175,7 +300,7 @@ def test_smart_window_page_waitlist_form(smart_window_page, rf):
 
 
 @pytest.mark.django_db
-def test_smart_window_page_content_blocks(smart_window_page, rf):
+def test_smart_window_page_content_blocks(smart_window_page: SmartWindowPage, rf):
     """Page content blocks: sliding carousel, line cards, illustration cards, testimonial cards."""
     carousel_fixture = get_smart_window_sliding_carousel()
     line_cards_fixture = get_smart_window_line_cards()
@@ -255,7 +380,7 @@ def test_smart_window_page_content_blocks(smart_window_page, rf):
         ("never", None, False),
     ],
 )
-def test_smart_window_show_try_smart_window(smart_window_page, rf, show_button, country, expected):
+def test_smart_window_show_try_smart_window(smart_window_page: SmartWindowPage, rf, show_button, country, expected):
     page = smart_window_page
     page.show_smart_window_button = show_button
 
