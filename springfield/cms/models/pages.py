@@ -137,32 +137,34 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
 
 
 class UTMParamsMixin(models.Model):
-    STUB_ATTRIBUTION_MODES = (
-        ("", "None"),
-        ("default", "Default (used if no utm_campaign in URL)"),
-        ("override", "Override (replaces utm_campaign from URL, respects cookie)"),
-        ("force", "Force (replaces everything, clears attribution cookie)"),
-    )
-
-    stub_attr_utm_campaign_mode = models.CharField(
-        max_length=20,
-        blank=True,
-        choices=STUB_ATTRIBUTION_MODES,
-        verbose_name="Stub Attribution Mode",
-        help_text="Controls how the campaign value is applied to download attribution.",
-    )
-    stub_attr_utm_campaign_value = models.CharField(
+    stub_attr_utm_campaign = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name="Stub Attribution Campaign Value",
-        help_text="The campaign value to use for stub attribution. Only used if a mode is selected above.",
+        verbose_name="Stub Attribution UTM Campaign",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign` attribute on the page, used by download buttons. "
+        "The value is only used if there's no `utm_campaign` in the URL query params.",
+    )
+    stub_attr_utm_campaign_override = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Stub Attribution UTM Campaign Override",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign-override` attribute on the page, used by download "
+        "buttons. The value overrides any `utm_campaign` in the URL, but respects an existing attribution cookie.",
+    )
+    stub_attr_utm_campaign_force = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Stub Attribution UTM Campaign Force",
+        help_text="If set, this value will be added as the `data-stub-attribution-campaign-force` attribute on the page, used by download buttons. "
+        "The value overrides URL params AND clears any existing attribution cookie, forcing a fresh attribution request every time.",
     )
 
     promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("stub_attr_utm_campaign_mode"),
-                FieldPanel("stub_attr_utm_campaign_value"),
+                FieldPanel("stub_attr_utm_campaign"),
+                FieldPanel("stub_attr_utm_campaign_override"),
+                FieldPanel("stub_attr_utm_campaign_force"),
             ],
             heading="Stub Attribution UTM Parameters",
         ),
@@ -172,9 +174,7 @@ class UTMParamsMixin(models.Model):
         abstract = True
 
     def get_stub_attribution_utm_campaign(self):
-        if self.stub_attr_utm_campaign_mode and self.stub_attr_utm_campaign_value:
-            return self.stub_attr_utm_campaign_value
-        return ""
+        return self.stub_attr_utm_campaign_force or self.stub_attr_utm_campaign_override or self.stub_attr_utm_campaign
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or self.slug
