@@ -31,7 +31,7 @@
 .fl-sliding-carousel-controls {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: var(--token-spacing-lg);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -113,10 +113,6 @@
     .fl-sliding-carousel-progress {
     animation: none;
     background-color: transparent;
-}
-
-.fl-sliding-carousel-box {
-    margin-block-end: 0;
 }
 
 .fl-sliding-carousel-heading-text {
@@ -288,7 +284,6 @@
 
     .fl-sliding-carousel-box {
         border-radius: var(--token-border-radius-sm);
-        margin-block-end: var(--token-spacing-lg);
         padding: var(--token-spacing-2xl);
         position: relative;
     }
