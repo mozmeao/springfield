@@ -33,11 +33,13 @@
     align-items: start;
     color: var(--smart-window-instructions-heading-text-color);
     display: flex;
-    gap: var(--token-spacing-lg);
+    flex-direction: column;
+    gap: var(--token-spacing-md);
     margin-block-end: var(--token-spacing-lg);
 }
 
-.fl-smart-window-instructions-heading .fl-smart-window-instructions-icon {
+.fl-smart-window-instructions-icon {
+    inline-size: 20px;
     margin-block-start: 2px;
 }
 
@@ -66,4 +68,14 @@
 
 .fl-smart-window-thankyou-message p {
     margin: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-smart-window-instructions-heading {
+        flex-direction: row;
+    }
+
+    .fl-smart-window-instructions-body {
+        padding-inline-start: var(--token-spacing-2xl);
+    }
 }
