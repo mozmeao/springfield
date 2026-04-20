@@ -134,6 +134,11 @@
 .fl-qr-code-image {
     block-size: 200px;
     inline-size: 200px;
+
+    svg {
+        block-size: 100%;
+        inline-size: 100%;
+    }
 }
 
 .fl-qr-code-close {

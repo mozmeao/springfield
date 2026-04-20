@@ -433,6 +433,7 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request, *args, **kwargs)
         snippet = get_live_floating_snippet(self.locale)
         context["qr"] = resolve_qr_source(self, snippet) if snippet else None
+        context["qr"]["hide"] = request.COOKIES.get("moz-qr-snippet-dismissed")
         return context
 
     def clean(self):
@@ -923,6 +924,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request, *args, **kwargs)
         snippet = get_live_floating_snippet(self.locale)
         context["qr"] = resolve_qr_source(self, snippet) if snippet else None
+        context["qr"]["hide"] = request.COOKIES.get("moz-qr-snippet-dismissed")
         return context
 
     def clean(self):
@@ -1046,6 +1048,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request, *args, **kwargs)
         snippet = get_live_floating_snippet(self.locale)
         context["qr"] = resolve_qr_source(self, snippet) if snippet else None
+        context["qr"]["hide"] = request.COOKIES.get("moz-qr-snippet-dismissed")
         return context
 
     def clean(self):
@@ -1148,6 +1151,7 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request, *args, **kwargs)
         snippet = get_live_floating_snippet(self.locale)
         context["qr"] = resolve_qr_source(self, snippet) if snippet else None
+        context["qr"]["hide"] = request.COOKIES.get("moz-qr-snippet-dismissed")
         return context
 
     def clean(self):

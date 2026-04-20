@@ -442,6 +442,14 @@ if (typeof window.cms === 'undefined') {
 
         if (wasDismissed) {
             qrCodeSnippetEl.classList.remove('is-open');
+
+            const toggleButton =
+                qrCodeSnippetEl.querySelector('.fl-icon-subtract');
+
+            if (toggleButton) {
+                toggleButton.classList.remove('fl-icon-subtract');
+                toggleButton.classList.add('fl-icon-add');
+            }
         }
 
         const showHideButton = qrCodeSnippetEl.querySelector(

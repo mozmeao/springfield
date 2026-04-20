@@ -5,7 +5,7 @@
 #}
 
 {% if qr %}
-<aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if qr.open %}is-open{% endif %}">
+<aside class="fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if qr.open and not qr.hide %}is-open{% endif %}">
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
       <span class="fl-icon fl-icon-device-mobile"></span>
