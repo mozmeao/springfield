@@ -31,6 +31,15 @@
     gap: var(--token-spacing-md);
 }
 
+.fl-smart-window-instructions-container .fl-buttons {
+    justify-content: center;
+}
+
+.fl-smart-window-instructions-container .fl-button,
+.fl-smart-window-instructions-container .fl-download-firefox-button {
+    inline-size: 100%;
+}
+
 .fl-smart-window-instructions-container p {
     margin: 0;
 }
@@ -157,6 +166,11 @@
 @media (--viewport-md-up) {
     .fl-smart-window-instructions-container {
         gap: var(--token-spacing-xl);
+    }
+
+    .fl-smart-window-instructions-container .fl-button,
+    .fl-smart-window-instructions-container .fl-download-firefox-button {
+        inline-size: auto;
     }
 
     .fl-smart-window-intro .fl-heading-group {
