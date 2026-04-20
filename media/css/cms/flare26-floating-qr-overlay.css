@@ -123,8 +123,11 @@
 }
 
 .fl-qr-code-image {
+    align-items: center;
     block-size: 160px;
+    display: flex;
     inline-size: 160px;
+    justify-content: center;
 }
 
 .fl-qr-code-close {
