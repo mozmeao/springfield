@@ -663,8 +663,9 @@ Testimonial Card
     color: var(--fl-theme-color-text);
     display: flex;
     flex-direction: column;
+    font-size: var(--fl-theme-font-size-body-xs);
     gap: var(--token-spacing-xl);
-    padding: var(--token-spacing-2xl);
+    padding: var(--token-spacing-xl);
     position: relative;
     transition: transform var(--token-transition-base);
 }
@@ -796,5 +797,12 @@ Card Grid - Scroll variant
     .fl-card-grid-scroll > * {
         flex: 0 0 auto;
         inline-size: clamp(260px, 30vw, 360px);
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-testimonial-card {
+        font-size: var(--fl-theme-font-size-body-sm);
+        padding: var(--token-spacing-2xl);
     }
 }
