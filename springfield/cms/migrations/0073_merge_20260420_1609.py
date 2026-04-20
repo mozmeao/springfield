@@ -8,7 +8,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cms", "0072_freeformpage2026_override_default_open_and_more"),
         ("cms", "0072_smartwindowpage_smart_window_button_label_and_more"),
