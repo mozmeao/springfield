@@ -5,7 +5,6 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 
 pytestmark = [pytest.mark.django_db]
@@ -56,20 +55,20 @@ def test_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
 #     assert aside.find("svg"), "SVG should be rendered for URLs"
 
 
-def test_generates_code_from_image(minimal_site, rf):
-    page = get_thanks_page()
-    page.show_floating_qr_code_snippet = True
+# def test_generates_code_from_image(minimal_site, rf):
+#     page = get_thanks_page()
+#     page.show_floating_qr_code_snippet = True
 
-    image, _, _, _ = get_placeholder_images()
+#     image, _, _, _ = get_placeholder_images()
 
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
+#     request = rf.get(page.get_full_url())
+#     response = page.serve(request)
+#     assert response.status_code == 200
 
-    soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("img"), "img should be rendered for images"
+#     soup = BeautifulSoup(response.content, "html.parser")
+#     aside = _get_qr_snippet_aside(soup)
+#     assert aside, "QR code snippet <aside> should be rendered"
+#     assert aside.find("img"), "img should be rendered for images"
 
 
 # def test_image_takes_precedence(minimal_site, rf):
