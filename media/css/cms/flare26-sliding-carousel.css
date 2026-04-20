@@ -53,7 +53,7 @@
 }
 
 .fl-superheading.fl-sliding-carousel-superheading {
-    color: var(--token-color-grey-4);
+    color: var(--fl-theme-card-outline-superheading-color);
     font-size: var(--fl-theme-font-size-body-2xs);
     margin-block-end: var(--token-spacing-lg);
     text-transform: uppercase;
@@ -61,7 +61,7 @@
 
 .fl-sliding-carousel-control.is-active
     .fl-superheading.fl-sliding-carousel-superheading {
-    color: var(--fl-theme-color-brand-text);
+    color: var(--fl-theme-card-outline-superheading-color-active);
 }
 
 .fl-sliding-carousel-superheading {
@@ -253,6 +253,7 @@
     }
 
     .fl-sliding-carousel-media-panel {
+        align-self: stretch;
         order: 2;
         padding: 0;
     }
@@ -290,5 +291,20 @@
         margin-block-end: var(--token-spacing-lg);
         padding: var(--token-spacing-2xl);
         position: relative;
+    }
+
+    /* The next two selectors allow the video to bubble up and use the height of the parent grid component */
+    .fl-sliding-carousel-slide.is-active {
+        block-size: 100%;
+    }
+
+    .fl-sliding-carousel-media-panel [aria-live='polite'] {
+        display: contents;
+    }
+
+    .fl-sliding-carousel-media-panel .fl-video {
+        aspect-ratio: unset;
+        block-size: 100%;
+        inline-size: 100%;
     }
 }
