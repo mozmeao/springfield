@@ -1,4 +1,4 @@
-.fl-typewriter {
+.fl-typewriter.has-blinking-cursor {
     animation: blink-caret 0.75s step-end infinite;
     border-inline-end: 0.15em solid currentColor; /* The typwriter cursor */
 }
