@@ -1,0 +1,473 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block html_attrs %}data-promoted-page="true"{% endblock %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block extrahead %}
+  {{ css_bundle('firefox_marketing_opt_out') }}
+{% endblock %}
+
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-landing-get-refresh' %}
+
+{% macro marketing_opt_out_checkbox(id='marketing-opt-out') -%}
+  <label for="{{ id }}" class="marketing-opt-out-checkbox-label hidden">
+    <input type="checkbox" id="{{ id }}" class="marketing-opt-out-checkbox-input">
+    <span class="marketing-opt-out-text">
+      {% set attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
+      {{ ftl('download-button-share-how-you-discovered', attrs=attrs)}}
+    </span>
+  </label>
+{%- endmacro %}
+
+{% block stub_attribution %}
+  {% if settings.STUB_ATTRIBUTION_RATE %}
+    {{ super() }}
+    <!--[if IE 9]><!-->
+      {# Ensure opt-out runs in IE 10 / 11 since we also support stub attribution for those browsers. #}
+      {{ js_bundle('firefox_marketing_opt_out') }}
+    <!--<![endif]-->
+  {% endif %}
+{% endblock %}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+{% set ios_url = app_store_url('firefox', 'firefox-com-download') %}
+
+{% block content %}
+<div class="fl-page fl-landing-get">
+  <main class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-upper has-gradient-bottom fl-hero">
+      <section class="fl-section">
+        <div class="fl-section-container">
+
+          <include:intro slim media_position="right">
+            <content:heading>
+              <include:heading
+                level="h1"
+                superheading_text="{{ ftl('firefox-desktop-download-firefox') }}"
+                heading_text="{{ ftl('firefox-desktop-download-get-the-browser') }}"
+                subheading_text="{{ ftl('firefox-desktop-download-fast-reliable-private') }}"
+              />
+              <div class="c-intro-download">
+                {% block primary_cta %}
+                  {{ marketing_opt_out_checkbox(id='marketing-opt-out-primary') }}
+                  <include:download-firefox-button
+                    analytics_id="marketing-opt-out-primary"
+                    label="{{ ftl('download-button-download-firefox') }}"
+                    cta_text="{{ ftl('download-button-download-firefox') }}"
+                    block_position="primary cta"
+                  />
+                {% endblock %}
+
+                <div class="c-intro-download-alt"><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-desktop-download-download-options') }}</a></div>
+
+                <div class="c-intro-download-alt"><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=browser-support" rel="external noopener" data-cta-text="Firefox browser support">{{ ftl('firefox-desktop-download-browser-support') }}</a></div>
+              </div>
+            </content:heading>
+
+            <content:media>
+              <img src="/media/img/firefox/landing/get/browser.png" srcset="/media/img/firefox/landing/get/browser-high-res.png" alt="firefox.com" />
+            </content:media>
+          </include:intro>
+        </div>
+      </section>
+    </div>
+
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-section-container fl-firefox-has-got-you">
+          <include:heading
+            level="h2"
+            alignment_class="fl-heading-size-2 text-center"
+            heading_text="{{ ftl('firefox-desktop-download-do-what-you-do-v2') }}"
+          />
+
+          <include:intro slim media_position="left">
+            <content:heading>
+              <include:heading
+                level="h3"
+                heading_text="{{ ftl('firefox-desktop-download-we-block-the-ad') }}"
+                subheading_text="{{ ftl('firefox-desktop-download-ads-are-distracting') }}"
+              />
+              <button id="protection-report" type="button" class="button-ghost fl-button-small">{{ ftl('firefox-desktop-download-see-your-report') }}</button>
+            </content:heading>
+
+            <content:media>
+              <img src="/media/img/firefox/landing/get/block-tracking.png" srcset="/media/img/firefox/landing/get/block-tracking-high-res.png" alt="" />
+            </content:media>
+          </include:intro>
+
+          <include:intro slim media_position="right">
+            <content:heading>
+              <include:heading
+                level="h3"
+                heading_text="{{ ftl('firefox-desktop-download-for-everyone') }}"
+                subheading_text="{{ ftl('firefox-desktop-download-available-in-over') }}"
+              />
+              <a href="{{ url('firefox.sysreq') }}" data-cta-text="Review system requirements">{{ ftl('firefox-desktop-download-review-system-req') }}</a>
+            </content:heading>
+
+            <content:media>
+              <img src="/media/img/firefox/landing/get/kit-heart.jpg" srcset="/media/img/firefox/landing/get/kit-heart-high-res.jpg" alt="" />
+            </content:media>
+          </include:intro>
+
+          <include:intro slim media_position="left">
+            <content:heading>
+              <include:heading
+                level="h3"
+                heading_text="{{ ftl('firefox-desktop-download-all-your-devices') }}"
+                subheading_text="{{ ftl('firefox-desktop-download-take-your-privacy') }}"
+              />
+              <div class="fl-download-store-links">
+                {{ google_play_button() }}
+                {{ apple_app_store_button(href=ios_url) }}
+              </div>
+            </content:heading>
+
+            <content:media>
+              <img src="/media/img/firefox/landing/get/all-devices.png" srcset="/media/img/firefox/landing/get/all-devices-high-res.png" alt="" />
+            </content:media>
+          </include:intro>
+        </div>
+
+        <div class="fl-section-container fl-do-it-all">
+          <include:heading
+            level="h2"
+            alignment_class="fl-heading-size-2 text-center"
+            heading_text="{{ ftl('firefox-desktop-download-do-it-all') }}"
+          />
+
+
+            <ul class="icon-text-list">
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="search" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-search-smarter')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-search-from-address')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-search-engine-options')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-smart-search-suggestions')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-bookmark-history')}}</li>
+                </ul>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="arrow-trending" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-boost-your')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-works-with-google')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-built-in-screenshot')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-bookmarks-manager')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-autosuggest-urls')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-sync-across-devices')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-reader-mode')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-spell-check')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-pinned-tabs')}}</li>
+                </ul>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="canvas-true" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-stream-share-play')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-block-autoplay-of')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-picture-in-picture')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-curated-content-on')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-share-links')}}</li>
+                </ul>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="private-mode-fill" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-protect-your-privacy')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-third-party-cookie')}}</li>
+                  <li><a href="{{ url('firefox.features.fingerprinting') }}">{{ ftl('firefox-desktop-download-fingerprinter-blocking')}}</a></li>
+                  <li>{{ ftl('firefox-desktop-download-private-browsing-mode')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-individual-protections-report')}}</li>
+                </ul>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="lock" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-secure-your-personal')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-breached-website-alerts')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-built-in-password')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-clear-history')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-form-autofill')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-automatic-updates')}}</li>
+                </ul>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="edit" extra_class="fl-icon fl-edit" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-customize-your-browser')}}</h3>
+                <ul>
+                  <li>{{ ftl('firefox-desktop-download-themes')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-dark-mode')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-library-of-extensions')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-adjust-search-bar')}}</li>
+                  <li>{{ ftl('firefox-desktop-download-change-new-tab')}}</li>
+                </ul>
+              </li>
+            </ul>
+
+            {% block features_cta %}
+              {{ marketing_opt_out_checkbox(id='marketing-opt-out-features') }}
+              <include:download-firefox-button
+                analytics_id="marketing-opt-out-features"
+                label="{{ ftl('download-button-download-firefox') }}"
+                cta_text="{{ ftl('download-button-download-firefox') }}"
+                block_position="feature-tracking-protection-shield cta"
+              />
+            {% endblock %}
+        </div>
+     </section>
+    </div>
+
+    <div class="fl-split-page-upper has-gradient-bottom">
+      <section class="fl-section">
+        <div class="fl-section-container fl-make-firefox-your-own fl-force-dark-theme">
+
+          <include:heading
+            level="h2"
+            alignment_class="fl-heading-size-2 text-center"
+            heading_text="{{ ftl('firefox-desktop-download-make-firefox-your') }}"
+          />
+
+          <ul class="icon-text-list">
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="extension-fill" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-extensions-for-every')}}</h3>
+                {% set extensions_attrs = 'href="https://addons.mozilla.org/firefox/extensions/%s" rel="external noopener" data-cta-text="extension for everyone"'|safe|format(params) %}
+                <p>{{ ftl('firefox-desktop-download-from-security-to', attrs=extensions_attrs) }}</p>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="edit-squiggle" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-change-up-your')}}</h3>
+                <p>{{ ftl('firefox-desktop-download-go-from-light')}}</p>
+              </li>
+
+              <li>
+                <span class="fl-icon-wrap">
+                  <include:icon icon_name="settings" aria-hidden="true" />
+                </span>
+                <h3>{{ ftl('firefox-desktop-download-tweak-your-settings')}}</h3>
+                <p>{{ ftl('firefox-desktop-download-theres-no-need')}}</p>
+              </li>
+            </ul>
+
+            <img src="/media/img/firefox/landing/get/browser-kit-tail.png" srcset="/media/img/firefox/landing/get/browser-kit-tail-high-res.png 2x" alt="firefox.com" />
+        </div>
+       </section>
+    </div>
+
+    <div class="fl-split-page-lower">
+      <section class="fl-section">
+        <div class="fl-section-container fl-non-profit">
+          {% set mozorg_about_href = 'https://www.mozilla.org/' + LANG + '/about/' + params %}
+          {% set created_attrs = 'href="%s" data-cta-text="created by Mozilla"'|safe|format(mozorg_about_href) %}
+          <include:card-gallery>
+            <content:heading>
+              <include:heading
+                level="h2"
+                alignment_class="fl-heading-size-2 text-center"
+                heading_text="{{ ftl('firefox-desktop-download-backed-by-the') }}"
+              />
+            </content:heading>
+
+            <content:main_card>
+              <h3 class="fl-heading">
+                {{ ftl('firefox-desktop-download-challenging-the-status') }}
+              </h3>
+              <div class="fl-body">
+                {% set mozorg_about_href = 'https://www.mozilla.org/' + LANG + '/about/' + params %}
+                {% set created_attrs = 'href="%s" data-cta-text="created by Mozilla"'|safe|format(mozorg_about_href) %}
+                <p>{{ ftl('firefox-desktop-download-firefox-was-created', attrs=created_attrs) }}</p>
+              </div>
+            </content:main_card>
+
+            <content:main_card_image>
+              <img src="/media/img/firefox/landing/get/browser-kit.png" srcset="/media/img/firefox/landing/get/browser-kit-high-res.png 2x" alt="" loading="lazy" />
+            </content:main_card_image>
+
+            <content:secondary_card>
+              <h3 class="fl-heading">
+                {{ ftl('firefox-desktop-download-your-privacy-comes') }}
+              </h3>
+              <div class="fl-body">
+                {% set privacy_href = 'https://www.mozilla.org/' + LANG + '/privacy/' + params %}
+                {% set internet_attrs = 'href="%s" data-cta-text="Privacy Notice"'|safe|format(privacy_href) %}
+                <p>{{ ftl('firefox-desktop-download-as-the-internet-v2', attrs=internet_attrs) }}</p>
+              </div>
+            </content:secondary_card>
+
+            <content:secondary_card_image>
+              <img class="keyhole" src="/media/img/firefox/landing/get/keyhole.png" srcset="/media/img/firefox/landing/get/keyhole-high-res.png" alt="" loading="lazy" />
+            </content:secondary_card_image>
+          </include:card-gallery>
+
+        </div>
+
+        <div class="fl-section-container fl-favorite-browser">
+          <include:heading
+            level="h2"
+            alignment_class="fl-heading-size-2 text-center"
+            heading_text="{{ ftl('firefox-desktop-download-keep-all-your') }}"
+          />
+
+
+          <include:cards-list>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/kit-with-google.png" srcset="/media/img/firefox/landing/get/kit-with-google-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-works-with-google') }}"
+                />
+              </content:heading>
+              <content:body>
+                <p>{{ ftl('firefox-desktop-download-all-your-favourite') }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/etp.png" srcset="/media/img/firefox/landing/get/etp-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-enhanced-tracking-protection') }}"
+                />
+              </content:heading>
+              <content:body>
+                {% set block_attrs = 'href="https://addons.mozilla.org/firefox/extensions%s" target="_blank" rel="noopener" data-cta-text="blocks many third party trackers"'|safe|format(params) %}
+                <p>{{ ftl('firefox-desktop-download-firefox-automatically', attrs=block_attrs ) }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/kit-running.png" srcset="/media/img/firefox/landing/get/kit-running-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-sync-your-devices') }}"
+                />
+              </content:heading>
+              <content:body>
+                {% set device_attrs = 'href="https://accounts.firefox.com/signin%s" target="_blank" rel="noopener" data-cta-text="Mozilla account"'|safe|format(params) %}
+                <p>{{ ftl('firefox-desktop-download-firefox-is-available-v2', attrs=device_attrs) }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/screenshot.png" srcset="/media/img/firefox/landing/get/screenshot.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-screenshots') }}"
+                />
+              </content:heading>
+              <content:body>
+                {% set screenshots_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" target="_blank" rel="noopener" data-cta-text="screenshot"'|safe|format(params) %}
+                <p>{{ ftl('firefox-desktop-download-grab-a-high', attrs=screenshots_attrs) }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/kit-plant.png" srcset="/media/img/firefox/landing/get/kit-plant-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-facebook-container') }}"
+                />
+              </content:heading>
+              <content:body>
+                {% set container_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container%s" target="_blank" rel="noopener" data-cta-text="Download this browser extension"'|safe|format(params) %}
+                <p>{{ ftl('firefox-desktop-download-download-this-browser', attrs=container_attrs) }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+            <include:illustration-card-2026>
+              <content:media>
+                  <img src="/media/img/firefox/landing/get/picture-in-picture.png" srcset="/media/img/firefox/landing/get/picture-in-picture-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h3"
+                  heading_text="{{ ftl('firefox-desktop-download-picture-in-picture') }}"
+                />
+              </content:heading>
+              <content:body>
+                <p>{{ ftl('firefox-desktop-download-from-watching-a') }}</p>
+              </content:body>
+            </include:illustration-card-2026>
+
+          </include:cards-list>
+
+          {% block discover_cta %}
+            {{ marketing_opt_out_checkbox(id='marketing-opt-out-discover') }}
+            <include:download-firefox-button
+              analytics_id="marketing-opt-out-discover"
+              label="{{ ftl('download-button-download-firefox') }}"
+              cta_text="{{ ftl('download-button-download-firefox') }}"
+              block_position="discover cta"
+            />
+          {% endblock %}
+
+        </div>
+     </section>
+    </div>
+
+    {% set support_attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
+    <div>
+      <include:kit-banner theme="filled-face">
+        <content:heading>
+          <include:heading
+            level="h2"
+            heading_text="{{ ftl('firefox-desktop-download-get-help', attrs=support_attrs) }}"
+          />
+        </content:heading>
+      </include:kit-banner>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('landing_get_report') }}
+{% endblock %}

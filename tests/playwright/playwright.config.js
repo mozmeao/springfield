@@ -27,6 +27,8 @@ module.exports = defineConfig({
     /* Global setup file to prepare the environment for the test run. */
     globalSetup: require.resolve('./global-setup'),
     testDir: './specs',
+    /* Exclude visual regression tests — those run with the playwright.visual-regression.config.js config */
+    grepInvert: /@visual-regression/,
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */

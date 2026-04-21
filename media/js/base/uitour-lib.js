@@ -340,4 +340,17 @@ if (typeof window.Mozilla === 'undefined') {
     Mozilla.UITour.closeTab = function () {
         _sendEvent('closeTab');
     };
+
+    /**
+     * Trigger the Firefox Accounts sign-in flow for the AI Window feature.
+     *
+     * This will prompt the user to sign in and then open the AI Window
+     * upon successful authentication.
+     *
+     * @example
+     * Mozilla.UITour.showFirefoxAccountsForAIWindow();
+     */
+    Mozilla.UITour.showFirefoxAccountsForAIWindow = function () {
+        _sendEvent('showFirefoxAccountsForAIWindow');
+    };
 })();

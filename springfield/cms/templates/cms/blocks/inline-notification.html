@@ -9,7 +9,9 @@
 <include:conditional-display
   platform_conditions="{{ value.settings.show_to.platforms }}"
   firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}">
+  auth_state_condition="{{ value.settings.show_to.auth_state }}"
+  min_version="{{ value.settings.show_to.min_version }}"
+  max_version="{{ value.settings.show_to.max_version }}">
   <include:inline-notification
     message="{{ value.message|richtext|remove_p_tag }}"
     icon="{{ value.settings.icon }}"
