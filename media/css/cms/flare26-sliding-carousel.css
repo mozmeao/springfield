@@ -290,11 +290,6 @@
         gap: var(--token-spacing-md);
     }
 
-    .fl-sliding-carousel-control {
-        display: flex;
-        flex: 1;
-    }
-
     .fl-section:has(.fl-sliding-carousel) {
         padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
     }
