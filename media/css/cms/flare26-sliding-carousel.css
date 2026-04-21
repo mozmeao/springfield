@@ -130,6 +130,19 @@
     margin-block-end: var(--token-spacing-lg);
 }
 
+/* disable border animation and hide progress bar when user has reduced motion preferences enabled */
+@media (prefers-reduced-motion: reduce) {
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after,
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after,
+    .fl-smart-window-instructions::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel-progress-wrapper {
+        display: none;
+    }
+}
+
 @keyframes fl-sliding-carousel-progress {
     from {
         inline-size: 0%;
