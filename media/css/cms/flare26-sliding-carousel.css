@@ -83,7 +83,7 @@
 }
 
 .fl-sliding-carousel-progress {
-    block-size: 3px;
+    block-size: 2px;
     border-radius: 4px;
     position: relative;
 }
@@ -226,7 +226,7 @@
     background: var(--token-gradient-smart-window-instructions);
     border-radius: var(--token-border-radius-sm);
     content: '';
-    inset: -2px;
+    inset: 0;
     mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
