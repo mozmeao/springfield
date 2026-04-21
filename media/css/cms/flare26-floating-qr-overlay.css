@@ -74,12 +74,6 @@
     fill: transparent;
 }
 
-@media (--viewport-below-md) {
-    .fl-qr-code-floating-snippet.is-open {
-        display: none;
-    }
-}
-
 .fl-qr-code-floating-header {
     align-items: center;
     border-block-end: 1px solid #e4d7fc;
@@ -137,4 +131,12 @@
 
     /* end default reversions */
     display: flex;
+}
+
+/* Hide on smaller screens */
+@media (--viewport-below-md) {
+    .fl-qr-code-floating-snippet,
+    .fl-qr-code-floating-snippet.is-open {
+        display: none;
+    }
 }
