@@ -53,8 +53,8 @@ class SlidingCarousel {
             }
         });
 
-        this._bindEvents();
-        this._init();
+        this.bindEvents();
+        this.init();
     }
 
     // --- Video helpers ---
@@ -179,10 +179,6 @@ class SlidingCarousel {
         }, intervalMs);
     }
 
-    startAutoSlide() {
-        this.scheduleNextSlide();
-    }
-
     stopAutoSlide() {
         clearTimeout(this.autoSlideTimer);
         this.autoSlideTimer = null;
@@ -190,11 +186,9 @@ class SlidingCarousel {
     }
 
     restartAutoSlide() {
-        clearInterval(this.autoSlideTimer);
+        clearTimeout(this.autoSlideTimer);
         this.autoSlideActive = true;
-        this.autoSlideTimer = setInterval(() => {
-            this.goToSlide((this.currentIndex + 1) % this.slides.length);
-        }, AUTO_PLAY_INTERVAL_MS);
+        this.scheduleNextSlide();
     }
 
     // --- Mobile controls Swiper ---
@@ -225,10 +219,10 @@ class SlidingCarousel {
             }
         });
         this.controlsSwiper.on('slideChange', () => {
-            const idx = this.controlsSwiper.realIndex;
-            if (idx !== this.currentIndex) {
+            const index = this.controlsSwiper.realIndex;
+            if (index !== this.currentIndex) {
                 if (this.autoSlideActive) this.stopAutoSlide();
-                this.goToSlide(idx);
+                this.goToSlide(index);
             }
         });
         this.controlsSwiper.slideToLoop(this.currentIndex, 0);
@@ -245,18 +239,18 @@ class SlidingCarousel {
 
     // --- Event binding ---
 
-    _bindEvents() {
-        this.controls.forEach((ctrl, idx) => {
-            ctrl.addEventListener('click', () => {
-                if (idx !== this.currentIndex) {
-                    this.goToSlide(idx);
+    bindEvents() {
+        this.controls.forEach((control, index) => {
+            control.addEventListener('click', () => {
+                if (index !== this.currentIndex) {
+                    this.goToSlide(index);
                     this.restartAutoSlide();
                 }
             });
-            ctrl.addEventListener('keydown', (e) => {
+            control.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    ctrl.click();
+                    control.click();
                 }
             });
         });
@@ -278,15 +272,15 @@ class SlidingCarousel {
             });
         });
 
-        const mq = window.matchMedia('(min-width: 900px)');
-        mq.addEventListener('change', (e) => {
+        const mediaQuery = window.matchMedia('(min-width: 900px)');
+        mediaQuery.addEventListener('change', (e) => {
             if (e.matches) {
                 this.destroyControlsSwiper();
             } else {
                 this.initControlsSwiper();
             }
         });
-        if (!mq.matches) {
+        if (!mediaQuery.matches) {
             this.initControlsSwiper();
         }
 
@@ -294,17 +288,17 @@ class SlidingCarousel {
             if (document.hidden) {
                 clearTimeout(this.autoSlideTimer);
             } else if (this.autoSlideActive) {
-                this.startAutoSlide();
+                this.scheduleNextSlide();
             }
         });
     }
 
     // --- Init ---
 
-    _init() {
+    init() {
         this.pauseAllVideos();
         this.goToSlide(0);
-        this.startAutoSlide();
+        this.scheduleNextSlide();
 
         // If any video hasn't loaded metadata yet, the interval above used the
         // fallback. Once all metadata is available, restart the active slide so
