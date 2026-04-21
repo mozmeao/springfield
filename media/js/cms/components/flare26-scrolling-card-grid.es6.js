@@ -72,9 +72,7 @@ function initScrollingCardGrid(swiperWrapperEl) {
 }
 
 export default function setupScrollingCardGrid() {
-    document.addEventListener('DOMContentLoaded', () => {
-        document
-            .querySelectorAll('[data-js="fl-card-grid-scroll"]')
-            .forEach(initScrollingCardGrid);
-    });
+    document
+        .querySelectorAll('[data-js="fl-card-grid-scroll"]')
+        .forEach(initScrollingCardGrid);
 }

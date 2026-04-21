@@ -61,9 +61,7 @@ function initCopyToClipboardButton(buttonEl) {
 }
 
 export default function setupCopyToClipboardButtons() {
-    document.addEventListener('DOMContentLoaded', () => {
-        document
-            .querySelectorAll('[data-js="fl-copy-to-clipboard"]')
-            .forEach(initCopyToClipboardButton);
-    });
+    document
+        .querySelectorAll('[data-js="fl-copy-to-clipboard"]')
+        .forEach(initCopyToClipboardButton);
 }

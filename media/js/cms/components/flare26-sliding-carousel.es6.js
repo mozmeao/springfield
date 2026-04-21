@@ -342,9 +342,7 @@ class SlidingCarousel {
 }
 
 export default function setupSlidingCarousels() {
-    document.addEventListener('DOMContentLoaded', () => {
-        document
-            .querySelectorAll('[data-js="fl-sliding-carousel"]')
-            .forEach((el) => new SlidingCarousel(el));
-    });
+    document
+        .querySelectorAll('[data-js="fl-sliding-carousel"]')
+        .forEach((el) => new SlidingCarousel(el));
 }

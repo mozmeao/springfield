@@ -34,7 +34,5 @@ function initFirefoxVersionConditionalDisplay() {
 }
 
 export default function setupFirefoxVersionConditionalDisplay() {
-    document.addEventListener('DOMContentLoaded', () => {
-        initFirefoxVersionConditionalDisplay();
-    });
+    initFirefoxVersionConditionalDisplay();
 }

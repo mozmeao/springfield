@@ -59,7 +59,5 @@ function initFlare26Carousel(rootEl) {
 }
 
 export default function setupCarousels() {
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
-    });
+    document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
 }
