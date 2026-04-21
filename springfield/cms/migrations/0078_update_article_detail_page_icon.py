@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0063_fix_compare_more_page_tree"),
+        ("cms", "0077_fix_compare_more_page_tree"),
     ]
 
     operations = [

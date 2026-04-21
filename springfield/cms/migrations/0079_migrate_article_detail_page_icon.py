@@ -21,7 +21,7 @@ def migrate_article_icon_values(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0064_update_article_detail_page_icon"),
+        ("cms", "0078_update_article_detail_page_icon"),
     ]
 
     operations = [
