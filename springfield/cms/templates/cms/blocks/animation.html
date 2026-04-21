@@ -7,6 +7,7 @@
 {% set poster = image(value.poster, "width-800") %}
 
 <include:animation
+  show_pause_button="{{ value.show_pause_button }}"
   video_url="{{ value.video_url }}"
   alt="{{ value.alt }}"
   poster="{{ poster.url }}"

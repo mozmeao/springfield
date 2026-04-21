@@ -6,6 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -162,12 +163,13 @@ def get_sticker_cards_2026_test_page() -> FreeFormPage2026:
 
 def get_illustration_card_2026_variants() -> list[dict]:
     buttons = get_button_variants()
+    videos = get_video_variants()
     return [
         {
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
+                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000011"}],
                 "eyebrow": "",
                 "headline": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
                 "content": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
@@ -179,7 +181,7 @@ def get_illustration_card_2026_variants() -> list[dict]:
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
+                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000021"}],
                 "eyebrow": '<p data-block-key="2026ic2e">Privacy</p>',
                 "headline": '<p data-block-key="2026ic2h">Illustration Card with Eyebrow</p>',
                 "content": '<p data-block-key="2026ic2c">With eyebrow and link button.</p>',
@@ -190,26 +192,26 @@ def get_illustration_card_2026_variants() -> list[dict]:
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "eyebrow": '<p data-block-key="2026ic4e">Security</p>',
-                "headline": '<p data-block-key="2026ic4h">Clickable Illustration Card</p>',
-                "content": '<p data-block-key="2026ic4c">With expand link enabled.</p>',
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [videos["youtube"]],
+                "eyebrow": '<p data-block-key="2026ic3e">Video</p>',
+                "headline": '<p data-block-key="2026ic3h">Illustration Card with Video</p>',
+                "content": '<p data-block-key="2026ic3c">With a YouTube video instead of an image.</p>',
                 "buttons": [buttons["link"]],
             },
-            "id": "2026ic01-0000-0000-0000-000000000004",
+            "id": "2026ic01-0000-0000-0000-000000000003",
         },
         {
             "type": "illustration_card",
             "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "eyebrow": "",
-                "headline": '<p data-block-key="2026ic3h">Clickable Illustration Card</p>',
-                "content": '<p data-block-key="2026ic3c">Another card with some content and an expand link button.</p>',
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [videos["animation"]],
+                "eyebrow": '<p data-block-key="2026ic4e">Animation</p>',
+                "headline": '<p data-block-key="2026ic4h">Illustration Card with Animation</p>',
+                "content": '<p data-block-key="2026ic4c">With an autoplay looping animation.</p>',
                 "buttons": [buttons["link"]],
             },
-            "id": "2026ic01-0000-0000-0000-000000000003",
+            "id": "2026ic01-0000-0000-0000-000000000004",
         },
     ]
 
@@ -230,8 +232,8 @@ def get_illustration_cards_2026_sections() -> list[dict]:
             section_id="2026is01-0000-0000-0000-000000000001",
         ),
         _section(
-            heading_text="Illustration Cards - 4 Columns",
-            subheading_text="When 4 cards are present the grid switches to 4 columns.",
+            heading_text="Illustration Cards - All Media Types",
+            subheading_text="All illustration card variants including image, video, and animation.",
             content_blocks=[
                 {
                     "type": "cards_list",

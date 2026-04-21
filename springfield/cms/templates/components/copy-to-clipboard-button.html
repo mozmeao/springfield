@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props value="", label="", success_label="", theme_class="" #}
+
+<button
+  class="fl-button fl-copy-to-clipboard-button {{ theme_class }}"
+  type="button"
+  data-js="fl-copy-to-clipboard"
+  data-copy-value="{{ value }}"
+  data-label-success="{{ success_label }}"
+  aria-live="polite"
+>
+  <span class="fl-copy-to-clipboard-label">{{ label }}</span>
+  <span class="fl-copy-to-clipboard-label-success opacity-0">{{ success_label }}</span>
+  <span class="fl-icon fl-icon-right fl-icon-copy fl-copy-to-clipboard-icon-default" aria-hidden="true"></span>
+  <span class="fl-icon fl-icon-right fl-icon-checkmark fl-copy-to-clipboard-icon-success hidden" aria-hidden="true" hidden></span>
+</button>
