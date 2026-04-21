@@ -171,6 +171,7 @@
     background: var(--smart-window-play-icon-background);
     block-size: 28px;
     border-radius: var(--token-border-radius-2xs);
+    color: var(--fl-theme-color-text);
     display: none;
     inline-size: 28px;
     transition:

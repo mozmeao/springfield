@@ -334,7 +334,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-background-active: var(--token-color-link-purple);
     --smart-window-play-icon-border-color: var(--token-color-dark-purple);
     --smart-window-play-icon-fill-color: var(--token-color-white);
-    --smart-window-play-icon-fill-color-hover: var(--token-color-white);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-grey-2);
     --smart-window-play-icon-fill-color-active: var(--token-color-white);
     --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
     --smart-window-background-gradient:
@@ -593,6 +593,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         );
         --smart-window-play-icon-border-color: var(--token-color-dark-purple);
         --smart-window-play-icon-fill-color: var(--token-color-white);
+        --smart-window-play-icon-fill-color-hover: var(--token-color-grey-2);
         --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
         --smart-window-background-gradient:
             radial-gradient(

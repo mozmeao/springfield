@@ -38,7 +38,6 @@
 .fl-sliding-carousel-controls {
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-lg);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -86,18 +85,18 @@
     contain: paint;
     inset-block-start: 2px;
     inset-inline: 0;
-    padding-inline: 14px;
+    padding-inline: 16px;
     position: absolute;
 }
 
 .fl-sliding-carousel-progress {
-    block-size: 3px;
+    block-size: 2px;
     border-radius: 4px;
     position: relative;
 }
 
 .fl-sliding-carousel-control:not(.is-active) .fl-sliding-carousel-progress {
-    display: none;
+    display: block;
 }
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
@@ -163,7 +162,7 @@
 /* Media panel */
 
 .fl-sliding-carousel-media-panel .fl-video {
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1/1;
 }
 
 .fl-sliding-carousel-media-panel .fl-video video {
@@ -253,7 +252,7 @@
     background: var(--token-gradient-smart-window-instructions);
     border-radius: var(--token-border-radius-sm);
     content: '';
-    inset: -2px;
+    inset: 0;
     mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
@@ -301,11 +300,6 @@
         display: none;
     }
 
-    /* Hide progress bar on desktop — animated border replaces it */
-    .fl-sliding-carousel-progress-wrapper {
-        display: none;
-    }
-
     .fl-sliding-carousel-control .fl-sliding-carousel-box::before {
         background: var(--token-color-soft-purple-2);
         block-size: 100%;
@@ -332,7 +326,8 @@
     }
 
     /* Active: white shimmer rotating on top of gradient border */
-    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after {
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after,
+    .fl-smart-window-instructions::after {
         animation: fl-sliding-carousel-border-fill 24s linear infinite;
         background: conic-gradient(
             from var(--border-angle),
@@ -404,6 +399,7 @@
 
     .fl-sliding-carousel-media-panel {
         align-self: center;
+        aspect-ratio: 3/4;
     }
 
     .fl-sliding-carousel-box {
