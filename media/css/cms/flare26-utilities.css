@@ -287,3 +287,8 @@ html.other .conditional-display.condition-other-os {
     display: block;
     display: revert;
 }
+
+.conditional-display.condition-fx-version.version-match {
+    display: block;
+    display: revert;
+}

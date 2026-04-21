@@ -203,6 +203,11 @@ body.data-uitour #protection-report {
 }
 
 @media (--viewport-md-up) {
+    /* Keep nav always visible on scroll for this page */
+    body:has(.fl-landing-get) .fl-header.headroom-unpinned {
+        transform: translateY(0%);
+    }
+
     .fl-landing-get .c-intro-download {
         align-items: flex-start;
     }

@@ -15,6 +15,7 @@
     {% endblock %}
 
     {% set ns = namespace(headings=0) %}
+    {% set block_level = 1 %}
     {% for block in page.content %}
       {% set block_index = loop.index %}
       {% set block_type = block.block_type %}

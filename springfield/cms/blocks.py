@@ -60,7 +60,6 @@ HEADING_LEVEL_CHOICES = (
     ("h6", "H6"),
 )
 
-
 PLATFORM_CHOICES = [
     ("osx", "macOS"),
     ("linux", "Linux"),
@@ -96,6 +95,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimen
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
+UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -108,8 +108,23 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
+    (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
 )
 
+UI_TOUR_CLASSES = {
+    UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
+    UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+}
 
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
@@ -204,6 +219,8 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
+    max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
 
     class Meta:
         label = "Conditional Display"
@@ -216,11 +233,11 @@ class ConditionalDisplayBlock(blocks.StructBlock):
 # Element blocks
 
 
-def HeadingBlock(required=True, **kwargs):
+def HeadingBlock(required=True, all_required=False, **kwargs):
     class _HeadingBlock(blocks.StructBlock):
-        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
         heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
-        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
 
         class Meta:
             icon = "title"
@@ -513,20 +530,7 @@ class UITourButtonValue(BaseButtonValue):
         """
         theme_classes = super().theme_class()
         button_type = self.get("button_type", "")
-        classes = {
-            UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
-            UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
-            UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
-        }
-        theme_classes += " " + classes.get(button_type, "")
+        theme_classes += " " + UI_TOUR_CLASSES.get(button_type, "")
         return theme_classes
 
 
@@ -855,6 +859,7 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
             inline_form=True,
         )
+        show_pause_button = blocks.BooleanBlock(default=False, required=False)
 
         class Meta:
             label = "Animation"
@@ -889,6 +894,17 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+class SmartWindowInstructionsBlock(blocks.StructBlock):
+    pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
+    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
+    instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
+
+    class Meta:
+        label = "Smart Window Instructions"
+        label_format = "Smart Window Instructions - {instructions}"
+        template = "cms/blocks/smart-window-instructions.html"
+
+
 class MediaContentSettings(blocks.StructBlock):
     media_after = blocks.BooleanBlock(
         required=False,
@@ -896,6 +912,13 @@ class MediaContentSettings(blocks.StructBlock):
         label="Media After",
         inline_form=True,
         help_text="Place media after text content on desktop",
+    )
+    narrow = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Narrow Layout",
+        inline_form=True,
+        help_text="Narrow the media element",
     )
 
     class Meta:
@@ -906,21 +929,28 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def MediaContentBlock(allow_uitour=False, *args, **kwargs):
+def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     """Factory function to create MediaContentBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
+        is_2026: If True, uses the 2026 version of the block.
     """
+    tag_block = TagBlock2026() if is_2026 else TagBlock()
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        content = blocks.StreamBlock(
+            [
+                ("rich_text", blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("smart_window_instructions", SmartWindowInstructionsBlock()),
+            ]
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1266,6 +1296,34 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+def IconCardBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IconCardBlock2026 with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IconCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        icon = IconChoiceBlock(inline_form=True)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/icon-card-2026.html"
+            label = "Icon Card"
+            label_format = "Icon Card - {headline}"
+
+    return _IconCardBlock(*args, **kwargs)
+
+
 def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create StickerCardBlock with appropriate button types.
 
@@ -1306,7 +1364,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
 
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
-        image = ImageVariantsBlock()
+        media = MediaBlock()
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1355,6 +1413,34 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
     return _OutlinedCardBlock(*args, **kwargs)
 
 
+def TestimonialCardBlock(*args, **kwargs):
+    class _TestimonialCardSettings(blocks.StructBlock):
+        show_to = ConditionalDisplayBlock(
+            label="Show To",
+            help_text="Control which users can see this content block",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
+    class _TestimonialCardBlock(blocks.StructBlock):
+        settings = _TestimonialCardSettings()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution_role = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        attribution_image = ImageVariantsBlock(required=False)
+
+        class Meta:
+            template = "cms/blocks/testimonial-card.html"
+            label = "Testimonial Card"
+            label_format = "Testimonial - {attribution}"
+
+    return _TestimonialCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1363,12 +1449,28 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
                       If False, only allows regular buttons.
     """
 
+    class _CardsListSettings(blocks.StructBlock):
+        scroll = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Display all cards in a single scrolling row",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
     class _CardsListBlock(blocks.StructBlock):
+        settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
+                ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
+                ("testimonial_card", TestimonialCardBlock()),
             ]
         )
 
@@ -1378,6 +1480,28 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
             label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
+
+
+class CardLineItemBlock(blocks.StructBlock):
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        themes=BUTTON_THEMES_2026,
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+
+class LineCardsBlock(blocks.StructBlock):
+    cards = blocks.ListBlock(CardLineItemBlock())
+
+    class Meta:
+        template = "cms/blocks/line-cards.html"
+        label = "Line Cards"
+        label_format = "Line Cards"
 
 
 # Article Cards
@@ -1851,13 +1975,14 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
                 ("icon_list_with_image", IconListWithImageBlock()),
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2121,6 +2246,25 @@ class CarouselBlock(blocks.StructBlock):
         template = "cms/blocks/sections/home-carousel.html"
         label = "Carousel"
         label_format = "{heading}"
+
+
+class SlidingCarouselItemBlock(blocks.StructBlock):
+    heading = HeadingBlock(all_required=True)
+    media = MediaBlock(max_num=1)
+
+    class Meta:
+        label = "Slide"
+        label_format = "{heading}"
+
+
+class SlidingCarouselBlock(blocks.StructBlock):
+    settings = CarouselSettings()
+    slides = blocks.ListBlock(SlidingCarouselItemBlock(), min_num=2, max_num=6)
+
+    class Meta:
+        template = "cms/blocks/sliding-carousel.html"
+        label = "Sliding Carousel"
+        label_format = "Sliding Carousel"
 
 
 class ShowcaseSettings(blocks.StructBlock):
