@@ -465,9 +465,12 @@ function initCopyToClipboardButton(buttonEl) {
     let resetTimer = null;
 
     function resetButton() {
-        labelEl.classList.remove('hidden');
-        successLabelEl.classList.add('hidden');
+        labelEl.classList.remove('opacity-0');
+        labelEl.removeAttribute('aria-hidden');
+        successLabelEl.classList.add('opacity-0');
+        successLabelEl.setAttribute('aria-hidden', 'true');
         iconDefault.classList.remove('hidden');
+        iconDefault.removeAttribute('aria-hidden');
         iconSuccess.classList.add('hidden');
         buttonEl.disabled = false;
         resetTimer = null;
@@ -475,9 +478,12 @@ function initCopyToClipboardButton(buttonEl) {
 
     buttonEl.addEventListener('click', () => {
         navigator.clipboard.writeText(value).then(() => {
-            labelEl.classList.add('hidden');
-            successLabelEl.classList.remove('hidden');
+            labelEl.classList.add('opacity-0');
+            labelEl.setAttribute('aria-hidden', 'true');
+            successLabelEl.classList.remove('opacity-0');
+            successLabelEl.removeAttribute('aria-hidden');
             iconDefault.classList.add('hidden');
+            iconDefault.setAttribute('aria-hidden', 'true');
             iconSuccess.classList.remove('hidden');
             buttonEl.disabled = true;
 

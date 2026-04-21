@@ -1051,8 +1051,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     mobile_message = RichTextField(
         features=HEADING_TEXT_FEATURES,
-        default='<p data-block-key="abcdef">This experience is only available on desktop. '
-        "Please open this page on your computer and update your browser to download</p>",
+        default='<p data-block-key="abcdef">This experience is only available on desktop. Please open this page on your computer.</p>',
     )
 
     download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")

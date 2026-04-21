@@ -549,6 +549,7 @@ if (typeof window.cms === 'undefined') {
         }
 
         el.textContent = '';
+        el.classList.add('has-blinking-cursor');
 
         const observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
@@ -561,6 +562,9 @@ if (typeof window.cms === 'undefined') {
                     el.textContent += text[i++];
                     if (i >= text.length) {
                         clearInterval(timer);
+                        setTimeout(function () {
+                            el.classList.remove('has-blinking-cursor');
+                        }, 1500);
                     }
                 }, interval);
             });

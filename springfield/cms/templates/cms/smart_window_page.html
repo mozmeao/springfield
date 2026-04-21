@@ -141,12 +141,13 @@
     <main class="fl-main has-gradient-bottom">
 
       <div class="fl-split-page-upper has-gradient-bottom no-gap fl-smart-window-intro">
-        <hgroup class="fl-heading-group">
-          <img src="/media/img/firefox/flare/smart-window-logo.svg" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
-          <h1 class="fl-heading fl-smart-window-heading-default">{{ page.heading_text|richtext|remove_p_tag }}</h1>
-          <h1 class="fl-heading fl-smart-window-heading-success">{{ page.thank_you_heading|richtext|remove_p_tag }}</h1>
-          <p class="fl-subheading fl-smart-window-subheading-default">{{ page.subheading_text|richtext|remove_p_tag }}</p>
-        </hgroup>
+        <div class="fl-smart-window-intro-content">
+          <hgroup class="fl-heading-group">
+            <img src="/media/img/firefox/flare/smart-window-logo.svg" alt="Smart Window Icon" class="fl-smart-window-heading-logo">
+            <h1 class="fl-heading fl-smart-window-heading-default">{{ page.heading_text|richtext|remove_p_tag }}</h1>
+            <h1 class="fl-heading fl-smart-window-heading-success">{{ page.thank_you_heading|richtext|remove_p_tag }}</h1>
+            <p class="fl-subheading fl-smart-window-subheading-default">{{ page.subheading_text|richtext|remove_p_tag }}</p>
+          </hgroup>
 
         {% if override_view == "waitlist" %}
           {{ form }}
@@ -197,66 +198,68 @@
             {{ form }}
           {% endif %}
 
-        {% if page.animation %}
-          {% set img = image(page.image, "width-1200") %}
-          <div class="fl-smart-window-intro-featured-image">
-            <include:animation
-              video_url="{{ page.animation }}"
-              alt="{{ page.animation_alt }}"
-              poster="{{ img.url }}"
-              playback="autoplay_loop"
-              show_pause_button="true"
-            />
           </div>
-        {% else %}
-          {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
-          <div class="fl-smart-window-intro-featured-image">
-            <div class="image-variants-display">
-              {{ srcset_image(
-                  page.image,
-                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                  sizes="(min-width: 900px) 810px, 100vw",
-                  width=page.image.width,
-                  height=page.image.height,
-                  loading="lazy",
-                  class=classes.primary,
-              ) }}
-              {% if page.image_mobile %}
-                {{ srcset_image(
-                    page.image_mobile,
-                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                    sizes="(min-width: 900px) 810px, 100vw",
-                    width=page.image_mobile.width,
-                    height=page.image_mobile.height,
-                    loading="lazy",
-                    class=classes.mobile,
-                ) }}
-              {% endif %}
-              {% if page.image_dark_mode_mobile %}
-                {{ srcset_image(
-                    page.image_dark_mode_mobile,
-                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                    sizes="(min-width: 900px) 810px, 100vw",
-                    width=page.image_dark_mode_mobile.width,
-                    height=page.image_dark_mode_mobile.height,
-                    loading="lazy",
-                    class=classes.dark_mode_mobile,
-                ) }}
-              {% endif %}
-              {% if page.image_dark_mode %}
-                {{ srcset_image(
-                    page.image_dark_mode,
-                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                    sizes="(min-width: 900px) 810px, 100vw",
-                    width=page.image_dark_mode.width,
-                    height=page.image_dark_mode.height,
-                    loading="lazy",
-                    class=classes.dark_mode,
-                ) }}
-              {% endif %}
+
+          {% if page.animation %}
+            {% set img = image(page.image, "width-1200") %}
+            <div class="fl-smart-window-intro-featured-image">
+              <include:animation
+                video_url="{{ page.animation }}"
+                alt="{{ page.animation_alt }}"
+                poster="{{ img.url }}"
+                playback="autoplay_loop"
+                show_pause_button="true"
+              />
             </div>
-          </div>
-        {% endif %}
+          {% else %}
+            {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+            <div class="fl-smart-window-intro-featured-image">
+              <div class="image-variants-display">
+                {{ srcset_image(
+                    page.image,
+                    "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                    sizes="(min-width: 900px) 810px, 100vw",
+                    width=page.image.width,
+                    height=page.image.height,
+                    loading="lazy",
+                    class=classes.primary,
+                ) }}
+                {% if page.image_mobile %}
+                  {{ srcset_image(
+                      page.image_mobile,
+                      "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                      sizes="(min-width: 900px) 810px, 100vw",
+                      width=page.image_mobile.width,
+                      height=page.image_mobile.height,
+                      loading="lazy",
+                      class=classes.mobile,
+                  ) }}
+                {% endif %}
+                {% if page.image_dark_mode_mobile %}
+                  {{ srcset_image(
+                      page.image_dark_mode_mobile,
+                      "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                      sizes="(min-width: 900px) 810px, 100vw",
+                      width=page.image_dark_mode_mobile.width,
+                      height=page.image_dark_mode_mobile.height,
+                      loading="lazy",
+                      class=classes.dark_mode_mobile,
+                  ) }}
+                {% endif %}
+                {% if page.image_dark_mode %}
+                  {{ srcset_image(
+                      page.image_dark_mode,
+                      "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                      sizes="(min-width: 900px) 810px, 100vw",
+                      width=page.image_dark_mode.width,
+                      height=page.image_dark_mode.height,
+                      loading="lazy",
+                      class=classes.dark_mode,
+                  ) }}
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
       </div>
 
       <div class="fl-split-page-lower no-gap">
