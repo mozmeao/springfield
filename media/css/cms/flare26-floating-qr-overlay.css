@@ -10,7 +10,7 @@
     background: white;
     block-size: 19.188rem;
     border-radius: var(--token-border-radius-sm);
-    box-shadow: var(--fl-theme-shadow-card);
+    box-shadow: 0 0 24px 2px rgba(214, 197, 246, 0.4); /* TODO: theme as part of CSS vars */
     color: black;
     display: flex;
     flex-direction: column;
@@ -36,19 +36,8 @@
     }
 }
 
-.fl-qr-code-floating-snippet-close {
-    inset: var(--token-spacing-lg) var(--token-spacing-lg) auto auto;
-    padding: var(--token-spacing-2xs);
-    position: absolute;
-}
-
 .fl-qr-code-floating-snippet-text {
     padding: var(--token-spacing-2xl);
-}
-
-.fl-button.fl-qr-code-floating-snippet-close .fl-icon {
-    block-size: var(--token-spacing-xl);
-    inline-size: var(--token-spacing-xl);
 }
 
 .fl-qr-code-floating-snippet-container {
@@ -83,12 +72,6 @@
 
 .fl-qr-code-floating-snippet-kit svg rect {
     fill: transparent;
-}
-
-@media (--viewport-below-md) {
-    .fl-qr-code-floating-snippet.is-open {
-        display: none;
-    }
 }
 
 .fl-qr-code-floating-header {
@@ -134,9 +117,26 @@
 .fl-qr-code-image {
     block-size: 200px;
     inline-size: 200px;
+
+    svg {
+        block-size: 100%;
+        inline-size: 100%;
+    }
 }
 
-.fl-qr-code-close {
-    cursor: pointer;
+.fl-qr-code-floating-button {
+    /* revert default button styles */
+    background: inherit;
+    color: inherit;
+
+    /* end default reversions */
     display: flex;
+}
+
+/* Hide on smaller screens */
+@media (--viewport-below-md) {
+    .fl-qr-code-floating-snippet,
+    .fl-qr-code-floating-snippet.is-open {
+        display: none;
+    }
 }

@@ -11,13 +11,13 @@
       <span class="fl-icon fl-icon-device-mobile"></span>
       {{ value.heading|striptags }}
     </div>
-    <div class="fl-qr-code-close fl-qr-code-snippet-close">
+    <button class="fl-qr-code-snippet-close fl-qr-code-floating-button">
       {% if value.qr.open %}
-        <span class="fl-icon fl-icon-subtract"></span>
+        <span class="fl-icon fl-icon-subtract" aria-label="{{ ftl('ui-show-less') }} {{ value.heading|striptags }}"></span>
       {% else %}
-        <span class="fl-icon fl-icon-add"></span>
+        <span class="fl-icon fl-icon-add" aria-label="{{ ftl('ui-show-more') }} {{ value.heading|striptags }}"></span>
       {% endif %}
-    </div>
+    </button>
   </div>
 
   <div class="fl-qr-code-floating-content">
