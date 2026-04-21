@@ -130,6 +130,15 @@
     max-inline-size: var(--token-width-desktop-content-lg);
 }
 
+.fl-smart-window-intro .fl-buttons {
+    justify-content: center;
+}
+
+.fl-smart-window-intro .fl-heading {
+    max-inline-size: 800px;
+    text-wrap: balance;
+}
+
 .fl-smart-window-intro .fl-subheading {
     max-inline-size: 800px;
     text-wrap: balance;
@@ -139,6 +148,10 @@
     max-inline-size: 100%;
     padding-block-start: var(--token-spacing-md);
     padding-inline: var(--fl-section-h-padding);
+}
+
+.fl-smart-window-intro-featured-image .fl-video {
+    cursor: pointer;
 }
 
 .fl-smart-window-intro-featured-image img,
@@ -158,13 +171,30 @@
     background: var(--smart-window-play-icon-background);
     block-size: 28px;
     border-radius: var(--token-border-radius-2xs);
+    color: var(--fl-theme-color-text);
     display: none;
     inline-size: 28px;
+    transition:
+        background-color var(--token-transition-fast),
+        border-color var(--token-transition-fast);
 }
 
-.fl-smart-window-page .fl-video-play-icon:hover,
-.fl-smart-window-explainer-page .fl-video-play-icon:hover {
-    background: var(--smart-window-play-icon-background-hover);
+@media (hover: hover) {
+    .fl-smart-window-page
+        .fl-video-play:hover
+        .fl-video-play-icon:not([hidden]),
+    .fl-smart-window-explainer-page
+        .fl-video-play:hover
+        .fl-video-play-icon:not([hidden]) {
+        align-items: center;
+        display: inline-flex;
+        transform: none;
+    }
+
+    .fl-smart-window-page .fl-video-play-icon:hover,
+    .fl-smart-window-explainer-page .fl-video-play-icon:hover {
+        background: var(--smart-window-play-icon-background-hover);
+    }
 }
 
 .fl-smart-window-page .fl-video-play-icon:active,
@@ -172,17 +202,26 @@
     background: var(--smart-window-play-icon-background-active);
 }
 
-.fl-smart-window-page .fl-video-play-icon:active svg,
-.fl-smart-window-explainer-page .fl-video-play-icon:active svg {
-    opacity: 0.8;
-}
-
-.fl-smart-window-page .fl-video-play:hover .fl-video-play-icon:not([hidden]),
+.fl-smart-window-page
+    .fl-video-play.is-paused
+    .fl-video-play-icon:not([hidden]),
 .fl-smart-window-explainer-page
-    .fl-video-play:hover
+    .fl-video-play.is-paused
     .fl-video-play-icon:not([hidden]) {
     align-items: center;
     display: inline-flex;
+}
+
+@media not all and (--viewport-md-up) {
+    .fl-smart-window-page
+        .fl-video-play.is-paused
+        .fl-video-play-icon:not([hidden]),
+    .fl-smart-window-explainer-page
+        .fl-video-play.is-paused
+        .fl-video-play-icon:not([hidden]) {
+        align-items: center;
+        display: inline-flex;
+    }
 }
 
 .fl-smart-window-page .fl-video-play-icon svg,
@@ -199,4 +238,17 @@
 .fl-smart-window-page .fl-video-play-icon path,
 .fl-smart-window-explainer-page .fl-video-play-icon path {
     fill: var(--smart-window-play-icon-fill-color);
+    transition: fill var(--token-transition-fast);
+}
+
+@media (hover: hover) {
+    .fl-smart-window-page .fl-video-play-icon:hover path,
+    .fl-smart-window-explainer-page .fl-video-play-icon:hover path {
+        fill: var(--smart-window-play-icon-fill-color-hover);
+    }
+}
+
+.fl-smart-window-page .fl-video-play-icon:active path,
+.fl-smart-window-explainer-page .fl-video-play-icon:active path {
+    fill: var(--smart-window-play-icon-fill-color-active);
 }

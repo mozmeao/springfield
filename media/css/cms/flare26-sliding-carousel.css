@@ -4,6 +4,12 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+@property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
 .fl-sliding-carousel {
     display: grid;
     gap: var(--token-layout-2xs);
@@ -19,6 +25,7 @@
 .fl-sliding-carousel-media-panel {
     order: 1;
     padding-inline: var(--token-spacing-lg);
+    position: relative;
 }
 
 .fl-sliding-carousel-controls-swiper {
@@ -31,7 +38,6 @@
 .fl-sliding-carousel-controls {
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-lg);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -48,6 +54,7 @@
     overflow: hidden;
     padding: 0;
     position: relative;
+    transition: opacity var(--token-transition-base);
 }
 
 .fl-sliding-carousel-control.is-active {
@@ -71,25 +78,25 @@
     display: block;
 }
 
-/* 4px progress bar */
+/* Progress bar (mobile fallback, hidden on desktop) */
 
 .fl-sliding-carousel-progress-wrapper {
     border-radius: 4px 4px 0 0;
     contain: paint;
     inset-block-start: 2px;
     inset-inline: 0;
-    padding-inline: 14px;
+    padding-inline: 16px;
     position: absolute;
 }
 
 .fl-sliding-carousel-progress {
-    block-size: 3px;
+    block-size: 2px;
     border-radius: 4px;
     position: relative;
 }
 
 .fl-sliding-carousel-control:not(.is-active) .fl-sliding-carousel-progress {
-    display: none;
+    display: block;
 }
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
@@ -133,6 +140,12 @@
     }
 }
 
+@keyframes fl-sliding-carousel-border-fill {
+    to {
+        --border-angle: 360deg;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .fl-sliding-carousel-control.is-active
         .fl-sliding-carousel-progress::after {
@@ -149,7 +162,7 @@
 /* Media panel */
 
 .fl-sliding-carousel-media-panel .fl-video {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1/1;
 }
 
 .fl-sliding-carousel-media-panel .fl-video video {
@@ -158,11 +171,24 @@
 }
 
 .fl-sliding-carousel-slide {
-    display: none;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-slow);
+    visibility: hidden;
 }
 
 .fl-sliding-carousel-slide.is-active {
-    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+    visibility: visible;
+}
+
+.fl-sliding-carousel-slide.is-exiting {
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Dot pagination (mobile only) */
@@ -226,7 +252,7 @@
     background: var(--token-gradient-smart-window-instructions);
     border-radius: var(--token-border-radius-sm);
     content: '';
-    inset: -2px;
+    inset: 0;
     mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
@@ -239,9 +265,21 @@
 
 @media (--viewport-md-up) {
     .fl-sliding-carousel {
-        align-items: start;
-        gap: var(--token-layout-md);
+        align-items: stretch;
+        gap: var(--token-layout-sm);
         grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-sliding-carousel-controls {
+        block-size: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+    }
+
+    .fl-sliding-carousel-control {
+        display: flex;
+        flex: 1;
     }
 
     .fl-section:has(.fl-sliding-carousel) {
@@ -282,8 +320,50 @@
         position: absolute;
     }
 
+    /* Active: vivid gradient border */
     .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::before {
         background: var(--token-gradient-smart-window-instructions);
+    }
+
+    /* Active: white shimmer rotating on top of gradient border */
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after,
+    .fl-smart-window-instructions::after {
+        animation: fl-sliding-carousel-border-fill 24s linear infinite;
+        background: conic-gradient(
+            from var(--border-angle),
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 5%,
+            rgba(255, 255, 255, 0.8) 12%,
+            rgba(255, 255, 255, 0.8) 22%,
+            rgba(255, 255, 255, 0.3) 29%,
+            transparent 35%
+        );
+        block-size: 100%;
+        border-radius: inherit;
+        content: '';
+        inset: 0;
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 2px;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-box.no-animate::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel.is-paused
+        .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-box::after {
+        animation-play-state: paused;
     }
 
     .fl-sliding-carousel-box {
@@ -305,5 +385,30 @@
         aspect-ratio: unset;
         block-size: 100%;
         inline-size: 100%;
+    }
+}
+
+@media (--viewport-md-up) and (not (--viewport-lg-up)) {
+    .fl-sliding-carousel {
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-sliding-carousel-controls {
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-sliding-carousel-media-panel {
+        align-self: center;
+        aspect-ratio: 3/4;
+    }
+
+    .fl-sliding-carousel-box {
+        padding: var(--token-spacing-xl);
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-sliding-carousel-box {
+        padding: var(--token-spacing-3xl);
     }
 }
