@@ -267,3 +267,14 @@ Copy-to-Clipboard Button
 .fl-copy-to-clipboard-button:disabled {
     cursor: default;
 }
+
+.fl-copy-to-clipboard-label-success {
+    position: absolute;
+}
+
+/* Used to avoid layout shift when swapping text.
+   Not good for accessibility, so it's used in
+   conjunction with aria-hidden in the JS */
+.opacity-0 {
+    opacity: 0;
+}
