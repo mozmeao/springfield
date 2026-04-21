@@ -137,34 +137,32 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
 
 
 class UTMParamsMixin(models.Model):
-    stub_attr_utm_campaign = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Stub Attribution UTM Campaign",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign` attribute on the page, used by download buttons. "
-        "The value is only used if there's no `utm_campaign` in the URL query params.",
+    STUB_ATTRIBUTION_MODES = (
+        ("", "None"),
+        ("default", "Default (used if no utm_campaign in URL)"),
+        ("override", "Override (replaces utm_campaign from URL, respects cookie)"),
+        ("force", "Force (replaces everything, clears attribution cookie)"),
     )
-    stub_attr_utm_campaign_override = models.CharField(
-        max_length=255,
+
+    stub_attr_utm_campaign_mode = models.CharField(
+        max_length=20,
         blank=True,
-        verbose_name="Stub Attribution UTM Campaign Override",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign-override` attribute on the page, used by download "
-        "buttons. The value overrides any `utm_campaign` in the URL, but respects an existing attribution cookie.",
+        choices=STUB_ATTRIBUTION_MODES,
+        verbose_name="Stub Attribution Mode",
+        help_text="Controls how the campaign value is applied to download attribution.",
     )
-    stub_attr_utm_campaign_force = models.CharField(
+    stub_attr_utm_campaign_value = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name="Stub Attribution UTM Campaign Force",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign-force` attribute on the page, used by download buttons. "
-        "The value overrides URL params AND clears any existing attribution cookie, forcing a fresh attribution request every time.",
+        verbose_name="Stub Attribution Campaign Value",
+        help_text="The campaign value to use for stub attribution. Only used if a mode is selected above.",
     )
 
     promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("stub_attr_utm_campaign"),
-                FieldPanel("stub_attr_utm_campaign_override"),
-                FieldPanel("stub_attr_utm_campaign_force"),
+                FieldPanel("stub_attr_utm_campaign_mode"),
+                FieldPanel("stub_attr_utm_campaign_value"),
             ],
             heading="Stub Attribution UTM Parameters",
         ),
@@ -174,7 +172,9 @@ class UTMParamsMixin(models.Model):
         abstract = True
 
     def get_stub_attribution_utm_campaign(self):
-        return self.stub_attr_utm_campaign_force or self.stub_attr_utm_campaign_override or self.stub_attr_utm_campaign
+        if self.stub_attr_utm_campaign_mode and self.stub_attr_utm_campaign_value:
+            return self.stub_attr_utm_campaign_value
+        return ""
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or self.slug
@@ -1016,6 +1016,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    # TODO: remove this field. This was kept here to avoid a rename migration.
+    waitlist_button_label = models.CharField(default="Try Smart Window", max_length=255)
     show_smart_window_button = models.CharField(
         max_length=20,
         choices=(
@@ -1026,17 +1028,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=ALLOWED_TERRITORIES_OPTION,
         help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
     )
+    smart_window_button_label = models.CharField(max_length=255, default="Try Smart Window")
     nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
     intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
-    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
-    waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
-    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
-    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
-    privacy_notice = RichTextField(
-        features=HEADING_TEXT_FEATURES,
-        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
-        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
-    )
     redirect_page = models.ForeignKey(
         "cms.SmartWindowExplainerPage",
         on_delete=models.SET_NULL,
@@ -1045,11 +1039,31 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="The page users will be taken to after clicking the Smart Window button.",
     )
+
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">You’re on the list!</p>')
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
+    mobile_message = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">This experience is only available on desktop. '
+        "Please open this page on your computer and update your browser to download</p>",
+    )
+
     download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
     nav_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Download Firefox button.")
     intro_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Download Firefox button.")
+
     update_button_label = models.CharField(
         max_length=255, default="How to update Firefox", help_text="Label for the button that appears if the user needs to update Firefox."
+    )
+    update_button_uid = models.UUIDField(
+        default=uuid.uuid4, help_text="Unique identifier for the Update Firefox button that appears if the user needs to update."
     )
     update_instructions = RichTextField(
         features=HEADING_TEXT_FEATURES,
@@ -1094,9 +1108,26 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("show_smart_window_button"),
+                FieldPanel("smart_window_button_label"),
                 FieldPanel("nav_button_uid"),
                 FieldPanel("intro_button_uid"),
                 FieldPanel("redirect_page"),
+                FieldPanel("mobile_message"),
+            ],
+            heading="Smart Window Button",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("thank_you_heading"),
+                FieldPanel("thank_you_message"),
+                FieldPanel("form_submit_label"),
+                FieldPanel("waitlist_submit_uid"),
+                FieldPanel("privacy_notice"),
+            ],
+            heading="Waitlist Form",
+        ),
+        MultiFieldPanel(
+            [
                 FieldPanel("download_button_label"),
                 FieldPanel("nav_download_button_uid"),
                 FieldPanel("intro_download_button_uid"),
@@ -1105,13 +1136,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("copy_to_clipboard_label"),
                 FieldPanel("copy_success_label"),
                 FieldPanel("post_download_instructions"),
-                FieldPanel("waitlist_button_label"),
-                FieldPanel("form_submit_label"),
-                FieldPanel("thank_you_message"),
-                FieldPanel("waitlist_submit_uid"),
-                FieldPanel("privacy_notice"),
             ],
-            heading="Smart Window button and Waitlist Form",
+            heading="Download and Update Buttons",
         ),
         FieldPanel("content"),
     ]
@@ -1129,6 +1155,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             raise ValidationError("An alt text description is required when an animation URL is provided.")
 
     def serve(self, request, *args, **kwargs):
+        if request.GET.get("v") == "product":
+            if child := self.get_children().live().public().filter(slug="start").first():
+                return redirect(child.get_url(request))
+
         response = super().serve(request, *args, **kwargs)
         if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
             add_never_cache_headers(response)

@@ -32,6 +32,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
+    --fl-theme-card-outline-superheading-color: var(--token-color-grey-4);
+    --fl-theme-card-outline-superheading-color-active: var(
+        --fl-theme-color-brand-text
+    );
 
     /* Button palette
        Note: most button variables are in the button file, as they are
@@ -245,6 +249,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
+    --fl-theme-card-outline-superheading-color: var(
+        --token-color-soft-purple-4
+    );
+    --fl-theme-card-outline-superheading-color-active: var(
+        --token-color-soft-purple-3
+    );
 
     /* homepage card grid styles */
     --theme-purple-card-bg-color: var(--token-color-purple);
@@ -381,6 +391,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-sticker-card-bg: var(--token-color-soft-purple);
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
+    --fl-theme-card-outline-superheading-color: var(--token-color-grey-4);
+    --fl-theme-card-outline-superheading-color-active: var(
+        --fl-theme-color-brand-text
+    );
 
     /* Notifications */
     --windows-icon-color: var(--token-color-light-purple);
@@ -487,6 +501,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-surface-card-gradient: var(--token-gradient-light);
         --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
+        --fl-theme-card-outline-superheading-color: var(
+            --token-color-soft-purple-4
+        );
+        --fl-theme-card-outline-superheading-color-active: var(
+            --token-color-soft-purple-3
+        );
 
         /* homepage card grid styles */
         --theme-purple-card-bg-color: var(--token-color-purple);
@@ -565,6 +585,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             --token-color-white
         );
         --smart-window-play-icon-background: var(--token-color-medium-purple);
+        --smart-window-play-icon-background-hover: var(
+            --token-color-link-purple
+        );
+        --smart-window-play-icon-background-active: var(
+            --token-color-light-purple
+        );
         --smart-window-play-icon-border-color: var(--token-color-dark-purple);
         --smart-window-play-icon-fill-color: var(--token-color-white);
         --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');

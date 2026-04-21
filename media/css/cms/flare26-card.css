@@ -737,6 +737,16 @@ Testimonial Card
 Card Grid - Scroll variant
 ===================================================================== */
 
+.fl-section .fl-card-grid-scroll {
+    margin-block-start: calc(-1 * var(--token-spacing-2xl));
+    margin-inline: calc(-1 * var(--fl-section-h-padding));
+    padding-block: var(--token-spacing-2xl) var(--token-layout-sm);
+}
+
+.fl-section-container:has(.fl-card-grid-scroll) {
+    max-inline-size: none;
+}
+
 .fl-card-grid-scroll {
     --fl-card-grid-columns: none;
     display: block; /* override display: grid from .fl-card-grid */

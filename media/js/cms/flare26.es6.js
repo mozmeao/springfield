@@ -153,6 +153,11 @@ function initSlidingCarousel(rootEl) {
         pauseAllVideos();
         currentIndex = index;
 
+        const intervalMs = getMaxSlideIntervalMs();
+        controls[currentIndex].style.setProperty(
+            '--fl-slide-interval',
+            `${intervalMs}ms`
+        );
         controls[currentIndex].classList.add('is-active');
         controls[currentIndex].setAttribute('aria-current', 'true');
 
@@ -189,14 +194,31 @@ function initSlidingCarousel(rootEl) {
 
     // --- Autoplay ---
 
-    function startAutoSlide() {
-        autoSlideTimer = setInterval(() => {
+    function getMaxSlideIntervalMs() {
+        let maxMs = 0;
+        for (const slide of slides) {
+            const videoEl = getVideoFromSlide(slide);
+            if (videoEl && !isNaN(videoEl.duration) && videoEl.duration > 0) {
+                maxMs = Math.max(maxMs, videoEl.duration * 1000);
+            }
+        }
+        return maxMs > 0 ? maxMs : AUTO_PLAY_INTERVAL_MS;
+    }
+
+    function scheduleNextSlide() {
+        const intervalMs = getMaxSlideIntervalMs();
+        autoSlideTimer = setTimeout(() => {
             goToSlide((currentIndex + 1) % slides.length);
-        }, AUTO_PLAY_INTERVAL_MS);
+            scheduleNextSlide();
+        }, intervalMs);
+    }
+
+    function startAutoSlide() {
+        scheduleNextSlide();
     }
 
     function stopAutoSlide() {
-        clearInterval(autoSlideTimer);
+        clearTimeout(autoSlideTimer);
         autoSlideTimer = null;
         autoSlideActive = false;
     }
@@ -310,7 +332,7 @@ function initSlidingCarousel(rootEl) {
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            clearInterval(autoSlideTimer);
+            clearTimeout(autoSlideTimer);
         } else if (autoSlideActive) {
             startAutoSlide();
         }
@@ -321,6 +343,36 @@ function initSlidingCarousel(rootEl) {
     pauseAllVideos();
     goToSlide(0);
     startAutoSlide();
+
+    // If any video hasn't loaded metadata yet, the interval above used the
+    // fallback. Once all metadata is available, restart the active slide so
+    // the animation and timer reflect the actual max video duration.
+    const pendingMetadata = slides
+        .map(getVideoFromSlide)
+        .filter((v) => v && isNaN(v.duration))
+        .map(
+            (v) =>
+                new Promise((resolve) => {
+                    v.addEventListener('loadedmetadata', resolve, {
+                        once: true
+                    });
+                    v.addEventListener('error', resolve, { once: true });
+                })
+        );
+
+    if (pendingMetadata.length > 0) {
+        Promise.all(pendingMetadata).then(() => {
+            if (!autoSlideActive) return;
+            const intervalMs = getMaxSlideIntervalMs();
+            const ctrl = controls[currentIndex];
+            ctrl.classList.remove('is-active');
+            ctrl.style.setProperty('--fl-slide-interval', `${intervalMs}ms`);
+            void ctrl.offsetWidth; // force reflow to restart the CSS animation
+            ctrl.classList.add('is-active');
+            clearTimeout(autoSlideTimer);
+            scheduleNextSlide();
+        });
+    }
 }
 
 function initScrollingCardGrid(swiperWrapperEl) {
