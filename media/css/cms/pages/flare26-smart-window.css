@@ -105,6 +105,19 @@
     max-inline-size: 100%;
     padding-block-start: var(--token-spacing-md);
     padding-inline: var(--fl-section-h-padding);
+    position: relative;
+    z-index: 1;
+}
+
+.fl-smart-window-intro-featured-image::before {
+    background: var(--token-gradient-smart-window-instructions);
+    block-size: 100%;
+    content: '';
+    filter: blur(30px);
+    inset-block-start: calc(var(--token-spacing-md) + 10px);
+    inset-inline: calc(var(--fl-section-h-padding) + 10px);
+    position: absolute;
+    z-index: 0;
 }
 
 .fl-smart-window-intro-featured-image .fl-video {
