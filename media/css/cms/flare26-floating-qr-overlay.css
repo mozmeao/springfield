@@ -36,19 +36,8 @@
     }
 }
 
-.fl-qr-code-floating-snippet-close {
-    inset: var(--token-spacing-lg) var(--token-spacing-lg) auto auto;
-    padding: var(--token-spacing-2xs);
-    position: absolute;
-}
-
 .fl-qr-code-floating-snippet-text {
     padding: var(--token-spacing-2xl);
-}
-
-.fl-button.fl-qr-code-floating-snippet-close .fl-icon {
-    block-size: var(--token-spacing-xl);
-    inline-size: var(--token-spacing-xl);
 }
 
 .fl-qr-code-floating-snippet-container {
@@ -141,7 +130,11 @@
     }
 }
 
-.fl-qr-code-close {
-    cursor: pointer;
+.fl-qr-code-floating-button {
+    /* revert default button styles */
+    background: inherit;
+    color: inherit;
+
+    /* end default reversions */
     display: flex;
 }
