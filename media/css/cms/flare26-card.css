@@ -802,9 +802,14 @@ Card Grid - Scroll variant
         overflow-x: auto;
     }
 
-    .fl-card-grid-scroll > * {
-        flex: 0 0 auto;
-        inline-size: clamp(260px, 30vw, 360px);
+    .fl-card-grid-scroll-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-testimonial-card:hover {
+        transform: none;
     }
 }
 
