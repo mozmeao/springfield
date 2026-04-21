@@ -312,14 +312,36 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
+    @classmethod
+    def get_live(cls, locale):
+        """Return the live QRCodeFloatingSnippet for the given locale, or None."""
+        return cls.objects.filter(locale=locale).live().first()
+
+    def resolve_qr_source(self, page=None):
+        """Resolve the QR code source from page overrides or snippet fields."""
+        resolved_image = getattr(page, "floating_qr_image", None) or self.image
+        resolved_url = getattr(page, "floating_qr_url", None) or self.url
+
+        floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
+        resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
+
+        if resolved_image:
+            return {"type": "image", "value": resolved_image.file.url, "open": resolved_default_open}
+        if resolved_url:
+            return {"type": "qr", "value": resolved_url, "open": resolved_default_open}
+        return None
+
+    def build_context(self, page=None):
+        """Build the floating_qr_snippet context dict for template rendering."""
+        return {
+            "heading": self.heading,
+            "content": self.content,
+            "qr": self.resolve_qr_source(page),
+        }
+
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)
-        if self.image:
-            context["qr"] = {"type": "image", "value": self.image.file.url, "open": self.default_open}
-        elif self.url:
-            context["qr"] = {"type": "qr", "value": self.url, "open": self.default_open}
-        else:
-            context["qr"] = {"type": "qr", "value": "", "open": self.default_open}
+        context["floating_qr_snippet"] = self.build_context()
         return context
 
     def get_preview_template(self, request, mode_name):

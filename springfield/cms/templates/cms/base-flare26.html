@@ -148,7 +148,20 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% include 'includes/banners/consent-banner-flare26.html' %}
     {% endblock %}
 
-    {% block qr_code_snippet %}{% endblock %}
+    {% block qr_code_snippet %}
+      {% if not hide_qr_snippet %}
+        {% if page and page.show_floating_qr_code_snippet and floating_qr_snippet %}
+          {% set value = floating_qr_snippet %}
+          {% include "cms/snippets/qr-code-floating-snippet.html" %}
+        {% elif page and page.show_qr_code_snippet %}
+          {% set qr_code_snippet = get_qr_code_snippet() %}
+          {% if qr_code_snippet %}
+            {% set value = qr_code_snippet %}
+            {% include "cms/snippets/qr-code-snippet.html" %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    {% endblock %}
 
 
     {# Issue 8444 #}
