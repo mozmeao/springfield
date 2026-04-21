@@ -149,44 +149,54 @@
             <p class="fl-subheading fl-smart-window-subheading-default">{{ page.subheading_text|richtext|remove_p_tag }}</p>
           </hgroup>
 
-          {% if override_view == "waitlist" %}
-            {{ form }}
-          {% elif show_try_smart_window %}
-              {# In supported geo: download for non-Firefox, enable/update for Firefox #}
-              <include:conditional-display firefox_condition="not-firefox">
+        {% if override_view == "waitlist" %}
+          {{ form }}
+        {% elif show_try_smart_window %}
+            {# In supported geo: download for non-Firefox, enable/update for Firefox #}
+            <include:conditional-display firefox_condition="not-firefox">
+              <div class="fl-smart-window-instructions-container">
+                <div class="fl-buttons is-horizontal is-center">
+                  {{ intro_download }}
+                  {{ copy_to_clipboard }}
+                </div>
+                <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
+              </div>
+            </include:conditional-display>
+            <include:conditional-display firefox_condition="is-firefox">
+              {# Show Smart Window button for Firefox >= 150 on desktop platforms #}
+              <include:conditional-display
+                min_version="150"
+                platform_conditions="{{ ['linux', 'osx', 'windows', 'other-os'] }}"
+              >
+                {{ intro_smart_window }}
+              </include:conditional-display>
+              {# Show Update instructions for Firefox <= 149 on desktop platforms #}
+              <include:conditional-display
+                max_version="149"
+                platform_conditions="{{ ['linux', 'osx', 'windows', 'other-os'] }}"
+              >
                 <div class="fl-smart-window-instructions-container">
-                  <div class="fl-buttons">
-                    {{ intro_download }}
+                  <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
+                  <div class="fl-buttons is-horizontal is-center">
+                    {{ update_instructions }}
                     {{ copy_to_clipboard }}
                   </div>
                   <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
                 </div>
               </include:conditional-display>
-              <include:conditional-display firefox_condition="is-firefox">
-                {# Show Smart Window button for Firefox >= 150 #}
-                <include:conditional-display min_version="150">
-                  {{ intro_smart_window }}
-                </include:conditional-display>
-                {# Show Update instructions for Firefox < 150 #}
-                <include:conditional-display max_version="149">
-                  <div class="fl-smart-window-instructions-container">
-                    <p class="fl-update-instructions">{{ page.update_instructions|richtext|remove_p_tag }}</p>
-                    <div class="fl-buttons is-horizontal">
-                      {{ update_instructions }}
-                      {{ copy_to_clipboard }}
-                    </div>
-                    <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
-                  </div>
-                </include:conditional-display>
+              {# Show mobile message for mobile platforms #}
+              <include:conditional-display platform_conditions="{{ ['android', 'ios'] }}">
+                  {{ page.mobile_message|richtext }}
               </include:conditional-display>
-            {% else %}
-              {# Not in supported geo: waitlist for ALL browsers #}
-              {{ form }}
-            {% endif %}
-            {% if is_preview and show_try_smart_window %}
-              {# Preview mode: also show waitlist form for editors #}
-              {{ form }}
-            {% endif %}
+            </include:conditional-display>
+          {% else %}
+            {# Not in supported geo: waitlist for ALL browsers #}
+            {{ form }}
+          {% endif %}
+          {% if is_preview and show_try_smart_window %}
+            {# Preview mode: also show waitlist form for editors #}
+            {{ form }}
+          {% endif %}
 
           </div>
 

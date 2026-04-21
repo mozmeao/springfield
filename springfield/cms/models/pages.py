@@ -1049,6 +1049,11 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
         '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
     )
+    mobile_message = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">This experience is only available on desktop. '
+        "Please open this page on your computer and update your browser to download</p>",
+    )
 
     download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
     nav_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Download Firefox button.")
@@ -1107,6 +1112,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("nav_button_uid"),
                 FieldPanel("intro_button_uid"),
                 FieldPanel("redirect_page"),
+                FieldPanel("mobile_message"),
             ],
             heading="Smart Window Button",
         ),
@@ -1149,6 +1155,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             raise ValidationError("An alt text description is required when an animation URL is provided.")
 
     def serve(self, request, *args, **kwargs):
+        if request.GET.get("v") == "product":
+            if child := self.get_children().live().public().filter(slug="start").first():
+                return redirect(child.get_url(request))
+
         response = super().serve(request, *args, **kwargs)
         if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
             add_never_cache_headers(response)

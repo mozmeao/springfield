@@ -25,7 +25,7 @@
         linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    padding: 1px;
+    padding: 2px;
     pointer-events: none;
     position: absolute;
 }
