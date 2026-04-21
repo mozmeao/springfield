@@ -10,7 +10,7 @@
     background: white;
     block-size: 19.188rem;
     border-radius: var(--token-border-radius-sm);
-    box-shadow: var(--fl-theme-shadow-card);
+    box-shadow: 0 0 24px 2px rgba(214, 197, 246, 0.4); /* TODO: theme as part of CSS vars */
     color: black;
     display: flex;
     flex-direction: column;
