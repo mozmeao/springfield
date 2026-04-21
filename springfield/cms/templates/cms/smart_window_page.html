@@ -185,9 +185,7 @@
               </include:conditional-display>
               {# Show mobile message for mobile platforms #}
               <include:conditional-display platform_conditions="{{ ['android', 'ios'] }}">
-                <include:notification>
                   {{ page.mobile_message|richtext }}
-                </include:notification>
               </include:conditional-display>
             </include:conditional-display>
           {% else %}
