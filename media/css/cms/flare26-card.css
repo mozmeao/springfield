@@ -780,6 +780,16 @@ Card Grid - Scroll variant
     z-index: 1;
 }
 
+/*
+    if the viewport has enough space for the cards,
+    or became bigger than all the cards,
+    centralize cards
+ */
+.fl-card-grid-scroll-inner[style*='transition-duration: 0ms'],
+.fl-card-grid-scroll-inner:not([style*='transition-duration']) {
+    justify-content: center;
+}
+
 /* Mirrors swiper-slide core CSS for our custom class name */
 .fl-card-grid-scroll-item {
     flex-shrink: 0;
