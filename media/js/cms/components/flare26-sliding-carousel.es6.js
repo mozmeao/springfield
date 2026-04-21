@@ -43,6 +43,7 @@ class SlidingCarousel {
         this.autoSlideActive = true;
         this.userPaused = false;
         this.controlsSwiper = null;
+        this.slideStartTime = 0;
 
         // Preload all videos so they start quickly on slide change
         this.slides.forEach((slide) => {
@@ -171,8 +172,10 @@ class SlidingCarousel {
         return maxMs > 0 ? maxMs : AUTO_PLAY_INTERVAL_MS;
     }
 
-    scheduleNextSlide() {
-        const intervalMs = this.getMaxSlideIntervalMs();
+    scheduleNextSlide(delayMs) {
+        const intervalMs =
+            delayMs !== undefined ? delayMs : this.getMaxSlideIntervalMs();
+        this.slideStartTime = Date.now();
         this.autoSlideTimer = setTimeout(() => {
             this.goToSlide((this.currentIndex + 1) % this.slides.length);
             this.scheduleNextSlide();
@@ -264,9 +267,20 @@ class SlidingCarousel {
                 this.userPaused = !this.userPaused;
                 if (this.userPaused) {
                     this.pauseVideo(videoEl);
+                    clearTimeout(this.autoSlideTimer);
                     this.rootEl.classList.add('is-paused');
                 } else {
                     this.playVideo(videoEl);
+                    if (this.autoSlideActive) {
+                        const elapsed = Date.now() - this.slideStartTime;
+                        const remaining =
+                            this.getMaxSlideIntervalMs() - elapsed;
+                        this.scheduleNextSlide(
+                            remaining > 0
+                                ? remaining
+                                : this.getMaxSlideIntervalMs()
+                        );
+                    }
                     this.rootEl.classList.remove('is-paused');
                 }
             });
@@ -276,6 +290,34 @@ class SlidingCarousel {
         mediaQuery.addEventListener('change', (e) => {
             if (e.matches) {
                 this.destroyControlsSwiper();
+                if (this.autoSlideActive && !this.userPaused) {
+                    const videoEl = this.getVideoFromSlide(
+                        this.slides[this.currentIndex]
+                    );
+                    const elapsed =
+                        videoEl && !isNaN(videoEl.currentTime)
+                            ? videoEl.currentTime * 1000
+                            : Date.now() - this.slideStartTime;
+                    const remaining = Math.max(
+                        0,
+                        this.getMaxSlideIntervalMs() - elapsed
+                    );
+                    clearTimeout(this.autoSlideTimer);
+                    this.scheduleNextSlide(remaining);
+                    const ctrl = this.controls[this.currentIndex];
+                    ctrl.style.setProperty(
+                        '--fl-slide-interval',
+                        `${remaining}ms`
+                    );
+                    const progress = ctrl.querySelector(
+                        '.fl-sliding-carousel-progress'
+                    );
+                    if (progress) {
+                        progress.classList.add('no-animate');
+                        void progress.offsetWidth;
+                        progress.classList.remove('no-animate');
+                    }
+                }
             } else {
                 this.initControlsSwiper();
             }
@@ -287,7 +329,7 @@ class SlidingCarousel {
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 clearTimeout(this.autoSlideTimer);
-            } else if (this.autoSlideActive) {
+            } else if (this.autoSlideActive && !this.userPaused) {
                 this.scheduleNextSlide();
             }
         });
