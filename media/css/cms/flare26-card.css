@@ -695,6 +695,14 @@ Testimonial Card
     padding: 0;
 }
 
+.fl-testimonial-card-quote > *:first-child::before {
+    content: '“';
+}
+
+.fl-testimonial-card-quote > *:last-child::after {
+    content: '”';
+}
+
 .fl-testimonial-card-footer {
     align-items: center;
     display: flex;
