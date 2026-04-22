@@ -33,6 +33,29 @@ def _get_floating_qr_aside(soup):
     return soup.find("aside", class_="fl-qr-code-floating-snippet")
 
 
+def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
+    aside = _get_floating_qr_aside(soup)
+    assert aside, "Floating QR code snippet <aside> should be rendered"
+    assert "js-qr-code-floating-snippet" in aside.get("class", []), "Floating QR code snippet JS class should be applied"
+    assert "Get Firefox on your phone" in aside.get_text()
+    button = aside.find("button", class_="fl-qr-code-floating-button")
+    assert button, "Toggle button should be present"
+    if open:
+        assert "is-open" in aside.get("class", []), "Aside should have is-open class when open=True"
+        assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when snippet is open"
+        assert not button.find("span", class_="fl-icon-add"), "Add icon should not show when snippet is open"
+    else:
+        assert "is-open" not in aside.get("class", []), "Aside should not have is-open class when open=False"
+        assert button.find("span", class_="fl-icon-add"), "Add icon should show when snippet is closed"
+        assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
+    if svg:
+        assert aside.find("svg"), "SVG should render when source is a URL"
+        assert not aside.find("img"), "img tag should not render when source is a URL"
+    else:
+        assert aside.find("img"), "img tag should render when source is an image"
+        assert not aside.find("svg"), "SVG should not render when source is an image"
+
+
 def _serve_page(page, rf):
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -278,9 +301,7 @@ def test_floating_qr_snippet_renders_when_flag_on(get_page_fn, minimal_site, rf)
     page.show_floating_qr_code_snippet = True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside, "Floating QR <aside> should render when show_floating_qr_code_snippet=True"
-    assert "Get Firefox on your phone" in aside.get_text()
+    assert_floating_qr_snippet_rendered(soup)
 
 
 @pytest.mark.parametrize(
@@ -302,10 +323,7 @@ def test_floating_snippet_renders_svg_for_url_source(get_page_fn, minimal_site, 
     page.show_floating_qr_code_snippet = True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    assert aside.find("svg"), "SVG should render when source is a URL"
-    assert not aside.find("img"), "img tag should not render when source is a URL"
+    assert_floating_qr_snippet_rendered(soup, svg=True)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -317,10 +335,7 @@ def test_floating_snippet_renders_img_for_image_override(get_page_fn, minimal_si
     page.floating_qr_image = image
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    assert aside.find("img"), "img tag should render when source is an image"
-    assert not aside.find("svg"), "SVG should not render when source is an image"
+    assert_floating_qr_snippet_rendered(soup, svg=False)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -331,9 +346,7 @@ def test_floating_snippet_has_is_open_class_when_default_open_true(get_page_fn, 
     page.floating_qr_default_open = None  # don't override; use snippet's default_open=True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    assert "is-open" in aside.get("class", []), "is-open class should be present when default_open=True"
+    assert_floating_qr_snippet_rendered(soup, open=True)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -344,9 +357,7 @@ def test_floating_snippet_no_is_open_class_when_floating_qr_default_open_false(g
     page.floating_qr_default_open = False
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    assert "is-open" not in aside.get("class", []), "is-open class should not be present when floating_qr_default_open=False"
+    assert_floating_qr_snippet_rendered(soup, open=False)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -357,7 +368,7 @@ def test_floating_snippet_takes_precedence_over_non_floating(get_page_fn, minima
     page.show_qr_code_snippet = True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    assert _get_floating_qr_aside(soup), "Floating snippet should render"
+    assert_floating_qr_snippet_rendered(soup)
     assert not soup.find("aside", class_="fl-qr-code-snippet"), "Non-floating snippet should not also render"
 
 
@@ -523,11 +534,7 @@ def test_floating_snippet_renders_collapsed_when_dismissed_cookie_set(get_page_f
     page.show_floating_qr_code_snippet = True
     rf.cookies["moz-qr-snippet-dismissed"] = "1"
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside, "Floating QR <aside> should still render when dismissed cookie is set"
-    assert "is-open" not in aside.get("class", []), "is-open class should not be present when dismissed cookie is set"
-    button = aside.find("button", class_="fl-qr-code-floating-button")
-    assert button.find("span", class_="fl-icon-add"), "Add icon should show when collapsed due to dismissed cookie"
+    assert_floating_qr_snippet_rendered(soup, open=False)
     rf.cookies.pop("moz-qr-snippet-dismissed", None)
 
 
@@ -537,11 +544,7 @@ def test_floating_snippet_renders_open_without_dismissed_cookie(get_page_fn, min
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside, "Floating QR <aside> should render when dismissed cookie is absent"
-    assert "is-open" in aside.get("class", []), "is-open class should be present without dismissed cookie"
-    button = aside.find("button", class_="fl-qr-code-floating-button")
-    assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when open"
+    assert_floating_qr_snippet_rendered(soup, open=True)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -552,12 +555,7 @@ def test_floating_snippet_close_button_shows_subtract_icon_when_open(get_page_fn
     page.floating_qr_default_open = None  # use snippet fixture's default_open=True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    button = aside.find("button", class_="fl-qr-code-floating-button")
-    assert button, "Toggle button should be present"
-    assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when snippet is open"
-    assert not button.find("span", class_="fl-icon-add"), "Add icon should not show when snippet is open"
+    assert_floating_qr_snippet_rendered(soup, open=True)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -568,12 +566,7 @@ def test_floating_snippet_close_button_shows_add_icon_when_closed(get_page_fn, m
     page.floating_qr_default_open = False
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    aside = _get_floating_qr_aside(soup)
-    assert aside
-    button = aside.find("button", class_="fl-qr-code-floating-button")
-    assert button, "Toggle button should be present"
-    assert button.find("span", class_="fl-icon-add"), "Add icon should show when snippet is closed"
-    assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
+    assert_floating_qr_snippet_rendered(soup, open=False)
 
 
 # ==========================================

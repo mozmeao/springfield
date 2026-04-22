@@ -464,10 +464,10 @@ if (typeof window.cms === 'undefined') {
 
     function initQRCodeSnippet() {
         const COOKIE_ID = 'moz-qr-snippet-dismissed';
-        const oldSnippet = document.querySelector('.fl-qr-code-snippet');
+        const oldSnippet = document.querySelector('.js-qr-code-snippet');
 
         const qrCodeSnippetEl =
-            document.querySelector('.fl-qr-code-floating-snippet') ||
+            document.querySelector('.js-qr-code-floating-snippet') ||
             oldSnippet;
 
         if (!qrCodeSnippetEl) {
