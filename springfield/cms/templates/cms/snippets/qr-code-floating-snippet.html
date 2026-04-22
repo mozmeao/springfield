@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if value and value.qr %}
+<aside class="js-qr-code-floating-snippet fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if value.qr.open %}is-open{% endif %}">
+  <div class="fl-qr-code-floating-header">
+    <div class="fl-qr-code-prompt">
+      <span class="fl-icon fl-icon-device-mobile"></span>
+      {{ value.heading|richtext }}
+    </div>
+    <button class="fl-qr-code-snippet-close fl-qr-code-floating-button">
+      {% if value.qr.open %}
+        <span class="fl-icon fl-icon-subtract" aria-label="{{ ftl('ui-show-less') }} {{ value.heading|richtext|remove_p_tag }}"></span>
+      {% else %}
+        <span class="fl-icon fl-icon-add" aria-label="{{ ftl('ui-show-more') }} {{ value.heading|richtext|remove_p_tag }}"></span>
+      {% endif %}
+    </button>
+  </div>
+
+  <div class="fl-qr-code-floating-content">
+    <div class="fl-qr-code-image">
+      {% if value.qr.type == "image" %}
+        <img src="{{ value.qr.value }}" class="fl-qr-code-image" alt="QR code">
+      {% else %}
+        {{ qrcode(value.qr.value, 12) }}
+      {% endif %}
+    </div>
+    {{ value.content|richtext }}
+  </div>
+</aside>
+{% endif %}

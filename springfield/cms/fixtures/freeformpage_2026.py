@@ -5,7 +5,7 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import FreeFormPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -212,5 +212,24 @@ def get_freeform_page_2026_with_qr_snippet() -> FreeFormPage2026:
 
     page.content = [get_mobile_store_qr_code()]
     page.show_qr_code_snippet = True
+    page.save_revision().publish()
+    return page
+
+
+def get_freeform_page_2026_with_floating_qr_snippet() -> FreeFormPage2026:
+    get_floating_qr_code_snippet()
+    index_page = get_2026_test_index_page()
+
+    slug = "freeform-2026-with-floating-qr"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(
+            slug=slug,
+            title="Free Form 2026 — Floating QR Snippet Test",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = [get_mobile_store_qr_code()]
+    page.show_floating_qr_code_snippet = True
     page.save_revision().publish()
     return page
