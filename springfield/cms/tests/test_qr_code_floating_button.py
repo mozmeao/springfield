@@ -18,6 +18,7 @@ from springfield.cms.fixtures.whats_new_page_fixtures import (
     get_whats_new_page_2026_with_qr_snippet,
     get_whats_new_page_with_qr_snippet,
 )
+from springfield.cms.models.pages import FreeFormPage2026, ThanksPage, WhatsNewPage, WhatsNewPage2026
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 from springfield.cms.templatetags.cms_tags import (
     get_floating_qr_code_snippet as floating_snippet_tag,
@@ -535,3 +536,19 @@ def test_floating_snippet_rendered_without_dismissed_cookie(get_page_fn, minimal
     page.show_floating_qr_code_snippet = True
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
     assert _get_floating_qr_aside(soup), "Floating QR <aside> should render when dismissed cookie is absent"
+
+
+# ==========================================
+# Section 9: QRCodeFloatingSnippetMixin.override_translatable_fields
+# ==========================================
+
+
+@pytest.mark.parametrize("page_class", [ThanksPage, FreeFormPage2026, WhatsNewPage, WhatsNewPage2026])
+def test_qr_mixin_override_translatable_fields_includes_slug_and_qr_fields(page_class):
+    """Pages using QRCodeFloatingSnippetMixin must include slug (from AbstractSpringfieldCMSPage)
+    alongside the three QR-specific synchronized fields."""
+    field_names = {f.field_name for f in page_class.override_translatable_fields}
+    assert "slug" in field_names
+    assert "floating_qr_url" in field_names
+    assert "floating_qr_image" in field_names
+    assert "floating_qr_default_open" in field_names

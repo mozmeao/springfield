@@ -192,7 +192,7 @@ class UTMParamsMixin(models.Model):
         return context
 
 
-class QRCodeFloatingSnippetMixin(models.Model):
+class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     """Mixin that adds per-page overrides for the floating QR code snippet."""
 
     show_qr_code_snippet = models.BooleanField(
@@ -236,6 +236,7 @@ class QRCodeFloatingSnippetMixin(models.Model):
     ]
 
     override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
         SynchronizedField("floating_qr_url"),
         SynchronizedField("floating_qr_image"),
         SynchronizedField("floating_qr_default_open"),
