@@ -16,7 +16,7 @@ import springfield.cms.models.snippets
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0071_remove_legacy_stub_attr_fields"),
+        ("cms", "0074_alter_smartwindowpage_mobile_message"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

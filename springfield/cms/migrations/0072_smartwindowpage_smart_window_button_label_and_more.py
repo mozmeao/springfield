@@ -13,7 +13,7 @@ import wagtail.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0072_qr_code_floating_snippet_mixin"),
+        ("cms", "0071_remove_legacy_stub_attr_fields"),
     ]
 
     operations = [
