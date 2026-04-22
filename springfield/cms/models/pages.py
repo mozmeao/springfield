@@ -206,7 +206,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     )
     floating_qr_url = models.CharField(
         blank=True,
-        verbose_name="Floating QR Code URL Override",
+        verbose_name="Override Floating QR Code URL",
         help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
     )
     floating_qr_image = models.ForeignKey(
@@ -215,14 +215,14 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        verbose_name="Floating QR Code Image Override",
+        verbose_name="Override Floating QR Code Image",
         help_text="Override with an uploaded QR code image. Takes priority over the URL.",
     )
     floating_qr_default_open = models.BooleanField(
         null=True,
         blank=True,
-        verbose_name="Floating QR Code Default Open",
-        help_text="Controls whether the Floating QR Code snippet is open by default.",
+        verbose_name="Override Floating QR Code Default Open",
+        help_text="Override the default open state of the Floating QR code snippet.",
     )
 
     floating_qr_panels = [
@@ -960,11 +960,16 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:

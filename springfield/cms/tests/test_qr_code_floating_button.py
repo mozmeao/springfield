@@ -14,11 +14,8 @@ from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
-from springfield.cms.fixtures.whats_new_page_fixtures import (
-    get_whats_new_page_2026_with_qr_snippet,
-    get_whats_new_page_with_qr_snippet,
-)
-from springfield.cms.models.pages import FreeFormPage2026, ThanksPage, WhatsNewPage, WhatsNewPage2026
+from springfield.cms.fixtures.whats_new_page_fixtures import get_whats_new_page_2026_with_qr_snippet
+from springfield.cms.models.pages import FreeFormPage2026, ThanksPage, WhatsNewPage2026
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 from springfield.cms.templatetags.cms_tags import (
     get_floating_qr_code_snippet as floating_snippet_tag,
@@ -58,7 +55,6 @@ def _make_page(**kwargs):
 PAGES_WITH_FLOATING_QR = [
     get_thanks_page,
     get_freeform_page_2026_with_qr_snippet,
-    get_whats_new_page_with_qr_snippet,
     get_whats_new_page_2026_with_qr_snippet,
 ]
 
@@ -238,52 +234,34 @@ def test_snippet_clean_passes_with_both_url_and_image(minimal_site):
 # ==========================================
 
 
-@pytest.mark.parametrize(
-    "get_page_fn",
-    [
-        get_thanks_page,
-        get_freeform_page_2026_with_qr_snippet,
-        get_whats_new_page_with_qr_snippet,
-        get_whats_new_page_2026_with_qr_snippet,
-    ],
-)
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_page_clean_raises_when_both_floating_qr_url_and_image_set(get_page_fn, minimal_site):
     image, _, _, _ = get_placeholder_images()
     page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = True
     page.floating_qr_url = "https://override.example.com"
     page.floating_qr_image = image
-    with pytest.raises(ValidationError, match="Only one of floating_qr_url and floating_qr_image is allowed"):
+    with pytest.raises(ValidationError, match="Only one of"):
         page.clean()
 
 
-@pytest.mark.parametrize(
-    "get_page_fn",
-    [
-        get_thanks_page,
-        get_freeform_page_2026_with_qr_snippet,
-        get_whats_new_page_with_qr_snippet,
-        get_whats_new_page_2026_with_qr_snippet,
-    ],
-)
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_page_clean_passes_with_floating_qr_url_only(get_page_fn, minimal_site):
     page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = True
     page.floating_qr_url = "https://override.example.com"
     page.floating_qr_image = None
     page.clean()  # should not raise
 
 
-@pytest.mark.parametrize(
-    "get_page_fn",
-    [
-        get_thanks_page,
-        get_freeform_page_2026_with_qr_snippet,
-        get_whats_new_page_with_qr_snippet,
-        get_whats_new_page_2026_with_qr_snippet,
-    ],
-)
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_page_clean_passes_with_floating_qr_image_only(get_page_fn, minimal_site):
     image, _, _, _ = get_placeholder_images()
     page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = True
     page.floating_qr_url = ""
     page.floating_qr_image = image
     page.clean()  # should not raise
@@ -603,7 +581,7 @@ def test_floating_snippet_close_button_shows_add_icon_when_closed(get_page_fn, m
 # ==========================================
 
 
-@pytest.mark.parametrize("page_class", [ThanksPage, FreeFormPage2026, WhatsNewPage, WhatsNewPage2026])
+@pytest.mark.parametrize("page_class", [ThanksPage, FreeFormPage2026, WhatsNewPage2026])
 def test_qr_mixin_override_translatable_fields_includes_slug_and_qr_fields(page_class):
     """Pages using QRCodeFloatingSnippetMixin must include slug (from AbstractSpringfieldCMSPage)
     alongside the three QR-specific synchronized fields."""

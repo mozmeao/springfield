@@ -21,18 +21,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="whatsnewpage",
-            name="show_qr_code_snippet",
-        ),
         migrations.AddField(
             model_name="freeformpage2026",
             name="floating_qr_default_open",
             field=models.BooleanField(
                 blank=True,
-                help_text="Controls whether the Floating QR Code snippet is open by default.",
+                help_text="Override the default open state of the Floating QR code snippet.",
                 null=True,
-                verbose_name="Floating QR Code Default Open",
+                verbose_name="Override Floating QR Code Default Open",
             ),
         ),
         migrations.AddField(
@@ -45,7 +41,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
                 to="cms.springfieldimage",
-                verbose_name="Floating QR Code Image Override",
+                verbose_name="Override Floating QR Code Image",
             ),
         ),
         migrations.AddField(
@@ -54,7 +50,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
-                verbose_name="Floating QR Code URL Override",
+                verbose_name="Override Floating QR Code URL",
             ),
         ),
         migrations.AddField(
@@ -71,9 +67,9 @@ class Migration(migrations.Migration):
             name="floating_qr_default_open",
             field=models.BooleanField(
                 blank=True,
-                help_text="Controls whether the Floating QR Code snippet is open by default.",
+                help_text="Override the default open state of the Floating QR code snippet.",
                 null=True,
-                verbose_name="Floating QR Code Default Open",
+                verbose_name="Override Floating QR Code Default Open",
             ),
         ),
         migrations.AddField(
@@ -86,7 +82,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
                 to="cms.springfieldimage",
-                verbose_name="Floating QR Code Image Override",
+                verbose_name="Override Floating QR Code Image",
             ),
         ),
         migrations.AddField(
@@ -95,7 +91,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
-                verbose_name="Floating QR Code URL Override",
+                verbose_name="Override Floating QR Code URL",
             ),
         ),
         migrations.AddField(
@@ -112,9 +108,9 @@ class Migration(migrations.Migration):
             name="floating_qr_default_open",
             field=models.BooleanField(
                 blank=True,
-                help_text="Controls whether the Floating QR Code snippet is open by default.",
+                help_text="Override the default open state of the Floating QR code snippet.",
                 null=True,
-                verbose_name="Floating QR Code Default Open",
+                verbose_name="Override Floating QR Code Default Open",
             ),
         ),
         migrations.AddField(
@@ -127,7 +123,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
                 to="cms.springfieldimage",
-                verbose_name="Floating QR Code Image Override",
+                verbose_name="Override Floating QR Code Image",
             ),
         ),
         migrations.AddField(
@@ -136,7 +132,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
-                verbose_name="Floating QR Code URL Override",
+                verbose_name="Override Floating QR Code URL",
             ),
         ),
         migrations.AddField(
