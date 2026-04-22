@@ -9,7 +9,7 @@
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
       <span class="fl-icon fl-icon-device-mobile"></span>
-      {{ value.heading|striptags }}
+      {{ value.heading|richtext }}
     </div>
     <button class="fl-qr-code-snippet-close fl-qr-code-floating-button">
       {% if value.qr.open %}
