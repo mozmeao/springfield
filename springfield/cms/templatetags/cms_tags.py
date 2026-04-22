@@ -400,6 +400,6 @@ def get_floating_qr_code_snippet(context):
     if locale:
         snippet = QRCodeFloatingSnippet.get_live(locale)
         if snippet:
-            return snippet.build_context(page)
+            return snippet.build_context(page=page, request=context.get("request"))
 
     return None
