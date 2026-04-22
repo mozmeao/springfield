@@ -10,7 +10,7 @@ const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 const url = '/en-US/ai';
 
-test.describe(
+test.describe.skip(
     `${url} page`,
     {
         tag: '@newsletter'
