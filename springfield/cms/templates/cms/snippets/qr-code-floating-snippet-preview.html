@@ -8,12 +8,7 @@
 
 {% block content %}
   <div class="fl-main">
-    <include:intro>
-      <content:heading>
-        <h1>Wait for the QR code snippet to load below</h1>
-      </content:heading>
-    </include:intro>
-    {% set value = object %}
-    {% include "cms/snippets/qr-code-snippet.html" %}
+    {% set value = floating_qr_snippet %}
+    {% include "cms/snippets/qr-code-floating-snippet.html" %}
   </div>
 {% endblock content %}
