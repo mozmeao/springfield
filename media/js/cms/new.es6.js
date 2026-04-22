@@ -244,6 +244,42 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function honorReducedMotionForAutoplay() {
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+
+        document.querySelectorAll('video[autoplay]').forEach(function (video) {
+            // Pause immediately — more reliable than removing the autoplay attribute,
+            // which browsers may have already acted on before JS runs.
+            video.pause();
+
+            // Guard against the browser restarting playback (e.g. after seek).
+            video.addEventListener(
+                'play',
+                function () {
+                    video.pause();
+                },
+                { once: true }
+            );
+
+            // Update the paired pause/play button if one exists.
+            const container = video.closest('.fl-video');
+            const pauseBtn =
+                container && container.querySelector('.js-animation-pause');
+            if (pauseBtn) {
+                pauseBtn.classList.add('is-paused');
+                pauseBtn.setAttribute(
+                    'aria-label',
+                    pauseBtn.dataset.labelPlay || ''
+                );
+                const pauseIcon = pauseBtn.querySelector('.js-pause-icon');
+                const playIcon = pauseBtn.querySelector('.js-play-icon');
+                if (pauseIcon) pauseIcon.hidden = true;
+                if (playIcon) playIcon.hidden = false;
+            }
+        });
+    }
+
     function initVideoPlayers() {
         const videoButtons = document.querySelectorAll('.js-video-play');
 
@@ -275,7 +311,15 @@ if (typeof window.cms === 'undefined') {
 
                     const video = document.createElement('video');
                     video.controls = true;
-                    video.autoplay = true;
+
+                    if (
+                        window.matchMedia('(prefers-reduced-motion: reduce)')
+                            .matches
+                    ) {
+                        video.autoplay = false;
+                    } else {
+                        video.autoplay = true;
+                    }
 
                     if (posterUrl) {
                         video.poster = posterUrl;
@@ -375,6 +419,7 @@ if (typeof window.cms === 'undefined') {
                         'aria-label',
                         button.dataset.labelPause
                     );
+                    button.classList.remove('is-paused');
                     pauseIcon.hidden = false;
                     playIcon.hidden = true;
                 } else {
@@ -382,6 +427,7 @@ if (typeof window.cms === 'undefined') {
                     button.setAttribute('aria-label', button.dataset.labelPlay);
                     pauseIcon.hidden = true;
                     playIcon.hidden = false;
+                    button.classList.add('is-paused');
                 }
             });
         });
@@ -602,6 +648,7 @@ if (typeof window.cms === 'undefined') {
         }
 
         el.textContent = '';
+        el.classList.add('has-blinking-cursor');
 
         const observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
@@ -614,6 +661,9 @@ if (typeof window.cms === 'undefined') {
                     el.textContent += text[i++];
                     if (i >= text.length) {
                         clearInterval(timer);
+                        setTimeout(function () {
+                            el.classList.remove('has-blinking-cursor');
+                        }, 1500);
                     }
                 }, interval);
             });
@@ -657,6 +707,7 @@ if (typeof window.cms === 'undefined') {
             initVideoPlayers();
             initAnimations();
             initAnimationPauseButtons();
+            honorReducedMotionForAutoplay();
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
@@ -672,6 +723,7 @@ if (typeof window.cms === 'undefined') {
         initVideoPlayers();
         initAnimations();
         initAnimationPauseButtons();
+        honorReducedMotionForAutoplay();
         initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();

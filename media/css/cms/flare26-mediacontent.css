@@ -9,6 +9,7 @@
     display: grid;
     gap: var(--token-spacing-xl);
     grid-template-columns: 1fr;
+    inline-size: 100%;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
     position: relative;

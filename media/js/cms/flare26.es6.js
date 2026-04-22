@@ -87,6 +87,15 @@ function initSlidingCarousel(rootEl) {
     let userPaused = false;
     let controlsSwiper = null;
 
+    // Preload all videos so they start quickly on slide change
+    slides.forEach((slide) => {
+        const video = slide.querySelector('video');
+        if (video) {
+            video.preload = 'auto';
+            video.load();
+        }
+    });
+
     // --- Video helpers ---
 
     function getVideoFromSlide(slideEl) {
@@ -106,6 +115,7 @@ function initSlidingCarousel(rootEl) {
             btn.querySelector('.js-pause-icon').hidden = true;
             btn.querySelector('.js-play-icon').hidden = false;
             btn.setAttribute('aria-label', btn.dataset.labelPlay);
+            btn.classList.add('is-paused');
         }
     }
 
@@ -114,6 +124,7 @@ function initSlidingCarousel(rootEl) {
         videoEl.autoplay = true;
         const btn = getAnimationButton(videoEl);
         if (btn) {
+            btn.classList.remove('is-paused');
             btn.querySelector('.js-pause-icon').hidden = false;
             btn.querySelector('.js-play-icon').hidden = true;
             btn.setAttribute('aria-label', btn.dataset.labelPause);
@@ -132,10 +143,12 @@ function initSlidingCarousel(rootEl) {
     // --- Slide activation ---
 
     function goToSlide(index) {
-        controls[currentIndex].classList.remove('is-active');
-        controls[currentIndex].setAttribute('aria-current', 'false');
-        slides[currentIndex].classList.remove('is-active');
-        slides[currentIndex].setAttribute('aria-hidden', 'true');
+        const prevIndex = currentIndex;
+        slides[prevIndex].classList.remove('is-active');
+        slides[prevIndex].classList.add('is-exiting');
+        slides[prevIndex].setAttribute('aria-hidden', 'true');
+        controls[prevIndex].classList.remove('is-active');
+        controls[prevIndex].setAttribute('aria-current', 'false');
 
         pauseAllVideos();
         currentIndex = index;
@@ -147,6 +160,17 @@ function initSlidingCarousel(rootEl) {
         );
         controls[currentIndex].classList.add('is-active');
         controls[currentIndex].setAttribute('aria-current', 'true');
+
+        // Force border animation restart by toggling a class on the box
+        const box = controls[currentIndex].querySelector(
+            '.fl-sliding-carousel-box'
+        );
+        if (box) {
+            box.classList.add('no-animate');
+            void box.offsetWidth;
+            box.classList.remove('no-animate');
+        }
+
         slides[currentIndex].classList.add('is-active');
         slides[currentIndex].setAttribute('aria-hidden', 'false');
 
@@ -161,6 +185,11 @@ function initSlidingCarousel(rootEl) {
         if (controlsSwiper && controlsSwiper.realIndex !== currentIndex) {
             controlsSwiper.slideToLoop(currentIndex);
         }
+
+        // Clean up exiting slide after fade completes (matches --token-transition-slow)
+        setTimeout(() => {
+            slides[prevIndex].classList.remove('is-exiting');
+        }, 300);
     }
 
     // --- Autoplay ---
@@ -192,15 +221,24 @@ function initSlidingCarousel(rootEl) {
         clearTimeout(autoSlideTimer);
         autoSlideTimer = null;
         autoSlideActive = false;
-        rootEl.classList.add('is-paused');
+    }
+
+    function restartAutoSlide() {
+        clearInterval(autoSlideTimer);
+        autoSlideActive = true;
+        autoSlideTimer = setInterval(() => {
+            goToSlide((currentIndex + 1) % slides.length);
+        }, AUTO_PLAY_INTERVAL_MS);
     }
 
     // --- Controls (desktop click + keyboard) ---
 
     controls.forEach((ctrl, idx) => {
         ctrl.addEventListener('click', () => {
-            if (autoSlideActive) stopAutoSlide();
-            if (idx !== currentIndex) goToSlide(idx);
+            if (idx !== currentIndex) {
+                goToSlide(idx);
+                restartAutoSlide();
+            }
         });
 
         ctrl.addEventListener('keydown', (e) => {
@@ -222,8 +260,10 @@ function initSlidingCarousel(rootEl) {
             userPaused = !userPaused;
             if (userPaused) {
                 pauseVideo(videoEl);
+                rootEl.classList.add('is-paused');
             } else {
                 playVideo(videoEl);
+                rootEl.classList.remove('is-paused');
             }
         });
     });
@@ -425,9 +465,12 @@ function initCopyToClipboardButton(buttonEl) {
     let resetTimer = null;
 
     function resetButton() {
-        labelEl.classList.remove('hidden');
-        successLabelEl.classList.add('hidden');
+        labelEl.classList.remove('opacity-0');
+        labelEl.removeAttribute('aria-hidden');
+        successLabelEl.classList.add('opacity-0');
+        successLabelEl.setAttribute('aria-hidden', 'true');
         iconDefault.classList.remove('hidden');
+        iconDefault.removeAttribute('aria-hidden');
         iconSuccess.classList.add('hidden');
         buttonEl.disabled = false;
         resetTimer = null;
@@ -435,9 +478,12 @@ function initCopyToClipboardButton(buttonEl) {
 
     buttonEl.addEventListener('click', () => {
         navigator.clipboard.writeText(value).then(() => {
-            labelEl.classList.add('hidden');
-            successLabelEl.classList.remove('hidden');
+            labelEl.classList.add('opacity-0');
+            labelEl.setAttribute('aria-hidden', 'true');
+            successLabelEl.classList.remove('opacity-0');
+            successLabelEl.removeAttribute('aria-hidden');
             iconDefault.classList.add('hidden');
+            iconDefault.setAttribute('aria-hidden', 'true');
             iconSuccess.classList.remove('hidden');
             buttonEl.disabled = true;
 
