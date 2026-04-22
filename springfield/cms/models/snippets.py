@@ -281,6 +281,12 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/qr-code-snippet-preview.html"
 
+    def serve_preview(self, request, mode_name):
+        """Make sure the the snippet is always shown in preview mode, even if the cookie to hide it is set."""
+        response = super().serve_preview(request, mode_name)
+        response.delete_cookie("moz-qr-snippet-dismissed")
+        return response
+
 
 register_snippet(QRCodeSnippet)
 
