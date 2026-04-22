@@ -20,7 +20,7 @@ django-rq==3.2.2
 django-storages[google]==1.14.4
 django-waffle==5.0.0
 django-watchman==1.5.0
-Django==5.2.12
+Django==5.2.13
 envcat==0.1.1
 everett==3.5.0
 fluent.runtime==0.4.0
@@ -49,7 +49,7 @@ timeago==1.0.16
 wagtail-link-block==1.2
 wagtail-localize-dashboard==0.5.0
 wagtail-localize-intentional-blanks==0.3.0
-wagtail-localize-smartling==0.12.1
+wagtail-localize-smartling==0.12.2
 wagtail-localize==1.13
 wagtail-thumbnail-choice-block==0.2.0
 Wagtail==7.3.1

@@ -5,11 +5,11 @@
 #}
 
 <div class="fl-smart-window-instructions">
-  {% if contents.typewriter_text %}
+  {% if contents.typewriter_text or contents.pre_typewriter_text %}
     <div class="fl-smart-window-instructions-heading">
       <img class="fl-smart-window-instructions-icon" src="/media/img/firefox/flare/smart-window-instruction-icon.svg" alt=""/>
       <p>{{ contents.pre_typewriter_text }}:
-      <span class="fl-typewriter">"{{ contents.typewriter_text }}"</span></p>
+      {% if contents.typewriter_text %}<span class="fl-typewriter">“{{ contents.typewriter_text }}”</span></p>{% endif %}
     </div>
   {% endif %}
   {% if contents.body %}

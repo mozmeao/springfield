@@ -78,13 +78,3 @@
     {{ super() }}
   {% endif %}
 {% endblock pre_footer %}
-
-{% block qr_code_snippet %}
-  {% if page.show_qr_code_snippet %}
-    {% set qr_code_snippet = get_qr_code_snippet() %}
-    {% if qr_code_snippet %}
-      {% set value = qr_code_snippet %}
-      {% include "cms/snippets/qr-code-snippet.html" %}
-    {% endif %}
-  {% endif %}
-{% endblock qr_code_snippet %}
