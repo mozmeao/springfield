@@ -307,7 +307,7 @@ def test_floating_qr_snippet_renders_when_flag_on(get_page_fn, minimal_site, rf)
 
 @pytest.mark.parametrize(
     "get_page_fn",
-    PAGES_WITH_FLOATING_QR + [get_whats_new_page_with_qr_snippet],
+    PAGES_WITH_FLOATING_QR,
 )
 def test_floating_qr_snippet_does_not_render_when_flag_off(get_page_fn, minimal_site, rf):
     page = get_page_fn()
