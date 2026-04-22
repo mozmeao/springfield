@@ -108,6 +108,13 @@ redirectpatterns = (
     ),
     # Bug 868182
     redirect(r"^mobile/faq/?$", firefox_mobile_faq, query=False),
+    redirect(
+        r"^ai/$",
+        "/smart-window/",
+        query={"view": "waitlist"},
+        permanent=False,
+        merge_query=False,
+    ),
 )
 
 permanent = settings.PERMANENT_CMS_REFRESH_REDIRECTS
