@@ -5,7 +5,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_qr_snippet
+from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page, get_freeform_page_2026_with_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
@@ -16,12 +16,20 @@ from springfield.cms.fixtures.whats_new_page_fixtures import (
 pytestmark = [pytest.mark.django_db]
 
 
+@pytest.fixture
+def qr_code_snippet():
+    return get_qr_code_snippet()
+
+
 def _get_qr_snippet_aside(soup):
     return soup.find("aside", class_="fl-qr-code-snippet")
 
 
-def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
+def test_thanks_page_renders_qr_code_snippet(minimal_site, rf, qr_code_snippet):
     page = get_thanks_page()
+    page.show_floating_qr_code_snippet = False
+    page.show_qr_code_snippet = True
+    page.save_revision().publish()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -35,7 +43,7 @@ def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
     assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
 
 
-def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
+def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf, qr_code_snippet):
     page = get_thanks_page()
     page.show_qr_code_snippet = False
     page.save_revision().publish()
@@ -63,10 +71,7 @@ def test_freeform_page_2026_renders_qr_code_snippet(minimal_site, rf):
     assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
 
 
-def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
-    from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page
-
-    get_qr_code_snippet()
+def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf, qr_code_snippet):
     page = get_freeform_page_2026_test_page()
     page.show_qr_code_snippet = False
     page.save_revision().publish()
@@ -133,9 +138,9 @@ def test_whats_new_page_2026_does_not_render_qr_code_snippet_when_flag_off(minim
     assert not _get_qr_snippet_aside(soup), "QR code snippet should not render when show_qr_code_snippet=False"
 
 
-def test_qr_code_snippet_not_closable(minimal_site, rf):
+def test_qr_code_snippet_not_closable(minimal_site, rf, qr_code_snippet):
     page = get_freeform_page_2026_with_qr_snippet()
-    snippet = get_qr_code_snippet()
+    snippet = qr_code_snippet
     snippet.closable = False
     snippet.save()
 

@@ -11,10 +11,10 @@ from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_qr_snippet
+from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_floating_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
-from springfield.cms.fixtures.whats_new_page_fixtures import get_whats_new_page_2026_with_qr_snippet
+from springfield.cms.fixtures.whats_new_page_fixtures import get_whats_new_page_2026_with_floating_qr_snippet
 from springfield.cms.models.pages import FreeFormPage2026, ThanksPage, WhatsNewPage2026
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 from springfield.cms.templatetags.cms_tags import (
@@ -54,8 +54,8 @@ def _make_page(**kwargs):
 
 PAGES_WITH_FLOATING_QR = [
     get_thanks_page,
-    get_freeform_page_2026_with_qr_snippet,
-    get_whats_new_page_2026_with_qr_snippet,
+    get_freeform_page_2026_with_floating_qr_snippet,
+    get_whats_new_page_2026_with_floating_qr_snippet,
 ]
 
 

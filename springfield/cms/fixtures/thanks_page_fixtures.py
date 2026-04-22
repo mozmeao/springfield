@@ -10,7 +10,6 @@ from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
     get_floating_qr_code_snippet,
     get_pre_footer_cta_form_snippet,
-    get_qr_code_snippet,
 )
 from springfield.cms.models import ThanksPage
 
@@ -191,7 +190,6 @@ def get_thanks_page() -> ThanksPage:
     image, _, _, _ = get_placeholder_images()
 
     get_pre_footer_cta_form_snippet()
-    get_qr_code_snippet()
     get_floating_qr_code_snippet()
 
     content = [
@@ -213,7 +211,7 @@ def get_thanks_page() -> ThanksPage:
         )
         index_page.add_child(instance=page)
 
-    page.show_qr_code_snippet = True
+    page.show_floating_qr_code_snippet = True
     page.platform = "linux"
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'

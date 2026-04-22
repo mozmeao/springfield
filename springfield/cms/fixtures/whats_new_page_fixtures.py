@@ -24,7 +24,6 @@ def get_whatsnew_index_page() -> WhatsNewIndexPage:
 
 def get_whats_new_page_with_qr_snippet() -> WhatsNewPage:
     get_qr_code_snippet()
-    get_floating_qr_code_snippet()
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-qr"
@@ -60,7 +59,6 @@ def get_whats_new_page_with_qr_snippet() -> WhatsNewPage:
 
 def get_whats_new_page_2026_with_qr_snippet() -> WhatsNewPage2026:
     get_qr_code_snippet()
-    get_floating_qr_code_snippet()
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-2026-qr"
@@ -95,7 +93,6 @@ def get_whats_new_page_2026_with_qr_snippet() -> WhatsNewPage2026:
 
 
 def get_whats_new_page_2026_with_floating_qr_snippet() -> WhatsNewPage2026:
-    get_qr_code_snippet()
     get_floating_qr_code_snippet()
     wnp_index = get_whatsnew_index_page()
 
