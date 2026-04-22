@@ -73,6 +73,7 @@ class SlidingCarousel {
         videoEl.pause();
         videoEl.autoplay = false;
         const btn = this.getAnimationButton(videoEl);
+
         if (btn) {
             btn.querySelector('.js-pause-icon').hidden = true;
             btn.querySelector('.js-play-icon').hidden = false;
@@ -84,6 +85,7 @@ class SlidingCarousel {
     playVideo(videoEl) {
         videoEl.play();
         videoEl.autoplay = true;
+
         const btn = this.getAnimationButton(videoEl);
         if (btn) {
             btn.classList.remove('is-paused');
@@ -176,6 +178,7 @@ class SlidingCarousel {
         const intervalMs =
             delayMs !== undefined ? delayMs : this.getMaxSlideIntervalMs();
         this.slideStartTime = Date.now();
+
         this.autoSlideTimer = setTimeout(() => {
             this.goToSlide((this.currentIndex + 1) % this.slides.length);
             this.scheduleNextSlide();
@@ -202,6 +205,7 @@ class SlidingCarousel {
         if (this.controlsListEl) {
             this.controlsListEl.style.flexDirection = 'row';
         }
+
         this.controlsSwiper = new Swiper(this.controlsSwiperEl, {
             modules: [Pagination],
             wrapperClass: 'fl-sliding-carousel-controls',
@@ -221,6 +225,7 @@ class SlidingCarousel {
                     `<button class="${className}" aria-label="Go to slide ${index + 1}"></button>`
             }
         });
+
         this.controlsSwiper.on('slideChange', () => {
             const index = this.controlsSwiper.realIndex;
             if (index !== this.currentIndex) {
@@ -228,6 +233,7 @@ class SlidingCarousel {
                 this.goToSlide(index);
             }
         });
+
         this.controlsSwiper.slideToLoop(this.currentIndex, 0);
     }
 
@@ -261,10 +267,13 @@ class SlidingCarousel {
         this.slides.forEach((slide) => {
             const btn = slide.querySelector('.js-animation-pause');
             if (!btn) return;
+
             btn.addEventListener('click', () => {
                 const videoEl = this.getVideoFromSlide(slide);
                 if (!videoEl) return;
+
                 this.userPaused = !this.userPaused;
+
                 if (this.userPaused) {
                     this.pauseVideo(videoEl);
                     clearTimeout(this.autoSlideTimer);
@@ -290,6 +299,7 @@ class SlidingCarousel {
         mediaQuery.addEventListener('change', (e) => {
             if (e.matches) {
                 this.destroyControlsSwiper();
+
                 if (this.autoSlideActive && !this.userPaused) {
                     const videoEl = this.getVideoFromSlide(
                         this.slides[this.currentIndex]
@@ -304,12 +314,12 @@ class SlidingCarousel {
                     );
                     clearTimeout(this.autoSlideTimer);
                     this.scheduleNextSlide(remaining);
-                    const ctrl = this.controls[this.currentIndex];
-                    ctrl.style.setProperty(
+                    const control = this.controls[this.currentIndex];
+                    control.style.setProperty(
                         '--fl-slide-interval',
                         `${remaining}ms`
                     );
-                    const progress = ctrl.querySelector(
+                    const progress = control.querySelector(
                         '.fl-sliding-carousel-progress'
                     );
                     if (progress) {
