@@ -1,0 +1,147 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* This component only appears on large browser sizes. */
+
+.fl-qr-code-floating-snippet {
+    background: white;
+    block-size: 19.188rem;
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: 0 0 24px 2px rgba(214, 197, 246, 0.4); /* TODO: theme as part of CSS vars */
+    box-shadow: var(--notification-box-shadow);
+    color: var(--token-color-black-4);
+    display: flex;
+    flex-direction: column;
+    inline-size: 22.5rem;
+    inset: auto var(--token-spacing-lg) var(--token-spacing-lg) auto;
+    overflow: hidden;
+    position: fixed;
+    transition:
+        block-size 300ms ease,
+        inline-size 300ms ease;
+    z-index: 5;
+}
+
+.fl-qr-code-floating-snippet.is-open {
+    block-size: 19.188rem;
+    inline-size: 22.5rem;
+}
+
+@starting-style {
+    .fl-qr-code-floating-snippet.is-open {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+}
+
+.fl-qr-code-floating-snippet-text {
+    padding: var(--token-spacing-2xl);
+}
+
+.fl-qr-code-floating-snippet-container {
+    align-items: center;
+    display: grid;
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr 1fr;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-qr-code-floating-snippet-kit {
+    align-items: center;
+    background-image: url('/media/img/firefox/flare/kit-qr.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 380px auto;
+    block-size: 100%;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    justify-self: center;
+    min-block-size: 240px;
+}
+
+.fl-qr-code-floating-snippet-kit svg {
+    block-size: 180px;
+    inline-size: 180px;
+    transform: translateX(-8px);
+}
+
+.fl-qr-code-floating-snippet-kit svg rect {
+    fill: transparent;
+}
+
+.fl-qr-code-floating-header {
+    align-items: center;
+    border-block-end: 1px solid #e4d7fc;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    justify-content: space-evenly;
+    padding: 12px 16px;
+}
+
+.fl-qr-code-floating-snippet:not(.is-open) .fl-qr-code-floating-header {
+    cursor: pointer;
+}
+
+.fl-qr-code-floating-content {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fl-qr-code-prompt {
+    align-items: center;
+    display: flex;
+    font-family: var(--token-font-family-mozilla-headline);
+    font-size: 16px;
+    gap: 8px;
+    justify-content: space-evenly;
+}
+
+.fl-qr-code-prompt p {
+    margin: 0;
+}
+
+.fl-qr-code-floating-snippet:not(.is-open) {
+    block-size: 48px;
+    inline-size: 319px;
+}
+
+.fl-qr-code-floating-snippet:not(.is-open) .fl-qr-code-floating-content {
+    display: none;
+}
+
+.fl-qr-code-image {
+    block-size: 200px;
+    inline-size: 200px;
+}
+
+.fl-qr-code-image svg {
+    block-size: 100%;
+    inline-size: 100%;
+}
+
+.fl-qr-code-floating-button {
+    /* revert default button styles */
+    background: inherit;
+    color: inherit;
+
+    /* end default reversions */
+    display: flex;
+}
+
+/* Hide on smaller screens */
+@media (--viewport-below-md) {
+    .fl-qr-code-floating-snippet,
+    .fl-qr-code-floating-snippet.is-open {
+        display: none;
+    }
+}
