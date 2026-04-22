@@ -9,13 +9,13 @@
   <div class="fl-qr-code-floating-header">
     <div class="fl-qr-code-prompt">
       <span class="fl-icon fl-icon-device-mobile"></span>
-      {{ value.heading|striptags }}
+      {{ value.heading|richtext }}
     </div>
     <button class="fl-qr-code-snippet-close fl-qr-code-floating-button">
       {% if value.qr.open %}
-        <span class="fl-icon fl-icon-subtract" aria-label="{{ ftl('ui-show-less') }} {{ value.heading|striptags }}"></span>
+        <span class="fl-icon fl-icon-subtract" aria-label="{{ ftl('ui-show-less') }} {{ value.heading|richtext|remove_p_tag }}"></span>
       {% else %}
-        <span class="fl-icon fl-icon-add" aria-label="{{ ftl('ui-show-more') }} {{ value.heading|striptags }}"></span>
+        <span class="fl-icon fl-icon-add" aria-label="{{ ftl('ui-show-more') }} {{ value.heading|richtext|remove_p_tag }}"></span>
       {% endif %}
     </button>
   </div>

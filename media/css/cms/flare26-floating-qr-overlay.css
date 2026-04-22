@@ -105,6 +105,10 @@
     justify-content: space-evenly;
 }
 
+.fl-qr-code-prompt p {
+    margin: 0;
+}
+
 .fl-qr-code-floating-snippet:not(.is-open) {
     block-size: 48px;
     inline-size: 319px;

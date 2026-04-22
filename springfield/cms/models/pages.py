@@ -249,11 +249,10 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         from springfield.cms.models.snippets import QRCodeFloatingSnippet
 
         context = super().get_context(request, *args, **kwargs)
-        context["hide_qr_snippet"] = request.COOKIES.get("moz-qr-snippet-dismissed")
         if self.show_floating_qr_code_snippet:
             snippet = QRCodeFloatingSnippet.get_live(self.locale)
             if snippet:
-                context["floating_qr_snippet"] = snippet.build_context(self)
+                context["floating_qr_snippet"] = snippet.build_context(page=self, request=request)
         return context
 
     def clean(self):

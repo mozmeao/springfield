@@ -2,7 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from uuid import uuid4
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from springfield.cms.models.pages import QRCodeFloatingSnippetMixin
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -313,35 +321,38 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     @classmethod
-    def get_live(cls, locale):
+    def get_live(cls, locale) -> QRCodeFloatingSnippet | None:
         """Return the live QRCodeFloatingSnippet for the given locale, or None."""
         return cls.objects.filter(locale=locale).live().first()
 
-    def resolve_qr_source(self, page=None):
+    def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
         """Resolve the QR code source from page overrides or snippet fields."""
         resolved_image = getattr(page, "floating_qr_image", None) or self.image
         resolved_url = getattr(page, "floating_qr_url", None) or self.url
-
         floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
+
+        hide = bool(request and request.COOKIES.get("moz-qr-snippet-dismissed"))
+
         resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
+        open = not hide and resolved_default_open
 
         if resolved_image:
-            return {"type": "image", "value": resolved_image.file.url, "open": resolved_default_open}
+            return {"type": "image", "value": resolved_image.file.url, "open": open}
         if resolved_url:
-            return {"type": "qr", "value": resolved_url, "open": resolved_default_open}
+            return {"type": "qr", "value": resolved_url, "open": open}
         return None
 
-    def build_context(self, page=None):
+    def build_context(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict:
         """Build the floating_qr_snippet context dict for template rendering."""
         return {
             "heading": self.heading,
             "content": self.content,
-            "qr": self.resolve_qr_source(page),
+            "qr": self.resolve_qr_source(page, request),
         }
 
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)
-        context["floating_qr_snippet"] = self.build_context()
+        context["floating_qr_snippet"] = self.build_context(request=request)
         return context
 
     def get_preview_template(self, request, mode_name):

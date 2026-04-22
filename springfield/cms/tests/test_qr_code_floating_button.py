@@ -163,6 +163,30 @@ def test_resolve_qr_source_page_without_any_floating_qr_attrs_falls_back_to_snip
     assert result == {"type": "qr", "value": "https://firefox.com", "open": True}
 
 
+def test_resolve_qr_source_open_is_false_when_dismissed_cookie_set():
+    """When the dismissed cookie is present on the request, open is False regardless of default_open."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True)
+    request = types.SimpleNamespace(COOKIES={"moz-qr-snippet-dismissed": "1"})
+    result = snippet.resolve_qr_source(_make_page(), request)
+    assert result["open"] is False
+
+
+def test_resolve_qr_source_open_respects_default_open_when_dismissed_cookie_absent():
+    """Without the dismissed cookie, open reflects the resolved default_open."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True)
+    request = types.SimpleNamespace(COOKIES={})
+    result = snippet.resolve_qr_source(_make_page(), request)
+    assert result["open"] is True
+
+
+def test_resolve_qr_source_open_is_false_when_default_open_false_and_no_cookie():
+    """default_open=False means open=False even when there is no dismissed cookie."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=False)
+    request = types.SimpleNamespace(COOKIES={})
+    result = snippet.resolve_qr_source(_make_page(), request)
+    assert result["open"] is False
+
+
 # ==========================================
 # Section 2: QRCodeFloatingSnippet.clean()
 # ==========================================
@@ -469,24 +493,6 @@ def test_build_context_with_no_page_falls_back_to_snippet():
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
-def test_get_context_sets_hide_qr_snippet_from_cookie(get_page_fn, minimal_site, rf):
-    page = get_page_fn()
-    rf.cookies["moz-qr-snippet-dismissed"] = "1"
-    request = rf.get(page.get_full_url())
-    context = page.get_context(request)
-    assert context["hide_qr_snippet"] == "1"
-    rf.cookies.pop("moz-qr-snippet-dismissed", None)
-
-
-@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
-def test_get_context_hide_qr_snippet_falsy_when_no_cookie(get_page_fn, minimal_site, rf):
-    page = get_page_fn()
-    request = rf.get(page.get_full_url())
-    context = page.get_context(request)
-    assert not context["hide_qr_snippet"]
-
-
-@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_get_context_sets_floating_qr_snippet_when_flag_on(get_page_fn, minimal_site, rf):
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
@@ -515,27 +521,81 @@ def test_get_context_no_floating_qr_snippet_when_no_live_snippet(get_page_fn, mi
     assert "floating_qr_snippet" not in context
 
 
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_get_context_floating_qr_snippet_open_is_false_when_dismissed_cookie_set(get_page_fn, minimal_site, rf):
+    """When the dismissed cookie is set, the qr.open value in context is False."""
+    page = get_page_fn()
+    page.show_floating_qr_code_snippet = True
+    rf.cookies["moz-qr-snippet-dismissed"] = "1"
+    request = rf.get(page.get_full_url())
+    context = page.get_context(request)
+    assert context["floating_qr_snippet"]["qr"]["open"] is False
+    rf.cookies.pop("moz-qr-snippet-dismissed", None)
+
+
 # ==========================================
 # Section 8: Cookie-based hiding (integration)
 # ==========================================
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
-def test_floating_snippet_not_rendered_when_dismissed_cookie_set(get_page_fn, minimal_site, rf):
+def test_floating_snippet_renders_collapsed_when_dismissed_cookie_set(get_page_fn, minimal_site, rf):
+    """When the dismissed cookie is set, the snippet renders but starts collapsed (no is-open)."""
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
     rf.cookies["moz-qr-snippet-dismissed"] = "1"
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    assert not _get_floating_qr_aside(soup), "Floating QR <aside> should not render when dismissed cookie is set"
+    aside = _get_floating_qr_aside(soup)
+    assert aside, "Floating QR <aside> should still render when dismissed cookie is set"
+    assert "is-open" not in aside.get("class", []), "is-open class should not be present when dismissed cookie is set"
+    button = aside.find("button", class_="fl-qr-code-floating-button")
+    assert button.find("span", class_="fl-icon-add"), "Add icon should show when collapsed due to dismissed cookie"
     rf.cookies.pop("moz-qr-snippet-dismissed", None)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
-def test_floating_snippet_rendered_without_dismissed_cookie(get_page_fn, minimal_site, rf):
+def test_floating_snippet_renders_open_without_dismissed_cookie(get_page_fn, minimal_site, rf):
+    """Without the dismissed cookie, the snippet renders open when default_open=True."""
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    assert _get_floating_qr_aside(soup), "Floating QR <aside> should render when dismissed cookie is absent"
+    aside = _get_floating_qr_aside(soup)
+    assert aside, "Floating QR <aside> should render when dismissed cookie is absent"
+    assert "is-open" in aside.get("class", []), "is-open class should be present without dismissed cookie"
+    button = aside.find("button", class_="fl-qr-code-floating-button")
+    assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when open"
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_floating_snippet_close_button_shows_subtract_icon_when_open(get_page_fn, minimal_site, rf):
+    """When the snippet starts open, the toggle button shows the subtract (collapse) icon."""
+    page = get_page_fn()
+    page.show_floating_qr_code_snippet = True
+    page.floating_qr_default_open = None  # use snippet fixture's default_open=True
+
+    soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
+    aside = _get_floating_qr_aside(soup)
+    assert aside
+    button = aside.find("button", class_="fl-qr-code-floating-button")
+    assert button, "Toggle button should be present"
+    assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when snippet is open"
+    assert not button.find("span", class_="fl-icon-add"), "Add icon should not show when snippet is open"
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_floating_snippet_close_button_shows_add_icon_when_closed(get_page_fn, minimal_site, rf):
+    """When the snippet starts closed, the toggle button shows the add (expand) icon."""
+    page = get_page_fn()
+    page.show_floating_qr_code_snippet = True
+    page.floating_qr_default_open = False
+
+    soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
+    aside = _get_floating_qr_aside(soup)
+    assert aside
+    button = aside.find("button", class_="fl-qr-code-floating-button")
+    assert button, "Toggle button should be present"
+    assert button.find("span", class_="fl-icon-add"), "Add icon should show when snippet is closed"
+    assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
 
 
 # ==========================================
