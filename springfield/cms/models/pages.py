@@ -201,10 +201,12 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     )
     show_floating_qr_code_snippet = models.BooleanField(
         default=False,
+        verbose_name="Show Floating QR Code Snippet",
         help_text="If true, an updated floating QR code snippet will be displayed on the page.",
     )
     floating_qr_url = models.CharField(
         blank=True,
+        verbose_name="Override Floating QR Code URL",
         help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
     )
     floating_qr_image = models.ForeignKey(
@@ -213,9 +215,15 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
+        verbose_name="Override Floating QR Code Image",
         help_text="Override with an uploaded QR code image. Takes priority over the URL.",
     )
-    floating_qr_default_open = models.BooleanField(null=True, blank=True)
+    floating_qr_default_open = models.BooleanField(
+        null=True,
+        blank=True,
+        verbose_name="Override Floating QR Code Default Open",
+        help_text="Override the default open state of the Floating QR code snippet.",
+    )
 
     floating_qr_panels = [
         FieldPanel("show_qr_code_snippet"),
@@ -258,7 +266,11 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     def clean(self):
         super().clean()
         if self.floating_qr_url and self.floating_qr_image:
-            raise ValidationError("Only one of floating_qr_url and floating_qr_image is allowed.")
+            raise ValidationError("Only one of 'Floating QR Code URL Override' and 'Floating QR Code Image Override' is allowed.")
+        if self.show_qr_code_snippet and self.show_floating_qr_code_snippet:
+            raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
+        if not self.show_floating_qr_code_snippet and any([self.floating_qr_url, self.floating_qr_image, self.floating_qr_default_open]):
+            raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
 class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -935,7 +947,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -948,12 +960,16 @@ class WhatsNewPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfie
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
 
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("content"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        FieldPanel("show_qr_code_snippet"),
     ]
 
     class Meta:
