@@ -1356,8 +1356,6 @@ def lazy_wagtail_core_langs():
     return retval
 
 
-WAGTAIL_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
-
 # Don't automatically make a page for a non-default locale availble in the default locale
 WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = False  # note that WAGTAILLOCALIZE is correct without the _
 
@@ -1457,7 +1455,9 @@ def _localize_dashboard_column_filter_options():
     ]
 
 
+# Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.

@@ -179,6 +179,7 @@ python manage.py dumpdata \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
+    cms.QRCodeFloatingSnippet \
     cms.Tag \
     cms.SetAsDefaultSnippet \
     newsletter.Newsletter \

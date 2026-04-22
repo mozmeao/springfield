@@ -19,6 +19,7 @@ from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, Tit
 from wagtail.blocks import RichTextBlock
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
+from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib.l10n_utils.fluent import ftl
@@ -137,34 +138,32 @@ class SimpleRichTextPage(AbstractSpringfieldCMSPage):
 
 
 class UTMParamsMixin(models.Model):
-    stub_attr_utm_campaign = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Stub Attribution UTM Campaign",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign` attribute on the page, used by download buttons. "
-        "The value is only used if there's no `utm_campaign` in the URL query params.",
+    STUB_ATTRIBUTION_MODES = (
+        ("", "None"),
+        ("default", "Default (used if no utm_campaign in URL)"),
+        ("override", "Override (replaces utm_campaign from URL, respects cookie)"),
+        ("force", "Force (replaces everything, clears attribution cookie)"),
     )
-    stub_attr_utm_campaign_override = models.CharField(
-        max_length=255,
+
+    stub_attr_utm_campaign_mode = models.CharField(
+        max_length=20,
         blank=True,
-        verbose_name="Stub Attribution UTM Campaign Override",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign-override` attribute on the page, used by download "
-        "buttons. The value overrides any `utm_campaign` in the URL, but respects an existing attribution cookie.",
+        choices=STUB_ATTRIBUTION_MODES,
+        verbose_name="Stub Attribution Mode",
+        help_text="Controls how the campaign value is applied to download attribution.",
     )
-    stub_attr_utm_campaign_force = models.CharField(
+    stub_attr_utm_campaign_value = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name="Stub Attribution UTM Campaign Force",
-        help_text="If set, this value will be added as the `data-stub-attribution-campaign-force` attribute on the page, used by download buttons. "
-        "The value overrides URL params AND clears any existing attribution cookie, forcing a fresh attribution request every time.",
+        verbose_name="Stub Attribution Campaign Value",
+        help_text="The campaign value to use for stub attribution. Only used if a mode is selected above.",
     )
 
     promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("stub_attr_utm_campaign"),
-                FieldPanel("stub_attr_utm_campaign_override"),
-                FieldPanel("stub_attr_utm_campaign_force"),
+                FieldPanel("stub_attr_utm_campaign_mode"),
+                FieldPanel("stub_attr_utm_campaign_value"),
             ],
             heading="Stub Attribution UTM Parameters",
         ),
@@ -174,7 +173,9 @@ class UTMParamsMixin(models.Model):
         abstract = True
 
     def get_stub_attribution_utm_campaign(self):
-        return self.stub_attr_utm_campaign_force or self.stub_attr_utm_campaign_override or self.stub_attr_utm_campaign
+        if self.stub_attr_utm_campaign_mode and self.stub_attr_utm_campaign_value:
+            return self.stub_attr_utm_campaign_value
+        return ""
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or self.slug
@@ -189,6 +190,87 @@ class UTMParamsMixin(models.Model):
         context = super().get_context(request, *args, **kwargs)
         context["utm_parameters"] = self.get_utm_parameters()
         return context
+
+
+class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
+    """Mixin that adds per-page overrides for the floating QR code snippet."""
+
+    show_qr_code_snippet = models.BooleanField(
+        default=False,
+        help_text="If true, a floating QR code snippet will be displayed on the page.",
+    )
+    show_floating_qr_code_snippet = models.BooleanField(
+        default=False,
+        verbose_name="Show Floating QR Code Snippet",
+        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+    )
+    floating_qr_url = models.CharField(
+        blank=True,
+        verbose_name="Override Floating QR Code URL",
+        help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
+    )
+    floating_qr_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        verbose_name="Override Floating QR Code Image",
+        help_text="Override with an uploaded QR code image. Takes priority over the URL.",
+    )
+    floating_qr_default_open = models.BooleanField(
+        null=True,
+        blank=True,
+        verbose_name="Override Floating QR Code Default Open",
+        help_text="Override the default open state of the Floating QR code snippet.",
+    )
+
+    floating_qr_panels = [
+        FieldPanel("show_qr_code_snippet"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("show_floating_qr_code_snippet"),
+                        FieldPanel("floating_qr_url"),
+                        FieldPanel("floating_qr_image"),
+                        FieldPanel("floating_qr_default_open"),
+                    ]
+                ),
+            ],
+            heading="QR Code Floating Button",
+            classname="collapsed",
+        ),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+        SynchronizedField("floating_qr_url"),
+        SynchronizedField("floating_qr_image"),
+        SynchronizedField("floating_qr_default_open"),
+    ]
+
+    class Meta:
+        abstract = True
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.models.snippets import QRCodeFloatingSnippet
+
+        context = super().get_context(request, *args, **kwargs)
+        if self.show_floating_qr_code_snippet:
+            snippet = QRCodeFloatingSnippet.get_live(self.locale)
+            if snippet:
+                context["floating_qr_snippet"] = snippet.build_context(page=self, request=request)
+        return context
+
+    def clean(self):
+        super().clean()
+        if self.floating_qr_url and self.floating_qr_image:
+            raise ValidationError("Only one of 'Floating QR Code URL Override' and 'Floating QR Code Image Override' is allowed.")
+        if self.show_qr_code_snippet and self.show_floating_qr_code_snippet:
+            raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
+        if not self.show_floating_qr_code_snippet and any([self.floating_qr_url, self.floating_qr_image, self.floating_qr_default_open]):
+            raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
 class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -356,7 +438,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A thank you page displayed after the user downloads Firefox."""
 
     ftl_files = ["firefox/download/desktop"]
@@ -376,14 +458,10 @@ class ThanksPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
-    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
-        FieldPanel("show_qr_code_snippet"),
+        *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
     def __str__(self):
@@ -789,7 +867,7 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"FreeFormPage: {self.title} - {self.locale}"
 
 
-class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -809,14 +887,9 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=True,
         help_text="If true, the page will display the default pre-footer section.",
     )
-
     show_nav_cta = models.BooleanField(
         default=True,
         help_text="If true, the download button will appear in the navigation bar for this page.",
-    )
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -824,7 +897,7 @@ class FreeFormPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
         FieldPanel("show_pre_footer"),
         FieldPanel("show_nav_cta"),
-        FieldPanel("show_qr_code_snippet"),
+        *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
     class Meta:
@@ -917,7 +990,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return True
 
 
-class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -940,17 +1013,12 @@ class WhatsNewPage2026(UTMParamsMixin, AbstractSpringfieldCMSPage):
         WHATS_NEW_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
-    )
-
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        FieldPanel("show_qr_code_snippet"),
+        *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
     class Meta:
@@ -1016,6 +1084,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    # TODO: remove this field. This was kept here to avoid a rename migration.
+    waitlist_button_label = models.CharField(default="Try Smart Window", max_length=255)
     show_smart_window_button = models.CharField(
         max_length=20,
         choices=(
@@ -1026,17 +1096,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=ALLOWED_TERRITORIES_OPTION,
         help_text="Controls whether the 'Try Smart Window' button is shown on the page. When not available, the Waitlist form is shown instead.",
     )
+    smart_window_button_label = models.CharField(max_length=255, default="Try Smart Window")
     nav_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Smart Window button.")
     intro_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Smart Window button.")
-    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
-    waitlist_button_label = models.CharField(max_length=255, default="Try Smart Window")
-    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
-    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
-    privacy_notice = RichTextField(
-        features=HEADING_TEXT_FEATURES,
-        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
-        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
-    )
     redirect_page = models.ForeignKey(
         "cms.SmartWindowExplainerPage",
         on_delete=models.SET_NULL,
@@ -1045,11 +1107,30 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="The page users will be taken to after clicking the Smart Window button.",
     )
+
+    waitlist_submit_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Waitlist form submit button.")
+    form_submit_label = models.CharField(max_length=255, default="Join the Waitlist")
+    thank_you_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">You’re on the list!</p>')
+    thank_you_message = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="abcdef">Thank you!</p>')
+    privacy_notice = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">I’m okay with Mozilla handling my info as explained in this '
+        '<a href="https://www.mozilla.org/privacy/websites/">Privacy Notice</a>.</p>',
+    )
+    mobile_message = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        default='<p data-block-key="abcdef">This experience is only available on desktop. Please open this page on your computer.</p>',
+    )
+
     download_button_label = models.CharField(max_length=255, default="Download Firefox", help_text="Label for the button to download Firefox.")
     nav_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Header Download Firefox button.")
     intro_download_button_uid = models.UUIDField(default=uuid.uuid4, help_text="Unique identifier for the Intro Download Firefox button.")
+
     update_button_label = models.CharField(
         max_length=255, default="How to update Firefox", help_text="Label for the button that appears if the user needs to update Firefox."
+    )
+    update_button_uid = models.UUIDField(
+        default=uuid.uuid4, help_text="Unique identifier for the Update Firefox button that appears if the user needs to update."
     )
     update_instructions = RichTextField(
         features=HEADING_TEXT_FEATURES,
@@ -1094,9 +1175,26 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("show_smart_window_button"),
+                FieldPanel("smart_window_button_label"),
                 FieldPanel("nav_button_uid"),
                 FieldPanel("intro_button_uid"),
                 FieldPanel("redirect_page"),
+                FieldPanel("mobile_message"),
+            ],
+            heading="Smart Window Button",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("thank_you_heading"),
+                FieldPanel("thank_you_message"),
+                FieldPanel("form_submit_label"),
+                FieldPanel("waitlist_submit_uid"),
+                FieldPanel("privacy_notice"),
+            ],
+            heading="Waitlist Form",
+        ),
+        MultiFieldPanel(
+            [
                 FieldPanel("download_button_label"),
                 FieldPanel("nav_download_button_uid"),
                 FieldPanel("intro_download_button_uid"),
@@ -1105,13 +1203,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("copy_to_clipboard_label"),
                 FieldPanel("copy_success_label"),
                 FieldPanel("post_download_instructions"),
-                FieldPanel("waitlist_button_label"),
-                FieldPanel("form_submit_label"),
-                FieldPanel("thank_you_message"),
-                FieldPanel("waitlist_submit_uid"),
-                FieldPanel("privacy_notice"),
             ],
-            heading="Smart Window button and Waitlist Form",
+            heading="Download and Update Buttons",
         ),
         FieldPanel("content"),
     ]
@@ -1129,6 +1222,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             raise ValidationError("An alt text description is required when an animation URL is provided.")
 
     def serve(self, request, *args, **kwargs):
+        if request.GET.get("v") == "product":
+            if child := self.get_children().live().public().filter(slug="start").first():
+                return redirect(child.get_url(request))
+
         response = super().serve(request, *args, **kwargs)
         if self.show_smart_window_button == self.ALLOWED_TERRITORIES_OPTION:
             add_never_cache_headers(response)

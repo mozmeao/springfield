@@ -32,6 +32,8 @@ from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_te
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
+    get_freeform_page_2026_with_floating_qr_snippet,
+    get_freeform_page_2026_with_qr_snippet,
     get_freeform_page_2026_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
 )
@@ -59,6 +61,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_c
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
+    get_whats_new_page_2026_with_floating_qr_snippet,
     get_whats_new_page_2026_with_qr_snippet,
     get_whats_new_page_with_qr_snippet,
     get_whatsnew_index_page,
@@ -107,6 +110,19 @@ class Command(BaseCommand):
 
         freeform_2026_page = get_freeform_page_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Free Form 2026 test page loaded: {freeform_2026_page.slug}"))
+
+        freeform_2026_with_qr_snippet_page = get_freeform_page_2026_with_qr_snippet()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 with QR snippet test page loaded: {freeform_2026_with_qr_snippet_page.slug}"))
+
+        freeform_2026_with_floating_qr_snippet_page = get_freeform_page_2026_with_floating_qr_snippet()
+        self.stdout.write(
+            self.style.SUCCESS(f"Free Form 2026 with Floating QR snippet test page loaded: {freeform_2026_with_floating_qr_snippet_page.slug}")
+        )
+
+        whats_new_page_2026_with_floating_qr_snippet = get_whats_new_page_2026_with_floating_qr_snippet()
+        self.stdout.write(
+            self.style.SUCCESS(f"What's New 2026 test page with Floating QR Code Snippet loaded: {whats_new_page_2026_with_floating_qr_snippet.slug}")
+        )
 
         intro_2026_page = get_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Intro 2026 test page loaded: {intro_2026_page.slug}"))
