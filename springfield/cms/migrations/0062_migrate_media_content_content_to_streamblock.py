@@ -115,5 +115,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(update_pages, migrations.RunPython.noop),
+        # Disabled because this breaks now that 0071_remove_legacy_stub_attr_fields.py has been applied to the DB
+        # migrations.RunPython(update_pages, migrations.RunPython.noop),
     ]
