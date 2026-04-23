@@ -690,6 +690,7 @@ const DownloadAttribution = {
      * @return {Boolean}.
      */
     meetsFunctionalRequirements: () => {
+        // NOTE: only site JS bundle is guaranteed to be available for these checks
         if (
             typeof window.site === 'undefined' ||
             typeof Mozilla.Cookies === 'undefined' ||
@@ -778,16 +779,15 @@ const DownloadAttribution = {
     },
 
     /**
-     * Marketing trigger entry point. Called in response to a GTM
-     * `gtm-marketing-consent` event. On 'granted', captures marketing data
+     * Marketing trigger entry point. On 'granted', captures marketing data
      * from the current URL and re-signs the combined payload. On 'denied',
      * clears marketing data; if essential data is also absent, the full
      * attribution state is removed.
-     * @param {String} consentState - 'granted' or 'denied'.
+     * @param {Boolean} isConsentGranted - Based on GTM Consent Analytics Storage.
      * @param {Function} successCallback - Optional.
      * @param {Function} timeoutCallback - Optional.
      */
-    initMarketing: (consentState, successCallback, timeoutCallback) => {
+    initMarketing: (isConsentGranted, successCallback, timeoutCallback) => {
         if (!DownloadAttribution.meetsFunctionalRequirements()) {
             return;
         }
@@ -800,7 +800,7 @@ const DownloadAttribution = {
             DownloadAttribution.timeoutCallback = timeoutCallback;
         }
 
-        if (consentState === 'granted') {
+        if (isConsentGranted) {
             if (!DownloadAttribution.withinAttributionRate()) {
                 return;
             }
@@ -830,7 +830,7 @@ const DownloadAttribution = {
                     });
                 }
             });
-        } else if (consentState === 'denied') {
+        } else {
             const essential = DownloadAttribution.getRawCookie(
                 DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
             );
