@@ -176,6 +176,19 @@ ul.download-list strong {
     display: block !important;
 }
 
+.windows .force-win64 .os_win,
+.windows .force-win64-aarch64 .os_win {
+    display: none !important;
+}
+
+.windows .force-win64 .os_win64 {
+    display: block !important;
+}
+
+.windows .force-win64-aarch64 .os_win64-aarch64 {
+    display: block !important;
+}
+
 /* add spacing between displayed buttons */
 .download-list {
     display: grid;
