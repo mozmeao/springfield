@@ -1149,7 +1149,6 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     post_download_instructions = RichTextField(
         features=HEADING_TEXT_FEATURES,
-        null=True,
         blank=True,
         default="<p data-block-key='abcdef'>Return to this page after updating Firefox to unlock access to Smart Window BETA.</p>",
         help_text="Instructions displayed to the user for next steps after downloading Firefox.",
