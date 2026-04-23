@@ -531,6 +531,13 @@
     },
     {
       "files": [
+        "js/firefox/download/desktop/download-as-default-v2.es6.js",
+        "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
+      ],
+      "name": "download_as_default-v2"
+    },
+    {
+      "files": [
         "js/firefox/browsers/desktop/chromebook.js"
       ],
       "name": "chromebook"
