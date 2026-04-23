@@ -30,6 +30,11 @@
     padding-block-end: 0;
 }
 
+.fl-home-body .fl-split-page-upper .fl-sticker-card:hover {
+    top: -2px;
+    transform: none;
+}
+
 .fl-home-body .fl-banner-container {
     margin-block-start: calc(-1 * var(--fl-section-v-padding));
     max-inline-size: none;
