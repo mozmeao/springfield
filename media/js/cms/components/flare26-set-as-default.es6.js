@@ -6,12 +6,15 @@
 
 import { isUITourEnabled } from './flare26-ui-tour-helpers.es6';
 
-const setAsDefaultPage = {
-    checkTimer: undefined,
+class SetAsDefaultComponent {
+    constructor() {
+        this.checkTimer = undefined;
+    }
+
     isDefaultBrowser() {
-        return isUITourEnabled().then(function () {
-            return new window.Promise(function (resolve, reject) {
-                Mozilla.UITour.getConfiguration('appinfo', function (details) {
+        return isUITourEnabled().then(() => {
+            return new window.Promise((resolve, reject) => {
+                Mozilla.UITour.getConfiguration('appinfo', (details) => {
                     if (details.defaultBrowser) {
                         resolve();
                     } else {
@@ -20,97 +23,80 @@ const setAsDefaultPage = {
                 });
             });
         });
-    },
+    }
+
     trySetDefaultBrowser() {
         Mozilla.UITour.setConfiguration('defaultBrowser');
-        setAsDefaultPage.checkForDefaultSwitch();
-    },
+        this.checkForDefaultSwitch();
+    }
+
     onDefaultSwitch() {
         document
             .querySelector('html')
             .classList.remove('firefox-is-not-default');
         document.querySelector('html').classList.add('firefox-is-default');
-        // GA4
-        window.dataLayer.push({
-            event: 'default_browser_set'
-        });
+        window.dataLayer.push({ event: 'default_browser_set' });
         window.dataLayer.push({
             event: 'dimension_set',
             firefox_is_default: true
         });
-    },
+    }
+
     checkForDefaultSwitch() {
-        setAsDefaultPage
-            .isDefaultBrowser()
-            .then(function () {
-                setAsDefaultPage.onDefaultSwitch();
-                clearInterval(setAsDefaultPage.checkTimer);
+        this.isDefaultBrowser()
+            .then(() => {
+                this.onDefaultSwitch();
+                clearInterval(this.checkTimer);
             })
-            .catch(function () {
-                if (!setAsDefaultPage.checkTimer) {
-                    window.setTimeout(function () {
-                        setAsDefaultPage.checkTimer = setInterval(
-                            setAsDefaultPage.checkForDefaultSwitch,
+            .catch(() => {
+                if (!this.checkTimer) {
+                    window.setTimeout(() => {
+                        this.checkTimer = setInterval(
+                            () => this.checkForDefaultSwitch(),
                             1000
                         );
                     }, 1500);
                 }
             });
-    },
+    }
+
     onLoad() {
-        const setAsDefaultButtonEls = document.querySelectorAll(
-            '.fl-set-as-default-button'
-        );
+        const buttons = document.querySelectorAll('.fl-set-as-default-button');
+        if (!buttons.length) return;
 
-        if (!setAsDefaultButtonEls.length) return;
+        let hasValidTrigger = false;
 
-        let hasValidSetAsDefaultTrigger = false;
+        buttons.forEach((btn) => {
+            const targetId = btn.getAttribute('data-target-id');
+            const dialog = targetId ? document.getElementById(targetId) : null;
+            if (!dialog) return;
 
-        setAsDefaultButtonEls.forEach((setAsDefaultButtonEl) => {
-            const targetId =
-                setAsDefaultButtonEl.getAttribute('data-target-id');
-            const setAsDefaultDialogEl = targetId
-                ? document.getElementById(targetId)
-                : null;
-            if (!setAsDefaultDialogEl) {
-                return;
-            }
-            hasValidSetAsDefaultTrigger = true;
-            setAsDefaultButtonEl.addEventListener('click', () => {
-                setAsDefaultPage.trySetDefaultBrowser();
-            });
+            hasValidTrigger = true;
+            btn.addEventListener('click', () => this.trySetDefaultBrowser());
         });
 
-        if (!hasValidSetAsDefaultTrigger) {
-            return;
-        }
+        if (!hasValidTrigger) return;
 
-        setAsDefaultPage
-            .isDefaultBrowser()
-            .then(function () {
+        this.isDefaultBrowser()
+            .then(() => {
                 document
                     .querySelector('html')
                     .classList.add('firefox-is-default');
-                // GA4
                 window.dataLayer.push({
                     event: 'dimension_set',
                     firefox_is_default: true
                 });
             })
-            .catch(function () {
+            .catch(() => {
                 document
                     .querySelector('html')
                     .classList.add('firefox-is-not-default');
-
-                // GA4
                 window.dataLayer.push({
                     event: 'dimension_set',
                     firefox_is_default: false
                 });
             });
     }
-};
+}
 
-export const setupSetAsDefault = function () {
-    setAsDefaultPage.onLoad();
-};
+export const setupSetAsDefault = () => new SetAsDefaultComponent().onLoad();
