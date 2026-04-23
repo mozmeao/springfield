@@ -1,0 +1,73 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% macro carousel_slides(slides) %}
+  <div class="fl-sliding-carousel-controls-swiper">
+    <ol class="fl-sliding-carousel-controls" aria-label="Carousel slides">
+      {% for slide in slides %}
+        <li class="fl-sliding-carousel-control {% if loop.first %}is-active{% endif %}"
+            aria-current="{{ 'true' if loop.first else 'false' }}"
+            data-slide-index="{{ loop.index0 }}"
+            role="button"
+            tabindex="0">
+          <div class="fl-sliding-carousel-progress-wrapper" aria-hidden="true">
+            <div class="fl-sliding-carousel-progress" aria-hidden="true"></div>
+          </div>
+          <div class="fl-sliding-carousel-box">
+            {% if slide.superheading_text %}
+              <span class="fl-sliding-carousel-superheading fl-superheading">{{ slide.superheading_text }}</span>
+            {% endif %}
+            <h2 class="fl-sliding-carousel-heading-text fl-heading fl-heading-size-4">{{ slide.heading_text }}</h2>
+            {% if slide.subheading_text %}
+              <span class="fl-body fl-sliding-carousel-subheading">{{ slide.subheading_text }}</span>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+
+  <div class="fl-sliding-carousel-media-panel">
+    <div aria-live="polite">
+      {% for slide in slides %}
+        <div class="fl-sliding-carousel-slide {% if loop.first %}is-active{% endif %}"
+            aria-hidden="{{ 'false' if loop.first else 'true' }}"
+            data-slide-index="{{ loop.index0 }}">
+          <include:animation
+            video_url="{{ slide.video_url }}"
+            poster="{{ slide.poster }}"
+            alt=""
+            playback="autoplay_loop"
+            show_pause_button="true"
+          />
+        </div>
+      {% endfor %}
+    </div>
+    <div class="fl-sliding-carousel-pagination"></div>
+  </div>
+{% endmacro %}
+
+<div class="fl-smart-window-page">
+  <div data-testid="sliding-carousel-dark">
+    <section class="fl-section fl-force-dark-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+      <div class="fl-section-container">
+        <div class="fl-sliding-carousel" data-js="fl-sliding-carousel">
+          {{ carousel_slides(slides) }}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div data-testid="sliding-carousel-light">
+    <section class="fl-section fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+      <div class="fl-section-container">
+        <div class="fl-sliding-carousel" data-js="fl-sliding-carousel">
+          {{ carousel_slides(slides) }}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
