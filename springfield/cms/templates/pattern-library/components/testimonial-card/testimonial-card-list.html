@@ -1,0 +1,42 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% macro card_list(cards) %}
+  <include:cards-list scroll>
+    {% for item in range(3) %}
+      {% for card in cards %}
+        <div class="fl-card-grid-scroll-item">
+        <include:testimonial-card>
+          <content:body>
+            {{ card.body }}
+          </content:body>
+          {% if card.image %}
+            <content:image>
+              <img src="{{ card.image }}" alt="Placeholder image" />
+            </content:image>
+          {% endif %}
+          <content:attribution>
+            {{ card.attribution }}
+          </content:attribution>
+          {% if card.attribution_role %}
+            <content:attribution_role>
+              {{ card.attribution_role }}
+            </content:attribution_role>
+          {% endif %}
+        </include:testimonial-card>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </include:cards-list>
+{% endmacro %}
+
+<div data-testid="testimonial-card-dark" class="fl-force-dark-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text);">
+  {{ card_list(cards) }}
+</div>
+
+<div data-testid="testimonial-card-light" class="fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text);">
+  {{ card_list(cards) }}
+</div>

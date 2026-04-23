@@ -1,0 +1,18 @@
+name: Sliding Carousel 2026
+context:
+  slides:
+    - superheading_text: "Browse"
+      heading_text: "Open tabs across all your devices"
+      subheading_text: "Switch seamlessly between desktop and mobile with synced tabs."
+      video_url: "/media/img/firefox/flare/placeholder.webm"
+      poster: /media/img/firefox/flare/placeholder.png
+    - superheading_text: "Discover"
+      heading_text: "Smart suggestions as you browse"
+      subheading_text: "Get context-aware recommendations based on what you're reading."
+      video_url: "/media/img/firefox/flare/placeholder.webm"
+      poster: /media/img/firefox/flare/placeholder.png
+    - superheading_text: "Protect"
+      heading_text: "Privacy built in from the start"
+      subheading_text: "Enhanced tracking protection keeps your data yours, always."
+      video_url: "/media/img/firefox/flare/placeholder.webm"
+      poster: /media/img/firefox/flare/placeholder.png
