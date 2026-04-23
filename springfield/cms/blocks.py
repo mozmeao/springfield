@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -13,15 +17,19 @@ from django.utils.translation import gettext_lazy as _
 
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
-from wagtail.views import serve as wagtail_serve
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
-from springfield.base.i18n import split_path_and_normalize_language
+from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.views import wagtail_serve_with_locale_fallback
+
+if TYPE_CHECKING:
+    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -307,6 +315,85 @@ ICON_CHOICES = [
     ("wrapped-scrolling", "Wrapped Scrolling"),
     ("xr-false", "XR False"),
     ("xr-true", "XR True"),
+    ("add-to-homescreen", "Add To Homescreen"),
+    ("help-circle", "Help Circle"),
+    ("help-circle-fill", "Help Circle Fill"),
+    ("update-circle", "Update Circle"),
+    ("more-grid", "More Grid"),
+    ("more-horizontal", "More Horizontal"),
+    ("more-horizontal-round", "More Horizontal Round"),
+    ("more-vertical", "More Vertical"),
+    ("more-vertical-round", "More Vertical Round"),
+    ("append-down-left", "Append Down Left"),
+    ("append-up-right", "Append Up Right"),
+    ("arrow-counter-clockwise", "Arrow Counter Clockwise"),
+    ("avatar-circle-fill", "Avatar Circle Fill"),
+    ("avatar-info-circle-fill", "Avatar Info Circle Fill"),
+    ("avatar-warning-circle-fill", "Avatar Warning Circle Fill"),
+    ("bookmark-slash", "Bookmark Slash"),
+    ("bookmark-tray", "Bookmark Tray"),
+    ("bookmark-tray-fill", "Bookmark Tray Fill"),
+    ("cross-circle", "Cross Circle"),
+    ("cross-circle-fill", "Cross Circle Fill"),
+    ("device-desktop-fill", "Device Desktop Fill"),
+    ("device-desktop-send", "Device Desktop Send"),
+    ("device-tablet", "Device Tablet"),
+    ("other-device-shortcuts", "Other Device Shortcuts"),
+    ("save", "Save"),
+    ("save-file", "Save File"),
+    ("clipboard", "Clipboard"),
+    ("copy", "Copy"),
+    ("signature", "Signature"),
+    ("extension-cog", "Extension Cog"),
+    ("folder-add", "Folder Add"),
+    ("folder-arrow-right", "Folder Arrow Right"),
+    ("lightning-filled", "Lightning Filled"),
+    ("lock-fill", "Lock Fill"),
+    ("lock-slash", "Lock Slash"),
+    ("lock-slash-fill", "Lock Slash Fill"),
+    ("lock-warning-fill", "Lock Warning Fill"),
+    ("logo-chrome", "Logo Chrome"),
+    ("logo-safari", "Logo Safari"),
+    ("night-mode-fill", "Night Mode Fill"),
+    ("notification-dot", "Notification Dot"),
+    ("blocked-false", "Blocked False"),
+    ("blocked-true", "Blocked True"),
+    ("eye-false", "Eye False"),
+    ("eye-true", "Eye True"),
+    ("location", "Location"),
+    ("microphone-false-mobile", "Microphone False Mobile"),
+    ("microphone-true-mobile", "Microphone True Mobile"),
+    ("permission", "Permission"),
+    ("pin-slash", "Pin Slash"),
+    ("pin-slash-fill", "Pin Slash Fill"),
+    ("pause", "Pause"),
+    ("reader-view-customize", "Reader View Customize"),
+    ("reader-view-fill", "Reader View Fill"),
+    ("reading-list", "Reading List"),
+    ("reading-list-add", "Reading List Add"),
+    ("reading-list-slash", "Reading List Slash"),
+    ("reading-list-slash-fill", "Reading List Slash Fill"),
+    ("grid-plus", "Grid Plus"),
+    ("tool", "Tool"),
+    ("share-ios", "Share iOS"),
+    ("shield-checkmark", "Shield Checkmark"),
+    ("shield-cross", "Shield Cross"),
+    ("shield-dot", "Shield Dot"),
+    ("shield-exclamation-mark", "Shield Exclamation Mark"),
+    ("shield-slash", "Shield Slash"),
+    ("sun-fill", "Sun Fill"),
+    ("cloud", "Cloud"),
+    ("sync-tabs", "Sync Tabs"),
+    ("tab-number", "Tab Number"),
+    ("thumbs-down", "Thumbs Down"),
+    ("thumbs-down-fill", "Thumbs Down Fill"),
+    ("thumbs-up-fill", "Thumbs Up Fill"),
+    ("cookies", "Cookies"),
+    ("cookies-slash", "Cookies Slash"),
+    ("fingerprinter", "Fingerprinter"),
+    ("translate-active", "Translate Active"),
+    ("translate-active-alt", "Translate Active Alt"),
+    ("page-zoom-fill", "Page Zoom Fill"),
 ]
 
 PLATFORM_CHOICES = [
@@ -344,6 +431,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimen
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
+UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -356,8 +444,23 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
+    (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
 )
 
+UI_TOUR_CLASSES = {
+    UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
+    UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+}
 
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
@@ -440,6 +543,8 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
+    max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
 
     class Meta:
         label = "Conditional Display"
@@ -452,11 +557,11 @@ class ConditionalDisplayBlock(blocks.StructBlock):
 # Element blocks
 
 
-def HeadingBlock(required=True, **kwargs):
+def HeadingBlock(required=True, all_required=False, **kwargs):
     class _HeadingBlock(blocks.StructBlock):
-        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
         heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
-        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
 
         class Meta:
             icon = "title"
@@ -540,6 +645,19 @@ def BaseButtonSettings(themes=None, **kwargs):
 
 
 class SpringfieldLinkBlockURLValue(URLValue):
+    @staticmethod
+    def _with_locale_prefix(url, lang):
+        """Replace the locale prefix in url with lang, or return url unchanged if unparseable."""
+        if url:
+            # page.url can return an absolute URL (e.g. http://host/en-US/path/)
+            # when the page belongs to a different Wagtail site. Extract just the path.
+            parsed = urlparse(url)
+            path = parsed.path if parsed.scheme or parsed.netloc else url
+            parts = path.lstrip("/").split("/", 1)
+            if len(parts) == 2:
+                return f"/{lang}/{parts[1]}"
+        return url
+
     def get_url(self):
         """
         Override the get_url() method to:
@@ -553,8 +671,11 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if path:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return f"/{locale.language_code}/{path.lstrip('/')}"
-                except Exception:
+                    # To make sure we return the URL prefixed with the user-facing locale,
+                    # we reconstruct the URL using the URL-facing locale prefix.
+                    active_lang = normalize_language(translation.get_language()) or locale.language_code
+                    return f"/{active_lang}/{path.lstrip('/')}"
+                except SpringfieldLocale.DoesNotExist:
                     return path
             return path
 
@@ -563,8 +684,29 @@ class SpringfieldLinkBlockURLValue(URLValue):
             if page:
                 try:
                     locale = SpringfieldLocale.get_active()
-                    return page.get_translation(locale).url
-                except Exception:
+                    # Get the active language, so we can use it to determine the URL to return.
+                    active_lang = normalize_language(translation.get_language()) or locale.language_code
+                    try:
+                        translated_page = page.get_translation(locale)
+                        # If the translated page matches the active language,
+                        # then return the translated page's URL.
+                        if translated_page.locale.language_code == active_lang:
+                            return translated_page.url
+                        # The translated page doesn not match the active language;
+                        # we reconstruct the URL using the URL-facing locale prefix.
+                        return self._with_locale_prefix(translated_page.url, active_lang)
+                    except Page.DoesNotExist:
+                        # This means that this page has no translation for this locale.
+                        # In case this is rendered as a fallback page (the user
+                        # requested /es-AR/somepage, but that page doesn't exist
+                        # in the es-AR locale, so the user is served the content
+                        # from the es-MX locale's somepage at the /es-AR/somepage URL),
+                        # we want to make sure that the URL we return here matches
+                        # the requested locale. For example, for a page link to
+                        # the /features/control/ page, we want to return
+                        # /es-AR/features/control/ (not /es-MX/features/control/).
+                        return self._with_locale_prefix(page.url, active_lang)
+                except SpringfieldLocale.DoesNotExist:
                     return page.url
             return None
 
@@ -658,7 +800,7 @@ class SpringfieldLinkBlock(LinkBlock):
                     path_to_check = f"/en-US/{path.lstrip('/')}"
                     with translation.override("en-US"):
                         match = resolve(path_to_check)
-                    if match.func == wagtail_serve:
+                    if match.func == wagtail_serve_with_locale_fallback:
                         errors["relative_url"] = ErrorList([error_msg])
                 except Resolver404:
                     errors["relative_url"] = ErrorList([error_msg])
@@ -704,20 +846,7 @@ class UITourButtonValue(BaseButtonValue):
         """
         theme_classes = super().theme_class()
         button_type = self.get("button_type", "")
-        classes = {
-            UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
-            UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
-            UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
-            UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
-        }
-        theme_classes += " " + classes.get(button_type, "")
+        theme_classes += " " + UI_TOUR_CLASSES.get(button_type, "")
         return theme_classes
 
 
@@ -1043,6 +1172,7 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Controls how the animation plays. Autoplay (loop) plays continuously. Autoplay (play once) plays on load then stops.",
             inline_form=True,
         )
+        show_pause_button = blocks.BooleanBlock(default=False, required=False)
 
         class Meta:
             label = "Animation"
@@ -1077,6 +1207,17 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+class SmartWindowInstructionsBlock(blocks.StructBlock):
+    pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
+    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
+    instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
+
+    class Meta:
+        label = "Smart Window Instructions"
+        label_format = "Smart Window Instructions - {instructions}"
+        template = "cms/blocks/smart-window-instructions.html"
+
+
 class MediaContentSettings(blocks.StructBlock):
     media_after = blocks.BooleanBlock(
         required=False,
@@ -1084,6 +1225,13 @@ class MediaContentSettings(blocks.StructBlock):
         label="Media After",
         inline_form=True,
         help_text="Place media after text content on desktop",
+    )
+    narrow = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Narrow Layout",
+        inline_form=True,
+        help_text="Narrow the media element",
     )
 
     class Meta:
@@ -1094,21 +1242,28 @@ class MediaContentSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def MediaContentBlock(allow_uitour=False, *args, **kwargs):
+def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     """Factory function to create MediaContentBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
+        is_2026: If True, uses the 2026 version of the block.
     """
+    tag_block = TagBlock2026() if is_2026 else TagBlock()
 
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        content = blocks.StreamBlock(
+            [
+                ("rich_text", blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("smart_window_instructions", SmartWindowInstructionsBlock()),
+            ]
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1434,6 +1589,34 @@ def StepCardListBlock2026(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
+def IconCardBlock2026(allow_uitour=False, *args, **kwargs):
+    """Factory function to create IconCardBlock2026 with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
+                      If False, only allows regular buttons.
+    """
+
+    class _IconCardBlock(blocks.StructBlock):
+        settings = BaseCardSettings()
+        icon = IconChoiceBlock(inline_form=True)
+        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=1,
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/icon-card-2026.html"
+            label = "Icon Card"
+            label_format = "Icon Card - {headline}"
+
+    return _IconCardBlock(*args, **kwargs)
+
+
 def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create StickerCardBlock with appropriate button types.
 
@@ -1474,7 +1657,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
 
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
-        image = ImageVariantsBlock()
+        media = MediaBlock()
         eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1523,6 +1706,34 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
     return _OutlinedCardBlock(*args, **kwargs)
 
 
+def TestimonialCardBlock(*args, **kwargs):
+    class _TestimonialCardSettings(blocks.StructBlock):
+        show_to = ConditionalDisplayBlock(
+            label="Show To",
+            help_text="Control which users can see this content block",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
+    class _TestimonialCardBlock(blocks.StructBlock):
+        settings = _TestimonialCardSettings()
+        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution_role = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        attribution_image = ImageVariantsBlock(required=False)
+
+        class Meta:
+            template = "cms/blocks/testimonial-card.html"
+            label = "Testimonial Card"
+            label_format = "Testimonial - {attribution}"
+
+    return _TestimonialCardBlock(*args, **kwargs)
+
+
 def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -1531,12 +1742,28 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
                       If False, only allows regular buttons.
     """
 
+    class _CardsListSettings(blocks.StructBlock):
+        scroll = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Display all cards in a single scrolling row",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            form_classname = "compact-form struct-block"
+
     class _CardsListBlock(blocks.StructBlock):
+        settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
                 ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
+                ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
+                ("testimonial_card", TestimonialCardBlock()),
             ]
         )
 
@@ -1546,6 +1773,28 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
             label_format = "Cards List"
 
     return _CardsListBlock(*args, **kwargs)
+
+
+class CardLineItemBlock(blocks.StructBlock):
+    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        themes=BUTTON_THEMES_2026,
+        min_num=0,
+        max_num=2,
+        required=False,
+    )
+
+
+class LineCardsBlock(blocks.StructBlock):
+    cards = blocks.ListBlock(CardLineItemBlock())
+
+    class Meta:
+        template = "cms/blocks/line-cards.html"
+        label = "Line Cards"
+        label_format = "Line Cards"
 
 
 # Article Cards
@@ -1592,8 +1841,8 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
 
 
 class BaseArticleValue(blocks.StructValue):
-    def get_article(self):
-        return self["article"].localized
+    def get_article(self) -> ArticleDetailPage | ArticleThemePage:
+        return self["article"].specific.localized
 
     def get_title(self) -> str:
         from springfield.cms.templatetags.cms_tags import remove_p_tag
@@ -1624,7 +1873,7 @@ class BaseArticleValue(blocks.StructValue):
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
-            if tag := article_page.get_tag():
+            if hasattr(article_page, "get_tag") and (tag := article_page.get_tag()):
                 return tag.name
         return ""
 
@@ -1639,7 +1888,7 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.link_text
         return ftl("ui-learn-more", ftl_files=["ui"])
 
-    def get_featured_image(self):
+    def get_featured_image(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
         if image := overrides.get("image"):
             return image
@@ -1650,7 +1899,7 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.featured_image
         return None
 
-    def get_sticker(self):
+    def get_sticker(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
         if sticker := overrides.get("sticker"):
             return sticker
@@ -1678,8 +1927,9 @@ class BaseArticleValue(blocks.StructValue):
             url = link.get_url()
             if url:
                 return url
+
         article_page = self.get_article()
-        return article_page.url if article_page else ""
+        return article_page.get_active_locale_url() if article_page else ""
 
 
 class ArticleBlock(blocks.StructBlock):
@@ -2016,13 +2266,14 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
                 ("icon_list_with_image", IconListWithImageBlock()),
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2286,6 +2537,25 @@ class CarouselBlock(blocks.StructBlock):
         template = "cms/blocks/sections/home-carousel.html"
         label = "Carousel"
         label_format = "{heading}"
+
+
+class SlidingCarouselItemBlock(blocks.StructBlock):
+    heading = HeadingBlock(all_required=True)
+    media = MediaBlock(max_num=1)
+
+    class Meta:
+        label = "Slide"
+        label_format = "{heading}"
+
+
+class SlidingCarouselBlock(blocks.StructBlock):
+    settings = CarouselSettings()
+    slides = blocks.ListBlock(SlidingCarouselItemBlock(), min_num=2, max_num=6)
+
+    class Meta:
+        template = "cms/blocks/sliding-carousel.html"
+        label = "Sliding Carousel"
+        label_format = "Sliding Carousel"
 
 
 class ShowcaseSettings(blocks.StructBlock):

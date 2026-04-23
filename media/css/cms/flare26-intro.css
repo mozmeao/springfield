@@ -4,7 +4,12 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+.fl-freeform-2026-page .fl-split-page-upper:has(.fl-intro:first-child) {
+    padding-block-start: 0;
+}
+
 .fl-intro {
+    inline-size: 100%;
     padding: var(--token-layout-md) var(--fl-section-h-padding);
     position: relative;
     text-align: center;
@@ -111,6 +116,8 @@
 }
 
 .fl-intro.fl-intro-media-right .fl-intro-media img,
+.fl-intro.fl-intro-media-left .fl-intro-media img,
+.fl-intro.fl-intro-media-right .fl-intro-media video,
 .fl-intro.fl-intro-media-left .fl-intro-media video {
     border-radius: var(--token-border-radius-md);
     inline-size: 100%;
@@ -149,6 +156,7 @@
 }
 
 .fl-home-intro .fl-superheading {
+    align-items: center;
     background: linear-gradient(
         180deg,
         var(--token-color-light-purple-40) 0%,
@@ -158,6 +166,7 @@
     display: inline-flex;
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
+    line-height: 1;
     margin: 0;
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
@@ -201,7 +210,7 @@
     border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
     font-style: normal;
-    margin-inline-end: var(--token-spacing-xs);
+    margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     text-transform: uppercase;
 }

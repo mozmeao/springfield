@@ -35,12 +35,13 @@
     </div>
 
     {% set ns = namespace(headings=0) %}
+    {% set block_level = 1 %}
     {% for block in page.content %}
       {% set block_index = loop.index %}
       {% set block_type = block.block_type %}
-      {% set block_position = "block-" ~ block_index + "-" + block_type %}
+      {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
 
-      {% if block.value.heading and block.value.heading.heading_text %}
+      {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
         {% set block_level = 1 if ns.headings == 0 else 2 %}
         {% set ns.headings = ns.headings + 1 %}
       {% endif %}
@@ -52,13 +53,3 @@
 
 {% block pre_footer %}
 {% endblock pre_footer %}
-
-{% block qr_code_snippet %}
-  {% if page.show_qr_code_snippet %}
-    {% set qr_code_snippet = get_qr_code_snippet() %}
-    {% if qr_code_snippet %}
-      {% set value = qr_code_snippet %}
-      {% include "cms/snippets/qr-code-snippet.html" %}
-    {% endif %}
-  {% endif %}
-{% endblock qr_code_snippet %}

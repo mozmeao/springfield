@@ -779,6 +779,12 @@
     },
     {
       "files": [
+        "js/firefox/landing/get/protection-report.js"
+      ],
+      "name": "landing_get_report"
+    },
+    {
+      "files": [
         "js/base/mozilla-client.js",
         "js/base/mozilla-fxa.js",
         "js/base/mozilla-fxa-init.js",
@@ -851,6 +857,12 @@
         "js/cms/wagtailadmin-link-block.js"
       ],
       "name": "wagtailadmin-link-block"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-locale-badges.js"
+      ],
+      "name": "wagtailadmin-locale-badges"
     },
     {
       "files": [

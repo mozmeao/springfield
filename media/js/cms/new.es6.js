@@ -4,8 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import VideoEngagement from '../base/datalayer-videoengagement.es6';
 import { getConsentCookie } from '../base/consent/utils.es6';
+import VideoEngagement from '../base/datalayer-videoengagement.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -108,6 +108,15 @@ if (typeof window.cms === 'undefined') {
             const newsletters = Array.from(
                 form.querySelectorAll('input[name="newsletters"]:checked')
             ).map((input) => input.value);
+
+            const email = formData.get('email');
+            if (email === 'success@example.com') {
+                showNewsletterSuccess();
+                return;
+            } else if (email === 'failure@example.com') {
+                showNewsletterError(['An error occurred. Please try again.']);
+                return;
+            }
 
             // Disable form during submission
             const submitButton = document.getElementById('newsletter-submit');
@@ -235,6 +244,42 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function honorReducedMotionForAutoplay() {
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+
+        document.querySelectorAll('video[autoplay]').forEach(function (video) {
+            // Pause immediately — more reliable than removing the autoplay attribute,
+            // which browsers may have already acted on before JS runs.
+            video.pause();
+
+            // Guard against the browser restarting playback (e.g. after seek).
+            video.addEventListener(
+                'play',
+                function () {
+                    video.pause();
+                },
+                { once: true }
+            );
+
+            // Update the paired pause/play button if one exists.
+            const container = video.closest('.fl-video');
+            const pauseBtn =
+                container && container.querySelector('.js-animation-pause');
+            if (pauseBtn) {
+                pauseBtn.classList.add('is-paused');
+                pauseBtn.setAttribute(
+                    'aria-label',
+                    pauseBtn.dataset.labelPlay || ''
+                );
+                const pauseIcon = pauseBtn.querySelector('.js-pause-icon');
+                const playIcon = pauseBtn.querySelector('.js-play-icon');
+                if (pauseIcon) pauseIcon.hidden = true;
+                if (playIcon) playIcon.hidden = false;
+            }
+        });
+    }
+
     function initVideoPlayers() {
         const videoButtons = document.querySelectorAll('.js-video-play');
 
@@ -266,7 +311,15 @@ if (typeof window.cms === 'undefined') {
 
                     const video = document.createElement('video');
                     video.controls = true;
-                    video.autoplay = true;
+
+                    if (
+                        window.matchMedia('(prefers-reduced-motion: reduce)')
+                            .matches
+                    ) {
+                        video.autoplay = false;
+                    } else {
+                        video.autoplay = true;
+                    }
 
                     if (posterUrl) {
                         video.poster = posterUrl;
@@ -347,6 +400,9 @@ if (typeof window.cms === 'undefined') {
         const pauseButtons = document.querySelectorAll('.js-animation-pause');
 
         pauseButtons.forEach(function (button) {
+            // Buttons inside the sliding carousel are handled by flare26.es6.js
+            if (button.closest('[data-js="fl-sliding-carousel"]')) return;
+
             const container = button.closest('.fl-video');
             if (!container) return;
 
@@ -363,6 +419,7 @@ if (typeof window.cms === 'undefined') {
                         'aria-label',
                         button.dataset.labelPause
                     );
+                    button.classList.remove('is-paused');
                     pauseIcon.hidden = false;
                     playIcon.hidden = true;
                 } else {
@@ -370,6 +427,7 @@ if (typeof window.cms === 'undefined') {
                     button.setAttribute('aria-label', button.dataset.labelPlay);
                     pauseIcon.hidden = true;
                     playIcon.hidden = false;
+                    button.classList.add('is-paused');
                 }
             });
         });
@@ -406,7 +464,11 @@ if (typeof window.cms === 'undefined') {
 
     function initQRCodeSnippet() {
         const COOKIE_ID = 'moz-qr-snippet-dismissed';
-        const qrCodeSnippetEl = document.querySelector('.fl-qr-code-snippet');
+        const oldSnippet = document.querySelector('.js-qr-code-snippet');
+
+        const qrCodeSnippetEl =
+            document.querySelector('.js-qr-code-floating-snippet') ||
+            oldSnippet;
 
         if (!qrCodeSnippetEl) {
             return;
@@ -417,57 +479,108 @@ if (typeof window.cms === 'undefined') {
             window.Mozilla.Cookies.enabled();
 
         // Don't show if previously dismissed.
-        if (cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID)) {
+        const wasDismissed =
+            cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID);
+
+        if (wasDismissed && oldSnippet) {
             return;
         }
 
-        const closeButton = qrCodeSnippetEl.querySelector(
+        if (wasDismissed) {
+            qrCodeSnippetEl.classList.remove('is-open');
+
+            const toggleButton =
+                qrCodeSnippetEl.querySelector('.fl-icon-subtract');
+
+            if (toggleButton) {
+                toggleButton.classList.remove('fl-icon-subtract');
+                toggleButton.classList.add('fl-icon-add');
+            }
+        }
+
+        const showHideButton = qrCodeSnippetEl.querySelector(
             '.fl-qr-code-snippet-close'
         );
 
         qrCodeSnippetEl.setAttribute('aria-live', 'polite');
 
         setTimeout(function () {
-            qrCodeSnippetEl.classList.add('is-open');
+            if (oldSnippet) {
+                qrCodeSnippetEl.classList.add('is-open');
+            }
         }, 3000);
 
         if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
-            if (closeButton) {
-                closeButton.addEventListener('click', function () {
-                    qrCodeSnippetEl.classList.remove('is-open');
+            if (showHideButton) {
+                qrCodeSnippetEl.addEventListener('click', function () {
+                    if (!qrCodeSnippetEl.classList.contains('is-open')) {
+                        const toggleButton =
+                            qrCodeSnippetEl.querySelector('.fl-icon-add');
 
-                    if (!cookiesEnabled) {
-                        return;
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-add');
+                            toggleButton.classList.add('fl-icon-subtract');
+                        }
+
+                        qrCodeSnippetEl.classList.add('is-open');
                     }
+                });
+                showHideButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (qrCodeSnippetEl.classList.contains('is-open')) {
+                        qrCodeSnippetEl.classList.remove('is-open');
 
-                    /**
-                     * Set a preference cookie to remember the user dismissed
-                     * the QR code snippet. Legal are OK to set this without
-                     * explicit consent because:
-                     *
-                     * 1) The cookie is not used for tracking purposes.
-                     * 2) The cookie is set only after an explicit user action.
-                     *
-                     * We still honor not setting this cookie if preference
-                     * cookies have been explicitly rejected by the user.
-                     */
-                    const cookie = getConsentCookie();
-                    if (cookie && !cookie.preference) {
-                        return;
+                        const toggleButton =
+                            qrCodeSnippetEl.querySelector('.fl-icon-subtract');
+
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-subtract');
+                            toggleButton.classList.add('fl-icon-add');
+                        }
+
+                        if (!cookiesEnabled) {
+                            return;
+                        }
+
+                        /**
+                         * Set a preference cookie to remember the user dismissed
+                         * the QR code snippet. Legal are OK to set this without
+                         * explicit consent because:
+                         *
+                         * 1) The cookie is not used for tracking purposes.
+                         * 2) The cookie is set only after an explicit user action.
+                         *
+                         * We still honor not setting this cookie if preference
+                         * cookies have been explicitly rejected by the user.
+                         */
+                        const cookie = getConsentCookie();
+                        if (cookie && !cookie.preference) {
+                            return;
+                        }
+
+                        const date = new Date();
+                        const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
+                        date.setTime(date.getTime() + cookieDuration);
+                        Mozilla.Cookies.setItem(
+                            COOKIE_ID,
+                            true,
+                            date.toUTCString(),
+                            '/',
+                            undefined,
+                            false,
+                            'lax'
+                        );
+                    } else {
+                        const toggleButton =
+                            qrCodeSnippetEl.querySelector('.fl-icon-add');
+
+                        if (toggleButton) {
+                            toggleButton.classList.remove('fl-icon-add');
+                            toggleButton.classList.add('fl-icon-subtract');
+                        }
+
+                        qrCodeSnippetEl.classList.add('is-open');
                     }
-
-                    const date = new Date();
-                    const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
-                    date.setTime(date.getTime() + cookieDuration);
-                    Mozilla.Cookies.setItem(
-                        COOKIE_ID,
-                        true,
-                        date.toUTCString(),
-                        '/',
-                        undefined,
-                        false,
-                        'lax'
-                    );
                 });
             }
         }
@@ -510,6 +623,55 @@ if (typeof window.cms === 'undefined') {
         });
     }
 
+    function reserveTypewriterSpace() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            const container = el.closest('p');
+            if (!container) return;
+            container.style.minHeight = container.offsetHeight + 'px';
+        });
+    }
+
+    function initTypewriter() {
+        document.querySelectorAll('.fl-typewriter').forEach(function (el) {
+            Flare26.typewriter(el);
+        });
+    }
+
+    Flare26.typewriter = function (el, speed) {
+        const text = el.textContent;
+        const interval = speed || 30;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        el.textContent = '';
+        el.classList.add('has-blinking-cursor');
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+                observer.unobserve(el);
+                let i = 0;
+                const timer = setInterval(function () {
+                    el.textContent += text[i++];
+                    if (i >= text.length) {
+                        clearInterval(timer);
+                        setTimeout(function () {
+                            el.classList.remove('has-blinking-cursor');
+                        }, 1500);
+                    }
+                }, interval);
+            });
+        });
+
+        observer.observe(el);
+    };
+
     Flare26.initDialogs = () => {
         const triggerButtons = document.querySelectorAll('.fl-dialog-trigger');
 
@@ -545,9 +707,12 @@ if (typeof window.cms === 'undefined') {
             initVideoPlayers();
             initAnimations();
             initAnimationPauseButtons();
+            honorReducedMotionForAutoplay();
             initDownloadDropdown();
             initQRCodeSnippet();
             initTopicListSidebar();
+            reserveTypewriterSpace();
+            initTypewriter();
             Flare26.initDialogs();
         });
     } else {
@@ -557,9 +722,13 @@ if (typeof window.cms === 'undefined') {
         applyVideoAspectRatios();
         initVideoPlayers();
         initAnimations();
+        initAnimationPauseButtons();
+        honorReducedMotionForAutoplay();
         initDownloadDropdown();
         initQRCodeSnippet();
         initTopicListSidebar();
+        reserveTypewriterSpace();
+        initTypewriter();
         Flare26.initDialogs();
     }
 

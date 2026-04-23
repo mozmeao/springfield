@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 1 %}
+
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}"
+  min_version="{{ value.settings.show_to.min_version }}"
+  max_version="{{ value.settings.show_to.max_version }}">
+  <include:testimonial-card>
+    <content:body>
+      {{ value.content }}
+    </content:body>
+    {% if value.attribution_image.image %}
+      <content:image>
+        {% include_block value.attribution_image %}
+      </content:image>
+    {% endif %}
+    <content:attribution>
+      {{ value.attribution|richtext|remove_p_tag }}
+    </content:attribution>
+    {% if value.attribution_role %}
+      <content:attribution_role>
+        {{ value.attribution_role|richtext|remove_p_tag }}
+      </content:attribution_role>
+    {% endif %}
+  </include:testimonial-card>
+</include:conditional-display>

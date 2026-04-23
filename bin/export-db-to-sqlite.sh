@@ -162,6 +162,8 @@ python manage.py dumpdata \
     cms.SimpleRichTextPage \
     cms.FreeFormPage \
     cms.FreeFormPage2026 \
+    cms.SmartWindowPage \
+    cms.SmartWindowExplainerPage \
     cms.WhatsNewIndexPage \
     cms.WhatsNewPage \
     cms.WhatsNewPage2026 \
@@ -177,6 +179,7 @@ python manage.py dumpdata \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
+    cms.QRCodeFloatingSnippet \
     cms.Tag \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
@@ -197,6 +200,7 @@ export DATABASE_URL=sqlite:///$output_db  # Note that the three slashes is key 
 check_status_and_handle_failure "Setting up new output DB at $output_db"
 
 PROD_DETAILS_STORAGE=product_details.storage.PDFileStorage \
+SQLITE_EXPORT_MODE=True \
     python manage.py migrate || all_well=false
 
 check_status_and_handle_failure "Running Django migrations"

@@ -114,11 +114,18 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     --button-border-color-disabled: transparent;
     --button-text-color-disabled: var(--fl-theme-color-link);
     font-weight: var(--token-font-weight-regular);
+    padding-block: var(--token-spacing-xs);
     padding-inline: 0;
     text-decoration: underline;
 }
 
 .fl-button.button-link:hover {
+    text-decoration: none;
+}
+
+.fl-button.button-link:focus,
+.fl-button.button-link:focus-visible {
+    outline: none;
     text-decoration: none;
 }
 
@@ -251,4 +258,23 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
    after confirming UITour is responding (see ui-tour-buttons.js). */
 .ui-tour.is-hidden {
     display: none;
+}
+
+/* =====================================================================
+Copy-to-Clipboard Button
+===================================================================== */
+
+.fl-copy-to-clipboard-button:disabled {
+    cursor: default;
+}
+
+.fl-copy-to-clipboard-label-success {
+    position: absolute;
+}
+
+/* Used to avoid layout shift when swapping text.
+   Not good for accessibility, so it's used in
+   conjunction with aria-hidden in the JS */
+.opacity-0 {
+    opacity: 0;
 }

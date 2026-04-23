@@ -8,9 +8,20 @@ import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
+
+
+@pytest.fixture
+def placeholder_images():
+    return get_placeholder_images()
+
+
+@pytest.fixture
+def index_page(minimal_site):
+    return get_test_index_page()
 
 
 @pytest.fixture(autouse=True)
@@ -21,6 +32,20 @@ def clear_waffle_cache():
 
     cache.clear()
     yield
+
+
+@pytest.fixture(autouse=True)
+def reset_translation():
+    """Reset Django's active language after each test.
+
+    Requests to locale-prefixed URLs (e.g. /pt-PT/...) call
+    translation.activate() inside the URL resolver. If not cleaned up, the
+    activated language leaks into subsequent tests and causes them to render
+    with the wrong locale."""
+    from django.utils import translation
+
+    yield
+    translation.deactivate()
 
 
 @pytest.fixture

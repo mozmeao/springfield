@@ -5,7 +5,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_qr_snippet
+from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page, get_freeform_page_2026_with_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
@@ -16,26 +16,42 @@ from springfield.cms.fixtures.whats_new_page_fixtures import (
 pytestmark = [pytest.mark.django_db]
 
 
+@pytest.fixture
+def qr_code_snippet():
+    return get_qr_code_snippet()
+
+
 def _get_qr_snippet_aside(soup):
     return soup.find("aside", class_="fl-qr-code-snippet")
 
 
-def test_thanks_page_renders_qr_code_snippet(minimal_site, rf):
+def assert_qr_snippet_rendered(soup, show_close_button=True):
+    aside = _get_qr_snippet_aside(soup)
+    assert aside, "QR code snippet <aside> should be rendered"
+    assert "js-qr-code-snippet" in aside.get("class", []), "QR code snippet JS class should be applied"
+    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
+    assert "Get Firefox on your phone" in aside.get_text()
+    if show_close_button:
+        assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
+    else:
+        assert "fl-qr-code-snippet-closable" not in aside.get("class", []), "Closable class should not be applied"
+
+
+def test_thanks_page_renders_qr_code_snippet(minimal_site, rf, qr_code_snippet):
     page = get_thanks_page()
+    page.show_floating_qr_code_snippet = False
+    page.show_qr_code_snippet = True
+    page.save_revision().publish()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
-    assert "Get Firefox on your phone" in aside.get_text()
-    assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
+    assert_qr_snippet_rendered(soup)
 
 
-def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
+def test_thanks_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf, qr_code_snippet):
     page = get_thanks_page()
     page.show_qr_code_snippet = False
     page.save_revision().publish()
@@ -56,17 +72,10 @@ def test_freeform_page_2026_renders_qr_code_snippet(minimal_site, rf):
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
-    assert "Get Firefox on your phone" in aside.get_text()
-    assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
+    assert_qr_snippet_rendered(soup)
 
 
-def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
-    from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page
-
-    get_qr_code_snippet()
+def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf, qr_code_snippet):
     page = get_freeform_page_2026_test_page()
     page.show_qr_code_snippet = False
     page.save_revision().publish()
@@ -87,10 +96,7 @@ def test_whats_new_page_renders_qr_code_snippet(minimal_site, rf):
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
-    assert "Get Firefox on your phone" in aside.get_text()
+    assert_qr_snippet_rendered(soup)
 
 
 def test_whats_new_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
@@ -114,10 +120,7 @@ def test_whats_new_page_2026_renders_qr_code_snippet(minimal_site, rf):
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet <aside> should be rendered"
-    assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
-    assert "Get Firefox on your phone" in aside.get_text()
+    assert_qr_snippet_rendered(soup)
 
 
 def test_whats_new_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
@@ -133,9 +136,9 @@ def test_whats_new_page_2026_does_not_render_qr_code_snippet_when_flag_off(minim
     assert not _get_qr_snippet_aside(soup), "QR code snippet should not render when show_qr_code_snippet=False"
 
 
-def test_qr_code_snippet_not_closable(minimal_site, rf):
+def test_qr_code_snippet_not_closable(minimal_site, rf, qr_code_snippet):
     page = get_freeform_page_2026_with_qr_snippet()
-    snippet = get_qr_code_snippet()
+    snippet = qr_code_snippet
     snippet.closable = False
     snippet.save()
 
@@ -144,7 +147,4 @@ def test_qr_code_snippet_not_closable(minimal_site, rf):
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    aside = _get_qr_snippet_aside(soup)
-    assert aside, "QR code snippet should still render"
-    assert not aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should not render when closable=False"
-    assert "fl-qr-code-snippet-closable" not in aside.get("class", []), "Closable class should not be applied"
+    assert_qr_snippet_rendered(soup, show_close_button=False)

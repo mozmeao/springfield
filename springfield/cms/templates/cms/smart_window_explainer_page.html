@@ -1,0 +1,57 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/free_form_page2026.html" %}
+
+{% block body_class %}fl-smart-window-explainer-page{% endblock %}
+
+{% block flare_header %}
+{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-freeform-2026-page">
+  <main class="fl-main has-gradient-bottom">
+    {% set ns = namespace(headings=0) %}
+    {% set block_level = 1 %}
+
+    <div class="fl-smart-window-explainer-hero">
+      <include:flare26-header hide_nav_cta disable_sticky no_menu />
+      {% for block in page.upper_content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
+
+        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </div>
+
+    {% if page.content %}
+      <div class="fl-split-page-lower no-gap">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
+
+          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
+
+{% block pre_footer %}
+{% endblock pre_footer %}

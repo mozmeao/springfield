@@ -32,6 +32,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-superheading-color: var(--token-color-light-purple);
+    --fl-theme-card-outline-superheading-color: var(--token-color-grey-4);
+    --fl-theme-card-outline-superheading-color-active: var(
+        --fl-theme-color-brand-text
+    );
 
     /* Button palette
        Note: most button variables are in the button file, as they are
@@ -171,15 +175,42 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-subnav-toggle-bg: var(--token-color-white);
 
     /* custom checkbox styles */
-    --checkbox-border-color: #7543e3;
+    --checkbox-border-color: var(--token-color-light-purple);
     --checkbox-disabled-border-color: #535664;
-    --checkbox-hover-bg-color: #6132bc;
-    --checkbox-hover-border-color: #7543e3;
-    --checkbox-checked-bg-color: #7543e3;
-    --checkbox-checked-hover-bg-color: #6132bc;
+    --checkbox-hover-bg-color: var(--token-color-soft-purple);
+    --checkbox-hover-border-color: var(--token-color-light-purple);
+    --checkbox-checked-bg-color: var(--token-color-light-purple);
+    --checkbox-checked-border-color: var(--token-color-light-purple);
+    --checkbox-checked-hover-bg-color: var(--token-color-link-purple);
 
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-black-1);
+
+    /* Smart window */
+    --smart-window-instructions-heading-text-color: var(
+        --token-color-dark-purple
+    );
+    --smart-window-instructions-content-text-color: var(--token-color-grey-4);
+    --smart-window-play-icon-background: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-background-hover: var(--token-color-white);
+    --smart-window-play-icon-background-active: var(--token-color-soft-purple);
+    --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color-active: #42414d;
+    --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo-dark.svg');
+    --smart-window-background-gradient:
+        radial-gradient(
+            29.9% 38.82% at 50% 44.86%,
+            rgba(216, 202, 247, 0.2) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0) 65.89%
+        ),
+        radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
 }
 
 .fl-split-page-upper,
@@ -218,6 +249,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
+    --fl-theme-card-outline-superheading-color: var(
+        --token-color-soft-purple-4
+    );
+    --fl-theme-card-outline-superheading-color-active: var(
+        --token-color-soft-purple-3
+    );
 
     /* homepage card grid styles */
     --theme-purple-card-bg-color: var(--token-color-purple);
@@ -278,13 +315,48 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
 
     /* custom checkbox styles */
-    --checkbox-border-color: #fff;
-    --checkbox-disabled-border-color: #c7a8ff;
-    --checkbox-hover-bg-color: #f1e7f8;
-    --checkbox-hover-border-color: #fff;
+    --checkbox-border-color: var(--token-color-white);
+    --checkbox-disabled-border-color: var(--token-color-soft-purple-4);
+    --checkbox-hover-bg-color: var(--token-color-purple);
+    --checkbox-hover-border-color: var(--token-color-light-purple);
+    --checkbox-checked-bg-color: var(--token-color-light-purple);
+    --checkbox-checked-border-color: var(--token-color-light-purple);
+    --checkbox-checked-hover-bg-color: var(--token-color-link-purple);
 
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-grey-1);
+
+    /* Smart window */
+    --smart-window-instructions-heading-text-color: var(--token-color-white);
+    --smart-window-instructions-content-text-color: var(--token-color-white);
+    --smart-window-play-icon-background: var(--token-color-medium-purple);
+    --smart-window-play-icon-background-hover: #7543e3;
+    --smart-window-play-icon-background-active: var(--token-color-link-purple);
+    --smart-window-play-icon-border-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color: var(--token-color-white);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-grey-2);
+    --smart-window-play-icon-fill-color-active: var(--token-color-white);
+    --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
+    --smart-window-background-gradient:
+        radial-gradient(
+            150% 100% at 100% 0%,
+            rgba(67, 20, 102, 0.55) 0%,
+            rgba(67, 20, 102, 0.25) 40%,
+            rgba(67, 20, 102, 0) 75%
+        ),
+        radial-gradient(
+            150% 100% at 0% 100%,
+            rgba(67, 27, 129, 1) 0%,
+            rgba(67, 27, 129, 0.18) 55%,
+            rgba(67, 27, 129, 0) 100%
+        ),
+        radial-gradient(
+            150% 100% at 0% 0%,
+            rgba(78, 24, 94, 0.9) 0%,
+            rgba(55, 14, 78, 0.88) 25%,
+            rgba(42, 7, 68, 0.95) 55%,
+            rgb(34, 4, 66) 80%
+        );
 }
 
 .fl-force-light-theme {
@@ -319,6 +391,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-sticker-card-bg: var(--token-color-soft-purple);
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
+    --fl-theme-card-outline-superheading-color: var(--token-color-grey-4);
+    --fl-theme-card-outline-superheading-color-active: var(
+        --fl-theme-color-brand-text
+    );
 
     /* Notifications */
     --windows-icon-color: var(--token-color-light-purple);
@@ -365,15 +441,29 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-subnav-toggle-bg: var(--token-color-white);
 
     /* custom checkbox styles */
-    --checkbox-border-color: #7543e3;
+    --checkbox-border-color: var(--token-color-light-purple);
     --checkbox-disabled-border-color: #535664;
-    --checkbox-hover-bg-color: #6132bc;
-    --checkbox-hover-border-color: #7543e3;
-    --checkbox-checked-bg-color: #7543e3;
-    --checkbox-checked-hover-bg-color: #6132bc;
+    --checkbox-hover-bg-color: var(--token-color-soft-purple);
+    --checkbox-hover-border-color: var(--token-color-light-purple);
+    --checkbox-checked-bg-color: var(--token-color-light-purple);
+    --checkbox-checked-border-color: var(--token-color-light-purple);
+    --checkbox-checked-hover-bg-color: var(--token-color-link-purple);
 
     /* Release notes */
     --release-notes-text-color-secondary: var(--token-color-black-1);
+
+    /* Smart window */
+    --smart-window-instructions-heading-text-color: var(
+        --token-color-dark-purple
+    );
+    --smart-window-instructions-content-text-color: var(--token-color-grey-4);
+    --smart-window-play-icon-background: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-background-hover: var(--token-color-white);
+    --smart-window-play-icon-background-active: var(--token-color-soft-purple);
+    --smart-window-play-icon-border-color: var(--token-color-soft-purple-2);
+    --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
+    --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
+    --smart-window-play-icon-fill-color-active: #42414d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -411,6 +501,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-surface-card-gradient: var(--token-gradient-light);
         --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
+        --fl-theme-card-outline-superheading-color: var(
+            --token-color-soft-purple-4
+        );
+        --fl-theme-card-outline-superheading-color-active: var(
+            --token-color-soft-purple-3
+        );
 
         /* homepage card grid styles */
         --theme-purple-card-bg-color: var(--token-color-purple);
@@ -470,13 +566,55 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-subnav-toggle-bg: var(--fl-menu-hamburger-bg);
 
         /* custom checkbox styles */
-        --checkbox-border-color: #fff;
-        --checkbox-disabled-border-color: #c7a8ff;
-        --checkbox-hover-bg-color: #f1e7f8;
-        --checkbox-hover-border-color: #fff;
+        --checkbox-border-color: var(--token-color-white);
+        --checkbox-disabled-border-color: var(--token-color-soft-purple-4);
+        --checkbox-hover-bg-color: var(--token-color-purple);
+        --checkbox-hover-border-color: var(--token-color-light-purple);
+        --checkbox-checked-bg-color: var(--token-color-light-purple);
+        --checkbox-checked-border-color: var(--token-color-light-purple);
+        --checkbox-checked-hover-bg-color: var(--token-color-link-purple);
 
         /* Release notes */
         --release-notes-text-color-secondary: var(--token-color-grey-1);
+
+        /* Smart window */
+        --smart-window-instructions-heading-text-color: var(
+            --token-color-white
+        );
+        --smart-window-instructions-content-text-color: var(
+            --token-color-white
+        );
+        --smart-window-play-icon-background: var(--token-color-medium-purple);
+        --smart-window-play-icon-background-hover: var(
+            --token-color-link-purple
+        );
+        --smart-window-play-icon-background-active: var(
+            --token-color-light-purple
+        );
+        --smart-window-play-icon-border-color: var(--token-color-dark-purple);
+        --smart-window-play-icon-fill-color: var(--token-color-white);
+        --smart-window-play-icon-fill-color-hover: var(--token-color-grey-2);
+        --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo.svg');
+        --smart-window-background-gradient:
+            radial-gradient(
+                150% 100% at 100% 0%,
+                rgba(67, 20, 102, 0.55) 0%,
+                rgba(67, 20, 102, 0.25) 40%,
+                rgba(67, 20, 102, 0) 75%
+            ),
+            radial-gradient(
+                150% 100% at 0% 100%,
+                rgba(67, 27, 129, 1) 0%,
+                rgba(67, 27, 129, 0.18) 55%,
+                rgba(67, 27, 129, 0) 100%
+            ),
+            radial-gradient(
+                150% 100% at 0% 0%,
+                rgba(78, 24, 94, 0.9) 0%,
+                rgba(55, 14, 78, 0.88) 25%,
+                rgba(42, 7, 68, 0.95) 55%,
+                rgb(34, 4, 66) 80%
+            );
     }
 }
 

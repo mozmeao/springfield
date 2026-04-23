@@ -81,8 +81,12 @@ Card Grid - Flare 2026 Design System Cards
     .fl-card-grid:has(
         > *:nth-child(3):last-child .fl-illustration-card-default
     ),
+    .fl-card-grid:has(.fl-illustration-icon-card:nth-child(3):last-child),
+    .fl-card-grid:has(> *:nth-child(3):last-child .fl-illustration-icon-card),
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
+    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         inline-size: 100%;
         margin-inline: auto;
@@ -91,7 +95,9 @@ Card Grid - Flare 2026 Design System Cards
 
     /* make outline cards slightly wider */
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child) {
+    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
+    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
+    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
         max-inline-size: var(--token-width-desktop-wide-banner);
     }
 }
@@ -359,6 +365,15 @@ Sticker Card
     margin-block-end: 0;
 }
 
+.fl-sticker-card .fl-body a:not(.fl-button) {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.fl-sticker-card .fl-body a:not(.fl-button):hover {
+    text-decoration: none;
+}
+
 .fl-sticker-card .fl-buttons {
     align-items: center;
     display: flex;
@@ -541,10 +556,15 @@ Illustration Card
     margin: 0;
 }
 
+.fl-illustration-card .fl-card-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-spacing-xl);
     inline-size: 100%;
+    margin-block-end: var(--token-spacing-lg);
 }
 
 .fl-illustration-card .fl-card-content {
@@ -554,13 +574,20 @@ Illustration Card
     gap: var(--token-spacing-lg);
 }
 
-.fl-illustration-card .fl-heading,
-.fl-illustration-card .fl-body {
-    margin: 0;
+.fl-illustration-card .fl-video {
+    aspect-ratio: 11/12;
+    border-radius: var(--token-spacing-xl);
 }
 
-.fl-illustration-card .fl-buttons {
-    margin-block-start: auto;
+.fl-illustration-card .fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
+.fl-illustration-card .fl-heading,
+.fl-illustration-card .fl-body,
+.fl-illustration-card .fl-body p {
+    margin: 0;
 }
 
 .fl-illustration-card .fl-superheading {
@@ -572,7 +599,7 @@ Illustration Card
 }
 
 .fl-illustration-card .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-2xs);
+    font-size: var(--fl-theme-font-size-heading-xs);
     font-variation-settings: unset;
     line-height: 1.1;
 }
@@ -621,5 +648,174 @@ Illustration Card
         --media-border-radius: var(--token-border-radius-sm);
         --media-padding: var(--token-spacing-lg);
         --media-size: 102px;
+    }
+}
+
+/* =====================================================================
+Testimonial Card
+===================================================================== */
+
+.fl-testimonial-card {
+    background: var(--fl-theme-default-card-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-xl);
+    padding: var(--token-spacing-xl);
+    position: relative;
+    transition: transform var(--token-transition-base);
+}
+
+.fl-testimonial-card::after {
+    border-radius: inherit;
+    box-shadow: 0 20px 46px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-testimonial-card:hover {
+    transform: translateY(-2px);
+}
+
+.fl-testimonial-card:hover::after {
+    opacity: 1;
+}
+
+.fl-testimonial-card-quote {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-testimonial-card-quote > *:first-child::before {
+    content: '“';
+}
+
+.fl-testimonial-card-quote > *:last-child::after {
+    content: '”';
+}
+
+.fl-testimonial-card-footer {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-start: auto;
+}
+
+.fl-testimonial-card-image {
+    block-size: 48px;
+    border-radius: var(--token-border-radius-xs);
+    flex-shrink: 0;
+    inline-size: 48px;
+    overflow: hidden;
+}
+
+.fl-testimonial-card-image img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-testimonial-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xs);
+}
+
+.fl-testimonial-card-attribution {
+    font-style: normal;
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-testimonial-card-role {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-xs);
+    opacity: 0.7;
+}
+
+/* =====================================================================
+Card Grid - Scroll variant
+===================================================================== */
+
+.fl-section .fl-card-grid-scroll {
+    margin-block-start: calc(-1 * var(--token-spacing-2xl));
+    margin-inline: calc(-1 * var(--fl-section-h-padding));
+    padding-block: var(--token-spacing-2xl) var(--token-layout-sm);
+}
+
+.fl-section-container:has(.fl-card-grid-scroll) {
+    max-inline-size: none;
+}
+
+.fl-card-grid-scroll {
+    --fl-card-grid-columns: none;
+    display: block; /* override display: grid from .fl-card-grid */
+    gap: 0;
+    overflow: hidden;
+
+    /* Extra block padding so card shadows aren't clipped */
+    padding-block: var(--token-layout-sm);
+    position: relative;
+    z-index: 1;
+}
+
+/* Mirrors swiper-wrapper core CSS for our custom class name */
+.fl-card-grid-scroll-inner {
+    box-sizing: content-box;
+    display: flex;
+    inline-size: 100%;
+    padding-inline-start: var(--token-spacing-lg);
+    position: relative;
+    transition-property: transform;
+    transition-timing-function: linear;
+    z-index: 1;
+}
+
+/* Mirrors swiper-slide core CSS for our custom class name */
+.fl-card-grid-scroll-item {
+    flex-shrink: 0;
+    inline-size: clamp(260px, 30vw, 360px);
+    position: relative;
+    transition-property: transform;
+}
+
+/* Stretch card to fill slide so all cards share the same height */
+.fl-card-grid-scroll-item > * {
+    block-size: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* When motion is reduced JS doesn't run, cards are direct children */
+    .fl-card-grid-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+        overflow-x: auto;
+    }
+
+    .fl-card-grid-scroll-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-testimonial-card:hover {
+        transform: none;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-testimonial-card {
+        font-size: var(--fl-theme-font-size-body-sm);
+        padding: var(--token-spacing-2xl);
     }
 }

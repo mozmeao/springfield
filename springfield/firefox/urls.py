@@ -104,27 +104,8 @@ urlpatterns = (
     page("landing/set-as-default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
-    path(
-        "browsers/mobile/",
-        prefer_cms(
-            views.MobileBrowsersView.as_view(),
-            fallback_ftl_files=["firefox/browsers/mobile/index"],
-        ),
-        name="firefox.browsers.mobile",
-    ),
-    page("browsers/mobile/focus/", "firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-    page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
-    page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
     # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
-    path(
-        "landing/get/",
-        VariationTemplateView.as_view(
-            template_name="firefox/landing/get.html",
-            template_name_variations=["treatment"],
-            variation_locales=["en-US"],
-            ftl_files=["firefox/download/desktop", "firefox/download/home"],
-        ),
-    ),
+    path("landing/get/", views.landing_get_page, name="landing.get"),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
@@ -236,6 +217,23 @@ if settings.ENABLE_CMS_REFRESH_REDIRECTS:
         path("download/linux/", prefer_cms(views.PlatformViewLinux.as_view()), name="firefox.browsers.desktop.linux"),
         path("download/mac/", prefer_cms(views.PlatformViewMac.as_view()), name="firefox.browsers.desktop.mac"),
         path("download/windows/", prefer_cms(views.PlatformViewWindows.as_view()), name="firefox.browsers.desktop.windows"),
+        path("download/unsupported-systems/", prefer_cms(L10nTemplateView.as_view(template_name="firefox/unsupported-systems.html"))),
+        path(
+            "mobile/",
+            prefer_cms(
+                views.MobileBrowsersView.as_view(),
+                fallback_ftl_files=["firefox/browsers/mobile/index"],
+            ),
+            name="firefox.browsers.mobile",
+        ),
+        path(
+            "mobile/focus/",
+            prefer_cms(
+                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+                fallback_ftl_files=["firefox/browsers/mobile/focus"],
+            ),
+            name="firefox.browsers.mobile.focus",
+        ),
     )
 else:
     urlpatterns += (
@@ -246,4 +244,29 @@ else:
         path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
         path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
         page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
+        page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
+        path(
+            "browsers/mobile/",
+            prefer_cms(
+                views.MobileBrowsersView.as_view(),
+                fallback_ftl_files=["firefox/browsers/mobile/index"],
+            ),
+            name="firefox.browsers.mobile",
+        ),
+        path(
+            "mobile/focus/",
+            prefer_cms(
+                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+                fallback_ftl_files=["firefox/browsers/mobile/focus"],
+            ),
+            name="firefox.browsers.mobile.focus",
+        ),
+        path(
+            "mobile/get-app/",
+            prefer_cms(
+                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
+                fallback_ftl_files=["firefox/browsers/mobile/get-app"],
+            ),
+            name="firefox.browsers.mobile.get_app",
+        ),
     )
