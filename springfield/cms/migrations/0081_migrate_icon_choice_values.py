@@ -12,7 +12,7 @@ def migrate_forward(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0079_migrate_article_detail_page_icon"),
+        ("cms", "0080_migrate_article_detail_page_icon"),
     ]
 
     operations = [
