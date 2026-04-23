@@ -5,6 +5,7 @@
  */
 
 import MozAllowList from './allow-list.es6';
+import DownloadAttribution from '../download-attribution/download-attribution.es6';
 
 const COOKIE_ID = 'moz-consent-pref'; // Cookie name
 const COOKIE_EXPIRY_DAYS = 182; // 6 months expiry
@@ -53,10 +54,12 @@ function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
         window.gtag('consent', type, {
             analytics_storage: 'granted'
         });
+        DownloadAttribution.initMarketing(true);
     } else {
         window.gtag('consent', type, {
             analytics_storage: 'denied'
         });
+        DownloadAttribution.initMarketing(false);
     }
     return true;
 }
