@@ -546,19 +546,6 @@ const DownloadAttribution = {
     },
 
     /**
-     * Gets the forced campaign value used for essential attribution flows.
-     * This value triggers specific functionality after download
-     * i.e. "rtamo" redirects a user to install the extension they have chosen
-     * whilst browsing AMO using a different browser.
-     * @return {String | null} - Campaign value, or null if unset.
-     */
-    getEssentialCampaign: () => {
-        return document.documentElement.getAttribute(
-            'data-stub-attribution-campaign-force'
-        );
-    },
-
-    /**
      * Gets the marketing campaign value: utm_campaign from the URL, falling
      * back to the page-level default campaign attribute.
      * @param {Object} params - URL params.
@@ -582,15 +569,25 @@ const DownloadAttribution = {
      * @return {Object} - Essential data object, or {} if the current page
      *   does not carry a recognized essential campaign.
      */
-    getEssentialData: () => {
+    getEssentialData: (campaign) => {
         // NOTE: in future, this will return product context and install
         // options fields based on data attributes.
-        const campaign = DownloadAttribution.getEssentialCampaign();
         if (campaign) {
             return {
                 utm_campaign: campaign
             };
         }
+
+        const pageCampaign = document.documentElement.getAttribute(
+            'data-stub-attribution-campaign-force'
+        );
+
+        if (pageCampaign) {
+            return {
+                utm_campaign: pageCampaign
+            };
+        }
+
         return {};
     },
 
@@ -733,10 +730,11 @@ const DownloadAttribution = {
      * Does not gate on marketing consent or sample rate: essential data
      * must always be carried so the installer can deliver its promised
      * functionality after download.
+     * @param {string} campaign - Optional.
      * @param {Function} successCallback - Optional.
      * @param {Function} timeoutCallback - Optional.
      */
-    initEssential: (successCallback, timeoutCallback) => {
+    initEssential: (campaign, successCallback, timeoutCallback) => {
         if (!DownloadAttribution.meetsFunctionalRequirements()) {
             return;
         }
@@ -749,22 +747,34 @@ const DownloadAttribution = {
             DownloadAttribution.timeoutCallback = timeoutCallback;
         }
 
-        const essential = DownloadAttribution.getEssentialData();
-
-        if (Object.keys(essential).length === 0) {
-            return;
-        }
+        const essential = DownloadAttribution.getEssentialData(campaign);
 
         const marketing = DownloadAttribution.getRawCookie(
             DownloadAttribution.COOKIE_MARKETING_RAW_ID
         );
 
-        DownloadAttribution.setRawCookie(
-            DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID,
-            essential
-        );
+        if (Object.keys(essential).length === 0) {
+            if (marketing) {
+                // remove essential only
+                DownloadAttribution.removeRawCookie(
+                    DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+                );
+                DownloadAttribution.requestCombinedAuth(null, marketing);
+            } else {
+                DownloadAttribution.removeAttributionData();
+                // we didn't make a stub attribution call, but we've completed clean-up
+                if (typeof DownloadAttribution.successCallback === 'function') {
+                    DownloadAttribution.successCallback();
+                }
+            }
+        } else {
+            DownloadAttribution.setRawCookie(
+                DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID,
+                essential
+            );
 
-        DownloadAttribution.requestCombinedAuth(essential, marketing);
+            DownloadAttribution.requestCombinedAuth(essential, marketing);
+        }
     },
 
     /**
@@ -821,18 +831,22 @@ const DownloadAttribution = {
                 }
             });
         } else if (consentState === 'denied') {
-            DownloadAttribution.removeRawCookie(
-                DownloadAttribution.COOKIE_MARKETING_RAW_ID
-            );
-
             const essential = DownloadAttribution.getRawCookie(
                 DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
             );
 
             if (essential) {
+                // remove marketing only
+                DownloadAttribution.removeRawCookie(
+                    DownloadAttribution.COOKIE_MARKETING_RAW_ID
+                );
                 DownloadAttribution.requestCombinedAuth(essential, null);
             } else {
                 DownloadAttribution.removeAttributionData();
+                // we didn't make a stub attribution call, but we've completed clean-up
+                if (typeof DownloadAttribution.successCallback === 'function') {
+                    DownloadAttribution.successCallback();
+                }
             }
         }
     }
