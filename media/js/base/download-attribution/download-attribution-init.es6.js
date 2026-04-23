@@ -15,9 +15,3 @@ if (
 ) {
     DownloadAttribution.initEssential();
 }
-
-window.addEventListener('gtm-marketing-consent', (e) => {
-    if (e && e.detail && e.detail.state) {
-        DownloadAttribution.initMarketing(e.detail.state);
-    }
-});
