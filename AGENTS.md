@@ -7,17 +7,24 @@ Springfield is a Django monolith: core apps, views, and templates live in `sprin
 ## Build, Test, and Development Commands
 
 Review the full setup notes in the platform docs (`https://mozmeao.github.io/platform-docs/`) before first use - cache these if you can.
+
 Copy `.env-dist` to `.env`, then run `make preflight` to install Python deps and pull the latest content bundle.
 `make run` launches the Docker Compose stack (web plus asset builders); most `make` commands execute inside containers.
+
 For local-only loops, `npm start` serves Django and webpack with live rebuilds, and `pytest springfield` runs backend tests without Docker.
+
 Use `make test` for the containerized pytest + Jasmine suite, `uv run pytest springfield` for the quick "bare metal" Django tests and `npm run lint` to mirror the CI lint container.
 
 ## Coding Style & Naming Conventions
 
 Python targets 3.13 with Ruff enforcing ≤150-character lines and import ordering of Django → third-party → first-party.
+
 Prefer snake_case for functions, `CamelCase` for Django classes, and descriptive template names under `springfield/<app>/templates/`.
 JavaScript follows the ESLint + Prettier ruleset with `const`/`let`; run `npm run format` before committing.
+
 Sass in `media/css/` keeps the existing block–element naming    pattern.
+
+If you add an inline import (i.e. an import anywhere inside a function or class) to Python code, it MUST be accompanied by a comment explaining why it is an inline import.
 
 ## Testing Guidelines
 
