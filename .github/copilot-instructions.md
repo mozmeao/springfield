@@ -62,7 +62,7 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 * We use Django migrations to manage database schema state and also sometimes to adjust data. Django migrations are the ONLY permissible way to change database schema.
 * It is permissible for a changeset to add multiple columns and/or tables
-* If a changeset involves renaming or deleting a database field, add a warning comment to ensure the reviewer understands that this such a change should happen atomically and be rolled out atomically.
+* If a changeset involves renaming or deleting a database field, add a warning comment to ensure the reviewer understands that such a change should happen atomically and be rolled out atomically.
 * If you can see that the changeset also changes application code related to a field that is being dropped (e.g. the diff involves a name change for an attribute that matches the field name being dropped), this is a very strong signal of risk. You must add a blocking comment to the PR: application code must stop using the old field name in a release BEFORE the field name is changed or the field is dropped. Recommend the pattern of adding a new field and migrating data to it in one release, then dropping the old field in a follow-up release.
 * Add a similar blocking comment if a changeset includes a field that is being renamed: we must add, migrate and drop - never just rename, unless we are 100% sure the field being renamed is referenced in any application code.
 
