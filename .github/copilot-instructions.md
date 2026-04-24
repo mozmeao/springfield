@@ -6,6 +6,7 @@ Fetch the latest version of all the checklists mentioned on https://mozmeao.gith
 
 Read AGENTS.md for supplementary instructions.
 
+If a mirrored copy of these instructions exists at `custom-instructions/repo/.github/copilot-instructions.md`, keep it updated in sync with this file or remove it to avoid drift and inconsistent Copilot behavior.
 Try to use Conventional Comments to indicate the kind of feedback you are providing, and whether it's blocking or non-blocking.
 
 Also, confirm in a comment on the PR that you are using this custom instructions file, please.
