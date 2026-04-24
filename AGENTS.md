@@ -22,7 +22,7 @@ Python targets 3.13 with Ruff enforcing ≤150-character lines and import orderi
 Prefer snake_case for functions, `CamelCase` for Django classes, and descriptive template names under `springfield/<app>/templates/`.
 JavaScript follows the ESLint + Prettier ruleset with `const`/`let`; run `npm run format` before committing.
 
-Sass in `media/css/` keeps the existing block–element naming    pattern.
+Sass in `media/css/` keeps the existing block–element naming pattern.
 
 If you add an inline import (i.e. an import anywhere inside a function or class) to Python code, it MUST be accompanied by a comment explaining why it is an inline import.
 
