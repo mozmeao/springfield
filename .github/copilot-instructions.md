@@ -56,7 +56,7 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 * If you can see a new Wagtail CMS model is being added (specifically, a new Python class that is a subclass of wagtail.models.Page or of AbstractSpringfieldCMSPage, or a Django model class that is decorated or wrapped with with `register_snippet`) please check that the PR has it listed in springfield.settings.base.CMS_ALLOWED_PAGE_MODELS and also in the ./bin/export-db-to-sqlite.sh script.
 
-* If a new Snippet (a Django model decorated with @register_snippet) is added, add a reminder in a comment to ensure that there Editors have permission to see and edit the new Snippet. That permission is added manually via the Wagtail UI.
+* If a new Snippet (a Django model decorated with @register_snippet) is added, add a reminder in a comment to ensure that the Editors have permission to see and edit the new Snippet. That permission is added manually via the Wagtail UI.
 
 ## 8. Database schema changes
 
