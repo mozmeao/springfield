@@ -29,7 +29,7 @@ from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
-    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
+    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, BlogArticlePage, SpringfieldImage
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -1332,7 +1332,7 @@ class QuoteBlock(blocks.StructBlock):
 
 
 class BlockArticleValue(blocks.StructValue):
-    def get_article(self):
+    def get_article(self) -> BlogArticlePage:
         if not hasattr(self, "_article_cache"):
             article = self["article"].localized
             self._article_cache = article.specific if article else None

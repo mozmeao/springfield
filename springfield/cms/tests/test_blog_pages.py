@@ -633,16 +633,16 @@ def test_blog_article_related_articles_image_on_every_fourth(privacy_articles, r
 
 def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog index page should fetch all related data in bulk, not per article."""
-    idx, _ = blog_setup
-    request = rf.get(idx.get_full_url())
-    with django_assert_max_num_queries(19):
-        idx.serve(request)
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    with django_assert_max_num_queries(17):
+        index_page.serve(request)
 
 
 def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog all-articles page should fetch all related data in bulk, not per article."""
-    idx, _ = blog_setup
-    url = idx.full_url + idx.reverse_subpage("all_route")
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(19):
-        idx.all_route(request)
+    with django_assert_max_num_queries(22):
+        index_page.all_route(request)

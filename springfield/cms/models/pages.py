@@ -67,6 +67,7 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.models.locale import SpringfieldLocale
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -1335,15 +1336,17 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def _prefetch_streamfield_articles(self):
         """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
         and populate _article_cache on each block value to avoid per-block DB queries."""
+        from springfield.cms.models.snippets import Tag
+
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
         # ListBlock iteration yields StructValues (BlockArticleValue) directly.
-        fa_values = [b.value for b in (self.featured_articles or [])]
-        cl_values = []
+        featured_articles_values = [b.value for b in (self.featured_articles or [])]
+        cards_lists_values = []
         for cards_list_block in self.cards_lists or []:
-            cl_values.extend(list(cards_list_block.value["articles"]))
+            cards_lists_values.extend(list(cards_list_block.value["articles"]))
 
-        all_values = fa_values + cl_values
-        pks = [v["article"].pk for v in all_values if v.get("article")]
+        all_values = featured_articles_values + cards_lists_values
+        pks = [value["article"].pk for value in all_values if value.get("article")]
 
         if not pks:
             return
@@ -1351,7 +1354,13 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         articles_by_pk = {
             a.pk: a
             for a in BlogArticlePage.objects.filter(pk__in=pks)
-            .select_related("topic", "image", "image_dark_mode", "image_mobile", "image_dark_mode_mobile")
+            .select_related(
+                "topic",
+                "image",
+                "image_dark_mode",
+                "image_mobile",
+                "image_dark_mode_mobile",
+            )
             .prefetch_related(
                 "tags",
                 "image__renditions",
@@ -1361,10 +1370,22 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             )
         }
 
-        for v in all_values:
-            page = v.get("article")
+        active_locale = SpringfieldLocale.get_active()
+        localized_tags = Tag.objects.filter(locale=active_locale).live()
+        localized_tags_by_slug = {tag.slug: tag for tag in localized_tags}
+
+        for value in all_values:
+            page = value.get("article")
             if page and page.pk in articles_by_pk:
-                v._article_cache = articles_by_pk[page.pk]
+                article = articles_by_pk[page.pk]
+                if article.topic and article.topic.slug in localized_tags_by_slug:
+                    article._topic_cache = localized_tags_by_slug[article.topic.slug]
+                tags_cache = []
+                for tag in article.tags.all():
+                    if tag.slug in localized_tags_by_slug:
+                        tags_cache.append(localized_tags_by_slug[tag.slug])
+                article._tags_cache = tags_cache
+                value._article_cache = article
 
     def get_context(self, request, *args, **kwargs):
         from springfield.cms.models.snippets import Tag
@@ -1567,11 +1588,17 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
     def get_topic(self):
-        if self.topic:
-            return self.topic.get_localized()
-        return None
+        if not hasattr(self, "_topic_cache"):
+            if self.topic:
+                self._topic_cache = self.topic.get_localized()
+            else:
+                self._topic_cache = None
+        return self._topic_cache
 
     def get_tags(self):
-        if self.tags.all():
-            return [tag.get_localized() for tag in self.tags.all()]
-        return None
+        if not hasattr(self, "_tags_cache"):
+            if self.tags.all():
+                self._tags_cache = [tag.get_localized() for tag in self.tags.all()]
+            else:
+                self._tags_cache = None
+        return self._tags_cache
