@@ -5,6 +5,7 @@
 import os
 from unittest.mock import ANY, Mock, call, patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -105,6 +106,7 @@ class TestRender(TestCase):
         # Test with accept language header of unsupported locale and locale-less path returns 302.
         self._test("/download/", template, "", "ach", 302, "/en-US/download/", active_locales=locales)
 
+    @override_settings(FALLBACK_LOCALES={})
     def test_firefox(self):
         path = "/download/"
         template = "firefox/download.html"
@@ -157,6 +159,46 @@ class TestRender(TestCase):
         req = RequestFactory().get(path)
         l10n_utils.render(req, template, ftl_files=ftl_files)
         assert ftl_files == ["dude", "walter"]
+
+    @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+    def test_alias_locale_served_transparently(self):
+        """
+        A non-Wagtail page requested at an alias locale URL is served transparently.
+
+        When pt-PT is configured as an alias for pt-BR, and the page has pt-BR
+        translations but not pt-PT, requesting /pt-PT/download/ should return the
+        pt-BR content at the /pt-PT/download/ URL.
+        """
+        path = "/pt-PT/download/"
+        template = "firefox/download.html"
+        locales = ["en-US", "pt-BR", "fr"]  # Notice: no pt-PT locale.
+
+        request = RequestFactory().get(path)
+        request.locale = "pt-PT"
+
+        response = l10n_utils.render(request, template, {"active_locales": locales})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(request.content_locale, "pt-BR")
+
+    @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+    def test_alias_locale_redirects_when_fallback_also_missing(self):
+        """Alias locale still redirects when the fallback locale has no translations either."""
+        path = "/pt-PT/download/"
+        template = "firefox/download.html"
+        locales = ["en-US", "fr"]  # pt-PT not present; pt-BR not present
+
+        request = RequestFactory().get(path)
+        request.locale = "pt-PT"
+
+        response = l10n_utils.render(request, template, {"active_locales": locales})
+
+        # Since both the alias locale and its fallback are missing, the user is
+        # redirected to the settings.LANGUAGE_CODE URL.
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, path.replace("pt-PT", settings.LANGUAGE_CODE))
+        # The content_locale attribute has not been set on the request.
+        self.assertFalse(hasattr(request, "content_locale"))
 
     @patch.object(l10n_utils, "django_render")
     @patch.object(l10n_utils, "ftl_active_locales")
@@ -247,6 +289,61 @@ class TestL10nTemplateView(TestCase):
         view = l10n_utils.L10nTemplateView.as_view(template_name="dude.html", ftl_files="dude", activation_files=["dude", "donny"])
         view(self.req)
         render_mock.assert_called_with(self.req, ["dude.html"], ANY, ftl_files="dude", activation_files=["dude", "donny"])
+
+
+@pytest.mark.parametrize(
+    "locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected",
+    (
+        # When content_locale is set, it is preferred.
+        (True, "es-AR", True, "es-MX", "en-US", "es-MX"),
+        (False, "", True, "es-MX", "en-US", "es-MX"),
+        # If content_locale is not set, then locale is preferred.
+        (True, "es-AR", False, "", "en-US", "es-AR"),
+        # If content_locale is not set and locale is not set, settings.LANGUAGE_CODE is used.
+        (False, "", False, "", "en-US", "en-US"),
+    ),
+)
+def test_get_locale_preference_order(locale_is_set, locale_value, content_locale_is_set, content_locale_value, language_code_settting, expected):
+    """
+    Test the order of preference that get_locale() uses to determine the value to return.
+
+    The order should be:
+      1. request.content_locale
+      2. request.locale
+      3. settings.LANGUAGE_CODE
+    """
+    request = RequestFactory().get("/es-AR/some/page/")
+    if locale_is_set:
+        request.locale = locale_value
+    if content_locale_is_set:
+        request.content_locale = content_locale_value
+
+    with override_settings(LANGUAGE_CODE=language_code_settting):
+        result = l10n_utils.get_locale(request)
+
+    assert result == expected
+
+
+@patch.object(l10n_utils, "django_render")
+def test_render_does_not_redirect_when_content_locale_differs_from_url_locale(render_mock):
+    """render() must not redirect to content_locale URL when serving alias-locale fallback.
+
+    When content_locale is 'es-MX' but the URL prefix is 'es-AR', render() must serve
+    the response without redirecting to /es-MX/.... The fix uses locale_in_url (es-AR)
+    rather than locale (es-MX) in the redirect prefix check so the URL prefix always
+    matches and no redirect is issued.
+    """
+    from django.http import HttpResponse
+
+    render_mock.return_value = HttpResponse()
+    request = RequestFactory().get("/es-AR/download/")
+    request.locale = "es-AR"
+    request.content_locale = "es-MX"
+
+    response = l10n_utils.render(request, "some.html", {"active_locales": ["es-MX"]})
+
+    assert response.status_code == 200
+    render_mock.assert_called_once()
 
 
 @pytest.mark.parametrize(

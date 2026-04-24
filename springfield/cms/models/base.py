@@ -4,16 +4,18 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.models import Page as WagtailBasePage
+from wagtail.models import Locale, Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
-from springfield.cms.utils import get_locales_for_cms_page
+from springfield.base.i18n import normalize_language
+from springfield.cms.utils import compute_cms_page_locales
 
 
 @method_decorator(never_cache, name="serve_password_required_response")
@@ -75,7 +77,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request.is_cms_page = True
 
         # Patch in a list of available locales for pages that are translations, not just aliases
-        request._locales_available_via_cms = get_locales_for_cms_page(self)
+        all_locales, content_locales = compute_cms_page_locales(self)
+        request._locales_available_via_cms = all_locales
+        request._content_locales_via_cms = content_locales
         return request
 
     def _render_with_fluent_string_support(self, request, *args, **kwargs):
@@ -119,6 +123,57 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request = self._patch_request_for_springfield(request)
         request.is_preview = True
         return self._render_with_fluent_string_support(request, *args, **kwargs)
+
+    @property
+    def localized(self):
+        """
+        Extends Wagtail's localized to handle alias locales in FALLBACK_LOCALES.
+
+        When the active locale is an alias (e.g. pt-PT → pt-BR) and the page has
+        no translation in that alias locale, returns the fallback locale's translation
+        instead of the source-locale original.
+        """
+        localized = super().localized
+
+        lang_code = normalize_language(translation.get_language())
+
+        if localized.locale.language_code == lang_code:
+            return localized
+
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+        if lang_code in fallback_locales:
+            fallback_code = fallback_locales[lang_code]
+            try:
+                fallback_locale = Locale.objects.get(language_code=fallback_code)
+                if localized.locale_id != fallback_locale.id:
+                    fallback_page = self.get_translation_or_none(fallback_locale)
+                    if fallback_page:
+                        return fallback_page
+            except Locale.DoesNotExist:
+                pass
+
+        return localized
+
+    def get_active_locale_url(self, request=None):
+        """
+        Replace the URLs locale with the active locale if the page is a fallback
+        so that the user doesn't navigate away from it's preferred language.
+
+        If the active locale is an alias (e.g. pt-PT → pt-BR) and the page is in the
+        fallback locale (e.g. pt-BR), return a URL with the alias locale (e.g. pt-PT).
+        host/pt-BR/page/ → host/pt-PT/page/
+        """
+        url = super().get_url(request)
+
+        active_language = normalize_language(translation.get_language())
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        if active_language in fallback_locales:
+            fallback_code = fallback_locales[active_language]
+            if self.locale.language_code == fallback_code:
+                url = url.replace(f"/{fallback_code}/", f"/{active_language}/", 1)
+
+        return url
 
     @property
     def og_title(self):

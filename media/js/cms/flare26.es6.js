@@ -4,60 +4,49 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import Swiper from 'swiper';
-import { EffectFade } from 'swiper/modules';
+import setupAnimations from './components/flare26-animations.es6';
+import setupCarousels from './components/flare26-carousel.es6';
+import setupCopyToClipboardButtons from './components/flare26-copy-to-clipboard.es6';
+import setupDialogs, { initDialogs } from './components/flare26-dialogs.es6';
+import setupDownloadDropdown from './components/flare26-download-dropdown.es6';
+import setupFirefoxVersionConditionalDisplay from './components/flare26-firefox-version.es6';
+import setupNewsletter from './components/flare26-newsletter.es6';
+import setupNotificationClose from './components/flare26-notification-close.es6';
+import setupQRCodeSnippet from './components/flare26-qr-code-snippet.es6';
+import setupScrollingCardGrid from './components/flare26-scrolling-card-grid.es6';
+import setupSlidingCarousels from './components/flare26-sliding-carousel.es6';
+import setupTopicListSidebar from './components/flare26-topic-list-sidebar.es6';
+import setupTypewriter, {
+    typewriter
+} from './components/flare26-typewriter.es6';
+import setupVideo from './components/flare26-video.es6';
 
-function initFlare26Carousel(rootEl) {
-    const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
-    const controls = Array.from(
-        rootEl.querySelectorAll('.fl-carousel-control-item')
-    );
-    const slideCount = rootEl.querySelectorAll('.fl-carousel-slide').length;
-
-    if (!viewportEl || controls.length === 0 || slideCount === 0) {
-        return;
-    }
-
-    const swiper = new Swiper(viewportEl, {
-        modules: [EffectFade],
-        wrapperClass: 'fl-carousel-container',
-        slideClass: 'fl-carousel-slide',
-        effect: 'fade',
-        fadeEffect: { crossFade: true },
-        loop: true,
-        allowTouchMove: false,
-        speed: 400
-    });
-
-    const onSlideChange = () => {
-        controls.forEach((control, idx) => {
-            control.classList.toggle('active', idx === swiper.realIndex);
-        });
-    };
-
-    swiper.on('slideChange', onSlideChange);
-    onSlideChange();
-
-    controls.forEach((controlEl, idx) => {
-        controlEl.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (idx !== swiper.realIndex) {
-                swiper.slideToLoop(idx);
-            }
-        });
-
-        controlEl.addEventListener('animationend', (e) => {
-            if (e.animationName === 'progress-circle' && slideCount > 1) {
-                swiper.slideNext();
-            }
-        });
-    });
-
-    document.addEventListener('visibilitychange', () => {
-        rootEl.classList.toggle('is-paused', document.hidden);
-    });
+// Create namespace
+if (typeof window.cms === 'undefined') {
+    window.cms = {};
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
-});
+window.cms.Flare26 = { typewriter, initDialogs };
+
+function setupComponents() {
+    setupNewsletter();
+    setupNotificationClose();
+    setupVideo();
+    setupAnimations();
+    setupDownloadDropdown();
+    setupQRCodeSnippet();
+    setupTopicListSidebar();
+    setupTypewriter();
+    setupDialogs();
+    setupCarousels();
+    setupScrollingCardGrid();
+    setupCopyToClipboardButtons();
+    setupFirefoxVersionConditionalDisplay();
+    setupSlidingCarousels();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupComponents);
+} else {
+    setupComponents();
+}

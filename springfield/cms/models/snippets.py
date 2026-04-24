@@ -2,9 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from springfield.cms.models.pages import QRCodeFloatingSnippetMixin
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -55,11 +64,24 @@ class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, Revi
         return SpringfieldLocale.get_active()
 
     def get_localized(self):
-        """Get the localized instance of this snippet for the active locale, or None if not available in the active locale."""
-        instance = self.localized
-        if instance and (instance.locale_id != self.active_locale.id or not instance.live):
-            return None
-        return instance
+        """Get the localized instance of this snippet for the active locale or for the fallback locale,
+        or None if not available in the active locale."""
+        localized = self.localized
+
+        active_lang_code = self.active_locale.language_code
+
+        if localized.locale.language_code != active_lang_code:
+            fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+            if fallback_code := fallback_locales.get(active_lang_code):
+                if fallback_locale := SpringfieldLocale.objects.filter(language_code=fallback_code).first():
+                    if fallback_snippet := self.get_translation_or_none(fallback_locale):
+                        localized = fallback_snippet
+            else:
+                return None
+
+        if localized.live:
+            return localized
+        return None
 
 
 class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -260,5 +282,93 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/qr-code-snippet-preview.html"
 
+    def serve_preview(self, request, mode_name):
+        """Make sure the the snippet is always shown in preview mode, even if the cookie to hide it is set."""
+        response = super().serve_preview(request, mode_name)
+        response.delete_cookie("moz-qr-snippet-dismissed")
+        return response
+
 
 register_snippet(QRCodeSnippet)
+
+
+class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a floating QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+    url = models.CharField(blank=True, help_text="A QR code will be generated from this URL. Not used if an image is uploaded.")
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
+    )
+    default_open = models.BooleanField(default=True)
+
+    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
+
+    override_translatable_fields = [SynchronizedField("url"), SynchronizedField("image")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "QR Code Floating Snippet"
+        verbose_name_plural = "QR Code Floating Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    @classmethod
+    def get_live(cls, locale) -> QRCodeFloatingSnippet | None:
+        """Return the live QRCodeFloatingSnippet for the given locale, or None."""
+        return cls.objects.filter(locale=locale).live().first()
+
+    def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
+        """Resolve the QR code source from page overrides or snippet fields."""
+        resolved_image = getattr(page, "floating_qr_image", None) or self.image
+        resolved_url = getattr(page, "floating_qr_url", None) or self.url
+        floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
+
+        hide = bool(request and request.COOKIES.get("moz-qr-snippet-dismissed"))
+
+        resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
+        open = not hide and resolved_default_open
+
+        if resolved_image:
+            return {"type": "image", "value": resolved_image.file.url, "open": open}
+        if resolved_url:
+            return {"type": "qr", "value": resolved_url, "open": open}
+        return None
+
+    def build_context(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict:
+        """Build the floating_qr_snippet context dict for template rendering."""
+        return {
+            "heading": self.heading,
+            "content": self.content,
+            "qr": self.resolve_qr_source(page, request),
+        }
+
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["floating_qr_snippet"] = self.build_context(request=request)
+        return context
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-floating-snippet-preview.html"
+
+    def clean(self):
+        if not self.url and not self.image:
+            raise ValidationError("Missing url or image")
+        return super().clean()
+
+
+register_snippet(QRCodeFloatingSnippet)

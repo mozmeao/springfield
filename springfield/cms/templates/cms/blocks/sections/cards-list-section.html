@@ -6,8 +6,14 @@
 
 {# Wrap the cards list block in a section container to use it without the section heading and CTA #}
 
+{% set block_level = (block_level + 1) if block_level else 2 %}
+
+{% if not value.settings.scroll %}
 <section class="fl-section">
   <div class="fl-section-container">
     {% include "cms/blocks/cards-list.html" %}
   </div>
 </section>
+{% else %}
+  {% include "cms/blocks/cards-list.html" %}
+{% endif %}

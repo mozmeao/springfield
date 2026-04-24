@@ -1,0 +1,430 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+@property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.fl-sliding-carousel {
+    display: grid;
+    gap: var(--token-layout-2xs);
+    grid-template-columns: 1fr;
+}
+
+.fl-section:has(.fl-sliding-carousel) {
+    padding: 0;
+}
+
+/* Mobile: media panel on top, controls below */
+
+.fl-sliding-carousel-media-panel {
+    order: 1;
+    padding-inline: var(--token-spacing-lg);
+    position: relative;
+}
+
+.fl-sliding-carousel-controls-swiper {
+    order: 2;
+    overflow: hidden;
+}
+
+/* Controls */
+
+.fl-sliding-carousel-controls {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-sliding-carousel-control {
+    --fl-slide-interval: 10000ms;
+    background: none;
+    border-radius: var(--token-border-radius-sm);
+    color: inherit;
+    cursor: pointer;
+    margin: 0;
+    opacity: 0.7;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-sliding-carousel-control.is-active {
+    cursor: default;
+    opacity: 1;
+}
+
+.fl-superheading.fl-sliding-carousel-superheading {
+    color: var(--fl-theme-card-outline-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin-block-end: var(--token-spacing-lg);
+    text-transform: uppercase;
+}
+
+.fl-sliding-carousel-control.is-active
+    .fl-superheading.fl-sliding-carousel-superheading {
+    color: var(--fl-theme-card-outline-superheading-color-active);
+}
+
+.fl-sliding-carousel-superheading {
+    display: block;
+}
+
+/* Progress bar (mobile fallback, hidden on desktop) */
+
+.fl-sliding-carousel-progress-wrapper {
+    border-radius: 4px 4px 0 0;
+    contain: paint;
+    inset-block-start: 2px;
+    inset-inline: 0;
+    padding-inline: 16px;
+    position: absolute;
+}
+
+.fl-sliding-carousel-progress {
+    block-size: 2px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.fl-sliding-carousel-control:not(.is-active) .fl-sliding-carousel-progress {
+    display: block;
+}
+
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
+    background-color: var(--token-color-soft-purple);
+    border-radius: 4px;
+}
+
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after {
+    animation: fl-sliding-carousel-progress var(--fl-slide-interval, 10000ms)
+        linear forwards;
+    background-color: var(--token-color-light-purple);
+    block-size: 100%;
+    border-radius: 4px;
+    content: '';
+    inline-size: 0%;
+    inset: 0;
+    position: absolute;
+}
+
+.fl-sliding-carousel.is-paused
+    .fl-sliding-carousel-control.is-active
+    .fl-sliding-carousel-progress::after {
+    animation-play-state: paused;
+    opacity: 0;
+}
+
+.fl-sliding-carousel.is-paused
+    .fl-sliding-carousel-control.is-active
+    .fl-sliding-carousel-progress {
+    background-color: transparent;
+}
+
+.fl-sliding-carousel-heading-text {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+/* disable border animation and hide progress bar when user has reduced motion preferences enabled */
+@media (prefers-reduced-motion: reduce) {
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after,
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after,
+    .fl-smart-window-instructions::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel-progress-wrapper {
+        display: none;
+    }
+}
+
+@keyframes fl-sliding-carousel-progress {
+    from {
+        inline-size: 0%;
+    }
+
+    to {
+        inline-size: 100%;
+    }
+}
+
+@keyframes fl-sliding-carousel-border-fill {
+    to {
+        --border-angle: 360deg;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-progress::after {
+        animation: none;
+        inline-size: 100%;
+    }
+
+    .fl-sliding-carousel-heading-text,
+    .fl-sliding-carousel-subheading {
+        transition: none;
+    }
+}
+
+/* Media panel */
+
+.fl-sliding-carousel-media-panel .fl-video {
+    aspect-ratio: 1/1;
+}
+
+.fl-sliding-carousel-media-panel .fl-video video {
+    border-radius: var(--token-border-radius-sm);
+    object-fit: cover;
+}
+
+.fl-sliding-carousel-slide {
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-slow);
+    visibility: hidden;
+}
+
+.fl-sliding-carousel-slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+    visibility: visible;
+}
+
+.fl-sliding-carousel-slide.is-exiting {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Dot pagination (mobile only) */
+
+.fl-sliding-carousel-pagination {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-xs);
+    justify-content: center;
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-sliding-carousel-dot {
+    background: var(--token-color-grey-2);
+    block-size: 8px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    inline-size: 8px;
+    padding: 0;
+}
+
+.fl-sliding-carousel-dot.is-active {
+    background: var(--fl-theme-color-brand-text);
+    block-size: 12px;
+    inline-size: 12px;
+}
+
+/* Mobile card appearance when controls Swiper is active */
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-progress {
+    display: none;
+}
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control {
+    background-clip: padding-box;
+    border: 2px solid var(--token-color-soft-purple-2);
+    border-radius: var(--token-border-radius-sm);
+    flex-shrink: 0;
+    opacity: 0.4;
+    padding: var(--token-spacing-2xl) var(--token-spacing-xl);
+    transition: opacity 0.3s;
+}
+
+/* Gradient border on active card via ::before of the progress element */
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control.is-active {
+    background: none;
+    block-size: auto;
+    border: 2px solid transparent;
+    display: block;
+    inset: 0;
+    opacity: 1;
+}
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-control.is-active::before {
+    background: var(--token-gradient-smart-window-instructions);
+    border-radius: var(--token-border-radius-sm);
+    content: '';
+    inset: 0;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    padding: 2px;
+    position: absolute;
+}
+
+/* Desktop: side-by-side, controls left, media right */
+
+@media (--viewport-md-up) {
+    .fl-sliding-carousel {
+        align-items: stretch;
+        gap: var(--token-layout-sm);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-sliding-carousel-controls {
+        block-size: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+    }
+
+    .fl-section:has(.fl-sliding-carousel) {
+        padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
+    }
+
+    .fl-sliding-carousel-controls-swiper {
+        order: 1;
+    }
+
+    .fl-sliding-carousel-media-panel {
+        align-self: stretch;
+        order: 2;
+        padding: 0;
+    }
+
+    .fl-sliding-carousel-pagination {
+        display: none;
+    }
+
+    .fl-sliding-carousel-control .fl-sliding-carousel-box::before {
+        background: var(--token-color-soft-purple-2);
+        block-size: 100%;
+        border-radius: inherit;
+        content: '';
+        inset: 0;
+        margin-block-end: var(--token-spacing-lg);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 2px;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    /* Active: vivid gradient border */
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::before {
+        background: var(--token-gradient-smart-window-instructions);
+    }
+
+    /* Active: white shimmer rotating on top of gradient border */
+    .fl-sliding-carousel-control.is-active .fl-sliding-carousel-box::after,
+    .fl-smart-window-instructions::after {
+        animation: fl-sliding-carousel-border-fill 24s linear infinite;
+        background: conic-gradient(
+            from var(--border-angle),
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 5%,
+            rgba(255, 255, 255, 0.8) 12%,
+            rgba(255, 255, 255, 0.8) 22%,
+            rgba(255, 255, 255, 0.3) 29%,
+            transparent 35%
+        );
+        block-size: 100%;
+        border-radius: inherit;
+        content: '';
+        inset: 0;
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 2px;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-box.no-animate::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-progress.no-animate::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel.is-paused
+        .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-box::after {
+        animation-play-state: paused;
+    }
+
+    .fl-sliding-carousel-box {
+        border-radius: var(--token-border-radius-sm);
+        padding: var(--token-spacing-2xl);
+        position: relative;
+    }
+
+    /* The next two selectors allow the video to bubble up and use the height of the parent grid component */
+    .fl-sliding-carousel-slide.is-active {
+        block-size: 100%;
+    }
+
+    .fl-sliding-carousel-media-panel [aria-live='polite'] {
+        display: contents;
+    }
+
+    .fl-sliding-carousel-media-panel .fl-video {
+        aspect-ratio: unset;
+        block-size: 100%;
+        inline-size: 100%;
+    }
+}
+
+@media (--viewport-md-up) and (not (--viewport-lg-up)) {
+    .fl-sliding-carousel {
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-sliding-carousel-controls {
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-sliding-carousel-media-panel {
+        align-self: center;
+        aspect-ratio: 3/4;
+    }
+
+    .fl-sliding-carousel-box {
+        padding: var(--token-spacing-xl);
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-sliding-carousel-box {
+        padding: var(--token-spacing-3xl);
+    }
+}

@@ -258,7 +258,7 @@ def richtext(context, value: str) -> str:
 def get_pre_footer_cta_snippet(context):
     """
     Retrieves the PreFooterCTASnippet for the current locale.
-    Returns the first available snippet for the locale, or None if not found.
+    Returns the first live available snippet for the locale, or None if not found.
 
     Usage in templates:
         {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
@@ -339,7 +339,7 @@ def get_download_firefox_cta_snippet(context):
         locale = context["self"].locale
 
     if locale:
-        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).first()
+        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).live().first()
 
     return None
 
@@ -368,5 +368,38 @@ def get_qr_code_snippet(context):
 
     if locale:
         return QRCodeSnippet.objects.filter(locale=locale).live().first()
+
+    return None
+
+
+@pass_context
+@library.global_function
+def get_floating_qr_code_snippet(context):
+    """
+    Retrieves the floating QR code snippet for the current locale and returns a
+    ready-to-render dict (with heading, content, and qr keys) that can be used
+    directly as `value` in qr-code-floating-snippet.html. Page-level overrides
+    (floating_qr_url, floating_qr_image, floating_qr_default_open) are applied
+    when a page is available in the template context.
+
+    Usage in templates:
+        {% set value = get_floating_qr_code_snippet() %}
+        {% if value %}
+            {% include "cms/snippets/qr-code-floating-snippet.html" %}
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import QRCodeFloatingSnippet
+
+    page = context.get("page")
+    locale = None
+    if page and hasattr(page, "locale"):
+        locale = page.locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        snippet = QRCodeFloatingSnippet.get_live(locale)
+        if snippet:
+            return snippet.build_context(page=page, request=context.get("request"))
 
     return None

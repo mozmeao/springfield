@@ -17,7 +17,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-grey-1: rgb(249, 249, 251);
     --token-color-grey-2: rgb(232, 232, 232);
     --token-color-grey-3: rgb(123, 122, 130);
-    --token-color-grey-4: rgba(112, 112, 112, 1);
+    --token-color-grey-4: rgba(123, 122, 130, 1);
     --token-color-black: rgb(0, 0, 0);
     --token-color-black-16: rgba(0, 0, 0, 0.16);
     --token-color-black-45: rgba(0, 0, 0, 0.45);
@@ -90,6 +90,13 @@ Static values extracted from Figma that do not change based on context.
         0deg,
         var(--token-color-white) 0%,
         var(--token-color-grey-2) 100%
+    );
+    --token-gradient-smart-window-instructions: linear-gradient(
+        116.61deg,
+        #321bfd -17.87%,
+        #cf30e2 52.93%,
+        #f90 89.02%,
+        #f5c451 109.44%
     );
 
     /* using manual OCLCH copies of var(--token-color-light-purple)

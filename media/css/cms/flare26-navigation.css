@@ -310,6 +310,10 @@
     z-index: 1;
 }
 
+.fl-header-main-download-button:has(.hide-cta-on-desktop) {
+    display: none;
+}
+
 /* ================================================
    Media Queries - Mobile (max-width: 899px)
    ================================================ */

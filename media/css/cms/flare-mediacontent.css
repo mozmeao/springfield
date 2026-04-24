@@ -65,6 +65,18 @@
     .fl-mediacontent .fl-button {
         width: fit-content
     }
+
+    .fl-mediacontent.is-narrow {
+        gap: var(--token-layout-md);
+        gap: calc(var(--token-scale-80) * 1px);
+        grid-template-columns: minmax(0, 6fr) minmax(0, 9fr);
+        margin-inline: auto;
+        max-inline-size: 1170px;
+    }
+
+    .fl-mediacontent.fl-mediacontent-reverse.is-narrow {
+        grid-template-columns: minmax(0, 9fr) minmax(0, 6fr);
+    }
 }
 
 @media (--viewport-xs) {

@@ -1,0 +1,18 @@
+name: Testimonial Card List 2026
+context:
+  cards:
+    - note: "With image and role"
+      image: "/media/img/firefox/flare/placeholder.png"
+      attribution: "Jane Smith"
+      attribution_role: "Head of Privacy, Mozilla"
+      body: "Firefox gives me confidence that my browsing stays private. I've recommended it to everyone on my team."
+    - note: "Without image"
+      image: ""
+      attribution: "Alex Johnson"
+      attribution_role: ""
+      body: "Switching to Firefox was the best decision I made for my online security."
+    - note: "With image, without role"
+      image: "/media/img/firefox/flare/placeholder.png"
+      attribution: "Sam Rivera"
+      attribution_role: ""
+      body: "The performance improvements in Firefox have made it my go-to browser for development work. Fast, private, and open source — exactly what I need."

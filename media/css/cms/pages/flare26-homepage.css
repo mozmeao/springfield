@@ -10,7 +10,7 @@
 
 .fl-home-body .fl-main {
     background: var(--fl-theme-background);
-    overflow: hidden;
+    contain: paint;
     padding-block-end: 0;
 }
 

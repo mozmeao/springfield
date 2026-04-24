@@ -108,6 +108,10 @@ def _get_refresh_middleware():
         ("/browsers/mobile/android/", "/download/android/"),
         ("/browsers/mobile/ios/", "/download/ios/"),
         ("/browsers/desktop/chromebook/", "/download/chromebook/"),
+        ("/browsers/mobile/", "/mobile/"),
+        ("/browsers/mobile/get-app/", "/mobile/"),
+        ("/browsers/mobile/focus/", "/mobile/focus/"),
+        ("/browsers/unsupported-systems/", "/download/unsupported-systems/"),
     ),
 )
 def test_refresh_redirect_destinations(source, destination, permanent):
@@ -159,3 +163,18 @@ def test_refresh_redirects_not_in_redirectpatterns_when_disabled():
     assert resp is None
     # Reload to restore original state
     importlib.reload(redirects_module)
+
+
+@pytest.mark.parametrize(
+    "source, dest",
+    (
+        ("/ai/", "/smart-window/?view=waitlist"),  # no locale; middleware will later add the most appropriate locale
+        ("/en-US/ai/", "/en-US/smart-window/?view=waitlist"),  # with locale
+        ("/fr/ai/", "/fr/smart-window/?view=waitlist"),  # non-default locale
+        ("/en-GB/ai/?foo=bar", "/en-GB/smart-window/?view=waitlist"),  # incoming querystrings lost until WT-1086 is done
+    ),
+)
+def test_ai_redirect_to_smart_window_waitlist(client, source, dest):
+    resp = client.get(source, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == dest
