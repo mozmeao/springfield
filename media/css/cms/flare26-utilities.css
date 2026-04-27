@@ -273,7 +273,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: revert;
 }
 
-html.firefox-is-default .conditional-display.condition-unknown:not(.is-preview),
 html.linux .conditional-display.condition-unknown:not(.is-preview),
 html.osx .conditional-display.condition-unknown:not(.is-preview),
 html.windows .conditional-display.condition-unknown:not(.is-preview),
