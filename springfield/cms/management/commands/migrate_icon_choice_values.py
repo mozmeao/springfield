@@ -25,10 +25,6 @@ from springfield.cms.models.pages import (
 # or icons absent from the Flare 26 set entirely.
 _ICON_EXCEPTIONS = {
     "screenshot-camera": "camera",
-    "android": "",
-    "apple": "",
-    "calendar": "",
-    "toggle-on": "",
 }
 
 

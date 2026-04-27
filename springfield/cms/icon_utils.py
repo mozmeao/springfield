@@ -99,10 +99,7 @@ def icon_value_fn(rel_path: str) -> str:
     return icon_css_name(rel_path.split("/")[-1])
 
 
-# Maps every legacy ICON_CHOICES stem to its new desktop-16 directory path.
-# Values are relative to img/firefox/flare/2026/icons (i.e. "desktop-16/{category}/{stem}").
-# Four icons not present in the new set map to "" (empty — renders no icon):
-#   android, apple, calendar, toggle-on
+# Maps every legacy ICON_CHOICES stem to its path relative to img/firefox/flare/2026/icons.
 ICON_VALUE_MAP: dict[str, str] = {
     "activity": "desktop-16/activity/activity-16",
     "add": "desktop-16/add/add-16",
@@ -110,8 +107,8 @@ ICON_VALUE_MAP: dict[str, str] = {
     "add-text": "desktop-16/text/add-text-16",
     "add-user": "desktop-16/user/add-user-16",
     "all-tabs": "desktop-16/tabs/all-tabs-16",
-    "android": "",
-    "apple": "",
+    "android": "android",
+    "apple": "apple",
     "app-menu": "desktop-16/app-menu/app-menu-16",
     "app-menu-space": "desktop-16/app-menu/app-menu-space-16",
     "applied-policy": "desktop-16/policy/applied-policy-16",
@@ -139,7 +136,7 @@ ICON_VALUE_MAP: dict[str, str] = {
     "bookmark-fill": "desktop-16/bookmarks/bookmark-fill-16",
     "bookmarks-tray": "desktop-16/bookmarks/bookmarks-tray-16",
     "briefcase": "desktop-16/profile/briefcase-16",
-    "calendar": "",
+    "calendar": "desktop-20/calendar-date/calendar-20",
     "camera-false": "desktop-16/permissions/camera-false",
     "camera-true": "desktop-16/permissions/camera-true",
     "canvas-false": "desktop-16/permissions/canvas-false",
@@ -336,7 +333,7 @@ ICON_VALUE_MAP: dict[str, str] = {
     "taskbar-remove-tab": "desktop-16/tabs/taskbar-remove-tab-16",
     "text-cursor": "desktop-16/text/text-cursor-16",
     "themes": "desktop-16/themes/themes-16",
-    "toggle-on": "",
+    "toggle-on": "toggle-on",
     "top-sites": "desktop-16/top-sites/top-sites-16",
     "tracking-cookies-false": "desktop-16/trackers/tracking-cookies-false",
     "tracking-cookies-true": "desktop-16/trackers/tracking-cookies-true",
