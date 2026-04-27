@@ -149,7 +149,8 @@ def migrate_card(card):
     illustration_card → illustration_card (2026):
       - drop: tags
       - add: eyebrow=''
-      - keep: settings, image, headline, content
+      - keep: settings, headline, content
+      - media: image → media=[{type: 'image', image: ...}]
       - buttons forced to 'link' theme (only theme supported by IllustrationCard2026Block)
     """
     card = copy.deepcopy(card)
