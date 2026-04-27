@@ -375,14 +375,25 @@ class Command(BaseCommand):
         total_created = 0
         total_skipped = 0
 
+        migrated_pages = {}
+
         for source_page in source_pages:
             self.stdout.write(f"\nProcessing WhatsNewPage: {source_page.slug}")
 
             # All locale variants (en-US + translations) will share this key.
             new_translation_key = uuid.uuid4()
 
+            translations = list(source_page.get_translations(inclusive=False).live())
+
+            migrated_pages[source_page.slug] = {
+                "source_page": source_page.title,
+                "new_slug": f"{source_page.slug}-new",
+                "new_translation_key": new_translation_key,
+                "translations": [page.locale.language_code for page in translations],
+            }
+
             # Collect all pages to migrate: en-US source + all translations (live or not)
-            pages_to_migrate = [source_page] + list(source_page.get_translations(inclusive=False))
+            pages_to_migrate = [source_page] + translations
 
             for page in pages_to_migrate:
                 new_slug = f"{page.slug}-new"
@@ -399,4 +410,12 @@ class Command(BaseCommand):
         self.stdout.write("")
         if total_skipped:
             self.stdout.write(self.style.WARNING(f"Skipped {total_skipped} page(s) that already existed."))
-        self.stdout.write(self.style.SUCCESS(f"Successfully created {total_created} draft WhatsNewPage2026 page(s)."))
+        if total_created:
+            self.stdout.write(self.style.SUCCESS(f"Successfully created {total_created} draft WhatsNewPage2026 page(s)."))
+            for slug, info in migrated_pages.items():
+                self.stdout.write(self.style.SUCCESS(f"  {slug} - {info['source_page']}"))
+                self.stdout.write(self.style.SUCCESS(f"    new slug: {info['new_slug']}"))
+                self.stdout.write(self.style.SUCCESS(f"    new translation key: {info['new_translation_key']}"))
+                self.stdout.write(self.style.SUCCESS("    translations:"))
+                for translation in info["translations"]:
+                    self.stdout.write(self.style.SUCCESS(f"      {translation}"))
