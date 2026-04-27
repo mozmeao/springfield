@@ -96,7 +96,7 @@ For each outdated dependency found in Phase 1, research what changed between the
 ### Where to look
 
 - **Python packages**: Fetch `https://pypi.org/project/<package>/#history` for release history, then follow links to the project's GitHub releases or changelog
-- **npm packages**: Fetch `https://www.npmjs.com/package/<package>?activeTab=versions` for version list, then check the project's GitHub `CHANGELOG.md` or releases page
+- **npm packages**: Fetch `https://www.npmjs.com/package/<package>?activeTab=versions` for version list, then check the project's GitHub `CHANGELOG.md` or releases page. If `CHANGELOG.md` results in a HTTP 404, try `CHANGES.md` then `HISTORY.md`. Repeat without the file suffix before giving up.
 - **pre-commit hooks**: Fetch the GitHub releases page for the hook repo (e.g., `https://github.com/astral-sh/ruff-pre-commit/releases`)
 
 ### What to distill for each dependency
