@@ -11,7 +11,6 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple
-from django.templatetags.static import static
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -26,7 +25,7 @@ from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
-from springfield.cms.icon_utils import icon_css_name
+from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -193,6 +192,7 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
         super().__init__(
             thumbnail_directory="img/firefox/flare/2026/icons",
             thumbnail_directory_label_fn=icon_display_label,
+            thumbnail_directory_value_fn=icon_value_fn,
             thumbnail_size=thumbnail_size,
             **kwargs,
         )
@@ -268,8 +268,7 @@ def get_button_types(allow_uitour=False):
 class IconStructValue(blocks.StructValue):
     @property
     def icon_name(self):
-        raw = self.get("icon") or ""
-        return icon_css_name(raw.split("/")[-1]) if raw else ""
+        return self.get("icon") or ""
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -969,19 +968,12 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
 class IconListItemValue(blocks.StructValue):
     @property
     def icon_name(self):
-        """
-        Determine the icon's name, to be used in HTML templats.
-
-        CSS class stem: last path component of the stored value, with size suffix stripped.
-        e.g. 'desktop-16/arrows-and-chevrons/arrow-clockwise-16' → 'arrow-clockwise'
-        """
-        return icon_css_name(self["icon"].split("/")[-1])
+        return self.get("icon") or ""
 
     @property
     def icon_url(self):
         icon_block = self.block.child_blocks["icon"]
-        directory = icon_block._thumbnail_directory
-        return static(f"{directory}/{self['icon']}.svg")
+        return icon_block.get_thumbnail_url(self.get("icon") or "")
 
 
 class IconListItemBlock(blocks.StructBlock):
@@ -1620,12 +1612,12 @@ class BaseArticleValue(blocks.StructValue):
     def get_icon(self) -> str:
         overrides = self.get("overrides", {})
         if icon := overrides.get("icon"):
-            return icon_css_name(icon.split("/")[-1])
+            return icon
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
             if hasattr(article_page, "icon") and article_page.icon:
-                return icon_css_name(article_page.icon.split("/")[-1])
+                return article_page.icon
         return "globe"
 
     def get_link_url(self) -> str:

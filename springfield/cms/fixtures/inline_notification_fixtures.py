@@ -28,7 +28,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "white",
                     "inverted": False,
                     "closable": True,
@@ -42,7 +42,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "black",
                     "inverted": False,
                     "closable": True,
@@ -56,7 +56,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "blue",
                     "inverted": False,
                     "closable": True,
@@ -70,7 +70,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "purple",
                     "inverted": False,
                     "closable": False,
@@ -84,7 +84,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "orange",
                     "inverted": False,
                     "closable": False,
@@ -98,7 +98,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "yellow",
                     "inverted": False,
                     "closable": False,
@@ -112,7 +112,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "white",
                     "inverted": True,
                     "closable": False,
@@ -126,7 +126,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "black",
                     "inverted": True,
                     "closable": False,
@@ -140,7 +140,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "blue",
                     "inverted": True,
                     "closable": False,
@@ -154,7 +154,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "purple",
                     "inverted": True,
                     "closable": True,
@@ -168,7 +168,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "orange",
                     "inverted": True,
                     "closable": True,
@@ -182,7 +182,7 @@ def get_inline_notification_variants() -> list[dict]:
             "type": "inline_notification",
             "value": {
                 "settings": {
-                    "icon": "desktop-16/user/single-user-16",
+                    "icon": "single-user",
                     "color": "yellow",
                     "inverted": True,
                     "closable": True,

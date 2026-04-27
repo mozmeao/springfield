@@ -10,7 +10,6 @@ from django.core.management.base import BaseCommand
 from wagtail.fields import StreamField
 from wagtail.models import Revision
 
-from springfield.cms.icon_utils import ICON_VALUE_MAP
 from springfield.cms.models.pages import (
     ArticleDetailPage,
     ArticleThemePage,
@@ -21,6 +20,17 @@ from springfield.cms.models.pages import (
     WhatsNewPage,
     WhatsNewPage2026,
 )
+
+# Old ICON_CHOICES stems that differ from the CSS logical name used in the Flare 26 directory,
+# or icons absent from the Flare 26 set entirely.
+_ICON_EXCEPTIONS = {
+    "screenshot-camera": "camera",
+    "android": "",
+    "apple": "",
+    "calendar": "",
+    "toggle-on": "",
+}
+
 
 MODELS = [
     FreeFormPage,
@@ -34,25 +44,23 @@ MODELS = [
 ]
 
 
-def _walk(value, value_map):
+def _walk(value):
     """Recursively replace icon values in-place in the parsed stream JSON."""
     if isinstance(value, list):
         for item in value:
-            _walk(item, value_map)
+            _walk(item)
     elif isinstance(value, dict):
         for key, v in list(value.items()):
-            if key == "icon" and isinstance(v, str) and v in value_map:
-                value[key] = value_map[v]
+            if key == "icon" and isinstance(v, str) and v in _ICON_EXCEPTIONS:
+                value[key] = _ICON_EXCEPTIONS[v]
             else:
-                _walk(v, value_map)
+                _walk(v)
 
 
 class Command(BaseCommand):
-    help = "Migrate IconChoiceBlock stored values from old stems to new directory paths."
+    help = "Migrate IconChoiceBlock stored values: remap the few legacy stems that differ from their CSS logical name."
 
     def handle(self, *args, **options):
-        value_map = ICON_VALUE_MAP  # default is "" for any icons not in the directory
-
         streamfield_names = {model: [f.name for f in model._meta.get_fields() if isinstance(f, StreamField)] for model in MODELS}
 
         # --- Update live model instances ---
@@ -65,7 +73,7 @@ class Command(BaseCommand):
                     # Wagtail 5+ StreamField inherits from Django JSONField, so passing
                     # a Python list back via queryset.update() is handled natively.
                     stream_json = field.get_prep_value(stream_value)
-                    _walk(stream_json, value_map)
+                    _walk(stream_json)
                     # Use queryset.update to avoid triggering post_save signals.
                     model.objects.filter(pk=instance.pk).update(**{fname: stream_json})
 
@@ -83,7 +91,7 @@ class Command(BaseCommand):
                         continue
                     stream_json = json.loads(raw)
                     before = json.dumps(stream_json)
-                    _walk(stream_json, value_map)
+                    _walk(stream_json)
                     if json.dumps(stream_json) != before:
                         revision.content[fname] = json.dumps(stream_json)
                         changed = True

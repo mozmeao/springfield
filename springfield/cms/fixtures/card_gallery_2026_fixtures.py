@@ -30,7 +30,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "subheading_text": "",
                 },
                 "main_card": {
-                    "icon": "desktop-16/themes/themes-16",
+                    "icon": "themes",
                     "superheading": "",
                     "headline": '<p data-block-key="2026cg1mh">Main Card Headline</p>',
                     "description": '<ul><li data-block-key="2026cg1md1">Feature one with rich text</li>'
@@ -40,7 +40,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "image": _IMAGE_VARIANTS,
                 },
                 "secondary_card": {
-                    "icon": "desktop-16/shield/shield-16",
+                    "icon": "shield",
                     "superheading": "",
                     "headline": '<p data-block-key="2026cg1sh">Secondary Card Headline</p>',
                     "description": '<p data-block-key="2026cg1sd">Secondary card description with supporting text.</p>',
@@ -65,7 +65,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "subheading_text": '<p data-block-key="2026cg2sub">All cards have superheadings and there is a CTA button.</p>',
                 },
                 "main_card": {
-                    "icon": "desktop-16/lock/lock-16",
+                    "icon": "lock",
                     "superheading": '<p data-block-key="2026cg2ms">Privacy</p>',
                     "headline": '<p data-block-key="2026cg2mh">Main Card with Superheading</p>',
                     "description": '<p data-block-key="2026cg2md">Main card with superheading and CTA button.</p>',
@@ -73,7 +73,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "image": _IMAGE_VARIANTS,
                 },
                 "secondary_card": {
-                    "icon": "desktop-16/checkmarks/checkmark-circle-fill-16",
+                    "icon": "checkmark-circle-fill",
                     "superheading": '<p data-block-key="2026cg2ss">Security</p>',
                     "headline": '<p data-block-key="2026cg2sh">Secondary Card with Superheading</p>',
                     "description": '<p data-block-key="2026cg2sd">Secondary card with superheading and CTA button.</p>',
@@ -98,7 +98,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "subheading_text": "",
                 },
                 "main_card": {
-                    "icon": "desktop-16/extensions/extension-16",
+                    "icon": "extension",
                     "superheading": "",
                     "headline": '<p data-block-key="2026cg3mh">Main Card - No Button</p>',
                     "description": '<p data-block-key="2026cg3md">Main card without a CTA button.</p>',
@@ -106,7 +106,7 @@ def get_card_gallery_2026_variants() -> list[dict]:
                     "image": _IMAGE_VARIANTS,
                 },
                 "secondary_card": {
-                    "icon": "desktop-16/bookmarks/bookmark-16",
+                    "icon": "bookmark",
                     "superheading": "",
                     "headline": '<p data-block-key="2026cg3sh">Secondary Card - No Button</p>',
                     "description": '<p data-block-key="2026cg3sd">Secondary card without a CTA button.</p>',

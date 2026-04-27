@@ -253,7 +253,7 @@ def get_card_gallery():
                 "subheading_text": "",
             },
             "main_card": {
-                "icon": "desktop-16/themes/themes-16",
+                "icon": "themes",
                 "headline": '<p data-block-key="espxb">Your productivity, amplified</p>',
                 "description": '<ul><li data-block-key="nwdrr">Tab groups and Firefox View organize chaos into clarity</li>'
                 '<li data-block-key="abrc2">Picture-in-picture lets you multitask without missing a moment</li>'
@@ -270,7 +270,7 @@ def get_card_gallery():
                 },
             },
             "secondary_card": {
-                "icon": "desktop-16/trending/trending-16",
+                "icon": "trending",
                 "headline": '<p data-block-key="czbp1">Simple. Thoughtful. Minimal.</p>',
                 "description": '<p data-block-key="7lrh2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ac congue urna.</p>',
                 "buttons": [buttons["primary"]],

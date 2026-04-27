@@ -10,13 +10,14 @@ from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail import blocks
 from wagtail.blocks import StreamBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, IconChoiceBlock, IconListItemValue, SpringfieldLinkBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -117,7 +118,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_2026_test_page,
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
-from springfield.cms.icon_utils import icon_css_name
+from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -184,9 +185,8 @@ def assert_button_attributes(
     if theme:
         assert f"button-{theme}" in button_element["class"]
     if icon:
-        expected_icon_name = icon_css_name(icon.split("/")[-1])
         icon_span = button_element.find("span", class_="fl-icon")
-        assert icon_span and f"fl-icon-{expected_icon_name}" in icon_span["class"]
+        assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
         if icon_position == "left":
             assert "fl-icon-left" in icon_span["class"]
         else:
@@ -231,9 +231,8 @@ def assert_download_button_attributes(
     if theme:
         assert f"button-{theme}" in button_element["class"]
     if icon:
-        expected_icon_name = icon_css_name(icon.split("/")[-1])
         icon_span = button_element.find("span", class_="fl-icon")
-        assert icon_span and f"fl-icon-{expected_icon_name}" in icon_span["class"]
+        assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
         if icon_position == "left":
             assert "fl-icon-left" in icon_span["class"]
         else:
@@ -269,8 +268,7 @@ def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
     if corners:
         assert f"fl-tag-{corners}" in tag_element["class"]
     icon_span = tag_element.find("span", class_="fl-icon")
-    expected_icon_name = icon_css_name(icon.split("/")[-1])
-    assert icon_span and f"fl-icon-{expected_icon_name}" in icon_span["class"]
+    assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
     if icon_position == "before":
         assert "icon-left" in icon_span["class"]
     else:
@@ -559,9 +557,8 @@ def test_inline_notifications(index_page, rf):
         if color:
             assert f"fl-notification-{color}" in div["class"]
         if icon:
-            expected_icon_name = icon_css_name(icon.split("/")[-1])
             icon_span = div.find("span", class_="fl-icon")
-            assert icon_span and f"fl-icon-{expected_icon_name}" in icon_span["class"]
+            assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
         if closable:
             close_button = div.find("button", class_="fl-notification-close")
             assert close_button
@@ -942,9 +939,8 @@ def test_icon_card_block(index_page, rf):
                 cta_position=f"block-{list_index + 1}-section.item-1-cards_list.card-{card_index + 1}.button-1",
                 heading_tag="h2" if list_index == 0 else "h3",
             )
-            expected_icon_name = icon_css_name(card["value"]["icon"].split("/")[-1])
             icon_element = card_element.find("span", class_="fl-icon")
-            assert icon_element and f"fl-icon-{expected_icon_name}" in icon_element["class"]
+            assert icon_element and f"fl-icon-{card['value']['icon']}" in icon_element["class"]
 
 
 def test_sticker_card_block(index_page, placeholder_images, rf):
@@ -1313,7 +1309,7 @@ def test_buttons(index_page, rf):
                 if icon:
                     icon_context = {
                         "extra_class": f"fl-icon-{icon_position}",
-                        "icon_name": icon_css_name(icon.split("/")[-1]),
+                        "icon_name": icon,
                         "hidden": True,
                     }
                     icon_html = render_to_string("components/icon.html", icon_context)
@@ -1348,8 +1344,7 @@ def test_buttons(index_page, rf):
                     assert f"button-{theme}" in button_element["class"]
                 icon = button_data["value"]["settings"]["icon"]
                 if icon:
-                    expected_icon_name = icon_css_name(icon.split("/")[-1])
-                    assert button_element.find("span", class_=f"fl-icon-{expected_icon_name}")
+                    assert button_element.find("span", class_=f"fl-icon-{icon}")
                 campaign = context["utm_parameters"]["utm_campaign"]
                 if button_data["value"]["store"] == "android":
                     assert button_element["href"] == play_store_url(context, "focus", campaign)
@@ -1418,7 +1413,7 @@ def test_buttons_2026(index_page, rf):
                     if icon:
                         icon_context = {
                             "extra_class": f"fl-icon-{icon_position}",
-                            "icon_name": icon_css_name(icon.split("/")[-1]),
+                            "icon_name": icon,
                             "hidden": True,
                         }
                         icon_html = render_to_string("components/icon.html", icon_context)
@@ -1453,8 +1448,7 @@ def test_buttons_2026(index_page, rf):
                         assert f"button-{theme}" in button_element["class"]
                     icon = button_data["value"]["settings"]["icon"]
                     if icon:
-                        expected_icon_name = icon_css_name(icon.split("/")[-1])
-                        assert button_element.find("span", class_=f"fl-icon-{expected_icon_name}")
+                        assert button_element.find("span", class_=f"fl-icon-{icon}")
                     campaign = context["utm_parameters"]["utm_campaign"]
                     if button_data["value"]["store"] == "android":
                         assert button_element["href"] == play_store_url(context, "focus", campaign)
@@ -2048,9 +2042,8 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
     assert main_card_element
 
     icon = main_card["icon"]
-    expected_icon_name = icon_css_name(icon.split("/")[-1])
     icon_element = main_card_element.find("span", class_="fl-icon")
-    assert icon_element and f"fl-icon-{expected_icon_name}" in icon_element["class"]
+    assert icon_element and f"fl-icon-{icon}" in icon_element["class"]
 
     headline_text = BeautifulSoup(main_card["headline"], "html.parser").get_text()
     heading_element = main_card_element.find("h3", class_="fl-card-gallery-heading")
@@ -2083,9 +2076,8 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
     assert secondary_card_element
 
     icon = secondary_card["icon"]
-    expected_icon_name = icon_css_name(icon.split("/")[-1])
     icon_element = secondary_card_element.find("span", class_="fl-icon")
-    assert icon_element and f"fl-icon-{expected_icon_name}" in icon_element["class"]
+    assert icon_element and f"fl-icon-{icon}" in icon_element["class"]
 
     headline_text = BeautifulSoup(secondary_card["headline"], "html.parser").get_text()
     heading_element = secondary_card_element.find("h3", class_="fl-card-gallery-heading")
@@ -2292,9 +2284,8 @@ def test_theme_page_blocks(index_page, rf):
         )
 
         icon_name = overrides.get("icon") or article.icon or "globe"
-        expected_icon_name = icon_css_name(icon_name.split("/")[-1])
         icon_element = card_element.find("span", class_="fl-icon")
-        assert icon_element and f"fl-icon-{expected_icon_name}" in icon_element["class"]
+        assert icon_element and f"fl-icon-{icon_name}" in icon_element["class"]
 
     # Sticker Row Articles
     sticker_row_section_data = get_theme_page_sticker_row_section()
@@ -2549,10 +2540,9 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     # so it should fall back to the article's icon, not the default "globe"
     card_element = icon_card_articles[1]
     article = articles[2]
-    expected_icon_name = icon_css_name(article.icon.split("/")[-1])
     icon_element = card_element.find("span", class_="fl-icon")
     assert icon_element is not None
-    assert f"fl-icon-{expected_icon_name}" in icon_element["class"]
+    assert f"fl-icon-{article.icon}" in icon_element["class"]
     assert "fl-icon-globe" not in icon_element["class"]
 
 
@@ -3336,9 +3326,8 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             assert main_headline in main_card.get_text()
 
             main_icon = variant["value"]["main_card"]["icon"]
-            expected_main_icon_name = icon_css_name(main_icon.split("/")[-1])
             main_icon_span = main_card.find("span", class_="fl-card-gallery-icon")
-            assert main_icon_span and main_icon_span.find("span", class_=f"fl-icon-{expected_main_icon_name}")
+            assert main_icon_span and main_icon_span.find("span", class_=f"fl-icon-{main_icon}")
 
             if variant["value"]["main_card"].get("superheading"):
                 main_superheading_text = BeautifulSoup(variant["value"]["main_card"]["superheading"], "html.parser").get_text()
@@ -3375,9 +3364,8 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             assert secondary_headline in secondary_card.get_text()
 
             secondary_icon = variant["value"]["secondary_card"]["icon"]
-            expected_secondary_icon_name = icon_css_name(secondary_icon.split("/")[-1])
             secondary_icon_span = secondary_card.find("span", class_="fl-card-gallery-icon")
-            assert secondary_icon_span and secondary_icon_span.find("span", class_=f"fl-icon-{expected_secondary_icon_name}")
+            assert secondary_icon_span and secondary_icon_span.find("span", class_=f"fl-icon-{secondary_icon}")
 
             if variant["value"]["secondary_card"].get("superheading"):
                 secondary_superheading_text = BeautifulSoup(variant["value"]["secondary_card"]["superheading"], "html.parser").get_text()
@@ -4000,9 +3988,8 @@ def test_notification_block(index_page, rf):
             if color:
                 assert f"fl-notification-{color}" in div["class"]
             if icon:
-                expected_icon_name = icon_css_name(icon.split("/")[-1])
                 icon_el = div.find("span", class_="fl-icon")
-                assert icon_el and f"fl-icon-{expected_icon_name}" in icon_el["class"]
+                assert icon_el and f"fl-icon-{icon}" in icon_el["class"]
             if stacked:
                 assert "fl-notification-stacked" in div["class"]
                 # stacked disables closable per the component template
@@ -4028,41 +4015,77 @@ def test_uuid_block_is_not_translatable():
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
 
 
+class TestIconValueFn:
+    def test_strips_directory_and_size_suffix(self):
+        assert icon_value_fn("desktop-16/arrows-and-chevrons/forward-16") == "forward"
+
+    def test_strips_directory_only_when_no_size_suffix(self):
+        assert icon_value_fn("desktop-16/permissions/auto-play-false") == "auto-play-false"
+
+    def test_flat_path_strips_size_suffix(self):
+        assert icon_value_fn("activity-16") == "activity"
+
+    def test_flat_path_no_suffix_unchanged(self):
+        assert icon_value_fn("globe") == "globe"
+
+    def test_screenshot_camera_mapping(self):
+        assert icon_value_fn("desktop-16/screenshot/camera-16") == "camera"
+
+    def test_colliding_path_returns_rel_path(self):
+        path = "mobile-24/arrows-chevrons/forward-24"
+        assert icon_value_fn(path) == path
+
+    def test_non_colliding_path_returns_css_name(self):
+        assert icon_value_fn("mobile-24/cursors/cursors-24") == "cursors"
+
+
+def _make_icon_list_item_value(icon_name, thumbnail_url=None):
+    """Build an IconListItemValue without triggering a filesystem scan."""
+    from wagtail import blocks
+
+    from springfield.cms.blocks import IconChoiceBlock, IconListItemValue
+
+    # Use __new__ to skip __init__ on both classes, avoiding the directory scan.
+    block = blocks.StructBlock.__new__(blocks.StructBlock)
+    icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+    icon_block._thumbnails_source = {icon_name: thumbnail_url or f"/static/icons/{icon_name}.svg"}
+    block.child_blocks = {"icon": icon_block}
+
+    value = IconListItemValue(block, [("icon", icon_name), ("text", "<p>hello</p>")])
+    return value
+
+
 class TestIconListItemValue:
     """Tests for IconListItemValue computed properties."""
 
-    def _make_value(self, icon_path, thumbnail_directory="img/firefox/flare/2026/icons"):
-        from springfield.cms.blocks import IconListItemBlock
-
-        block = IconListItemBlock()
-        # Patch the _thumbnail_directory on the child icon block so icon_url uses our value
-        block.child_blocks["icon"]._thumbnail_directory = thumbnail_directory
-        value = block.to_python({"icon": icon_path, "text": "<p>hello</p>"})
-        return value
-
-    def test_icon_name_returns_stem_without_size_suffix(self):
-        value = self._make_value("desktop-16/arrows-and-chevrons/arrow-clockwise-16")
+    def test_icon_name_returns_stored_value(self):
+        value = _make_icon_list_item_value("arrow-clockwise")
         assert value.icon_name == "arrow-clockwise"
 
-    def test_icon_name_flat_value(self):
-        value = self._make_value("activity-16")
-        assert value.icon_name == "activity"
+    def test_icon_name_empty_string(self):
+        value = _make_icon_list_item_value("")
+        assert value.icon_name == ""
 
-    @override_settings(STATIC_URL="/static/")
-    def test_icon_url_starts_with_static_url(self):
-        value = self._make_value("desktop-16/activity/activity-16")
-        assert value.icon_url.startswith("/static/")
+    def test_icon_url_looks_up_from_thumbnail_source(self):
+        expected_url = "/static/img/firefox/flare/2026/icons/desktop-16/activity/activity-16.svg"
+        value = _make_icon_list_item_value("activity", thumbnail_url=expected_url)
+        assert value.icon_url == expected_url
 
-    @override_settings(STATIC_URL="/static/")
-    def test_icon_url_ends_with_svg(self):
-        value = self._make_value("desktop-16/activity/activity-16")
-        assert value.icon_url.endswith(".svg")
+    def test_icon_url_returns_empty_for_unknown_icon(self):
+        block = blocks.StructBlock.__new__(blocks.StructBlock)
+        icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+        icon_block._thumbnails_source = {"activity": "/some/url.svg"}
+        block.child_blocks = {"icon": icon_block}
+        value = IconListItemValue(block, [("icon", "unknown"), ("text", "<p>hello</p>")])
+        assert value.icon_url == ""
 
-    @override_settings(STATIC_URL="/static/")
-    def test_icon_url_contains_directory_and_path(self):
-        value = self._make_value("desktop-16/activity/activity-16", thumbnail_directory="img/firefox/flare/2026/icons")
-        assert "img/firefox/flare/2026/icons" in value.icon_url
-        assert "activity-16" in value.icon_url
+    def test_icon_url_returns_empty_for_empty_icon(self):
+        block = blocks.StructBlock.__new__(blocks.StructBlock)
+        icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+        icon_block._thumbnails_source = {"activity": "/some/url.svg"}
+        block.child_blocks = {"icon": icon_block}
+        value = IconListItemValue(block, [("icon", ""), ("text", "<p>hello</p>")])
+        assert value.icon_url == ""
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

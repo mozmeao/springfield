@@ -4,14 +4,23 @@
 
 from django.db import migrations
 
+# Old ICON_CHOICES stems that differ from the CSS logical name used in the Flare 26 directory,
+# or icons absent from the Flare 26 set entirely.
+_ICON_EXCEPTIONS = {
+    "screenshot-camera": "camera",
+    "android": "",
+    "apple": "",
+    "calendar": "",
+    "toggle-on": "",
+}
+
 
 def migrate_article_icon_values(apps, schema_editor):
-    from springfield.cms.icon_utils import ICON_VALUE_MAP
     from springfield.cms.models.pages import ArticleDetailPage
 
     to_update = []
     for page in ArticleDetailPage.objects.exclude(icon=""):
-        new_val = ICON_VALUE_MAP.get(page.icon, page.icon)
+        new_val = _ICON_EXCEPTIONS.get(page.icon, page.icon)
         if new_val != page.icon:
             page.icon = new_val
             to_update.append(page)

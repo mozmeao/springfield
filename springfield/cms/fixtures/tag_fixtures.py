@@ -9,7 +9,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Purple Tag",
-                "icon": "desktop-16/trending/trending-16",
+                "icon": "trending",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "purple",
@@ -20,7 +20,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Blue Tag",
-                "icon": "desktop-16/alerts-notifications-help/warning-16",
+                "icon": "warning",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "blue",
@@ -31,7 +31,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Orange Tag",
-                "icon": "desktop-16/devices/device-mobile-16",
+                "icon": "device-mobile",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "orange",
@@ -42,7 +42,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Yellow Tag",
-                "icon": "desktop-16/devices/device-mobile-16",
+                "icon": "device-mobile",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "yellow",
@@ -53,7 +53,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "White Tag",
-                "icon": "desktop-16/translate/translate-20",
+                "icon": "translate",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "white",
@@ -64,7 +64,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Black Tag",
-                "icon": "desktop-16/pen-pencil/edit-active-16",
+                "icon": "edit-active",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "black",
@@ -75,7 +75,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Grey Tag",
-                "icon": "desktop-16/bookmarks/bookmark-16",
+                "icon": "bookmark",
                 "icon_position": "after",
                 "corners": "round",
                 "color": None,
@@ -86,7 +86,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft Outline",
-                "icon": "desktop-16/history/history-16",
+                "icon": "history",
                 "icon_position": "before",
                 "corners": "soft",
                 "color": "outline",
@@ -97,7 +97,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft yellow",
-                "icon": "desktop-16/devices/device-mobile-16",
+                "icon": "device-mobile",
                 "icon_position": "before",
                 "corners": "soft",
                 "color": "yellow",
@@ -108,7 +108,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft white",
-                "icon": "desktop-16/devices/device-mobile-16",
+                "icon": "device-mobile",
                 "icon_position": "after",
                 "corners": "soft",
                 "color": "white",
@@ -119,7 +119,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft black",
-                "icon": "desktop-16/mail/email-shield-16",
+                "icon": "email-shield",
                 "icon_position": "after",
                 "corners": "soft",
                 "color": "black",
@@ -130,7 +130,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft grey",
-                "icon": "desktop-16/bookmarks/bookmark-16",
+                "icon": "bookmark",
                 "icon_position": "before",
                 "corners": "soft",
                 "color": "",
