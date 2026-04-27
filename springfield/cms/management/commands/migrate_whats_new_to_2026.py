@@ -175,7 +175,13 @@ def migrate_card(card):
     elif card_type == "illustration_card":
         new_value = {
             "eyebrow": "",
-            "image": value.get("image"),
+            "media": [
+                {
+                    "type": "image",
+                    "id": str(uuid.uuid4()),
+                    "value": value.get("image"),
+                }
+            ],
             "headline": value.get("headline", ""),
             "content": value.get("content", ""),
             "settings": value.get("settings", {}),
