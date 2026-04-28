@@ -567,6 +567,13 @@
     },
     {
       "files": [
+        "js/base/download-attribution/download-attribution.es6.js",
+        "js/firefox/download/auto-download.es6.js"
+      ],
+      "name": "auto-download"
+    },
+    {
+      "files": [
         "js/base/protocol/modal-global.es6.js"
       ],
       "name": "protocol-modal"
