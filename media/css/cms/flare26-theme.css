@@ -249,6 +249,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
+    --fl-theme-card-superheading-color: var(--token-color-soft-purple-4);
     --fl-theme-card-outline-superheading-color: var(
         --token-color-soft-purple-4
     );
@@ -501,6 +502,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-surface-card-gradient: var(--token-gradient-light);
         --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
+        --fl-theme-card-superheading-color: var(--token-color-soft-purple-4);
         --fl-theme-card-outline-superheading-color: var(
             --token-color-soft-purple-4
         );
