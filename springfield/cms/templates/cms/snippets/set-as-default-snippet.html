@@ -24,11 +24,8 @@
 </include:conditional-display>
 
 <include:conditional-display default_browser_condition="is-default">
-    <include:notification
-      color="green"
-      icon="checkmark"
-      reverse_icon=True
-    >
-    {{ object.success_content|richtext }}
-  </include:notification>
+    <div class="fl-icon-with-text">
+      <include:icon extra_class="is-large" icon_name="checkmark" />
+      {{ object.success_content|richtext }}
+    </div>
 </include:conditional-display>
