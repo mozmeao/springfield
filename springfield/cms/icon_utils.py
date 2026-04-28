@@ -92,9 +92,11 @@ def icon_value_fn(rel_path: str) -> str:
         "desktop-16/permissions/auto-play-false"    -> "auto-play-false"
         "desktop-16/screenshot/screenshot-camera-16"-> "screenshot-camera"
 
-    Exception: icons in _COLLIDING_PATHS return their relative path unchanged
-    to preserve uniqueness when two files would otherwise produce the same CSS name.
+    Exception: icons in _COLLIDING_PATHS return their relative path with "/" replaced
+    by "-" to produce a unique, CSS-safe name without path separators:
+
+        "mobile-24/arrows-chevrons/forward-24" -> "mobile-24-arrows-chevrons-forward-24"
     """
     if rel_path in _COLLIDING_PATHS:
-        return rel_path
+        return rel_path.replace("/", "-")
     return icon_css_name(rel_path.split("/")[-1])
