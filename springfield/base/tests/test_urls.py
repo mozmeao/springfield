@@ -48,11 +48,6 @@ def test_healthz_cdn(client):
 def test_healthz_cdn_fails_when_migrations_pending(client):
     from django.db.migrations.executor import MigrationExecutor
 
-    from springfield.base.views import _healthz_cdn_cache
-
-    # Reset cache so the check actually runs
-    _healthz_cdn_cache["status"] = None
-
     class FakeMigration:
         app_label = "fake_app"
         name = "0001_fake"

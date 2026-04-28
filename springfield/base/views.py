@@ -7,7 +7,7 @@ import logging
 import os.path
 from datetime import datetime
 from os import getenv
-from time import monotonic, time
+from time import time
 
 from django.conf import settings
 from django.db import connections
@@ -116,23 +116,18 @@ def get_extra_server_info():
 
 logger = logging.getLogger(__name__)
 
-_healthz_cdn_cache: dict = {"status": None, "body": None, "checked_at": 0}
-
 
 @require_safe
 @never_cache
 def healthz_cdn(request):
-    now = monotonic()
-    cache_ttl = getattr(settings, "HEALTHZ_CDN_CACHE_TTL", 45)
-
-    if _healthz_cdn_cache["status"] is not None and (now - _healthz_cdn_cache["checked_at"]) < cache_ttl:
-        return HttpResponse(_healthz_cdn_cache["body"], content_type="text/plain", status=_healthz_cdn_cache["status"])
-
     try:
         if settings.WATCHMAN_DISABLE_APM:
-            from watchman.views import _disable_apm
+            try:
+                from watchman.views import _disable_apm
 
-            _disable_apm()
+                _disable_apm()
+            except (ImportError, AttributeError):
+                logger.warning("healthz_cdn: watchman _disable_apm unavailable; continuing without disabling APM")
 
         connection = connections["default"]
         executor = MigrationExecutor(connection)
@@ -141,18 +136,12 @@ def healthz_cdn(request):
         if plan:
             unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
             logger.error("healthz_cdn: unapplied migrations: %s", unapplied)
-            status, body = 500, "migrations pending"
-        else:
-            status, body = 200, "pong"
+            return HttpResponse("migrations pending", content_type="text/plain", status=500)
     except Exception:
         logger.exception("healthz_cdn: check failed")
-        status, body = 500, "check error"
+        return HttpResponse("check error", content_type="text/plain", status=500)
 
-    _healthz_cdn_cache["status"] = status
-    _healthz_cdn_cache["body"] = body
-    _healthz_cdn_cache["checked_at"] = now
-
-    return HttpResponse(body, content_type="text/plain", status=status)
+    return HttpResponse("pong", content_type="text/plain")
 
 
 @require_safe

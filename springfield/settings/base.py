@@ -514,7 +514,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz(-cron|-cdn)?/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -798,9 +798,6 @@ WATCHMAN_CHECKS = (
     "watchman.checks.caches",
     "watchman.checks.databases",
 )
-
-# CDN health check: seconds to cache the migration plan result between checks
-HEALTHZ_CDN_CACHE_TTL = config("HEALTHZ_CDN_CACHE_TTL", default="45", parser=int)
 
 
 def _is_springfield_custom_app(app_name):
