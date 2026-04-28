@@ -1200,6 +1200,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("nav_download_button_uid"),
                 FieldPanel("intro_download_button_uid"),
                 FieldPanel("update_button_label"),
+                FieldPanel("update_button_uid"),
                 FieldPanel("update_instructions"),
                 FieldPanel("update_link"),
                 FieldPanel("copy_to_clipboard_label"),
