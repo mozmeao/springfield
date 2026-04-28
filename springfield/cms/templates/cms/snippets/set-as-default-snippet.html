@@ -22,10 +22,3 @@
     {{ object.not_default_ios_content|richtext }}
   </include:conditional-display>
 </include:conditional-display>
-
-<include:conditional-display default_browser_condition="is-default">
-    <div class="fl-icon-with-text">
-      <include:icon extra_class="is-large" icon_name="checkmark" />
-      {{ object.success_content|richtext }}
-    </div>
-</include:conditional-display>
