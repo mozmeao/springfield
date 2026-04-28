@@ -15,7 +15,7 @@
     <include:heading
       level="{{ heading_level }}"
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
-      superheading_text="{{ value.eyebrow }}"
+      superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
     />
   </content:heading>
   <content:body>

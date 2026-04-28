@@ -464,7 +464,7 @@ Step Cards List - With Kit variant
     box-sizing: border-box;
     color: var(--fl-theme-color-text);
     display: flex;
-    font-size: 12px;
+    font-size: var(--token-font-size-xs);
     font-weight: var(--token-font-weight-medium);
     inline-size: var(--token-layout-3xs);
     justify-content: center;
@@ -472,19 +472,33 @@ Step Cards List - With Kit variant
     padding: var(--token-spacing-sm);
 }
 
+.fl-step-card .fl-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+}
+
 .fl-step-card .fl-heading-group {
     margin: 0;
 }
 
+.fl-step-card .fl-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    margin-block-end: var(--token-spacing-sm);
+}
+
 .fl-step-card .fl-heading {
-    font-size: var(--token-spacing-lg);
+    font-size: var(--token-font-size-md);
     font-variation-settings: unset;
     font-weight: var(--token-font-weight-semibold);
     letter-spacing: 0;
     line-height: 1.1;
     margin: 0;
-    text-align: center;
     text-wrap: balance;
+}
+
+.fl-step-card .fl-heading-group:last-child {
+    text-align: center;
 }
 
 /* Decorative Kit (Figma): only on the last card */
