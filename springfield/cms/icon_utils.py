@@ -22,6 +22,7 @@ def icon_css_name(stem):
 # the CSS name to avoid the collision.
 _COLLIDING_PATHS = frozenset(
     {
+        "mobile-24/add/add-24",
         "mobile-24/app-menu-more-options/app-menu-space-24",
         "mobile-24/arrows-chevrons/arrow-clockwise-24",
         "mobile-24/arrows-chevrons/arrow-trending-24",
