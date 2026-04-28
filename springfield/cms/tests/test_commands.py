@@ -16,6 +16,7 @@ import pytest
 from wagtail.models import Page
 from wagtail_localize.models import StringTranslation, Translation, TranslationSource
 
+from springfield.cms import icon_utils
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
@@ -530,14 +531,34 @@ class TestGenerateFlareIconCssCommand(TestCase):
         assert "--icon-src: url(" in css
         assert "activity-16.svg" in css
 
-    def test_conflict_detection_adds_folder_prefix(self):
+    def test_collision_keeps_first_skips_second_not_in_colling_paths_constant(self):
+        # Two files that produce the same icon value: only the first (alphabetically) is kept.
+        # Note: since neither "/arrows/left-16.svg" nor "/user/left-16.svg" are in
+        # icon_utils._COLLIDING_PATHS, the second of these is skipped. A separate
+        # unit test tests the scenario that one of 2 colliding files is in
+        # icon_utils._COLLIDING_PATHS.
         self._make_svg("arrows", "left-16.svg")
         self._make_svg("user", "left-16.svg")
         self._run()
         css = self.output_file.read_text()
-        assert ".fl-icon-arrows-left {" in css
-        assert ".fl-icon-user-left {" in css
-        assert ".fl-icon-left {" not in css
+        assert ".fl-icon-left {" in css
+        assert css.count("{") == 1
+
+    def test_colliding_paths_generate_separate_rules(self):
+        # desktop-16 and mobile-24 icons with the same CSS name generate two separate rules
+        # when the mobile-24 path is registered in _COLLIDING_PATHS.
+        self._make_svg("desktop-16", "add", "add-16.svg")
+        self._make_svg("mobile-24", "add", "add-24.svg")
+
+        with patch.object(icon_utils, "_COLLIDING_PATHS", frozenset({"mobile-24/add/add-24"})):
+            self._run()
+
+        css = self.output_file.read_text()
+        # The first file gets ".fl-icon-add".
+        assert ".fl-icon-add {" in css
+        # The second file gets the more verbose ".fl-icon-mobile-24-add-add-24".
+        assert ".fl-icon-mobile-24-add-add-24 {" in css
+        assert css.count("{") == 2
 
     def test_non_svg_files_excluded(self):
         self._make_svg("a", "icon.svg")
@@ -580,11 +601,11 @@ class TestGenerateFlareIconCssCommand(TestCase):
         out = self._run()
         assert "Generated 2 rules" in out
 
-    def test_conflict_warning_printed(self):
+    def test_collision_warning_printed(self):
         self._make_svg("arrows", "left-16.svg")
         self._make_svg("user", "left-16.svg")
         out = self._run()
-        assert "conflict" in out.lower()
+        assert "collision" in out.lower()
         assert "ACTION REQUIRED" in out
 
     def test_no_conflict_warning_when_no_conflicts(self):
