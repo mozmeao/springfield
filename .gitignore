@@ -57,5 +57,8 @@ tmp/*
 venv
 /custom-media
 /local-credentials/*.json
-.claude
 uv.lock // we don't share dependencies via uv lockfiles at the moment
+AGENTS.md
+CLAUDE.md
+.claude/*
+!.claude/skills/
