@@ -2,13 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from collections import defaultdict
-
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.templatetags.static import static
 
-from springfield.cms.icon_utils import icon_css_name
+from springfield.cms.icon_utils import icon_value_fn
 
 CSS_HEADER = """\
 /*
@@ -56,31 +54,25 @@ class Command(BaseCommand):
         if icon_dir_static_path is None:
             raise CommandError(f"Icon dir {icon_dir} is not under any path in STATICFILES_DIRS. Ensure it is accessible as a static file.")
 
-        # Collect all SVGs: stem -> list of (parent_folder_name, relative_path)
-        stem_index = defaultdict(list)
+        # Collect all SVGs: icon value -> relative_path
+        # icon_value_fn handles collisions: desktop-16 icons get short CSS names
+        # (e.g. "forward"), colliding icons get dash-joined paths
+        # (e.g. "mobile-24-arrows-chevrons-forward-24").
+        value_to_rel = {}
+        conflicts = []
         for svg_path in sorted(icon_dir.rglob("*.svg")):
             # Skip hidden files/dirs anywhere in the path
             if any(part.startswith(".") for part in svg_path.parts):
                 continue
             rel = svg_path.relative_to(icon_dir)
-            stem = svg_path.stem
-            parent = rel.parent.name  # immediate parent folder name
-            stem_index[stem].append((parent, rel))
-
-        # Build class name -> relative_path mapping
-        rules = []
-        conflicts = []
-        for stem, entries in sorted(stem_index.items()):
-            css_name = icon_css_name(stem)
-            if len(entries) == 1:
-                parent, rel = entries[0]
-                class_name = f"fl-icon-{css_name}"
-                rules.append((class_name, rel))
+            value = icon_value_fn(rel.with_suffix("").as_posix())
+            if value in value_to_rel:
+                conflicts.append((value, value_to_rel[value], rel))
             else:
-                conflicts.append(stem)
-                for parent, rel in sorted(entries, key=lambda e: e[1]):
-                    class_name = f"fl-icon-{parent}-{css_name}"
-                    rules.append((class_name, rel))
+                value_to_rel[value] = rel
+
+        # Build CSS rules (values are already CSS-safe: no slashes)
+        rules = [(f"fl-icon-{value}", rel) for value, rel in sorted(value_to_rel.items())]
 
         # Write CSS
         lines = [CSS_HEADER]
@@ -96,21 +88,11 @@ class Command(BaseCommand):
         if conflicts:
             self.stdout.write(
                 self.style.WARNING(
-                    f"\n{len(conflicts)} filename conflict(s) detected. Conflicting filenames have been "
-                    "prefixed with their parent folder name in the generated CSS.\n\n"
-                    "ACTION REQUIRED: There may be code (for example, see "
-                    "IconListItemValue.icon_name in springfield/cms/blocks.py) that relies on "
-                    "only the filename (e.g. 'test') being used in a CSS class. For conflicting "
-                    "icons (like 'arrows/test.svg' and 'user/test.svg') the code must use "
-                    "a combination of the parent folder name and the filename (e.g. 'arrows-test' "
-                    "or 'user-test') to match the generated CSS class. Please either: \n"
-                    "    A. update the relevant code (for example, `IconListItemValue.icon_name`) "
-                    "for each of the conflicts detected here, OR\n"
-                    "    B. rename the conflicting filenames ('arrows/test.svg' and 'user/test.svg').\n"
-                    "Then re-run this command.\n"
+                    f"\n{len(conflicts)} value collision(s) detected — two SVG files produced the same "
+                    "icon value via icon_value_fn. The second file was skipped.\n\n"
+                    "ACTION REQUIRED: add the colliding path(s) to _COLLIDING_PATHS in "
+                    "springfield/cms/icon_utils.py, then re-run this command.\n"
                 )
             )
-            for stem in conflicts:
-                entries = stem_index[stem]
-                class_names = ", ".join(f"fl-icon-{parent}-{icon_css_name(stem)}" for parent, _ in entries)
-                self.stdout.write(self.style.WARNING(f'  CONFLICT: stem "{stem}" → {class_names}\n'))
+            for value, existing_rel, new_rel in conflicts:
+                self.stdout.write(self.style.WARNING(f'  COLLISION: value "{value}" → {existing_rel} vs {new_rel}\n'))
