@@ -15,6 +15,13 @@
     z-index: 10;
 }
 
+.fl-split-page-upper:has(.fl-notification-wrapper:first-child),
+.fl-split-page-upper:has(.conditional-display:first-child):has(
+        .fl-notification-wrapper
+    ) {
+    padding-block-start: 0;
+}
+
 /* When a notification immediately precedes an intro or home intro component, tighten up the space between them */
 
 .fl-notification-wrapper + .fl-section:has(.fl-intro) .fl-intro,
