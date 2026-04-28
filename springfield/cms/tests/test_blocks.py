@@ -17,7 +17,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, IconChoiceBlock, IconListItemValue, SpringfieldLinkBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, IconChoiceBlock, IconListItemValue, SpringfieldLinkBlock, icon_display_label
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -4013,6 +4013,16 @@ def test_uuid_block_is_not_translatable():
     from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+class TestIconDisplayLabel:
+    def test_default_label(self):
+        """The icon_display_label() function returns all characters in title case."""
+        assert icon_display_label("arrow-clockwise-16") == "Arrow Clockwise"
+
+    def test_screenshot_camera_override(self):
+        """For an exception, icon_display_label() returns the expected value."""
+        assert icon_display_label("screenshot-camera-16") == "Camera (Screenshot)"
 
 
 class TestIconValueFn:

@@ -161,13 +161,19 @@ def validate_video_url(value):
     return value
 
 
+_ICON_LABEL_OVERRIDES = {
+    "screenshot-camera": "Camera (Screenshot)",
+}
+
+
 def icon_display_label(stem: str) -> str:
     """
     Define how an icon name should be displayed to Wagtail users.
 
     'arrow-clockwise-16' -> 'Arrow Clockwise'
     """
-    return icon_css_name(stem).replace("-", " ").title()
+    css_name = icon_css_name(stem)
+    return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
 
 
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
