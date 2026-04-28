@@ -4029,7 +4029,7 @@ class TestIconValueFn:
         assert icon_value_fn("globe") == "globe"
 
     def test_screenshot_camera_mapping(self):
-        assert icon_value_fn("desktop-16/screenshot/camera-16") == "camera"
+        assert icon_value_fn("desktop-16/screenshot/screenshot-camera-16") == "screenshot-camera"
 
     def test_colliding_path_returns_rel_path(self):
         path = "mobile-24/arrows-chevrons/forward-24"
