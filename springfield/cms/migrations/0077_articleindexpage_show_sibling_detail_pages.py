@@ -45,7 +45,7 @@ def enable_siblings_for_feature_index_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0075_floating_qr_code_snippet_mixin"),
+        ("cms", "0076_alter_smartwindowpage_post_download_instructions"),
     ]
 
     operations = [
