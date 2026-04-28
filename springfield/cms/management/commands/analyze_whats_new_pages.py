@@ -18,13 +18,20 @@ from wagtail.models import Locale
 class Command(BaseCommand):
     help = "Analyze published WhatsNewPage instances and write a summary markdown file."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--output",
+            default=None,
+            help="Path to write the output file. Defaults to whats_new_pages.md in the project root.",
+        )
+
     def handle(self, *args, **options):
         from springfield.cms.models import WhatsNewPage
 
         en_us_locale = Locale.objects.get(language_code="en-US")
         pages = WhatsNewPage.objects.filter(locale=en_us_locale, live=True).order_by("slug")
 
-        output_path = os.path.join(settings.ROOT_PATH, "whats_new_pages.md")
+        output_path = options["output"] or os.path.join(settings.ROOT_PATH, "whats_new_pages.md")
 
         lines = ["# Published WhatsNewPage Instances", ""]
 

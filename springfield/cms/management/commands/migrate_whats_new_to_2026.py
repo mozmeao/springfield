@@ -392,7 +392,7 @@ class Command(BaseCommand):
                 "translations": [page.locale.language_code for page in translations],
             }
 
-            # Collect all pages to migrate: en-US source + all translations (live or not)
+            # Collect all pages to migrate: en-US source + all live translations
             pages_to_migrate = [source_page] + translations
 
             for page in pages_to_migrate:
