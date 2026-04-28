@@ -3,12 +3,16 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+import logging
 import os.path
 from datetime import datetime
 from os import getenv
-from time import time
+from time import monotonic, time
 
 from django.conf import settings
+from django.db import connections
+from django.db.migrations.executor import MigrationExecutor
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
@@ -108,6 +112,47 @@ def get_extra_server_info():
             server_info[f"db_{key}"] = value
 
     return server_info
+
+
+logger = logging.getLogger(__name__)
+
+_healthz_cdn_cache: dict = {"status": None, "body": None, "checked_at": 0}
+
+
+@require_safe
+@never_cache
+def healthz_cdn(request):
+    now = monotonic()
+    cache_ttl = getattr(settings, "HEALTHZ_CDN_CACHE_TTL", 45)
+
+    if _healthz_cdn_cache["status"] is not None and (now - _healthz_cdn_cache["checked_at"]) < cache_ttl:
+        return HttpResponse(_healthz_cdn_cache["body"], content_type="text/plain", status=_healthz_cdn_cache["status"])
+
+    try:
+        if settings.WATCHMAN_DISABLE_APM:
+            from watchman.views import _disable_apm
+
+            _disable_apm()
+
+        connection = connections["default"]
+        executor = MigrationExecutor(connection)
+        plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
+
+        if plan:
+            unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
+            logger.error("healthz_cdn: unapplied migrations: %s", unapplied)
+            status, body = 500, "migrations pending"
+        else:
+            status, body = 200, "pong"
+    except Exception:
+        logger.exception("healthz_cdn: check failed")
+        status, body = 500, "check error"
+
+    _healthz_cdn_cache["status"] = status
+    _healthz_cdn_cache["body"] = body
+    _healthz_cdn_cache["checked_at"] = now
+
+    return HttpResponse(body, content_type="text/plain", status=status)
 
 
 @require_safe

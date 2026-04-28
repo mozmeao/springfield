@@ -474,6 +474,7 @@ SUPPORTED_NONLOCALES = [
     "robots.txt",
     ".well-known",
     "healthz",  # Needed for k8s
+    "healthz-cdn",  # Needed for Fastly CDN health checks
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
     "revision.txt",  # from root_files
@@ -784,7 +785,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz(-cron|-cdn)?/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -797,6 +798,9 @@ WATCHMAN_CHECKS = (
     "watchman.checks.caches",
     "watchman.checks.databases",
 )
+
+# CDN health check: seconds to cache the migration plan result between checks
+HEALTHZ_CDN_CACHE_TTL = config("HEALTHZ_CDN_CACHE_TTL", default="45", parser=int)
 
 
 def _is_springfield_custom_app(app_name):
