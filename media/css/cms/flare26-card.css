@@ -249,6 +249,12 @@ Sticker Card
     transition: transform var(--token-transition-base);
 }
 
+@media (prefers-color-scheme: light) {
+    .fl-split-page-lower .fl-sticker-card {
+        border: 1px solid var(--card-border-color);
+    }
+}
+
 /* Same opacity-shadow technique as .fl-card::after — avoids per-frame repaints
    that transitioning box-shadow directly would cause. */
 .fl-sticker-card::after {
