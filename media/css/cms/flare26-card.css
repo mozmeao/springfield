@@ -163,6 +163,8 @@ Basic Card
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
     padding: var(--token-spacing-2xl);
     position: relative;
     transition: transform var(--token-transition-base);
@@ -205,7 +207,7 @@ Basic Card
 } */
 
 .fl-card .fl-buttons {
-    margin-block-start: var(--token-spacing-xl);
+    margin-block-start: auto;
 }
 
 .fl-card .learn-more-link {
