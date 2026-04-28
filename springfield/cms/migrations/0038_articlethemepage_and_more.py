@@ -10,7 +10,6 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 import springfield.cms.fields
-import springfield.cms.models.pages
 
 
 class Migration(migrations.Migration):
@@ -39,7 +38,7 @@ class Migration(migrations.Migration):
             options={
                 "abstract": False,
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
         migrations.RemoveField(
             model_name="articledetailpage",
