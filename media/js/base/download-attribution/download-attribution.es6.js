@@ -754,6 +754,8 @@ const DownloadAttribution = {
             DownloadAttribution.COOKIE_MARKETING_RAW_ID
         );
 
+        // We have last touch essential attribution to avoid a stale download experience
+        // REMOVE essential data if it is no longer applicable
         if (Object.keys(essential).length === 0) {
             if (marketing) {
                 // remove essential only
@@ -801,6 +803,16 @@ const DownloadAttribution = {
         }
 
         if (isConsentGranted) {
+            // We have first touch marketing attribution
+            // DO NOT UPDATE if we have existing marketing data
+            if (
+                DownloadAttribution.getRawCookie(
+                    DownloadAttribution.COOKIE_MARKETING_RAW_ID
+                )
+            ) {
+                return;
+            }
+
             if (!DownloadAttribution.withinAttributionRate()) {
                 return;
             }

@@ -8,10 +8,8 @@ import DownloadAttribution from './download-attribution.es6';
 
 DownloadAttribution.applyAttributionDataToLinks();
 
-if (
-    document.documentElement.hasAttribute(
-        'data-stub-attribution-campaign-force'
-    )
-) {
-    DownloadAttribution.initEssential();
-}
+// We always want to refresh the essential data
+// to avoid an outdated download experience
+// If there's new essential data, update
+// If there's no essential data, remove
+DownloadAttribution.initEssential();
