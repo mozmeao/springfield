@@ -452,12 +452,6 @@
     },
     {
       "files": [
-        "css/firefox/ai/waitlist.scss"
-      ],
-      "name": "firefox_waitlist"
-    },
-    {
-      "files": [
         "css/firefox/landing/eoy-2025.scss"
       ],
       "name": "eoy_2025"
@@ -852,12 +846,6 @@
         "js/cms/wagtailadmin-locale-badges.js"
       ],
       "name": "wagtailadmin-locale-badges"
-    },
-    {
-      "files": [
-        "js/firefox/ai/waitlist-newsletter-init.es6.js"
-      ],
-      "name": "waitlist_newsletter"
     }
   ]
 }

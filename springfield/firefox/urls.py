@@ -297,7 +297,6 @@ urlpatterns = (
     # 2. New version format, which should be served from the CMS, but falls back to evergreen page
     re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
-    path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
 )
 
 if settings.ENABLE_CMS_REFRESH_REDIRECTS:
