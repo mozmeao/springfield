@@ -481,9 +481,11 @@ Step Cards List - With Kit variant
 }
 
 .fl-step-card .fl-card-content {
+    align-items: center;
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-lg);
+    text-align: center;
 }
 
 .fl-step-card .fl-heading-group {
@@ -505,8 +507,8 @@ Step Cards List - With Kit variant
     text-wrap: balance;
 }
 
-.fl-step-card .fl-heading-group:last-child {
-    text-align: center;
+.fl-step-card .fl-body p:last-child {
+    margin: 0;
 }
 
 /* Decorative Kit (Figma): only on the last card */
