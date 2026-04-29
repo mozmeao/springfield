@@ -147,7 +147,7 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
     # if `active_locales` is given use it as the full list of active translations
     translations = []
 
-    if is_cms_page and request._locales_available_via_cms:
+    if is_cms_page and hasattr(request, "_locales_available_via_cms") and request._locales_available_via_cms:
         translations = request._locales_available_via_cms
     elif "active_locales" in context:
         translations = context["active_locales"]
