@@ -659,6 +659,12 @@
     },
     {
       "files": [
+        "js/firefox/all/all-init-v2.es6.js"
+      ],
+      "name": "firefox_all-v2"
+    },
+    {
+      "files": [
         "js/libs/classlist.js",
         "js/libs/array-from.js",
         "js/base/uitour-lib.js",
