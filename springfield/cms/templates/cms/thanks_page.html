@@ -8,8 +8,17 @@
 
 {% block body_class %}fl-thanks-body{% endblock %}
 
+{% if switch('enable_attribution_refactor') %}
+  <!-- let auto-download handle attribution -->
+   {% block stub_attribution %}{% endblock %}
+{% endif%}
+
 {% block js %}
-  {{ js_bundle('firefox_download_thanks') }}
+  {% if switch('enable_attribution_refactor') %}
+    {{ js_bundle('auto-download') }}
+  {% else %}
+    {{ js_bundle('firefox_download_thanks') }}
+  {% endif %}
 {% endblock %}
 
 
