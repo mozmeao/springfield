@@ -9,6 +9,7 @@ from datetime import datetime
 from os import getenv
 from time import time
 
+from django.apps import apps
 from django.conf import settings
 from django.db import connections
 from django.db.migrations.executor import MigrationExecutor
@@ -130,14 +131,38 @@ def healthz_cdn(request):
                 logger.warning("healthz_cdn: watchman _disable_apm unavailable; continuing without disabling APM")
 
         connection = connections["default"]
+
+        # Check 1: migration records — catches new code deployed before migrations run,
+        # and applied migrations whose dependencies are missing (InconsistentMigrationHistory).
         executor = MigrationExecutor(connection)
         executor.loader.check_consistent_history(connection)
         plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
-
         if plan:
             unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
             logger.error("healthz_cdn: unapplied migrations: %s", unapplied)
             return HttpResponse("migrations pending", content_type="text/plain", status=500)
+
+        # Check 2: schema introspection — catches old code running after a column-dropping
+        # migration. Compares each managed model's expected columns (_meta.local_fields,
+        # which reflects what the running code expects) against the actual DB schema.
+        # This correctly handles Wagtail MTI subclasses, which each have their own table.
+        with connection.cursor() as cursor:
+            for model in apps.get_models():
+                if not model._meta.managed or model._meta.proxy:
+                    continue
+                expected_cols = {f.column for f in model._meta.local_fields}
+                if not expected_cols:
+                    continue
+                actual_cols = {col.name for col in connection.introspection.get_table_description(cursor, model._meta.db_table)}
+                # SQLite's implicit rowid is never listed by PRAGMA table_info() but is
+                # always accessible on every table, including FTS virtual tables.
+                if connection.vendor == "sqlite":
+                    actual_cols.add("rowid")
+                missing = expected_cols - actual_cols
+                if missing:
+                    logger.error("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
+                    return HttpResponse("schema mismatch", content_type="text/plain", status=500)
+
     except Exception:
         logger.exception("healthz_cdn: check failed")
         return HttpResponse("check error", content_type="text/plain", status=500)

@@ -74,6 +74,20 @@ def test_healthz_cdn_fails_when_history_inconsistent(client):
         )
 
 
+def test_healthz_cdn_fails_when_column_missing(client):
+    from django.db import connection
+
+    # Return empty column list for all tables — makes every managed model appear
+    # to have all its columns missing, catching dropped-column schema drift.
+    with patch.object(connection.introspection, "get_table_description", return_value=[]):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="schema mismatch",
+        )
+
+
 def test_healthz_cron(client):
     _test(
         url="/healthz-cron/",
