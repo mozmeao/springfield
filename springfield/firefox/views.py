@@ -114,20 +114,23 @@ def stub_attribution_code(request):
         else:
             codes[name] = default_value
 
-    if codes["source"] == "(not set)" and "referrer" in data:
-        try:
-            domain = urlparse(data["referrer"]).netloc
-            if domain and STUB_VALUE_RE.match(domain):
-                codes["source"] = domain
-                codes["medium"] = "referral"
-                has_value = True
-        except Exception:
-            # any problems and we should just ignore it
-            pass
+    # We are not going to provide fallbacks because we may not have marketing data consent
+    # Consent checks are in JS, so we will rely on what is provided through JS only
+    if not waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+        if codes["source"] == "(not set)" and "referrer" in data:
+            try:
+                domain = urlparse(data["referrer"]).netloc
+                if domain and STUB_VALUE_RE.match(domain):
+                    codes["source"] = domain
+                    codes["medium"] = "referral"
+                    has_value = True
+            except Exception:
+                # any problems and we should just ignore it
+                pass
 
-    if not has_value:
-        codes["source"] = "www.firefox.com"
-        codes["medium"] = "(none)"
+        if not has_value:
+            codes["source"] = "www.firefox.com"
+            codes["medium"] = "(none)"
 
     code_data = sign_attribution_codes(codes)
     if code_data:
