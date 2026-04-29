@@ -2496,7 +2496,7 @@ def KitIntroBlock(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/home-intro.html"
+            template = "cms/blocks/kit-intro.html"
             label = "Kit Intro"
             label_format = "{heading}"
 
