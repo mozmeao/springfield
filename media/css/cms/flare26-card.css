@@ -434,7 +434,7 @@ Step Cards List - With Kit variant
 .fl-step-card .fl-card-media {
     align-items: center;
     background: var(--fl-step-card-bg);
-    border-radius: var(--token-layout-xs);
+    border-radius: var(--token-border-radius-md);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -460,7 +460,7 @@ Step Cards List - With Kit variant
     align-items: center;
     background: var(--fl-step-card-index-bg);
     block-size: var(--token-layout-3xs);
-    border-radius: var(--token-layout-3xs);
+    border-radius: var(--token-border-radius-sm);
     box-sizing: border-box;
     color: var(--fl-theme-color-text);
     display: flex;
@@ -562,7 +562,7 @@ Illustration Card
 
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
-    border-radius: var(--token-spacing-xl);
+    border-radius: var(--token-border-radius-sm);
     inline-size: 100%;
     margin-block-end: var(--token-spacing-lg);
 }

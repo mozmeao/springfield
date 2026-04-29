@@ -29,7 +29,7 @@ from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
-    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
+    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, BlogArticlePage, SpringfieldImage
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -1297,6 +1297,154 @@ class IconListWithImageBlock(blocks.StructBlock):
         label = "Icon List with Image"
         label_format = "Icon List with Image"
         template = "cms/blocks/icon-list-with-image.html"
+
+
+class CodeBlock(blocks.StructBlock):
+    code = blocks.TextBlock(
+        label="Code",
+        help_text="Paste the code snippet here.",
+    )
+
+    class Meta:
+        label = "Code"
+        template = "cms/blocks/code.html"
+
+
+class QuoteBlock(blocks.StructBlock):
+    quote = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        label="Quote",
+        help_text="The quoted text.",
+    )
+    author = blocks.CharBlock(
+        required=False,
+        label="Author",
+        help_text="Optional attribution for the quote.",
+    )
+
+    class Meta:
+        label = "Quote"
+        label_format = "Quote - {author}"
+        template = "cms/blocks/quote.html"
+
+
+# Blog
+
+
+class BlockArticleValue(blocks.StructValue):
+    def get_article(self) -> BlogArticlePage:
+        if not hasattr(self, "_article_cache"):
+            article = self["article"].localized
+            self._article_cache = article.specific if article else None
+        return self._article_cache
+
+    def get_url(self):
+        article_page = self.get_article()
+        return article_page.url if article_page else ""
+
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if title := self.get("overrides").get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get_article()
+        return article_page.title if article_page else ""
+
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if description := self.get("overrides").get("description"):
+            description = remove_p_tag(richtext(description))
+            if description:
+                return description
+        article_page = self.get_article()
+        if article_page and article_page.description:
+            return remove_p_tag(richtext(article_page.description))
+        return ""
+
+    def get_topic(self) -> str:
+        if topic := self.get("overrides").get("topic"):
+            return topic
+        article_page = self.get_article()
+        if article_page:
+            if topic := article_page.get_topic():
+                return topic.name
+        return ""
+
+    def get_tags(self) -> list[str]:
+        if tags := self.get("overrides").get("tags"):
+            return tags
+        article_page = self.get_article()
+        return [tag.name for tag in article_page.get_tags()]
+
+    def get_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("image"):
+            return image
+        if article_page and article_page.image:
+            return article_page.image
+        return None
+
+    def get_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_image"):
+            return image
+        if article_page and article_page.image_dark_mode:
+            return article_page.image_dark_mode
+        return None
+
+    def get_mobile_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("mobile_image"):
+            return image
+        if article_page and article_page.image_mobile:
+            return article_page.image_mobile
+        return None
+
+    def get_mobile_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_mobile_image"):
+            return image
+        if article_page and article_page.image_dark_mode_mobile:
+            return article_page.image_dark_mode_mobile
+        return None
+
+
+class BlogArticleOverrideBlock(blocks.StructBlock):
+    image = ImageVariantsBlock(required=False)
+    topic = blocks.CharBlock(required=False)
+    title = blocks.CharBlock(required=False)
+    description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
+
+
+class BlogArticleBlock(blocks.StructBlock):
+    """Picks a blog article with optional field overrides for display on the index page."""
+
+    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+    overrides = BlogArticleOverrideBlock(required=False)
+
+    class Meta:
+        label = "Blog Article"
+        label_format = "{article}"
+        icon = "doc-full"
+        value_class = BlockArticleValue
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled list of blog article cards."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Blog Cards List"
+        label_format = "{heading}"
+        icon = "list-ul"
 
 
 # Cards

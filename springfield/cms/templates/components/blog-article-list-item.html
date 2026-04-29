@@ -1,0 +1,18 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props with_image=0 #}
+<article class="fl-blog-article-list-item{% if with_image %} fl-blog-article-list-item-with-image{% endif %}">
+  <div class="fl-blog-article-list-item-content">
+    {{ contents.heading }}
+    {% if contents.body %}<div class="fl-body">{{ contents.body }}</div>{% endif %}
+    {% if contents.date %}<p class="fl-body fl-blog-article-date">{{ contents.date }}</p>{% endif %}
+    {% if contents.tags %}<div class="fl-article-tags">{{ contents.tags }}</div>{% endif %}
+  </div>
+  {% if contents.image %}
+    <div class="fl-blog-article-list-item-image">{{ contents.image }}</div>
+  {% endif %}
+</article>

@@ -729,6 +729,7 @@ INSTALLED_APPS = [
     "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
+    "wagtail.contrib.routable_page",
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
@@ -1416,9 +1417,14 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     # Order here is the order used in the editor UI
     "h2",
     "h3",
+    "h4",
+    "h5",
     "hr",
     "bold",
     "italic",
+    "superscript",
+    "subscript",
+    "strikethrough",
     "code",
     "blockquote",
     "link",
@@ -1487,6 +1493,8 @@ _allowed_page_models = [
     "cms.DownloadIndexPage",
     "cms.DownloadPage",
     "cms.ThanksPage",
+    "cms.BlogIndexPage",
+    "cms.BlogArticlePage",
 ]
 
 if DEV is True:

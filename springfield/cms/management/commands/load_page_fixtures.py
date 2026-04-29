@@ -13,6 +13,7 @@ from springfield.cms.fixtures.base_fixtures import (
     get_placeholder_images,
     get_test_index_page,
 )
+from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_filled_cards_test_page,
@@ -187,6 +188,13 @@ class Command(BaseCommand):
 
         article_theme_hub_page = get_article_theme_hub_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {article_theme_hub_page.slug}"))
+
+        blog_index_page = get_blog_index_page()
+        self.stdout.write(self.style.SUCCESS(f"Blog Index test page loaded: {blog_index_page.slug}"))
+
+        blog_pages = get_blog_pages()
+        for page in blog_pages:
+            self.stdout.write(self.style.SUCCESS(f"Blog Article test page loaded: {page.slug}"))
 
         whats_new_index_page = get_whatsnew_index_page()
         self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))

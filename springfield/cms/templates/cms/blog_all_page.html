@@ -1,0 +1,212 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-blog-all-body{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-page-blog-all">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+
+        <a href="{{ page.url }}" class="fl-blog-back-link">
+          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+          {{ ftl('blog-back') }}
+        </a>
+
+        {% if page.page_heading %}
+          {% for block in page.page_heading %}
+            {% if block.block_type == "heading" %}
+              <include:heading
+                level="h1"
+                superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
+                heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
+                alignment_class="text-center"
+              />
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <include:heading
+            level="h1"
+            heading_text="{{ ftl('blog-all-articles') }}"
+            heading_size="fl-heading-size-1"
+            alignment_class="text-center"
+          />
+        {% endif %}
+
+        {% if all_topics %}
+          <div class="fl-blog-topics">
+            <div class="fl-blog-topics-list">
+              {% if topic %}
+                <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
+                  {{ topic.name }} <span class="fl-tag fl-tag-white fl-tag-round">{{ topic.article_count }}</span>
+                  <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}">
+                    <span class="visually-hidden">Show all</span>
+                    <include:icon icon_name="close" hidden="true" />
+                  </a>
+                </span>
+              {% endif %}
+              {% for topic_item in all_topics %}
+                {% if not topic or topic_item.slug != topic.slug %}
+                  <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic_item.slug }}" class="fl-blog-topic-link">
+                    <span class="fl-blog-topic-name">{{ topic_item.name }}</span>
+                    <include:tag
+                      text="{{ topic_item.article_count }}"
+                      color="purple"
+                      corners="round"
+                    />
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <hr/>
+
+        {% if featured_articles %}
+          <div class="fl-blog-featured">
+
+            {% set first = featured_articles[0] %}
+            <include:media-content media_after>
+              <content:media>
+                {% if first.image %}
+                  {% set classes = image_variant_classes(first.image_dark_mode, first.image_mobile, first.image_dark_mode_mobile) %}
+                  <div class="image-variants-display">
+                    {{ srcset_image(first.image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=first.image.width, loading="lazy", class=classes.primary) }}
+                    {% if first.image_mobile %}{{ srcset_image(first.image_mobile, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=first.image_mobile.width, loading="lazy", class=classes.mobile) }}{% endif %}
+                    {% if first.image_dark_mode_mobile %}{{ srcset_image(first.image_dark_mode_mobile, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=first.image_dark_mode_mobile.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+                    {% if first.image_dark_mode %}{{ srcset_image(first.image_dark_mode, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=first.image_dark_mode.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
+                  </div>
+                {% endif %}
+              </content:media>
+              <content:heading>
+                <include:heading
+                  level="h2"
+                  heading_text="{{ first.title }}"
+                  superheading_text="{{ first.topic.name }}"
+                  heading_size="fl-heading-size-2"
+                />
+              </content:heading>
+              <content:body>
+                {{ first.description|richtext }}
+              </content:body>
+              <content:buttons>
+                <include:button
+                  label="{{ ftl('blog-read-more') }}"
+                  link="{{ first.url }}"
+                />
+              </content:buttons>
+            </include:media-content>
+
+            {% if featured_articles|length > 1 %}
+              <include:cards-list>
+                {% for article in featured_articles[1:] %}
+                  <include:illustration-card-2026 expand_link="true">
+                    <content:media>
+                      {% if article.image %}
+                        {% set classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
+                        <div class="image-variants-display">
+                          {{ srcset_image(article.image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=article.image.width, loading="lazy", class=classes.primary) }}
+                          {% if article.image_mobile %}{{ srcset_image(article.image_mobile, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=article.image_mobile.width, loading="lazy", class=classes.mobile) }}{% endif %}
+                          {% if article.image_dark_mode_mobile %}{{ srcset_image(article.image_dark_mode_mobile, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=article.image_dark_mode_mobile.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+                          {% if article.image_dark_mode %}{{ srcset_image(article.image_dark_mode, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=article.image_dark_mode.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
+                        </div>
+                      {% endif %}
+                    </content:media>
+                    <content:heading>
+                      <hgroup class="fl-heading-group">
+                        <p class="fl-superheading">{{ article.topic.name }}</p>
+                        <h3 class="fl-heading fl-heading-size-3">
+                          <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                            {{ article.title }}
+                          </a>
+                        </h3>
+                      </hgroup>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                      {% set article_tags = article.tags.all() %}
+                      {% if article_tags %}
+                        <div class="fl-card-tags">
+                          {% for tag in article_tags %}
+                            <include:tag text="{{ tag.name }}" color="purple" corners="round" />
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% endfor %}
+              </include:cards-list>
+            {% endif %}
+
+          </div>
+        {% endif %}
+
+        {% if list_articles %}
+          <div class="fl-blog-article-list">
+            {% for article in list_articles %}
+              {% set show_image = loop.index0 % 4 == 3 %}
+              <include:blog-article-list-item with_image="{{ show_image }}">
+                <content:heading>
+                  <hgroup class="fl-heading-group">
+                    <p class="fl-superheading">{{ article.topic.name }}</p>
+                    <h2 class="fl-heading">
+                      <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
+                    </h2>
+                  </hgroup>
+                </content:heading>
+                <content:body>{{ article.description|richtext }}</content:body>
+                {% if article.first_published_at %}
+                  <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
+                {% endif %}
+                {% set article_tags = article.tags.all() %}
+                {% if article_tags %}
+                  <content:tags>
+                    {% for tag in article_tags %}
+                      <include:tag text="{{ tag.name }}" color="purple" corners="round" />
+                    {% endfor %}
+                  </content:tags>
+                {% endif %}
+                {% if show_image and article.image %}
+                  {% set img_classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
+                  <content:image>
+                    <div class="image-variants-display">
+                      {{ srcset_image(article.image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
+                      {% if article.image_mobile %}{{ srcset_image(article.image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}{% endif %}
+                      {% if article.image_dark_mode %}{{ srcset_image(article.image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}{% endif %}
+                      {% if article.image_dark_mode_mobile %}{{ srcset_image(article.image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}{% endif %}
+                    </div>
+                  </content:image>
+                {% endif %}
+              </include:blog-article-list-item>
+            {% endfor %}
+          </div>
+
+          {% if list_articles.paginator.num_pages > 1 %}
+            {% set base_url = page.url ~ page.reverse_subpage('all_route') %}
+            {% set topic_param = '&topic=' ~ topic.slug if topic else '' %}
+            <include:pagination
+              page_number="{{ list_articles.number }}"
+              total_pages="{{ list_articles.paginator.num_pages }}"
+              prev_url="{{ base_url ~ '?page=' ~ list_articles.previous_page_number() ~ topic_param if list_articles.has_previous() else '' }}"
+              next_url="{{ base_url ~ '?page=' ~ list_articles.next_page_number() ~ topic_param if list_articles.has_next() else '' }}"
+              aria_label="{{ ftl('blog-pagination-label') }}"
+              prev_label="{{ ftl('ui-previous') }}"
+              next_label="{{ ftl('ui-next') }}"
+            />
+          {% endif %}
+
+        {% endif %}
+
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
