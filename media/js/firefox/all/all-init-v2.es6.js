@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import StubAttributionConsent from '../../base/stub-attribution/stub-attribution-consent.es6';
+import DownloadAttribution from '../../base/download-attribution/download-attribution.es6';
 import TrackProductDownload from '../../base/datalayer-productdownload.es6';
 import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
 
@@ -86,12 +86,14 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
             window.cms.Flare26.initDialogs();
         }
 
-        // init stub attribution & event tracking for GA4
+        // Attach existing download attribution to download links
         if (downloadButtons && downloadButtons.length > 0) {
-            if (StubAttributionConsent) {
-                // We cannot rely on DOM ready as this section is partially fetched
+            if (DownloadAttribution) {
+                // download-attribution-init will run on page load and set any allowed download attribution data
+                // But download links may not be rendered on DOM ready as this section is partially fetched
+                // So we directly call the function that applies data to links (if no data, does nothing)
                 // This flow is scheduled for refactoring: https://github.com/mozmeao/springfield/issues/258
-                StubAttributionConsent.init();
+                DownloadAttribution.applyAttributionDataToLinks();
             }
 
             for (let i = 0; i < downloadButtons.length; ++i) {
