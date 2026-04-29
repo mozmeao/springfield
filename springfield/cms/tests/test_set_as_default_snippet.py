@@ -66,7 +66,7 @@ def test_set_as_default_dialog_contains_all_content_sections(minimal_site, rf):
 
     assert dialog_wrapper.find("div", class_="condition-not-firefox"), "Not-Firefox content section should be rendered"
     assert dialog_wrapper.find("div", class_="condition-is-not-default"), "Not-default content section should be rendered"
-    assert dialog_wrapper.find("div", class_="condition-is-default"), "Success content section should be rendered"
+    assert soup.find("div", class_="condition-is-default"), "Success content section should be rendered"
 
 
 def test_set_as_default_dialog_contains_platform_content(minimal_site, rf):
@@ -99,7 +99,8 @@ def test_set_as_default_dialog_renders_snippet_text(minimal_site, rf):
     assert "You're almost done" in dialog_text, "Desktop not-default content should be rendered"
     assert "Android devices" in dialog_text, "Android not-default content should be rendered"
     assert "iOS devices" in dialog_text, "iOS not-default content should be rendered"
-    assert "You're all set" in dialog_text, "Success content should be rendered"
+    success_section = soup.find("div", class_="condition-is-default")
+    assert success_section and "You're all set" in success_section.get_text(), "Success content should be rendered"
 
 
 def test_set_as_default_snippet_str(minimal_site):
@@ -124,5 +125,5 @@ def test_updated_snippet_content_is_reflected_on_page(minimal_site, rf):
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
-    dialog_wrapper = _get_set_as_default_dialog(soup)
-    assert "Success! Your default browser is set to Firefox." in dialog_wrapper.get_text()
+    success_section = soup.find("div", class_="condition-is-default")
+    assert success_section and "Success! Your default browser is set to Firefox." in success_section.get_text()
