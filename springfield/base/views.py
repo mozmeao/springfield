@@ -131,6 +131,7 @@ def healthz_cdn(request):
 
         connection = connections["default"]
         executor = MigrationExecutor(connection)
+        executor.loader.check_consistent_history(connection)
         plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
 
         if plan:

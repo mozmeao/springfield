@@ -61,6 +61,19 @@ def test_healthz_cdn_fails_when_migrations_pending(client):
         )
 
 
+def test_healthz_cdn_fails_when_history_inconsistent(client):
+    from django.db.migrations.exceptions import InconsistentMigrationHistory
+    from django.db.migrations.loader import MigrationLoader
+
+    with patch.object(MigrationLoader, "check_consistent_history", side_effect=InconsistentMigrationHistory("test")):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="check error",
+        )
+
+
 def test_healthz_cron(client):
     _test(
         url="/healthz-cron/",
