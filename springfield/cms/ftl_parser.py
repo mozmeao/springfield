@@ -17,29 +17,105 @@ from pathlib import Path
 
 from django.conf import settings
 
+import polib
 from fluent.syntax import parse
 from fluent.syntax.ast import Message, Placeable, TextElement
+from wagtail_localize.models import StringSegment
 
 # Brand terms to expand in FTL strings.
 # These match the terms defined in l10n/en/brands.ftl
 BRAND_TERMS = {
-    "-brand-name-firefox": "Firefox",
-    "-brand-name-firefox-browser": "Firefox Browser",
+    # Company names
+    "-brand-name-apple": "Apple",
+    "-brand-name-creative-commons": "Creative Commons",
+    "-brand-name-facebook": "Facebook",
+    "-brand-name-google": "Google",
+    "-brand-name-microsoft": "Microsoft",
     "-brand-name-mozilla": "Mozilla",
+    "-brand-name-mozilla-corporation": "Mozilla Corporation",
+    "-brand-name-mozilla-foundation": "Mozilla Foundation",
+    "-brand-name-netscape": "Netscape",
+    "-brand-name-linkedin": "LinkedIn",
+    "-brand-name-spotify": "Spotify",
+    # Firefox browsers
+    "-brand-name-firefox": "Firefox",
+    "-brand-name-firefox-beta": "Firefox Beta",
+    "-brand-name-firefox-browser": "Firefox Browser",
+    "-brand-name-firefox-browsers": "Firefox Browsers",
+    "-brand-name-firefox-developer-edition": "Firefox Developer Edition",
+    "-brand-name-firefox-enterprise": "Firefox Enterprise",
+    "-brand-name-firefox-esr": "Firefox ESR",
+    "-brand-name-firefox-extended-support-release": "Firefox Extended Support Release",
+    "-brand-name-firefox-focus": "Firefox Focus",
+    "-brand-name-firefox-nightly": "Firefox Nightly",
+    # Firefox browsers (short names)
+    "-brand-name-beta": "Beta",
+    "-brand-name-developer-edition": "Developer Edition",
+    "-brand-name-enterprise": "Enterprise",
+    "-brand-name-esr": "ESR",
+    "-brand-name-focus": "Focus",
+    "-brand-name-nightly": "Nightly",
+    # Firefox browsers (legacy)
+    "-brand-name-firefox-aurora": "Firefox Aurora",
+    # Firefox products
+    "-brand-name-facebook-container": "Facebook Container",
+    "-brand-name-firefox-devtools": "Firefox DevTools",
+    "-brand-name-firefox-relay": "Firefox Relay",
+    "-brand-name-firefox-translations": "Firefox Translations",
+    # Firefox products (short names)
+    "-brand-name-relay": "Relay",
+    # Firefox projects
+    "-brand-name-firefox-labs": "Firefox Labs",
+    # Pocket
+    "-brand-name-pocket": "Pocket",
+    # Fakespot
+    "-brand-name-fakespot": "Fakespot",
+    # Mozilla projects
+    "-brand-name-bugzilla": "Bugzilla",
+    "-brand-name-gecko": "Gecko",
+    "-brand-name-mdn-plus": "MDN Plus",
+    "-brand-name-mdn-web-docs": "MDN Web Docs",
+    "-brand-name-mozilla-monitor": "Mozilla Monitor",
+    "-brand-name-mozilla-vpn": "Mozilla VPN",
     "-brand-name-mozilla-account": "Mozilla account",
     "-brand-name-mozilla-accounts": "Mozilla accounts",
-    "-brand-name-gecko": "Gecko",
-    "-brand-name-ipad": "iPad",
-    "-brand-name-iphone": "iPhone",
-    "-brand-name-firefox-translations": "Firefox Translations",
+    "-brand-name-mozilla-ai-v2": "Mozilla.ai",
+    "-brand-name-mozilla-ventures": "Mozilla Ventures",
+    "-brand-name-thunderbird": "Thunderbird",
+    # Mozilla projects (short names)
+    "-brand-name-common-voice": "Common Voice",
+    "-brand-name-mdn": "MDN",
+    "-brand-name-monitor": "Monitor",
+    # Other browsers
+    "-brand-name-brave": "Brave",
     "-brand-name-chrome": "Chrome",
     "-brand-name-edge": "Edge",
+    "-brand-name-ie": "Internet Explorer",
+    "-brand-name-opera": "Opera",
     "-brand-name-safari": "Safari",
+    # Platforms
     "-brand-name-android": "Android",
+    "-brand-name-chromeos": "Chrome OS",
     "-brand-name-ios": "iOS",
-    "-brand-name-windows": "Windows",
-    "-brand-name-macos": "macOS",
     "-brand-name-linux": "Linux",
+    "-brand-name-mac": "macOS",
+    "-brand-name-mac-short": "Mac",
+    "-brand-name-macos": "macOS",
+    "-brand-name-windows": "Windows",
+    # Apple products
+    "-brand-name-app-store": "App Store",
+    "-brand-name-ipad": "iPad",
+    "-brand-name-iphone": "iPhone",
+    "-brand-name-test-flight": "TestFlight",
+    # Facebook products
+    "-brand-name-instagram": "Instagram",
+    # Google products
+    "-brand-name-chromebook": "Chromebook",
+    "-brand-name-chromium": "Chromium",
+    "-brand-name-google-play": "Google Play",
+    "-brand-name-youtube": "YouTube",
+    # Enterprise
+    "-brand-name-support-for-organizations": "Support for Organizations",
 }
 
 
@@ -192,6 +268,36 @@ def get_english_ftl_strings(ftl_filename: str) -> dict[str, str]:
     """
     # English source is in l10n/en/
     en_path = settings.FLUENT_LOCAL_PATH / "en" / "firefox" / "features" / ftl_filename
+    return parse_ftl_file(en_path)
+
+
+def get_ftl_path_for_locale_at_subpath(locale: str, ftl_relative_path: str) -> Path | None:
+    """Like get_ftl_path_for_locale but accepts a full relative path.
+
+    Args:
+        locale: e.g. "de"
+        ftl_relative_path: e.g. "firefox/browsers/compare/brave.ftl"
+    """
+    external_path = settings.FLUENT_REPO_PATH / locale / ftl_relative_path
+    if external_path.exists():
+        return external_path
+    local_path = settings.FLUENT_LOCAL_PATH / locale / ftl_relative_path
+    if local_path.exists():
+        return local_path
+    return None
+
+
+def get_ftl_translations_at_subpath(locale: str, ftl_relative_path: str) -> dict[str, str]:
+    """Get translations for a specific locale using a full relative FTL path."""
+    ftl_path = get_ftl_path_for_locale_at_subpath(locale, ftl_relative_path)
+    if ftl_path:
+        return parse_ftl_file(ftl_path)
+    return {}
+
+
+def get_english_ftl_strings_at_subpath(ftl_relative_path: str) -> dict[str, str]:
+    """Get English source strings using a full relative FTL path."""
+    en_path = settings.FLUENT_LOCAL_PATH / "en" / ftl_relative_path
     return parse_ftl_file(en_path)
 
 
@@ -360,6 +466,48 @@ def convert_ftl_links_to_wagtail(translated: str, source: str) -> str:
         )
 
     return result
+
+
+def build_po_from_ftl(translation, en_text_to_msgid: dict[str, str], translations: dict[str, str]):
+    """Build a PO file by matching Wagtail segments to FTL translations.
+
+    Args:
+        translation: A wagtail_localize Translation instance.
+        en_text_to_msgid: Mapping of normalized English text to FTL message IDs
+            (built with build_text_to_msgid_mapping).
+        translations: Mapping of FTL message IDs to translated text for the target locale.
+
+    Returns:
+        A polib.POFile populated with matched translation entries.
+    """
+    po = polib.POFile(wrapwidth=200)
+    po.metadata = {
+        "MIME-Version": "1.0",
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-WagtailLocalize-TranslationID": str(translation.uuid),
+    }
+
+    string_segments = StringSegment.objects.filter(source=translation.source).select_related("string", "context")
+
+    for segment in string_segments:
+        source_text = segment.string.data
+        normalized_source = normalize_text_for_matching(source_text)
+
+        msgid = en_text_to_msgid.get(normalized_source)
+
+        if msgid and msgid in translations:
+            translated_text = translations[msgid]
+            translated_text = convert_ftl_links_to_wagtail(translated_text, source_text)
+
+            po.append(
+                polib.POEntry(
+                    msgid=source_text,
+                    msgctxt=segment.context.path,
+                    msgstr=translated_text,
+                )
+            )
+
+    return po
 
 
 def build_text_to_msgid_mapping(ftl_strings: dict[str, str]) -> dict[str, str]:

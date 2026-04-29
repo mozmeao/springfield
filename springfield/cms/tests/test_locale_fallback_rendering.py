@@ -15,6 +15,8 @@ from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
+from springfield.cms.fixtures.snippet_fixtures import get_button_label_snippets
+from springfield.cms.models import ButtonLabelSnippet, FreeFormPage
 from springfield.cms.tests.factories import (
     LocaleFactory,
     SimpleRichTextPageFactory,
@@ -827,3 +829,76 @@ def test_alias_to_nonexistent_whatsnew_fallback_page_uses_django_view(client):
     html = response.content.decode("utf-8")
     assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR/whatsnew/149/"' in html
     assert '<meta name="robots" content="noindex,follow">' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_alias_locale_request_renders_fallback_locale_download_button_label(client):
+    """
+    A request for an alias locale page gets gets the fallback locale page with the download button.
+
+    The es-MX (fallback locale for es-CL) page stores the es-MX ButtonLabelSnippet pk.
+    When the es-CL (alias locale for es-MX) URL is requested, the user gets the es-MX
+    page, with the es-MX download firefox button.
+    """
+    en_us_get_firefox, _ = get_button_label_snippets()
+
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    LocaleFactory(language_code="es-CL")  # alias locale: Locale record, no page tree
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_mx_snippet = ButtonLabelSnippet.objects.create(
+        locale=es_mx_locale,
+        translation_key=en_us_get_firefox.translation_key,
+        key=en_us_get_firefox.key,
+        label="Obtener Firefox",
+        live=True,
+    )
+
+    es_mx_page = FreeFormPage(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
+    es_mx_root.add_child(instance=es_mx_page)
+    es_mx_page.content = [
+        {
+            "type": "intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"media_position": "after", "anchor_id": ""},
+                "media": [],
+                "heading": {"superheading_text": "", "heading_text": "<p>Descarga Firefox</p>", "subheading_text": ""},
+                "buttons": [
+                    {
+                        "type": "download_button",
+                        "id": "bb000000-0000-0000-0000-000000000001",
+                        "value": {
+                            "pretranslated_label": es_mx_snippet.pk,
+                            "custom_label": "",
+                            "settings": {
+                                "theme": "",
+                                "icon": "downloads",
+                                "icon_position": "right",
+                                "analytics_id": "00000000-0000-0000-0000-000000000001",
+                                "show_default_browser_checkbox": False,
+                            },
+                        },
+                    }
+                ],
+            },
+        }
+    ]
+    es_mx_page.save_revision().publish()
+
+    # Request the page at the es-CL URL
+    es_cl_url = es_mx_page.url.replace("es-MX", "es-CL")
+    response = client.get(es_cl_url)
+
+    # The user gets the es-MX page, with the es-MX download firefox button
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+    assert en_us_get_firefox.label == "Get Firefox"  # confirm the en-US snippet exists — "Get Firefox" was available but should not be used
+    assert "ES-MX Page" in html  # the es-MX page is being served at the es-CL URL
+    assert "Obtener Firefox" in html
+    assert "Get Firefox" not in html

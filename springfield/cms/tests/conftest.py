@@ -2,13 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
+from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.models import ButtonLabelSnippet
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -22,6 +25,20 @@ def placeholder_images():
 @pytest.fixture
 def index_page(minimal_site):
     return get_test_index_page()
+
+
+@pytest.fixture
+def download_firefox_button_block():
+    return DownloadFirefoxButtonBlock()
+
+
+@pytest.fixture
+def button_label_snippet():
+    snippet, _ = ButtonLabelSnippet.objects.update_or_create(
+        id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
+        defaults={"key": "get_firefox", "label": "Get Firefox", "live": True},
+    )
+    return snippet
 
 
 @pytest.fixture(autouse=True)

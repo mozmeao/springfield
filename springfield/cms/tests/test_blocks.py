@@ -7,10 +7,11 @@ from urllib.parse import urlparse, urlunparse
 
 from django.template.loader import render_to_string
 from django.test import override_settings
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.blocks import StreamBlockValidationError
+from wagtail.blocks import StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
@@ -117,7 +118,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_2026_test_page,
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
-from springfield.cms.models import ArticleDetailPage, SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, ButtonLabelSnippet, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
@@ -196,10 +197,21 @@ def assert_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
 
+def _resolve_download_button_label(button_data: dict) -> str:
+    """Resolve the rendered button label from pretranslated_label (snippet) or custom_label."""
+    value = button_data["value"]
+    snippet_id = value.get("pretranslated_label")
+    if snippet_id:
+        snippet = ButtonLabelSnippet.objects.filter(pk=snippet_id).first()
+        if snippet:
+            return snippet.label
+    return value.get("custom_label", "")
+
+
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = button_data["value"]["label"]
+    label = _resolve_download_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -526,6 +538,76 @@ def assert_animation_attributes(animation_element: BeautifulSoup, animation_data
         assert video["poster"] == image_url
         source = video.find("source")
         assert source and source["src"] == video_url
+
+
+class TestDownloadFirefoxButtonBlock:
+    """Unit tests for DownloadFirefoxButtonBlock.clean() and get_context()."""
+
+    def test_clean_pretranslated_label_only_is_valid(self, download_firefox_button_block, button_label_snippet):
+        download_firefox_button_block.clean({"pretranslated_label": button_label_snippet, "custom_label": "", "settings": {}})
+
+    def test_clean_custom_label_only_is_valid(self, download_firefox_button_block):
+        download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "Try Firefox", "settings": {}})
+
+    def test_clean_neither_pretranslated_label_nor_custom_label_raises(self, download_firefox_button_block):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "", "settings": {}})
+        assert "pretranslated_label" in exc_info.value.block_errors
+
+    def test_clean_whitespace_only_custom_label_treated_as_empty(self, download_firefox_button_block):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "   ", "settings": {}})
+        assert "pretranslated_label" in exc_info.value.block_errors
+
+    def test_clean_both_pretranslated_label_and_custom_label_raises(self, download_firefox_button_block, button_label_snippet):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": button_label_snippet, "custom_label": "Also this", "settings": {}})
+        assert "custom_label" in exc_info.value.block_errors
+
+    def test_get_context_uses_pretranslated_label(self, download_firefox_button_block, button_label_snippet):
+        value = {"pretranslated_label": button_label_snippet, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Get Firefox"
+
+    def test_get_context_uses_localized_snippet(self, download_firefox_button_block, button_label_snippet):
+        """get_localized() returns the locale-specific label for the active locale."""
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        es_mx_snippet = ButtonLabelSnippet.objects.create(
+            locale=es_mx_locale,
+            translation_key=button_label_snippet.translation_key,
+            key=button_label_snippet.key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            value = {"pretranslated_label": button_label_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == es_mx_snippet.label
+
+    def test_get_context_falls_back_to_snippet_when_get_localized_returns_none(self, download_firefox_button_block, button_label_snippet):
+        """When get_localized() returns None (no translation, no fallback), falls back to the snippet's own label."""
+        # Create a FR locale so Locale.get_active() resolves, but don't create a FR snippet.
+        # get_localized() will find no FR translation and no configured fallback → returns None.
+        LocaleFactory(language_code="fr")
+        with translation.override("fr"):
+            value = {"pretranslated_label": button_label_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == button_label_snippet.label
+
+    def test_get_context_uses_custom_label(self, download_firefox_button_block):
+        value = {"pretranslated_label": None, "custom_label": "Download Now", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Download Now"
+
+    def test_get_context_pretranslated_takes_priority_over_custom_label(self, download_firefox_button_block, button_label_snippet):
+        value = {"pretranslated_label": button_label_snippet, "custom_label": "This gets ignored because pretranslated_label is set", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Get Firefox"
+
+    def test_get_context_no_label_set(self, download_firefox_button_block):
+        value = {"pretranslated_label": None, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert "button_label" not in context
 
 
 def test_inline_notifications(index_page, rf):
@@ -1858,7 +1940,7 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+    cta_text = f"{heading_text.strip()} - {_resolve_download_button_label(button).strip()}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,

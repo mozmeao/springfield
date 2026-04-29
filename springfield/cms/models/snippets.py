@@ -371,3 +371,30 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 
 
 register_snippet(QRCodeFloatingSnippet)
+
+
+class ButtonLabelSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A pre-translated label for use on Firefox download buttons."""
+
+    key = models.SlugField(
+        max_length=100,
+        help_text="Stable identifier used to seed translations (e.g. 'get_firefox'). Do not change after creation.",
+    )
+    label = models.CharField(max_length=255)
+
+    override_translatable_fields = [
+        SynchronizedField("key"),  # identifier, not translated — same value in all locales
+    ]
+
+    panels = [
+        FieldPanel("key", read_only=True),  # prevent editing after creation
+        FieldPanel("label"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Button Label"
+        verbose_name_plural = "Button Labels"
+        unique_together = [("translation_key", "locale"), ("key", "locale")]
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"

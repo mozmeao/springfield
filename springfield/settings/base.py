@@ -1458,6 +1458,7 @@ def _localize_dashboard_column_filter_options():
 # Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
 WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.ButtonLabelSnippet"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1529,3 +1530,5 @@ PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", 
 PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
 DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
 QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)
+BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID = config("BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID", default="1001", parser=int)
+BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID = config("BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID", default="1002", parser=int)

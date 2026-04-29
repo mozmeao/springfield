@@ -4,13 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set cta_text = block_text ~ " - " ~ value.label %}
+  {% set cta_text = block_text ~ " - " ~ button_label %}
 {% set icon_name = value.settings.icon %}
 
 <include:download-firefox-button
   analytics_id="{{ value.settings.analytics_id }}"
   theme_class="{{ value.theme_class() }}"
-  label="{{ value.label }}"
+  label="{{ button_label }}"
   cta_text="{{ cta_text }}"
   block_position="{{ block_position }}"
   icon_position="{{ value.settings.icon_position }}"
