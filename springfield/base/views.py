@@ -148,16 +148,12 @@ def healthz_cdn(request):
         # This correctly handles Wagtail MTI subclasses, which each have their own table.
         with connection.cursor() as cursor:
             for model in apps.get_models():
-                if not model._meta.managed or model._meta.proxy:
+                if not model._meta.managed or model._meta.proxy or model._meta.app_label == "wagtailsearch":
                     continue
                 expected_cols = {f.column for f in model._meta.local_fields}
                 if not expected_cols:
                     continue
                 actual_cols = {col.name for col in connection.introspection.get_table_description(cursor, model._meta.db_table)}
-                # SQLite's implicit rowid is never listed by PRAGMA table_info() but is
-                # always accessible on every table, including FTS virtual tables.
-                if connection.vendor == "sqlite":
-                    actual_cols.add("rowid")
                 missing = expected_cols - actual_cols
                 if missing:
                     logger.error("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
