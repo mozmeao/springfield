@@ -23,26 +23,32 @@
     </div>
 
     <div class="fl-mobile-store-qr-content">
-      <div class="fl-mobile-store-qr-code">
-        {{ qrcode(value.qr_code_data, 12) }}
-      </div>
+      <include:conditional-display platform_conditions="{{ ['linux', 'osx', 'windows', 'other-os', 'unsupported'] }}">
+        <div class="fl-mobile-store-qr-code">
+          {{ qrcode(value.qr_code_data, 12) }}
+        </div>
+      </include:conditional-display>
 
-      <div class="fl-mobile-store-buttons">
-        {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
-        {% set android_url = play_store_url('firefox', campaign) %}
-        {% set ios_url = app_store_url('firefox', campaign) %}
+      <include:conditional-display platform_conditions="{{ ['ios', 'android'] }}">
+        <div class="fl-mobile-store-buttons">
+          {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+          {% set android_url = play_store_url('firefox', campaign) %}
+          {% set ios_url = app_store_url('firefox', campaign) %}
 
-        {{ google_play_button(href=android_url, class_name="fl-store-button") }}
-        {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
-      </div>
+          {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+          {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+        </div>
+      </include:conditional-display>
     </div>
 
-    <div class="fl-mobile-store-mobile-image">
-      {{ srcset_image(
-          value.mobile_image,
-          "width-{200,400,600,800}",
-          loading="lazy",
-      ) }}
-    </div>
+    <include:conditional-display platform_conditions="{{ ['ios', 'android'] }}">
+      <div class="fl-mobile-store-mobile-image">
+        {{ srcset_image(
+            value.mobile_image,
+            "width-{200,400,600,800}",
+            loading="lazy",
+        ) }}
+      </div>
+    </include:conditional-display>
   </div>
 </section>
