@@ -12,7 +12,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0074_alter_smartwindowpage_mobile_message"),
+        ("cms", "0076_alter_smartwindowpage_post_download_instructions"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

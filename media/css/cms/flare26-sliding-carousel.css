@@ -118,11 +118,14 @@
 
 .fl-sliding-carousel.is-paused
     .fl-sliding-carousel-control.is-active
-    .fl-sliding-carousel-progress::after,
+    .fl-sliding-carousel-progress::after {
+    animation-play-state: paused;
+    opacity: 0;
+}
+
 .fl-sliding-carousel.is-paused
     .fl-sliding-carousel-control.is-active
     .fl-sliding-carousel-progress {
-    animation: none;
     background-color: transparent;
 }
 
@@ -290,11 +293,6 @@
         gap: var(--token-spacing-md);
     }
 
-    .fl-sliding-carousel-control {
-        display: flex;
-        flex: 1;
-    }
-
     .fl-section:has(.fl-sliding-carousel) {
         padding: var(--fl-section-v-padding) var(--fl-section-h-padding);
     }
@@ -370,6 +368,11 @@
 
     .fl-sliding-carousel-control.is-active
         .fl-sliding-carousel-box.no-animate::after {
+        animation: none;
+    }
+
+    .fl-sliding-carousel-control.is-active
+        .fl-sliding-carousel-progress.no-animate::after {
         animation: none;
     }
 

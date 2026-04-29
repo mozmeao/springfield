@@ -11,8 +11,8 @@
 {% set android_url = play_store_url('firefox', 'firefox-whatsnew') %}
 {% set ios_url = app_store_url('firefox', 'firefox-whatsnew') %}
 
-{# "noindex" pages should not have the canonical or hreflang tags: bug 1442331 #}
-{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+{% set do_not_index=True %}
+{% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
 
 {% block page_title %}{{ ftl('whatsnew-page-title') }}{% endblock %}
 {% block page_desc %}{{ ftl('whatsnew-page-description') }}{% endblock %}

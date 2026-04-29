@@ -17,6 +17,7 @@ from springfield.cms.models import (
     QRCodeSnippet,
     Tag,
 )
+from springfield.cms.models.snippets import QRCodeFloatingSnippet
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -114,6 +115,21 @@ def get_button_label_snippets() -> tuple[ButtonLabelSnippet, ButtonLabelSnippet]
         },
     )
     return get_firefox, download_firefox
+
+
+def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
+    locale = Locale.get_default()
+    snippet, _ = QRCodeFloatingSnippet.objects.update_or_create(
+        id=settings.QR_CODE_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
+            "content": "Bring your tabs with you",
+            "url": "https://www.firefox.com/browsers/mobile/",
+            "default_open": True,
+        },
+    )
+    return snippet
 
 
 def get_tags() -> list[Tag]:

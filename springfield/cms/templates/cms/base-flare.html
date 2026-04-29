@@ -17,8 +17,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <title>{% block page_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox' }}{% endblock %}</title>
     <meta name="description" content="{% filter striptags %}{% block page_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
     <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{% if page and page.og_image %}{% set img = image(page.og_image, "width-1200") %}{{ img.url }}{% else %}{{ static('img/firefox/flare/og.png') }}{% endif %}{% endblock %}{% endfilter %}">
-    {# "noindex" pages should not have the canonical or hreflang tags #}
-    {% block canonical_urls %}{% if page is defined and page.noindex %}<meta name="robots" content="noindex,follow">{% else %}{% include 'includes/canonical-url.html' %}{% endif %}{% endblock %}
+    {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
 
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
@@ -61,7 +60,18 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endblock %}
     </div>
 
-    {% block qr_code_snippet %}{% endblock %}
+    {% block qr_code_snippet %}
+      {% if page and page.show_floating_qr_code_snippet and floating_qr_snippet %}
+        {% set value = floating_qr_snippet %}
+        {% include "cms/snippets/qr-code-floating-snippet.html" %}
+      {% elif page and page.show_qr_code_snippet %}
+        {% set qr_code_snippet = get_qr_code_snippet() %}
+        {% if qr_code_snippet %}
+          {% set value = qr_code_snippet %}
+          {% include "cms/snippets/qr-code-snippet.html" %}
+        {% endif %}
+      {% endif %}
+    {% endblock %}
 
     {# Issue 8444 #}
     {% block sentry_client %}
@@ -76,7 +86,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block site_js %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
-    {{ js_bundle('firefox-cms-new') }}
+    {{ js_bundle('firefox-cms-flare26') }}
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('fxa') }}
     {{ js_bundle('flare-navigation') }}
