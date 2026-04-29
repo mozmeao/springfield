@@ -156,7 +156,7 @@ function onTimeout() {
     beginFirefoxDownload();
 }
 
-// Force cookie update if there is essential data to add
+// Force cookie update before download if there is essential data to add
 if (
     Mozilla.DownloadAttribution !== undefined &&
     document.documentElement.hasAttribute(
@@ -172,6 +172,7 @@ if (
     timeout = setTimeout(onTimeout, 2000);
     Mozilla.DownloadAttribution.initEssential();
 } else {
+    // Otherwise, we can assume an existing cookie has latest data
     beginFirefoxDownload();
 }
 
