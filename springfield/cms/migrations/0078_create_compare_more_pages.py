@@ -65,6 +65,9 @@ class Migration(migrations.Migration):
         # Required because save_target() may interact with wagtail_localize_smartling
         # which has a handler that queries LandedTranslationTask / JobTranslation.
         ("wagtail_localize_smartling", "0008_jobtranslation_content_hash"),
+        # Required because saving pages triggers modelsearch to INSERT INTO wagtailsearch_indexentry,
+        # which must exist before this migration runs on a fresh database.
+        ("wagtailsearch", "0005_create_indexentry"),
     ]
 
     operations = [
