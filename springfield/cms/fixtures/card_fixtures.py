@@ -142,7 +142,7 @@ def get_icon_card_variants() -> list[dict]:
             "type": "icon_card",
             "value": {
                 "settings": {"expand_link": True},
-                "icon": "calendar",
+                "icon": "history",
                 "tags": tags[6:9],
                 "headline": '<p data-block-key="ob9zh">Another Icon Card</p>',
                 "content": '<p data-block-key="h2wpt">All button options are available here too.</p>',

@@ -50,20 +50,48 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/text/add-text-16.svg');
 }
 
+.fl-icon-add-to-homescreen {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/add/add-to-homescreen-24.svg');
+}
+
 .fl-icon-add-user {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/user/add-user-16.svg');
+}
+
+.fl-icon-alerts-info-help {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/alerts-info-help-24.svg');
 }
 
 .fl-icon-all-tabs {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/tabs/all-tabs-16.svg');
 }
 
+.fl-icon-android {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/android.svg');
+}
+
 .fl-icon-app-menu {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/app-menu/app-menu-16.svg');
 }
 
+.fl-icon-app-menu-more-options {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/app-menu-more-options-24.svg');
+}
+
 .fl-icon-app-menu-space {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/app-menu/app-menu-space-16.svg');
+}
+
+.fl-icon-append-down-left {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/append-down-left-24.svg');
+}
+
+.fl-icon-append-up-right {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/append-up-right-24.svg');
+}
+
+.fl-icon-apple {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/apple.svg');
 }
 
 .fl-icon-applied-policy {
@@ -72,6 +100,10 @@
 
 .fl-icon-arrow-clockwise {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/arrow-clockwise-16.svg');
+}
+
+.fl-icon-arrow-counter-clockwise {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/arrow-counter-clockwise-24.svg');
 }
 
 .fl-icon-arrow-counterclockwise {
@@ -84,6 +116,10 @@
 
 .fl-icon-arrow-trending {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/arrow-trending-16.svg');
+}
+
+.fl-icon-arrows-chevrons {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/arrows-chevrons-24.svg');
 }
 
 .fl-icon-audio {
@@ -106,6 +142,18 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/auto-play-true.svg');
 }
 
+.fl-icon-avatar {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-24.svg');
+}
+
+.fl-icon-avatar-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-circle-fill-24.svg');
+}
+
+.fl-icon-avatar-info-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-info-circle-fill-24.svg');
+}
+
 .fl-icon-avatar-signed-in-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-in-fill-16.svg');
 }
@@ -114,12 +162,12 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-in-fill-custom-initial-16.svg');
 }
 
-.fl-icon-avatar-signed-in-fill-profile-picture {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-in-fill-profile-picture-16.svg');
-}
-
 .fl-icon-avatar-signed-out {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-out-16.svg');
+}
+
+.fl-icon-avatar-warning-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-warning-circle-fill-24.svg');
 }
 
 .fl-icon-back {
@@ -134,16 +182,24 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/bike-16.svg');
 }
 
-.fl-icon-blocked-popup {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/blocked-popup-16.svg');
-}
-
 .fl-icon-block {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/block/block-16.svg');
 }
 
 .fl-icon-block-download {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/block/block-download-16.svg');
+}
+
+.fl-icon-blocked-false {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/blocked-false-24.svg');
+}
+
+.fl-icon-blocked-popup {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/blocked-popup-16.svg');
+}
+
+.fl-icon-blocked-true {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/blocked-true-24.svg');
 }
 
 .fl-icon-book {
@@ -156,6 +212,18 @@
 
 .fl-icon-bookmark-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/bookmarks/bookmark-fill-16.svg');
+}
+
+.fl-icon-bookmark-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-slash-24.svg');
+}
+
+.fl-icon-bookmark-tray {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-tray-24.svg');
+}
+
+.fl-icon-bookmark-tray-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-tray-fill-24.svg');
 }
 
 .fl-icon-bookmarks-tray {
@@ -186,16 +254,16 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/canvas-true.svg');
 }
 
-.fl-icon-screenshot-camera {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/screenshot/camera-16.svg');
-}
-
 .fl-icon-checkmark {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-16.svg');
 }
 
 .fl-icon-checkmark-circle-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-circle-fill-16.svg');
+}
+
+.fl-icon-checkmark-white {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-white.svg');
 }
 
 .fl-icon-chevron-double-right {
@@ -222,6 +290,14 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-up-16.svg');
 }
 
+.fl-icon-clear-close-cancel {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/clear-close-cancel-24.svg');
+}
+
+.fl-icon-clipboard {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/clipboard-24.svg');
+}
+
 .fl-icon-close {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
 }
@@ -238,6 +314,14 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/tabs/closed-tabs-16.svg');
 }
 
+.fl-icon-cloud {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sync/cloud-24.svg');
+}
+
+.fl-icon-collection {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/collection/collection-24.svg');
+}
+
 .fl-icon-color-picker {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/color-picker/color-picker-16.svg');
 }
@@ -250,6 +334,18 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/shopping/competitiveness-16.svg');
 }
 
+.fl-icon-cookies {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/cookies-24.svg');
+}
+
+.fl-icon-cookies-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/cookies-slash-24.svg');
+}
+
+.fl-icon-copy {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/copy-24.svg');
+}
+
 .fl-icon-craft {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/craft-16.svg');
 }
@@ -260,6 +356,14 @@
 
 .fl-icon-critical-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/alerts-notifications-help/critical-fill-16.svg');
+}
+
+.fl-icon-cross-circle {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/cross-circle-24.svg');
+}
+
+.fl-icon-cross-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/cross-circle-fill-24.svg');
 }
 
 .fl-icon-cryptominer-false {
@@ -278,6 +382,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/cursor-arrow-16.svg');
 }
 
+.fl-icon-cursors {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/cursors/cursors-24.svg');
+}
+
 .fl-icon-dashboard {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/dashboard/dashboard-16.svg');
 }
@@ -290,12 +398,32 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/delete/delete-16.svg');
 }
 
+.fl-icon-device-desktop-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-fill-24.svg');
+}
+
+.fl-icon-device-desktop-send {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-send-24.svg');
+}
+
 .fl-icon-device-mobile {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/devices/device-mobile-16.svg');
 }
 
+.fl-icon-device-tablet {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-tablet-24.svg');
+}
+
+.fl-icon-devices {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/devices-24.svg');
+}
+
 .fl-icon-diamond {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/diamond-16.svg');
+}
+
+.fl-icon-download-save {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/download-save/download-save-24.svg');
 }
 
 .fl-icon-downloaded-file {
@@ -312,6 +440,10 @@
 
 .fl-icon-edit-active {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/pen-pencil/edit-active-16.svg');
+}
+
+.fl-icon-edit-copy-paste {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/edit-copy-paste-24.svg');
 }
 
 .fl-icon-edit-squiggle {
@@ -338,12 +470,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/page-or-document/even-spreads-16.svg');
 }
 
+.fl-icon-experiments {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/experiments/experiments-16.svg');
+}
+
 .fl-icon-export-data {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/import-and-export/export-data-16.svg');
 }
 
 .fl-icon-extension {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/extensions/extension-16.svg');
+}
+
+.fl-icon-extension-cog {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extension-cog-24.svg');
 }
 
 .fl-icon-extension-critical {
@@ -358,12 +498,36 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/extensions/extension-warning-16.svg');
 }
 
+.fl-icon-extensions {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extensions-24.svg');
+}
+
 .fl-icon-external-link {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/external-link/external-link-16.svg');
 }
 
+.fl-icon-eye-false {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/eye-false-24.svg');
+}
+
+.fl-icon-eye-true {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/eye-true-24.svg');
+}
+
 .fl-icon-find-in-page {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/search/find-in-page-16.svg');
+}
+
+.fl-icon-fingerprinter {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/fingerprinter-24.svg');
+}
+
+.fl-icon-fingerprinter-false {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trackers/fingerprinter-false.svg');
+}
+
+.fl-icon-fingerprinter-true {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trackers/fingerprinter-true.svg');
 }
 
 .fl-icon-firefox-bridge {
@@ -382,20 +546,24 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/folder/folder-16.svg');
 }
 
+.fl-icon-folder-add {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/folders/folder-add-24.svg');
+}
+
 .fl-icon-folder-arrow-down {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/folder/folder-arrow-down-16.svg');
+}
+
+.fl-icon-folder-arrow-right {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/folders/folder-arrow-right-24.svg');
 }
 
 .fl-icon-folder-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/folder/folder-fill-16.svg');
 }
 
-.fl-icon-fingerprinter-false {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trackers/fingerprinter-false.svg');
-}
-
-.fl-icon-fingerprinter-true {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trackers/fingerprinter-true.svg');
+.fl-icon-folders {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/folders/folders-24.svg');
 }
 
 .fl-icon-footprints-false {
@@ -410,17 +578,8 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-16.svg');
 }
 
-[dir='rtl'] .fl-icon-forward {
-    transform: scaleX(-1);
-}
-
 .fl-icon-forward-small {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-small-16.svg');
-}
-
-.fl-icon-down {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-16.svg');
-    rotate: 90deg;
 }
 
 .fl-icon-fullscreen-disabled {
@@ -451,6 +610,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/globe/globe-slash-16.svg');
 }
 
+.fl-icon-grid-plus {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/settings-customize-tools/grid-plus-24.svg');
+}
+
 .fl-icon-hammer {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/hammer-16.svg');
 }
@@ -471,12 +634,24 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/alerts-notifications-help/help-16.svg');
 }
 
+.fl-icon-help-circle {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/help-circle-24.svg');
+}
+
+.fl-icon-help-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/help-circle-fill-24.svg');
+}
+
 .fl-icon-help-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/alerts-notifications-help/help-fill-16.svg');
 }
 
 .fl-icon-highlighter {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/highlighter/highlighter-16.svg');
+}
+
+.fl-icon-highlights {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/highlights/highlights-24.svg');
 }
 
 .fl-icon-history {
@@ -495,12 +670,8 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/user/identity-16.svg');
 }
 
-.fl-icon-import-data {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/import-and-export/import-data-16.svg');
-}
-
-.fl-icon-import-export {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/import-and-export/import-export-16.svg');
+.fl-icon-image {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/image-24.svg');
 }
 
 .fl-icon-image-tracker-false {
@@ -509,6 +680,14 @@
 
 .fl-icon-image-tracker-true {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trackers/image-tracker-true.svg');
+}
+
+.fl-icon-import-data {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/import-and-export/import-data-16.svg');
+}
+
+.fl-icon-import-export {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/import-and-export/import-export-16.svg');
 }
 
 .fl-icon-information {
@@ -535,8 +714,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lightbulb/lightbulb-16.svg');
 }
 
+.fl-icon-lightning {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lightning/lightning-24.svg');
+}
+
+.fl-icon-lightning-filled {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lightning/lightning-filled-24.svg');
+}
+
 .fl-icon-line-arrow-up {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/line-arrow-up-16.svg');
+}
+
+.fl-icon-link {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/link/link-24.svg');
 }
 
 .fl-icon-list {
@@ -547,20 +738,8 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/sort/list-arrow-left-16.svg');
 }
 
-.fl-icon-lock {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-16.svg');
-}
-
-.fl-icon-lock-document {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-document-16.svg');
-}
-
-.fl-icon-lock-insecure {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-insecure-16.svg');
-}
-
-.fl-icon-lock-warning {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-warning-16.svg');
+.fl-icon-local-host {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/local-host-24.svg');
 }
 
 .fl-icon-local-host-false {
@@ -571,12 +750,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/local-host-true.svg');
 }
 
+.fl-icon-local-network {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/local-network-24.svg');
+}
+
 .fl-icon-local-network-false {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/local-network-false.svg');
 }
 
 .fl-icon-local-network-true2 {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/local-network-true2.svg');
+}
+
+.fl-icon-location {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/location-24.svg');
 }
 
 .fl-icon-location-false {
@@ -587,8 +774,56 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/location-true.svg');
 }
 
+.fl-icon-lock {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-16.svg');
+}
+
+.fl-icon-lock-document {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-document-16.svg');
+}
+
+.fl-icon-lock-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-fill-24.svg');
+}
+
+.fl-icon-lock-insecure {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-insecure-16.svg');
+}
+
+.fl-icon-lock-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-slash-24.svg');
+}
+
+.fl-icon-lock-slash-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-slash-fill-24.svg');
+}
+
+.fl-icon-lock-warning {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/lock/lock-warning-16.svg');
+}
+
+.fl-icon-lock-warning-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-warning-fill-24.svg');
+}
+
 .fl-icon-login {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/login-16.svg');
+}
+
+.fl-icon-logo-chrome {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/logos/logo-chrome-24.svg');
+}
+
+.fl-icon-logo-safari {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/logos/logo-safari-24.svg');
+}
+
+.fl-icon-logos {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/logos/logos-24.svg');
+}
+
+.fl-icon-mail {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/mail/mail-24.svg');
 }
 
 .fl-icon-makeup {
@@ -599,12 +834,256 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/microphone-false.svg');
 }
 
+.fl-icon-microphone-false-mobile {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/microphone-false-mobile-24.svg');
+}
+
 .fl-icon-microphone-true {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/microphone-true.svg');
 }
 
+.fl-icon-microphone-true-mobile {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/microphone-true-mobile-24.svg');
+}
+
 .fl-icon-midi {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/midi-16.svg');
+}
+
+.fl-icon-mobile-24-add-add-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/add/add-24.svg');
+}
+
+.fl-icon-mobile-24-alerts-info-help-critical-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/critical-fill-24.svg');
+}
+
+.fl-icon-mobile-24-alerts-info-help-information-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/information-24.svg');
+}
+
+.fl-icon-mobile-24-alerts-info-help-information-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/information-fill-24.svg');
+}
+
+.fl-icon-mobile-24-alerts-info-help-warning-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/warning-24.svg');
+}
+
+.fl-icon-mobile-24-alerts-info-help-warning-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/warning-fill-24.svg');
+}
+
+.fl-icon-mobile-24-app-menu-more-options-app-menu-space-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/app-menu-space-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-arrow-clockwise-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/arrow-clockwise-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-arrow-trending-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/arrow-trending-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-back-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/back-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-chevron-down-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/chevron-down-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-chevron-left-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/chevron-left-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-chevron-right-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/chevron-right-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-chevron-up-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/chevron-up-24.svg');
+}
+
+.fl-icon-mobile-24-arrows-chevrons-forward-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/forward-24.svg');
+}
+
+.fl-icon-mobile-24-bookmark-bookmark-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-24.svg');
+}
+
+.fl-icon-mobile-24-bookmark-bookmark-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-fill-24.svg');
+}
+
+.fl-icon-mobile-24-checkmark-checkmark-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/checkmark/checkmark-24.svg');
+}
+
+.fl-icon-mobile-24-data-clearance-data-clearance-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/data-clearance/data-clearance-24.svg');
+}
+
+.fl-icon-mobile-24-delete-delete-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/delete/delete-24.svg');
+}
+
+.fl-icon-mobile-24-devices-device-mobile-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-mobile-24.svg');
+}
+
+.fl-icon-mobile-24-edit-copy-paste-signature-properties-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/signature-properties-24.svg');
+}
+
+.fl-icon-mobile-24-experiments-experiments-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/experiments/experiments-24.svg');
+}
+
+.fl-icon-mobile-24-extensions-extension-critical-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extension-critical-24.svg');
+}
+
+.fl-icon-mobile-24-extensions-extension-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extension-fill-24.svg');
+}
+
+.fl-icon-mobile-24-extensions-extension-warning-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extension-warning-24.svg');
+}
+
+.fl-icon-mobile-24-external-link-external-link-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/external-link/external-link-24.svg');
+}
+
+.fl-icon-mobile-24-globe-globe-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/globe/globe-24.svg');
+}
+
+.fl-icon-mobile-24-history-history-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/history/history-24.svg');
+}
+
+.fl-icon-mobile-24-home-home-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/home/home-24.svg');
+}
+
+.fl-icon-mobile-24-lightbulb-lightbulb-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lightbulb/lightbulb-24.svg');
+}
+
+.fl-icon-mobile-24-lock-lock-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-24.svg');
+}
+
+.fl-icon-mobile-24-lock-lock-warning-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-warning-24.svg');
+}
+
+.fl-icon-mobile-24-mail-email-shield-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/mail/email-shield-24.svg');
+}
+
+.fl-icon-mobile-24-passkey-passkey-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/passkey/passkey-24.svg');
+}
+
+.fl-icon-mobile-24-permissions-login-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/login-24.svg');
+}
+
+.fl-icon-mobile-24-pin-pin-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-24.svg');
+}
+
+.fl-icon-mobile-24-pin-pin-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-fill-24.svg');
+}
+
+.fl-icon-mobile-24-print-print-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/print/print-24.svg');
+}
+
+.fl-icon-mobile-24-private-mode-private-mode-circle-fill-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/private-mode/private-mode-circle-fill-24.svg');
+}
+
+.fl-icon-mobile-24-search-find-in-page-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/search/find-in-page-24.svg');
+}
+
+.fl-icon-mobile-24-search-search-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/search/search-24.svg');
+}
+
+.fl-icon-mobile-24-shield-shield-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-24.svg');
+}
+
+.fl-icon-mobile-24-shopping-packaging-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shopping/packaging-24.svg');
+}
+
+.fl-icon-mobile-24-shopping-price-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shopping/price-24.svg');
+}
+
+.fl-icon-mobile-24-shopping-quality-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shopping/quality-24.svg');
+}
+
+.fl-icon-mobile-24-shopping-shipping-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shopping/shipping-24.svg');
+}
+
+.fl-icon-mobile-24-shopping-shopping-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shopping/shopping-24.svg');
+}
+
+.fl-icon-mobile-24-sort-sort-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sort/sort-24.svg');
+}
+
+.fl-icon-mobile-24-subtract-subtract-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/subtract/subtract-24.svg');
+}
+
+.fl-icon-mobile-24-sync-sync-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sync/sync-24.svg');
+}
+
+.fl-icon-mobile-24-tabs-tab-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/tabs/tab-24.svg');
+}
+
+.fl-icon-mobile-24-themes-themes-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/themes/themes-24.svg');
+}
+
+.fl-icon-mobile-24-translate-translate-24 {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/translate/translate-24.svg');
+}
+
+.fl-icon-more-grid {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-grid-24.svg');
+}
+
+.fl-icon-more-horizontal {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-horizontal-24.svg');
+}
+
+.fl-icon-more-horizontal-round {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-horizontal-round-24.svg');
+}
+
+.fl-icon-more-vertical {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-vertical-24.svg');
+}
+
+.fl-icon-more-vertical-round {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-vertical-round-24.svg');
 }
 
 .fl-icon-musical-note {
@@ -615,16 +1094,36 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/news/newsfeed-16.svg');
 }
 
+.fl-icon-night-mode {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/night-mode/night-mode-24.svg');
+}
+
+.fl-icon-night-mode-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/night-mode/night-mode-fill-24.svg');
+}
+
+.fl-icon-no-spreads {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/page-or-document/no-spreads-16.svg');
+}
+
+.fl-icon-notification {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/notification-24.svg');
+}
+
+.fl-icon-notification-dot {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/notifications/notification-dot-24.svg');
+}
+
+.fl-icon-notifications {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/notifications/notifications-24.svg');
+}
+
 .fl-icon-notifications-false {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/notifications-false.svg');
 }
 
 .fl-icon-notifications-true {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/notifications-true.svg');
-}
-
-.fl-icon-no-spreads {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/page-or-document/no-spreads-16.svg');
 }
 
 .fl-icon-odd-spreads {
@@ -643,8 +1142,16 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/organizational-unit/organizational-unit-16.svg');
 }
 
+.fl-icon-other-device-shortcuts {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/other-device-shortcuts-24.svg');
+}
+
 .fl-icon-packaging {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/shopping/packaging-16.svg');
+}
+
+.fl-icon-page {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/page/page-24.svg');
 }
 
 .fl-icon-page-actions {
@@ -667,6 +1174,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/page-or-document/page-thumbnails-16.svg');
 }
 
+.fl-icon-page-zoom-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/zoom/page-zoom-fill-24.svg');
+}
+
 .fl-icon-palette {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/palette-16.svg');
 }
@@ -679,6 +1190,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/passkey/passkey-16.svg');
 }
 
+.fl-icon-pause {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/play-pause/pause-24.svg');
+}
+
 .fl-icon-pause-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/media/pause-fill-16.svg');
 }
@@ -687,8 +1202,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/paw-print-16.svg');
 }
 
+.fl-icon-payment {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/payment/payment-24.svg');
+}
+
 .fl-icon-payment-methods {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/payment-methods/payment-methods-16.svg');
+}
+
+.fl-icon-permission {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/permission-24.svg');
+}
+
+.fl-icon-permissions {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/permissions-24.svg');
 }
 
 .fl-icon-picture-in-picture-closed {
@@ -707,12 +1234,24 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/pin/pin-fill-16.svg');
 }
 
+.fl-icon-pin-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-slash-24.svg');
+}
+
+.fl-icon-pin-slash-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-slash-fill-24.svg');
+}
+
 .fl-icon-plane {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/profile/plane-16.svg');
 }
 
 .fl-icon-play-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/media/play-fill-16.svg');
+}
+
+.fl-icon-play-pause {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/play-pause/play-pause-24.svg');
 }
 
 .fl-icon-playback-forward {
@@ -723,8 +1262,12 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/media/playback-rewind-16.svg');
 }
 
-.fl-icon-popup-subitem {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/popup-subitem-16.svg');
+.fl-icon-plugin-false {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/plugin-false.svg');
+}
+
+.fl-icon-plugin-true {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/plugin-true.svg');
 }
 
 .fl-icon-pocket {
@@ -735,16 +1278,12 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/pocket/pocket-fill-16.svg');
 }
 
-.fl-icon-plugin-false {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/plugin-false.svg');
-}
-
-.fl-icon-plugin-true {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/plugin-true.svg');
-}
-
 .fl-icon-policy {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/policy/policy-16.svg');
+}
+
+.fl-icon-popup-subitem {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/popup-subitem-16.svg');
 }
 
 .fl-icon-presentation-mode {
@@ -759,12 +1298,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/media/print-16.svg');
 }
 
+.fl-icon-private-mode {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/private-mode/private-mode-24.svg');
+}
+
 .fl-icon-private-mode-circle-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/private-mode/private-mode-circle-fill-16.svg');
 }
 
 .fl-icon-private-mode-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/private-mode/private-mode-fill-16.svg');
+}
+
+.fl-icon-qr-code {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/qr-code/qr-code-24.svg');
 }
 
 .fl-icon-quality {
@@ -775,8 +1322,56 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/reader-mode/reader-mode-16.svg');
 }
 
+.fl-icon-reader-view {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reader-view-24.svg');
+}
+
+.fl-icon-reader-view-customize {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reader-view-customize-24.svg');
+}
+
+.fl-icon-reader-view-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reader-view-fill-24.svg');
+}
+
+.fl-icon-reading-list {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-24.svg');
+}
+
+.fl-icon-reading-list-add {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-add-24.svg');
+}
+
+.fl-icon-reading-list-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-slash-24.svg');
+}
+
+.fl-icon-reading-list-slash-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-slash-fill-24.svg');
+}
+
 .fl-icon-remove-user {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/user/remove-user-16.svg');
+}
+
+.fl-icon-save {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/download-save/save-24.svg');
+}
+
+.fl-icon-save-file {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/download-save/save-file-24.svg');
+}
+
+.fl-icon-screenshot-camera {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/screenshot/screenshot-camera-16.svg');
+}
+
+.fl-icon-screesnshare-false {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/screesnshare-false.svg');
+}
+
+.fl-icon-screesnshare-true {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/screesnshare-true.svg');
 }
 
 .fl-icon-search {
@@ -791,16 +1386,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/search/search-in-circle-right-16.svg');
 }
 
-.fl-icon-screesnshare-false {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/screesnshare-false.svg');
-}
-
-.fl-icon-screesnshare-true {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/screesnshare-true.svg');
-}
-
 .fl-icon-settings {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/settings/settings-16.svg');
+}
+
+.fl-icon-settings-customize-tools {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/settings-customize-tools/settings-customize-tools-24.svg');
+}
+
+.fl-icon-share {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/share/share-24.svg');
+}
+
+.fl-icon-share-ios {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/share/share-ios-24.svg');
 }
 
 .fl-icon-share-macos {
@@ -813,6 +1412,26 @@
 
 .fl-icon-shield {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/shield/shield-16.svg');
+}
+
+.fl-icon-shield-checkmark {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-checkmark-24.svg');
+}
+
+.fl-icon-shield-cross {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-cross-24.svg');
+}
+
+.fl-icon-shield-dot {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-dot-24.svg');
+}
+
+.fl-icon-shield-exclamation-mark {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-exclamation-mark-24.svg');
+}
+
+.fl-icon-shield-slash {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-slash-24.svg');
 }
 
 .fl-icon-shipping {
@@ -863,6 +1482,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/sidebar/sidebar-right-16.svg');
 }
 
+.fl-icon-signature {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/signature-24.svg');
+}
+
 .fl-icon-signature-properties {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/pen-pencil/signature-properties-16.svg');
 }
@@ -907,6 +1530,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/split-view/split-view-right-16.svg');
 }
 
+.fl-icon-storage {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/storage-24.svg');
+}
+
 .fl-icon-storage-false {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/storage-false.svg');
 }
@@ -923,8 +1550,24 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/subtract/subtract-circle-fill-16.svg');
 }
 
+.fl-icon-sun {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sun/sun-24.svg');
+}
+
+.fl-icon-sun-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sun/sun-fill-24.svg');
+}
+
+.fl-icon-swap {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/swap/swap-24.svg');
+}
+
 .fl-icon-sync {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/sync/sync-16.svg');
+}
+
+.fl-icon-sync-tabs {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sync/sync-tabs-24.svg');
 }
 
 .fl-icon-synced-tabs {
@@ -941,6 +1584,14 @@
 
 .fl-icon-tab-notes {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/tabs/tab-notes-16.svg');
+}
+
+.fl-icon-tab-number {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/tabs/tab-number-24.svg');
+}
+
+.fl-icon-tabs {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/tabs/tabs-24.svg');
 }
 
 .fl-icon-taskbar-add-tab {
@@ -963,8 +1614,36 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/themes/themes-16.svg');
 }
 
+.fl-icon-thumbs {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-24.svg');
+}
+
+.fl-icon-thumbs-down {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-down-24.svg');
+}
+
+.fl-icon-thumbs-down-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-down-fill-24.svg');
+}
+
+.fl-icon-thumbs-up-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-up-fill-24.svg');
+}
+
+.fl-icon-toggle-on {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/toggle-on.svg');
+}
+
+.fl-icon-tool {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/settings-customize-tools/tool-24.svg');
+}
+
 .fl-icon-top-sites {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/top-sites/top-sites-16.svg');
+}
+
+.fl-icon-trackers {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/trackers-24.svg');
 }
 
 .fl-icon-tracking-cookies-false {
@@ -979,6 +1658,14 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/translate/translate-20.svg');
 }
 
+.fl-icon-translate-active {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/translate/translate-active-24.svg');
+}
+
+.fl-icon-translate-active-alt {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/translate/translate-active-alt-24.svg');
+}
+
 .fl-icon-trending {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/trending/trending-16.svg');
 }
@@ -989,6 +1676,10 @@
 
 .fl-icon-update {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/update-16.svg');
+}
+
+.fl-icon-update-circle {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/update-circle-24.svg');
 }
 
 .fl-icon-update-circle-fill {
@@ -1027,12 +1718,20 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/vpn/vpn-on-off-site-16.svg');
 }
 
+.fl-icon-wallpaper {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/wallpaper/wallpaper-24.svg');
+}
+
 .fl-icon-warning {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/alerts-notifications-help/warning-16.svg');
 }
 
 .fl-icon-warning-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/alerts-notifications-help/warning-fill-16.svg');
+}
+
+.fl-icon-whats-new {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/whats-new/whats-new-24.svg');
 }
 
 .fl-icon-window {
@@ -1055,340 +1754,16 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/permissions/xr-true.svg');
 }
 
-/*
-    FIXME: Downscaled from Acorn desktop's experiments-20 (which really is 40px), not in Figma:
-*/
-
-.fl-icon-experiments {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/experiments/experiments-16.svg');
-}
-
-/*
-    Note: these are the only edge-cases that we kept from the
-    previous build. They should be added to Figma so we have
-    one source-of-truth.
-*/
-
-.fl-icon-android {
-    --icon-src: url('/media/img/firefox/flare/icons/android.svg');
-}
-
-.fl-icon-apple {
-    --icon-src: url('/media/img/firefox/flare/icons/apple.svg');
-}
-
-.fl-icon-toggle-on {
-    --icon-src: url('/media/img/firefox/flare/icons/toggle-on.svg');
-}
-
-.fl-icon-add-to-homescreen {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/add/add-to-homescreen-24.svg');
-}
-
-.fl-icon-help-circle {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/help-circle-24.svg');
-}
-
-.fl-icon-help-circle-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/help-circle-fill-24.svg');
-}
-
-.fl-icon-update-circle {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/alerts-info-help/update-circle-24.svg');
-}
-
-.fl-icon-more-grid {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-grid-24.svg');
-}
-
-.fl-icon-more-horizontal {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-horizontal-24.svg');
-}
-
-.fl-icon-more-horizontal-round {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-horizontal-round-24.svg');
-}
-
-.fl-icon-more-vertical {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-vertical-24.svg');
-}
-
-.fl-icon-more-vertical-round {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/app-menu-more-options/more-vertical-round-24.svg');
-}
-
-.fl-icon-append-down-left {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/append-down-left-24.svg');
-}
-
-.fl-icon-append-up-right {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/append-up-right-24.svg');
-}
-
-.fl-icon-arrow-counter-clockwise {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/arrows-chevrons/arrow-counter-clockwise-24.svg');
-}
-
-.fl-icon-avatar-circle-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-circle-fill-24.svg');
-}
-
-.fl-icon-avatar-info-circle-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-info-circle-fill-24.svg');
-}
-
-.fl-icon-avatar-warning-circle-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/avatar/avatar-warning-circle-fill-24.svg');
-}
-
-.fl-icon-bookmark-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-slash-24.svg');
-}
-
-.fl-icon-bookmark-tray {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-tray-24.svg');
-}
-
-.fl-icon-bookmark-tray-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/bookmark/bookmark-tray-fill-24.svg');
-}
-
-.fl-icon-cross-circle {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/cross-circle-24.svg');
-}
-
-.fl-icon-cross-circle-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/cross-circle-fill-24.svg');
-}
-
-.fl-icon-device-desktop-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-fill-24.svg');
-}
-
-.fl-icon-device-desktop-send {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-send-24.svg');
-}
-
-.fl-icon-device-tablet {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-tablet-24.svg');
-}
-
-.fl-icon-other-device-shortcuts {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/other-device-shortcuts-24.svg');
-}
-
-.fl-icon-save {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/download-save/save-24.svg');
-}
-
-.fl-icon-save-file {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/download-save/save-file-24.svg');
-}
-
-.fl-icon-clipboard {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/clipboard-24.svg');
-}
-
-.fl-icon-copy {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/copy-24.svg');
-}
-
-.fl-icon-signature {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/edit-copy-paste/signature-24.svg');
-}
-
-.fl-icon-extension-cog {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/extensions/extension-cog-24.svg');
-}
-
-.fl-icon-folder-add {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/folders/folder-add-24.svg');
-}
-
-.fl-icon-folder-arrow-right {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/folders/folder-arrow-right-24.svg');
-}
-
-.fl-icon-lightning-filled {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lightning/lightning-filled-24.svg');
-}
-
-.fl-icon-lock-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-fill-24.svg');
-}
-
-.fl-icon-lock-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-slash-24.svg');
-}
-
-.fl-icon-lock-slash-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-slash-fill-24.svg');
-}
-
-.fl-icon-lock-warning-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/lock/lock-warning-fill-24.svg');
-}
-
-.fl-icon-logo-chrome {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/logos/logo-chrome-24.svg');
-}
-
-.fl-icon-logo-safari {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/logos/logo-safari-24.svg');
-}
-
-.fl-icon-night-mode-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/night-mode/night-mode-fill-24.svg');
-}
-
-.fl-icon-notification-dot {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/notifications/notification-dot-24.svg');
-}
-
-.fl-icon-blocked-false {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/blocked-false-24.svg');
-}
-
-.fl-icon-blocked-true {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/blocked-true-24.svg');
-}
-
-.fl-icon-eye-true {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/eye-true-24.svg');
-}
-
-.fl-icon-eye-false {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/eye-false-24.svg');
-}
-
-.fl-icon-microphone-false-mobile {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/microphone-false-mobile-24.svg');
-}
-
-.fl-icon-microphone-true-mobile {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/microphone-true-mobile-24.svg');
-}
-
-.fl-icon-permission {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/permissions/permission-24.svg');
-}
-
-.fl-icon-pin-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-slash-24.svg');
-}
-
-.fl-icon-pin-slash-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/pin/pin-slash-fill-24.svg');
-}
-
-.fl-icon-pause {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/play-pause/pause-24.svg');
-}
-
-.fl-icon-reader-view-customize {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reader-view-customize-24.svg');
-}
-
-.fl-icon-reader-view-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reader-view-fill-24.svg');
-}
-
-.fl-icon-reading-list {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-24.svg');
-}
-
-.fl-icon-reading-list-add {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-add-24.svg');
-}
-
-.fl-icon-reading-list-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-slash-24.svg');
-}
-
-.fl-icon-reading-list-slash-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/reader-view/reading-list-slash-fill-24.svg');
-}
-
-.fl-icon-grid-plus {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/settings-customize-tools/grid-plus-24.svg');
-}
-
-.fl-icon-tool {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/settings-customize-tools/tool-24.svg');
-}
-
-.fl-icon-share-ios {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/share/share-ios-24.svg');
-}
-
-.fl-icon-shield-checkmark {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-checkmark-24.svg');
-}
-
-.fl-icon-shield-cross {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-cross-24.svg');
-}
-
-.fl-icon-shield-dot {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-dot-24.svg');
-}
-
-.fl-icon-shield-exclamation-mark {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-exclamation-mark-24.svg');
-}
-
-.fl-icon-shield-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-slash-24.svg');
-}
-
-.fl-icon-sun-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sun/sun-fill-24.svg');
-}
-
-.fl-icon-cloud {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sync/cloud-24.svg');
-}
-
-.fl-icon-sync-tabs {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/sync/sync-tabs-24.svg');
-}
-
-.fl-icon-tab-number {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/tabs/tab-number-24.svg');
-}
-
-.fl-icon-thumbs-down {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-down-24.svg');
-}
-
-.fl-icon-thumbs-down-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-down-fill-24.svg');
-}
-
-.fl-icon-thumbs-up-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/thumbs/thumbs-up-fill-24.svg');
-}
-
-.fl-icon-cookies {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/cookies-24.svg');
-}
-
-.fl-icon-cookies-slash {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/cookies-slash-24.svg');
-}
-
-.fl-icon-fingerprinter {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/trackers/fingerprinter-24.svg');
-}
-
-.fl-icon-translate-active {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/translate/translate-active-24.svg');
+.fl-icon-zoom {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/zoom/zoom-24.svg');
 }
 
-.fl-icon-translate-active-alt {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/translate/translate-active-alt-24.svg');
+/* Extra Icon Rules */
+[dir='rtl'] .fl-icon-forward {
+    transform: scaleX(-1);
 }
 
-.fl-icon-page-zoom-fill {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/zoom/page-zoom-fill-24.svg');
+.fl-icon-down {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/forward-16.svg');
+    rotate: 90deg;
 }

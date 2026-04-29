@@ -31,7 +31,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Orange Tag",
-                "icon": "android",
+                "icon": "device-mobile",
                 "icon_position": "before",
                 "corners": "round",
                 "color": "orange",
@@ -42,7 +42,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Yellow Tag",
-                "icon": "apple",
+                "icon": "device-mobile",
                 "icon_position": "after",
                 "corners": "round",
                 "color": "yellow",
@@ -86,7 +86,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft Outline",
-                "icon": "calendar",
+                "icon": "history",
                 "icon_position": "before",
                 "corners": "soft",
                 "color": "outline",
@@ -97,7 +97,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft yellow",
-                "icon": "android",
+                "icon": "device-mobile",
                 "icon_position": "before",
                 "corners": "soft",
                 "color": "yellow",
@@ -108,7 +108,7 @@ def get_tag_variants():
             "type": "item",
             "value": {
                 "title": "Soft white",
-                "icon": "apple",
+                "icon": "device-mobile",
                 "icon_position": "after",
                 "corners": "soft",
                 "color": "white",
