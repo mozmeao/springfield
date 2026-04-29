@@ -165,6 +165,7 @@ Basic Card
     color: var(--fl-theme-color-text);
     display: flex;
     flex-direction: column;
+    gap: var(--token-spacing-md);
     padding: var(--token-spacing-2xl);
     position: relative;
     transition: transform var(--token-transition-base);
@@ -198,13 +199,9 @@ Basic Card
     padding: 0;
 }
 
-/* .fl-card a:not(.fl-button) {
-    color: var(--token-color-light-purple);
+.fl-card-heading-group .fl-card-sticker {
+    margin-block-end: var(--token-spacing-md);
 }
-
-.fl-card a:not(.fl-button):hover {
-    color: var(--token-color-purple);
-} */
 
 .fl-card .fl-buttons {
     margin-block-start: auto;

@@ -1,0 +1,87 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div style="background: var(--token-color-dark-purple);">
+  <div class="fl-main has-gradient-bottom">
+    <div class="fl-split-page-upper" data-testid="cards-list-outlined">
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:cards-list>
+            {% for card in cards %}
+              <include:card expand_link="{{ card.expand_link }}">
+                <content:heading>
+                  {% if card.sticker %}
+                    <div class="fl-card-sticker">
+                      <img src="{{ card.sticker }}" alt="" />
+                    </div>
+                  {% endif %}
+                  <include:heading
+                    level="h3"
+                    heading_size="fl-heading-xs"
+                    heading_text="{{ card.headline }}"
+                  />
+                </content:heading>
+                <content:body>
+                  {{ card.content }}
+                </content:body>
+                {% if card.buttons %}
+                  <content:buttons>
+                    {% for button in card.buttons %}
+                      <include:button
+                        label="{{ button.label }}"
+                        link="{{ button.link }}"
+                        theme_class="{{ button.theme_class }}"
+                      />
+                    {% endfor %}
+                  </content:buttons>
+                {% endif %}
+              </include:card>
+            {% endfor %}
+          </include:cards-list>
+        </div>
+      </section>
+    </div>
+
+    <div class="fl-split-page-lower" data-testid="cards-list-outlined-lower">
+      <section class="fl-section">
+        <div class="fl-section-container">
+          <include:cards-list>
+            {% for card in cards %}
+              <include:card expand_link="{{ card.expand_link }}">
+                <content:heading>
+                  {% if card.sticker %}
+                    <div class="fl-card-sticker">
+                      <img src="{{ card.sticker }}" alt="" />
+                    </div>
+                  {% endif %}
+                  <include:heading
+                    level="h3"
+                    heading_size="fl-heading-xs"
+                    heading_text="{{ card.headline }}"
+                  />
+                </content:heading>
+                <content:body>
+                  {{ card.content }}
+                </content:body>
+                {% if card.buttons %}
+                  <content:buttons>
+                    {% for button in card.buttons %}
+                      <include:button
+                        label="{{ button.label }}"
+                        link="{{ button.link }}"
+                        theme_class="{{ button.theme_class }}"
+                      />
+                    {% endfor %}
+                  </content:buttons>
+                {% endif %}
+              </include:card>
+            {% endfor %}
+          </include:cards-list>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

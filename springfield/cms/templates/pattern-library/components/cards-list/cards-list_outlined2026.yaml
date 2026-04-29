@@ -1,0 +1,35 @@
+name: "Outlined Card 2026 List"
+context:
+  cards:
+    - headline: "Outlined Card"
+      content: "Without sticker, primary button."
+      expand_link: false
+      sticker: ""
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: ""
+    - headline: "Outlined Card with Sticker"
+      content: "With sticker and secondary button."
+      expand_link: false
+      sticker: "/media/img/firefox/flare/ai-sticker.png"
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-secondary"
+    - headline: "Clickable Outlined Card"
+      content: "With expand link enabled — the entire card is clickable."
+      expand_link: true
+      sticker: ""
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-ghost"
+    - headline: "All Outlined Card Fields"
+      content: "With sticker, expand link, and link button."
+      expand_link: true
+      sticker: "/media/img/firefox/flare/privacy-sticker.png"
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-link"
