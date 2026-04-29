@@ -154,6 +154,11 @@ def healthz_cdn(request):
                 if not expected_cols:
                     continue
                 actual_cols = {col.name for col in connection.introspection.get_table_description(cursor, model._meta.db_table)}
+                # SQLite's implicit rowid is never listed by PRAGMA table_info() but is
+                # always accessible on every table. Not needed in production (PostgreSQL)
+                # but allows local SQLite testing.
+                if connection.vendor == "sqlite":
+                    actual_cols.add("rowid")
                 missing = expected_cols - actual_cols
                 if missing:
                     logger.error("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
