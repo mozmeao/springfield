@@ -8,17 +8,23 @@
     display: flex;
     inline-size: 100%;
     justify-content: center;
+}
 
-    /* Negative margin used to reduce the top spacing on the next block */
-    margin-block-end: var(--token-spacing-xl);
-    padding: var(--token-spacing-lg) 0 0;
-    z-index: 10;
+.fl-split-page-upper:has(.fl-notification-wrapper:first-child),
+.fl-split-page-upper:has(.conditional-display:first-child):has(
+        .fl-notification-wrapper
+    ) {
+    padding-block-start: 0;
 }
 
 /* When a notification immediately precedes an intro or home intro component, tighten up the space between them */
 
-.fl-notification-wrapper + .fl-section:has(.fl-intro) .fl-intro,
-.fl-notification-wrapper + .fl-section:has(.fl-home-intro) .fl-intro {
+.fl-notification-wrapper + .fl-intro,
+.conditional-display:has(.fl-notification-wrapper) + .fl-intro,
+.fl-notification-wrapper + .fl-section:has(.fl-home-intro) .fl-intro,
+.conditional-display:has(.fl-notification-wrapper)
+    + .fl-section:has(.fl-home-intro)
+    .fl-intro {
     padding-block-start: var(--token-spacing-2xl);
 }
 
