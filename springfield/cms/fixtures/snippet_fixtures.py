@@ -8,7 +8,15 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, QRCodeSnippet, Tag
+from springfield.cms.models import (
+    BannerSnippet,
+    DownloadFirefoxCallToActionSnippet,
+    PreFooterCTAFormSnippet,
+    PreFooterCTASnippet,
+    QRCodeSnippet,
+    SetAsDefaultSnippet,
+    Tag,
+)
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 
 
@@ -81,6 +89,38 @@ def get_qr_code_snippet() -> QRCodeSnippet:
             "closable": True,
         },
     )
+    return snippet
+
+
+def get_set_as_default_snippet() -> SetAsDefaultSnippet:
+    locale = Locale.get_default()
+    snippet = SetAsDefaultSnippet.objects.filter(id=settings.SET_AS_DEFAULT_SNIPPET_ID).first()
+    if not snippet:
+        snippet = SetAsDefaultSnippet(id=settings.SET_AS_DEFAULT_SNIPPET_ID, locale=locale)
+
+    snippet.heading_text = "Thanks for choosing Firefox"
+    snippet.not_firefox_content = (
+        '<p data-block-key="nf001">Looks like you\'re using a different browser right now. Make sure you have Firefox downloaded on your device.</p>'
+    )
+    snippet.not_default_desktop_content = (
+        '<p data-block-key="nd001">You\'re almost done. Just change your default browser'
+        " to Firefox in the settings panel on your screen.</p>"
+        '<p data-block-key="nd002"><a href="https://support.mozilla.org/kb/make-firefox-your-default-browser">'
+        "Having trouble setting your default browser?</a></p>"
+    )
+    snippet.not_default_android_content = (
+        '<p data-block-key="na001">Here\'s everything you need to know about setting your default browser on'
+        ' <a href="https://support.mozilla.org/kb/make-firefox-default-browser-android">Android devices</a>.</p>'
+    )
+    snippet.not_default_ios_content = (
+        '<p data-block-key="ni001">Here\'s everything you need to know about setting your default browser on'
+        ' <a href="https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios">iOS devices</a>.</p>'
+    )
+    snippet.success_content = '<p data-block-key="sc001">You\'re all set.</p>'
+    snippet.save()
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
+
     return snippet
 
 
