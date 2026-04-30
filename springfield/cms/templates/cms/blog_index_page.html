@@ -35,29 +35,30 @@
               alignment_class="text-center"
             />
           {% endif %}
-        </div>
 
-        {% if all_topics %}
-          <div class="fl-blog-topics">
-            <div class="fl-blog-topics-list">
-              {% for topic in all_topics[:5] %}
-                <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
-                  <span class="fl-blog-topic-name">{{ topic.name }}</span>
-                  <include:tag
-                    text="{{ topic.article_count }}"
-                    color="purple"
-                    corners="round"
-                  />
-                </a>
-              {% endfor %}
-              <div class="fl-blog-topics-all">
-                <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+          {% if all_topics %}
+            <div class="fl-blog-topics">
+              <div class="fl-blog-topics-list">
+                {% for topic in all_topics[:5] %}
+                  <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
+                    <span class="fl-blog-topic-name">{{ topic.name }}</span>
+                    <include:tag
+                      text="{{ topic.article_count }}"
+                      color="purple"
+                      corners="round"
+                    />
+                  </a>
+                {% endfor %}
+                <div class="fl-blog-topics-all">
+                  <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+                </div>
               </div>
             </div>
-          </div>
-        {% endif %}
+          {% endif %}
 
-        <hr/>
+          <hr/>
+        </div>
+
 
         {% if page.featured_articles %}
           <div class="fl-blog-featured">
@@ -189,11 +190,11 @@
                 <include:heading
                   level="h3"
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
-                  heading_size="fl-heading-size-2"
+                  heading_size="fl-heading-size-3"
                 />
-                <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}">{{ ftl('blog-view-all') }}</a>
-                <hr/>
+                <a class="fl-blog-cards-list-link" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}">{{ ftl('blog-view-all') }}</a>
               </div>
+              <hr/>
               <include:cards-list>
                 {% for article_block in block.value.articles %}
                   {% set article_page = article_block.article %}
