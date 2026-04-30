@@ -13,7 +13,6 @@ import wagtail.fields
 
 import springfield.cms.blocks
 import springfield.cms.fields
-import springfield.cms.models.pages
 
 
 class Migration(migrations.Migration):
@@ -54,7 +53,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Smart Window Explainer Page",
                 "verbose_name_plural": "Smart Window Explainer Pages",
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
             name="SmartWindowPage",
@@ -172,6 +171,6 @@ class Migration(migrations.Migration):
                 "verbose_name": "Smart Window Page",
                 "verbose_name_plural": "Smart Window Pages",
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
     ]

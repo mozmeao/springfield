@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from unittest.mock import patch
+
 import pytest
 
 pytestmark = pytest.mark.django_db
@@ -33,6 +35,57 @@ def test_readiness(client):
         url="/readiness/",
         client=client,
     )
+
+
+def test_healthz_cdn(client):
+    _test(
+        url="/healthz-cdn/",
+        client=client,
+        expected_content="pong",
+    )
+
+
+def test_healthz_cdn_fails_when_migrations_pending(client):
+    from django.db.migrations.executor import MigrationExecutor
+
+    class FakeMigration:
+        app_label = "fake_app"
+        name = "0001_fake"
+
+    with patch.object(MigrationExecutor, "migration_plan", return_value=[(FakeMigration(), False)]):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="migrations pending",
+        )
+
+
+def test_healthz_cdn_fails_when_history_inconsistent(client):
+    from django.db.migrations.exceptions import InconsistentMigrationHistory
+    from django.db.migrations.loader import MigrationLoader
+
+    with patch.object(MigrationLoader, "check_consistent_history", side_effect=InconsistentMigrationHistory("test")):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="migration history inconsistent",
+        )
+
+
+def test_healthz_cdn_fails_when_column_missing(client):
+    from django.db import connection
+
+    # Return empty column list for all tables — makes every managed model appear
+    # to have all its columns missing, catching dropped-column schema drift.
+    with patch.object(connection.introspection, "get_table_description", return_value=[]):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="schema mismatch",
+        )
 
 
 def test_healthz_cron(client):

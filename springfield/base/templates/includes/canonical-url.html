@@ -9,7 +9,7 @@
 
     {# CANONICAL_LANG == LANG for normal pages; CANONICAL_LANG == fallback locale for alias pages #}
     <link rel="canonical" href="{{ settings.CANONICAL_URL + '/' + CANONICAL_LANG + canonical_path }}">
-    {% if CANONICAL_LANG != LANG %}
+    {% if CANONICAL_LANG != LANG or do_not_index or (page is defined and page.noindex) %}
     <meta name="robots" content="noindex,follow">
     {% endif %}
     {% if is_homepage %}<link rel="alternate" hreflang="x-default" href="{{ settings.CANONICAL_URL }}{{ canonical_path }}">{% endif %}

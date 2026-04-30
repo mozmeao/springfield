@@ -163,6 +163,9 @@ Basic Card
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
     padding: var(--token-spacing-2xl);
     position: relative;
     transition: transform var(--token-transition-base);
@@ -196,16 +199,12 @@ Basic Card
     padding: 0;
 }
 
-/* .fl-card a:not(.fl-button) {
-    color: var(--token-color-light-purple);
+.fl-card-heading-group .fl-card-sticker {
+    margin-block-end: var(--token-spacing-md);
 }
 
-.fl-card a:not(.fl-button):hover {
-    color: var(--token-color-purple);
-} */
-
 .fl-card .fl-buttons {
-    margin-block-start: var(--token-spacing-xl);
+    margin-block-start: auto;
 }
 
 .fl-card .learn-more-link {
@@ -245,6 +244,12 @@ Sticker Card
     position: relative;
     text-align: center;
     transition: transform var(--token-transition-base);
+}
+
+@media (prefers-color-scheme: light) {
+    .fl-split-page-lower .fl-sticker-card {
+        border: 1px solid var(--card-border-color);
+    }
 }
 
 /* Same opacity-shadow technique as .fl-card::after — avoids per-frame repaints
@@ -464,7 +469,7 @@ Step Cards List - With Kit variant
     box-sizing: border-box;
     color: var(--fl-theme-color-text);
     display: flex;
-    font-size: 12px;
+    font-size: var(--token-font-size-xs);
     font-weight: var(--token-font-weight-medium);
     inline-size: var(--token-layout-3xs);
     justify-content: center;
@@ -472,19 +477,35 @@ Step Cards List - With Kit variant
     padding: var(--token-spacing-sm);
 }
 
+.fl-step-card .fl-card-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    text-align: center;
+}
+
 .fl-step-card .fl-heading-group {
     margin: 0;
 }
 
+.fl-step-card .fl-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    margin-block-end: var(--token-spacing-sm);
+}
+
 .fl-step-card .fl-heading {
-    font-size: var(--token-spacing-lg);
+    font-size: var(--token-font-size-md);
     font-variation-settings: unset;
     font-weight: var(--token-font-weight-semibold);
     letter-spacing: 0;
     line-height: 1.1;
     margin: 0;
-    text-align: center;
     text-wrap: balance;
+}
+
+.fl-step-card .fl-body p:last-child {
+    margin: 0;
 }
 
 /* Decorative Kit (Figma): only on the last card */
