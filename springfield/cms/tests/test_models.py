@@ -603,6 +603,7 @@ def test_article_index_page_shows_sibling_and_child_articles(minimal_site, rf):
         slug="articles",
         title="All the Articles",
         other_articles_heading="<p>More Articles</p>",
+        show_sibling_detail_pages=True,
     )
     index_page.save()
 
