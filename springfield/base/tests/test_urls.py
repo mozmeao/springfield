@@ -70,7 +70,7 @@ def test_healthz_cdn_fails_when_history_inconsistent(client):
             url="/healthz-cdn/",
             client=client,
             expected_status=500,
-            expected_content="check error",
+            expected_content="migration history inconsistent",
         )
 
 

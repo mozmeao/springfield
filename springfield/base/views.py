@@ -12,6 +12,7 @@ from time import time
 from django.apps import apps
 from django.conf import settings
 from django.db import connections
+from django.db.migrations.exceptions import InconsistentMigrationHistory
 from django.db.migrations.executor import MigrationExecutor
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -135,7 +136,11 @@ def healthz_cdn(request):
         # Check 1: migration records — catches new code deployed before migrations run,
         # and applied migrations whose dependencies are missing (InconsistentMigrationHistory).
         executor = MigrationExecutor(connection)
-        executor.loader.check_consistent_history(connection)
+        try:
+            executor.loader.check_consistent_history(connection)
+        except InconsistentMigrationHistory as e:
+            logger.warning("healthz_cdn: inconsistent migration history: %s", e)
+            return HttpResponse("migration history inconsistent", content_type="text/plain", status=500)
         plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
         if plan:
             unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
