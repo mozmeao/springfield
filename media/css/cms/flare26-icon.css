@@ -162,10 +162,6 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-in-fill-custom-initial-16.svg');
 }
 
-.fl-icon-avatar-signed-in-fill-profile-picture {
-    --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-in-fill-profile-picture-16.svg');
-}
-
 .fl-icon-avatar-signed-out {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/avatars/avatar-signed-out-16.svg');
 }
