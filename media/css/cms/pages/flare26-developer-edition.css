@@ -1,3 +1,6 @@
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     .fl-page-developer .fl-section:last-child {
         padding-block-end: 0;

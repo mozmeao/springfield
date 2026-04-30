@@ -4,6 +4,9 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     main.fl-2026-enterprise {
         background-color: var(--fl-theme-background);

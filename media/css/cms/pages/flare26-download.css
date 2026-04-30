@@ -1,3 +1,6 @@
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     .fl-download-intro {
         align-items: center;

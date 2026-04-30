@@ -11,6 +11,9 @@
     what should be refactored away here.
 */
 
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     .fl-brand-icon,
     .fl-brand-icon-wrap img {

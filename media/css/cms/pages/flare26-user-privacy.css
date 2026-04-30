@@ -1,3 +1,6 @@
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     /* TODO: remove unused css when the cms version goes live */
 

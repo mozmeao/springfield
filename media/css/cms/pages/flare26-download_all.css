@@ -6,6 +6,9 @@
 
 /* NOTE: this file is _all instead of -all to avoid being hidden by a gitignore rule */
 
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
+
 @layer page {
     .fl-download-all .fl-intro {
         padding-inline: var(--token-spacing-lg);
