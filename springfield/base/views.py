@@ -139,7 +139,7 @@ def healthz_cdn(request):
         plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
         if plan:
             unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
-            logger.error("healthz_cdn: unapplied migrations: %s", unapplied)
+            logger.warning("healthz_cdn: unapplied migrations: %s", unapplied)
             return HttpResponse("migrations pending", content_type="text/plain", status=500)
 
         # Check 2: schema introspection — catches old code running after a column-dropping
@@ -161,7 +161,7 @@ def healthz_cdn(request):
                     actual_cols.add("rowid")
                 missing = expected_cols - actual_cols
                 if missing:
-                    logger.error("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
+                    logger.warning("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
                     return HttpResponse("schema mismatch", content_type="text/plain", status=500)
 
     except Exception:
