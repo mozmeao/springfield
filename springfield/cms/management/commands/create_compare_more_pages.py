@@ -17,8 +17,30 @@ Phase 1 but skipped in Phase 3 — they have English-only content.
 import os
 from pathlib import Path
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
+from wagtail.models import Locale
+from wagtail_localize.models import Translation, TranslationSource
+
+from springfield.cms.fixtures.compare_more_page_fixtures import (
+    COMPARE_INDEX_FTL_FILES,
+    COMPARE_PAGES,
+    MORE_INDEX_FTL_FILES,
+    MORE_PAGES,
+    load_compare_more_page_fixtures,
+)
+from springfield.cms.ftl_parser import (
+    build_po_from_ftl,
+    build_text_to_msgid_mapping,
+    get_english_ftl_strings_at_subpath,
+    get_english_ui_strings,
+    get_ftl_translations_at_subpath,
+    get_ui_translations,
+)
+from springfield.cms.models import ArticleDetailPage, ArticleIndexPage
 
 ALL_LOCALE_CODES = [
     "de",  # German
@@ -39,7 +61,6 @@ ALL_LOCALE_CODES = [
 
 def _get_locale_codes(stdout):
     """Return locale codes to translate, respecting DEBUG / ALL_LOCALES env var."""
-    from django.conf import settings
 
     all_locales_env = os.environ.get("ALL_LOCALES", "").lower() in ("1", "true", "yes")
     if not settings.DEBUG or all_locales_env:
@@ -56,7 +77,6 @@ def _merge_ftl_strings(ftl_relative_paths: list[str]) -> tuple[dict[str, str], d
         (en_text_to_msgid, en_strings)  where en_text_to_msgid maps normalized English text
         to FTL message IDs and en_strings maps message IDs to English text.
     """
-    from springfield.cms.ftl_parser import build_text_to_msgid_mapping, get_english_ftl_strings_at_subpath
 
     en_strings: dict[str, str] = {}
     for path in ftl_relative_paths:
@@ -66,7 +86,6 @@ def _merge_ftl_strings(ftl_relative_paths: list[str]) -> tuple[dict[str, str], d
 
 def _get_merged_translations(ftl_relative_paths: list[str], locale_code: str) -> dict[str, str]:
     """Merge FTL translations for a locale across multiple FTL files."""
-    from springfield.cms.ftl_parser import get_ftl_translations_at_subpath
 
     merged: dict[str, str] = {}
     for path in ftl_relative_paths:
@@ -76,7 +95,6 @@ def _get_merged_translations(ftl_relative_paths: list[str], locale_code: str) ->
 
 def _get_translation_source(page, content_type):
     """Return the most recent TranslationSource for a page, or None."""
-    from wagtail_localize.models import TranslationSource
 
     return (
         TranslationSource.objects.filter(
@@ -94,9 +112,6 @@ def _translate_page(page, ftl_files: list[str], target_locales, content_type, st
     UI strings (ui.ftl) are always merged in so that shared fields like
     link_text ("Learn more") are translated even when not in the page FTL files.
     """
-    from wagtail_localize.models import Translation
-
-    from springfield.cms.ftl_parser import build_po_from_ftl, build_text_to_msgid_mapping, get_english_ui_strings, get_ui_translations
 
     en_text_to_msgid, _ = _merge_ftl_strings(ftl_files)
     # Merge UI strings so fields like link_text ("Learn more") are covered.
@@ -133,19 +148,6 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        from django.contrib.contenttypes.models import ContentType
-
-        from wagtail.models import Locale
-        from wagtail_localize.models import TranslationSource
-
-        from springfield.cms.fixtures.compare_more_page_fixtures import (
-            COMPARE_INDEX_FTL_FILES,
-            COMPARE_PAGES,
-            MORE_INDEX_FTL_FILES,
-            MORE_PAGES,
-            load_compare_more_page_fixtures,
-        )
-        from springfield.cms.models import ArticleDetailPage, ArticleIndexPage
 
         # ======================================================================
         # Phase 1: Create pages
