@@ -9,6 +9,7 @@
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
+{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
