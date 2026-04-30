@@ -15,6 +15,7 @@ permissions:
 jobs:
   test-js:
     runs-on: ubuntu-latest
+    if: github.repository == 'mozmeao/springfield'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
@@ -28,6 +29,7 @@ jobs:
 
   test-python:
     runs-on: ubuntu-latest
+    if: github.repository == 'mozmeao/springfield'
     steps:
       - uses: actions/checkout@v6
       - name: "Run Python tests (on Docker)"
