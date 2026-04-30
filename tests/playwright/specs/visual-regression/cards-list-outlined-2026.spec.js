@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_sticker2026.html`;
+const url = `${patternLibraryURL}/cards-list/cards-list_outlined2026.html`;
 
 test.describe(
-    `Sticker Card 2026 List`,
+    `Outlined Card 2026 List`,
     {
         tag: '@visual-regression'
     },
@@ -22,11 +22,11 @@ test.describe(
         });
 
         test('split page upper', async ({ page }) => {
-            await expectComponentScreenshot(page, 'cards-list-sticker');
+            await expectComponentScreenshot(page, 'cards-list-outlined');
         });
 
         test('split page lower', async ({ page }) => {
-            await expectComponentScreenshot(page, 'cards-list-sticker-lower');
+            await expectComponentScreenshot(page, 'cards-list-outlined-lower');
         });
 
         test.describe('dark mode', () => {
@@ -35,16 +35,16 @@ test.describe(
             test('split page upper (dark mode)', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'cards-list-sticker',
-                    'cards-list-sticker-dark'
+                    'cards-list-outlined',
+                    'cards-list-outlined-dark'
                 );
             });
 
             test('split page lower (dark mode)', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'cards-list-sticker-lower',
-                    'cards-list-sticker-lower-dark'
+                    'cards-list-outlined-lower',
+                    'cards-list-outlined-lower-dark'
                 );
             });
         });
