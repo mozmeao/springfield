@@ -7,6 +7,8 @@
 <div class="fl-set-as-default">
   <include:conditional-display firefox_condition="not-firefox">
     {{ object.not_firefox_content|richtext }}
+
+    <div class="fl-buttons is-horizontal extra-padding">
     {{ download_firefox(alt_copy=ftl('download-button-download-firefox'), download_location='primary cta') }}
 
     <include:copy-to-clipboard-button
@@ -15,6 +17,7 @@
       label="{{ object.copy_to_clipboard_label }}"
       success_label="{{ object.copy_success_label }}"
     />
+    </div>
   </include:conditional-display>
 
   <include:conditional-display firefox_condition="is-firefox" default_browser_condition="is-not-default">

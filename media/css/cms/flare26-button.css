@@ -201,9 +201,14 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-buttons {
+    align-items: start;
     display: flex;
     flex-wrap: wrap;
     gap: var(--token-spacing-md);
+}
+
+.fl-buttons.extra-padding {
+    padding-block: var(--token-spacing-lg);
 }
 
 .fl-buttons.is-horizontal {

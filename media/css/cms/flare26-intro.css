@@ -68,6 +68,14 @@
     block-size: fit-content;
 }
 
+.fl-intro-vertical .fl-buttons.is-horizontal {
+    align-items: start;
+}
+
+.fl-intro-vertical .fl-buttons.is-horizontal > * {
+    margin: 0;
+}
+
 .fl-intro-media {
     align-items: center;
     display: flex;
