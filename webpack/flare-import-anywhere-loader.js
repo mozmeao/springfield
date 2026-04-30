@@ -21,22 +21,26 @@ module.exports = function (source, map) {
     const importAnyRegex =
         /@import\s+(?:url\()?['"]?([^'"\)\s]+\.css)['"]?\)?(?:\s+layer\(\s*([^\)]+?)\s*\))?\s*;?/g;
 
-    result = result.replace(importAnyRegex, (_, file, layerName) => {
-        const absPath = path.resolve(
-            __dirname,
-            '..',
-            'media',
-            'css',
-            'cms',
-            file
-        );
-        this.addDependency(absPath);
-        const content = fs.readFileSync(absPath, 'utf8');
-        if (layerName) {
-            return `@layer ${layerName} {${content}}`;
-        }
-        return content;
-    });
+    let prev;
+    do {
+        prev = result;
+        result = result.replace(importAnyRegex, (_, file, layerName) => {
+            const absPath = path.resolve(
+                __dirname,
+                '..',
+                'media',
+                'css',
+                'cms',
+                file
+            );
+            this.addDependency(absPath);
+            const content = fs.readFileSync(absPath, 'utf8');
+            if (layerName) {
+                return `@layer ${layerName} {${content}}`;
+            }
+            return content;
+        });
+    } while (result !== prev);
 
     this.callback(null, result, map);
 };
