@@ -7,3 +7,7 @@
 .fl-set-as-default-dialog .fl-notification {
     text-align: start;
 }
+
+.fl-set-as-default .fl-copy-to-clipboard-button {
+    margin-block-start: var(--token-spacing-lg);
+}

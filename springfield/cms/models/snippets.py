@@ -295,6 +295,12 @@ class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
     """A snippet to render the modal content for the 'set as default' button."""
 
     heading_text = models.CharField()
+    copy_to_clipboard_label = models.CharField(
+        max_length=255, default="Copy link to page", help_text="Label for the button that copies the page link to the clipboard."
+    )
+    copy_success_label = models.CharField(
+        max_length=255, default="Copied", help_text="Label displayed when the link is successfully copied to the clipboard."
+    )
     not_firefox_content = RichTextField(
         features=EXPANDED_TEXT_FEATURES, help_text="Content shown for non-Firefox users. A download button will be shown below it."
     )
