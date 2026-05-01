@@ -14,8 +14,10 @@ function initDownloadDropdown() {
         dropdownButtonEl.addEventListener('click', function () {
             if (dropdownEl.classList.contains('dropdown-is-open')) {
                 dropdownEl.classList.remove('dropdown-is-open');
+                dropdownButtonEl.setAttribute('aria-expanded', false);
             } else {
                 dropdownEl.classList.add('dropdown-is-open');
+                dropdownButtonEl.setAttribute('aria-expanded', true);
             }
         });
 
