@@ -41,9 +41,8 @@ REGULAR_DESCRIPTIONS = [_desc(f"rt{i:04d}", n) for i, n in enumerate((2, 1, 3, 1
 PRIVACY_EXTRA_FEATURED_DESCRIPTIONS = [_desc(f"pf{i:04d}", n) for i, n in enumerate((2, 3, 1), start=1)]
 PRIVACY_EXTRA_REGULAR_DESCRIPTIONS = [_desc(f"pr{i:04d}", n) for i, n in enumerate((1, 3, 2, 1, 3, 2, 1, 3), start=1)]
 
-# 5 featured + 3 extra Privacy featured + 12 regular + 8 extra Privacy regular = 28 total articles
-NUM_FEATURED = 5
-NUM_LIST_ARTICLES = 23  # articles in the paginated list (20 regular + 3 overflow featured)
+# 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28 total articles
+NUM_LIST_ARTICLES = 28
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
@@ -111,7 +110,7 @@ def _create_blog_article(
     index_page: BlogIndexPage,
     title: str,
     slug: str,
-    featured: bool,
+    display_image: bool = False,
     topic: Tag,
     tags: list[Tag],
     image,
@@ -124,7 +123,7 @@ def _create_blog_article(
         index_page.add_child(instance=article)
 
     article.title = title
-    article.featured = featured
+    article.display_image = display_image
     article.topic = topic
     article.image = image
     article.description = description
@@ -148,10 +147,9 @@ def get_blog_index_page() -> BlogIndexPage:
 
 def get_blog_pages() -> list[BlogArticlePage]:
     """
-    Create a blog index page with articles covering all sections:
-    - 8 featured: 5 spread across topics + 3 extra for Privacy
-      (Privacy gets 4 total: 1 hero + 3 cards on its topic page)
-    - 20 non-featured: 12 spread across topics + 8 extra for Privacy
+    Create a blog index page with 28 articles:
+    - 5 spread across topics + 3 extra for Privacy (Privacy gets 4 total)
+    - 12 spread across topics + 8 extra for Privacy
       (Privacy gets 11 total: triggers pagination on its topic page)
 
     All articles use all available content block types: text, media, code, quote.
@@ -165,14 +163,13 @@ def get_blog_pages() -> list[BlogArticlePage]:
     privacy = topics["privacy"]
     articles = []
 
-    # One featured article per topic (5 total)
+    # 5 articles spread across all topics
     for i in range(1, len(topic_list) + 1):
         topic = topic_list[(i - 1) % len(topic_list)]
         article = _create_blog_article(
             index_page=index_page,
             title=FEATURED_TITLES[i - 1],
             slug=f"test-featured-blog-article-{i}",
-            featured=True,
             topic=topic,
             tags=topic_list[:2],
             image=image,
@@ -181,13 +178,12 @@ def get_blog_pages() -> list[BlogArticlePage]:
         )
         articles.append(article)
 
-    # 3 extra featured articles for Privacy (total Privacy featured: 4)
+    # 3 extra articles for Privacy (Privacy total: 4)
     for i, (title, description) in enumerate(zip(PRIVACY_EXTRA_FEATURED_TITLES, PRIVACY_EXTRA_FEATURED_DESCRIPTIONS), start=1):
         article = _create_blog_article(
             index_page=index_page,
             title=title,
             slug=f"test-privacy-extra-featured-{i}",
-            featured=True,
             topic=privacy,
             tags=topic_list[:2],
             image=image,
@@ -203,7 +199,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=REGULAR_TITLES[i - 1],
             slug=f"test-regular-blog-article-{i}",
-            featured=False,
+            display_image=(i % 2 == 0),
             topic=topic,
             tags=[topic_list[i % len(topic_list)]],
             image=dark_image,
@@ -218,7 +214,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=title,
             slug=f"test-privacy-extra-regular-{i}",
-            featured=False,
+            display_image=(i % 2 == 0),
             topic=privacy,
             tags=[topic_list[i % len(topic_list)]],
             image=dark_image,

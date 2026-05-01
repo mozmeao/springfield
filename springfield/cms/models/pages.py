@@ -1317,8 +1317,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         help_text="Up to 8 featured articles shown at the top of the index page.",
     )
     more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
+    view_all_label = models.CharField(default="View All Articles")
     cards_lists = StreamField(
-        [("cards_list", BlogCardsListBlock())],
+        [
+            ("cards_list", BlogCardsListBlock()),
+        ],
         use_json_field=True,
         null=True,
         blank=True,
@@ -1327,8 +1330,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("page_heading"),
         FieldPanel("featured_articles"),
-        FieldPanel("more_articles_heading"),
-        FieldPanel("cards_lists"),
+        MultiFieldPanel(
+            [
+                FieldPanel("more_articles_heading"),
+                FieldPanel("view_all_label"),
+                FieldPanel("cards_lists"),
+            ],
+            heading="More Articles",
+        ),
     ]
 
     class Meta:
@@ -1373,6 +1382,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 "image_mobile__renditions",
                 "image_dark_mode_mobile__renditions",
             )
+            .defer("content")
         }
 
         active_locale = SpringfieldLocale.get_active()
@@ -1446,6 +1456,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 "image_mobile__renditions",
                 "image_dark_mode_mobile__renditions",
             )
+            .defer("content")
         )
 
         topic = None
@@ -1454,14 +1465,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
             base_qs = base_qs.filter(topic=topic)
 
-        featured = base_qs.filter(featured=True).order_by("-first_published_at")[:5]
-
-        # Only display the featured article cards if there are at least 3 cards
-        # The first featured article is displayed as a media content block
-        if featured and len(featured) < 4:
-            featured = [featured[0]]
-
-        list_articles_qs = base_qs.order_by("-first_published_at").exclude(id__in=[article.id for article in featured])
+        list_articles_qs = base_qs.order_by("-first_published_at")
         paginator = Paginator(list_articles_qs, 10)
 
         if topic:
@@ -1472,7 +1476,6 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             request,
             "cms/blog_all_page.html",
             {
-                "featured_articles": featured,
                 "list_articles": list_articles,
                 "topic": topic,
             },
@@ -1490,9 +1493,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         features=HEADING_TEXT_FEATURES,
         help_text="A short description used on the index page.",
     )
-    featured = models.BooleanField(
+    display_image = models.BooleanField(
         default=False,
-        help_text="Check to set as a featured article on the index page.",
+        help_text="Display image on the article's list",
     )
 
     topic = models.ForeignKey(
@@ -1550,7 +1553,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("description"),
-                FieldPanel("featured"),
+                FieldPanel("display_image"),
             ],
             heading="Index Page Settings",
         ),

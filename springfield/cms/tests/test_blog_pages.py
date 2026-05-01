@@ -9,11 +9,8 @@ from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
-    NUM_FEATURED,
     NUM_FEATURED_INDEX_SHOWN,
     NUM_LIST_ARTICLES,
-    PRIVACY_EXTRA_FEATURED_DESCRIPTIONS,
-    PRIVACY_EXTRA_FEATURED_TITLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
     _create_blog_article,
@@ -44,7 +41,6 @@ def single_article(minimal_site):
         index_page=idx,
         title=FEATURED_TITLES[0],
         slug="test-single-article",
-        featured=False,
         topic=privacy,
         tags=[privacy],
         image=image,
@@ -56,49 +52,27 @@ def single_article(minimal_site):
 
 @pytest.fixture
 def privacy_articles(minimal_site):
-    """Index page + 4 featured + 5 regular privacy articles.
-
-    4 featured satisfies the >= 4 threshold so the all page shows
-    1 hero + 3 cards (not just 1 hero). 5 regular ensures the
-    image-on-every-fourth check has enough list articles.
-    """
+    """Index page + 9 privacy articles with varied titles, descriptions, and display_image values."""
     image, dark_image, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
     content = get_blog_article_content(image)
 
+    all_titles = FEATURED_TITLES + REGULAR_TITLES[:4]
+    all_descriptions = FEATURED_DESCRIPTIONS + REGULAR_DESCRIPTIONS[:4]
+
     articles = []
-    featured_data = [
-        (FEATURED_TITLES[0], FEATURED_DESCRIPTIONS[0]),
-        (FEATURED_TITLES[1], FEATURED_DESCRIPTIONS[1]),
-        (PRIVACY_EXTRA_FEATURED_TITLES[0], PRIVACY_EXTRA_FEATURED_DESCRIPTIONS[0]),
-        (PRIVACY_EXTRA_FEATURED_TITLES[1], PRIVACY_EXTRA_FEATURED_DESCRIPTIONS[1]),
-    ]
-    for i, (title, description) in enumerate(featured_data):
+    for i in range(9):
         articles.append(
             _create_blog_article(
                 index_page=idx,
-                title=title,
-                slug=f"test-privacy-featured-{i + 1}",
-                featured=True,
+                title=all_titles[i],
+                slug=f"test-privacy-{i + 1}",
+                display_image=(i % 2 == 0),
                 topic=privacy,
                 tags=[privacy],
-                image=image,
-                description=description,
-                content=content,
-            )
-        )
-    for i in range(5):
-        articles.append(
-            _create_blog_article(
-                index_page=idx,
-                title=REGULAR_TITLES[i],
-                slug=f"test-privacy-regular-{i + 1}",
-                featured=False,
-                topic=privacy,
-                tags=[privacy],
-                image=dark_image,
-                description=REGULAR_DESCRIPTIONS[i],
+                image=image if i < 5 else dark_image,
+                description=all_descriptions[i],
                 content=content,
             )
         )
@@ -271,39 +245,6 @@ def test_blog_all_renders_full_topics_list(blog_setup, rf):
     assert len(topic_links) == len(topics)
 
 
-def test_blog_all_renders_featured_as_media_content(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    mediacontent = soup.find("div", class_="fl-mediacontent")
-    assert mediacontent, "First featured article should render as fl-mediacontent"
-    assert mediacontent.find("img"), "Media content should contain an image"
-    button = mediacontent.find("a", class_="fl-button")
-    assert button
-
-
-def test_blog_all_renders_remaining_featured_as_illustration_cards(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    cards = soup.find_all("article", class_="fl-illustration-card")
-    # _featured_db_articles returns up to 5 from DB; fixture has 8 featured → 1 hero + 4 cards
-    assert len(cards) == NUM_FEATURED - 1
-
-    for card in cards:
-        assert "fl-card-expand-link" in card.get("class", [])
-        assert card.find("img")
-        assert card.find("p", class_="fl-superheading")
-        expand_link = card.find("a", class_="fl-link-expand")
-        assert expand_link
-
-
 def test_blog_all_renders_list_articles(blog_setup, rf):
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
@@ -369,7 +310,7 @@ def test_blog_all_pagination_last_page(blog_setup, rf):
     assert indicator.get_text(strip=True) == f"{num_pages}/{num_pages}"
 
 
-def test_blog_all_list_articles_image_on_every_fourth(blog_setup, rf):
+def test_blog_all_list_articles_display_image(blog_setup, rf):
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
@@ -379,15 +320,15 @@ def test_blog_all_list_articles_image_on_every_fourth(blog_setup, rf):
     items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
     assert len(items) == 10  # first page
 
-    for i, item in enumerate(items):
+    items_with_image = []
+    for item in items:
         has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
         has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
-        if i % 4 == 3:
-            assert has_image_class, f"Item {i} should have image class"
-            assert has_img, f"Item {i} should render an image"
-        else:
-            assert not has_image_class, f"Item {i} should not have image class"
-            assert not has_img, f"Item {i} should not render an image"
+        assert has_image_class == has_img, "Image class and image div should be consistent"
+        if has_img:
+            items_with_image.append(item)
+
+    assert len(items_with_image) > 0, "Some list articles should display an image"
 
 
 def test_blog_all_topic_filter_shows_selected_topic(blog_setup, rf):
@@ -604,7 +545,7 @@ def test_blog_article_excludes_self_from_related(privacy_articles, rf):
     assert article not in context["related_articles"]
 
 
-def test_blog_article_related_articles_image_on_every_fourth(privacy_articles, rf):
+def test_blog_article_related_articles_display_image(privacy_articles, rf):
     index_page, articles = privacy_articles
     article = articles[0]
     request = rf.get(article.get_full_url())
@@ -615,15 +556,15 @@ def test_blog_article_related_articles_image_on_every_fourth(privacy_articles, r
     assert section
 
     items = section.find_all("article", class_="fl-blog-article-list-item")
-    for i, item in enumerate(items):
+    items_with_image = []
+    for item in items:
         has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
         has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
-        if i % 4 == 3:
-            assert has_image_class, f"Item {i} should have image class"
-            assert has_img, f"Item {i} should render an image"
-        else:
-            assert not has_image_class, f"Item {i} should not have image class"
-            assert not has_img, f"Item {i} should not render an image"
+        assert has_image_class == has_img, "Image class and image div should be consistent"
+        if has_img:
+            items_with_image.append(item)
+
+    assert len(items_with_image) > 0, "At least one related article should display an image"
 
 
 # ---------------------------------------------------------------------------
@@ -644,5 +585,5 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(22):
+    with django_assert_max_num_queries(20):
         index_page.all_route(request)

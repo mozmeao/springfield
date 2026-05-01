@@ -4,6 +4,8 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* Article Page */
+
 .fl-page-blog .fl-main {
     max-inline-size: var(--token-width-desktop-content);
 }
@@ -79,6 +81,12 @@
     text-decoration: underline;
 }
 
+.fl-card-tags {
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-page-blog,
+.fl-card-tags .fl-tag,
 .fl-article-tags .fl-tag {
     color: var(--token-color-medium-purple);
     text-transform: uppercase;
@@ -174,7 +182,7 @@
 }
 
 .fl-blog-featured .fl-mediacontent-content .fl-superheading,
-.fl-blog-featured .fl-illustration-card .fl-superheading,
+.fl-blog-index-body .fl-illustration-card .fl-superheading,
 .fl-blog-article-list-item .fl-superheading,
 .fl-article-title .fl-superheading,
 .fl-blog-featured-main .fl-superheading {

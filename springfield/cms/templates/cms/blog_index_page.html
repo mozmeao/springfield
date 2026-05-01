@@ -221,7 +221,7 @@
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
                   heading_size="fl-heading-size-3"
                 />
-                <a class="fl-blog-cards-list-link" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}">{{ ftl('blog-view-all') }}</a>
+                <a class="fl-blog-cards-list-link" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
               </div>
               <hr/>
               {% set list_size = block.value.articles|length %}

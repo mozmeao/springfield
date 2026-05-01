@@ -90,8 +90,7 @@
           />
           <div class="fl-blog-article-list">
             {% for article in related_articles %}
-              {% set show_image = loop.index0 % 4 == 3 %}
-              <include:blog-article-list-item with_image="{{ show_image }}">
+              <include:blog-article-list-item with_image="{{ article.display_image }}">
                 <content:heading>
                   <hgroup class="fl-heading-group">
                     <p class="fl-superheading">{{ article.topic.name }}</p>
@@ -116,7 +115,7 @@
                     {% endfor %}
                   </content:tags>
                 {% endif %}
-                {% if show_image and article.image %}
+                {% if article.display_image and article.image %}
                   {% set img_classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
                   <content:image>
                     <div class="image-variants-display">
