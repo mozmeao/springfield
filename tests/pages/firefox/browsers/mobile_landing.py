@@ -15,8 +15,8 @@ class FirefoxMobilePage(BasePage):
 
     @property
     def is_android_download_link_displayed(self):
-        return self.is_element_displayed(*self._android_download_link_locator)
+        return any(el.is_displayed() for el in self.find_elements(*self._android_download_link_locator))
 
     @property
     def is_ios_download_link_displayed(self):
-        return self.is_element_displayed(*self._ios_download_link_locator)
+        return any(el.is_displayed() for el in self.find_elements(*self._ios_download_link_locator))
