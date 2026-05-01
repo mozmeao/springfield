@@ -61,7 +61,7 @@ def reverse_migration(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0077_articleindexpage_show_sibling_detail_pages"),
+        ("cms", "0078_articleindexpage_index_card_type"),
         # Required because save_target() may interact with wagtail_localize_smartling
         # which has a handler that queries LandedTranslationTask / JobTranslation.
         ("wagtail_localize_smartling", "0008_jobtranslation_content_hash"),

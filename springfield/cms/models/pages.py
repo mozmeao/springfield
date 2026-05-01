@@ -520,6 +520,23 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
+    INDEX_CARD_STICKER = "sticker_card"
+    INDEX_CARD_OUTLINE = "outline_card"
+    INDEX_CARD_ILLUSTRATION = "illustration_card"
+
+    INDEX_CARD_TYPE_CHOICES = (
+        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_OUTLINE, "Outline card"),
+        (INDEX_CARD_ILLUSTRATION, "Illustration card"),
+    )
+
+    index_card_type = models.CharField(
+        max_length=20,
+        choices=INDEX_CARD_TYPE_CHOICES,
+        default=INDEX_CARD_STICKER,
+        help_text="Controls the card style used in the article listing.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
         FieldPanel("other_articles_heading"),
@@ -528,6 +545,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_sibling_detail_pages"),
+        FieldPanel("index_card_type"),
     ]
 
     def __str__(self):
