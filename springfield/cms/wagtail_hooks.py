@@ -23,7 +23,7 @@ from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import SnippetViewSet
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.models import PretranslatedPhrase
+from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
 
 
 @hooks.register("register_admin_menu_item")
@@ -270,13 +270,24 @@ def register_firefox_logo_feature(features):
 class PretranslatedPhraseViewSet(SnippetViewSet):
     model = PretranslatedPhrase
     icon = "tag"
-    menu_label = "Button Labels"
-    menu_name = "button_labels"
+    menu_label = "Pretranslated Phrases"
+    menu_name = "pretranslated_phrases"
     menu_order = 500
     add_to_admin_menu = True
-    list_display = ["label", "key", "locale", "live"]
-    list_filter = ["key", "locale"]
-    search_fields = ["label", "key"]
+    list_display = ["label", "category", "locale", "live"]
+    list_filter = ["category", "locale"]
+    search_fields = ["label", "category__name"]
+
+
+class PretranslatedPhraseCategoryViewSet(SnippetViewSet):
+    model = PretranslatedPhraseCategory
+    icon = "tag"
+    menu_label = "Pretranslated Phrase Categories"
+    menu_name = "pretranslated_phrase_categories"
+    add_to_admin_menu = False
+    list_display = ["name", "slug"]
+    search_fields = ["name", "slug"]
 
 
 register_snippet(PretranslatedPhraseViewSet)
+register_snippet(PretranslatedPhraseCategoryViewSet)

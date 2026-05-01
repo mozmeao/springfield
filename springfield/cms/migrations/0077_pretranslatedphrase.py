@@ -18,6 +18,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name="PretranslatedPhraseCategory",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("slug", models.SlugField(unique=True)),
+                ("name", models.CharField(max_length=255)),
+            ],
+            options={
+                "ordering": ["name"],
+            },
+        ),
+        migrations.CreateModel(
             name="PretranslatedPhrase",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
@@ -30,9 +41,11 @@ class Migration(migrations.Migration):
                 ("expire_at", models.DateTimeField(blank=True, null=True, verbose_name="expiry date/time")),
                 ("expired", models.BooleanField(default=False, editable=False, verbose_name="expired")),
                 (
-                    "key",
-                    models.SlugField(
-                        help_text="Stable identifier used to seed translations (e.g. 'get_firefox'). Do not change after creation.", max_length=100
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="phrases",
+                        to="cms.pretranslatedphrasecategory",
                     ),
                 ),
                 ("label", models.CharField(max_length=255)),
@@ -63,7 +76,11 @@ class Migration(migrations.Migration):
                 (
                     "locale",
                     models.ForeignKey(
-                        editable=False, on_delete=django.db.models.deletion.PROTECT, related_name="+", to="wagtailcore.locale", verbose_name="locale"
+                        editable=False,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="+",
+                        to="wagtailcore.locale",
+                        verbose_name="locale",
                     ),
                 ),
             ],
@@ -71,7 +88,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Pretranslated Phrase",
                 "verbose_name_plural": "Pretranslated Phrases",
                 "abstract": False,
-                "unique_together": {("key", "locale"), ("translation_key", "locale")},
+                "unique_together": {("category", "locale"), ("translation_key", "locale")},
             },
         ),
     ]

@@ -373,28 +373,36 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 register_snippet(QRCodeFloatingSnippet)
 
 
+class PretranslatedPhraseCategory(models.Model):
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
     """A pre-translated label for use on Firefox download buttons."""
 
-    key = models.SlugField(
-        max_length=100,
-        help_text="Stable identifier used to seed translations (e.g. 'get_firefox'). Do not change after creation.",
+    category = models.ForeignKey(
+        PretranslatedPhraseCategory,
+        on_delete=models.PROTECT,
+        related_name="phrases",
     )
     label = models.CharField(max_length=255)
 
-    override_translatable_fields = [
-        SynchronizedField("key"),  # identifier, not translated — same value in all locales
-    ]
-
     panels = [
-        FieldPanel("key", read_only=True),  # prevent editing after creation
+        FieldPanel("category"),
         FieldPanel("label"),
     ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Pretranslated Phrase"
         verbose_name_plural = "Pretranslated Phrases"
-        unique_together = [("translation_key", "locale"), ("key", "locale")]
+        unique_together = [("category", "locale"), ("translation_key", "locale")]
 
     def __str__(self):
         return f"{self.label} – {self.locale}"
