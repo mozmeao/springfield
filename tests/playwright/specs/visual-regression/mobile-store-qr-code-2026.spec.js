@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_step-cards_2026.html`;
+const url = `${patternLibraryURL}/mobile-store-qr-code/mobile-store-qr-code_2026.html`;
 
 test.describe(
-    `Step Cards With Kit 2026`,
+    `Mobile Store QR Code 2026`,
     {
         tag: '@visual-regression'
     },
@@ -22,19 +22,11 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-light');
+            await expectComponentScreenshot(page, 'mobile-store-qr-code-light');
         });
 
         test('dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-dark');
-        });
-
-        test('full fields - light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-light');
-        });
-
-        test('full fields - dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-dark');
+            await expectComponentScreenshot(page, 'mobile-store-qr-code-dark');
         });
     }
 );
