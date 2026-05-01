@@ -45,7 +45,7 @@ MORE_IMAGES = {
     },
 }
 
-MORE_STICKERS = {
+MORE_PAGE_IMAGES = {
     "best-browser": {
         "file": "img/firefox/more/best-browser/hero-pattern.png",
         "title": "Firefox best browser hero pattern",
@@ -94,9 +94,9 @@ def get_or_import_more_image(slug: str) -> SpringfieldImage:
     return _get_or_import_image(MORE_IMAGES[slug])
 
 
-def get_or_import_more_sticker(slug: str) -> SpringfieldImage:
-    """Get or import the sticker image for a more page."""
-    return _get_or_import_image(MORE_STICKERS[slug])
+def get_or_import_more_page_image(slug: str) -> SpringfieldImage:
+    """Get or import the featured image for a more page."""
+    return _get_or_import_image(MORE_PAGE_IMAGES[slug])
 
 
 # =============================================================================
@@ -645,6 +645,8 @@ def get_compare_index_page(publish: bool = False) -> ArticleIndexPage:
         depth=root_page.depth + 1,
     ).first()
     if index_page:
+        index_page.index_card_type = ArticleIndexPage.INDEX_CARD_OUTLINE
+        index_page.save(update_fields=["index_card_type"])
         return index_page
 
     index_page = ArticleIndexPage(
@@ -659,6 +661,7 @@ def get_compare_index_page(publish: bool = False) -> ArticleIndexPage:
         other_articles_subheading="",
         # detail pages are children, not siblings
         show_sibling_detail_pages=False,
+        index_card_type=ArticleIndexPage.INDEX_CARD_OUTLINE,
     )
     root_page.add_child(instance=index_page)
 
@@ -684,6 +687,8 @@ def get_more_index_page(publish: bool = False) -> ArticleIndexPage:
         depth=root_page.depth + 1,
     ).first()
     if index_page:
+        index_page.index_card_type = ArticleIndexPage.INDEX_CARD_ILLUSTRATION
+        index_page.save(update_fields=["index_card_type"])
         return index_page
 
     index_page = ArticleIndexPage(
@@ -698,6 +703,7 @@ def get_more_index_page(publish: bool = False) -> ArticleIndexPage:
         other_articles_subheading="",
         # detail pages are children, not siblings
         show_sibling_detail_pages=False,
+        index_card_type=ArticleIndexPage.INDEX_CARD_ILLUSTRATION,
     )
     root_page.add_child(instance=index_page)
 
@@ -769,8 +775,8 @@ def get_more_page(slug: str, index_page: ArticleIndexPage, publish: bool = False
 
     if slug in MORE_IMAGES:
         page.image = get_or_import_more_image(slug)
-    if slug in MORE_STICKERS:
-        page.sticker = get_or_import_more_sticker(slug)
+    if slug in MORE_PAGE_IMAGES:
+        page.featured_image = get_or_import_more_page_image(slug)
 
     existing_uuids = [block.get("id") for block in page.content.raw_data] if page.content else []
     new_blocks = [{"type": "text", "value": page_data["content"].strip()}]
