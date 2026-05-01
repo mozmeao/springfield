@@ -1,0 +1,12 @@
+name: Icon List with Image 2026
+context:
+  image:
+    url: /media/img/firefox/flare/placeholder.png
+    alt: Example image
+  items:
+    - icon: shield
+      text: Stay protected with built-in privacy features that block trackers automatically.
+    - icon: bookmark
+      text: Save and organize your favorite pages with easy-to-use bookmarks.
+    - icon: heart
+      text: Enjoy a browser that puts your well-being first, not advertisers.

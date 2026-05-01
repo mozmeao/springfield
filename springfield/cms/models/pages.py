@@ -524,6 +524,23 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
+    INDEX_CARD_STICKER = "sticker_card"
+    INDEX_CARD_OUTLINE = "outline_card"
+    INDEX_CARD_ILLUSTRATION = "illustration_card"
+
+    INDEX_CARD_TYPE_CHOICES = (
+        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_OUTLINE, "Outline card"),
+        (INDEX_CARD_ILLUSTRATION, "Illustration card"),
+    )
+
+    index_card_type = models.CharField(
+        max_length=20,
+        choices=INDEX_CARD_TYPE_CHOICES,
+        default=INDEX_CARD_STICKER,
+        help_text="Controls the card style used in the article listing.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
         FieldPanel("other_articles_heading"),
@@ -532,6 +549,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_sibling_detail_pages"),
+        FieldPanel("index_card_type"),
     ]
 
     def __str__(self):
@@ -835,7 +853,7 @@ def _get_freeform_page_blocks(allow_uitour=False):
     ]
 
 
-def _get_freeform_page_blocks_2026(allow_uitour=True):
+def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -846,10 +864,9 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
         List of tuples containing block names and instances configured
         with the appropriate button types.
     """
-    return [
+    base_blocks = [
         ("notification", NotificationBlock(group="Notification")),
         ("intro", IntroBlock2026(allow_uitour=allow_uitour, group="Intro")),
-        ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
         ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
         ("showcase", ShowcaseBlock(group="Media")),
         ("carousel", CarouselBlock(group="Media")),
@@ -872,12 +889,17 @@ def _get_freeform_page_blocks_2026(allow_uitour=True):
             ),
         ),
     ]
+    if allow_kit_intro:
+        return base_blocks + [
+            ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ]
+    return base_blocks
 
 
 FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
 WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
-WHATS_NEW_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True)
+UPPER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=True)
+LOWER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False)
 
 
 class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -897,14 +919,14 @@ class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
-        FREEFORM_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
         blank=True,
         null=True,
@@ -1029,14 +1051,14 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     upper_content = StreamField(
-        WHATS_NEW_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        WHATS_NEW_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
     content_panels = [
@@ -1106,7 +1128,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content = StreamField(
-        FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
 
@@ -1284,11 +1306,11 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A Smart Window themed page"""
 
     upper_content = StreamField(
-        FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
     content = StreamField(
-        FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS_2026,
         use_json_field=True,
     )
 

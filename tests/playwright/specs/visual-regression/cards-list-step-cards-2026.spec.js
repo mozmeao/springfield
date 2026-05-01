@@ -28,5 +28,13 @@ test.describe(
         test('dark mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'step-cards-dark');
         });
+
+        test('full fields - light mode', async ({ page }) => {
+            await expectComponentScreenshot(page, 'step-cards-full-light');
+        });
+
+        test('full fields - dark mode', async ({ page }) => {
+            await expectComponentScreenshot(page, 'step-cards-full-dark');
+        });
     }
 );

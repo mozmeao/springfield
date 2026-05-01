@@ -52,7 +52,6 @@
     background: url('/media/img/firefox/flare/kit-qr.png') bottom center
         no-repeat transparent;
     background-size: contain;
-    display: none;
     inline-size: 100%;
     justify-content: center;
     margin: var(--token-layout-sm) auto 0;
@@ -69,18 +68,4 @@
 
 .fl-mobile-store-qr-code svg rect[fill='white'] {
     fill: transparent;
-}
-
-@media (--viewport-sm-up) {
-    .fl-mobile-store-buttons {
-        display: none;
-    }
-
-    .fl-mobile-store-qr-code {
-        display: flex;
-    }
-
-    .fl-mobile-store-mobile-image {
-        display: none;
-    }
 }
