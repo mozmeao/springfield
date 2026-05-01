@@ -6,8 +6,8 @@
 Management command to create PretranslatedPhrase records and bootstrap FTL translations.
 
 Runs three phases:
-1. Create (or update) the two English PretranslatedPhrase records at their fixed IDs,
-   then advance the PostgreSQL sequence so auto-generated IDs don't collide.
+1. Create (or get) the two PretranslatedPhraseCategory objects by slug, then create
+   (or update) the two English PretranslatedPhrase records using natural keys.
 2. Register TranslationSource records and fix schema_version.
 3. Import FTL translations for all configured Wagtail locales.
 
@@ -17,7 +17,6 @@ locale is safe.
 
 from pathlib import Path
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -27,8 +26,6 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        from django.db import connection
-
         from wagtail.models import Locale
         from wagtail_localize.models import Translation, TranslationSource
 
@@ -38,35 +35,42 @@ class Command(BaseCommand):
             get_english_ftl_strings_at_subpath,
             get_ftl_translations_at_subpath,
         )
-        from springfield.cms.models import PretranslatedPhrase
+        from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
+
+        # category_slug → FTL file relative path
+        FTL_SUBPATHS = {
+            "get_firefox": "navigation-firefox.ftl",
+            "download_firefox": "download_button.ftl",
+        }
 
         # ======================================================================
-        # Phase 1: Create English base records
+        # Phase 1: Create categories and English base records
         # ======================================================================
-        self.stdout.write("Phase 1: Creating English PretranslatedPhrase records...\n")
+        self.stdout.write("Phase 1: Creating PretranslatedPhraseCategory and PretranslatedPhrase records...\n")
 
-        locale = Locale.objects.get(language_code="en-US")
+        locale_en_us = Locale.objects.get(language_code="en-US")
+
+        get_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
+            slug="get_firefox",
+            defaults={"name": "Get Firefox"},
+        )
+        download_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
+            slug="download_firefox",
+            defaults={"name": "Download Firefox"},
+        )
+
         get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
-            id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
-            defaults={"locale": locale, "key": "get_firefox", "label": "Get Firefox", "live": True},
+            category=get_firefox_cat,
+            locale=locale_en_us,
+            defaults={"label": "Get Firefox", "live": True},
         )
         download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
-            id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID,
-            defaults={"locale": locale, "key": "download_firefox", "label": "Download Firefox", "live": True},
+            category=download_firefox_cat,
+            locale=locale_en_us,
+            defaults={"label": "Download Firefox", "live": True},
         )
         self.stdout.write(f"  {get_firefox} (id={get_firefox.pk})\n")
         self.stdout.write(f"  {download_firefox} (id={download_firefox.pk})\n")
-
-        # Advance the PostgreSQL sequence past the highest explicitly inserted ID so
-        # that auto-generated IDs (used by Wagtail-Localize for locale copies) don't
-        # collide with the fixed IDs.
-        if connection.vendor == "postgresql":
-            from django.core.management.color import no_style
-
-            for sql in connection.ops.sequence_reset_sql(no_style(), [PretranslatedPhrase]):
-                with connection.cursor() as cursor:
-                    cursor.execute(sql)
-            self.stdout.write("  Advanced PostgreSQL sequence.\n")
 
         # ======================================================================
         # Phase 2: Register TranslationSources and fix schema_version
@@ -78,7 +82,8 @@ class Command(BaseCommand):
         latest_schema_version = migration_names[-1] if migration_names else ""
 
         sources = {}
-        for snippet, name in [(get_firefox, "get_firefox"), (download_firefox, "download_firefox")]:
+        for snippet in [get_firefox, download_firefox]:
+            name = snippet.category.slug
             source, created = TranslationSource.get_or_create_from_instance(snippet)
             if created:
                 self.stdout.write(f"  Created TranslationSource for {name}\n")
@@ -97,10 +102,11 @@ class Command(BaseCommand):
         # ======================================================================
         self.stdout.write("Phase 3: Bootstrapping FTL translations...\n")
 
-        for snippet, source, ftl_subpath in [
-            (get_firefox, sources["get_firefox"], "navigation-firefox.ftl"),
-            (download_firefox, sources["download_firefox"], "download_button.ftl"),
-        ]:
+        for snippet in [get_firefox, download_firefox]:
+            category_slug = snippet.category.slug
+            source = sources[category_slug]
+            ftl_subpath = FTL_SUBPATHS[category_slug]
+
             en_strings = get_english_ftl_strings_at_subpath(ftl_subpath)
             text_to_msgid = build_text_to_msgid_mapping(en_strings)
             imported = 0
@@ -128,6 +134,6 @@ class Command(BaseCommand):
                     translation.save_target(publish=True)  # snippets must be live immediately
                     imported += len(po)
 
-            self.stdout.write(f"  {snippet.key}: {imported} strings imported\n")
+            self.stdout.write(f"  {category_slug}: {imported} strings imported\n")
 
         self.stdout.write(self.style.SUCCESS("\nDone.\n"))
