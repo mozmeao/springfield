@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_step-cards_2026.html`;
+const url = `${patternLibraryURL}/icon-list-with-image/icon-list-with-image_2026.html`;
 
 test.describe(
-    `Step Cards With Kit 2026`,
+    `Icon List with Image 2026`,
     {
         tag: '@visual-regression'
     },
@@ -22,19 +22,11 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-light');
+            await expectComponentScreenshot(page, 'icon-list-with-image-light');
         });
 
         test('dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-dark');
-        });
-
-        test('full fields - light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-light');
-        });
-
-        test('full fields - dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-dark');
+            await expectComponentScreenshot(page, 'icon-list-with-image-dark');
         });
     }
 );

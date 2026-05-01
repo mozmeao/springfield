@@ -6,27 +6,26 @@
 
 <div style="background: var(--token-color-dark-purple);">
   <div class="fl-main has-gradient-bottom">
-    <div class="fl-split-page-upper" data-testid="cards-list-sticker">
+    <div class="fl-split-page-upper" data-testid="cards-list-outlined">
       <section class="fl-section">
         <div class="fl-section-container">
           <include:cards-list>
             {% for card in cards %}
-              <include:sticker-card-2026
-                expand_link="{{ card.expand_link }}"
-              >
+              <include:card expand_link="{{ card.expand_link }}">
                 <content:heading>
+                  {% if card.sticker %}
+                    <div class="fl-card-sticker">
+                      <img src="{{ card.sticker }}" alt="" />
+                    </div>
+                  {% endif %}
                   <include:heading
                     level="h3"
-                    heading_size="fl-heading-size-3"
-                    superheading_text="{{ card.superheading_text }}"
-                    heading_text="{{ card.heading }}"
+                    heading_size="fl-heading-xs"
+                    heading_text="{{ card.headline }}"
                   />
                 </content:heading>
-                <content:sticker>
-                  <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" />
-                </content:sticker>
                 <content:body>
-                  {{ card.body }}
+                  {{ card.content }}
                 </content:body>
                 {% if card.buttons %}
                   <content:buttons>
@@ -39,34 +38,33 @@
                     {% endfor %}
                   </content:buttons>
                 {% endif %}
-              </include:sticker-card-2026>
+              </include:card>
             {% endfor %}
           </include:cards-list>
         </div>
       </section>
     </div>
 
-    <div class="fl-split-page-lower" data-testid="cards-list-sticker-lower">
+    <div class="fl-split-page-lower" data-testid="cards-list-outlined-lower">
       <section class="fl-section">
         <div class="fl-section-container">
           <include:cards-list>
             {% for card in cards %}
-              <include:sticker-card-2026
-                expand_link="{{ card.expand_link }}"
-              >
+              <include:card expand_link="{{ card.expand_link }}">
                 <content:heading>
+                  {% if card.sticker %}
+                    <div class="fl-card-sticker">
+                      <img src="{{ card.sticker }}" alt="" />
+                    </div>
+                  {% endif %}
                   <include:heading
                     level="h3"
-                    heading_size="fl-heading-size-3"
-                    superheading_text="{{ card.superheading_text }}"
-                    heading_text="{{ card.heading }}"
+                    heading_size="fl-heading-xs"
+                    heading_text="{{ card.headline }}"
                   />
                 </content:heading>
-                <content:sticker>
-                  <img class="fl-card-sticker" src="{{ card.sticker }}" alt="" />
-                </content:sticker>
                 <content:body>
-                  {{ card.body }}
+                  {{ card.content }}
                 </content:body>
                 {% if card.buttons %}
                   <content:buttons>
@@ -79,7 +77,7 @@
                     {% endfor %}
                   </content:buttons>
                 {% endif %}
-              </include:sticker-card-2026>
+              </include:card>
             {% endfor %}
           </include:cards-list>
         </div>
