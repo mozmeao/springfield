@@ -118,7 +118,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_2026_test_page,
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
-from springfield.cms.models import ArticleDetailPage, ButtonLabelSnippet, SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
@@ -202,7 +202,7 @@ def _resolve_download_button_label(button_data: dict) -> str:
     value = button_data["value"]
     snippet_id = value.get("pretranslated_label")
     if snippet_id:
-        snippet = ButtonLabelSnippet.objects.filter(pk=snippet_id).first()
+        snippet = PretranslatedPhrase.objects.filter(pk=snippet_id).first()
         if snippet:
             return snippet.label
     return value.get("custom_label", "")
@@ -572,7 +572,7 @@ class TestDownloadFirefoxButtonBlock:
     def test_get_context_uses_localized_snippet(self, download_firefox_button_block, button_label_snippet):
         """get_localized() returns the locale-specific label for the active locale."""
         es_mx_locale = LocaleFactory(language_code="es-MX")
-        es_mx_snippet = ButtonLabelSnippet.objects.create(
+        es_mx_snippet = PretranslatedPhrase.objects.create(
             locale=es_mx_locale,
             translation_key=button_label_snippet.translation_key,
             key=button_label_snippet.key,

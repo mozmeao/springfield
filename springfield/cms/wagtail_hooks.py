@@ -23,7 +23,7 @@ from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import SnippetViewSet
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.models import ButtonLabelSnippet
+from springfield.cms.models import PretranslatedPhrase
 
 
 @hooks.register("register_admin_menu_item")
@@ -267,8 +267,8 @@ def register_firefox_logo_feature(features):
     features.default_features.append(feature_name)
 
 
-class ButtonLabelViewSet(SnippetViewSet):
-    model = ButtonLabelSnippet
+class PretranslatedPhraseViewSet(SnippetViewSet):
+    model = PretranslatedPhrase
     icon = "tag"
     menu_label = "Button Labels"
     menu_name = "button_labels"
@@ -279,4 +279,4 @@ class ButtonLabelViewSet(SnippetViewSet):
     search_fields = ["label", "key"]
 
 
-register_snippet(ButtonLabelViewSet)
+register_snippet(PretranslatedPhraseViewSet)

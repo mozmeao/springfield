@@ -19,7 +19,7 @@ from springfield.cms.management.commands.migrate_download_button_labels import (
     convert_english_download_button_label,
     convert_non_english_download_button_label,
 )
-from springfield.cms.models import ButtonLabelSnippet, FreeFormPage
+from springfield.cms.models import FreeFormPage, PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory
 
 # ---------------------------------------------------------------------------
@@ -277,7 +277,7 @@ class TestMigrateDownloadButtonLabelsCommand:
         assert "pretranslated_label" not in blocks[0]["value"]
 
     def test_non_english_page_becomes_custom_label_when_no_match(self):
-        """Non-English pages with no matching ButtonLabelSnippet get custom_label."""
+        """Non-English pages with no matching PretranslatedPhrase get custom_label."""
         fr_locale = LocaleFactory(language_code="fr")
         page = _make_page([_intro_with_buttons(_old_block("Télécharger Firefox"))], locale=fr_locale, slug="fr-test-page")
         _call_migrate_download_button_labels()
@@ -288,11 +288,11 @@ class TestMigrateDownloadButtonLabelsCommand:
         assert blocks[0]["value"]["custom_label"] == "Télécharger Firefox"
 
     def test_non_english_page_uses_localized_label_map(self):
-        """Non-English pages use ButtonLabelSnippet records to find the locale-specific snippet pk."""
+        """Non-English pages use PretranslatedPhrase records to find the locale-specific snippet pk."""
         get_button_label_snippets()
         fr_locale = LocaleFactory(language_code="fr")
-        en_snippet = ButtonLabelSnippet.objects.get(id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID)
-        fr_snippet, _ = ButtonLabelSnippet.objects.update_or_create(
+        en_snippet = PretranslatedPhrase.objects.get(id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID)
+        fr_snippet, _ = PretranslatedPhrase.objects.update_or_create(
             locale=fr_locale,
             translation_key=en_snippet.translation_key,
             defaults={"key": en_snippet.key, "label": "Télécharger Firefox", "live": True},

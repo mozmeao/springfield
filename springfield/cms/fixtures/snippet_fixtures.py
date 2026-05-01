@@ -10,10 +10,10 @@ from wagtail.models import Locale
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     BannerSnippet,
-    ButtonLabelSnippet,
     DownloadFirefoxCallToActionSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
+    PretranslatedPhrase,
     QRCodeSnippet,
     Tag,
 )
@@ -92,9 +92,9 @@ def get_qr_code_snippet() -> QRCodeSnippet:
     return snippet
 
 
-def get_button_label_snippets() -> tuple[ButtonLabelSnippet, ButtonLabelSnippet]:
+def get_button_label_snippets() -> tuple[PretranslatedPhrase, PretranslatedPhrase]:
     locale = Locale.get_default()
-    get_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+    get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
         id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
         defaults={
             "locale": locale,
@@ -104,7 +104,7 @@ def get_button_label_snippets() -> tuple[ButtonLabelSnippet, ButtonLabelSnippet]
             "translation_key": "f25078fd-50e4-4a73-acbc-6355bfa7de6e",
         },
     )
-    download_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+    download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
         id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID,
         defaults={
             "locale": locale,

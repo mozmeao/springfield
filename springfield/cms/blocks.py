@@ -933,7 +933,7 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
     class _DownloadFirefoxButtonBlock(blocks.StructBlock):
         settings = DownloadFirefoxButtonSettings(themes=themes)
         pretranslated_label = LocalizedLiveSnippetChooserBlock(
-            "cms.ButtonLabelSnippet",
+            "cms.PretranslatedPhrase",
             required=False,
             label="Pre-translated Text",
             help_text="Select a pre-translated label. Takes precedence over Custom Text.",

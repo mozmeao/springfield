@@ -10,10 +10,10 @@ Also re-syncs all Wagtail-Localize TranslationSources for affected page models s
 new block structure is reflected in translated content.
 
 Two-pass conversion:
-  Pass 1 — English pages: map label text to ButtonLabelSnippet ID (or fall back to
+  Pass 1 — English pages: map label text to PretranslatedPhrase ID (or fall back to
             custom_label for unrecognised strings). Record (page.translation_key,
             block_id) → snippet_id in english_block_labels.
-  Pass 2 — Non-English pages: match the old label text against ButtonLabelSnippet records
+  Pass 2 — Non-English pages: match the old label text against PretranslatedPhrase records
             for the page's locale. If a match is found, store the locale-specific snippet pk
             (wagtail-localize convention). If no match is found, the label becomes custom_label.
 
@@ -57,7 +57,7 @@ PAGE_MODEL_NAMES = [name for name, _ in PAGE_MODELS_AND_FIELDS]
 def convert_english_download_button_label(data):
     """Recursively convert label in download_button blocks for English pages.
 
-    Maps known label strings to ButtonLabelSnippet IDs (pretranslated_label).
+    Maps known label strings to PretranslatedPhrase IDs (pretranslated_label).
     Unrecognised strings become custom_label. Returns True if any change was made.
     The isinstance(old_label, str) check is the idempotency guard.
     """
@@ -105,21 +105,21 @@ def collect_english_block_labels(data, translation_key, out):
 
 
 def build_localized_label_map(english_locale_ids):
-    """Build a map of (locale_id, label_text) → locale-specific ButtonLabelSnippet pk.
+    """Build a map of (locale_id, label_text) → locale-specific PretranslatedPhrase pk.
 
     Used to resolve non-English button labels by label text. Wagtail-localize convention
     is that translated pages store locale-specific FK values, so non-English pages should
-    reference their own locale's ButtonLabelSnippet rather than the English one.
+    reference their own locale's PretranslatedPhrase rather than the English one.
     """
-    from springfield.cms.models import ButtonLabelSnippet
+    from springfield.cms.models import PretranslatedPhrase
 
-    return {(s.locale_id, s.label): s.pk for s in ButtonLabelSnippet.objects.exclude(locale_id__in=english_locale_ids)}
+    return {(s.locale_id, s.label): s.pk for s in PretranslatedPhrase.objects.exclude(locale_id__in=english_locale_ids)}
 
 
 def convert_non_english_download_button_label(data, translation_key, english_block_labels, locale_id=None, localized_label_map=None):
     """Recursively convert label in download_button blocks for non-English pages.
 
-    Matches the old label text against ButtonLabelSnippet records for the same locale:
+    Matches the old label text against PretranslatedPhrase records for the same locale:
     - If a match is found, stores the locale-specific snippet pk (wagtail-localize convention).
     - If no match is found, the old label becomes custom_label.
 
@@ -325,7 +325,7 @@ class Command(BaseCommand):
             return
 
         page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
-        # Only page models — ButtonLabelSnippet TranslationSources are managed by
+        # Only page models — PretranslatedPhrase TranslationSources are managed by
         # create_button_label_snippets, not by this command.
         content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
 

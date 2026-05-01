@@ -3,10 +3,10 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-Management command to create ButtonLabelSnippet records and bootstrap FTL translations.
+Management command to create PretranslatedPhrase records and bootstrap FTL translations.
 
 Runs three phases:
-1. Create (or update) the two English ButtonLabelSnippet records at their fixed IDs,
+1. Create (or update) the two English PretranslatedPhrase records at their fixed IDs,
    then advance the PostgreSQL sequence so auto-generated IDs don't collide.
 2. Register TranslationSource records and fix schema_version.
 3. Import FTL translations for all configured Wagtail locales.
@@ -23,7 +23,7 @@ from django.db import transaction
 
 
 class Command(BaseCommand):
-    help = "Create ButtonLabelSnippet records and bootstrap FTL translations."
+    help = "Create PretranslatedPhrase records and bootstrap FTL translations."
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -38,19 +38,19 @@ class Command(BaseCommand):
             get_english_ftl_strings_at_subpath,
             get_ftl_translations_at_subpath,
         )
-        from springfield.cms.models import ButtonLabelSnippet
+        from springfield.cms.models import PretranslatedPhrase
 
         # ======================================================================
         # Phase 1: Create English base records
         # ======================================================================
-        self.stdout.write("Phase 1: Creating English ButtonLabelSnippet records...\n")
+        self.stdout.write("Phase 1: Creating English PretranslatedPhrase records...\n")
 
         locale = Locale.objects.get(language_code="en-US")
-        get_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+        get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
             id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
             defaults={"locale": locale, "key": "get_firefox", "label": "Get Firefox", "live": True},
         )
-        download_firefox, _ = ButtonLabelSnippet.objects.update_or_create(
+        download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
             id=settings.BUTTON_LABEL_DOWNLOAD_FIREFOX_SNIPPET_ID,
             defaults={"locale": locale, "key": "download_firefox", "label": "Download Firefox", "live": True},
         )
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         if connection.vendor == "postgresql":
             from django.core.management.color import no_style
 
-            for sql in connection.ops.sequence_reset_sql(no_style(), [ButtonLabelSnippet]):
+            for sql in connection.ops.sequence_reset_sql(no_style(), [PretranslatedPhrase]):
                 with connection.cursor() as cursor:
                     cursor.execute(sql)
             self.stdout.write("  Advanced PostgreSQL sequence.\n")

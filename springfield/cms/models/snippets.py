@@ -373,7 +373,7 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 register_snippet(QRCodeFloatingSnippet)
 
 
-class ButtonLabelSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
+class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
     """A pre-translated label for use on Firefox download buttons."""
 
     key = models.SlugField(
@@ -392,8 +392,8 @@ class ButtonLabelSnippet(BaseDraftTranslatableSnippetMixin, models.Model):
     ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
-        verbose_name = "Button Label"
-        verbose_name_plural = "Button Labels"
+        verbose_name = "Pretranslated Phrase"
+        verbose_name_plural = "Pretranslated Phrases"
         unique_together = [("translation_key", "locale"), ("key", "locale")]
 
     def __str__(self):

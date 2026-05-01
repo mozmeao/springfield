@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="ButtonLabelSnippet",
+            name="PretranslatedPhrase",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("translation_key", models.UUIDField(default=uuid.uuid4, editable=False)),
@@ -68,8 +68,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Button Label",
-                "verbose_name_plural": "Button Labels",
+                "verbose_name": "Pretranslated Phrase",
+                "verbose_name_plural": "Pretranslated Phrases",
                 "abstract": False,
                 "unique_together": {("key", "locale"), ("translation_key", "locale")},
             },
