@@ -968,6 +968,7 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
 
         class Meta:
             label = "Download Firefox Button"
+            label_format = "{pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
