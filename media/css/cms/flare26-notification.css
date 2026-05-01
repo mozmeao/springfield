@@ -8,24 +8,23 @@
     display: flex;
     inline-size: 100%;
     justify-content: center;
+    padding-inline: var(--fl-section-h-padding);
 }
 
-.fl-split-page-upper:has(.fl-notification-wrapper:first-child),
-.fl-split-page-upper:has(.conditional-display:first-child):has(
-        .fl-notification-wrapper
-    ) {
-    padding-block-start: 0;
+.fl-section .fl-notification-wrapper {
+    padding-inline: 0;
 }
 
-/* When a notification immediately precedes an intro or home intro component, tighten up the space between them */
+/* For the odd cases where there are stacked notifications. */
+.fl-notification-wrapper + .fl-notification-wrapper {
+    margin-block-start: var(--token-spacing-lg);
+}
 
-.fl-notification-wrapper + .fl-intro,
-.conditional-display:has(.fl-notification-wrapper) + .fl-intro,
-.fl-notification-wrapper + .fl-section:has(.fl-home-intro) .fl-intro,
-.conditional-display:has(.fl-notification-wrapper)
-    + .fl-section:has(.fl-home-intro)
-    .fl-intro {
-    padding-block-start: var(--token-spacing-2xl);
+/*  Because .fl-split-page-upper has top padding, and pages
+    that don't use it rely on the padding of the component.
+    TODO: Fix _that_ unnecessary headache. */
+.fl-split-page-upper .fl-notification-wrapper:first-child {
+    margin-block-start: calc(-1 * var(--fl-section-v-padding));
 }
 
 .fl-notification {
@@ -38,8 +37,6 @@
     display: flex;
     flex-direction: row;
     gap: var(--token-spacing-lg);
-    margin: var(--token-spacing-sm) 0;
-    margin-inline: var(--token-spacing-lg);
     max-inline-size: var(--token-width-desktop-content-lg);
     min-block-size: 48px;
     overflow: hidden;
