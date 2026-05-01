@@ -27,9 +27,10 @@ Card Grid - Flare 2026 Design System Cards
 }
 
 /* default usage of illustration cards get two-wide on mobile. */
-.fl-card-grid:has(.fl-illustration-card-default) {
+
+/* .fl-card-grid:has(.fl-illustration-card-default) {
     --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-}
+} */
 
 @media (--viewport-sm-up) {
     /* for most instances, tablet size gets two-wide cards */
@@ -41,6 +42,11 @@ Card Grid - Flare 2026 Design System Cards
     .fl-card-grid:has(> *:nth-child(2):last-child) {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
         margin-inline: auto;
+    }
+
+    .fl-card-grid:not(.fl-illustration-cards-alternate-2):has(
+            > *:nth-child(2):last-child
+        ) {
         max-inline-size: var(--token-width-desktop-content);
     }
 
@@ -77,10 +83,12 @@ Card Grid - Flare 2026 Design System Cards
     /* ...unless there are only three, and then it gets a special treatment.
        There are two selectors, one with and one without .conditional-passthrough
        or .image-variants. */
-    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child),
-    .fl-card-grid:has(
-        > *:nth-child(3):last-child .fl-illustration-card-default
-    ),
+    .fl-card-grid:not(.fl-illustration-cards-alternate-3):has(
+            .fl-illustration-card-default:nth-child(3):last-child
+        ),
+    .fl-card-grid:not(.fl-illustration-cards-alternate-3):has(
+            > *:nth-child(3):last-child .fl-illustration-card-default
+        ),
     .fl-card-grid:has(.fl-illustration-icon-card:nth-child(3):last-child),
     .fl-card-grid:has(> *:nth-child(3):last-child .fl-illustration-icon-card),
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
@@ -664,7 +672,37 @@ Illustration Card
     padding: var(--media-padding);
 }
 
+.fl-illustration-cards-alternate-2 .fl-illustration-card,
+.fl-illustration-cards-alternate-3 .fl-illustration-card,
+.fl-illustration-cards-alternate-4 .fl-illustration-card {
+    gap: var(--token-spacing-lg);
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+.fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+    align-items: end;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media img,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media img,
+.fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media img {
+    margin-block-end: 0;
+}
+
 @media (--viewport-md-up) {
+    .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 6/5;
+    }
+
+    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 8/10;
+    }
+
     .fl-illustration-card.fl-illustration-sticker-card {
         --media-border-radius: var(--token-border-radius-sm);
         --media-padding: var(--token-spacing-lg);

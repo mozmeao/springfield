@@ -8,6 +8,65 @@
 
 {% block body_class %}fl-blog-index-body{% endblock %}
 
+{#
+  Render Illustration Card images for 3 different card list layouts:
+    2 cards: 1 almost square image and 1 landscape
+    3 cards: 1 almost square, 1 portrait and 1 landscape
+    4 cards: alternate almost square and portrait images
+  We cut the images with Wagtail filterspecs instead of CSS to respect image focal points.
+  On mobile, images are displayed with their original aspect radios.
+#}
+{% macro illustration_card_media(article, list_size, card_index) %}
+  {% set card_specs = {
+    2: [
+      {"filterspec": "fill-{348x280,696x560,1044x840}", "width": 696, "height": 560, "sizes": "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw"},
+      {"filterspec": "fill-{348x210,696x420,1044x630}", "width": 696, "height": 420, "sizes": "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw"}
+    ],
+    3: [
+      {"filterspec": "fill-{229x210,458x420,687x630,916x840}", "width": 458, "height": 420, "sizes": "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw"},
+      {"filterspec": "fill-{229x280,458x560,687x840,916x1120}", "width": 458, "height": 560, "sizes": "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw"},
+      {"filterspec": "fill-{229x140,458x280,687x420,916x560}", "width": 458, "height": 280, "sizes": "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw"}
+    ],
+    4: [
+      {"filterspec": "fill-{170x140,340x280,510x420,680x560}", "width": 340, "height": 280, "sizes": "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"},
+      {"filterspec": "fill-{170x210,340x420,510x630,680x840}", "width": 340, "height": 420, "sizes": "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"}
+    ]
+  } %}
+  {% if list_size in card_specs %}
+    {% set spec = card_specs[list_size][card_index % card_specs[list_size]|length] %}
+    {% set filterspec = spec.filterspec %}
+    {% set width = spec.width %}
+    {% set height = spec.height %}
+    {% set sizes = spec.sizes %}
+  {% else %}
+    {% set filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+    {% set sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw" %}
+    {% set width = none %}
+    {% set height = none %}
+  {% endif %}
+  {% set image = article.get_image() %}
+  {% if image %}
+    {% if width is none %}{% set width = image.width %}{% endif %}
+    {% if height is none %}{% set height = image.height %}{% endif %}
+    {% set dark_image = article.get_dark_image() %}
+    {% set mobile_image = article.get_mobile_image() %}
+    {% set dark_mobile_image = article.get_mobile_dark_image() %}
+    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+    <div class="image-variants-display display-md-up">
+      {{ srcset_image(image, filterspec, sizes=sizes, width=width, height=height, loading="lazy", class=classes.primary) }}
+      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, width=width, height=height, loading="lazy", class=classes.mobile) }}{% endif %}
+      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, width=width, height=height, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, width=width, height=height, loading="lazy", class=classes.dark_mode) }}{% endif %}
+    </div>
+    <div class="image-variants-display display-xs-and-sm">
+      {{ srcset_image(image, "width-{200,400,600,800}", sizes=sizes, width=width, height=height, loading="lazy", class=classes.primary) }}
+      {% if mobile_image %}{{ srcset_image(mobile_image, "width-{200,400,600,800}", sizes=sizes, width=width, height=height, loading="lazy", class=classes.mobile) }}{% endif %}
+      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, "width-{200,400,600,800}", sizes=sizes, width=width, height=height, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+      {% if dark_image %}{{ srcset_image(dark_image, "width-{200,400,600,800}", sizes=sizes, width=width, height=height, loading="lazy", class=classes.dark_mode) }}{% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
 {% block content %}
 <div class="fl-page fl-page-blog-index">
   <main class="fl-main">
@@ -127,23 +186,13 @@
             </div>
 
             {% if page.featured_articles|length > 4 %}
-              <include:cards-list>
+              {% set list_size = page.featured_articles[4:]|length %}
+              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
+              <include:cards-list extra_class="{{ extra_class }}">
                 {% for block in page.featured_articles[4:] %}
                   <include:illustration-card-2026 expand_link="true">
                     <content:media>
-                      {% set image = block.value.get_image() %}
-                      {% if image %}
-                        {% set dark_image = block.value.get_dark_image() %}
-                        {% set mobile_image = block.value.get_mobile_image() %}
-                        {% set dark_mobile_image = block.value.get_mobile_dark_image() %}
-                        {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
-                        <div class="image-variants-display">
-                          {{ srcset_image(image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
-                          {% if mobile_image %}{{ srcset_image(mobile_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
-                          {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-                          {% if dark_image %}{{ srcset_image(dark_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
-                        </div>
-                      {% endif %}
+                      {{ illustration_card_media(block.value, list_size, loop.index0) }}
                     </content:media>
                     <content:heading>
                       <hgroup class="fl-heading-group">
@@ -157,9 +206,10 @@
                     </content:heading>
                     <content:body>
                       {{ block.value.get_description() }}
+                      {% set tags =  block.value.get_tags() %}
                       {% if tags %}
                         <div class="fl-card-tags">
-                          {% for tag in block.value.get_tags() %}
+                          {% for tag in tags %}
                             <include:tag
                               text="{{ tag }}"
                               color="purple"
@@ -195,24 +245,13 @@
                 <a class="fl-blog-cards-list-link" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}">{{ ftl('blog-view-all') }}</a>
               </div>
               <hr/>
-              <include:cards-list>
+              {% set list_size = block.value.articles|length %}
+              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
+              <include:cards-list extra_class="{{ extra_class }}">
                 {% for article_block in block.value.articles %}
-                  {% set article_page = article_block.article %}
-                  {% set image = article_block.get_image() %}
                   <include:illustration-card-2026 expand_link="true">
                     <content:media>
-                      {% if image %}
-                        {% set dark_image = article_block.get_dark_image() %}
-                        {% set mobile_image = article_block.get_mobile_image() %}
-                        {% set dark_mobile_image = article_block.get_mobile_dark_image() %}
-                        {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
-                        <div class="image-variants-display">
-                          {{ srcset_image(image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
-                          {% if mobile_image %}{{ srcset_image(mobile_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
-                          {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-                          {% if dark_image %}{{ srcset_image(dark_image, "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 33vw, (min-width: 1440px) 440px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
-                        </div>
-                      {% endif %}
+                      {{ illustration_card_media(article_block, list_size, loop.index0) }}
                     </content:media>
                     <content:heading>
                       <hgroup class="fl-heading-group">
