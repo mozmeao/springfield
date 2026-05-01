@@ -7,11 +7,36 @@ from io import BytesIO
 from django.conf import settings
 from django.core.files.base import ContentFile
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from wagtail.documents.models import Document
 from wagtail.models import Site
 
 from springfield.cms.models import ArticleIndexPage, SpringfieldImage, StructuralPage
+
+
+def _draw_numbered_grid(image, cols, rows):
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+    cell_w = width / cols
+    cell_h = height / rows
+    font = ImageFont.load_default(size=int(min(cell_w, cell_h) // 3))
+
+    for col in range(1, cols):
+        x = round(col * cell_w)
+        draw.line([(x, 0), (x, height)], fill="white", width=3)
+    for row in range(1, rows):
+        y = round(row * cell_h)
+        draw.line([(0, y), (width, y)], fill="white", width=3)
+
+    for row in range(rows):
+        for col in range(cols):
+            num = str(row * cols + col + 1)
+            cx = (col + 0.5) * cell_w
+            cy = (row + 0.5) * cell_h
+            bbox = draw.textbbox((0, 0), num, font=font)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            draw.text((cx - tw / 2, cy - th / 2), num, fill="white", font=font)
 
 
 def get_placeholder_images():
@@ -19,6 +44,11 @@ def get_placeholder_images():
     dark_image = Image.new("RGB", (800, 450), (255, 138, 80))
     mobile_image = Image.new("RGB", (300, 500), (117, 79, 224))
     dark_mobile_image = Image.new("RGB", (300, 500), (255, 138, 80))
+
+    _draw_numbered_grid(image, cols=3, rows=2)
+    _draw_numbered_grid(dark_image, cols=3, rows=2)
+    _draw_numbered_grid(mobile_image, cols=2, rows=3)
+    _draw_numbered_grid(dark_mobile_image, cols=2, rows=3)
 
     image_buffer = BytesIO()
     image.save(image_buffer, format="PNG")
