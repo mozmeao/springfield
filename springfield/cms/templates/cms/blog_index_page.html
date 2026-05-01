@@ -40,6 +40,8 @@
   {% endif %}
 {% endmacro %}
 
+{% set all_url = page.url ~ page.reverse_subpage('all_route') %}
+
 <div class="fl-page fl-page-blog-index">
   <main class="fl-main">
     <section class="fl-section">
@@ -71,7 +73,7 @@
             <div class="fl-blog-topics">
               <div class="fl-blog-topics-list">
                 {% for topic in all_topics[:5] %}
-                  <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
+                  <a href="{{ all_url }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
                     <span class="fl-blog-topic-name">{{ topic.name }}</span>
                     <include:tag
                       text="{{ topic.article_count }}"
@@ -124,7 +126,7 @@
                   superheading_text="{{ first_block.value.get_topic() }}"
                   heading_size="fl-heading-size-2"
                 />
-                {{ first_block.value.get_description() }}
+                <p class="fl-body">{{ first_block.value.get_description() }}</p>
                 <div>
                   <include:button
                     label="{{ ftl('blog-read-more') }}"
@@ -184,7 +186,7 @@
                       </hgroup>
                     </content:heading>
                     <content:body>
-                      {{ block.value.get_description() }}
+                      <p>{{ block.value.get_description() }}</p>
                       {% set tags =  block.value.get_tags() %}
                       {% if tags %}
                         <div class="fl-card-tags">
@@ -221,7 +223,7 @@
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
                   heading_size="fl-heading-size-3"
                 />
-                <a class="fl-blog-cards-list-link" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
+                <a class="fl-blog-cards-list-link" href="{{ all_url }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
               </div>
               <hr/>
               {% set list_size = block.value.articles|length %}
@@ -243,7 +245,7 @@
                       </hgroup>
                     </content:heading>
                     <content:body>
-                      {{ article_block.get_description() }}
+                      <p>{{ article_block.get_description() }}</p>
                       {% if article_block.get_tags() %}
                         <div class="fl-card-tags">
                           {% for tag in article_block.get_tags() %}
@@ -262,6 +264,16 @@
             </div>
           {% endfor %}
         {% endif %}
+
+        <div class="fl-buttons is-horizontal is-center">
+          <include:button
+            link="{{ all_url }}"
+            label="{{ page.view_all_label }}"
+            analytics_position="more-articles"
+            analytics_text="{{ page.view_all_label }}"
+            analytics_id="blog-more-articles"
+          />
+        </div>
 
       </div>
     </section>

@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.db.models import Count
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -119,30 +121,24 @@ def test_blog_index_context_all_topics(blog_setup, rf):
     assert counts == sorted(counts, reverse=True)
 
 
-def test_blog_index_renders_top_5_topics(blog_setup, rf):
-    index_page, _ = blog_setup
-    request = rf.get(index_page.get_full_url())
-    response = index_page.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    topic_links = soup.find_all("a", class_="fl-blog-topic-link")
-    assert len(topic_links) == 5
-
-
 def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
+    all_topics = Tag.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
 
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
-    for link in topic_links:
-        href = link["href"]
-        assert href.startswith(all_route_url) and "?topic=" in href
+    assert len(topic_links) == len(all_topics)
+
+    for index, topic in enumerate(all_topics):
+        link = topic_links[index]
+        assert topic.name in link.get_text()
+        assert link["href"] == f"{all_route_url}?topic={topic.slug}"
 
 
-def test_blog_index_view_all_articles_link(blog_setup, rf):
+def test_blog_index_view_all_topics_link(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
@@ -165,16 +161,52 @@ def test_blog_index_renders_first_featured_as_hero(blog_setup, rf):
     hero = soup.find("div", class_="fl-blog-featured-main")
     assert hero, "First featured article should render as fl-blog-featured-main"
 
-    heading = hero.find(["h2", "h3"], class_="fl-heading")
+    heading = hero.find("h2", class_="fl-heading")
     assert heading and first_article.title in heading.get_text()
 
+    topic = hero.find(class_="fl-superheading")
+    assert topic and first_article.topic.name in topic.get_text()
+
+    description = hero.find("p", class_="fl-body")
+    assert description and BeautifulSoup(first_article.description, "html.parser").get_text() in description
+
     button = hero.find("a", class_="fl-button")
-    assert button
+    assert button and button["href"] == first_article.get_url()
+
+
+def test_blog_index_renders_three_featured_articles_as_articles_list(blog_setup, rf):
+    index_page, articles = blog_setup
+    articles = articles[1:4]
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    featured_row = soup.find("div", class_="fl-blog-featured")
+    assert featured_row
+    articles_list = featured_row.find("div", class_="fl-blog-article-list")
+    assert articles_list, "Featured articles 1 - 4 should render as fl-blog-article-list inside the featured row"
+
+    article_items = articles_list.find_all("article", class_="fl-blog-article-list-item")
+    assert len(article_items) == len(articles)
+    for article, item in zip(articles, article_items):
+        heading = item.find("h2", class_="fl-heading")
+        assert heading and article.title in heading.get_text()
+        link = heading.find("a", class_="fl-link")
+        assert link and link["href"] == article.url
+
+        topic = item.find(class_="fl-superheading")
+        assert topic and article.topic.name in topic.get_text()
+
+        description = item.find("div", class_="fl-body")
+        assert description and BeautifulSoup(article.description, "html.parser").get_text() in description.get_text()
+
+        assert item.find("p", class_="fl-blog-article-date")
+        assert item.find("span", class_="fl-tag")
 
 
 def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup, rf):
     # articles[0] is the hero; articles[1:4] are list items; articles[4:8] are illustration cards
-    index_page, _ = blog_setup
+    index_page, all_articles = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -182,10 +214,24 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-illustration-card")
     assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 4  # 8 total - 1 hero - 3 list items = 4 cards
 
-    for card in cards:
+    for fixture_article, card in zip(all_articles[4:8], cards):
         assert "fl-card-expand-link" in card.get("class", [])
-        expand_link = card.find("a", class_="fl-link-expand")
-        assert expand_link
+
+        media = card.find("div", class_="fl-card-media")
+        assert media and media.find("img")
+
+        topic = card.find("p", class_="fl-superheading")
+        assert topic and fixture_article.topic.name in topic.get_text()
+
+        heading = card.find(class_="fl-heading")
+        assert heading and fixture_article.title in heading.get_text()
+        expand_link = heading.find("a", class_="fl-link-expand")
+        assert expand_link and expand_link["href"] == fixture_article.url
+
+        body = card.find("div", class_="fl-body")
+        assert body and body.get_text(strip=True)
+
+        assert card.find("span", class_="fl-tag")
 
 
 def test_blog_index_renders_cards_lists(blog_setup, rf):
@@ -195,7 +241,78 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     cards_list_divs = soup.find_all("div", class_="fl-blog-cards-list")
-    assert len(cards_list_divs) >= 1
+    assert len(cards_list_divs) == 3
+
+    for cards_list in cards_list_divs:
+        assert cards_list.find(class_="fl-heading")
+        assert cards_list.find("a", class_="fl-blog-cards-list-link")
+        cards = cards_list.find_all("article", class_="fl-illustration-card")
+        assert cards
+        for card in cards:
+            assert "fl-card-expand-link" in card.get("class", [])
+
+            media = card.find("div", class_="fl-card-media")
+            assert media and media.find("img")
+
+            assert card.find("p", class_="fl-superheading")
+
+            expand_link = card.find("a", class_="fl-link-expand")
+            assert expand_link and expand_link["href"]
+
+            body = card.find("div", class_="fl-body")
+            assert body and body.get_text(strip=True)
+
+            assert card.find("span", class_="fl-tag")
+
+
+def test_blog_index_renders_more_articles_heading(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Fixture sets more_articles_heading to "Looking for more?"
+    headings = [h.get_text(strip=True) for h in soup.find_all(class_="fl-heading")]
+    assert any("Looking for more?" in text for text in headings)
+
+
+def test_blog_index_renders_view_all_button(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    all_url = index_page.url + index_page.reverse_subpage("all_route")
+    buttons_div = soup.find("div", class_="fl-buttons")
+    assert buttons_div
+    view_all = buttons_div.find("a", class_="fl-button")
+    assert view_all and view_all["href"] == all_url
+    assert index_page.view_all_label in view_all.get_text()
+
+
+def test_blog_index_cards_list_links_use_label_and_filter(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
+    cards_list_divs = soup.find_all("div", class_="fl-blog-cards-list")
+
+    # First list: link_label with topic label, link_filter appended to URL
+    link = cards_list_divs[0].find("a", class_="fl-blog-cards-list-link")
+    assert link.get_text(strip=True) == "View all Privacy"
+    assert link["href"] == f"{all_route_url}?topic=privacy"
+
+    # Second list: different topic
+    link = cards_list_divs[1].find("a", class_="fl-blog-cards-list-link")
+    assert link.get_text(strip=True) == "View all Security"
+    assert link["href"] == f"{all_route_url}?topic=security"
+
+    # Third list: no filter — link points to plain all_route URL
+    link = cards_list_divs[2].find("a", class_="fl-blog-cards-list-link")
+    assert link.get_text(strip=True) == "View all"
+    assert link["href"] == all_route_url
 
 
 # ---------------------------------------------------------------------------
@@ -262,6 +379,7 @@ def test_blog_all_renders_list_articles(blog_setup, rf):
         assert item.find("p", class_="fl-superheading")
         heading = item.find("h2", class_="fl-heading")
         assert heading and heading.find("a")
+        assert item.find("div", class_="fl-body")
         assert item.find("p", class_="fl-blog-article-date")
         assert item.find("span", class_="fl-tag")
 
@@ -375,11 +493,11 @@ def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     article_list = soup.find("div", class_="fl-blog-article-list")
-    if article_list:
-        items = article_list.find_all("article", class_="fl-blog-article-list-item")
-        for item in items:
-            superheading = item.find("p", class_="fl-superheading")
-            assert superheading and topic.name in superheading.get_text()
+    assert article_list
+    items = article_list.find_all("article", class_="fl-blog-article-list-item")
+    for item in items:
+        superheading = item.find("p", class_="fl-superheading")
+        assert superheading and topic.name in superheading.get_text()
 
 
 def test_blog_all_topic_filter_count_in_selected_tag(blog_setup, rf):
@@ -501,6 +619,18 @@ def test_blog_article_renders_back_link(single_article, rf):
     assert "Back" in back_link.get_text()
 
 
+def test_blog_article_renders_header_image(single_article, rf):
+    _, article = single_article
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    assert header
+    image_div = header.find("div", class_="image-variants-display")
+    assert image_div and image_div.find("img")
+
+
 def test_blog_article_renders_related_articles(privacy_articles, rf):
     index_page, articles = privacy_articles
     article = articles[0]
@@ -535,6 +665,8 @@ def test_blog_article_renders_related_articles(privacy_articles, rf):
         assert link and link["href"] == related.url
         body = item.find("div", class_="fl-body")
         assert body and body.get_text(strip=True)
+        assert item.find("p", class_="fl-blog-article-date")
+        assert item.find("span", class_="fl-tag")
 
 
 def test_blog_article_excludes_self_from_related(privacy_articles, rf):

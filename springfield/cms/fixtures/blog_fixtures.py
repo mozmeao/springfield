@@ -262,6 +262,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
             "type": "cards_list",
             "value": {
                 "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
+                "link_label": "View all Privacy",
+                "link_filter": "?topic=privacy",
                 "articles": [
                     _article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
                 ],
@@ -272,6 +274,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
             "type": "cards_list",
             "value": {
                 "heading_text": '<p data-block-key="clh00002">More Articles 2</p>',
+                "link_label": "View all Security",
+                "link_filter": "?topic=security",
                 "articles": [
                     _article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
                 ],
@@ -282,6 +286,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
             "type": "cards_list",
             "value": {
                 "heading_text": '<p data-block-key="clh00003">More Articles 3</p>',
+                "link_label": "View all",
+                "link_filter": "",
                 "articles": [
                     _article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
                 ],
