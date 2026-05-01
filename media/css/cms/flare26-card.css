@@ -684,23 +684,97 @@ Illustration Card
     align-items: end;
     display: flex;
     inline-size: 100%;
-    justify-content: center;
+    overflow: hidden;
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media picture,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media picture,
+.fl-illustration-cards-alternate-4
+    .fl-illustration-card
+    .fl-card-media
+    picture {
+    inline-size: 100%;
 }
 
 .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media img,
 .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media img,
 .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media img {
+    inline-size: 100%;
     margin-block-end: 0;
+    object-fit: cover;
+    object-position: var(--focal-point, center);
+}
+
+@media (--viewport-sm-up) {
+    .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 340/420;
+    }
 }
 
 @media (--viewport-md-up) {
+    /* Container uses the tallest aspect ratio so all cards in a row share the same height */
     .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media {
-        aspect-ratio: 6/5;
+        aspect-ratio: 696/560;
     }
 
-    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 458/560;
+    }
+
     .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
-        aspect-ratio: 8/10;
+        aspect-ratio: 340/420;
+    }
+
+    /* Each img gets its own aspect ratio; object-fit crops to that box, aligned to the bottom */
+    .fl-illustration-cards-alternate-2
+        .fl-illustration-card:nth-child(odd)
+        .fl-card-media
+        img {
+        aspect-ratio: 696/560;
+    }
+
+    .fl-illustration-cards-alternate-2
+        .fl-illustration-card:nth-child(even)
+        .fl-card-media
+        img {
+        aspect-ratio: 696/420;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n + 1)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/420;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n + 2)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/560;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/280;
+    }
+
+    .fl-illustration-cards-alternate-4
+        .fl-illustration-card:nth-child(odd)
+        .fl-card-media
+        img {
+        aspect-ratio: 340/280;
+    }
+
+    .fl-illustration-cards-alternate-4
+        .fl-illustration-card:nth-child(even)
+        .fl-card-media
+        img {
+        aspect-ratio: 340/420;
     }
 
     .fl-illustration-card.fl-illustration-sticker-card {
