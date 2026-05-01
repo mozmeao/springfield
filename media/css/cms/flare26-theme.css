@@ -245,10 +245,10 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-step-card-index-bg: var(--token-color-dark-purple);
     --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
     --content-dark-mode-only: '';
-    --fl-sticker-card-bg: var(--token-color-soft-purple);
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: transparent;
     --card-border-color: var(--token-color-light-purple);
+    --fl-theme-card-superheading-color: var(--token-color-soft-purple-4);
     --fl-theme-card-outline-superheading-color: var(
         --token-color-soft-purple-4
     );
@@ -359,12 +359,16 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         );
 }
 
+.fl-split-page-upper .fl-force-light-theme,
 .fl-force-light-theme {
     /* Main theme */
     --fl-theme-color-text: var(--token-color-black-4);
     --fl-theme-color-text-inverse: var(--token-color-white);
     --fl-theme-background: var(--token-color-white);
     --fl-theme-color-icon-wrap: var(--token-color-purple);
+    --fl-theme-color-link: var(--token-color-link-purple);
+    --fl-theme-color-link-hover: var(--token-color-link-purple);
+    --fl-theme-color-link-alt-hover: var(--token-color-black-4);
     --token-color-error-text-color: var(--token-color-secondary-red);
     --fl-theme-code-background: var(--token-color-soft-purple-2);
 
@@ -388,7 +392,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
     --content-dark-mode-only: unset;
-    --fl-sticker-card-bg: var(--token-color-soft-purple);
     --fl-theme-surface-card-gradient: var(--token-gradient-light);
     --fl-theme-default-card-bg: var(--fl-theme-surface-card-gradient);
     --fl-theme-card-outline-superheading-color: var(--token-color-grey-4);
@@ -501,6 +504,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-surface-card-gradient: var(--token-gradient-light);
         --fl-theme-default-card-bg: transparent;
         --card-border-color: var(--token-color-light-purple);
+        --fl-theme-card-superheading-color: var(--token-color-soft-purple-4);
         --fl-theme-card-outline-superheading-color: var(
             --token-color-soft-purple-4
         );

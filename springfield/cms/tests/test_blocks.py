@@ -3545,37 +3545,38 @@ def test_kit_intro_2026_block(index_page, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
-        intro_divs = region.find_all("div", class_="fl-home-intro")
-        assert len(intro_divs) == len(variants)
+    intro_divs = upper.find_all("div", class_="fl-home-intro")
+    assert len(intro_divs) == len(variants)
 
-        for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
-            value = variant["value"]
+    for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+        value = variant["value"]
 
-            heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-            # Kit intro is first block in upper (h1), lower blocks follow upper (h2)
-            heading_tag = "h1" if region_name == "upper" else "h2"
-            heading = intro_el.find(heading_tag, class_="fl-heading")
-            assert heading and heading_text in heading.get_text()
+        heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
+        # Kit intro is first block in upper (h1)
+        heading = intro_el.find("h1", class_="fl-heading")
+        assert heading and heading_text in heading.get_text()
 
-            if value["heading"]["superheading_text"]:
-                superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
-                superheading = intro_el.find("p", class_="fl-superheading")
-                assert superheading and superheading_text in superheading.get_text()
+        if value["heading"]["superheading_text"]:
+            superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
+            superheading = intro_el.find("p", class_="fl-superheading")
+            assert superheading and superheading_text in superheading.get_text()
 
-            buttons = value["buttons"]
-            button_elements = intro_el.find_all("a", class_="fl-button")
-            assert len(button_elements) == len(buttons)
-            for button_index, button in enumerate(buttons):
-                cta_position = f"{region_name}-block-{index + 1}-kit_intro.button-{button_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-                assert_button_attributes(
-                    button_element=button_elements[button_index],
-                    button_data=button,
-                    context=context,
-                    cta_position=cta_position,
-                    cta_text=cta_text,
-                )
+        buttons = value["buttons"]
+        button_elements = intro_el.find_all("a", class_="fl-button")
+        assert len(button_elements) == len(buttons)
+        for button_index, button in enumerate(buttons):
+            cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
+            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            assert_button_attributes(
+                button_element=button_elements[button_index],
+                button_data=button,
+                context=context,
+                cta_position=cta_position,
+                cta_text=cta_text,
+            )
+
+    # The Kit Intro block isn't allowed on the lower section
+    assert not lower.find_all("div", class_="fl-home-intro")
 
 
 def test_carousel_2026_block(index_page, placeholder_images, rf):
