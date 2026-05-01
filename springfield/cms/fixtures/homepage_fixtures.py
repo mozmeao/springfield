@@ -6,7 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets, get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_pretranslated_phrase_snippets
 from springfield.cms.models import HomePage
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
