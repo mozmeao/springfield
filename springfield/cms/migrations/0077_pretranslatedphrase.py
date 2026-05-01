@@ -26,6 +26,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ["name"],
+                "verbose_name": "Pretranslated Phrase Category",
+                "verbose_name_plural": "Pretranslated Phrase Categories",
             },
         ),
         migrations.CreateModel(

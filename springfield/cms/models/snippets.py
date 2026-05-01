@@ -379,6 +379,8 @@ class PretranslatedPhraseCategory(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = "Pretranslated Phrase Category"
+        verbose_name_plural = "Pretranslated Phrase Categories"
 
     def __str__(self):
         return self.name
@@ -406,3 +408,12 @@ class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
 
     def __str__(self):
         return f"{self.label} – {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.category_id and self.locale_id:
+            qs = PretranslatedPhrase.objects.filter(category_id=self.category_id, locale_id=self.locale_id)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError(f"A phrase for this category already exists in {self.locale}.")
