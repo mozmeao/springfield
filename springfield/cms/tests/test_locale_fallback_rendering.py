@@ -15,7 +15,7 @@ from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
-from springfield.cms.fixtures.snippet_fixtures import get_button_label_snippets
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
 from springfield.cms.models import FreeFormPage, PretranslatedPhrase
 from springfield.cms.tests.factories import (
     LocaleFactory,
@@ -840,7 +840,7 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
     When the es-CL (alias locale for es-MX) URL is requested, the user gets the es-MX
     page, with the es-MX download firefox button.
     """
-    en_us_get_firefox, _ = get_button_label_snippets()
+    en_us_get_firefox, _ = get_pretranslated_phrase_snippets()
 
     es_mx_locale = LocaleFactory(language_code="es-MX")
     LocaleFactory(language_code="es-CL")  # alias locale: Locale record, no page tree
@@ -854,7 +854,7 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
     es_mx_snippet = PretranslatedPhrase.objects.create(
         locale=es_mx_locale,
         translation_key=en_us_get_firefox.translation_key,
-        key=en_us_get_firefox.key,
+        category=en_us_get_firefox.category,
         label="Obtener Firefox",
         live=True,
     )

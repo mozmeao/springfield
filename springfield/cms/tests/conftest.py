@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
 import pytest
@@ -11,7 +10,7 @@ from wagtail.models import Locale, Page, Site
 
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
-from springfield.cms.models import PretranslatedPhrase
+from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -33,10 +32,15 @@ def download_firefox_button_block():
 
 
 @pytest.fixture
-def button_label_snippet():
+def pretranslated_phrase_snippet():
+    category, _ = PretranslatedPhraseCategory.objects.get_or_create(
+        slug="get_firefox",
+        defaults={"name": "Get Firefox"},
+    )
     snippet, _ = PretranslatedPhrase.objects.update_or_create(
-        id=settings.BUTTON_LABEL_GET_FIREFOX_SNIPPET_ID,
-        defaults={"key": "get_firefox", "label": "Get Firefox", "live": True},
+        category=category,
+        locale=Locale.get_default(),
+        defaults={"label": "Get Firefox", "live": True},
     )
     return snippet
 
