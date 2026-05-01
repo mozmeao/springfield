@@ -5,7 +5,7 @@
 #}
 
 {% set cta_text = block_text ~ " - " ~ value.label %}
-{% set icon_name = value.settings.icon %}
+{% set icon_name = value.settings.icon_name %}
 
 <include:download-firefox-button
   analytics_id="{{ value.settings.analytics_id }}"
@@ -14,7 +14,7 @@
   cta_text="{{ cta_text }}"
   block_position="{{ block_position }}"
   icon_position="{{ value.settings.icon_position }}"
-  icon_name="{{ value.settings.icon }}"
+  icon_name="{{ value.settings.icon_name }}"
   show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox }}"
   show_store_button=true
   exclude_unsupported_content="{{ not value.settings.show_extra_links }}"

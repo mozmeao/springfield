@@ -25,6 +25,7 @@ from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
+from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -57,344 +58,6 @@ HEADING_LEVEL_CHOICES = (
     ("h5", "H5"),
     ("h6", "H6"),
 )
-
-ICON_CHOICES = [
-    ("activity", "Activity"),
-    ("add", "Add"),
-    ("android", "Android"),
-    ("apple", "Apple"),
-    ("add-circle-fill", "Add Circle Fill"),
-    ("add-text", "Add Text"),
-    ("add-user", "Add User"),
-    ("all-tabs", "All Tabs"),
-    ("app-menu", "App Menu"),
-    ("app-menu-space", "App Menu Space"),
-    ("applied-policy", "Applied Policy"),
-    ("arrow-clockwise", "Arrow Clockwise"),
-    ("arrow-counterclockwise", "Arrow Counterclockwise"),
-    ("arrow-down-line", "Arrow Down Line"),
-    ("arrow-trending", "Arrow Trending"),
-    ("audio", "Audio"),
-    ("audio-muted", "Audio Muted"),
-    ("authenticated-user", "Authenticated User"),
-    ("auto-play-false", "Auto Play False"),
-    ("auto-play-true", "Auto Play True"),
-    ("avatar-signed-in-fill", "Avatar Signed In Fill"),
-    ("avatar-signed-in-fill-custom-initial", "Avatar Signed In Fill Custom Initial"),
-    ("avatar-signed-in-fill-profile-picture", "Avatar Signed In Fill Profile Picture"),
-    ("avatar-signed-out", "Avatar Signed Out"),
-    ("back", "Back"),
-    ("barbell", "Barbell"),
-    ("bike", "Bike"),
-    ("blocked-popup", "Blocked Popup"),
-    ("block", "Block"),
-    ("block-download", "Block Download"),
-    ("book", "Book"),
-    ("bookmark", "Bookmark"),
-    ("bookmark-fill", "Bookmark Fill"),
-    ("bookmarks-tray", "Bookmarks Tray"),
-    ("briefcase", "Briefcase"),
-    ("calendar", "Calendar"),
-    ("camera-false", "Camera False"),
-    ("camera-true", "Camera True"),
-    ("canvas-false", "Canvas False"),
-    ("canvas-true", "Canvas True"),
-    ("checkmark", "Checkmark"),
-    ("checkmark-circle-fill", "Checkmark Circle Fill"),
-    ("chevron-double-right", "Chevron Double Right"),
-    ("chevron-down", "Chevron Down"),
-    ("chevron-down-small", "Chevron Down Small"),
-    ("chevron-left", "Chevron Left"),
-    ("chevron-right", "Chevron Right"),
-    ("chevron-up", "Chevron Up"),
-    ("close", "Close"),
-    ("close-circle-fill", "Close Circle Fill"),
-    ("closed-caption", "Closed Caption"),
-    ("closed-tabs", "Closed Tabs"),
-    ("color-picker", "Color Picker"),
-    ("comment", "Comment"),
-    ("competitiveness", "Competitiveness"),
-    ("craft", "Craft"),
-    ("critical", "Critical"),
-    ("critical-fill", "Critical Fill"),
-    ("cryptominer-false", "Cryptominer False"),
-    ("cryptominer-true", "Cryptominer True"),
-    ("current-view", "Current View"),
-    ("cursor-arrow", "Cursor Arrow"),
-    ("dashboard", "Dashboard"),
-    ("data-clearance", "Data Clearance"),
-    ("delete", "Delete"),
-    ("device-mobile", "Device Mobile"),
-    ("diamond", "Diamond"),
-    ("downloaded-file", "Downloaded File"),
-    ("downloads", "Downloads"),
-    ("edit", "Edit"),
-    ("edit-active", "Edit Active"),
-    ("edit-squiggle", "Edit Squiggle"),
-    ("email-mask", "Email Mask"),
-    ("email-shield", "Email Shield"),
-    ("error", "Error"),
-    ("error-fill", "Error Fill"),
-    ("even-spreads", "Even Spreads"),
-    ("export-data", "Export Data"),
-    ("extension", "Extension"),
-    ("extension-critical", "Extension Critical"),
-    ("extension-fill", "Extension Fill"),
-    ("extension-warning", "Extension Warning"),
-    ("external-link", "External Link"),
-    ("find-in-page", "Find In Page"),
-    ("firefox-bridge", "Firefox Bridge"),
-    ("firefox-browser-bridge", "Firefox Browser Bridge"),
-    ("flower", "Flower"),
-    ("folder", "Folder"),
-    ("folder-arrow-down", "Folder Arrow Down"),
-    ("folder-fill", "Folder Fill"),
-    ("fingerprinter-false", "Fingerprinter False"),
-    ("fingerprinter-true", "Fingerprinter True"),
-    ("footprints-false", "Footprints False"),
-    ("footprints-true", "Footprints True"),
-    ("forward", "Forward"),
-    ("forward-small", "Forward Small"),
-    ("fullscreen-disabled", "Fullscreen Disabled"),
-    ("fullscreen-exit", "Fullscreen Exit"),
-    ("fullscreen-expand", "Fullscreen Expand"),
-    ("fx-view", "Fx View"),
-    ("gift", "Gift"),
-    ("globe", "Globe"),
-    ("globe-slash", "Globe Slash"),
-    ("hammer", "Hammer"),
-    ("hand", "Hand"),
-    ("heart", "Heart"),
-    ("heart-rate", "Heart Rate"),
-    ("help", "Help"),
-    ("help-fill", "Help Fill"),
-    ("highlighter", "Highlighter"),
-    ("history", "History"),
-    ("home", "Home"),
-    ("horizontal-scrolling", "Horizontal Scrolling"),
-    ("identity", "Identity"),
-    ("import-data", "Import Data"),
-    ("import-export", "Import Export"),
-    ("image-tracker-false", "Image Tracker False"),
-    ("image-tracker-true", "Image Tracker True"),
-    ("information", "Information"),
-    ("information-fill", "Information Fill"),
-    ("layer", "Layer"),
-    ("leaf", "Leaf"),
-    ("library", "Library"),
-    ("lightbulb", "Lightbulb"),
-    ("line-arrow-up", "Line Arrow Up"),
-    ("list", "List"),
-    ("list-arrow-left", "List Arrow Left"),
-    ("lock", "Lock"),
-    ("lock-document", "Lock Document"),
-    ("lock-insecure", "Lock Insecure"),
-    ("lock-warning", "Lock Warning"),
-    ("local-host-false", "Local Host False"),
-    ("local-host-true", "Local Host True"),
-    ("local-network-false", "Local Network False"),
-    ("local-network-true2", "Local Network True2"),
-    ("location-false", "Location False"),
-    ("location-true", "Location True"),
-    ("login", "Login"),
-    ("makeup", "Makeup"),
-    ("microphone-false", "Microphone False"),
-    ("microphone-true", "Microphone True"),
-    ("midi", "Midi"),
-    ("musical-note", "Musical Note"),
-    ("newsfeed", "Newsfeed"),
-    ("notifications-false", "Notifications False"),
-    ("notifications-true", "Notifications True"),
-    ("no-spreads", "No Spreads"),
-    ("odd-spreads", "Odd Spreads"),
-    ("off", "Off"),
-    ("open-tabs", "Open Tabs"),
-    ("organizational-unit", "Organizational Unit"),
-    ("packaging", "Packaging"),
-    ("page-actions", "Page Actions"),
-    ("page-landscape", "Page Landscape"),
-    ("page-portrait", "Page Portrait"),
-    ("page-scrolling", "Page Scrolling"),
-    ("page-thumbnails", "Page Thumbnails"),
-    ("palette", "Palette"),
-    ("paperclip", "Paperclip"),
-    ("passkey", "Passkey"),
-    ("pause-fill", "Pause Fill"),
-    ("paw-print", "Paw Print"),
-    ("payment-methods", "Payment Methods"),
-    ("picture-in-picture-closed", "Picture In Picture Closed"),
-    ("picture-in-picture-open", "Picture In Picture Open"),
-    ("pin", "Pin"),
-    ("pin-fill", "Pin Fill"),
-    ("plane", "Plane"),
-    ("play-fill", "Play Fill"),
-    ("playback-forward", "Playback Forward"),
-    ("playback-rewind", "Playback Rewind"),
-    ("plugin-false", "Plugin False"),
-    ("plugin-true", "Plugin True"),
-    ("popup-subitem", "Popup Subitem"),
-    ("pocket", "Pocket"),
-    ("pocket-fill", "Pocket Fill"),
-    ("policy", "Policy"),
-    ("presentation-mode", "Presentation Mode"),
-    ("price", "Price"),
-    ("print", "Print"),
-    ("private-mode-circle-fill", "Private Mode Circle Fill"),
-    ("private-mode-fill", "Private Mode Fill"),
-    ("quality", "Quality"),
-    ("reader-mode", "Reader Mode"),
-    ("remove-user", "Remove User"),
-    ("screenshot-camera", "Camera (Screenshot)"),
-    ("search", "Search"),
-    ("search-in-circle", "Search In Circle"),
-    ("search-in-circle-right", "Search In Circle Right"),
-    ("screesnshare-false", "Screesnshare False"),
-    ("screesnshare-true", "Screesnshare True"),
-    ("settings", "Settings"),
-    ("share-macos", "Share Macos"),
-    ("share-winos", "Share Winos"),
-    ("shield", "Shield"),
-    ("shipping", "Shipping"),
-    ("shopping", "Shopping"),
-    ("shopping-cart", "Shopping Cart"),
-    ("show-password-false", "Show Password False"),
-    ("show-password-true", "Show Password True"),
-    ("sidebar-collapsed", "Sidebar Collapsed"),
-    ("sidebar-collapsed-right", "Sidebar Collapsed Right"),
-    ("sidebar-expanded", "Sidebar Expanded"),
-    ("sidebar-expanded-right", "Sidebar Expanded Right"),
-    ("sidebar-hidden", "Sidebar Hidden"),
-    ("sidebar-left", "Sidebar Left"),
-    ("sidebar-right", "Sidebar Right"),
-    ("signature-properties", "Signature Properties"),
-    ("single-user", "Single User"),
-    ("soccer-ball", "Soccer Ball"),
-    ("social-tracker-false", "Social Tracker False"),
-    ("social-tracker-true", "Social Tracker True"),
-    ("sort", "Sort"),
-    ("sparkle-single", "Sparkle Single"),
-    ("sparkles", "Sparkles"),
-    ("split-view", "Split View"),
-    ("split-view-left", "Split View Left"),
-    ("split-view-right", "Split View Right"),
-    ("storage-false", "Storage False"),
-    ("storage-true", "Storage True"),
-    ("subtract", "Subtract"),
-    ("subtract-circle-fill", "Subtract Circle Fill"),
-    ("sync", "Sync"),
-    ("synced-tabs", "Synced Tabs"),
-    ("tab", "Tab"),
-    ("tab-group", "Tab Group"),
-    ("tab-notes", "Tab Notes"),
-    ("taskbar-add-tab", "Taskbar Add Tab"),
-    ("taskbar-move-tab", "Taskbar Move Tab"),
-    ("taskbar-remove-tab", "Taskbar Remove Tab"),
-    ("text-cursor", "Text Cursor"),
-    ("themes", "Themes"),
-    ("top-sites", "Top Sites"),
-    ("toggle-on", "Toggle On"),
-    ("tracking-cookies-false", "Tracking Cookies False"),
-    ("tracking-cookies-true", "Tracking Cookies True"),
-    ("translate", "Translate"),
-    ("trending", "Trending"),
-    ("unauthenticated-user", "Unauthenticated User"),
-    ("update", "Update"),
-    ("update-circle-fill", "Update Circle Fill"),
-    ("users", "Users"),
-    ("vertical-scrolling", "Vertical Scrolling"),
-    ("vertical-tabs", "Vertical Tabs"),
-    ("video-game-controller", "Video Game Controller"),
-    ("vpn-disconnected", "Vpn Disconnected"),
-    ("vpn-off", "Vpn Off"),
-    ("vpn-on", "Vpn On"),
-    ("vpn-on-off-site", "Vpn On Off Site"),
-    ("warning", "Warning"),
-    ("warning-fill", "Warning Fill"),
-    ("window", "Window"),
-    ("window-firefox", "Window Firefox"),
-    ("wrapped-scrolling", "Wrapped Scrolling"),
-    ("xr-false", "XR False"),
-    ("xr-true", "XR True"),
-    ("add-to-homescreen", "Add To Homescreen"),
-    ("help-circle", "Help Circle"),
-    ("help-circle-fill", "Help Circle Fill"),
-    ("update-circle", "Update Circle"),
-    ("more-grid", "More Grid"),
-    ("more-horizontal", "More Horizontal"),
-    ("more-horizontal-round", "More Horizontal Round"),
-    ("more-vertical", "More Vertical"),
-    ("more-vertical-round", "More Vertical Round"),
-    ("append-down-left", "Append Down Left"),
-    ("append-up-right", "Append Up Right"),
-    ("arrow-counter-clockwise", "Arrow Counter Clockwise"),
-    ("avatar-circle-fill", "Avatar Circle Fill"),
-    ("avatar-info-circle-fill", "Avatar Info Circle Fill"),
-    ("avatar-warning-circle-fill", "Avatar Warning Circle Fill"),
-    ("bookmark-slash", "Bookmark Slash"),
-    ("bookmark-tray", "Bookmark Tray"),
-    ("bookmark-tray-fill", "Bookmark Tray Fill"),
-    ("cross-circle", "Cross Circle"),
-    ("cross-circle-fill", "Cross Circle Fill"),
-    ("device-desktop-fill", "Device Desktop Fill"),
-    ("device-desktop-send", "Device Desktop Send"),
-    ("device-tablet", "Device Tablet"),
-    ("other-device-shortcuts", "Other Device Shortcuts"),
-    ("save", "Save"),
-    ("save-file", "Save File"),
-    ("clipboard", "Clipboard"),
-    ("copy", "Copy"),
-    ("signature", "Signature"),
-    ("extension-cog", "Extension Cog"),
-    ("folder-add", "Folder Add"),
-    ("folder-arrow-right", "Folder Arrow Right"),
-    ("lightning-filled", "Lightning Filled"),
-    ("lock-fill", "Lock Fill"),
-    ("lock-slash", "Lock Slash"),
-    ("lock-slash-fill", "Lock Slash Fill"),
-    ("lock-warning-fill", "Lock Warning Fill"),
-    ("logo-chrome", "Logo Chrome"),
-    ("logo-safari", "Logo Safari"),
-    ("night-mode-fill", "Night Mode Fill"),
-    ("notification-dot", "Notification Dot"),
-    ("blocked-false", "Blocked False"),
-    ("blocked-true", "Blocked True"),
-    ("eye-false", "Eye False"),
-    ("eye-true", "Eye True"),
-    ("location", "Location"),
-    ("microphone-false-mobile", "Microphone False Mobile"),
-    ("microphone-true-mobile", "Microphone True Mobile"),
-    ("permission", "Permission"),
-    ("pin-slash", "Pin Slash"),
-    ("pin-slash-fill", "Pin Slash Fill"),
-    ("pause", "Pause"),
-    ("reader-view-customize", "Reader View Customize"),
-    ("reader-view-fill", "Reader View Fill"),
-    ("reading-list", "Reading List"),
-    ("reading-list-add", "Reading List Add"),
-    ("reading-list-slash", "Reading List Slash"),
-    ("reading-list-slash-fill", "Reading List Slash Fill"),
-    ("grid-plus", "Grid Plus"),
-    ("tool", "Tool"),
-    ("share-ios", "Share iOS"),
-    ("shield-checkmark", "Shield Checkmark"),
-    ("shield-cross", "Shield Cross"),
-    ("shield-dot", "Shield Dot"),
-    ("shield-exclamation-mark", "Shield Exclamation Mark"),
-    ("shield-slash", "Shield Slash"),
-    ("sun-fill", "Sun Fill"),
-    ("cloud", "Cloud"),
-    ("sync-tabs", "Sync Tabs"),
-    ("tab-number", "Tab Number"),
-    ("thumbs-down", "Thumbs Down"),
-    ("thumbs-down-fill", "Thumbs Down Fill"),
-    ("thumbs-up-fill", "Thumbs Up Fill"),
-    ("cookies", "Cookies"),
-    ("cookies-slash", "Cookies Slash"),
-    ("fingerprinter", "Fingerprinter"),
-    ("translate-active", "Translate Active"),
-    ("translate-active-alt", "Translate Active Alt"),
-    ("page-zoom-fill", "Page Zoom Fill"),
-]
 
 PLATFORM_CHOICES = [
     ("osx", "macOS"),
@@ -498,6 +161,21 @@ def validate_video_url(value):
     return value
 
 
+_ICON_LABEL_OVERRIDES = {
+    "screenshot-camera": "Camera (Screenshot)",
+}
+
+
+def icon_display_label(stem: str) -> str:
+    """
+    Define how an icon name should be displayed to Wagtail users.
+
+    'arrow-clockwise-16' -> 'Arrow Clockwise'
+    """
+    css_name = icon_css_name(stem)
+    return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
+
+
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
     """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
@@ -516,10 +194,14 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
-    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
-        choices = choices or ICON_CHOICES
-        thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
-        super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+    def __init__(self, thumbnail_size=20, **kwargs):
+        super().__init__(
+            thumbnail_directory="img/firefox/flare/2026/icons",
+            thumbnail_directory_label_fn=icon_display_label,
+            thumbnail_directory_value_fn=icon_value_fn,
+            thumbnail_size=thumbnail_size,
+            **kwargs,
+        )
 
 
 class ConditionalDisplayBlock(blocks.StructBlock):
@@ -589,6 +271,12 @@ def get_button_types(allow_uitour=False):
     return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
 
 
+class IconStructValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        return self.get("icon") or ""
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
@@ -640,6 +328,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             label = "Settings"
             label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _BaseButtonSettings(**kwargs)
 
@@ -924,6 +613,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _DownloadFirefoxButtonSettings(**kwargs)
 
@@ -1069,6 +759,7 @@ class TagBlock(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class TagBlock2026(blocks.StructBlock):
@@ -1097,6 +788,7 @@ class TagBlock2026(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class ImageVariantsBlockSettings(blocks.StructBlock):
@@ -1279,6 +971,17 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     return _MediaContentBlock(*args, **kwargs)
 
 
+class IconListItemValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        return self.get("icon") or ""
+
+    @property
+    def icon_url(self):
+        icon_block = self.block.child_blocks["icon"]
+        return icon_block.get_thumbnail_url(self.get("icon") or "")
+
+
 class IconListItemBlock(blocks.StructBlock):
     icon = IconChoiceBlock()
     text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1287,6 +990,7 @@ class IconListItemBlock(blocks.StructBlock):
         icon = "list-ul"
         label = "Icon List Item"
         label_format = "{text}"
+        value_class = IconListItemValue
 
 
 class IconListWithImageBlock(blocks.StructBlock):
@@ -1404,6 +1108,7 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/icon-card.html"
             label = "Icon Card"
             label_format = "Icon Card - {headline}"
+            value_class = IconStructValue
 
     return _IconCardBlock(*args, **kwargs)
 
@@ -2036,6 +1741,7 @@ class InlineNotificationSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class InlineNotificationBlock(blocks.StructBlock):
@@ -2084,6 +1790,7 @@ class NotificationSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class NotificationBlock(blocks.StructBlock):
@@ -2603,6 +2310,9 @@ class CardGalleryCard(blocks.StructBlock):
         required=False,
     )
     image = ImageVariantsBlock()
+
+    class Meta:
+        value_class = IconStructValue
 
 
 class CardGalleryCallout(blocks.StructBlock):
