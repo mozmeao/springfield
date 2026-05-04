@@ -6,7 +6,8 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set resolved_os = specific_version if specific_version and specific_version != "default" else "win" %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link(os=resolved_os) %}
 
 {#
   Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
@@ -17,6 +18,8 @@
   <a href="{{ download_firefox_thanks_link['transition_url'] }}"
      class="download-link fl-button {{ theme_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
+     data-download-version="{{ resolved_os }}"
+     data-cta-type="firefox"
      data-testid="download-firefox-button__download-link"
      data-cta-text="{{ cta_text }}"
      data-cta-position="{{ block_position }}"
