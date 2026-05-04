@@ -48,25 +48,6 @@
     text-transform: uppercase;
 }
 
-.fl-blog-selected-topic {
-    border-radius: var(--token-border-radius-md);
-    color: var(--fl-theme-color-text);
-    font-size: var(--fl-theme-label-md);
-    font-weight: var(--token-font-weight-medium);
-    margin: 0;
-    padding-inline: var(--token-spacing-md);
-    text-transform: uppercase;
-}
-
-.fl-blog-selected-topic .fl-tag {
-    margin: 0;
-}
-
-.fl-blog-selected-topic .fl-icon {
-    color: var(--fl-theme-color-text);
-    margin-inline-start: var(--token-spacing-xs);
-}
-
 .fl-article-back {
     margin-block-end: var(--token-spacing-xl);
 }
@@ -85,11 +66,54 @@
     margin-block-start: var(--token-spacing-md);
 }
 
-.fl-page-blog,
-.fl-card-tags .fl-tag,
-.fl-article-tags .fl-tag {
-    color: var(--token-color-medium-purple);
+.fl-page-blog .fl-card-tags .fl-tag,
+.fl-article-tags .fl-tag,
+.fl-blog-topics-list .fl-tag {
+    color: var(--notification-stacked-color);
     text-transform: uppercase;
+}
+
+.fl-blog-topics-list .fl-tag.fl-blog-selected-topic {
+    background-color: var(--notification-stacked-color);
+    color: var(--notification-bg);
+    margin: 0;
+}
+
+.fl-blog-topics-filter {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-md);
+}
+
+.fl-blog-topics-filter .fl-blog-topics-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.fl-blog-topics-filter .fl-blog-topics-list::-webkit-scrollbar {
+    display: none;
+}
+
+.fl-blog-topics-scroll-btn {
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--fl-theme-color-text);
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    padding: var(--token-spacing-xs);
+}
+
+.fl-blog-topics-scroll-btn:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.fl-blog-topics-scroll-btn[hidden] {
+    display: none;
 }
 
 /* Featured */
@@ -144,8 +168,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-2xl);
-    inline-size: var(--token-width-desktop-content);
     margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content);
 }
 
 .fl-blog-article-list-item .fl-heading-group {
@@ -210,8 +234,8 @@
 /* Pagination */
 
 .fl-page-blog-index .fl-pagination {
-    inline-size: var(--token-width-desktop-content);
     margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content);
 }
 
 @media (--viewport-md-up) {

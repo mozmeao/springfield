@@ -5,6 +5,7 @@
  */
 
 import setupAnimations from './components/flare26-animations.es6';
+import setupBlogTopicsScroll from './components/flare26-blog-topics-scroll.es6';
 import setupCarousels from './components/flare26-carousel.es6';
 import setupCopyToClipboardButtons from './components/flare26-copy-to-clipboard.es6';
 import setupDialogs, { initDialogs } from './components/flare26-dialogs.es6';
@@ -29,6 +30,7 @@ if (typeof window.cms === 'undefined') {
 window.cms.Flare26 = { typewriter, initDialogs };
 
 function setupComponents() {
+    setupBlogTopicsScroll();
     setupNewsletter();
     setupNotificationClose();
     setupVideo();
