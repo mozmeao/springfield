@@ -26,6 +26,7 @@ for matching purposes, so exact URLs do not need to match the template.
 """
 
 from pathlib import Path
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.files.images import ImageFile
@@ -408,6 +409,7 @@ MORE_PAGES = {
         # whether-you-searched-privacy
         "description": "<p>Whether you searched for a fast browser that protects your privacy, this FAQ is here to answer the most pressing Firefox-related questions.</p>",
         "featured": False,
+        "button_rows": {"top": "default", "bottom": "default"},
         "content": """
 <p>Whether you searched for a fast browser, or you're looking for independent tech that protects your privacy, this FAQ is here to answer the most pressing Firefox-related questions.</p>
 
@@ -606,6 +608,7 @@ MORE_PAGES = {
         # windows-64-bit-users-on-64-bit-windows
         "description": "<p>Users on 64-bit Windows who download Firefox can get our 64-bit version by default. That means you get a more secure version of Firefox.</p>",
         "featured": False,
+        "button_rows": {"top": "win64", "label": "Download Firefox for Windows 64-bit"},
         "content": """
 <p>Users on 64-bit Windows who download Firefox can get our 64-bit version by default. That means you get a more secure version of Firefox, one that also <a href="https://blog.mozilla.org/firefox/defeat-browser-crashes/">crashes a whole lot less</a>. How much less? In our tests so far, 64-bit Firefox reduced crashes by 39% on machines with 4GB of RAM or more.</p>
 
@@ -718,6 +721,37 @@ def get_more_index_page(publish: bool = False) -> ArticleIndexPage:
 
 
 # =============================================================================
+# Block helpers
+# =============================================================================
+
+
+def _make_download_button_row(specific_version="default", label="Download Firefox"):
+    return {
+        "type": "button_row",
+        "value": {
+            "buttons": [
+                {
+                    "type": "download_button",
+                    "id": str(uuid4()),
+                    "value": {
+                        "label": label,
+                        "settings": {
+                            "theme": "",
+                            "icon_position": "right",
+                            "icon": "",
+                            "analytics_id": "",
+                            "show_default_browser_checkbox": False,
+                            "show_extra_links": True,
+                            "specific_version": specific_version,
+                        },
+                    },
+                }
+            ]
+        },
+    }
+
+
+# =============================================================================
 # Detail page fixtures
 # =============================================================================
 
@@ -779,7 +813,14 @@ def get_more_page(slug: str, index_page: ArticleIndexPage, publish: bool = False
         page.featured_image = get_or_import_more_page_image(slug)
 
     existing_uuids = [block.get("id") for block in page.content.raw_data] if page.content else []
-    new_blocks = [{"type": "text", "value": page_data["content"].strip()}]
+    button_rows = page_data.get("button_rows", {})
+    btn_label = button_rows.get("label", "Download Firefox")
+    new_blocks = []
+    if "top" in button_rows:
+        new_blocks.append(_make_download_button_row(button_rows["top"], label=btn_label))
+    new_blocks.append({"type": "text", "value": page_data["content"].strip()})
+    if "bottom" in button_rows:
+        new_blocks.append(_make_download_button_row(button_rows["bottom"], label=btn_label))
     for i, block in enumerate(new_blocks):
         if i < len(existing_uuids) and existing_uuids[i]:
             block["id"] = existing_uuids[i]
