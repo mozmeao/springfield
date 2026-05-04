@@ -219,6 +219,7 @@
 .fl-banner-layout {
     align-items: center;
     display: grid;
+    gap: var(--token-layout-xs);
     grid-template-columns: 1fr;
     inline-size: 100%;
     margin-inline: auto;
