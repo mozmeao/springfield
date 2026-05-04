@@ -914,6 +914,20 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             default=True,
             help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
         )
+        specific_version = blocks.ChoiceBlock(
+            choices=[
+                ("default", "Default (auto-detect)"),
+                ("win", "Windows 32-bit"),
+                ("win64", "Windows 64-bit"),
+                ("win64-aarch64", "Windows ARM64/AArch64"),
+                ("osx", "macOS"),
+                ("linux64", "Linux 64-bit"),
+                ("linux64-aarch64", "Linux ARM64/AArch64"),
+            ],
+            default="default",
+            label="Specific Version",
+            help_text="Force a specific platform build. Leave as Default for auto-detection.",
+        )
 
         class Meta:
             icon = "cog"
