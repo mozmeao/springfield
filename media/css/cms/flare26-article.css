@@ -222,3 +222,13 @@ Related articles
         aspect-ratio: 1/1;
     }
 }
+
+/* override link typography so buttons inside article content render correctly */
+.fl-article-main .fl-rich-text .fl-button {
+    color: var(--button-text-color);
+    text-decoration: none;
+}
+
+.fl-article-main .fl-buttons {
+    margin-block: var(--token-layout-xs);
+}

@@ -30,6 +30,7 @@ from springfield.cms.blocks import (
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
+    ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
@@ -709,6 +710,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("video", VideoBlock()),
+            ("button_row", ButtonRowBlock()),
         ],
         use_json_field=True,
     )

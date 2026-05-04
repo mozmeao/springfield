@@ -1025,6 +1025,19 @@ def MixedButtonsBlock(
     )
 
 
+class ButtonRowBlock(blocks.StructBlock):
+    buttons = MixedButtonsBlock(
+        button_types=get_button_types(allow_uitour=False),
+        min_num=1,
+        max_num=4,
+    )
+
+    class Meta:
+        label = "Button Row"
+        label_format = "Button Row"
+        template = "cms/blocks/button-row.html"
+
+
 class CTASettings(blocks.StructBlock):
     analytics_id = UUIDBlock(
         label="Analytics ID",
