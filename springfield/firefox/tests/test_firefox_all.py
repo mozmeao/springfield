@@ -9,6 +9,7 @@ from django.core.cache import caches
 
 import pytest
 from pyquery import PyQuery as pq
+from waffle.testutils import override_switch
 
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
@@ -49,6 +50,7 @@ OS_LANG_PAIRS = [
 ]
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_all_step_1(client):
     resp = client.get(reverse("firefox.all"))
     doc = pq(resp.content)
@@ -71,6 +73,7 @@ def test_all_step_1(client):
         ("desktop-nightly", "Firefox Nightly", 9),
     ),
 )
+@override_switch("FLARE26_ENABLED", active=False)
 def test_all_step_2(client, product_slug, name, count):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": product_slug}))
     doc = pq(resp.content)
@@ -82,6 +85,7 @@ def test_all_step_2(client, product_slug, name, count):
     assert len(doc(".c-platform-list > li")) == count
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_all_step_3(client):
     resp = client.get(reverse("firefox.all.locales", kwargs={"product_slug": "desktop-release", "platform": "win64"}))
     doc = pq(resp.content)
@@ -96,6 +100,7 @@ def test_all_step_3(client):
     assert len(doc(".c-lang-list > li")) == len(firefox_desktop.get_filtered_full_builds("release"))
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_all_step_4(client):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-release", "platform": "win64", "locale": "en-US"}))
     doc = pq(resp.content)
@@ -116,6 +121,7 @@ def test_all_step_4(client):
 
 
 @pytest.mark.parametrize("os, lang", OS_LANG_PAIRS)
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_release(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-release", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -135,6 +141,7 @@ def test_firefox_release(client, os, lang):
         assert "https://support.mozilla.org/kb/install-firefox-linux" in linux_link.attr("href")
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_microsoft_store_release(client):
     resp = client.get(reverse("firefox.all.locales", kwargs={"product_slug": "desktop-release", "platform": "win-store"}))
     doc = pq(resp.content)
@@ -144,6 +151,7 @@ def test_firefox_microsoft_store_release(client):
 
 
 @pytest.mark.parametrize("os, lang", OS_LANG_PAIRS)
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_beta(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-beta", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -163,6 +171,7 @@ def test_firefox_beta(client, os, lang):
         assert "https://support.mozilla.org/kb/install-firefox-linux" in linux_link.attr("href")
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_microsoft_store_beta(client):
     resp = client.get(reverse("firefox.all.locales", kwargs={"product_slug": "desktop-beta", "platform": "win-store"}))
     doc = pq(resp.content)
@@ -172,6 +181,7 @@ def test_firefox_microsoft_store_beta(client):
 
 
 @pytest.mark.parametrize("os, lang", OS_LANG_PAIRS)
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_developer(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-developer", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -192,6 +202,7 @@ def test_firefox_developer(client, os, lang):
 
 
 @pytest.mark.parametrize("os, lang", OS_LANG_PAIRS)
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_nightly(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-nightly", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -215,6 +226,7 @@ def test_firefox_nightly(client, os, lang):
 
 
 @pytest.mark.parametrize("os, lang", [("linux64-aarch64", "es-ES"), ("linux64-aarch64", "pt-BR")])
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_linux_nightly_aarch(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-nightly", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -230,6 +242,7 @@ def test_firefox_linux_nightly_aarch(client, os, lang):
 
 
 @pytest.mark.parametrize("os, lang", OS_LANG_PAIRS)
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_esr(client, os, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": "desktop-esr", "platform": os, "locale": lang}))
     doc = pq(resp.content)
@@ -250,6 +263,7 @@ def test_firefox_esr(client, os, lang):
 
 
 @pytest.mark.parametrize("os, lang", [("win64", "en-US"), ("win64", "de"), ("osx", "en-US"), ("linux", "en-US")])
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_esr_next(client, os, lang):
     # Note: Only testing a few os/lang pairs to avoid mocking too much. We're mostly checking that 2 buttons show up.
 
@@ -312,6 +326,7 @@ def test_firefox_esr_next(client, os, lang):
         assert "https://support.mozilla.org/kb/install-firefox-linux" in linux_link.attr("href")
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_mobile_release(client):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": "mobile-release"}))
     doc = pq(resp.content)
@@ -320,6 +335,7 @@ def test_firefox_mobile_release(client):
     assert len(doc("#appStoreLink")) == 1
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_android_release(client):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": "android-release"}))
     doc = pq(resp.content)
@@ -328,6 +344,7 @@ def test_firefox_android_release(client):
     assert len(doc("#appStoreLink")) == 0
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_android_beta(client):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": "android-beta"}))
     doc = pq(resp.content)
@@ -336,6 +353,7 @@ def test_firefox_android_beta(client):
     assert len(doc("#appStoreLink")) == 0
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_android_nightly(client):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": "android-nightly"}))
     doc = pq(resp.content)
@@ -344,6 +362,7 @@ def test_firefox_android_nightly(client):
     assert len(doc("#appStoreLink")) == 0
 
 
+@override_switch("FLARE26_ENABLED", active=False)
 def test_firefox_ios_beta(client):
     resp = client.get(reverse("firefox.all.platforms", kwargs={"product_slug": "ios-beta"}))
     doc = pq(resp.content)
@@ -365,6 +384,7 @@ def test_firefox_ios_beta(client):
         ("android-release/", 1),
     ],
 )
+@override_switch("FLARE26_ENABLED", active=False)
 def test_close_icons(client, slug, count):
     url = reverse("firefox.all") + slug
     resp = client.get(url)
@@ -389,6 +409,7 @@ def test_locale_404(client):
 
 @pytest.mark.parametrize("product_slug", [("desktop-release"), ("desktop-esr"), ("desktop-beta"), ("desktop-developer")])
 @pytest.mark.parametrize("lang", [("ckb"), ("ltg"), ("hye"), ("wo"), ("lo"), ("scn"), ("brx"), ("meh"), ("bo")])
+@override_switch("FLARE26_ENABLED", active=False)
 def test_nightly_locales_only_on_nightly(client, product_slug, lang):
     resp = client.get(reverse("firefox.all.download", kwargs={"product_slug": product_slug, "platform": "win64", "locale": lang}))
     assert resp.status_code == 404
@@ -408,6 +429,7 @@ def test_nightly_locales_only_on_nightly(client, product_slug, lang):
         ("mobile-release"),
     ],
 )
+@override_switch("FLARE26_ENABLED", active=False)
 def test_win_store_only_on_release_and_beta(client, product_slug):
     resp = client.get(reverse("firefox.all.locales", kwargs={"product_slug": product_slug, "platform": "win-store"}))
     assert resp.status_code == 404

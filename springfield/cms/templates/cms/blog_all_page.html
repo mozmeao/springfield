@@ -1,0 +1,132 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-blog-all-body{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-page-blog-all">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+
+        <div class="fl-blog-index-header">
+          <p>
+            <a href="{{ page.url }}" class="fl-blog-back-link">
+              <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+              {{ ftl('blog-back') }}
+            </a>
+          </p>
+          {% if page.page_heading %}
+            {% for block in page.page_heading %}
+              {% if block.block_type == "heading" %}
+                <include:heading
+                  level="h1"
+                  superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
+                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                  subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
+                  alignment_class="text-center"
+                />
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <include:heading
+              level="h1"
+              heading_text="{{ ftl('blog-all-articles') }}"
+              heading_size="fl-heading-size-1"
+              alignment_class="text-center"
+            />
+          {% endif %}
+
+          {% if all_topics %}
+            <div class="fl-blog-topics-filter">
+              <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-prev" aria-label="{{ ftl('ui-previous') }}" hidden>
+                <span class="fl-icon fl-icon-chevron-left" aria-hidden="true"></span>
+              </button>
+              <div class="fl-blog-topics-list">
+                {% for topic_item in all_topics %}
+                  {% set selected_topic = topic and topic.slug == topic_item.slug %}
+                  {% set url = page.url ~ page.reverse_subpage('all_route') %}
+                  {% if not selected_topic %}
+                    {% set url = url  ~ '?topic=' ~ topic_item.slug %}
+                  {% endif %}
+                  <a href="{{ url }}" class="fl-blog-topic-link">
+                    <span class="fl-tag fl-tag-purple fl-tag-round{% if selected_topic %} fl-blog-selected-topic{% endif %}">
+                      {{ topic_item.name }}
+                    </span>
+                  </a>
+                {% endfor %}
+              </div>
+              <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-next" aria-label="{{ ftl('ui-next') }}" hidden>
+                <span class="fl-icon fl-icon-chevron-right" aria-hidden="true"></span>
+              </button>
+            </div>
+          {% endif %}
+
+          <hr/>
+        </div>
+
+        {% if list_articles %}
+          <div class="fl-blog-article-list">
+            {% for article in list_articles %}
+              <include:blog-article-list-item with_image="{{ article.display_image }}">
+                <content:heading>
+                  <hgroup class="fl-heading-group">
+                    <p class="fl-superheading">{{ article.topic.name }}</p>
+                    <h2 class="fl-heading">
+                      <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
+                    </h2>
+                  </hgroup>
+                </content:heading>
+                <content:body>{{ article.description|richtext }}</content:body>
+                {% if article.first_published_at %}
+                  <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
+                {% endif %}
+                {% set article_tags = article.tags.all() %}
+                {% if article_tags %}
+                  <content:tags>
+                    {% for tag in article_tags %}
+                      <include:tag text="{{ tag.name }}" color="purple" corners="round" />
+                    {% endfor %}
+                  </content:tags>
+                {% endif %}
+                {% if article.display_image and article.image %}
+                  {% set img_classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
+                  <content:image>
+                    <div class="image-variants-display">
+                      {{ srcset_image(article.image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
+                      {% if article.image_mobile %}{{ srcset_image(article.image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}{% endif %}
+                      {% if article.image_dark_mode %}{{ srcset_image(article.image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}{% endif %}
+                      {% if article.image_dark_mode_mobile %}{{ srcset_image(article.image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}{% endif %}
+                    </div>
+                  </content:image>
+                {% endif %}
+              </include:blog-article-list-item>
+            {% endfor %}
+          </div>
+
+          {% if list_articles.paginator.num_pages > 1 %}
+            {% set base_url = page.url ~ page.reverse_subpage('all_route') %}
+            {% set topic_param = '&topic=' ~ topic.slug if topic else '' %}
+            <include:pagination
+              page_number="{{ list_articles.number }}"
+              total_pages="{{ list_articles.paginator.num_pages }}"
+              prev_url="{{ base_url ~ '?page=' ~ list_articles.previous_page_number() ~ topic_param if list_articles.has_previous() else '' }}"
+              next_url="{{ base_url ~ '?page=' ~ list_articles.next_page_number() ~ topic_param if list_articles.has_next() else '' }}"
+              aria_label="{{ ftl('blog-pagination-label') }}"
+              prev_label="{{ ftl('ui-previous') }}"
+              next_label="{{ ftl('ui-next') }}"
+            />
+          {% endif %}
+
+        {% endif %}
+
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

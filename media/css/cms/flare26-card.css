@@ -27,9 +27,10 @@ Card Grid - Flare 2026 Design System Cards
 }
 
 /* default usage of illustration cards get two-wide on mobile. */
-.fl-card-grid:has(.fl-illustration-card-default) {
+
+/* .fl-card-grid:has(.fl-illustration-card-default) {
     --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-}
+} */
 
 @media (--viewport-sm-up) {
     /* for most instances, tablet size gets two-wide cards */
@@ -41,6 +42,11 @@ Card Grid - Flare 2026 Design System Cards
     .fl-card-grid:has(> *:nth-child(2):last-child) {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
         margin-inline: auto;
+    }
+
+    .fl-card-grid:not(.fl-illustration-cards-alternate-2):has(
+            > *:nth-child(2):last-child
+        ) {
         max-inline-size: var(--token-width-desktop-content);
     }
 
@@ -77,10 +83,12 @@ Card Grid - Flare 2026 Design System Cards
     /* ...unless there are only three, and then it gets a special treatment.
        There are two selectors, one with and one without .conditional-passthrough
        or .image-variants. */
-    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child),
-    .fl-card-grid:has(
-        > *:nth-child(3):last-child .fl-illustration-card-default
-    ),
+    .fl-card-grid:not(.fl-illustration-cards-alternate-3):has(
+            .fl-illustration-card-default:nth-child(3):last-child
+        ),
+    .fl-card-grid:not(.fl-illustration-cards-alternate-3):has(
+            > *:nth-child(3):last-child .fl-illustration-card-default
+        ),
     .fl-card-grid:has(.fl-illustration-icon-card:nth-child(3):last-child),
     .fl-card-grid:has(> *:nth-child(3):last-child .fl-illustration-icon-card),
     .fl-card-grid:has(.fl-card:nth-child(3):last-child),
@@ -439,7 +447,7 @@ Step Cards List - With Kit variant
 .fl-step-card .fl-card-media {
     align-items: center;
     background: var(--fl-step-card-bg);
-    border-radius: var(--token-layout-xs);
+    border-radius: var(--token-border-radius-md);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -465,7 +473,7 @@ Step Cards List - With Kit variant
     align-items: center;
     background: var(--fl-step-card-index-bg);
     block-size: var(--token-layout-3xs);
-    border-radius: var(--token-layout-3xs);
+    border-radius: var(--token-border-radius-sm);
     box-sizing: border-box;
     color: var(--fl-theme-color-text);
     display: flex;
@@ -583,7 +591,7 @@ Illustration Card
 
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
-    border-radius: var(--token-spacing-xl);
+    border-radius: var(--token-border-radius-sm);
     inline-size: 100%;
     margin-block-end: var(--token-spacing-lg);
 }
@@ -664,7 +672,111 @@ Illustration Card
     padding: var(--media-padding);
 }
 
+.fl-illustration-cards-alternate-2 .fl-illustration-card,
+.fl-illustration-cards-alternate-3 .fl-illustration-card,
+.fl-illustration-cards-alternate-4 .fl-illustration-card {
+    gap: var(--token-spacing-lg);
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+.fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+    align-items: end;
+    display: flex;
+    inline-size: 100%;
+    overflow: hidden;
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media picture,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media picture,
+.fl-illustration-cards-alternate-4
+    .fl-illustration-card
+    .fl-card-media
+    picture {
+    inline-size: 100%;
+}
+
+.fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media img,
+.fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media img,
+.fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media img {
+    inline-size: 100%;
+    margin-block-end: 0;
+    object-fit: cover;
+    object-position: var(--focal-point, center);
+}
+
+@media (--viewport-sm-up) {
+    .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media,
+    .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 340/420;
+    }
+}
+
 @media (--viewport-md-up) {
+    /* Container uses the tallest aspect ratio so all cards in a row share the same height */
+    .fl-illustration-cards-alternate-2 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 696/560;
+    }
+
+    .fl-illustration-cards-alternate-3 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 458/560;
+    }
+
+    .fl-illustration-cards-alternate-4 .fl-illustration-card .fl-card-media {
+        aspect-ratio: 340/420;
+    }
+
+    /* Each img gets its own aspect ratio; object-fit crops to that box, aligned to the bottom */
+    .fl-illustration-cards-alternate-2
+        .fl-illustration-card:nth-child(odd)
+        .fl-card-media
+        img {
+        aspect-ratio: 696/560;
+    }
+
+    .fl-illustration-cards-alternate-2
+        .fl-illustration-card:nth-child(even)
+        .fl-card-media
+        img {
+        aspect-ratio: 696/420;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n + 1)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/420;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n + 2)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/560;
+    }
+
+    .fl-illustration-cards-alternate-3
+        .fl-illustration-card:nth-child(3n)
+        .fl-card-media
+        img {
+        aspect-ratio: 458/280;
+    }
+
+    .fl-illustration-cards-alternate-4
+        .fl-illustration-card:nth-child(odd)
+        .fl-card-media
+        img {
+        aspect-ratio: 340/280;
+    }
+
+    .fl-illustration-cards-alternate-4
+        .fl-illustration-card:nth-child(even)
+        .fl-card-media
+        img {
+        aspect-ratio: 340/420;
+    }
+
     .fl-illustration-card.fl-illustration-sticker-card {
         --media-border-radius: var(--token-border-radius-sm);
         --media-padding: var(--token-spacing-lg);

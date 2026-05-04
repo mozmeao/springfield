@@ -9,19 +9,24 @@ from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db import models
+from django.db.models import Count
 from django.db.models.expressions import Case, F, Value, When
+from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.blocks import RichTextBlock
+from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
+from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
@@ -30,10 +35,14 @@ from springfield.cms.blocks import (
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
+    BlogArticleBlock,
+    BlogCardsListBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
+    CodeBlock,
     DownloadSupportBlock,
+    HeadingBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -42,9 +51,11 @@ from springfield.cms.blocks import (
     KitIntroBlock,
     LineCardsBlock,
     LocalizedLiveSnippetChooserBlock,
+    MediaBlock,
     MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
+    QuoteBlock,
     RelatedArticlesListBlock,
     SectionBlock,
     SectionBlock2026,
@@ -56,6 +67,7 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.models.locale import SpringfieldLocale
 
 from .base import AbstractSpringfieldCMSPage
 
@@ -1281,3 +1293,320 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
+
+
+class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that lists blog posts."""
+
+    subpage_types = ["cms.BlogArticlePage"]
+    ftl_files = ["cms/blog"]
+
+    page_heading = StreamField(
+        [("heading", HeadingBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+    featured_articles = StreamField(
+        [("article", BlogArticleBlock())],
+        max_num=8,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text="Up to 8 featured articles shown at the top of the index page.",
+    )
+    more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
+    view_all_label = models.CharField(default="View All Articles")
+    cards_lists = StreamField(
+        [
+            ("cards_list", BlogCardsListBlock()),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("page_heading"),
+        FieldPanel("featured_articles"),
+        MultiFieldPanel(
+            [
+                FieldPanel("more_articles_heading"),
+                FieldPanel("view_all_label"),
+                FieldPanel("cards_lists"),
+            ],
+            heading="More Articles",
+        ),
+    ]
+
+    class Meta:
+        verbose_name = "Blog Index Page"
+        verbose_name_plural = "Blog Index Pages"
+
+    def __str__(self):
+        return f"BlogIndexPage: {self.title} - {self.locale}"
+
+    def _prefetch_streamfield_articles(self):
+        """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
+        and populate _article_cache on each block value to avoid per-block DB queries."""
+        from springfield.cms.models.snippets import Tag
+
+        # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
+        # ListBlock iteration yields StructValues (BlockArticleValue) directly.
+        featured_articles_values = [b.value for b in (self.featured_articles or [])]
+        cards_lists_values = []
+        for cards_list_block in self.cards_lists or []:
+            cards_lists_values.extend(list(cards_list_block.value["articles"]))
+
+        all_values = featured_articles_values + cards_lists_values
+        pks = [value["article"].pk for value in all_values if value.get("article")]
+
+        if not pks:
+            return
+
+        articles_by_pk = {
+            a.pk: a
+            for a in BlogArticlePage.objects.filter(pk__in=pks)
+            .select_related(
+                "topic",
+                "image",
+                "image_dark_mode",
+                "image_mobile",
+                "image_dark_mode_mobile",
+            )
+            .prefetch_related(
+                "tags",
+                "image__renditions",
+                "image_dark_mode__renditions",
+                "image_mobile__renditions",
+                "image_dark_mode_mobile__renditions",
+            )
+            .defer("content")
+        }
+
+        active_locale = SpringfieldLocale.get_active()
+        localized_tags = Tag.objects.filter(locale=active_locale).live()
+        localized_tags_by_slug = {tag.slug: tag for tag in localized_tags}
+
+        for value in all_values:
+            page = value.get("article")
+            if page and page.pk in articles_by_pk:
+                article = articles_by_pk[page.pk]
+                if article.topic and article.topic.slug in localized_tags_by_slug:
+                    article._topic_cache = localized_tags_by_slug[article.topic.slug]
+                tags_cache = []
+                for tag in article.tags.all():
+                    if tag.slug in localized_tags_by_slug:
+                        tags_cache.append(localized_tags_by_slug[tag.slug])
+                article._tags_cache = tags_cache
+                value._article_cache = article
+
+    def get_context(self, request, *args, **kwargs):
+        from springfield.cms.models.snippets import Tag
+
+        context = super().get_context(request, *args, **kwargs)
+
+        self._prefetch_streamfield_articles()
+
+        base_qs = BlogArticlePage.objects.child_of(self).live().public()
+        all_topics = (
+            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            .annotate(article_count=Count("blog_articles"))
+            .order_by("-article_count")
+        )
+        context["all_topics"] = all_topics
+        return context
+
+    def _render_route(self, request, template, extra_context=None):
+        request.is_preview = False
+        request = self._patch_request_for_springfield(request)
+        context = self.get_context(request)
+        if extra_context:
+            context.update(extra_context)
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
+
+    @path("")
+    def index_route(self, request):
+        return self._render_route(request, self.get_template(request))
+
+    @path("topics/")
+    def topics_route(self, request):
+        return self._render_route(request, "cms/blog_topics_page.html")
+
+    @path("all/")
+    def all_route(self, request):
+        from springfield.cms.models.snippets import Tag
+
+        base_qs = (
+            BlogArticlePage.objects.child_of(self)
+            .live()
+            .public()
+            .select_related(
+                "topic",
+                "image",
+                "image_dark_mode",
+                "image_mobile",
+                "image_dark_mode_mobile",
+            )
+            .prefetch_related(
+                "tags",
+                "image__renditions",
+                "image_dark_mode__renditions",
+                "image_mobile__renditions",
+                "image_dark_mode_mobile__renditions",
+            )
+            .defer("content")
+        )
+
+        topic = None
+        topic_slug = request.GET.get("topic")
+        if topic_slug:
+            topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
+            base_qs = base_qs.filter(topic=topic)
+
+        list_articles_qs = base_qs.order_by("-first_published_at")
+        paginator = Paginator(list_articles_qs, 10)
+
+        if topic:
+            topic.article_count = paginator.count
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+
+        return self._render_route(
+            request,
+            "cms/blog_all_page.html",
+            {
+                "list_articles": list_articles,
+                "topic": topic,
+            },
+        )
+
+
+class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays a single blog article."""
+
+    parent_page_types = ["cms.BlogIndexPage"]
+    ftl_files = ["cms/blog"]
+
+    description = RichTextField(
+        blank=True,
+        features=HEADING_TEXT_FEATURES,
+        help_text="A short description used on the index page.",
+    )
+    display_image = models.BooleanField(
+        default=False,
+        help_text="Display image on the article's list",
+    )
+
+    topic = models.ForeignKey(
+        "cms.Tag",
+        on_delete=models.PROTECT,
+        related_name="blog_articles",
+    )
+    tags = models.ManyToManyField(
+        "cms.Tag",
+        related_name="blog_articles_tags",
+        blank=True,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+    )
+    image_dark_mode = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode variant of the article image.",
+    )
+    image_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional mobile variant of the article image.",
+    )
+    image_dark_mode_mobile = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional dark mode mobile variant of the article image.",
+    )
+    content = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
+            ("media", MediaBlock()),
+            ("code", CodeBlock()),
+            ("quote", QuoteBlock()),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("description"),
+                FieldPanel("display_image"),
+            ],
+            heading="Index Page Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("topic"),
+                FieldPanel("tags", widget=CheckboxSelectMultiple()),
+            ],
+            heading="Tags",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("image"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Article Image Variants",
+        ),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Blog Article Page"
+        verbose_name_plural = "Blog Article Pages"
+
+    def __str__(self):
+        return f"BlogArticlePage: {self.title} - {self.locale}"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        related = (
+            BlogArticlePage.objects.sibling_of(self).live().public().filter(topic=self.topic).exclude(pk=self.pk).order_by("-first_published_at")[:4]
+        )
+        context["related_articles"] = list(related)
+        return context
+
+    def get_topic(self):
+        if not hasattr(self, "_topic_cache"):
+            if self.topic:
+                self._topic_cache = self.topic.get_localized()
+            else:
+                self._topic_cache = None
+        return self._topic_cache
+
+    def get_tags(self):
+        if not hasattr(self, "_tags_cache"):
+            if self.tags.all():
+                self._tags_cache = [tag.get_localized() for tag in self.tags.all()]
+            else:
+                self._tags_cache = None
+        return self._tags_cache

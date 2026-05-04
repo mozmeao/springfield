@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -29,7 +29,12 @@ from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
-    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
+    from springfield.cms.models import (
+        ArticleDetailPage,
+        ArticleThemePage,
+        BlogArticlePage,
+        SpringfieldImage,
+    )
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -442,7 +447,10 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
+    (
+        UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
+        "Open Preferences - More From Mozilla",
+    ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
 )
@@ -516,7 +524,14 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
-    def __init__(self, choices=None, thumbnails=None, thumbnail_templates=None, thumbnail_size=20, **kwargs):
+    def __init__(
+        self,
+        choices=None,
+        thumbnails=None,
+        thumbnail_templates=None,
+        thumbnail_size=20,
+        **kwargs,
+    ):
         choices = choices or ICON_CHOICES
         thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
         super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
@@ -585,8 +600,21 @@ def get_button_types(allow_uitour=False):
         List of button type strings.
     """
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+        return [
+            BUTTON_TYPE,
+            UITOUR_BUTTON_TYPE,
+            FXA_BUTTON_TYPE,
+            DOWNLOAD_BUTTON_TYPE,
+            STORE_BUTTON_TYPE,
+            FOCUS_BUTTON_TYPE,
+        ]
+    return [
+        BUTTON_TYPE,
+        FXA_BUTTON_TYPE,
+        DOWNLOAD_BUTTON_TYPE,
+        STORE_BUTTON_TYPE,
+        FOCUS_BUTTON_TYPE,
+    ]
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -1160,8 +1188,15 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Link to a webm video from assets.mozilla.net.",
             validators=[validate_animation_url],
         )
-        alt = blocks.CharBlock(required=required, label="Alt Text", help_text="Text for screen readers describing the video.")
-        poster = ImageChooserBlock(required=required, help_text="Poster image displayed before the animation is played.")
+        alt = blocks.CharBlock(
+            required=required,
+            label="Alt Text",
+            help_text="Text for screen readers describing the video.",
+        )
+        poster = ImageChooserBlock(
+            required=required,
+            help_text="Poster image displayed before the animation is played.",
+        )
         playback = blocks.ChoiceBlock(
             choices=[
                 ("autoplay_loop", "Autoplay (loop)"),
@@ -1209,7 +1244,10 @@ class MediaBlock(blocks.StreamBlock):
 
 class SmartWindowInstructionsBlock(blocks.StructBlock):
     pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
-    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
+    typewriter_text = blocks.CharBlock(
+        required=False,
+        help_text="This text will animated as if being typed, mimicing a Smart Window prompt.",
+    )
     instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
 
     class Meta:
@@ -1297,6 +1335,176 @@ class IconListWithImageBlock(blocks.StructBlock):
         label = "Icon List with Image"
         label_format = "Icon List with Image"
         template = "cms/blocks/icon-list-with-image.html"
+
+
+class CodeBlock(blocks.StructBlock):
+    code = blocks.TextBlock(
+        label="Code",
+        help_text="Paste the code snippet here.",
+    )
+
+    class Meta:
+        label = "Code"
+        template = "cms/blocks/code.html"
+
+
+class QuoteBlock(blocks.StructBlock):
+    quote = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        label="Quote",
+        help_text="The quoted text.",
+    )
+    author = blocks.CharBlock(
+        required=False,
+        label="Author",
+        help_text="Optional attribution for the quote.",
+    )
+
+    class Meta:
+        label = "Quote"
+        label_format = "Quote - {author}"
+        template = "cms/blocks/quote.html"
+
+
+# Blog
+
+
+class BlockArticleValue(blocks.StructValue):
+    def get_article(self) -> BlogArticlePage:
+        if not hasattr(self, "_article_cache"):
+            article = self["article"].localized
+            self._article_cache = article.specific if article else None
+        return self._article_cache
+
+    def get_url(self):
+        article_page = self.get_article()
+        return article_page.url if article_page else ""
+
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if title := self.get("overrides").get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get_article()
+        return article_page.title if article_page else ""
+
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if description := self.get("overrides").get("description"):
+            description = remove_p_tag(richtext(description))
+            if description:
+                return description
+        article_page = self.get_article()
+        if article_page and article_page.description:
+            return remove_p_tag(richtext(article_page.description))
+        return ""
+
+    def get_topic(self) -> str:
+        if topic := self.get("overrides").get("topic"):
+            return topic
+        article_page = self.get_article()
+        if article_page:
+            if topic := article_page.get_topic():
+                return topic.name
+        return ""
+
+    def get_tags(self) -> list[str]:
+        if tags := self.get("overrides").get("tags"):
+            return tags
+        article_page = self.get_article()
+        return [tag.name for tag in article_page.get_tags()]
+
+    def get_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("image"):
+            return image
+        if article_page and article_page.image:
+            return article_page.image
+        return None
+
+    def get_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_image"):
+            return image
+        if article_page and article_page.image_dark_mode:
+            return article_page.image_dark_mode
+        return None
+
+    def get_mobile_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("mobile_image"):
+            return image
+        if article_page and article_page.image_mobile:
+            return article_page.image_mobile
+        return None
+
+    def get_mobile_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_mobile_image"):
+            return image
+        if article_page and article_page.image_dark_mode_mobile:
+            return article_page.image_dark_mode_mobile
+        return None
+
+
+class BlogArticleOverrideBlock(blocks.StructBlock):
+    image = ImageVariantsBlock(required=False)
+    topic = blocks.CharBlock(required=False)
+    title = blocks.CharBlock(required=False)
+    description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
+
+
+class BlogArticleBlock(blocks.StructBlock):
+    """Picks a blog article with optional field overrides for display on the index page."""
+
+    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+    overrides = BlogArticleOverrideBlock(required=False)
+
+    class Meta:
+        label = "Blog Article"
+        label_format = "{article}"
+        icon = "doc-full"
+        value_class = BlockArticleValue
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled list of blog article cards."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    link_label = blocks.CharBlock(default="View all")
+    link_filter = blocks.CharBlock(
+        required=False,
+        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
+    )
+    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Blog Cards List"
+        label_format = "{heading}"
+        icon = "list-ul"
+
+    def clean_list_filter(self, value: str) -> str:
+        if not value:
+            return value
+        value = value.strip()
+        if not value.startswith("?"):
+            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
+        query_part = value[1:]
+        if not query_part:
+            raise ValidationError(_("Query string must contain at least one parameter."))
+        try:
+            pairs = parse_qsl(query_part, strict_parsing=True)
+        except ValueError as exc:
+            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
+        if not pairs:
+            raise ValidationError(_("Query string must contain at least one key=value parameter."))
+        return value
 
 
 # Cards
@@ -1760,7 +1968,10 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
-                ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                (
+                    "illustration_card",
+                    IllustrationCard2026Block(allow_uitour=allow_uitour),
+                ),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
                 ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
                 ("testimonial_card", TestimonialCardBlock()),
@@ -1809,7 +2020,11 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom sticker image to override the article's sticker.",
     )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
+    icon = IconChoiceBlock(
+        required=False,
+        inline_form=True,
+        help_text="Optional icon to display on icon cards.",
+    )
     superheading = blocks.CharBlock(
         required=False,
         help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
@@ -2100,7 +2315,12 @@ class NotificationBlock(blocks.StructBlock):
 
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before"), ("right", "Right"), ("left", "Left")),
+        choices=(
+            ("after", "After"),
+            ("before", "Before"),
+            ("right", "Right"),
+            ("left", "Left"),
+        ),
         default="after",
         label="Media Position",
         inline_form=True,
@@ -2147,7 +2367,11 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
 class IntroBlockSettings2026(blocks.StructBlock):
     layout = blocks.ChoiceBlock(
-        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        choices=(
+            ("vertical", "Vertical"),
+            ("right", "Media Right"),
+            ("left", "Media Left"),
+        ),
         default="vertical",
         label="Layout",
         inline_form=True,
@@ -2266,7 +2490,10 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                (
+                    "media_content",
+                    MediaContentBlock(allow_uitour=allow_uitour, is_2026=True),
+                ),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),

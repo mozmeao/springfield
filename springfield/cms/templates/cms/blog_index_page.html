@@ -1,0 +1,280 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block body_class %}fl-blog-index-body{% endblock %}
+
+{% block content %}
+
+{% set full_width_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+
+{% macro illustration_card_media(article, list_size, filterspec=full_width_filterspec) %}
+  {% set sizes_by_count = {
+    2: "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw",
+    3: "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw",
+    4: "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"
+  } %}
+  {% set default_sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw" %}
+  {% set sizes = sizes_by_count[list_size] if list_size in sizes_by_count else default_sizes %}
+  {% set image = article.get_image() %}
+  {% if image %}
+    {% if image.focal_point_x %}
+      {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
+    {% else %}
+      {% set focal_point = "center" %}
+    {% endif %}
+    {% set dark_image = article.get_dark_image() %}
+    {% set mobile_image = article.get_mobile_image() %}
+    {% set dark_mobile_image = article.get_mobile_dark_image() %}
+    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+    <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
+      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", class=classes.primary) }}
+      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
+      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% set all_url = page.url ~ page.reverse_subpage('all_route') %}
+
+<div class="fl-page fl-page-blog-index">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+
+        <div class="fl-blog-index-header">
+          {% if page.page_heading %}
+            {% for block in page.page_heading %}
+              {% if block.block_type == "heading" %}
+                <include:heading
+                  level="h1"
+                  superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
+                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                  subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
+                  alignment_class="text-center"
+                />
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <include:heading
+              level="h1"
+              heading_text="{{ page.title }}"
+              heading_size="fl-heading-size-1"
+              alignment_class="text-center"
+            />
+          {% endif %}
+
+          {% if all_topics %}
+            <div class="fl-blog-topics-list">
+              {% for topic in all_topics[:5] %}
+                <a href="{{ all_url }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
+                  <span class="fl-blog-topic-name">{{ topic.name }}</span>
+                  <include:tag
+                    text="{{ topic.article_count }}"
+                    color="purple"
+                    corners="round"
+                  />
+                </a>
+              {% endfor %}
+              <div class="fl-blog-topics-all">
+                <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+              </div>
+            </div>
+          {% endif %}
+
+          <hr/>
+        </div>
+
+
+        {% if page.featured_articles %}
+          <div class="fl-blog-featured">
+
+            <div class="fl-blog-featured-row">
+              {% set first_block = page.featured_articles[0] %}
+
+              <div class="fl-blog-featured-main">
+                <div class="fl-blog-featured-main-media">
+                  {% set image = first_block.value.get_image() %}
+                  {% if image %}
+                    {% set dark_image = first_block.value.get_dark_image() %}
+                    {% set mobile_image = first_block.value.get_mobile_image() %}
+                    {% set dark_mobile_image = first_block.value.get_mobile_dark_image() %}
+                    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+                    {% if image.focal_point_x %}
+                      {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
+                    {% else %}
+                      {% set focal_point = "center" %}
+                    {% endif %}
+                    <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
+                      {{ srcset_image(image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
+                      {% if mobile_image %}{{ srcset_image(mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
+                      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+                      {% if dark_image %}{{ srcset_image(dark_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+                <include:heading
+                  level="h2"
+                  heading_text="{{ first_block.value.get_title() }}"
+                  superheading_text="{{ first_block.value.get_topic() }}"
+                  heading_size="fl-heading-size-2"
+                />
+                <p class="fl-body">{{ first_block.value.get_description() }}</p>
+                <div>
+                  <include:button
+                    label="{{ ftl('blog-read-more') }}"
+                    link="{{ first_block.value.get_url() }}"
+                  />
+                </div>
+              </div>
+
+              {% if page.featured_articles|length > 1 %}
+                <div class="fl-blog-article-list">
+                  {% for block in page.featured_articles[1:4] %}
+                    {% set article_page = block.value.article %}
+                    {% set description = block.value.get_description() %}
+                    <include:blog-article-list-item>
+                      <content:heading>
+                        <hgroup class="fl-heading-group">
+                          <p class="fl-superheading">{{ block.value.get_topic() }}</p>
+                          <h2 class="fl-heading">
+                            <a href="{{ article_page.url }}" class="fl-link">{{ block.value.get_title() }}</a>
+                          </h2>
+                        </hgroup>
+                      </content:heading>
+                      <content:body>{{ description|richtext }}</content:body>
+                      {% if article_page.first_published_at %}
+                        <content:date>{{ article_page.first_published_at|date("DATE_FORMAT") }}</content:date>
+                      {% endif %}
+                      {% if block.value.get_tags() %}
+                        <content:tags>
+                          {% for tag in block.value.get_tags() %}
+                            <include:tag text="{{ tag }}" color="purple" corners="round" />
+                          {% endfor %}
+                        </content:tags>
+                      {% endif %}
+                    </include:blog-article-list-item>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            {% if page.featured_articles|length > 4 %}
+              {% set list_size = page.featured_articles[4:]|length %}
+              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
+              <include:cards-list extra_class="{{ extra_class }}">
+                {% for block in page.featured_articles[4:] %}
+                  <include:illustration-card-2026 expand_link="true">
+                    <content:media>
+                      {{ illustration_card_media(block.value, list_size) }}
+                    </content:media>
+                    <content:heading>
+                      <hgroup class="fl-heading-group">
+                        <p class="fl-superheading">{{ block.value.get_topic() }}</p>
+                        <h2 class="fl-heading fl-heading-size-3">
+                          <a href="{{ block.value.get_url() }}" class="fl-card-heading-link fl-link-expand">
+                            {{ block.value.get_title() }}
+                          </a>
+                        </h2>
+                      </hgroup>
+                    </content:heading>
+                    <content:body>
+                      <p>{{ block.value.get_description() }}</p>
+                      {% set tags =  block.value.get_tags() %}
+                      {% if tags %}
+                        <div class="fl-card-tags">
+                          {% for tag in tags %}
+                            <include:tag
+                              text="{{ tag }}"
+                              color="purple"
+                              corners="round"
+                            />
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% endfor %}
+              </include:cards-list>
+            {% endif %}
+
+          </div>
+        {% endif %}
+
+        {% if page.cards_lists %}
+          <include:heading
+            level="h2"
+            heading_text="{{ page.more_articles_heading|richtext|remove_p_tag }}"
+            heading_size="fl-heading-size-2"
+          />
+
+          {% for block in page.cards_lists %}
+            <div class="fl-blog-cards-list">
+              <div class="fl-blog-cards-list-header">
+                <include:heading
+                  level="h3"
+                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                  heading_size="fl-heading-size-3"
+                />
+                <a class="fl-blog-cards-list-link" href="{{ all_url }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
+              </div>
+              <hr/>
+              {% set list_size = block.value.articles|length %}
+              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
+              <include:cards-list extra_class="{{ extra_class }}">
+                {% for article_block in block.value.articles %}
+                  <include:illustration-card-2026 expand_link="true">
+                    <content:media>
+                      {{ illustration_card_media(article_block, list_size) }}
+                    </content:media>
+                    <content:heading>
+                      <hgroup class="fl-heading-group">
+                        <p class="fl-superheading">{{ article_block.get_topic() }}</p>
+                        <h4 class="fl-heading fl-heading-size-3">
+                          <a href="{{ article_block.get_url() }}" class="fl-card-heading-link fl-link-expand">
+                            {{ article_block.get_title() }}
+                          </a>
+                        </h4>
+                      </hgroup>
+                    </content:heading>
+                    <content:body>
+                      <p>{{ article_block.get_description() }}</p>
+                      {% if article_block.get_tags() %}
+                        <div class="fl-card-tags">
+                          {% for tag in article_block.get_tags() %}
+                            <include:tag
+                              text="{{ tag }}"
+                              color="purple"
+                              corners="round"
+                            />
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% endfor %}
+              </include:cards-list>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="fl-buttons is-horizontal is-center">
+          <include:button
+            link="{{ all_url }}"
+            label="{{ page.view_all_label }}"
+            analytics_position="more-articles"
+            analytics_text="{{ page.view_all_label }}"
+            analytics_id="blog-more-articles"
+          />
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

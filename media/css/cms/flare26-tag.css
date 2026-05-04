@@ -47,3 +47,9 @@
     background: var(--notification-green-bg);
     color: var(--notification-green-color);
 }
+
+/* white */
+.fl-tag.fl-tag-white {
+    background: var(--notification-white-bg);
+    color: var(--notification-white-color);
+}
