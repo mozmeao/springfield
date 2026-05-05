@@ -1,0 +1,61 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+<div style="background: var(--token-color-dark-purple);">
+  <div class="fl-main has-gradient-bottom">
+    <div data-testid="mobile-store-qr-code-dark" class="fl-split-page-upper">
+      <include:mobile-store-qr-code qr_code_data="{{ qr_code_data }}">
+        <content:heading>
+          <include:heading
+            level="h2"
+            heading_size="fl-heading-size-1"
+            alignment_class="fl-text-align-center"
+            superheading_text="{{ heading.superheading_text }}"
+            heading_text="{{ heading.heading_text }}"
+            subheading_text="{{ heading.subheading_text }}"
+          />
+        </content:heading>
+        <content:store_buttons>
+          {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+          {% set android_url = play_store_url('firefox', campaign) %}
+          {% set ios_url = app_store_url('firefox', campaign) %}
+          {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+          {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+        </content:store_buttons>
+        <content:mobile_image>
+          <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
+        </content:mobile_image>
+      </include:mobile-store-qr-code>
+    </div>
+
+    <div data-testid="mobile-store-qr-code-light" class="fl-split-page-lower">
+      <include:mobile-store-qr-code qr_code_data="{{ qr_code_data }}">
+        <content:heading>
+          <include:heading
+            level="h2"
+            heading_size="fl-heading-size-1"
+            alignment_class="fl-text-align-center"
+            superheading_text="{{ heading.superheading_text }}"
+            heading_text="{{ heading.heading_text }}"
+            subheading_text="{{ heading.subheading_text }}"
+          />
+        </content:heading>
+        <content:store_buttons>
+          {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+          {% set android_url = play_store_url('firefox', campaign) %}
+          {% set ios_url = app_store_url('firefox', campaign) %}
+          {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+          {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+        </content:store_buttons>
+        <content:mobile_image>
+          <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
+        </content:mobile_image>
+      </include:mobile-store-qr-code>
+    </div>
+  </div>
+</div>

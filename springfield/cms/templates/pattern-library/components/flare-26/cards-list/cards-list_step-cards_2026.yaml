@@ -13,3 +13,31 @@ context:
     - image: "/media/img/firefox/flare/dock.png"
       heading: "Open your Applications folder and drag Firefox to your dock."
       body: ""
+  cards_full:
+    - image: "/media/img/firefox/flare/firefox-dmg.png"
+      superheading: "Step superheading"
+      heading: "Open Firefox.dmg from your Downloads folder."
+      body: "This is the body text for the step card. It provides additional details about this step."
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          icon_name: forward
+          icon_position: right
+    - image: "/media/img/firefox/flare/2026/homepage/Group_1597882542.width-800.png"
+      superheading: "Step superheading"
+      heading: "Drag the Firefox icon into your Applications folder."
+      body: "This is the body text for the step card. It provides additional details about this step."
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          icon_name: forward
+          icon_position: right
+    - image: "/media/img/firefox/flare/dock.png"
+      superheading: "Step superheading"
+      heading: "Open your Applications folder and drag Firefox to your dock."
+      body: "This is the body text for the step card. It provides additional details about this step."
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          icon_name: forward
+          icon_position: right

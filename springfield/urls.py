@@ -38,6 +38,7 @@ urlpatterns += (
     path("", include("springfield.base.nonlocale_urls")),
     path("", include("springfield.sitemaps.urls")),
     path("healthz/", watchman_views.ping, name="watchman.ping"),
+    path("healthz-cdn/", base_views.healthz_cdn, name="healthz-cdn"),
     path("readiness/", watchman_views.status, name="watchman.status"),
     path("healthz-cron/", base_views.cron_health_check),
     path("_documents/", include(wagtaildocs_urls)),

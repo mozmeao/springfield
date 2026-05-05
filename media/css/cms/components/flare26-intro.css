@@ -10,13 +10,20 @@
 
 .fl-intro {
     inline-size: 100%;
-    padding: var(--token-layout-md) var(--fl-section-h-padding);
+    padding-block: var(--fl-section-v-padding);
+    padding-inline: var(--fl-section-h-padding);
     position: relative;
     text-align: center;
 }
 
+/* give the intro more vertical padding when it's used as the first component on a page.
+   This is primary use case, but sometimes a notification at the top should reduce the padding. */
+.fl-intro:first-child {
+    padding-block: var(--token-layout-md);
+}
+
 .fl-intro.is-slim {
-    padding: var(--token-layout-sm) var(--fl-section-h-padding);
+    padding-block: var(--token-layout-sm);
 }
 
 .fl-intro > * {
@@ -243,7 +250,7 @@
 }
 
 @media (--viewport-sm-up) {
-    .fl-intro {
+    .fl-intro:first-child {
         padding-block: var(--token-layout-lg);
     }
 

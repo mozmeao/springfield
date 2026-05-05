@@ -136,9 +136,21 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
         --button-text-color-disabled: var(--token-color-soft-purple-4);
     }
 
+    /* Respect the force light theme and reset colors to the original :root values  */
+    .fl-force-light-theme {
+        --button-bg-color-disabled: var(--token-color-soft-purple-2);
+        --button-border-color-disabled: var(--button-bg-color-disabled);
+        --button-text-color-disabled: var(--token-color-link-purple);
+    }
+
     .fl-button.button-secondary {
         --button-border-color-disabled: var(--token-color-light-purple);
         --button-text-color-disabled: var(--token-color-soft-purple-5);
+    }
+
+    .fl-force-light-theme .fl-button.button-secondary {
+        --button-border-color-disabled: var(--token-color-soft-purple);
+        --button-text-color-disabled: var(--fl-theme-color-text);
     }
 
     .fl-button.button-ghost {
@@ -148,6 +160,15 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
         --button-bg-color-disabled: transparent;
         --button-border-color-disabled: var(--token-color-light-purple);
         --button-text-color-disabled: var(--token-color-soft-purple-5);
+    }
+
+    .fl-force-light-theme .fl-button.button-ghost {
+        --button-text-color: var(--token-color-black-4);
+        --button-text-color-hover: var(--token-color-white);
+        --button-bg-color-active: var(--token-color-black-2);
+        --button-bg-color-disabled: var(--token-color-grey-3);
+        --button-border-color-disabled: var(--button-bg-color-disabled);
+        --button-text-color-disabled: var(--token-color-white);
     }
 }
 
@@ -161,10 +182,22 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     --button-text-color-disabled: var(--token-color-soft-purple-4);
 }
 
+/* Respect the force light theme and reset colors to the original :root values  */
+.fl-split-page-upper .fl-force-light-theme {
+    --button-bg-color-disabled: var(--token-color-soft-purple-2);
+    --button-border-color-disabled: var(--button-bg-color-disabled);
+    --button-text-color-disabled: var(--token-color-link-purple);
+}
+
 .fl-split-page-upper .fl-button.button-secondary,
 .fl-force-dark-theme .fl-button.button-secondary {
     --button-border-color-disabled: var(--token-color-light-purple);
     --button-text-color-disabled: var(--token-color-soft-purple-5);
+}
+
+.fl-split-page-upper .fl-force-light-theme .fl-button.button-secondary {
+    --button-border-color-disabled: var(--token-color-soft-purple);
+    --button-text-color-disabled: var(--fl-theme-color-text);
 }
 
 .fl-split-page-upper .fl-button.button-ghost,
@@ -175,6 +208,15 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     --button-bg-color-disabled: transparent;
     --button-border-color-disabled: var(--token-color-light-purple);
     --button-text-color-disabled: var(--token-color-soft-purple-5);
+}
+
+.fl-split-page-upper .fl-force-light-theme .fl-button.button-ghost {
+    --button-text-color: var(--token-color-black-4);
+    --button-text-color-hover: var(--token-color-white);
+    --button-bg-color-active: var(--token-color-black-2);
+    --button-bg-color-disabled: var(--token-color-grey-3);
+    --button-border-color-disabled: var(--button-bg-color-disabled);
+    --button-text-color-disabled: var(--token-color-white);
 }
 
 /* Button sizes */

@@ -30,3 +30,8 @@
         --fl-theme-color-icon-wrap: var(--token-color-medium-purple);
     }
 }
+
+.fl-split-page-upper .icon-text-list,
+.fl-force-dark-theme .icon-text-list {
+    --fl-theme-color-icon-wrap: var(--token-color-medium-purple);
+}

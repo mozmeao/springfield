@@ -1,0 +1,10 @@
+name: Mobile Store QR Code 2026
+context:
+  heading:
+    superheading_text: Get Firefox on your phone
+    heading_text: Take Firefox with you
+    subheading_text: Scan the QR code to download Firefox for your phone or tablet.
+  qr_code_data: "https://www.mozilla.org/firefox/browsers/mobile/"
+  image:
+    url: /media/img/firefox/flare/placeholder.png
+    alt: Firefox on mobile

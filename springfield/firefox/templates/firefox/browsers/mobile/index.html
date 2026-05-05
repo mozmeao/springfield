@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% from "macros.html" import google_play_button, fxa_email_form with context %}
+{% from "macros.html" import google_play_button, apple_app_store_button, fxa_email_form with context %}
 {% from "macros-protocol.html" import split with context %}
 
 {% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "cms/base-protocol.html" %}
@@ -57,36 +57,30 @@
 <div class="fl-page fl-freeform-2026-page">
   <main class="fl-main has-gradient-bottom">
     <div class="fl-split-page-upper has-gradient-bottom">
-      {# new 'mobile store qr code' section #}
-      {% from "macros.html" import google_play_button, apple_app_store_button with context %}
-      <section class="fl-section fl-mobile-store-qr-section" data-block-position="mobile-store-qr">
-        <div class="fl-container">
-            <div class="fl-mobile-store-qr-heading">
-              <include:heading
-                level="h1"
-                heading_size="fl-heading-size-1"
-                alignment_class="fl-text-align-center"
-                heading_text="{% if LANG == 'en-US' %}Firefox on your phone{% else %}{{ ftl('browsers-mobile-go-your-own-way') }}{% endif %}"
-                subheading_text="{% if LANG == 'en-US' %}The browser you trust, built for life on the go. {% else %}{{ ftl('browsers-mobile-firefox-mobile-adapts-to-you') }}{% endif %}"
-              />
-            </div>
-
-          <div class="fl-mobile-store-qr-content">
-            <div class="fl-mobile-store-qr-code" role="img" aria-label="QR Code" id="firefox-qr">
-              {{ qrcode('https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page', 12) }}
-            </div>
-            <div class="fl-mobile-store-buttons">
-              {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
-              {% set android_url = play_store_url('firefox', campaign) %}
-              {% set ios_url = app_store_url('firefox', campaign) %}
-
-              {{ google_play_button(href=android_url, id="android-download", class_name="fl-store-button android-download") }}
-              {{ apple_app_store_button(href=ios_url, id="ios-download", class_name="fl-store-button ios-download") }}
-            </div>
-            <img class="fl-mobile-store-mobile-image" src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
-          </div>
-        </div>
-      </section>
+      <include:mobile-store-qr-code
+        block_position="mobile-store-qr"
+        qr_code_data="https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page"
+      >
+        <content:heading>
+          <include:heading
+            level="h1"
+            heading_size="fl-heading-size-1"
+            alignment_class="fl-text-align-center"
+            heading_text="{% if LANG == 'en-US' %}Firefox on your phone{% else %}{{ ftl('browsers-mobile-go-your-own-way') }}{% endif %}"
+            subheading_text="{% if LANG == 'en-US' %}The browser you trust, built for life on the go.{% else %}{{ ftl('browsers-mobile-firefox-mobile-adapts-to-you') }}{% endif %}"
+          />
+        </content:heading>
+        <content:store_buttons>
+          {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+          {% set android_url = play_store_url('firefox', campaign) %}
+          {% set ios_url = app_store_url('firefox', campaign) %}
+          {{ google_play_button(href=android_url, id="android-download", class_name="fl-store-button android-download") }}
+          {{ apple_app_store_button(href=ios_url, id="ios-download", class_name="fl-store-button ios-download") }}
+        </content:store_buttons>
+        <content:mobile_image>
+          <img src="{{ static('img/firefox/flare/firefox-for-mobile_hero.png') }}" alt="Firefox for Mobile" />
+        </content:mobile_image>
+      </include:mobile-store-qr-code>
     </div>
     <div class="fl-split-page-lower no-gap">
       {% if LANG == 'en-US' %}
