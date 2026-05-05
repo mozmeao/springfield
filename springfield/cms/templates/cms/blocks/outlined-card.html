@@ -16,7 +16,7 @@
   max_version="{{ value.settings.show_to.max_version }}">
   <include:card expand_link="{{ value.settings.expand_link }}">
     <content:heading>
-      {% if value.sticker %}
+      {% if value.sticker and value.sticker.image %}
         <div class="fl-card-sticker">
           {% include_block value.sticker %}
         </div>

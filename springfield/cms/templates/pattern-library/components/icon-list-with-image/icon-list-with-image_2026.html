@@ -1,0 +1,45 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="icon-list-with-image-light" class="fl-section fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+  <include:media-content narrow="true">
+    <content:media>
+      <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
+    </content:media>
+    <content:body>
+      <ul class="icon-text-list">
+        {% for item in items %}
+          <li>
+            <span class="fl-icon-wrap">
+              <include:icon icon_name="{{ item.icon }}" hidden="true" />
+            </span>
+            {{ item.text }}
+          </li>
+        {% endfor %}
+      </ul>
+    </content:body>
+  </include:media-content>
+</div>
+
+<div data-testid="icon-list-with-image-dark" class="fl-section fl-force-dark-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text)">
+  <include:media-content narrow="true">
+    <content:media>
+      <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
+    </content:media>
+    <content:body>
+      <ul class="icon-text-list">
+        {% for item in items %}
+          <li>
+            <span class="fl-icon-wrap">
+              <include:icon icon_name="{{ item.icon }}" hidden="true" />
+            </span>
+            {{ item.text }}
+          </li>
+        {% endfor %}
+      </ul>
+    </content:body>
+  </include:media-content>
+</div>

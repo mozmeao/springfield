@@ -1,0 +1,37 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props block_position="mobile-store-qr", qr_code_data="" #}
+
+<section class="fl-section fl-mobile-store-qr-section" data-block-position="{{ block_position }}">
+  <div class="fl-container">
+    <div class="fl-mobile-store-qr-heading">
+      {{ contents.heading }}
+    </div>
+
+    <div class="fl-mobile-store-qr-content">
+      <include:conditional-display platform_conditions="{{ ['linux', 'osx', 'windows', 'other-os', 'unsupported'] }}">
+        <div class="fl-mobile-store-qr-code">
+          {{ qrcode(qr_code_data, 12) }}
+        </div>
+      </include:conditional-display>
+
+      <include:conditional-display platform_conditions="{{ ['ios', 'android'] }}">
+        <div class="fl-mobile-store-buttons">
+          {{ contents.store_buttons }}
+        </div>
+      </include:conditional-display>
+    </div>
+
+    {% if contents.mobile_image %}
+      <include:conditional-display platform_conditions="{{ ['ios', 'android'] }}">
+        <div class="fl-mobile-store-mobile-image">
+          {{ contents.mobile_image }}
+        </div>
+      </include:conditional-display>
+    {% endif %}
+  </div>
+</section>
