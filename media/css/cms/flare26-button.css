@@ -243,9 +243,14 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-buttons {
+    align-items: start;
     display: flex;
     flex-wrap: wrap;
     gap: var(--token-spacing-md);
+}
+
+.fl-buttons.extra-padding {
+    padding-block: var(--token-spacing-lg);
 }
 
 .fl-buttons.is-horizontal {
@@ -271,7 +276,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-inline-end: auto;
 }
 
-.fl-buttons > * {
+.fl-buttons > *:not(.fl-set-as-default-dialog) {
     display: inline-flex;
 }
 

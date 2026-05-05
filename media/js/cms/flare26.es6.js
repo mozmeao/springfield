@@ -14,6 +14,7 @@ import setupNewsletter from './components/flare26-newsletter.es6';
 import setupNotificationClose from './components/flare26-notification-close.es6';
 import setupQRCodeSnippet from './components/flare26-qr-code-snippet.es6';
 import setupScrollingCardGrid from './components/flare26-scrolling-card-grid.es6';
+import { setupSetAsDefault } from './components/flare26-set-as-default.es6';
 import setupSlidingCarousels from './components/flare26-sliding-carousel.es6';
 import setupTopicListSidebar from './components/flare26-topic-list-sidebar.es6';
 import setupTypewriter, {
@@ -43,6 +44,7 @@ function setupComponents() {
     setupCopyToClipboardButtons();
     setupFirefoxVersionConditionalDisplay();
     setupSlidingCarousels();
+    setupSetAsDefault();
 }
 
 if (document.readyState === 'loading') {

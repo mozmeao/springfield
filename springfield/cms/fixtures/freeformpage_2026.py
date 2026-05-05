@@ -5,10 +5,10 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet, get_set_as_default_snippet
 from springfield.cms.models import FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_mobile_store_qr_code():
@@ -193,6 +193,60 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
             "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
         },
     ]
+    page.save_revision().publish()
+    return page
+
+
+def get_set_as_default_button_block() -> dict:
+    snippet = get_set_as_default_snippet()
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {
+                "layout": "vertical",
+                "slim": False,
+                "anchor_id": "",
+            },
+            "media": [],
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="sad01">Make Firefox your default</p>',
+                "subheading_text": "",
+            },
+            "buttons": [
+                {
+                    "type": "set_as_default_button",
+                    "value": {
+                        "settings": {
+                            "theme": "",
+                            "icon": "",
+                            "icon_position": "right",
+                            "analytics_id": "sad00001-0000-0000-0000-000000000001",
+                        },
+                        "label": "Set Firefox as default",
+                        "snippet": snippet.id,
+                    },
+                    "id": "sad00001-0000-0000-0000-000000000002",
+                }
+            ],
+        },
+        "id": "sad00001-0000-0000-0000-000000000003",
+    }
+
+
+def get_freeform_page_2026_with_set_as_default_button() -> FreeFormPage2026:
+    index_page = get_2026_test_index_page()
+
+    slug = "freeform-2026-with-set-as-default"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(
+            slug=slug,
+            title="Free Form 2026 — Set as Default Test",
+        )
+        index_page.add_child(instance=page)
+
+    page.content = [get_set_as_default_button_block()]
     page.save_revision().publish()
     return page
 

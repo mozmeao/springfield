@@ -34,6 +34,7 @@ from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
     get_freeform_page_2026_with_floating_qr_snippet,
     get_freeform_page_2026_with_qr_snippet,
+    get_freeform_page_2026_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
@@ -196,6 +197,9 @@ class Command(BaseCommand):
 
         topic_list_2026_page = get_topic_list_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
+
+        set_as_default_page = get_freeform_page_2026_with_set_as_default_button()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 with Set as Default Button test page loaded: {set_as_default_page.slug}"))
 
         carousel_page = get_carousel_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))

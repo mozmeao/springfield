@@ -27,6 +27,13 @@
     {% endif %}
 {% endif %}
 
+{% if default_browser_condition %}
+  <div class="conditional-display condition-{{ default_browser_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ default_browser_condition }}</span>
+    {% endif %}
+{% endif %}
+
 {% if min_version or max_version %}
   <div class="conditional-display condition-fx-version {% if is_preview %}is-preview{% endif %}"
     {% if min_version %}data-min-version="{{ min_version }}"{% endif %}
@@ -40,10 +47,13 @@
 
 {{ contents }}
 
+{% if default_browser_condition  %}
+  </div>
+{% endif %}
 {% if min_version or max_version %}
   </div>
 {% endif %}
-{% if auth_state_condition %}
+{% if auth_state_condition  %}
   </div>
 {% endif %}
 {% if firefox_condition %}

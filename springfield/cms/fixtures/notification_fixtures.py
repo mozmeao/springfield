@@ -5,7 +5,7 @@
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_notification_variants() -> list[dict]:
