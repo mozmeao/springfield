@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:subscription>
+  <content:heading>
+    <include:heading
+      heading_text="{{ heading }}"
+      size="1"
+      alignment_class="text-center"
+    />
+  </content:heading>
+  <content:form>
+    <form class="fl-newsletter-form" style="max-width: 600px; margin: 0 auto;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" style="padding: 12px; border: 1px solid #ccc; border-radius: 4px;" />
+        <button type="submit" class="fl-button" style="padding: 12px 24px;">{{ button_label }}</button>
+      </div>
+    </form>
+  </content:form>
+</include:subscription>

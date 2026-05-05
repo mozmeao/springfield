@@ -1,0 +1,50 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<h2>Subheading Variants</h2>
+
+<hr/>
+
+<h3>Left Aligned</h3>
+<hr/>
+
+{% for item in variations %}
+  {% set subheading_text = item.subheading_text %}
+  {% set alignment_class =  'text-left' %}
+  <include:subheading
+    subheading_text="{{ subheading_text }}"
+    size="{{ item.size }}"
+    alignment_class="{{ alignment_class }}"
+  />
+{% endfor %}
+
+<hr/>
+
+<h3>Center Aligned</h3>
+<hr/>
+{% for item in variations %}
+  {% set subheading_text = item.subheading_text %}
+  {% set alignment_class =  'text-center' %}
+  <include:subheading
+    subheading_text="{{ subheading_text }}"
+    size="{{ item.size }}"
+    alignment_class="{{ alignment_class }}"
+  />
+{% endfor %}
+
+<hr/>
+
+<h3>Right Aligned</h3>
+<hr/>
+{% for item in variations %}
+  {% set subheading_text = item.subheading_text %}
+  {% set alignment_class = 'text-right' %}
+  <include:subheading
+    subheading_text="{{ subheading_text }}"
+    size="{{ item.size }}"
+    alignment_class="{{ alignment_class }}"
+  />
+{% endfor %}
