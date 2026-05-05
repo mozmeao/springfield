@@ -163,6 +163,9 @@ function forceEssentialCampaign() {
     }
 }
 
+const existingMarketingParams =
+    'utm_source=newsletter&utm_medium=email&utm_campaign=existing';
+
 test.describe('marketing download attribution', () => {
     test('has expected cookie values', async ({ page, browserName }) => {
         await page.addInitScript(mockGetGtagClientID);
@@ -271,7 +274,7 @@ test.describe('marketing download attribution', () => {
             () => {
                 const url = '/en-US/?geo=us';
 
-                test('on cookie created', async ({ page, browserName }) => {
+                test('cookie created', async ({ page, browserName }) => {
                     await page.addInitScript(mockGetGtagClientID);
 
                     const capture = { params: null };
@@ -462,6 +465,63 @@ test.describe('marketing download attribution', () => {
             }
         );
     });
+
+    test.describe(
+        'user action grants consent',
+        {
+            tag: '@firefox'
+        },
+        () => {
+            test('cookie created', async ({ page, browserName }) => {
+                await page.addInitScript(interceptInitMarketing);
+                await page.addInitScript(mockGetGtagClientID);
+                await openPage(
+                    `/fr/?geo=fr&mozcb=y&${existingMarketingParams}`,
+                    page,
+                    browserName
+                );
+
+                // confirm there's no existing cookie
+                await page.waitForLoadState('networkidle');
+
+                const initMarketingCalled = await page.evaluate(
+                    () => window.__initMarketingCalled
+                );
+                expect(initMarketingCalled).toBe(false);
+
+                const existingMarketingCookies = await page.context().cookies();
+                const existingMarketingCookie = existingMarketingCookies.find(
+                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                );
+                expect(existingMarketingCookie).toBeUndefined();
+
+                // change consent status
+                const acceptButton = page.getByTestId(
+                    'consent-banner-accept-button'
+                );
+                acceptButton.click();
+
+                // check marketing cookie was added
+                await page.waitForFunction(() => {
+                    return document.cookie
+                        .split(';')
+                        .some((c) =>
+                            c
+                                .trim()
+                                .startsWith(
+                                    'moz-download-attribution-marketing-raw='
+                                )
+                        );
+                });
+
+                const cookies = await page.context().cookies();
+                const marketingCookie = cookies.find(
+                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                );
+                expect(marketingCookie).toBeDefined();
+            });
+        }
+    );
 });
 
 test.describe('essential download attribution', () => {
