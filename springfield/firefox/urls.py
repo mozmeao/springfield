@@ -110,12 +110,11 @@ urlpatterns = (
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
-    # Issue #444 - US-only iOS landing page
+    # Issue 444 - iOS summarizer landing page
     page(
         "landing/ios-summarizer/",
         "firefox/landing/ios-summarizer.html",
-        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
-        active_locales="en-US",
+        ftl_files=["firefox/summarizer/ios", "firefox/browsers/mobile/ios"],
     ),
     # Issue 487 - Win10 End of Service
     page(
