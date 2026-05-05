@@ -371,3 +371,49 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 
 
 register_snippet(QRCodeFloatingSnippet)
+
+
+class PretranslatedPhraseCategory(models.Model):
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Pretranslated Phrase Category"
+        verbose_name_plural = "Pretranslated Phrase Categories"
+
+    def __str__(self):
+        return self.name
+
+
+class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A pre-translated label for use on Firefox download buttons."""
+
+    category = models.ForeignKey(
+        PretranslatedPhraseCategory,
+        on_delete=models.PROTECT,
+        related_name="phrases",
+    )
+    label = models.CharField(max_length=255)
+
+    panels = [
+        FieldPanel("category"),
+        FieldPanel("label"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pretranslated Phrase"
+        verbose_name_plural = "Pretranslated Phrases"
+        unique_together = [("category", "locale"), ("translation_key", "locale")]
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if self.category_id and self.locale_id:
+            qs = PretranslatedPhrase.objects.filter(category_id=self.category_id, locale_id=self.locale_id)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError(f"A phrase for this category already exists in {self.locale}.")

@@ -8,7 +8,16 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import BannerSnippet, DownloadFirefoxCallToActionSnippet, PreFooterCTAFormSnippet, PreFooterCTASnippet, QRCodeSnippet, Tag
+from springfield.cms.models import (
+    BannerSnippet,
+    DownloadFirefoxCallToActionSnippet,
+    PreFooterCTAFormSnippet,
+    PreFooterCTASnippet,
+    PretranslatedPhrase,
+    PretranslatedPhraseCategory,
+    QRCodeSnippet,
+    Tag,
+)
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 
 
@@ -82,6 +91,37 @@ def get_qr_code_snippet() -> QRCodeSnippet:
         },
     )
     return snippet
+
+
+def get_pretranslated_phrase_snippets() -> tuple[PretranslatedPhrase, PretranslatedPhrase]:
+    locale = Locale.get_default()
+    get_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
+        slug="get_firefox",
+        defaults={"name": "Get Firefox"},
+    )
+    download_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
+        slug="download_firefox",
+        defaults={"name": "Download Firefox"},
+    )
+    get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+        category=get_firefox_cat,
+        locale=locale,
+        defaults={
+            "label": "Get Firefox",
+            "live": True,
+            "translation_key": "f25078fd-50e4-4a73-acbc-6355bfa7de6e",
+        },
+    )
+    download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+        category=download_firefox_cat,
+        locale=locale,
+        defaults={
+            "label": "Download Firefox",
+            "live": True,
+            "translation_key": "e13dc0ed-aa51-4077-b011-fb20958ffefd",
+        },
+    )
+    return get_firefox, download_firefox
 
 
 def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:

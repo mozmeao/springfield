@@ -6,6 +6,7 @@ import json
 from uuid import uuid4
 
 from django.conf import settings
+from django.db.models import Count
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import format_html
@@ -15,12 +16,17 @@ import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
+from wagtail.admin.panels import FieldPanel
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
 )
+from wagtail.admin.ui.tables import TitleColumn
 from wagtail.models import Locale as WagtailLocale
+from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
 
 
 @hooks.register("register_admin_menu_item")
@@ -262,3 +268,66 @@ def register_firefox_logo_feature(features):
     # Add the feature to the default features list to make it available
     # on rich text fields that do not specify an explicit 'features' list
     features.default_features.append(feature_name)
+
+
+def _phrase_list_url(category):
+    return reverse("wagtailsnippets_cms_pretranslatedphrase:list") + f"?category={category.pk}"
+
+
+def _phrase_count_label(category):
+    count = category.phrases.count()
+    return f"{count} phrase{'s' if count != 1 else ''}"
+
+
+class PretranslatedPhraseCategoryViewSet(SnippetViewSet):
+    model = PretranslatedPhraseCategory
+    list_display = [
+        "name",
+        "slug",
+        TitleColumn("phrases", label="Phrases", accessor=_phrase_count_label, get_url=_phrase_list_url),
+    ]
+    search_fields = ["name", "slug"]
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("slug"),
+    ]
+
+
+class PhraseCategoryIndexView(IndexView):
+    """Shows a category browser when no category filter is active; normal phrase list otherwise."""
+
+    def _show_category_browser(self):
+        return "category" not in self.request.GET and not self.results_only
+
+    def get_template_names(self):
+        if self._show_category_browser():
+            return ["cms/phrases_category_browser.html"]
+        return super().get_template_names()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self._show_category_browser():
+            phrase_list_base_url = reverse("wagtailsnippets_cms_pretranslatedphrase:list")
+            categories = PretranslatedPhraseCategory.objects.annotate(phrase_count=Count("phrases")).order_by("name")
+            context["categories"] = [
+                {
+                    "name": cat.name,
+                    "phrase_count": cat.phrase_count,
+                    "url": f"{phrase_list_base_url}?category={cat.pk}",
+                }
+                for cat in categories
+            ]
+        return context
+
+
+class PretranslatedPhraseViewSet(SnippetViewSet):
+    model = PretranslatedPhrase
+    menu_label = "Phrases"
+    index_view_class = PhraseCategoryIndexView
+    list_display = ["label", "category", "locale", "live"]
+    list_filter = ["category", "locale"]
+    search_fields = ["label", "category__name"]
+
+
+register_snippet(PretranslatedPhraseCategoryViewSet)
+register_snippet(PretranslatedPhraseViewSet)
