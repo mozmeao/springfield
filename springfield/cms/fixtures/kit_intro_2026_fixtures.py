@@ -57,6 +57,8 @@ def get_kit_intro_2026_test_page() -> FreeFormPage2026:
 
     content = [*get_kit_intro_2026_variants(), get_bottom_section()]
     page.upper_content = content
+    # Add the Kit Intro block data to the Content field despite the block not being allowed there
+    # to test that it isn't rendered on the page
     page.content = content
     page.save_revision().publish()
     return page
