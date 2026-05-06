@@ -17,7 +17,9 @@
 {% block body_class %}mzp-t-mozilla format-none{% endblock%}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-user-privacy') }}
+  {% else %}
     {{ css_bundle('protocol-split') }}
     {{ css_bundle('data_protection') }}
   {% endif %}

@@ -1,10 +1,12 @@
-.fl-page-year-in-review .fl-section.has-gradient-bottom::before {
-    --gradient-height: 30vh;
-}
+@layer page {
+    .fl-page-year-in-review .fl-section.has-gradient-bottom::before {
+        --gradient-height: 30vh;
+    }
 
-/* faking the bottom of .fl-main because position:sticky and overflow: hidden don't play nicely together. */
-.fl-page-year-in-review .fl-section:last-child {
-    border-end-end-radius: var(--fl-theme-main-border-radius);
-    border-end-start-radius: var(--fl-theme-main-border-radius);
-    padding-block-end: var(--fl-theme-main-border-radius);
+    /* faking the bottom of .fl-main because position:sticky and overflow: hidden don't play nicely together. */
+    .fl-page-year-in-review .fl-section:last-child {
+        border-end-end-radius: var(--fl-theme-main-border-radius);
+        border-end-start-radius: var(--fl-theme-main-border-radius);
+        padding-block-end: var(--fl-theme-main-border-radius);
+    }
 }

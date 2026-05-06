@@ -294,7 +294,7 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/flare26-icon.css",
+        "css/cms/components/flare26-icon.css",
         "css/cms/flare-button.css",
         "css/cms/flare-download-utils.css",
         "css/cms/flare-download-link.css",
@@ -319,8 +319,8 @@
     {
       "files": [
         "css/cms/flare26-base.css",
-        "css/cms/flare26-download-utils.css",
-        "css/cms/flare26-download-link.css",
+        "css/cms/components/flare26-download-utils.css",
+        "css/cms/components/flare26-download-link.css",
         "css/cms/flare26-fallback-nav.css",
         "css/cms/flare26-utilities.css"
       ],
@@ -455,6 +455,110 @@
         "css/firefox/landing/eoy-2025.scss"
       ],
       "name": "eoy_2025"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-blog.css"
+      ],
+      "name": "flare26-blog"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-channels.css"
+      ],
+      "name": "flare26-channels"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-cookie-settings.css"
+      ],
+      "name": "flare26-cookie-settings"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-channels.css",
+        "css/cms/pages/flare26-developer-edition.css"
+      ],
+      "name": "flare26-developer-edition"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-download.css"
+      ],
+      "name": "flare26-download"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-download_all.css"
+      ],
+      "name": "flare26-download-all"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-enterprise.css"
+      ],
+      "name": "flare26-enterprise"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-homepage.css"
+      ],
+      "name": "flare26-homepage"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-landing-get-page.css"
+      ],
+      "name": "flare26-landing-get-page"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-mobile-pages.css"
+      ],
+      "name": "flare26-mobile-pages"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-channels.css",
+        "css/cms/pages/flare26-release-notes.css"
+      ],
+      "name": "flare26-release-notes"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-releases.css"
+      ],
+      "name": "flare26-releases"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-smart-window.css"
+      ],
+      "name": "flare26-smart-window"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-system-requirements.css"
+      ],
+      "name": "flare26-system-requirements"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-thanks.css"
+      ],
+      "name": "flare26-thanks"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-user-privacy.css"
+      ],
+      "name": "flare26-user-privacy"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-year-in-review.css"
+      ],
+      "name": "flare26-year-in-review"
     }
   ],
   "js": [

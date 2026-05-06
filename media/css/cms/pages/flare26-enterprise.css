@@ -4,147 +4,152 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-main.fl-2026-enterprise {
-    background-color: var(--fl-theme-background);
-}
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
 
-.fl-2026-enterprise .fl-body a {
-    text-decoration: underline;
-}
-
-.fl-2026-enterprise .fl-body a:hover {
-    text-decoration: none;
-}
-
-.fl-2026-enterprise .fl-superheading {
-    display: flex;
-    justify-content: center;
-}
-
-.fl-2026-enterprise .fl-intro.fl-intro-media-right {
-    grid-template-columns: 1fr;
-    text-align: center;
-}
-
-.fl-2026-enterprise .fl-intro-actions {
-    margin-inline: auto;
-    text-align: center;
-}
-
-.fl-2026-enterprise .heading-logo {
-    display: block;
-    inline-size: auto;
-    margin-block-end: var(--token-spacing-xl);
-    margin-inline: auto;
-    max-block-size: 60px;
-    max-inline-size: 100%;
-}
-
-.fl-2026-enterprise .fl-banner-kit .fl-heading,
-.fl-2026-enterprise .fl-banner-kit .fl-subheading {
-    max-inline-size: 840px;
-}
-
-.fl-2026-enterprise .fl-card {
-    display: flex;
-    flex-direction: column;
-}
-
-.fl-2026-enterprise .fl-card-sticker {
-    margin: 0 auto var(--token-spacing-lg) 0;
-    max-block-size: 60px;
-    max-inline-size: 60px;
-    order: 1;
-}
-
-.fl-2026-enterprise .fl-card-heading-group {
-    order: 2;
-}
-
-.fl-2026-enterprise .fl-body {
-    order: 3;
-}
-
-.fl-2026-enterprise-support h2 {
-    margin: 0 auto;
-}
-
-.fl-2026-enterprise-protection {
-    margin: 60px auto;
-    max-inline-size: 60%;
-    text-align: center;
-}
-
-.fl-2026-enterprise-documentation {
-    color: var(--fl-theme-color-brand-text);
-
-    .fl-heading {
-        color: var(--fl-theme-color-brand-text);
-    }
-}
-
-.fl-2026-enterprise .fl-card-grid {
-    margin: auto;
-    max-inline-size: var(--token-width-desktop-wide-banner);
-    padding: 0 var(--fl-section-h-padding);
-}
-
-.fl-section-download {
-    margin: auto;
-    max-inline-size: var(--token-width-desktop-wide-banner);
-    padding: 0 var(--token-layout-xs);
-}
-
-.fl-section-download h2.fl-heading {
-    margin: 60px auto;
-    text-align: center;
-}
-
-.fl-section-download .fl-body {
-    padding-block-end: 60px;
-}
-
-.mzp-c-menu-list-item,
-.mzp-c-menu-list-item button {
-    margin-block-end: 0;
-}
-
-.mzp-c-menu-list-title > button {
-    margin-block-end: 0;
-    margin: 0;
-}
-
-.is-details .mzp-c-menu-list-list {
-    margin: 0;
-}
-
-.is-details .mzp-c-menu-list-list.is-closed {
-    display: none;
-}
-
-@media (--viewport-sm-up) {
-    .fl-2026-enterprise .heading-logo {
-        margin-inline: 0;
-        max-block-size: 80px;
+@layer page {
+    main.fl-2026-enterprise {
+        background-color: var(--fl-theme-background);
     }
 
-    .fl-2026-enterprise .fl-intro-actions {
-        text-align: center;
+    .fl-2026-enterprise .fl-body a {
+        text-decoration: underline;
     }
-}
 
-@media (--viewport-md-up) {
+    .fl-2026-enterprise .fl-body a:hover {
+        text-decoration: none;
+    }
+
     .fl-2026-enterprise .fl-superheading {
-        justify-content: start;
+        display: flex;
+        justify-content: center;
     }
 
     .fl-2026-enterprise .fl-intro.fl-intro-media-right {
-        grid-template-columns: 1fr 1fr;
-        text-align: start;
+        grid-template-columns: 1fr;
+        text-align: center;
     }
 
     .fl-2026-enterprise .fl-intro-actions {
-        margin-inline: 0 auto;
-        text-align: start;
+        margin-inline: auto;
+        text-align: center;
+    }
+
+    .fl-2026-enterprise .heading-logo {
+        display: block;
+        inline-size: auto;
+        margin-block-end: var(--token-spacing-xl);
+        margin-inline: auto;
+        max-block-size: 60px;
+        max-inline-size: 100%;
+    }
+
+    .fl-2026-enterprise .fl-banner-kit .fl-heading,
+    .fl-2026-enterprise .fl-banner-kit .fl-subheading {
+        max-inline-size: 840px;
+    }
+
+    .fl-2026-enterprise .fl-card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fl-2026-enterprise .fl-card-sticker {
+        margin: 0 auto var(--token-spacing-lg) 0;
+        max-block-size: 60px;
+        max-inline-size: 60px;
+        order: 1;
+    }
+
+    .fl-2026-enterprise .fl-card-heading-group {
+        order: 2;
+    }
+
+    .fl-2026-enterprise .fl-body {
+        order: 3;
+    }
+
+    .fl-2026-enterprise-support h2 {
+        margin: 0 auto;
+    }
+
+    .fl-2026-enterprise-protection {
+        margin: 60px auto;
+        max-inline-size: 60%;
+        text-align: center;
+    }
+
+    .fl-2026-enterprise-documentation {
+        color: var(--fl-theme-color-brand-text);
+
+        .fl-heading {
+            color: var(--fl-theme-color-brand-text);
+        }
+    }
+
+    .fl-2026-enterprise .fl-card-grid {
+        margin: auto;
+        max-inline-size: var(--token-width-desktop-wide-banner);
+        padding: 0 var(--fl-section-h-padding);
+    }
+
+    .fl-section-download {
+        margin: auto;
+        max-inline-size: var(--token-width-desktop-wide-banner);
+        padding: 0 var(--token-layout-xs);
+    }
+
+    .fl-section-download h2.fl-heading {
+        margin: 60px auto;
+        text-align: center;
+    }
+
+    .fl-section-download .fl-body {
+        padding-block-end: 60px;
+    }
+
+    .mzp-c-menu-list-item,
+    .mzp-c-menu-list-item button {
+        margin-block-end: 0;
+    }
+
+    .mzp-c-menu-list-title > button {
+        margin-block-end: 0;
+        margin: 0;
+    }
+
+    .is-details .mzp-c-menu-list-list {
+        margin: 0;
+    }
+
+    .is-details .mzp-c-menu-list-list.is-closed {
+        display: none;
+    }
+
+    @media (--viewport-sm-up) {
+        .fl-2026-enterprise .heading-logo {
+            margin-inline: 0;
+            max-block-size: 80px;
+        }
+
+        .fl-2026-enterprise .fl-intro-actions {
+            text-align: center;
+        }
+    }
+
+    @media (--viewport-md-up) {
+        .fl-2026-enterprise .fl-superheading {
+            justify-content: start;
+        }
+
+        .fl-2026-enterprise .fl-intro.fl-intro-media-right {
+            grid-template-columns: 1fr 1fr;
+            text-align: start;
+        }
+
+        .fl-2026-enterprise .fl-intro-actions {
+            margin-inline: 0 auto;
+            text-align: start;
+        }
     }
 }

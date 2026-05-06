@@ -12,7 +12,9 @@
 {% block body_id %}firefox-releases-index{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-releases') }}
+  {% else %}
     {{ css_bundle('firefox_releases_index') }}
     {% if switch('release-notes-newsletter-banner', ['en']) %}
       {{ css_bundle('firefox-newsletter-banner') }}

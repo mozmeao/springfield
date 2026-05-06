@@ -4,6 +4,8 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-page-blog .fl-main {
-    max-inline-size: var(--token-width-desktop-content);
+@layer page {
+    .fl-page-blog .fl-main {
+        max-inline-size: var(--token-width-desktop-content);
+    }
 }

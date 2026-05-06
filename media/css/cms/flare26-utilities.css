@@ -223,6 +223,16 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: revert;
 }
 
+.firefox-is-default .conditional-display.condition-is-default {
+    display: block;
+    display: revert;
+}
+
+.firefox-is-not-default .conditional-display.condition-is-not-default {
+    display: block;
+    display: revert;
+}
+
 .android .conditional-display.condition-android {
     display: block;
     display: revert;

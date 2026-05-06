@@ -9,7 +9,7 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 _IMAGE_VARIANTS = {
     "image": settings.PLACEHOLDER_IMAGE_ID,

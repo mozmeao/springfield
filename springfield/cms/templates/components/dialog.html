@@ -15,7 +15,9 @@
       {{ contents.heading }}
     {% endif %}
     {% if contents.body %}
-      {{ contents.body }}
+      <div class="fl-dialog-content-text">
+        {{ contents.body }}
+      </div>
     {% endif %}
     {% if contents.buttons %}
       <div class="fl-buttons">

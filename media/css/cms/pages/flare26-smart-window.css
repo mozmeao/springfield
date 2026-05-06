@@ -1,313 +1,321 @@
-.fl-smart-window-explainer-hero {
-    background: var(--smart-window-background-gradient);
-    border-end-end-radius: var(--fl-theme-main-border-radius);
-    border-end-start-radius: var(--fl-theme-main-border-radius);
-    contain: paint;
-    inline-size: 100%;
-    padding-block-end: var(--fl-section-v-padding);
-    position: relative;
-    z-index: 1;
-}
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
 
-.fl-smart-window-explainer-page .fl-heading-group::before {
-    background: var(--smart-window-logo-url) no-repeat center;
-    background-size: contain;
-    block-size: 31px;
-    content: '';
-    display: inline-flex;
-    inline-size: 211px;
-    margin-block-end: var(--token-spacing-xl);
-}
+@layer page {
+    .fl-smart-window-explainer-hero {
+        background: var(--smart-window-background-gradient);
+        border-end-end-radius: var(--fl-theme-main-border-radius);
+        border-end-start-radius: var(--fl-theme-main-border-radius);
+        contain: paint;
+        inline-size: 100%;
+        padding-block-end: var(--fl-section-v-padding);
+        position: relative;
+        z-index: 1;
+    }
 
-.fl-smart-window-explainer-page .fl-intro {
-    padding-block-end: 0;
-}
-
-.fl-smart-window-instructions-container {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-md);
-}
-
-.fl-smart-window-instructions-container .fl-buttons {
-    justify-content: center;
-}
-
-.fl-smart-window-instructions-container .fl-button,
-.fl-smart-window-instructions-container .fl-download-firefox-button {
-    inline-size: 100%;
-}
-
-.fl-smart-window-instructions-container p {
-    margin: 0;
-}
-
-.fl-smart-window-heading-success {
-    display: none;
-}
-
-.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
-    .fl-smart-window-heading-success {
-    display: block;
-}
-
-.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
-    .fl-smart-window-heading-default,
-.fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
-    .fl-smart-window-subheading-default {
-    display: none;
-}
-
-.fl-smart-window-explainer-page .fl-header {
-    background: transparent;
-}
-
-.fl-smart-window-intro-content {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-layout-2xs);
-}
-
-.fl-smart-window-intro {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-layout-sm);
-    padding: var(--token-layout-lg) var(--fl-section-h-padding) 0;
-    text-align: center;
-}
-
-.fl-smart-window-intro .fl-heading-group {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-xl);
-    max-inline-size: var(--token-width-desktop-content-lg);
-}
-
-.fl-smart-window-intro .fl-buttons {
-    justify-content: center;
-}
-
-.fl-smart-window-intro .fl-heading {
-    max-inline-size: 800px;
-    text-wrap: balance;
-}
-
-.fl-smart-window-intro .fl-subheading {
-    max-inline-size: 800px;
-    text-wrap: balance;
-}
-
-.fl-smart-window-intro-featured-image {
-    max-inline-size: 100%;
-    padding-block-start: var(--token-spacing-md);
-    padding-inline: var(--fl-section-h-padding);
-    position: relative;
-    z-index: 1;
-}
-
-.fl-smart-window-intro-featured-image::before {
-    background: var(--token-gradient-smart-window-instructions);
-    block-size: 100%;
-    content: '';
-    filter: blur(30px);
-    inset-block-start: calc(var(--token-spacing-md) + 10px);
-    inset-inline: calc(var(--fl-section-h-padding) + 10px);
-    position: absolute;
-    z-index: 0;
-}
-
-.fl-smart-window-intro-featured-image .fl-video {
-    cursor: pointer;
-}
-
-.fl-smart-window-intro-featured-image img,
-.fl-smart-window-intro-featured-image .fl-video {
-    border-start-end-radius: var(--token-border-radius-xs);
-    border-start-start-radius: var(--token-border-radius-xs);
-    inline-size: var(--token-width-desktop-content-lg);
-    margin-block-end: -4px;
-    margin-inline: auto;
-    max-inline-size: 100%;
-}
-
-/* Play/pause buttons */
-
-.fl-smart-window-page .fl-video-play-icon,
-.fl-smart-window-explainer-page .fl-video-play-icon {
-    background: var(--smart-window-play-icon-background);
-    block-size: 28px;
-    border-radius: var(--token-border-radius-2xs);
-    display: none;
-    inline-size: 28px;
-    transition:
-        background-color var(--token-transition-fast),
-        border-color var(--token-transition-fast);
-}
-
-@media (hover: hover) {
-    .fl-smart-window-page
-        .fl-video-play:hover
-        .fl-video-play-icon:not([hidden]),
-    .fl-smart-window-explainer-page
-        .fl-video-play:hover
-        .fl-video-play-icon:not([hidden]) {
-        align-items: center;
+    .fl-smart-window-explainer-page .fl-heading-group::before {
+        background: var(--smart-window-logo-url) no-repeat center;
+        background-size: contain;
+        block-size: 31px;
+        content: '';
         display: inline-flex;
-        transform: none;
+        inline-size: 211px;
+        margin-block-end: var(--token-spacing-xl);
     }
 
-    .fl-smart-window-page .fl-video-play-icon:hover,
-    .fl-smart-window-explainer-page .fl-video-play-icon:hover {
-        background: var(--smart-window-play-icon-background-hover);
+    .fl-smart-window-explainer-page .fl-intro {
+        padding-block-end: 0;
     }
-}
 
-.fl-smart-window-page .fl-video-play-icon:active,
-.fl-smart-window-explainer-page .fl-video-play-icon:active {
-    background: var(--smart-window-play-icon-background-active);
-}
-
-.fl-smart-window-page
-    .fl-video-play.is-paused
-    .fl-video-play-icon:not([hidden]),
-.fl-smart-window-explainer-page
-    .fl-video-play.is-paused
-    .fl-video-play-icon:not([hidden]) {
-    align-items: center;
-    display: inline-flex;
-}
-
-@media not all and (--viewport-md-up) {
-    .fl-smart-window-page
-        .fl-video-play.is-paused
-        .fl-video-play-icon:not([hidden]),
-    .fl-smart-window-explainer-page
-        .fl-video-play.is-paused
-        .fl-video-play-icon:not([hidden]) {
-        align-items: center;
-        display: inline-flex;
-    }
-}
-
-.fl-smart-window-page .fl-video-play-icon svg,
-.fl-smart-window-explainer-page .fl-video-play-icon svg {
-    block-size: 28px;
-    inline-size: 28px;
-}
-
-.fl-smart-window-page .fl-video-play-icon circle,
-.fl-smart-window-explainer-page .fl-video-play-icon circle {
-    display: none;
-}
-
-.fl-smart-window-page .fl-video-play-icon path,
-.fl-smart-window-explainer-page .fl-video-play-icon path {
-    fill: var(--smart-window-play-icon-fill-color);
-    transition: fill var(--token-transition-fast);
-}
-
-@media (hover: hover) {
-    .fl-smart-window-page .fl-video-play-icon:hover path,
-    .fl-smart-window-explainer-page .fl-video-play-icon:hover path {
-        fill: var(--smart-window-play-icon-fill-color-hover);
-    }
-}
-
-.fl-smart-window-page .fl-video-play-icon:active path,
-.fl-smart-window-explainer-page .fl-video-play-icon:active path {
-    fill: var(--smart-window-play-icon-fill-color-active);
-}
-
-@media (--viewport-md-up) {
     .fl-smart-window-instructions-container {
-        gap: var(--token-spacing-xl);
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+    }
+
+    .fl-smart-window-instructions-container .fl-buttons {
+        justify-content: center;
     }
 
     .fl-smart-window-instructions-container .fl-button,
     .fl-smart-window-instructions-container .fl-download-firefox-button {
-        inline-size: auto;
+        inline-size: 100%;
     }
 
-    .fl-smart-window-intro .fl-heading-group {
-        gap: var(--token-layout-xs);
+    .fl-smart-window-instructions-container p {
+        margin: 0;
     }
 
-    .fl-smart-window-explainer-page .fl-header .fl-nav {
+    .fl-smart-window-heading-success {
+        display: none;
+    }
+
+    .fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+        .fl-smart-window-heading-success {
+        display: block;
+    }
+
+    .fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+        .fl-smart-window-heading-default,
+    .fl-smart-window-page:has(#newsletter-thanks:not(.hidden))
+        .fl-smart-window-subheading-default {
+        display: none;
+    }
+
+    .fl-smart-window-explainer-page .fl-header {
         background: transparent;
     }
 
-    .fl-smart-window-page
-        .fl-card-grid:has(
-            .fl-illustration-card-default:nth-child(3):last-child
-        ),
-    .fl-smart-window-page
-        .fl-card-grid:has(
-            > *:nth-child(3):last-child .fl-illustration-card-default
-        ) {
-        max-inline-size: var(--token-width-desktop-wide-banner);
+    .fl-smart-window-intro-content {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-layout-2xs);
     }
 
-    .fl-newsletterform.fl-smart-window-form {
-        flex-direction: row;
-        gap: 0;
-        inline-size: 480px;
-        margin-block-end: var(--token-spacing-2xl);
+    .fl-smart-window-intro {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-layout-sm);
+        padding: var(--token-layout-lg) var(--fl-section-h-padding) 0;
+        text-align: center;
+    }
+
+    .fl-smart-window-intro .fl-heading-group {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-xl);
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    .fl-smart-window-intro .fl-buttons {
+        justify-content: center;
+    }
+
+    .fl-smart-window-intro .fl-heading {
+        max-inline-size: 800px;
+        text-wrap: balance;
+    }
+
+    .fl-smart-window-intro .fl-subheading {
+        max-inline-size: 800px;
+        text-wrap: balance;
+    }
+
+    .fl-smart-window-intro-featured-image {
         max-inline-size: 100%;
+        padding-block-start: var(--token-spacing-md);
+        padding-inline: var(--fl-section-h-padding);
         position: relative;
-    }
-
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-input {
-        border-radius: var(--token-border-radius-xl);
-        margin-block-end: 0;
-        padding-inline: var(--token-spacing-lg) 200px;
-    }
-
-    .fl-newsletterform.fl-smart-window-form .fl-button {
-        inline-size: auto;
-        inset-block-start: 0;
-        inset-inline-end: -0.5px;
-        margin-inline-start: -36px;
-        position: absolute;
         z-index: 1;
     }
 
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-details {
-        inset-block-start: 100%;
-        padding-block-start: var(--token-spacing-lg);
+    .fl-smart-window-intro-featured-image::before {
+        background: var(--token-gradient-smart-window-instructions);
+        block-size: 100%;
+        content: '';
+        filter: blur(30px);
+        inset-block-start: calc(var(--token-spacing-md) + 10px);
+        inset-inline: calc(var(--fl-section-h-padding) + 10px);
         position: absolute;
+        z-index: 0;
     }
 
-    .fl-newsletterform.fl-smart-window-form:has(
-            .fl-newsletterform-error:not(.hidden)
-        )
-        .fl-newsletterform-details {
-        inset-block-start: calc(100% + 16px);
+    .fl-smart-window-intro-featured-image .fl-video {
+        cursor: pointer;
     }
 
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-checkbox-label {
+    .fl-smart-window-intro-featured-image img,
+    .fl-smart-window-intro-featured-image .fl-video {
+        border-start-end-radius: var(--token-border-radius-xs);
+        border-start-start-radius: var(--token-border-radius-xs);
+        inline-size: var(--token-width-desktop-content-lg);
+        margin-block-end: -4px;
+        margin-inline: auto;
+        max-inline-size: 100%;
+    }
+
+    /* Play/pause buttons */
+
+    .fl-smart-window-page .fl-video-play-icon,
+    .fl-smart-window-explainer-page .fl-video-play-icon {
+        background: var(--smart-window-play-icon-background);
+        block-size: 28px;
+        border-radius: var(--token-border-radius-2xs);
+        display: none;
+        inline-size: 28px;
+        transition:
+            background-color var(--token-transition-fast),
+            border-color var(--token-transition-fast);
+    }
+
+    @media (hover: hover) {
+        .fl-smart-window-page
+            .fl-video-play:hover
+            .fl-video-play-icon:not([hidden]),
+        .fl-smart-window-explainer-page
+            .fl-video-play:hover
+            .fl-video-play-icon:not([hidden]) {
+            align-items: center;
+            display: inline-flex;
+            transform: none;
+        }
+
+        .fl-smart-window-page .fl-video-play-icon:hover,
+        .fl-smart-window-explainer-page .fl-video-play-icon:hover {
+            background: var(--smart-window-play-icon-background-hover);
+        }
+    }
+
+    .fl-smart-window-page .fl-video-play-icon:active,
+    .fl-smart-window-explainer-page .fl-video-play-icon:active {
+        background: var(--smart-window-play-icon-background-active);
+    }
+
+    .fl-smart-window-page
+        .fl-video-play.is-paused
+        .fl-video-play-icon:not([hidden]),
+    .fl-smart-window-explainer-page
+        .fl-video-play.is-paused
+        .fl-video-play-icon:not([hidden]) {
         align-items: center;
-        gap: var(--token-spacing-sm);
+        display: inline-flex;
     }
 
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-checkbox-text p {
-        font-size: var(--fl-theme-font-size-body-2xs);
-        margin: var(--token-spacing-xs) 0 0 0;
+    @media not all and (--viewport-md-up) {
+        .fl-smart-window-page
+            .fl-video-play.is-paused
+            .fl-video-play-icon:not([hidden]),
+        .fl-smart-window-explainer-page
+            .fl-video-play.is-paused
+            .fl-video-play-icon:not([hidden]) {
+            align-items: center;
+            display: inline-flex;
+        }
     }
 
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-error {
-        background: var(--fl-theme-background);
-        inset-block-start: 100%;
-        position: absolute;
+    .fl-smart-window-page .fl-video-play-icon svg,
+    .fl-smart-window-explainer-page .fl-video-play-icon svg {
+        block-size: 28px;
+        inline-size: 28px;
     }
 
-    .fl-newsletterform.fl-smart-window-form .fl-newsletterform-error-list {
-        font-size: 12px;
-        padding-block: 4px;
-        padding-inline-start: 0;
-        text-align: start;
+    .fl-smart-window-page .fl-video-play-icon circle,
+    .fl-smart-window-explainer-page .fl-video-play-icon circle {
+        display: none;
+    }
+
+    .fl-smart-window-page .fl-video-play-icon path,
+    .fl-smart-window-explainer-page .fl-video-play-icon path {
+        fill: var(--smart-window-play-icon-fill-color);
+        transition: fill var(--token-transition-fast);
+    }
+
+    @media (hover: hover) {
+        .fl-smart-window-page .fl-video-play-icon:hover path,
+        .fl-smart-window-explainer-page .fl-video-play-icon:hover path {
+            fill: var(--smart-window-play-icon-fill-color-hover);
+        }
+    }
+
+    .fl-smart-window-page .fl-video-play-icon:active path,
+    .fl-smart-window-explainer-page .fl-video-play-icon:active path {
+        fill: var(--smart-window-play-icon-fill-color-active);
+    }
+
+    @media (--viewport-md-up) {
+        .fl-smart-window-instructions-container {
+            gap: var(--token-spacing-xl);
+        }
+
+        .fl-smart-window-instructions-container .fl-button,
+        .fl-smart-window-instructions-container .fl-download-firefox-button {
+            inline-size: auto;
+        }
+
+        .fl-smart-window-intro .fl-heading-group {
+            gap: var(--token-layout-xs);
+        }
+
+        .fl-smart-window-explainer-page .fl-header .fl-nav {
+            background: transparent;
+        }
+
+        .fl-smart-window-page
+            .fl-card-grid:has(
+                .fl-illustration-card-default:nth-child(3):last-child
+            ),
+        .fl-smart-window-page
+            .fl-card-grid:has(
+                > *:nth-child(3):last-child .fl-illustration-card-default
+            ) {
+            max-inline-size: var(--token-width-desktop-wide-banner);
+        }
+
+        .fl-newsletterform.fl-smart-window-form {
+            flex-direction: row;
+            gap: 0;
+            inline-size: 480px;
+            margin-block-end: var(--token-spacing-2xl);
+            max-inline-size: 100%;
+            position: relative;
+        }
+
+        .fl-newsletterform.fl-smart-window-form .fl-newsletterform-input {
+            border-radius: var(--token-border-radius-xl);
+            margin-block-end: 0;
+            padding-inline: var(--token-spacing-lg) 200px;
+        }
+
+        .fl-newsletterform.fl-smart-window-form .fl-button {
+            inline-size: auto;
+            inset-block-start: 0;
+            inset-inline-end: -0.5px;
+            margin-inline-start: -36px;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .fl-newsletterform.fl-smart-window-form .fl-newsletterform-details {
+            inset-block-start: 100%;
+            padding-block-start: var(--token-spacing-lg);
+            position: absolute;
+        }
+
+        .fl-newsletterform.fl-smart-window-form:has(
+                .fl-newsletterform-error:not(.hidden)
+            )
+            .fl-newsletterform-details {
+            inset-block-start: calc(100% + 16px);
+        }
+
+        .fl-newsletterform.fl-smart-window-form
+            .fl-newsletterform-checkbox-label {
+            align-items: center;
+            gap: var(--token-spacing-sm);
+        }
+
+        .fl-newsletterform.fl-smart-window-form
+            .fl-newsletterform-checkbox-text
+            p {
+            font-size: var(--fl-theme-font-size-body-2xs);
+            margin: var(--token-spacing-xs) 0 0 0;
+        }
+
+        .fl-newsletterform.fl-smart-window-form .fl-newsletterform-error {
+            background: var(--fl-theme-background);
+            inset-block-start: 100%;
+            position: absolute;
+        }
+
+        .fl-newsletterform.fl-smart-window-form .fl-newsletterform-error-list {
+            font-size: 12px;
+            padding-block: 4px;
+            padding-inline-start: 0;
+            text-align: start;
+        }
     }
 }

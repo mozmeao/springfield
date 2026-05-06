@@ -17,7 +17,9 @@
 {% block page_ios_icon %}{{ static('img/favicons/firefox/browser/developer/apple-touch-icon.png') }}{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-developer-edition') }}
+  {% else %}
     {{ css_bundle('protocol-split') }}
     {{ css_bundle('protocol-picto') }}
     {{ css_bundle('protocol-newsletter') }}

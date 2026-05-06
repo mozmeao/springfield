@@ -4041,7 +4041,7 @@ def test_notification_block(index_page, rf):
                 assert div.find("button", class_="fl-notification-close")
 
             headline_raw = notification["value"].get("headline", "")
-            heading_el = div.find("p", class_="fl-notification-heading")
+            heading_el = div.find("div", class_="fl-notification-heading")
             assert heading_el
             if headline_raw:
                 headline_text = BeautifulSoup(headline_raw, "html.parser").get_text()
