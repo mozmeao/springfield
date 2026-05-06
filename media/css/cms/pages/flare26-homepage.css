@@ -4,50 +4,55 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-home-body {
-    background: var(--token-color-dark-purple);
-}
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
 
-.fl-home-body .fl-main {
-    background: var(--fl-theme-background);
-    contain: paint;
-    padding-block-end: 0;
-}
-
-.fl-home-body .fl-split-page-upper {
-    padding: 0;
-}
-
-.fl-home-body .fl-split-page-upper > .fl-section:first-child {
-    padding-block-start: 0;
-}
-
-.fl-home-body .fl-card-grid {
-    --fl-card-grid-gap: var(--token-spacing-lg);
-}
-
-.fl-home-body .fl-section:has(.fl-card-gallery) {
-    padding-block-end: 0;
-}
-
-.fl-home-body .fl-banner-container {
-    margin-block-start: calc(-1 * var(--fl-section-v-padding));
-    max-inline-size: none;
-    padding: var(--token-spacing-lg);
-}
-
-@media (--viewport-md-up) {
+@layer page {
     .fl-home-body {
-        --section-border-radius: var(--token-border-radius-xl);
+        background: var(--token-color-dark-purple);
+    }
+
+    .fl-home-body .fl-main {
+        background: var(--fl-theme-background);
+        contain: paint;
+        padding-block-end: 0;
+    }
+
+    .fl-home-body .fl-split-page-upper {
+        padding: 0;
+    }
+
+    .fl-home-body .fl-split-page-upper > .fl-section:first-child {
+        padding-block-start: 0;
     }
 
     .fl-home-body .fl-card-grid {
-        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+        --fl-card-grid-gap: var(--token-spacing-lg);
     }
-}
 
-@media (--viewport-lg-up) {
-    .fl-home-body .fl-card-grid {
-        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    .fl-home-body .fl-section:has(.fl-card-gallery) {
+        padding-block-end: 0;
+    }
+
+    .fl-home-body .fl-banner-container {
+        margin-block-start: calc(-1 * var(--fl-section-v-padding));
+        max-inline-size: none;
+        padding: var(--token-spacing-lg);
+    }
+
+    @media (--viewport-md-up) {
+        .fl-home-body {
+            --section-border-radius: var(--token-border-radius-xl);
+        }
+
+        .fl-home-body .fl-card-grid {
+            --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (--viewport-lg-up) {
+        .fl-home-body .fl-card-grid {
+            --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+        }
     }
 }

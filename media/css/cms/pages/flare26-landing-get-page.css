@@ -4,246 +4,251 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-landing-get .fl-main {
-    padding-block-end: 0;
-}
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'flare26-tokens.css';
 
-.fl-landing-get .fl-section-container {
-    margin-block-end: var(--token-layout-sm);
-}
-
-.fl-landing-get .fl-icon-wrap {
-    border-radius: var(--token-spacing-sm);
-}
-
-.fl-landing-get .fl-hero {
-    padding: 0;
-}
-
-.fl-landing-get .fl-hero > .fl-section .fl-section-container {
-    margin-block-end: 0;
-}
-
-/* Opt-out checkbox */
-.fl-landing-get .c-intro-download {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    font-size: var(--fl-theme-font-size-body-xs);
-}
-
-.fl-landing-get .c-intro-download > label {
-    margin-block-end: 40px;
-}
-
-.fl-landing-get .c-intro-download > label input[type='checkbox'] {
-    block-size: 14px;
-    inline-size: 14px;
-    vertical-align: baseline;
-}
-
-.fl-landing-get .c-intro-download .fl-download-firefox-button {
-    align-items: flex-start;
-}
-
-.fl-landing-get .c-intro-download .c-intro-download-alt {
-    text-align: start;
-}
-
-.fl-landing-get .c-intro-download .mzp-c-button-download-privacy-link {
-    font-size: var(--fl-theme-font-size-body-xs);
-}
-
-/* Firefox Got You Covered section */
-.fl-landing-get .fl-firefox-has-got-you {
-    padding-block-start: var(--token-layout-lg);
-}
-
-.fl-landing-get .fl-firefox-has-got-you .ga-product-download img {
-    margin: 0;
-    max-block-size: none;
-}
-
-/* only include cta if UITour JS runs */
-#protection-report {
-    display: none;
-}
-
-body.data-uitour #protection-report {
-    display: inline-block;
-}
-
-.fl-landing-get .fl-download-store-links a {
-    text-decoration: none;
-}
-
-/* Do it All section */
-.fl-landing-get .fl-do-it-all {
-    max-inline-size: var(--token-width-desktop-content-lg);
-}
-
-.fl-landing-get .fl-do-it-all .icon-text-list {
-    --fl-card-grid-columns: repeat(1, minmax(0, 1fr));
-    display: grid;
-    grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
-}
-
-.fl-landing-get .fl-do-it-all .icon-text-list li {
-    flex-direction: column;
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-do-it-all .icon-text-list > li {
-    align-items: flex-start;
-}
-
-.fl-landing-get .fl-do-it-all .icon-text-list li ul {
-    list-style: square;
-    list-style-position: inside;
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
-    display: list-item;
-}
-
-.fl-landing-get .fl-do-it-all h3 {
-    font-size: 1rem;
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
-.fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
-    margin: 0 auto;
-    max-inline-size: 36rem;
-}
-
-.fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
-.fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-input {
-    block-size: 16px;
-    inline-size: 16px;
-}
-
-/* Make Firefox your own section */
-.fl-landing-get .fl-make-firefox-your-own {
-    max-inline-size: var(--token-width-desktop-content-lg);
-}
-
-.fl-landing-get .fl-make-firefox-your-own .icon-text-list {
-    display: flex;
-    flex-direction: column;
-}
-
-.fl-landing-get .fl-make-firefox-your-own li {
-    flex-direction: column;
-}
-
-.fl-landing-get .fl-make-firefox-your-own .fl-icon-wrap {
-    background-color: var(--token-color-medium-purple);
-}
-
-.fl-landing-get .fl-make-firefox-your-own h3 {
-    font-size: 1.5rem;
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-make-firefox-your-own p {
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-make-firefox-your-own img {
-    margin-block-end: 0;
-}
-
-.fl-landing-get .fl-section-container.fl-make-firefox-your-own {
-    margin-block-end: 0;
-}
-
-.fl-section:has(.fl-make-firefox-your-own) {
-    padding-block-end: 0;
-}
-
-.fl-split-page-upper:has(.fl-make-firefox-your-own) {
-    padding-block-end: 0;
-}
-
-/* Non-profit section */
-.fl-landing-get .fl-non-profit .fl-card-gallery-callout-card {
-    display: none;
-}
-
-.fl-landing-get .fl-non-profit .keyhole {
-    margin: auto;
-    max-inline-size: 243px;
-}
-
-/* Favorite browser section */
-.fl-landing-get .fl-favorite-browser {
-    max-inline-size: var(--token-width-desktop-content-lg);
-}
-
-/* Support banner */
-.fl-landing-get .fl-banner-kit-face {
-    --kit-img: url('/media/img/firefox/landing/get/kit-tilted.svg');
-}
-
-@media (--viewport-sm-up) {
-    .fl-landing-get .fl-do-it-all .icon-text-list {
-        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+@layer page {
+    .fl-landing-get .fl-main {
+        padding-block-end: 0;
     }
 
-    .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
-        flex-direction: row;
+    .fl-landing-get .fl-section-container {
+        margin-block-end: var(--token-layout-sm);
     }
 
-    .fl-landing-get .fl-banner-kit-face {
-        --kit-img-size: auto 180px;
-        --kit-banner-padding-block-end: 200px;
-    }
-}
-
-@media (--viewport-md-up) {
-    /* Keep nav always visible on scroll for this page */
-    body:has(.fl-landing-get) .fl-header.headroom-unpinned {
-        transform: translateY(0%);
+    .fl-landing-get .fl-icon-wrap {
+        border-radius: var(--token-spacing-sm);
     }
 
+    .fl-landing-get .fl-hero {
+        padding: 0;
+    }
+
+    .fl-landing-get .fl-hero > .fl-section .fl-section-container {
+        margin-block-end: 0;
+    }
+
+    /* Opt-out checkbox */
     .fl-landing-get .c-intro-download {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        font-size: var(--fl-theme-font-size-body-xs);
+    }
+
+    .fl-landing-get .c-intro-download > label {
+        margin-block-end: 40px;
+    }
+
+    .fl-landing-get .c-intro-download > label input[type='checkbox'] {
+        block-size: 14px;
+        inline-size: 14px;
+        vertical-align: baseline;
+    }
+
+    .fl-landing-get .c-intro-download .fl-download-firefox-button {
         align-items: flex-start;
     }
 
+    .fl-landing-get .c-intro-download .c-intro-download-alt {
+        text-align: start;
+    }
+
+    .fl-landing-get .c-intro-download .mzp-c-button-download-privacy-link {
+        font-size: var(--fl-theme-font-size-body-xs);
+    }
+
+    /* Firefox Got You Covered section */
+    .fl-landing-get .fl-firefox-has-got-you {
+        padding-block-start: var(--token-layout-lg);
+    }
+
+    .fl-landing-get .fl-firefox-has-got-you .ga-product-download img {
+        margin: 0;
+        max-block-size: none;
+    }
+
+    /* only include cta if UITour JS runs */
+    #protection-report {
+        display: none;
+    }
+
+    body.data-uitour #protection-report {
+        display: inline-block;
+    }
+
+    .fl-landing-get .fl-download-store-links a {
+        text-decoration: none;
+    }
+
+    /* Do it All section */
+    .fl-landing-get .fl-do-it-all {
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
     .fl-landing-get .fl-do-it-all .icon-text-list {
-        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+        --fl-card-grid-columns: repeat(1, minmax(0, 1fr));
+        display: grid;
+        grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
     }
 
-    .fl-landing-get .fl-heading-size-2 {
-        font-size: var(--fl-theme-font-size-heading-lg);
+    .fl-landing-get .fl-do-it-all .icon-text-list li {
+        flex-direction: column;
+        margin-block-end: 0;
     }
 
-    .fl-landing-get .fl-firefox-has-got-you h3.fl-heading {
-        font-size: 2rem;
+    .fl-landing-get .fl-do-it-all .icon-text-list > li {
+        align-items: flex-start;
     }
 
-    .fl-landing-get .fl-non-profit .fl-card-gallery-grid {
-        grid-template-areas:
-            'main secondary'
-            'main secondary';
+    .fl-landing-get .fl-do-it-all .icon-text-list li ul {
+        list-style: square;
+        list-style-position: inside;
+        margin-block-end: 0;
     }
 
-    .fl-landing-get
-        .fl-favorite-browser
-        .fl-card-grid:has(.fl-illustration-card-default) {
-        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    .fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
+        display: list-item;
     }
 
+    .fl-landing-get .fl-do-it-all h3 {
+        font-size: 1rem;
+        margin-block-end: 0;
+    }
+
+    .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-label,
+    .fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-label {
+        margin: 0 auto;
+        max-inline-size: 36rem;
+    }
+
+    .fl-landing-get .fl-do-it-all .marketing-opt-out-checkbox-input,
+    .fl-landing-get .fl-favorite-browser .marketing-opt-out-checkbox-input {
+        block-size: 16px;
+        inline-size: 16px;
+    }
+
+    /* Make Firefox your own section */
+    .fl-landing-get .fl-make-firefox-your-own {
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own li {
+        flex-direction: column;
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own .fl-icon-wrap {
+        background-color: var(--token-color-medium-purple);
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own h3 {
+        font-size: 1.5rem;
+        margin-block-end: 0;
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own p {
+        margin-block-end: 0;
+    }
+
+    .fl-landing-get .fl-make-firefox-your-own img {
+        margin-block-end: 0;
+    }
+
+    .fl-landing-get .fl-section-container.fl-make-firefox-your-own {
+        margin-block-end: 0;
+    }
+
+    .fl-section:has(.fl-make-firefox-your-own) {
+        padding-block-end: 0;
+    }
+
+    .fl-split-page-upper:has(.fl-make-firefox-your-own) {
+        padding-block-end: 0;
+    }
+
+    /* Non-profit section */
+    .fl-landing-get .fl-non-profit .fl-card-gallery-callout-card {
+        display: none;
+    }
+
+    .fl-landing-get .fl-non-profit .keyhole {
+        margin: auto;
+        max-inline-size: 243px;
+    }
+
+    /* Favorite browser section */
+    .fl-landing-get .fl-favorite-browser {
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    /* Support banner */
     .fl-landing-get .fl-banner-kit-face {
-        --kit-img-size: 280px auto;
-        --kit-img-position: bottom right 18%;
+        --kit-img: url('/media/img/firefox/landing/get/kit-tilted.svg');
     }
-}
 
-@media (--viewport-lg-up) {
-    .fl-landing-get .fl-section-container {
-        margin-block-end: var(--token-layout-lg);
+    @media (--viewport-sm-up) {
+        .fl-landing-get .fl-do-it-all .icon-text-list {
+            --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
+            flex-direction: row;
+        }
+
+        .fl-landing-get .fl-banner-kit-face {
+            --kit-img-size: auto 180px;
+            --kit-banner-padding-block-end: 200px;
+        }
+    }
+
+    @media (--viewport-md-up) {
+        /* Keep nav always visible on scroll for this page */
+        body:has(.fl-landing-get) .fl-header.headroom-unpinned {
+            transform: translateY(0%);
+        }
+
+        .fl-landing-get .c-intro-download {
+            align-items: flex-start;
+        }
+
+        .fl-landing-get .fl-do-it-all .icon-text-list {
+            --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .fl-landing-get .fl-heading-size-2 {
+            font-size: var(--fl-theme-font-size-heading-lg);
+        }
+
+        .fl-landing-get .fl-firefox-has-got-you h3.fl-heading {
+            font-size: 2rem;
+        }
+
+        .fl-landing-get .fl-non-profit .fl-card-gallery-grid {
+            grid-template-areas:
+                'main secondary'
+                'main secondary';
+        }
+
+        .fl-landing-get
+            .fl-favorite-browser
+            .fl-card-grid:has(.fl-illustration-card-default) {
+            --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .fl-landing-get .fl-banner-kit-face {
+            --kit-img-size: 280px auto;
+            --kit-img-position: bottom right 18%;
+        }
+    }
+
+    @media (--viewport-lg-up) {
+        .fl-landing-get .fl-section-container {
+            margin-block-end: var(--token-layout-lg);
+        }
     }
 }

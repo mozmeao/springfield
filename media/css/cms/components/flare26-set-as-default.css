@@ -4,8 +4,10 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-@layer page {
-    .fl-page-blog .fl-main {
-        max-inline-size: var(--token-width-desktop-content);
-    }
+.fl-set-as-default-dialog .fl-notification {
+    text-align: start;
+}
+
+.fl-set-as-default .fl-copy-to-clipboard-button {
+    margin-block-start: var(--token-spacing-lg);
 }

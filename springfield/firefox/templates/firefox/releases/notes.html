@@ -48,7 +48,9 @@
 {% block body_class %}mzp-t-firefox {{ theme_class }} fl-release-notes{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-release-notes') }}
+  {% else %}
     {{ css_bundle('firefox_releasenotes') }}
     {{ css_bundle('protocol-callout') }}
     {{ css_bundle('protocol-article') }}

@@ -13,7 +13,9 @@
 {% block page_desc %}{{ ftl('cookie-settings-page-desc') }}{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-cookie-settings') }}
+  {% else %}
     {{ css_bundle('cookie-settings-form') }}
   {% endif %}
 {% endblock %}

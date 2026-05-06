@@ -1,0 +1,43 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+@import 'components/flare26-article.css';
+@import 'components/flare26-navigation.css';
+@import 'components/flare26-subnav.css';
+@import 'components/flare26-modal.css';
+@import 'components/flare26-footer.css';
+@import 'components/flare26-language-switcher.css';
+@import 'components/flare26-download-link.css';
+@import 'components/flare26-download-utils.css';
+@import 'components/flare26-icon.css';
+@import 'components/flare26-nav-icons.css';
+@import 'components/flare26-button.css';
+@import 'components/flare26-typography.css';
+@import 'components/flare26-card.css';
+@import 'components/flare26-section.css';
+@import 'components/flare26-intro.css';
+@import 'components/flare26-carousel.css';
+@import 'components/flare26-sliding-carousel.css';
+@import 'components/flare26-showcase.css';
+@import 'components/flare26-card-gallery.css';
+@import 'components/flare26-pre-footer-cta.css';
+@import 'components/flare26-banner.css';
+@import 'components/flare26-kit-banner.css';
+@import 'components/flare26-newsletterform.css';
+@import 'components/flare26-mediacontent.css';
+@import 'components/flare26-media-plus-icon-list.css';
+@import 'components/flare26-notification.css';
+@import 'components/flare26-media.css';
+@import 'components/flare26-mobile-qr.css';
+@import 'components/flare26-tag.css';
+@import 'components/flare26-topic.css';
+@import 'components/flare26-breadcrumb.css';
+@import 'components/flare26-consent-banner.css';
+@import 'components/flare26-qr-overlay.css';
+@import 'components/flare26-set-as-default.css';
+@import 'components/flare26-floating-qr-overlay.css';
+@import 'components/flare26-typewriter.css';
+@import 'components/flare26-smart-window-instructions.css';
