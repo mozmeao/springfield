@@ -46,8 +46,7 @@
         {{ ftl('download-button-share-how-you-discovered', attrs=attrs) }}
       </span>
     </label>
-  {% endif %}
-  {% if show_default_browser_checkbox and not enable_marketing_attribution %}
+  {% elif show_default_browser_checkbox  %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">

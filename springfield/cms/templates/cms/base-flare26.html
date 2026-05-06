@@ -29,7 +29,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   {% if page.stub_attr_utm_campaign_mode == "force" %}data-stub-attribution-campaign-force="{{ page.stub_attr_utm_campaign_value }}"{% endif %}
   {% endif %}
   {% endblock %}
-  {% block html_attrs %}{% if page is defined and page.enable_marketing_attribution is defined %}data-promoted-page="{{ page.enable_marketing_attribution }}"{% endif %}{% endblock %}
+  {% block marketing_attribution %}
+    {% if page is defined and page.enable_marketing_attribution is defined %}data-promoted-page="{{ page.enable_marketing_attribution }}"{% endif %}
+  {% endblock marketing_attribution %}
+  {% block html_attrs %}{% endblock %}
 >
 
   <head>
