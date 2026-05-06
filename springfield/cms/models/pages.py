@@ -16,8 +16,6 @@ from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
-from wagtail.blocks import RichTextBlock
-from wagtail.fields import RichTextField
 from wagtail.models import Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
@@ -56,6 +54,7 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.rich_text import RichTextBlock, RichTextField
 
 from .base import AbstractSpringfieldCMSPage
 

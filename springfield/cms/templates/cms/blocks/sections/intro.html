@@ -20,11 +20,6 @@
       </div>
     {% endif %}
   </content:actions>
-  {% if value.fine_print %}
-    <content:fine_print>
-      {{ value.fine_print|richtext|remove_p_tag }}
-    </content:fine_print>
-  {% endif %}
   {% if value.media %}
     <content:media>
       {% for block in value.media %}

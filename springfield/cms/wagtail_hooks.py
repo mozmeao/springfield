@@ -8,7 +8,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
@@ -16,9 +16,14 @@ from draftjs_exporter.dom import DOM
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
+    ExternalLinkElementHandler,
     InlineEntityElementHandler,
+    PageLinkElementHandler,
 )
 from wagtail.models import Locale as WagtailLocale
+from wagtail.rich_text import LinkHandler
+from wagtail.rich_text.pages import PageLinkHandler
+from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
 
@@ -262,3 +267,113 @@ def register_firefox_logo_feature(features):
     # Add the feature to the default features list to make it available
     # on rich text fields that do not specify an explicit 'features' list
     features.default_features.append(feature_name)
+
+
+class ExternalLinkHandler(LinkHandler):
+    """
+    Extend the default LinkHandler to add support for a uid attribute on external links.
+    <a href="{URL}" uid="{UID}"> -> <a href="{URL}" data-cta-uid="{UID}">
+    """
+
+    identifier = "external"
+
+    @classmethod
+    def expand_db_attributes(cls, attrs):
+        href = escape(attrs.get("href", ""))
+        uid = attrs.get("uid", "")
+        uid_attr = f' data-cta-uid="{escape(uid)}"' if uid else ""
+        return f'<a href="{href}"{uid_attr}>'
+
+
+class UIDPageLinkHandler(PageLinkHandler):
+    """
+    Extend the default PageLinkHandler to add support for a uid attribute on page links.
+    <a id="{PAGE_ID}" uid="{UID}"> -> <a href="{PAGE_URL}" data-cta-uid="{UID}">
+    """
+
+    @classmethod
+    def expand_db_attributes_many(cls, attrs_list):
+        pages = cls.get_many(attrs_list)
+        result = []
+        for attrs, page in zip(attrs_list, pages):
+            uid = attrs.get("uid", "")
+            uid_attr = f' data-cta-uid="{escape(uid)}"' if uid else ""
+            if page:
+                result.append(f'<a href="{escape(page.localized.url)}"{uid_attr}>')
+            else:
+                result.append("<a>")
+        return result
+
+
+class UIDExternalLinkElementHandler(ExternalLinkElementHandler):
+    """
+    Extend the default ExternalLinkElementHandler to preserve the uid attribute when
+    converting from DB HTML to Draft.js
+    """
+
+    def get_attribute_data(self, attrs):
+        data = super().get_attribute_data(attrs)
+        if uid := attrs.get("uid"):
+            data["uid"] = uid
+        return data
+
+
+class UIDPageLinkElementHandler(PageLinkElementHandler):
+    """
+    Extend the default PageLinkElementHandler to preserve the uid attribute when
+    converting from DB HTML to Draft.js
+    """
+
+    def get_attribute_data(self, attrs):
+        data = super().get_attribute_data(attrs)
+        if uid := attrs.get("uid"):
+            data["uid"] = uid
+        return data
+
+
+def uid_link_entity(props):
+    """
+    Draft.js → DB HTML: restore uid attribute or generate one if missing.
+    """
+    id_ = props.get("id")
+    link_props = {"uid": props.get("uid") or str(uuid4())}
+
+    if id_ is not None:
+        link_props["linktype"] = "page"
+        link_props["id"] = id_
+    else:
+        link_props["href"] = check_url(props.get("url"))
+
+    return DOM.create_element("a", link_props, props["children"])
+
+
+@hooks.register("register_rich_text_features")
+def register_uid_link_handlers(features):
+    """
+    Ensure every rich text link carries a stable uid attribute.
+
+    Two things are registered:
+    - Link type handlers that emit data-uid in rendered HTML.
+    - A replacement for Wagtail's built-in "link" contentstate converter so
+      that uid survives the DB → Draftail editor → DB round-trip; new links
+      get a fresh UUID on first save.
+    """
+    # Render-time: add data-uid to <a> tags in the output HTML.
+    features.register_link_type(ExternalLinkHandler)
+    features.register_link_type(UIDPageLinkHandler)
+
+    # Editor round-trip: override the "link" contentstate converter so that
+    # uid survives the DB → Draft.js → DB cycle. Our hook runs after
+    # wagtail.admin's register_core_features (springfield.cms is later in
+    # INSTALLED_APPS), so this registration replaces the built-in one.
+    features.register_converter_rule(
+        "contentstate",
+        "link",
+        {
+            "from_database_format": {
+                "a[href]": UIDExternalLinkElementHandler("LINK"),
+                'a[linktype="page"]': UIDPageLinkElementHandler("LINK"),
+            },
+            "to_database_format": {"entity_decorators": {"LINK": uid_link_entity}},
+        },
+    )
