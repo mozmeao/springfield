@@ -38,7 +38,15 @@
       />
     {% endif %}
   </a>
-  {% if show_default_browser_checkbox %}
+  {% if enable_marketing_attribution %}
+    <label for="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-label hidden">
+      <input type="checkbox" id="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-input">
+      <span class="marketing-opt-out-text">
+        {% set attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
+        {{ ftl('download-button-share-how-you-discovered', attrs=attrs) }}
+      </span>
+    </label>
+  {% elif show_default_browser_checkbox  %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
