@@ -2321,6 +2321,46 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
+    class _FeaturedImageSectionBlock(blocks.StructBlock):
+        heading = HeadingBlock()
+        media = MediaBlock(max_num=1)
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+            ],
+            required=False,
+        )
+
+        class Meta:
+            template = "cms/blocks/featured-image-section.html"
+            label = "Featured Image Section"
+            label_format = "{heading}"
+
+    return _FeaturedImageSectionBlock(*args, **kwargs)
+
+
+def validate_featured_image_section_last(field_name, stream_value):
+    """
+    Validates that featured_image_section, if present, is the last block in the stream.
+    Call this from a page model's clean() method for each StreamField that includes FeaturedImageSectionBlock.
+    Raises ValidationError with {field_name: message} if the constraint is violated.
+    """
+    if not stream_value:
+        return
+    blocks_list = list(stream_value)
+    for index, block in enumerate(blocks_list):
+        if block.block_type == "featured_image_section" and index != len(blocks_list) - 1:
+            raise ValidationError({field_name: "'Featured Image Section' must be the last block."})
+
+
 # Topic list
 
 

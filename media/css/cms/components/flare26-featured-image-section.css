@@ -1,0 +1,23 @@
+.fl-split-page-upper:has(.fl-featured-image-section:last-child),
+.fl-split-page-lower:has(.fl-featured-image-section:last-child) {
+    padding-block-end: 0;
+}
+
+.fl-featured-image-section {
+    margin-block-end: 0;
+}
+
+.fl-featured-image-section-heading {
+    text-align: center;
+}
+
+.fl-featured-image-section-media {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+}
+
+.fl-featured-image-section-media img,
+.fl-featured-image-section-media video {
+    margin-block-end: 0;
+    margin-inline: auto;
+}

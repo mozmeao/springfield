@@ -5,6 +5,7 @@
 from unittest import mock
 from urllib.parse import urlparse, urlunparse
 
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 
@@ -58,6 +59,10 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_sticker_cards_2026_test_page,
 )
 from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page, get_carousel_2026_variants
+from springfield.cms.fixtures.featured_image_section_fixtures import (
+    get_featured_image_section_test_page,
+    get_featured_image_section_variants,
+)
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
     get_mobile_store_qr_code,
@@ -3066,6 +3071,86 @@ def test_icon_cards_2026_block(index_page, placeholder_images, rf):
                             cta_position=cta_position,
                             cta_text=cta_text,
                         )
+
+
+def test_featured_image_section_block(index_page, placeholder_images, rf):
+    variants = get_featured_image_section_variants()
+    page = get_featured_image_section_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    icon_cards = get_icon_card_2026_variants()[:3]
+    variant = variants[0]
+    value = variant["value"]
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        sections = region.find_all("section", class_="fl-featured-image-section")
+        assert len(sections) == 1
+        section = sections[0]
+
+        # Heading: upper block is h1 (first heading on page), lower block is h2
+        heading_index = 0 if region_name == "upper" else 1
+        assert_section_heading_attributes(section, value["heading"], heading_index)
+
+        # Media image
+        media_el = section.find("div", class_="fl-featured-image-section-media")
+        assert media_el
+        assert_image_variants_attributes(
+            images_element=media_el,
+            images_value=value["media"][0]["value"],
+            sizes="100vw",
+        )
+
+        # Cards: upper block_level=1 → content block_level=2 → h2; lower block_level=2 → content block_level=3 → h3
+        card_heading_tag = "h2" if region_name == "upper" else "h3"
+        card_els = section.find_all("article", class_="fl-illustration-icon-card")
+        assert len(card_els) == len(icon_cards)
+
+        block_position_prefix = f"{region_name}-block-1-featured_image_section.item-1-cards_list"
+
+        for card_index, card_data in enumerate(icon_cards):
+            card_el = card_els[card_index]
+            card_value = card_data["value"]
+
+            headline_text = BeautifulSoup(card_value["headline"], "html.parser").get_text()
+            heading_el = card_el.find(card_heading_tag, class_="fl-heading")
+            assert heading_el and headline_text in heading_el.get_text()
+
+            for button_data in card_value["buttons"]:
+                if button_data["type"] == "button":
+                    button_el = card_el.find("a", class_="fl-button")
+                    cta_position = f"{block_position_prefix}.card-{card_index + 1}.button-1"
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    assert_button_attributes(
+                        button_element=button_el,
+                        button_data=button_data,
+                        context=context,
+                        cta_position=cta_position,
+                        cta_text=cta_text,
+                    )
+
+
+def test_featured_image_section_must_be_last_block(index_page, placeholder_images):
+    featured_image_section = get_featured_image_section_variants()[0]
+    other = get_notification_variants()[0]
+    page = get_featured_image_section_test_page()
+
+    page.upper_content = [featured_image_section, other]
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert "upper_content" in exc_info.value.message_dict
+
+    page.upper_content = [other, featured_image_section]
+    page.clean()  # should not raise
 
 
 def test_testimonial_cards_2026_block(index_page, placeholder_images, rf):

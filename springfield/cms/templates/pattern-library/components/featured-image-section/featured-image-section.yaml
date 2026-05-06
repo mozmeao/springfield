@@ -1,0 +1,11 @@
+name: "Featured Image Section 2026"
+context:
+  contents:
+    heading:
+      level: h2
+      heading_text: Featured Image Section Heading
+      subheading_text: A subheading for the featured image section.
+    content: This is the body content area of the featured image section.
+    media:
+      url: /media/img/firefox/flare/placeholder.png
+      alt: Featured image
