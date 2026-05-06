@@ -21,7 +21,7 @@
     "headroom.js": "^0.12.0",
     "mini-css-extract-plugin": "^2.10.2",
     "postcss": "^8.5.14",
-    "postcss-custom-media": "^10.0.2",
+    "postcss-custom-media": "^12.0.1",
     "postcss-loader": "^8.2.1",
     "sass": "1.91.0",
     "sass-loader": "^16.0.7",
