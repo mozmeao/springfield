@@ -28,7 +28,16 @@ module.exports = {
                     // Copy static assets such as images, fonts etc from /media to /assets.
                     from: path.resolve(__dirname, 'media/'),
                     globOptions: {
-                        ignore: ['**/*.scss', '**/*.js']
+                        ignore: [
+                            '**/*.scss',
+                            '**/*.js',
+                            // These are webpack entry points compiled to assets/css/flare26-*.css.
+                            // Copying them raw would expose @import paths that are resolved by
+                            // the custom webpack loader (relative to media/css/cms/) but are
+                            // invalid when Django's ManifestStaticFilesStorage post-processes
+                            // them relative to their own directory (css/cms/pages/).
+                            '**/css/cms/pages/**'
+                        ]
                     }
                 },
                 {
