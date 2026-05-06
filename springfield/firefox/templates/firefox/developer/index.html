@@ -18,6 +18,7 @@
 
 {% block page_css %}
   {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-channels') }}
     {{ css_bundle('flare26-developer-edition') }}
   {% else %}
     {{ css_bundle('protocol-split') }}
