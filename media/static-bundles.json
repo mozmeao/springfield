@@ -570,6 +570,7 @@
       "files": [
         "js/base/site.js",
         "js/base/consent/privacy-helpers.js",
+        "js/base/search-params.js",
         "js/base/mozilla-cookie-helper.js",
         "js/base/banners/m24-pencil-banner-check.js"
       ],
@@ -627,6 +628,13 @@
     },
     {
       "files": [
+        "js/firefox/download/desktop/download-as-default-v2.es6.js",
+        "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
+      ],
+      "name": "download_as_default-v2"
+    },
+    {
+      "files": [
         "js/firefox/browsers/desktop/chromebook.js"
       ],
       "name": "chromebook"
@@ -651,6 +659,20 @@
         "js/base/stub-attribution/stub-attribution-init.es6.js"
       ],
       "name": "stub-attribution"
+    },
+    {
+      "files": [
+        "js/base/download-attribution/download-attribution.es6.js",
+        "js/base/download-attribution/download-attribution-init.es6.js"
+      ],
+      "name": "download-attribution"
+    },
+    {
+      "files": [
+        "js/base/download-attribution/download-attribution.es6.js",
+        "js/firefox/download/auto-download.es6.js"
+      ],
+      "name": "auto-download"
     },
     {
       "files": [
@@ -733,9 +755,14 @@
     },
     {
       "files": [
+        "js/firefox/all/all-init-v2.es6.js"
+      ],
+      "name": "firefox_all-v2"
+    },
+    {
+      "files": [
         "js/libs/classlist.js",
         "js/libs/array-from.js",
-        "js/base/search-params.js",
         "js/base/uitour-lib.js",
         "js/base/mozilla-run.js",
         "js/base/mozilla-utils.js",
