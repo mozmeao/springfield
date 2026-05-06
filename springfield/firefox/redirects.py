@@ -113,7 +113,7 @@ redirectpatterns = (
         "/smart-window/",
         query={"view": "waitlist"},
         permanent=False,
-        merge_query=False,
+        merge_query=True,
     ),
 )
 
