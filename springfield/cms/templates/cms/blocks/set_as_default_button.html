@@ -1,0 +1,48 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text = block_text ~ " - " ~ value.label %}
+{% set dialog_id = "set-as-default-dialog" %}
+
+<include:conditional-display default_browser_condition="is-not-default">
+<include:button
+  extra_classes="fl-dialog-trigger fl-set-as-default-button"
+  theme_class="{{ value.theme_class() }}"
+  label="{{ value.label }}"
+  size_class="{{ size_class }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ block_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+  data_target_id="{{ dialog_id }}"
+/>
+
+<div class="fl-set-as-default-dialog">
+  <include:dialog id="{{ dialog_id }}">
+    <content:heading>
+      <span class="fl-fx-logo is-standalone">‍</span>
+
+      <include:heading
+        heading_size="fl-heading-lg"
+        heading_text="{{ value.snippet.heading_text }}"
+      />
+    </content:heading>
+    <content:body>
+      {% with object = value.snippet %}
+        {% include "cms/snippets/set-as-default-snippet.html" %}
+      {% endwith %}
+    </content:body>
+</include:dialog>
+</div>
+</include:conditional-display>
+
+<include:conditional-display default_browser_condition="is-default">
+<div class="fl-icon-with-text">
+      <include:icon extra_class="is-large" icon_name="checkmark" />
+      {{ value.snippet.success_content|richtext }}
+    </div>
+</include:conditional-display>
