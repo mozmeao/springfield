@@ -2,9 +2,6 @@
 
 /* todo: fix over-reliance on body classes */
 
-/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
-@import 'flare26-tokens.css';
-
 @layer page {
     .fl-mobile-subpage #playStoreLink-primary img,
     .fl-mobile-subpage #playStoreLink-footer img {

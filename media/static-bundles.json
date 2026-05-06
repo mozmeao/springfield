@@ -464,60 +464,70 @@
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-channels.css"
       ],
       "name": "flare26-channels"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-cookie-settings.css"
       ],
       "name": "flare26-cookie-settings"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-developer-edition.css"
       ],
       "name": "flare26-developer-edition"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-download.css"
       ],
       "name": "flare26-download"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-download_all.css"
       ],
       "name": "flare26-download-all"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-enterprise.css"
       ],
       "name": "flare26-enterprise"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-homepage.css"
       ],
       "name": "flare26-homepage"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-landing-get-page.css"
       ],
       "name": "flare26-landing-get-page"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-mobile-pages.css"
       ],
       "name": "flare26-mobile-pages"
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-release-notes.css"
       ],
       "name": "flare26-release-notes"
@@ -530,6 +540,7 @@
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-smart-window.css"
       ],
       "name": "flare26-smart-window"
@@ -548,6 +559,7 @@
     },
     {
       "files": [
+        "css/cms/flare26-tokens.css",
         "css/cms/pages/flare26-user-privacy.css"
       ],
       "name": "flare26-user-privacy"
