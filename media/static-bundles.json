@@ -476,6 +476,7 @@
     },
     {
       "files": [
+        "css/cms/pages/flare26-channels.css",
         "css/cms/pages/flare26-developer-edition.css"
       ],
       "name": "flare26-developer-edition"
