@@ -1,7 +1,0 @@
-name: "Tag 2026"
-context:
-  text: 'Tag'
-  before_icon: 'back'
-  after_icon: 'forward'
-  color: 'purple'
-  corners: 'round'
