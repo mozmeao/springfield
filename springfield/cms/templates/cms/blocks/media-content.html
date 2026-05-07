@@ -6,6 +6,7 @@
 #}
 
 {% set row_heading_level = 'h' ~ block_level if block_level else 'h2' %}
+{% set block_text =  value.headline|richtext|remove_tags %}
 
 <include:media-content media_after="{{ value.settings.media_after }}" narrow="{{ value.settings.narrow }}">
   {% if value.eyebrow %}
@@ -31,7 +32,12 @@
       {# In case a block with a heading is included, increment the block level #}
       {# Add 1 because this block already has a heading #}
       {% with block_level = block_level + 1 if block_level else 3 %}
-        {% include_block block %}
+        {% if block.block_type == "rich_text" %}
+          {# Make sure to use our custom richtext filter to add UTM parameters and other attributes #}
+          {{ block.value|richtext }}
+        {% else %}
+          {% include_block block %}
+        {% endif %}
       {% endwith %}
     {% endfor %}
   </content:body>
@@ -41,7 +47,6 @@
       {% if value.buttons %}
           {% for button in value.buttons %}
             {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% set block_text =  value.headline|richtext|remove_tags %}
             {% include_block button %}
           {% endfor %}
       {% endif %}

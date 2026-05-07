@@ -146,7 +146,7 @@ def test_richtext_parses_fxa_tag():
     expected_html = f"""<p>Paragraph with <a
         class="js-fxa-cta-link js-fxa-product-button fxa-link"
         data-action="{settings.FXA_ENDPOINT}"
-        data-cta-position="block-1-fxa-link"
+        data-cta-position="block-1.fxa-link"
         data-cta-text="A heading above the link"
         data-cta-uid="UID"
         href="{expected_url}"

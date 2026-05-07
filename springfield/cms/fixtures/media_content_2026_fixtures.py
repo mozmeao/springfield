@@ -113,7 +113,9 @@ def get_media_content_2026_variants() -> list[dict]:
                 "headline": '<p data-block-key="2026mc1h">Media Content 2026 — Content Before</p>',
                 "tags": _TAGS[:3],
                 "content": _rich_text(
-                    '<p data-block-key="2026mc1c">Media content block in the 2026 design system. Media is on the right.</p>',
+                    '<p data-block-key="2026mc1c">Media content block in the 2026 design system. Visit the'
+                    ' <a href="https://www.mozilla.org"'
+                    ' uid="20260001-aaaa-aaaa-aaaa-000000000001">Mozilla website</a> for more.</p>',
                     "2026mc01-0000-0000-0000-000000000011",
                 ),
                 "buttons": [buttons["primary"]],

@@ -18,7 +18,6 @@ from django.db import models
 from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
-from wagtail.fields import RichTextField
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
@@ -28,6 +27,7 @@ from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.rich_text import RichTextField
 
 
 class FluentPreviewableMixin(PreviewableMixin):

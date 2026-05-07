@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import re
 from unittest import mock
 from urllib.parse import urlparse, urlunparse
 
@@ -127,6 +128,8 @@ from springfield.firefox.templatetags.misc import app_store_url, fxa_button, pla
 pytestmark = [
     pytest.mark.django_db,
 ]
+
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
 
 def strip_host(url):
@@ -798,6 +801,19 @@ def _assert_media_content_2026_variants(region, variants, section_prefix, contex
         content_text = BeautifulSoup(content_html, "html.parser").get_text()
         body = div.find("div", class_="fl-body")
         assert body and content_text in body.get_text()
+
+        # Every <a> in the raw content HTML must be rendered with all three
+        # CTA tracking attributes (uid, text, position).
+        content_soup = BeautifulSoup(content_html, "html.parser")
+        expected_link_count = len(content_soup.find_all("a"))
+        if expected_link_count:
+            rich_text_links = body.find_all("a", attrs={"data-cta-uid": True})
+            assert len(rich_text_links) == expected_link_count
+            for link in rich_text_links:
+                uid = link["data-cta-uid"]
+                assert _UUID_RE.match(uid), f"Body link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
+                assert link.get("data-cta-text"), f"Body link {link.get('href')!r} missing data-cta-text"
+                assert link.get("data-cta-position"), f"Body link {link.get('href')!r} missing data-cta-position"
 
         # Buttons
         button = value["buttons"][0]
@@ -1499,6 +1515,20 @@ def test_banner_block(index_page, placeholder_images, rf):
 
         heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
+        # Links with uid in subheading must render with all three CTA tracking attributes.
+        subheading_html = banner["value"]["heading"]["subheading_text"]
+        subheading_soup = BeautifulSoup(subheading_html, "html.parser")
+        uid_link_count = len([a for a in subheading_soup.find_all("a") if a.get("uid")])
+        if uid_link_count:
+            subheading = banner_element.find("p", class_="fl-subheading")
+            rendered_uid_links = subheading.find_all("a", attrs={"data-cta-uid": True}) if subheading else []
+            assert len(rendered_uid_links) == uid_link_count, f"Expected {uid_link_count} links with data-cta-uid"
+            for link in rendered_uid_links:
+                uid = link["data-cta-uid"]
+                assert _UUID_RE.match(uid), f"Subheading link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
+                assert link.get("data-cta-text"), f"Subheading link {link.get('href')!r} missing data-cta-text"
+                assert link.get("data-cta-position"), f"Subheading link {link.get('href')!r} missing data-cta-position"
+
         # Buttons
         buttons = banner["value"]["buttons"]
         button_elements = banner_element.find_all("a", class_="fl-button")
@@ -1575,6 +1605,20 @@ def test_banner_2026_block(index_page, placeholder_images, rf):
             assert_section_heading_attributes(section_element=banner_element, heading_data=heading_block, index=heading_index_offset + index)
 
             heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
+
+            # Links with uid in subheading must render with all three CTA tracking attributes.
+            subheading_html = banner["value"]["heading"]["subheading_text"]
+            subheading_soup = BeautifulSoup(subheading_html, "html.parser")
+            uid_link_count = len([a for a in subheading_soup.find_all("a") if a.get("uid")])
+            if uid_link_count:
+                subheading = banner_element.find("p", class_="fl-subheading")
+                rendered_uid_links = subheading.find_all("a", attrs={"data-cta-uid": True}) if subheading else []
+                assert len(rendered_uid_links) == uid_link_count, f"Expected {uid_link_count} links with data-cta-uid"
+                for link in rendered_uid_links:
+                    uid = link["data-cta-uid"]
+                    assert _UUID_RE.match(uid), f"Subheading link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
+                    assert link.get("data-cta-text"), f"Subheading link {link.get('href')!r} missing data-cta-text"
+                    assert link.get("data-cta-position"), f"Subheading link {link.get('href')!r} missing data-cta-position"
 
             buttons = banner["value"]["buttons"]
             button_elements = banner_element.find_all("a", class_="fl-button")

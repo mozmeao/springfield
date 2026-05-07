@@ -214,9 +214,14 @@ def richtext(context, value: str) -> str:
     rich_text = wagtail_richtext(value)
     soup = BeautifulSoup(str(rich_text), "html.parser")
 
-    for link in soup.find_all("a"):
+    for index, link in enumerate(soup.find_all("a")):
         href = link.get("href", "")
         link["href"] = add_utm_parameters(context, href)
+        if link.get("data-cta-uid"):
+            block_text = context.get("block_text", "")
+            link_text = link.get_text().strip()
+            link["data-cta-text"] = f"{block_text} - {link_text}" if block_text else link_text
+            link["data-cta-position"] = ".".join([context.get("block_position", ""), f"link-{index + 1}"])
 
     for fxa_tag in soup.find_all("fxa"):
         label = fxa_tag.text
@@ -234,7 +239,7 @@ def richtext(context, value: str) -> str:
         }
         optional_attributes = {
             "data-cta-uid": uid,
-            "data-cta-position": "-".join([context.get("block_position", ""), "fxa-link"]),
+            "data-cta-position": ".".join([context.get("block_position", ""), "fxa-link"]),
             "data-cta-text": context.get("block_text", label),
         }
         # Same parameters as used in the fxa_button component, except the button class

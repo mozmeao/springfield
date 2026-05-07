@@ -28,8 +28,9 @@ def get_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Outlined Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. Visit'
+                    ' <a href="https://www.mozilla.org"'
+                    ' uid="ba010000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
@@ -325,8 +326,9 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Default Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. Visit'
+                    ' <a href="https://www.mozilla.org"'
+                    ' uid="ba260000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
