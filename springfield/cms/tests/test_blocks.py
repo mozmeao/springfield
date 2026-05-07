@@ -5,7 +5,6 @@
 from unittest import mock
 from urllib.parse import urlparse, urlunparse
 
-from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 
@@ -3137,20 +3136,6 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
                         cta_position=cta_position,
                         cta_text=cta_text,
                     )
-
-
-def test_featured_image_section_must_be_last_block(index_page, placeholder_images):
-    featured_image_section = get_featured_image_section_variants()[0]
-    other = get_notification_variants()[0]
-    page = get_featured_image_section_test_page()
-
-    page.upper_content = [featured_image_section, other]
-    with pytest.raises(ValidationError) as exc_info:
-        page.clean()
-    assert "upper_content" in exc_info.value.message_dict
-
-    page.upper_content = [other, featured_image_section]
-    page.clean()  # should not raise
 
 
 def test_testimonial_cards_2026_block(index_page, placeholder_images, rf):

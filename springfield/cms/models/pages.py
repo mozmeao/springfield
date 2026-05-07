@@ -55,7 +55,6 @@ from springfield.cms.blocks import (
     TopicListBlock,
     VideoBlock,
     validate_animation_url,
-    validate_featured_image_section_last,
 )
 from springfield.cms.fields import StreamField
 
@@ -914,11 +913,6 @@ class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
 
-    def clean(self):
-        super().clean()
-        validate_featured_image_section_last("upper_content", self.upper_content)
-        validate_featured_image_section_last("content", self.content)
-
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
@@ -1042,11 +1036,6 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
 
     def __str__(self):
         return f"WhatsNewPage2026: {self.title} - {self.locale}"
-
-    def clean(self):
-        super().clean()
-        validate_featured_image_section_last("upper_content", self.upper_content)
-        validate_featured_image_section_last("content", self.content)
 
     def get_utm_campaign(self):
         return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
@@ -1240,7 +1229,6 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         super().clean()
         if self.animation and not self.animation_alt:
             raise ValidationError("An alt text description is required when an animation URL is provided.")
-        validate_featured_image_section_last("content", self.content)
 
     def serve(self, request, *args, **kwargs):
         if request.GET.get("v") == "product":
@@ -1295,8 +1283,3 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
-
-    def clean(self):
-        super().clean()
-        validate_featured_image_section_last("upper_content", self.upper_content)
-        validate_featured_image_section_last("content", self.content)
