@@ -28,6 +28,11 @@ Card Grid - Flare 2026 Design System Cards
     padding-block: var(--token-layout-3xs);
 }
 
+/* symmetrical card grid for sticker cards. (homepage) */
+.fl-card-grid:has(.fl-sticker-card) {
+    --fl-card-grid-gap: var(--token-spacing-lg);
+}
+
 /* Two-wide on mobile variation. */
 .fl-card-grid.two-col-xs {
     --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
@@ -39,6 +44,10 @@ Card Grid - Flare 2026 Design System Cards
 
 .fl-card-grid.container-wide {
     max-inline-size: var(--token-width-desktop-wide-banner); /* 1170px */
+}
+
+.fl-card-grid.container-fill {
+    max-inline-size: none;
 }
 
 @media (--viewport-sm-up) {
@@ -74,6 +83,18 @@ Card Grid - Flare 2026 Design System Cards
     /* Three-cards wide */
     .fl-card-grid.cols-3-md {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-lg-up) {
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
