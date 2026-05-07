@@ -136,35 +136,71 @@ urlpatterns = (
         "firefox/landing/kit.html",
         active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
-    page(
+    path(
         "compare/",
-        "firefox/browsers/compare/index.html",
-        ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/index.html",
+                ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.index",
     ),
-    page(
+    path(
         "compare/brave/",
-        "firefox/browsers/compare/brave.html",
-        ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/brave.html",
+                ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.brave",
     ),
-    page(
+    path(
         "compare/chrome/",
-        "firefox/browsers/compare/chrome.html",
-        ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/chrome.html",
+                ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.chrome",
     ),
-    page(
+    path(
         "compare/edge/",
-        "firefox/browsers/compare/edge.html",
-        ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/edge.html",
+                ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.edge",
     ),
-    page(
+    path(
         "compare/opera/",
-        "firefox/browsers/compare/opera.html",
-        ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/opera.html",
+                ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.opera",
     ),
-    page(
+    path(
         "compare/safari/",
-        "firefox/browsers/compare/safari.html",
-        ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/compare/safari.html",
+                ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
+            ),
+            fallback_ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
+        ),
+        name="firefox.browsers.compare.safari",
     ),
     page(
         "landing/year-in-review-2025/",
@@ -172,15 +208,89 @@ urlpatterns = (
         url_name="firefox.year_in_review_2025",
     ),
     # bedrock Issue 8641
-    page("more/", "firefox/more/index.html", ftl_files=["firefox/more/more", "firefox/more/shared"]),
-    page("more/best-browser/", "firefox/more/best-browser.html", ftl_files=["firefox/more/best-browser", "firefox/more/shared"]),
-    page("more/browser-history/", "firefox/more/browser-history.html", ftl_files=["firefox/more/browser-history", "firefox/more/shared"]),
-    page("more/incognito-browser/", "firefox/more/incognito-browser.html"),
-    page("more/update-your-browser/", "firefox/more/update-browser.html"),
-    page("more/what-is-a-browser/", "firefox/more/what-is-a-browser.html", ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"]),
-    page("more/windows-64-bit/", "firefox/more/windows-64-bit.html", ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"]),
+    path(
+        "more/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/index.html",
+                ftl_files=["firefox/more/more", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/more", "firefox/more/shared"],
+        ),
+        name="firefox.more.index",
+    ),
+    path(
+        "more/best-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/best-browser.html",
+                ftl_files=["firefox/more/best-browser", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/best-browser", "firefox/more/shared"],
+        ),
+        name="firefox.more.best-browser",
+    ),
+    path(
+        "more/browser-history/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/browser-history.html",
+                ftl_files=["firefox/more/browser-history", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/browser-history", "firefox/more/shared"],
+        ),
+        name="firefox.more.browser-history",
+    ),
+    path(
+        "more/incognito-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/more/incognito-browser.html"),
+            fallback_lang_codes=["en-US"],
+        ),
+        name="firefox.more.incognito-browser",
+    ),
+    path(
+        "more/update-your-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/more/update-browser.html"),
+            fallback_lang_codes=["en-US"],
+        ),
+        name="firefox.more.update-browser",
+    ),
+    path(
+        "more/what-is-a-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/what-is-a-browser.html",
+                ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"],
+        ),
+        name="firefox.more.what-is-a-browser",
+    ),
+    path(
+        "more/windows-64-bit/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/windows-64-bit.html",
+                ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"],
+        ),
+        name="firefox.more.windows-64-bit",
+    ),
     # Bedrock Issue #9490 - Evergreen Content for SEO
-    page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
+    path(
+        "more/faq/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/faq.html",
+                ftl_files=["firefox/more/faq"],
+            ),
+            fallback_ftl_files=["firefox/more/faq"],
+        ),
+        name="firefox.more.faq",
+    ),
     # START What's New Page (WNP) paths
     # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
     re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),

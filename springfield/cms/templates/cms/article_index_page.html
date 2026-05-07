@@ -31,41 +31,120 @@
             {% for article in featured_articles %}
 
               {% if switch("flare26_enabled") %}
-                <include:sticker-card-2026 expand_link="true">
-                  <content:heading>
-                    <a class="fl-card-heading-link" href="{{ article.url }}">
-                      {% set tag = article.get_tag() %}
-                      <include:heading
-                        level="h2"
-                        heading_size="fl-heading-size-3"
-                        superheading_text="{{ tag.name if tag else '' }}"
-                        heading_text="{{  article.index_page_heading or article.title }}"
-                      />
-                    </a>
-                  </content:heading>
-                  <content:sticker>
-                    {% if article.sticker %}
-                      {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
-                      <div class="image-variants-display">
-                        {{ image(article.sticker, "width-400", class=classes.primary) }}
-                        {% if article.sticker_mobile %}
-                          {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
-                        {% endif %}
-                        {% if article.sticker_dark_mode_mobile %}
-                          {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
-                        {% endif %}
-                        {% if article.sticker_dark_mode %}
-                          {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
-                        {% endif %}
-                      </div>
-                    {% else %}
-                      <img src="/media/img/firefox/flare/independence-sticker.png" alt="" />
-                    {% endif %}
-                  </content:sticker>
-                  <content:body>
-                    {{ article.description|richtext }}
-                  </content:body>
-                </include:sticker-card-2026>
+                {% if page.index_card_type == "outline_card" %}
+                  <include:card expand_link="true">
+                    <content:heading>
+                      <h2 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                          {{ article.index_page_heading or article.title }}
+                        </a>
+                      </h2>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                    <content:buttons>
+                      <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                    </content:buttons>
+                  </include:card>
+                {% elif page.index_card_type == "illustration_card" %}
+                  <include:illustration-card-2026 expand_link="true">
+                    <content:media>
+                      {% if article.featured_image %}
+                        {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                        <div class="image-variants-display">
+                          {{ srcset_image(
+                              article.featured_image,
+                              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                              width=article.featured_image.width,
+                              loading="lazy",
+                              class=classes.primary,
+                          ) }}
+                          {% if article.featured_image_mobile %}
+                            {{ srcset_image(
+                                article.featured_image_mobile,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_mobile.width,
+                                loading="lazy",
+                                class=classes.mobile,
+                            ) }}
+                          {% endif %}
+                          {% if article.featured_image_dark_mode_mobile %}
+                            {{ srcset_image(
+                                article.featured_image_dark_mode_mobile,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_dark_mode_mobile.width,
+                                loading="lazy",
+                                class=classes.dark_mode_mobile,
+                            ) }}
+                          {% endif %}
+                          {% if article.featured_image_dark_mode %}
+                            {{ srcset_image(
+                                article.featured_image_dark_mode,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_dark_mode.width,
+                                loading="lazy",
+                                class=classes.dark_mode,
+                            ) }}
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <img src="/media/img/firefox/flare/card-placeholder.png" alt="" />
+                      {% endif %}
+                    </content:media>
+                    <content:heading>
+                      <h2 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                          {{ article.index_page_heading or article.title }}
+                        </a>
+                      </h2>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% else %}
+                  {# sticker_card (default) #}
+                  <include:sticker-card-2026 expand_link="true">
+                    <content:heading>
+                      <a class="fl-card-heading-link" href="{{ article.url }}">
+                        {% set tag = article.get_tag() %}
+                        <include:heading
+                          level="h2"
+                          heading_size="fl-heading-size-3"
+                          superheading_text="{{ tag.name if tag else '' }}"
+                          heading_text="{{  article.index_page_heading or article.title }}"
+                        />
+                      </a>
+                    </content:heading>
+                    <content:sticker>
+                      {% if article.sticker %}
+                        {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
+                        <div class="image-variants-display">
+                          {{ image(article.sticker, "width-400", class=classes.primary) }}
+                          {% if article.sticker_mobile %}
+                            {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
+                          {% endif %}
+                          {% if article.sticker_dark_mode_mobile %}
+                            {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
+                          {% endif %}
+                          {% if article.sticker_dark_mode %}
+                            {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <img src="/media/img/firefox/flare/independence-sticker.png" alt="" />
+                      {% endif %}
+                    </content:sticker>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                  </include:sticker-card-2026>
+                {% endif %}
               {% else %}
                 <include:illustration-card expand_link="true">
                   <content:media>
@@ -149,43 +228,126 @@
           {% if switch("flare26_enabled") %}
             <include:cards-list>
               {% for article in list_articles %}
-                <include:illustration-card-2026 expand_link="true" variant="sticker">
-                  <content:media>
-                    {% if article.sticker %}
-                      {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
-                      <div class="image-variants-display">
-                        {{ image(article.sticker, "width-400", class=classes.primary) }}
-                        {% if article.sticker_mobile %}
-                          {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
-                        {% endif %}
-                        {% if article.sticker_dark_mode_mobile %}
-                          {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
-                        {% endif %}
-                        {% if article.sticker_dark_mode %}
-                          {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
-                        {% endif %}
-                      </div>
-                    {% else %}
-                      <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
-                    {% endif %}
-                  </content:media>
-                  <content:heading>
-                    {% set tag = article.get_tag() %}
-                    {% if tag %}
-                      <p class="fl-superheading">
-                        {{ tag.name }}
-                      </p>
-                    {% endif %}
-                    <h3 class="fl-heading fl-heading-size-3">
-                      <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                      {{  article.index_page_heading or article.title }}
-                      </a>
-                    </h3>
-                  </content:heading>
-                  <content:body>
-                    {{ article.description|richtext }}
-                  </content:body>
-                </include:illustration-card-2026>
+                {% if page.index_card_type == "outline_card" %}
+                  <include:card expand_link="true">
+                    <content:heading>
+                      <h3 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                          {{ article.index_page_heading or article.title }}
+                        </a>
+                      </h3>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                    <content:buttons>
+                      <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                    </content:buttons>
+                  </include:card>
+                {% elif page.index_card_type == "illustration_card" %}
+                  <include:illustration-card-2026 expand_link="true">
+                    <content:media>
+                      {% if article.featured_image %}
+                        {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                        <div class="image-variants-display">
+                          {{ srcset_image(
+                              article.featured_image,
+                              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                              width=article.featured_image.width,
+                              loading="lazy",
+                              class=classes.primary,
+                          ) }}
+                          {% if article.featured_image_mobile %}
+                            {{ srcset_image(
+                                article.featured_image_mobile,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_mobile.width,
+                                loading="lazy",
+                                class=classes.mobile,
+                            ) }}
+                          {% endif %}
+                          {% if article.featured_image_dark_mode_mobile %}
+                            {{ srcset_image(
+                                article.featured_image_dark_mode_mobile,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_dark_mode_mobile.width,
+                                loading="lazy",
+                                class=classes.dark_mode_mobile,
+                            ) }}
+                          {% endif %}
+                          {% if article.featured_image_dark_mode %}
+                            {{ srcset_image(
+                                article.featured_image_dark_mode,
+                                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                                width=article.featured_image_dark_mode.width,
+                                loading="lazy",
+                                class=classes.dark_mode,
+                            ) }}
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <img src="/media/img/firefox/flare/card-placeholder.png" alt="" />
+                      {% endif %}
+                    </content:media>
+                    <content:heading>
+                      {% set tag = article.get_tag() %}
+                      {% if tag %}
+                        <p class="fl-superheading">{{ tag.name }}</p>
+                      {% endif %}
+                      <h3 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                          {{ article.index_page_heading or article.title }}
+                        </a>
+                      </h3>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% else %}
+                  {# sticker_card (default) #}
+                  <include:illustration-card-2026 expand_link="true" variant="sticker">
+                    <content:media>
+                      {% if article.sticker %}
+                        {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
+                        <div class="image-variants-display">
+                          {{ image(article.sticker, "width-400", class=classes.primary) }}
+                          {% if article.sticker_mobile %}
+                            {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
+                          {% endif %}
+                          {% if article.sticker_dark_mode_mobile %}
+                            {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
+                          {% endif %}
+                          {% if article.sticker_dark_mode %}
+                            {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
+                      {% endif %}
+                    </content:media>
+                    <content:heading>
+                      {% set tag = article.get_tag() %}
+                      {% if tag %}
+                        <p class="fl-superheading">
+                          {{ tag.name }}
+                        </p>
+                      {% endif %}
+                      <h3 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                        {{  article.index_page_heading or article.title }}
+                        </a>
+                      </h3>
+                    </content:heading>
+                    <content:body>
+                      {{ article.description|richtext }}
+                    </content:body>
+                  </include:illustration-card-2026>
+                {% endif %}
               {% endfor %}
             </include:cards-list>
           {% else %}
