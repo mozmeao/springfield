@@ -917,11 +917,26 @@ def detect_channel(version):
                 return "nightly"
             if version.endswith("a2"):
                 return "developer"
+            if version.endswith("beta"):
+                return "beta"
 
     return "unknown"
 
 
 class WhatsnewView(L10nTemplateView):
+    # This view is decorated with prefer_cms in urls.py, so will only be called if
+    # there is NOT already a What's New Page that directly matches the request path
+    # (eg /en-US/whatsnew/150/ will have matched a CMS-backed WNP, but
+    # /cy/whatsnew/150/ would have not because cy is not currently a CMS-backed locale
+    #
+    # As such, this view will either
+    # a) redirect to a CMS-backed "evergreen" WNP (for Nightly, Developer or the
+    # "general" WNP for FF Release) IF the request's locale is supported by the CMS
+    # or
+    # b) render a static Django-powered evergreen WNP for Nightly, Developer or Beta,
+    # using Fluent string for L10N, which will cover the locales that are not supported
+    # by the CMS
+
     ftl_files_map = {
         "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
         "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
@@ -934,24 +949,42 @@ class WhatsnewView(L10nTemplateView):
     # Nimbus experiment variation expected values
     nimbus_variations = ["v1", "v2", "v3", "v4"]
 
-    def _get_general_wnp_redirect(self, request, version):
+    # Maps detect_channel() return values to the WNP CMS slug to redirect to.
+    # Channels absent from this map (i.e. "unknown") fall back to "general".
+    _CHANNEL_WNP_SLUGS = {
+        "nightly": "nightly",
+        "developer": "developer",
+        "beta": "beta",
+    }
+
+    def _get_evergreen_wnp_redirect(self, request, version):
         """
-        If a General WNP (slug='general') exists in the CMS for the request locale
-        (or its configured CMS fallback locale), return a 302 redirect to it,
+        If an "evergreen", channel-appropriate WNP exists in the CMS for the request
+        locale (or its configured CMS fallback locale), return a 302 redirect to it,
         preserving existing querystring params and appending ?version=VERSION.
+
+        The target slug is chosen by the channel detected from the version string:
+          a1 suffix  → /whatsnew/nightly/
+          a2 suffix  → /whatsnew/developer/
+          beta suffix → /whatsnew/beta/
+          anything else → /whatsnew/general/
+
         Returns None if no redirect is warranted.
         """
+        channel = detect_channel(version)
+        wnp_slug = self._CHANNEL_WNP_SLUGS.get(channel, "general")
+
         # Extract the raw locale code from the URL path (e.g. "it", "es-AR")
         _path = request.path.lstrip("/")
         lang_code, _, _ = _path.partition("/")
 
-        # Build an ordered list of CMS locale codes to check for a General WNP.
+        # Build an ordered list of CMS locale codes to check for the target WNP.
         # Always check the request locale first (if it's a CMS locale), then its
         # configured fallback (if any). This handles two cases:
         #   1. Pure alias locales (e.g. es-AR → es-MX): only the fallback is checked.
         #   2. CMS locales that also have a fallback (e.g. en-GB → en-US): the
-        #      direct locale is checked first; if it has no General WNP we also
-        #      check the fallback so that a redirect is still issued and
+        #      direct locale is checked first; if it has no matching evergreen WNP
+        #      we also check the fallback so that a redirect is still issued and
         #      CMSLocaleFallbackMiddleware can transparently serve the fallback
         #      locale's content at the alias URL.
         cms_language_codes = dict(settings.WAGTAIL_CONTENT_LANGUAGES)
@@ -972,7 +1005,7 @@ class WhatsnewView(L10nTemplateView):
                 locale = WagtailLocale.objects.get(language_code=locale_code)
             except WagtailLocale.DoesNotExist:
                 continue
-            if WhatsNewPage2026.objects.live().public().filter(slug="general", locale=locale).exists():
+            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
                 break
         else:
             return None
@@ -986,7 +1019,7 @@ class WhatsnewView(L10nTemplateView):
         # Use the original lang_code in the redirect URL so that alias locales
         # (e.g. es-AR) redirect to their alias URL; Wagtail's locale-fallback
         # machinery then transparently serves the fallback locale's content.
-        redirect_path = f"/{lang_code}/whatsnew/general/"
+        redirect_path = f"/{lang_code}/whatsnew/{wnp_slug}/"
         query_string = params.urlencode()
         redirect_url = f"{redirect_path}?{query_string}" if query_string else redirect_path
 
@@ -994,7 +1027,7 @@ class WhatsnewView(L10nTemplateView):
 
     def get(self, request, *args, **kwargs):
         version = self.kwargs.get("version", "")
-        redirect_response = self._get_general_wnp_redirect(request, version)
+        redirect_response = self._get_evergreen_wnp_redirect(request, version)
         if redirect_response:
             return redirect_response
         return super().get(request, *args, **kwargs)
