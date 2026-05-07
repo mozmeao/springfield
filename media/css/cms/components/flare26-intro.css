@@ -93,6 +93,7 @@
 }
 
 .fl-intro-content .fl-buttons {
+    align-items: start;
     justify-content: center;
 }
 

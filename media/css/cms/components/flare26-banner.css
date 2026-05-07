@@ -278,6 +278,7 @@
     }
 
     .fl-banner .fl-buttons {
+        align-items: start;
         flex-direction: row;
     }
 }
@@ -318,6 +319,7 @@
     }
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
+        align-items: start;
         justify-content: left;
     }
 }
