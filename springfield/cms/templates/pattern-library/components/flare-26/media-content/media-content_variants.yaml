@@ -2,6 +2,7 @@ name: "Media Content variants"
 context:
   variants:
     - title: Media Content (Media Before)
+      testid: "media-content-media-before"
       media_after: false
       eyebrow: Eyebrow
       heading:
@@ -30,6 +31,7 @@ context:
         alt: Placeholder Image
 
     - title: Media Content (Media After)
+      testid: "media-content-media-after"
       media_after: true
       eyebrow: Eyebrow
       heading:
@@ -59,6 +61,7 @@ context:
         alt: Placeholder Image
 
     - title: Media Content (No Eyebrow)
+      testid: "media-content-no-eyebrow"
       media_after: false
       heading:
         level: h3
@@ -75,6 +78,7 @@ context:
         alt: Placeholder Image
 
     - title: Media Content (YouTube Video)
+      testid: "media-content-youtube-video"
       media_after: false
       eyebrow: Eyebrow
       heading:
@@ -93,6 +97,7 @@ context:
         alt: Placeholder Video
 
     - title: Media Content (CDN Video)
+      testid: "media-content-cdn-video"
       media_after: false
       eyebrow: Eyebrow
       heading:

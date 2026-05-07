@@ -2,6 +2,7 @@ name: "Card Variants"
 context:
   cards:
     - note: "Icon Card"
+      testid: "card-icon"
       icon_name: "heart"
       expand_link: false
       heading: "Support Mozilla"
@@ -21,11 +22,13 @@ context:
           color: "orange"
           corners: "soft"
     - note: "Icon Card - No Buttons"
+      testid: "card-icon-no-buttons"
       icon_name: "shield"
       expand_link: false
       heading: "Privacy Protection"
       body: "Icon cards can also be used without action buttons."
     - note: "Icon Card - Clickable"
+      testid: "card-icon-clickable"
       icon_name: "shield"
       expand_link: true
       heading: "Clickable Card"
@@ -35,6 +38,7 @@ context:
           link: "/"
           theme_class: ""
     - note: "Sticker Card"
+      testid: "card-sticker"
       sticker: "/media/img/firefox/flare/tab-groups-sticker.svg"
       expand_link: false
       heading: "With Buttons"
@@ -54,11 +58,13 @@ context:
           link: "/"
           theme_class: ""
     - note: "Sticker Card - No Buttons"
+      testid: "card-sticker-no-buttons"
       sticker: "/media/img/firefox/flare/tab-wallpapers-sticker.svg"
       expand_link: false
       heading: "Informational Card"
       body: "Sticker cards can also be informational only, without buttons."
     - note: "Sticker Card - Clickable"
+      testid: "card-sticker-clickable"
       sticker: "/media/img/firefox/flare/vertical-tabs-sticker.svg"
       expand_link: true
       heading: "Clickable Card"
@@ -78,6 +84,7 @@ context:
           link: "/"
           theme_class: ""
     - note: "Filled Card"
+      testid: "card-filled"
       fill: true
       heading: "Latest Feature"
       body: "Filled cards use the fill variant and include categorization tags at the top."
@@ -90,6 +97,7 @@ context:
           link: "/"
           theme_class: ""
     - note: "Filled Card - Multiple Tags"
+      testid: "card-filled-multiple-tags"
       fill: true
       heading: "Product Update"
       body: "Cards can have multiple tags for richer categorization."

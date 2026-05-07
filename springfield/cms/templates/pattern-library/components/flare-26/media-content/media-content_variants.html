@@ -10,7 +10,7 @@
     <hr/>
   </div>
   {% for item in variants %}
-    <div class="pl-row">
+    <div data-testid="{{ item.testid }}" class="pl-row">
       <h5>{{ item.title }}</h5>
       <hr/>
       <include:media-content media_after="{{ item.media_after }}">

@@ -9,7 +9,7 @@
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
     {% for card in cards %}
-      <div>
+      <div data-testid="{{ card.testid }}">
         {% if card.note %}<p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>{% endif %}
         <include:card
           fill="{{ card.fill }}"
