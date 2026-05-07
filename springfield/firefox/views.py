@@ -924,18 +924,23 @@ def detect_channel(version):
 
 
 class WhatsnewView(L10nTemplateView):
-    # This view is decorated with prefer_cms in urls.py, so will only be called if
-    # there is NOT already a What's New Page that directly matches the request path
-    # (eg /en-US/whatsnew/150/ will have matched a CMS-backed WNP, but
-    # /cy/whatsnew/150/ would have not because cy is not currently a CMS-backed locale
+    # The 3-digit Whats New route in urls.py is decorated with prefer_cms, so requests
+    # like /en-US/whatsnew/150/ will only reach this view when there is not already a
+    # CMS-backed What's New Page that directly matches the request path. For example,
+    # /en-US/whatsnew/150/ would match a CMS-backed WNP first, but /cy/whatsnew/150/
+    # would not because cy is not currently a CMS-backed locale.
     #
-    # As such, this view will either
+    # Legacy version routes (for example 152.0a1 or 152.0beta) may also dispatch here
+    # without prefer_cms, so this view is not exclusively a "no CMS page matched"
+    # fallback for every Whats New URL pattern.
+    #
+    # When this view handles a request, it will either:
     # a) redirect to a CMS-backed "evergreen" WNP (for Nightly, Developer or the
     # "general" WNP for FF Release) IF the request's locale is supported by the CMS
     # or
     # b) render a static Django-powered evergreen WNP for Nightly, Developer or Beta,
-    # using Fluent string for L10N, which will cover the locales that are not supported
-    # by the CMS
+    # using Fluent strings for L10N, which will cover the locales that are not
+    # supported by the CMS.
 
     ftl_files_map = {
         "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
