@@ -23,12 +23,31 @@ Card Grid - Flare 2026 Design System Cards
     gap: var(--fl-card-grid-gap);
     grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
     justify-content: center;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg); /* 934px default */
     padding-block: var(--token-layout-3xs);
 }
 
-/* default usage of illustration cards get two-wide on mobile. */
-.fl-card-grid:has(.fl-illustration-card-default) {
+/* symmetrical card grid for sticker cards. (homepage) */
+.fl-card-grid:has(.fl-sticker-card) {
+    --fl-card-grid-gap: var(--token-spacing-lg);
+}
+
+/* Two-wide on mobile variation. */
+.fl-card-grid.two-col-xs {
     --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fl-card-grid.container-narrow {
+    max-inline-size: var(--token-width-desktop-content); /* 725px */
+}
+
+.fl-card-grid.container-wide {
+    max-inline-size: var(--token-width-desktop-wide-banner); /* 1170px */
+}
+
+.fl-card-grid.container-fill {
+    max-inline-size: none;
 }
 
 @media (--viewport-sm-up) {
@@ -37,68 +56,45 @@ Card Grid - Flare 2026 Design System Cards
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* when a card grid only has two items, reduce the max width and center it. */
+    /* when a card grid only has two items, let them fill the space on tablet+ sizes */
     .fl-card-grid:has(> *:nth-child(2):last-child) {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-        margin-inline: auto;
-        max-inline-size: var(--token-width-desktop-content);
-    }
-
-    /* The features theme page has a unique design for the illustration
-       icon cards, where they are two wide on desktop. */
-    .fl-features-theme-page .fl-card-grid:has(.fl-illustration-icon-card) {
-        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-        margin-inline: auto;
-        max-inline-size: var(--token-width-desktop-content-lg);
     }
 }
 
 @media (--viewport-md-up) {
     /* The default assumes four cards */
-    .fl-card-grid {
+    .fl-card-grid,
+    .fl-card-grid.two-col-xs {
         --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
     }
 
     /* when there are three cards, let them fill the space. */
-    .fl-card-grid:has(> *:nth-child(3):last-child) {
+    .fl-card-grid:has(> *:nth-child(3):last-child),
+    .fl-card-grid.two-col-xs:has(> *:nth-child(3):last-child) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
 
-    /* These are used on features/all. The design is specified at 3 wide max. */
-    .fl-card-grid:has(.fl-illustration-sticker-card) {
+    /* two cards wide */
+    .fl-card-grid.cols-2-md {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Three-cards wide */
+    .fl-card-grid.cols-3-md {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
 
-    /* default usage of illustration cards assumes four wide... */
-    .fl-card-grid:has(.fl-illustration-card-default) {
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-lg-up) {
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
         --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    /* ...unless there are only three, and then it gets a special treatment.
-       There are two selectors, one with and one without .conditional-passthrough
-       or .image-variants. */
-    .fl-card-grid:has(.fl-illustration-card-default:nth-child(3):last-child),
-    .fl-card-grid:has(
-        > *:nth-child(3):last-child .fl-illustration-card-default
-    ),
-    .fl-card-grid:has(.fl-illustration-icon-card:nth-child(3):last-child),
-    .fl-card-grid:has(> *:nth-child(3):last-child .fl-illustration-icon-card),
-    .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
-    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
-        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
-        inline-size: 100%;
-        margin-inline: auto;
-        max-inline-size: var(--token-width-desktop-content-lg);
-    }
-
-    /* make outline cards slightly wider */
-    .fl-card-grid:has(.fl-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-sticker-card:nth-child(3):last-child),
-    .fl-card-grid:has(.fl-testimonial-card:nth-child(3):last-child),
-    .fl-card-grid:has(> *:nth-child(3):last-child .fl-testimonial-card) {
-        max-inline-size: var(--token-width-desktop-wide-banner);
     }
 }
 
