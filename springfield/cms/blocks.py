@@ -582,6 +582,18 @@ def HeadingBlock(required=True, all_required=False, **kwargs):
     return _HeadingBlock(**kwargs)
 
 
+class PricingHeadingBlock(blocks.StructBlock):
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        icon = "title"
+        label = "Pricing Heading"
+        label_format = "{heading_text}"
+        template = "cms/blocks/pricing-heading.html"
+
+
 # Buttons
 
 

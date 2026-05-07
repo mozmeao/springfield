@@ -1,0 +1,6 @@
+name: "Pricing Heading 2026"
+context:
+    level: h2
+    superheading_text: "Our Pricing"
+    heading_text: $10.99
+    subheading_text: "per month"
