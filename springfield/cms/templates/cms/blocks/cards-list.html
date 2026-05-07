@@ -7,7 +7,11 @@
 {% set block_level = block_level or 1 %}
 {% set is_scroll = value.settings.scroll if value.settings is defined else False %}
 
-<include:cards-list scroll="{{ is_scroll }}">
+<include:cards-list
+  container_width="{{ container_width }}"
+  cards_per_row="{{ cards_per_row }}"
+  two_wide_xs="{{ two_wide_xs }}"
+  scroll="{{ is_scroll }}">
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}

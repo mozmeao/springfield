@@ -27,7 +27,8 @@
           />
 
           {% if featured_articles|length > 0 %}
-          <include:cards-list>
+          <include:cards-list container_width="narrow">
+
             {% for article in featured_articles %}
 
               {% if switch("flare26_enabled") %}
@@ -146,8 +147,7 @@
             subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
           />
 
-          {% if switch("flare26_enabled") %}
-            <include:cards-list>
+            <include:cards-list container_width="wide" cards_per_row="3">
               {% for article in list_articles %}
                 <include:illustration-card-2026 expand_link="true" variant="sticker">
                   <content:media>
@@ -188,23 +188,6 @@
                 </include:illustration-card-2026>
               {% endfor %}
             </include:cards-list>
-          {% else %}
-            <include:cards-list>
-              {% for article in list_articles %}
-                <include:card expand_link="true">
-                  <content:heading>
-                    <h3 class="fl-heading fl-heading-size-3">{{  article.index_page_heading or article.title }}</h3>
-                  </content:heading>
-                  <content:body>
-                    {{ article.description|richtext }}
-                  </content:body>
-                  <content:buttons>
-                    <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-                  </content:buttons>
-                </include:card>
-              {% endfor %}
-            </include:cards-list>
-          {% endif %}
 
         </div>
       </section>
