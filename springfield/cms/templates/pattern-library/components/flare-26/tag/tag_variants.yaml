@@ -1,80 +1,19 @@
-name: "Tag variants 2026"
+name: "Tag variants"
 context:
   tags:
-    - note: White / Round
-      text: 'Tag'
-      color: 'white'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: White / Soft
-      text: 'Tag'
-      color: 'white'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
-
-    - note: Black / Round
-      text: 'Tag'
-      color: 'black'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: Black / Soft
-      text: 'Tag'
-      color: 'black'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
-
-    - note: Orange / Round
-      text: 'Tag'
-      color: 'orange'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: Orange / Soft
-      text: 'Tag'
-      color: 'orange'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
-
-    - note: Purple / Round
-      text: 'Tag'
-      color: 'purple'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: Purple / Soft
-      text: 'Tag'
-      color: 'purple'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
-
-    - note: Blue / Round
-      text: 'Tag'
-      color: 'blue'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: Blue / Soft
-      text: 'Tag'
-      color: 'blue'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
-
-    - note: Outline / Round
-      text: 'Tag'
-      color: 'outline'
-      corners: 'round'
-      before_icon: 'back'
-      after_icon: 'forward'
-    - note: Outline / Soft
-      text: 'Tag'
-      color: 'outline'
-      corners: 'soft'
-      before_icon: 'back'
-      after_icon: 'forward'
+    - note: "Default (Purple)"
+      testid: "tag-default"
+      text: "Tag"
+      color: ""
+    - note: "Red"
+      testid: "tag-red"
+      text: "Tag"
+      color: "red"
+    - note: "Orange"
+      testid: "tag-orange"
+      text: "Tag"
+      color: "orange"
+    - note: "Green"
+      testid: "tag-green"
+      text: "Tag"
+      color: "green"

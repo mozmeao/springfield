@@ -1,4 +1,4 @@
-name: Notification variants 2026
+name: Notification variants
 context:
   notifications:
     - heading: Notification Heading

@@ -1,4 +1,4 @@
-name: Showcase Variants 2026
+name: Showcase Variants
 context:
   variants:
     - headline: Default layout  with caption title

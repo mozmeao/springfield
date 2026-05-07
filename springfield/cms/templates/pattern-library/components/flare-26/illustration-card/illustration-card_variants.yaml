@@ -1,43 +1,36 @@
-name: "Illustration Card Variants 2026"
+name: "Illustration Card Variants"
 context:
   cards:
-    - note: "Image Before (default)"
+    - note: "Default"
+      testid: "illustration-card-default"
       image: "/media/img/firefox/flare/placeholder.png"
-      image_after: false
+      variant: ""
       expand_link: false
-      heading: "Image First Layout"
-      body: "In this layout, the image appears first (on the left on desktop, above on mobile)."
-      tags:
-        - text: "News"
-          color: "blue"
-          corners: "soft"
-        - text: "Update"
-          color: "purple"
-          corners: "soft"
-        - text: "Important"
-          color: "orange"
-          corners: "soft"
+      heading: "Default Illustration Card"
+      body: "The default variant displays a full-width image above the card content."
       buttons:
         - label: "Learn More"
           link: "/"
           theme_class: ""
-    - note: "Image After (reversed)"
+    - note: "Icon"
+      testid: "illustration-card-icon"
       image: "/media/img/firefox/flare/placeholder.png"
-      image_after: true
+      variant: "icon"
       expand_link: false
-      heading: "Image Last Layout"
-      body: "With image_after enabled, the image appears after the content (on the right on desktop, below on mobile)."
+      heading: "Icon Illustration Card"
+      body: "The icon variant displays a small square media area sized for icons (48px)."
       buttons:
-        - label: "Get Started"
+        - label: "Learn More"
           link: "/"
           theme_class: ""
-    - note: "Expandable Link Card"
+    - note: "Sticker"
+      testid: "illustration-card-sticker"
       image: "/media/img/firefox/flare/placeholder.png"
-      image_after: false
-      expand_link: true
-      heading: "Entire Card is Clickable"
-      body: "This card has expand_link enabled, making the whole card area clickable."
+      variant: "sticker"
+      expand_link: false
+      heading: "Sticker Illustration Card"
+      body: "The sticker variant displays a slightly larger square media area (56px mobile, 102px desktop)."
       buttons:
-        - label: "Visit"
+        - label: "Learn More"
           link: "/"
           theme_class: ""

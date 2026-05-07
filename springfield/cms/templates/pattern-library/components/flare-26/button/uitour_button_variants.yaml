@@ -1,4 +1,4 @@
-name: "UI Tour Buttons 2026"
+name: "UI Tour Buttons"
 context:
   buttons:
     - label: "Open New Tab"

@@ -1,4 +1,4 @@
-name: "Firefox Account Button 2026"
+name: "Firefox Account Button"
 context:
     label: "Sign in to Firefox Account"
     icon_name: 'forward'

@@ -1,4 +1,4 @@
-name: "Banner variants 2026"
+name: "Banner variants"
 context:
   variants:
     - title: "QR Code Banner"

@@ -1,4 +1,4 @@
-name: Copy-to-Clipboard Button 2026
+name: Copy-to-Clipboard Button
 context:
   variants:
     - label: "Copy link"

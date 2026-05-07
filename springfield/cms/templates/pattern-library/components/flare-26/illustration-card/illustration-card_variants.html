@@ -9,27 +9,16 @@
 
   <include:cards-list>
     {% for card in cards %}
-      <div style="max-width: 800px;">
+      <div data-testid="{{ card.testid }}">
         <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
-        <include:illustration-card
-          image_after="{{ card.image_after }}"
+        <include:illustration-card-2026
+          variant="{{ card.variant }}"
           expand_link="{{ card.expand_link }}"
         >
           <content:media>
             <img src="{{ card.image }}" alt="" loading="lazy" />
           </content:media>
           <content:heading>
-            {% if card.tags %}
-              <div>
-                {% for tag in card.tags %}
-                  <include:tag
-                    text="{{ tag.text }}"
-                    color="{{ tag.color }}"
-                    corners="{{ tag.corners }}"
-                  />
-                {% endfor %}
-              </div>
-            {% endif %}
             <include:heading
               level="h3"
               heading_size="fl-heading-size-3"
@@ -50,7 +39,7 @@
               {% endfor %}
             </content:buttons>
           {% endif %}
-        </include:illustration-card>
+        </include:illustration-card-2026>
       </div>
     {% endfor %}
   </include:cards-list>

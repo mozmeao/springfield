@@ -1,4 +1,4 @@
-name: Stacked notification variants 2026
+name: Stacked notification variants
 context:
   notifications:
     - heading: Notification Heading

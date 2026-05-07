@@ -1,4 +1,4 @@
-name: "Body Text 2026"
+name: "Body Text"
 context:
   text: 'A long paragraph of text goes here. This is just an example. Lorem ipsum dolor sit amet, consectetur.'
   size: 'large'

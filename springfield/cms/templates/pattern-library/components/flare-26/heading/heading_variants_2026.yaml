@@ -1,4 +1,4 @@
-name: Heading variants 2026
+name: Heading variants
 context:
   variants:
     - heading_text: 'Lorem ipsum dolor sit amet'

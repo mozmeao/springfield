@@ -1,4 +1,4 @@
-name: "Inline Notification variants"
+name: "Inline Notification variants 2025"
 context:
   notifications:
     - message: 'This is a simple notification'

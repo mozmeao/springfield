@@ -1,4 +1,4 @@
-name: Conditional Display 2026
+name: Conditional Display
 context:
   variants:
     - name: All Users (no conditions)
