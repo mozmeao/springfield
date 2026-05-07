@@ -7,10 +7,10 @@ Tests for the channel-aware WNP redirect behaviour.
 
 When a user requests /LOCALE/whatsnew/VERSION/ and there is no version-specific
 CMS WNP, we check for a channel-specific CMS WNP and 302 to it:
-  - Nightly (a1 suffix)  → /LOCALE/whatsnew/nightly/?version=VERSION
+  - Nightly (a1 suffix)   → /LOCALE/whatsnew/nightly/?version=VERSION
   - Developer (a2 suffix) → /LOCALE/whatsnew/developer/?version=VERSION
-  - Beta (b/beta suffix) → /LOCALE/whatsnew/beta/?version=VERSION
-  - Release              → /LOCALE/whatsnew/general/?version=VERSION
+  - Beta (beta suffix)    → /LOCALE/whatsnew/beta/?version=VERSION
+  - Release               → /LOCALE/whatsnew/general/?version=VERSION
 
 If no channel-specific CMS WNP exists for the locale (or its CMS fallback
 locale), the static evergreen page is rendered instead.
