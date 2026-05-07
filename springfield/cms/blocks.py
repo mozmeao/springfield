@@ -1338,6 +1338,16 @@ class IconListWithImageBlock(blocks.StructBlock):
         template = "cms/blocks/icon-list-with-image.html"
 
 
+class IconListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(IconListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List"
+        label_format = "Icon List"
+        template = "cms/blocks/icon-list.html"
+
+
 # Cards
 
 

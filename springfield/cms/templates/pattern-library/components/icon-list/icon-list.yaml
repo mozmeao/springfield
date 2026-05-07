@@ -1,0 +1,9 @@
+name: Icon List 2026
+context:
+  items:
+    - icon: shield
+      text: Built-in privacy features block trackers automatically.
+    - icon: bookmark
+      text: Save and organize your favorite pages with easy bookmarks.
+    - icon: heart
+      text: A browser that puts your well-being first.

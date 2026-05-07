@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:icon-list>
+  {% for item in value.list_items %}
+    <li>
+      <span class="fl-icon-wrap">
+        <include:icon icon_name="{{ item.icon }}" hidden="true" />
+      </span>
+      {{ item.text|richtext|remove_p_tag }}
+    </li>
+  {% endfor %}
+</include:icon-list>

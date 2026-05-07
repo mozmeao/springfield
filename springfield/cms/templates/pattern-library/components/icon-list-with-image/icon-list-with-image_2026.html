@@ -10,7 +10,7 @@
       <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
     </content:media>
     <content:body>
-      <ul class="icon-text-list">
+      <include:icon-list>
         {% for item in items %}
           <li>
             <span class="fl-icon-wrap">
@@ -19,7 +19,7 @@
             {{ item.text }}
           </li>
         {% endfor %}
-      </ul>
+      </include:icon-list>
     </content:body>
   </include:media-content>
 </div>
@@ -30,7 +30,7 @@
       <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
     </content:media>
     <content:body>
-      <ul class="icon-text-list">
+      <include:icon-list>
         {% for item in items %}
           <li>
             <span class="fl-icon-wrap">
@@ -39,7 +39,7 @@
             {{ item.text }}
           </li>
         {% endfor %}
-      </ul>
+      </include:icon-list>
     </content:body>
   </include:media-content>
 </div>

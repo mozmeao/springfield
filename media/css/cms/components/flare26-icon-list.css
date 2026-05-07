@@ -4,7 +4,7 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.icon-text-list {
+.fl-icon-text-list {
     --fl-theme-color-icon-wrap: var(--token-color-soft-purple);
     --fl-theme-color-icon: var(--fl-theme-color-text);
     columns: 24ch 2;
@@ -14,24 +14,24 @@
     padding: 0;
 }
 
-.icon-text-list li {
+.fl-icon-text-list li {
     break-inside: avoid;
     display: flex;
     gap: var(--token-layout-3xs);
     margin-block-end: var(--token-spacing-xl);
 }
 
-.icon-text-list li:last-child {
+.fl-icon-text-list li:last-child {
     margin-block-end: 0;
 }
 
 @media (prefers-color-scheme: dark) {
-    .icon-text-list {
+    .fl-icon-text-list {
         --fl-theme-color-icon-wrap: var(--token-color-medium-purple);
     }
 }
 
-.fl-split-page-upper .icon-text-list,
-.fl-force-dark-theme .icon-text-list {
+.fl-split-page-upper .fl-icon-text-list,
+.fl-force-dark-theme .fl-icon-text-list {
     --fl-theme-color-icon-wrap: var(--token-color-medium-purple);
 }

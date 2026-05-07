@@ -86,28 +86,28 @@
         max-inline-size: var(--token-width-desktop-content-lg);
     }
 
-    .fl-landing-get .fl-do-it-all .icon-text-list {
+    .fl-landing-get .fl-do-it-all .fl-icon-text-list {
         --fl-card-grid-columns: repeat(1, minmax(0, 1fr));
         display: grid;
         grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
     }
 
-    .fl-landing-get .fl-do-it-all .icon-text-list li {
+    .fl-landing-get .fl-do-it-all .fl-icon-text-list li {
         flex-direction: column;
         margin-block-end: 0;
     }
 
-    .fl-landing-get .fl-do-it-all .icon-text-list > li {
+    .fl-landing-get .fl-do-it-all .fl-icon-text-list > li {
         align-items: flex-start;
     }
 
-    .fl-landing-get .fl-do-it-all .icon-text-list li ul {
+    .fl-landing-get .fl-do-it-all .fl-icon-text-list li ul {
         list-style: square;
         list-style-position: inside;
         margin-block-end: 0;
     }
 
-    .fl-landing-get .fl-do-it-all .icon-text-list li ul > li {
+    .fl-landing-get .fl-do-it-all .fl-icon-text-list li ul > li {
         display: list-item;
     }
 
@@ -133,7 +133,7 @@
         max-inline-size: var(--token-width-desktop-content-lg);
     }
 
-    .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
+    .fl-landing-get .fl-make-firefox-your-own .fl-icon-text-list {
         display: flex;
         flex-direction: column;
     }
@@ -192,11 +192,11 @@
     }
 
     @media (--viewport-sm-up) {
-        .fl-landing-get .fl-do-it-all .icon-text-list {
+        .fl-landing-get .fl-do-it-all .fl-icon-text-list {
             --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .fl-landing-get .fl-make-firefox-your-own .icon-text-list {
+        .fl-landing-get .fl-make-firefox-your-own .fl-icon-text-list {
             flex-direction: row;
         }
 
@@ -216,7 +216,7 @@
             align-items: flex-start;
         }
 
-        .fl-landing-get .fl-do-it-all .icon-text-list {
+        .fl-landing-get .fl-do-it-all .fl-icon-text-list {
             --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         }
 

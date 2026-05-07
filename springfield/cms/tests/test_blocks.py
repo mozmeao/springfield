@@ -3219,7 +3219,7 @@ def test_icon_list_with_image_block(index_page, placeholder_images, rf):
             assert mediacontent, "Icon list with image should render fl-mediacontent"
             assert "is-narrow" in mediacontent.get("class", [])
 
-            icon_list = section_el.find("ul", class_="icon-text-list")
+            icon_list = section_el.find("ul", class_="fl-icon-text-list")
             assert icon_list
 
             list_items = icon_list.find_all("li")
