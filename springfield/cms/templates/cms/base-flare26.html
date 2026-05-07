@@ -102,12 +102,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block sub_navigation %}
     {% endblock %}
 
+    <main class="{% block main_class %}fl26-content{% endblock %}"{% block main_attrs %}{% endblock %}>
     {% block content %}
-    <main class="fl26-content">
       <div class="fl26-content-inner">
         <h1>{{ page.title if page is defined and page.title is defined else 'Firefox' }}</h1>
       </div>
-    </main>
     {% endblock %}
 
     {% block pre_footer %}
@@ -145,6 +144,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endif %}
 
     {% endblock pre_footer %}
+    </main>
 
     {% block flare_footer %}
       <include:flare26-footer />

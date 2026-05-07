@@ -51,11 +51,12 @@
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}fl-main has-gradient-bottom{% endblock %}
+
 {% block content %}
 {% if switch("flare26_enabled") %}
 {# this will use freeform2026 template once it heads to the CMS. #}
 <div class="fl-page fl-freeform-2026-page">
-  <main class="fl-main has-gradient-bottom">
     <div class="fl-split-page-upper has-gradient-bottom">
       <include:mobile-store-qr-code
         block_position="mobile-store-qr"
@@ -328,7 +329,6 @@
         </include:section>
       </div>
     </div>
-  </main>
 </div>
 
 

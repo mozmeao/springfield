@@ -14,9 +14,10 @@
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}fl-main{% endblock %}
+
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
     <div class="fl-split-page-upper">
       {% set ns = namespace(headings=0) %}
       {% set block_level = 1 %}
@@ -48,6 +49,5 @@
         {% include_block block %}
       {% endfor %}
     </div>
-  </main>
 </div>
 {% endblock %}

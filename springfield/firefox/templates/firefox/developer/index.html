@@ -38,6 +38,8 @@
 {% endblock %}
 {% endif %}
 
+{% block main_class %}fl-main fl-page-developer has-gradient-bottom{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "firefox/developer/index-flare26.html" %}

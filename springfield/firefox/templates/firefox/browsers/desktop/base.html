@@ -78,9 +78,11 @@
   {% endwith %}
 {% endblock %}
 
+{% block main_class %}fl-main fl-desktop-download fl-force-light-theme{% endblock %}
+{% block main_attrs %}{% if v %} data-variant="{{ v }}"{% endif %}{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
-    <main class="fl-main fl-desktop-download fl-force-light-theme" {% if v %}data-variant="{{ v }}"{% endif %}>
       <div class="{% if ftl_file_is_active('firefox/download/platform') %}fl-split-page-upper{% endif %}">
         <div class="fl-section">
           <div class="fl-section-container">
@@ -158,7 +160,6 @@
           </div>
         </div>
       {% endif %}
-    </main>
   {% else %}
     <main class="main-download" {% if v %}data-variant="{{ v }}"{% endif %}>
       {% call split(

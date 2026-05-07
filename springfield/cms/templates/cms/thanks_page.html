@@ -21,8 +21,9 @@
 {% endblock %}
 
 
+{% block main_class %}fl-main{% endblock %}
+
 {% block content %}
-  <main class="fl-main">
 
     <div class="fl-show-auto-download-notification {% if is_preview %}conditional-display is-preview{% endif %}">
       {% if is_preview %}
@@ -50,7 +51,6 @@
 
       {% include_block block %}
     {% endfor %}
-  </main>
 {% endblock content %}
 
 {% block pre_footer %}

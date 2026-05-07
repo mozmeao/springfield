@@ -9,68 +9,69 @@
 
 {% block body_class %}fl-article-body {% if not switch("flare26_enabled") %}disable-dark-mode{% endif %}{% endblock %}
 
+{% block main_class %}fl-main{% endblock %}
+
 {% block content %}
 <div class="fl-page fl-article-page">
-  <main class="fl-main">
-    <div class="fl-article-main">
-      <header class="fl-article-header">
-        <include:heading
-            level="h1"
-            heading_text="{{ page.title }}"
-        />
-        {% if switch("flare26_enabled") and page.image %}
-        <div class="article-featured-image">
-          {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
-          <div class="image-variants-display">
+  <div class="fl-article-main">
+    <header class="fl-article-header">
+      <include:heading
+          level="h1"
+          heading_text="{{ page.title }}"
+      />
+      {% if switch("flare26_enabled") and page.image %}
+      <div class="article-featured-image">
+        {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+        <div class="image-variants-display">
+          {{ srcset_image(
+              page.image,
+              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+              width=page.image.width,
+              loading="lazy",
+              class=classes.primary,
+          ) }}
+          {% if page.image_mobile %}
             {{ srcset_image(
-                page.image,
+                page.image_mobile,
                 "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
                 sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                width=page.image.width,
+                width=page.image_mobile.width,
                 loading="lazy",
-                class=classes.primary,
+                class=classes.mobile,
             ) }}
-            {% if page.image_mobile %}
-              {{ srcset_image(
-                  page.image_mobile,
-                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                  sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                  width=page.image_mobile.width,
-                  loading="lazy",
-                  class=classes.mobile,
-              ) }}
-            {% endif %}
-            {% if page.image_dark_mode_mobile %}
-              {{ srcset_image(
-                  page.image_dark_mode_mobile,
-                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                  sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                  width=page.image_dark_mode_mobile.width,
-                  loading="lazy",
-                  class=classes.dark_mode_mobile,
-              ) }}
-            {% endif %}
-            {% if page.image_dark_mode %}
-              {{ srcset_image(
-                  page.image_dark_mode,
-                  "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                  sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
-                  width=page.image_dark_mode.width,
-                  loading="lazy",
-                  class=classes.dark_mode,
-              ) }}
-            {% endif %}
-          </div>
+          {% endif %}
+          {% if page.image_dark_mode_mobile %}
+            {{ srcset_image(
+                page.image_dark_mode_mobile,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                width=page.image_dark_mode_mobile.width,
+                loading="lazy",
+                class=classes.dark_mode_mobile,
+            ) }}
+          {% endif %}
+          {% if page.image_dark_mode %}
+            {{ srcset_image(
+                page.image_dark_mode,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+                width=page.image_dark_mode.width,
+                loading="lazy",
+                class=classes.dark_mode,
+            ) }}
+          {% endif %}
         </div>
-        {% endif %}
-      </header>
+      </div>
+      {% endif %}
+    </header>
 
-      <section class="fl-rich-text">
-        {% for block in page.content %}
-          {% include_block block %}
-        {% endfor %}
-      </section>
-    </div>
+    <section class="fl-rich-text">
+      {% for block in page.content %}
+        {% include_block block %}
+      {% endfor %}
+    </section>
+  </div>
 
 
 
@@ -79,7 +80,6 @@
         {% include_block block %}
       {% endfor %}
     {% endif %}
-  </main>
   {% if not switch("flare26_enabled") %}
     {% set value = get_download_firefox_cta_snippet() %}
     {% if value %}

@@ -40,6 +40,9 @@
   {% set current_step = ftl('firefox-all-choose-browser') %}
 {% endif %}
 
+{% block main_class %}fl-download-all fl-main{% endblock %}
+{% block main_attrs %} id="partial-target"{% if product %} data-current="{{ product.slug }}"{% endif %}{% endblock %}
+
 {% block content %}
   {% include 'firefox/all/includes/main-flare26.html' %}
 {% endblock %}
