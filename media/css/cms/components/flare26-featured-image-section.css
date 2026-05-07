@@ -42,7 +42,11 @@
 
 .fl-featured-image-section-media {
     margin-inline: auto;
-    max-inline-size: var(--token-width-desktop-content-lg);
+    max-inline-size: calc(
+        var(--token-width-desktop-content-lg) +
+            (var(--fl-section-h-padding) * 2)
+    );
+    padding-inline: var(--fl-section-h-padding);
 }
 
 .fl-featured-image-section-media img,
