@@ -95,10 +95,11 @@
 
 {% set feedback_url='https://connect.mozilla.org/' %}
 {% set bugzilla_url='https://bugzilla.mozilla.org/enter_bug.cgi' %}
+{% block main_class %}fl-main has-gradient-bottom{% endblock %}
+
 {% block content %}
 
 <div class="{% if switch('flare26_enabled') %}fl-page{% endif %}">
-  <main class="{% if switch('flare26_enabled') %}fl-main has-gradient-bottom{% endif %}">
     <article id="main-content">
 
       <div class="fl-split-page-upper has-gradient-bottom has-curious-kit">
@@ -687,7 +688,6 @@
         {% endblock %}
       {% endif %}
     </article>
-  </main>
 </div>
 {% endblock %}
 

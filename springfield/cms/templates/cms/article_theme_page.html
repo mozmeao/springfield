@@ -13,10 +13,11 @@
   <include:flare26-header theme="{{ header_theme }}" />
 {% endblock %}
 
+{% block main_class %}fl-main{% if not page.upper_content|length %} has-gradient-bottom{% endif %}{% endblock %}
+
 {% block content %}
 <div class="fl-page fl-features-theme-page">
   {% if page.upper_content|length %}
-    <main class="fl-main">
       {% set ns = namespace(headings=0) %}
       {% set block_level = 1 %}
 
@@ -50,9 +51,7 @@
           {% include_block block %}
         {% endfor %}
       </div>
-    </main>
   {% else %}
-    <main class="fl-main has-gradient-bottom">
       {% set ns = namespace(headings=0) %}
       {% for block in page.content %}
         {% set block_index = loop.index %}
@@ -66,7 +65,6 @@
 
         {% include_block block %}
       {% endfor %}
-    </main>
   {% endif %}
 </div>
 {% endblock %}

@@ -30,6 +30,8 @@
   {% endwith %}
 {% endblock %}
 
+{% block main_class %}fl-main fl-page-cookie-settings has-gradient-bottom{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "privacy/cookie-settings-flare26.html" %}
