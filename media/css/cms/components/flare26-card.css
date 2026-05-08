@@ -46,7 +46,8 @@ Card Grid - Flare 2026 Design System Cards
     max-inline-size: var(--token-width-desktop-wide-banner); /* 1170px */
 }
 
-.fl-card-grid.container-fill {
+.fl-card-grid.container-fill,
+.fl-card-grid.container-scroll {
     max-inline-size: none;
 }
 

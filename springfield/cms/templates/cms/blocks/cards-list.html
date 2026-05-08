@@ -5,13 +5,15 @@
 #}
 
 {% set block_level = block_level or 1 %}
-{% set is_scroll = value.settings.scroll if value.settings is defined else False %}
+{% set container_width = value.settings.container_width if value.settings is defined else '' %}
+{% set cards_per_row = value.settings.cards_per_row if value.settings is defined else '' %}
+{% set two_wide_xs = value.settings.two_wide_xs if value.settings is defined else False %}
+{% set is_scroll = container_width == 'scroll' %}
 
 <include:cards-list
   container_width="{{ container_width }}"
   cards_per_row="{{ cards_per_row }}"
-  two_wide_xs="{{ two_wide_xs }}"
-  scroll="{{ is_scroll }}">
+  two_wide_xs="{{ two_wide_xs }}">
   {% for card in value.cards %}
     {% set card_index = loop.index %}
     {% set block_position = block_position ~ ".card-" ~ card_index %}

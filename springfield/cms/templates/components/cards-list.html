@@ -12,9 +12,9 @@
   {% if container_width %} container-{{ container_width }}{% endif %}
   {% if two_wide_xs %} two-col-xs{% endif %}
   {% if cards_per_row %} cols-{{ cards_per_row }}-md{% endif %}
-
   {% if container_width == 'scroll' %} fl-card-grid-scroll{% endif %}"
-     {% if container_width == 'scroll' %}data-js="fl-card-grid-scroll"{% endif %}>
+  {% if container_width == 'scroll' %}data-js="fl-card-grid-scroll"{% endif %}
+>
   {% if container_width == 'scroll' %}<div class="fl-card-grid-scroll-inner">{% endif %}
   {{ contents }}
   {% if container_width == 'scroll' %}</div>{% endif %}
