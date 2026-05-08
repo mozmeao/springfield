@@ -34,6 +34,7 @@ from springfield.cms.blocks import (
     CardsListBlock2026,
     CarouselBlock,
     DownloadSupportBlock,
+    FeaturedImageSectionBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -831,6 +832,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
@@ -891,19 +893,33 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     )
     show_pre_footer = models.BooleanField(
         default=True,
+        verbose_name="Show Pre-Footer",
         help_text="If true, the page will display the default pre-footer section.",
     )
     show_nav_cta = models.BooleanField(
         default=True,
-        help_text="If true, the download button will appear in the navigation bar for this page.",
+        verbose_name="Show Navigation CTA",
+        help_text="If true, the download button will appear in the navigation bar for this page. "
+        "Only applicable if 'Show Navigation' is also enabled.",
+    )
+    show_navigation = models.BooleanField(
+        default=True,
+        verbose_name="Show Navigation",
+        help_text="If true, the navigation menu will be displayed on this page's header bar.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        FieldPanel("show_pre_footer"),
-        FieldPanel("show_nav_cta"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("show_pre_footer"),
+                FieldPanel("show_navigation"),
+                FieldPanel("show_nav_cta"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Page Options",
+        ),
     ]
 
     promote_panels = AbstractSpringfieldCMSPage.promote_panels + [

@@ -25,9 +25,6 @@ def smart_window_page(index_page, placeholder_images) -> SmartWindowPage:
     return get_smart_window_test_page()
 
 
-# Stub Attribution Campaign
-
-
 @pytest.fixture
 def free_form_2026_page(minimal_site) -> FreeFormPage2026:
     root_page = minimal_site.root_page
@@ -35,6 +32,46 @@ def free_form_2026_page(minimal_site) -> FreeFormPage2026:
     root_page.add_child(instance=page)
     page.save_revision().publish()
     return page
+
+
+# FreeFormPage2026 Navigation Options
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("show_navigation", [True, False])
+def test_show_navigation(free_form_2026_page: FreeFormPage2026, rf, show_navigation):
+    page = free_form_2026_page
+    page.show_navigation = show_navigation
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    header = soup.find("header", class_="fl-header")
+    assert header
+
+    assert ("fl-header-no-menu" in header.get("class", [])) == (not show_navigation)
+    assert bool(soup.find("nav", class_="fl-nav")) == show_navigation
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("show_nav_cta", [True, False])
+def test_show_nav_cta(free_form_2026_page: FreeFormPage2026, rf, show_nav_cta):
+    page = free_form_2026_page
+    page.show_nav_cta = show_nav_cta
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    nav_cta_wraps = soup.find_all("div", class_="nav-cta-wrap")
+    assert nav_cta_wraps
+
+    for nav_cta_wrap in nav_cta_wraps:
+        assert ("hide-cta-on-desktop" in nav_cta_wrap.get("class", [])) == (not show_nav_cta)
+
+
+# Stub Attribution Campaign
 
 
 @pytest.mark.django_db
