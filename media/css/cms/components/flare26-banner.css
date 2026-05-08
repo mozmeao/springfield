@@ -320,7 +320,7 @@
 
     .fl-banner-content.fl-banner-content-left .fl-buttons {
         align-items: start;
-        justify-content: left;
+        justify-content: start;
     }
 }
 
