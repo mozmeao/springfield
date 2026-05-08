@@ -2087,6 +2087,18 @@ class TwoColumnCardsSettings(blocks.StructBlock):
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'pricing', 'plans')",
     )
+    theme = blocks.ChoiceBlock(
+        (
+            ("light-dark", "1 - Second card with darker color"),
+            ("light-light", "2 - Both cards with lighter color"),
+        ),
+        default="light-dark",
+        help_text=(
+            "The combinations are:"
+            "- 1: on light mode, the second card will be darker, and on dark mode, the second card will be outlined;"
+            "- 2: both cards with similar colors both on light and dark modes."
+        ),
+    )
 
     class Meta:
         icon = "cog"
