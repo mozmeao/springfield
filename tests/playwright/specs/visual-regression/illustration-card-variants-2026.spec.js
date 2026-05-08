@@ -32,5 +32,33 @@ test.describe(
         test('sticker', async ({ page }) => {
             await expectComponentScreenshot(page, 'illustration-card-sticker');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('default', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'illustration-card-default',
+                    'illustration-card-default-dark'
+                );
+            });
+
+            test('icon', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'illustration-card-icon',
+                    'illustration-card-icon-dark'
+                );
+            });
+
+            test('sticker', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'illustration-card-sticker',
+                    'illustration-card-sticker-dark'
+                );
+            });
+        });
     }
 );

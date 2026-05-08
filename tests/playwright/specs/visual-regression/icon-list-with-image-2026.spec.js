@@ -22,11 +22,19 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'icon-list-with-image-light');
+            await expectComponentScreenshot(page, 'icon-list-with-image');
         });
 
-        test('dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'icon-list-with-image-dark');
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'icon-list-with-image',
+                    'icon-list-with-image-dark'
+                );
+            });
         });
     }
 );

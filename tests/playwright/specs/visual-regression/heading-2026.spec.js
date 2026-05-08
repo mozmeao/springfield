@@ -24,5 +24,17 @@ test.describe(
         test('heading with superheading and subheading', async ({ page }) => {
             await expectComponentScreenshot(page, 'heading-2026');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'heading-2026',
+                    'heading-2026-dark'
+                );
+            });
+        });
     }
 );

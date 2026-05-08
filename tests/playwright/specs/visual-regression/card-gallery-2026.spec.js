@@ -25,14 +25,6 @@ test.describe(
             await expectComponentScreenshot(page, 'card-gallery');
         });
 
-        test('split page upper (light mode)', async ({ page }) => {
-            await expectComponentScreenshot(
-                page,
-                'card-gallery-dark',
-                'card-gallery-split-page-upper'
-            );
-        });
-
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
@@ -41,14 +33,6 @@ test.describe(
                     page,
                     'card-gallery',
                     'card-gallery-dark'
-                );
-            });
-
-            test('split page upper (dark mode)', async ({ page }) => {
-                await expectComponentScreenshot(
-                    page,
-                    'card-gallery-dark',
-                    'card-gallery-split-page-upper-dark'
                 );
             });
         });

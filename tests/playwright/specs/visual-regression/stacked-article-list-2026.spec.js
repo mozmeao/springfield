@@ -24,5 +24,17 @@ test.describe(
         test('stacked article list', async ({ page }) => {
             await expectComponentScreenshot(page, 'stacked-article-list');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'stacked-article-list',
+                    'stacked-article-list-dark'
+                );
+            });
+        });
     }
 );

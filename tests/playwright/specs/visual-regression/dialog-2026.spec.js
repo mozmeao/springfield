@@ -26,5 +26,21 @@ test.describe(
             await page.locator('dialog[open]').waitFor({ state: 'visible' });
             await expectComponentScreenshot(page, 'dialog-sample');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await page.locator('.fl-dialog-trigger').first().click();
+                await page
+                    .locator('dialog[open]')
+                    .waitFor({ state: 'visible' });
+                await expectComponentScreenshot(
+                    page,
+                    'dialog-sample',
+                    'dialog-sample-dark'
+                );
+            });
+        });
     }
 );

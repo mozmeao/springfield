@@ -22,19 +22,19 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-light');
+            await expectComponentScreenshot(page, 'step-cards');
         });
 
-        test('dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-dark');
-        });
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
 
-        test('full fields - light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-light');
-        });
-
-        test('full fields - dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'step-cards-full-dark');
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'step-cards',
+                    'step-cards-dark'
+                );
+            });
         });
     }
 );

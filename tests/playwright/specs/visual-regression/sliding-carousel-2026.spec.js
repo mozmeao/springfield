@@ -24,11 +24,19 @@ test.describe(
         });
 
         test('light', async ({ page }) => {
-            await expectComponentScreenshot(page, 'sliding-carousel-light');
+            await expectComponentScreenshot(page, 'sliding-carousel');
         });
 
-        test('dark', async ({ page }) => {
-            await expectComponentScreenshot(page, 'sliding-carousel-dark');
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'sliding-carousel',
+                    'sliding-carousel-dark'
+                );
+            });
         });
 
         test.describe('mobile', () => {
@@ -37,8 +45,8 @@ test.describe(
             test('light mobile', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'sliding-carousel-light',
-                    'sliding-carousel-light-mobile'
+                    'sliding-carousel',
+                    'sliding-carousel-mobile'
                 );
             });
         });

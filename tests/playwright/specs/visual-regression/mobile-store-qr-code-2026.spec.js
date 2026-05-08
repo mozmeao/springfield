@@ -22,11 +22,19 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'mobile-store-qr-code-light');
+            await expectComponentScreenshot(page, 'mobile-store-qr-code');
         });
 
-        test('dark mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'mobile-store-qr-code-dark');
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'mobile-store-qr-code',
+                    'mobile-store-qr-code-dark'
+                );
+            });
         });
     }
 );

@@ -32,5 +32,33 @@ test.describe(
         test('stacked', async ({ page }) => {
             await expectComponentScreenshot(page, 'button-stacked');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('round corners', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'button-round-corners',
+                    'button-round-corners-dark'
+                );
+            });
+
+            test('square corners', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'button-square-corners',
+                    'button-square-corners-dark'
+                );
+            });
+
+            test('stacked', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'button-stacked',
+                    'button-stacked-dark'
+                );
+            });
+        });
     }
 );

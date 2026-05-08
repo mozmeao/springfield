@@ -36,5 +36,41 @@ test.describe(
         test('video', async ({ page }) => {
             await expectComponentScreenshot(page, 'intro-video');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('media after', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'intro-media-after',
+                    'intro-media-after-dark'
+                );
+            });
+
+            test('media before', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'intro-media-before',
+                    'intro-media-before-dark'
+                );
+            });
+
+            test('no media', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'intro-no-media',
+                    'intro-no-media-dark'
+                );
+            });
+
+            test('video', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'intro-video',
+                    'intro-video-dark'
+                );
+            });
+        });
     }
 );

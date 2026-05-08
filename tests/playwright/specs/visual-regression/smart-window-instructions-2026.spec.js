@@ -25,5 +25,17 @@ test.describe(
         test('default', async ({ page }) => {
             await expectComponentScreenshot(page, 'smart-window-instructions');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'smart-window-instructions',
+                    'smart-window-instructions-dark'
+                );
+            });
+        });
     }
 );

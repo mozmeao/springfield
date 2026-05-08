@@ -36,5 +36,41 @@ test.describe(
         test('green', async ({ page }) => {
             await expectComponentScreenshot(page, 'tag-green');
         });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('default', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-default',
+                    'tag-default-dark'
+                );
+            });
+
+            test('red', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-red',
+                    'tag-red-dark'
+                );
+            });
+
+            test('orange', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-orange',
+                    'tag-orange-dark'
+                );
+            });
+
+            test('green', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-green',
+                    'tag-green-dark'
+                );
+            });
+        });
     }
 );

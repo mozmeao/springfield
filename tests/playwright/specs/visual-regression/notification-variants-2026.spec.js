@@ -21,36 +21,56 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('dark purple', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-dark-purple');
+        test('purple', async ({ page }) => {
+            await expectComponentScreenshot(page, 'notification-purple');
         });
 
-        test('dark red', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-dark-red');
+        test('red', async ({ page }) => {
+            await expectComponentScreenshot(page, 'notification-red');
         });
 
-        test('dark orange', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-dark-orange');
+        test('orange', async ({ page }) => {
+            await expectComponentScreenshot(page, 'notification-orange');
         });
 
-        test('dark green', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-dark-green');
+        test('green', async ({ page }) => {
+            await expectComponentScreenshot(page, 'notification-green');
         });
 
-        test('light purple', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-light-purple');
-        });
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
 
-        test('light red', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-light-red');
-        });
+            test('purple', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'notification-purple',
+                    'notification-purple-dark'
+                );
+            });
 
-        test('light orange', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-light-orange');
-        });
+            test('red', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'notification-red',
+                    'notification-red-dark'
+                );
+            });
 
-        test('light green', async ({ page }) => {
-            await expectComponentScreenshot(page, 'notification-light-green');
+            test('orange', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'notification-orange',
+                    'notification-orange-dark'
+                );
+            });
+
+            test('green', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'notification-green',
+                    'notification-green-dark'
+                );
+            });
         });
     }
 );

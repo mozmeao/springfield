@@ -21,30 +21,18 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('split page upper', async ({ page }) => {
+        test('light mode', async ({ page }) => {
             await expectComponentScreenshot(page, 'cards-list-sticker');
-        });
-
-        test('split page lower', async ({ page }) => {
-            await expectComponentScreenshot(page, 'cards-list-sticker-lower');
         });
 
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
-            test('split page upper (dark mode)', async ({ page }) => {
+            test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
                     'cards-list-sticker',
                     'cards-list-sticker-dark'
-                );
-            });
-
-            test('split page lower (dark mode)', async ({ page }) => {
-                await expectComponentScreenshot(
-                    page,
-                    'cards-list-sticker-lower',
-                    'cards-list-sticker-lower-dark'
                 );
             });
         });

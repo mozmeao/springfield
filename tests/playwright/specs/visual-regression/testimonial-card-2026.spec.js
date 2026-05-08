@@ -23,11 +23,19 @@ test.describe(
         });
 
         test('light', async ({ page }) => {
-            await expectComponentScreenshot(page, 'testimonial-card-light');
+            await expectComponentScreenshot(page, 'testimonial-card');
         });
 
-        test('dark', async ({ page }) => {
-            await expectComponentScreenshot(page, 'testimonial-card-dark');
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'testimonial-card',
+                    'testimonial-card-dark'
+                );
+            });
         });
 
         test.describe('mobile', () => {
@@ -36,8 +44,8 @@ test.describe(
             test('light mobile', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'testimonial-card-light',
-                    'testimonial-card-light-mobile'
+                    'testimonial-card',
+                    'testimonial-card-mobile'
                 );
             });
         });
