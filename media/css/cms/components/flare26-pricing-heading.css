@@ -1,5 +1,6 @@
 .fl-pricing-heading {
     border-block-end: 2px solid var(--token-color-soft-purple-4);
+    margin-block-end: var(--token-spacing-2xl);
     padding-block-end: var(--token-spacing-2xl);
 }
 
@@ -8,6 +9,5 @@
 }
 
 .fl-pricing-heading .fl-superheading {
-    color: var(--fl-theme-accent-color);
     text-transform: uppercase;
 }
