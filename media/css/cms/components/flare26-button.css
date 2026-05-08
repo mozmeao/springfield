@@ -280,6 +280,13 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     display: inline-flex;
 }
 
+.fl-buttons > .fl-download-firefox-button {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    text-align: center;
+}
+
 .fl-buttons.is-stacked:not(.auto-width-buttons) > * {
     inline-size: 100%;
 }
@@ -324,4 +331,10 @@ Copy-to-Clipboard Button
    conjunction with aria-hidden in the JS */
 .opacity-0 {
     opacity: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-buttons > .fl-download-firefox-button {
+        inline-size: auto;
+    }
 }
