@@ -4,8 +4,11 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props anchor_id="" #}
+{# props theme="", anchor_id="" #}
 
-<div class="fl-two-column-cards" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
+<div
+  class="fl-two-column-cards {% if theme %}fl-two-column-cards-{{ theme }}{% endif %}"
+  {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
+>
   {{ contents }}
 </div>
