@@ -3,11 +3,17 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-Tests for the General WNP redirect behaviour (WT-1038).
+Tests for the channel-aware WNP redirect behaviour.
 
 When a user requests /LOCALE/whatsnew/VERSION/ and there is no version-specific
-CMS WNP but a General WNP (slug='general') exists for the locale (or its CMS
-fallback locale), we 302 to /LOCALE/whatsnew/general/?version=VERSION.
+CMS WNP, we check for a channel-specific CMS WNP and 302 to it:
+  - Nightly (a1 suffix)   → /LOCALE/whatsnew/nightly/?version=VERSION
+  - Developer (a2 suffix) → /LOCALE/whatsnew/developer/?version=VERSION
+  - Beta (beta suffix)    → /LOCALE/whatsnew/beta/?version=VERSION
+  - Release               → /LOCALE/whatsnew/general/?version=VERSION
+
+If no channel-specific CMS WNP exists for the locale (or its CMS fallback
+locale), the static evergreen page is rendered instead.
 """
 
 from django.test import override_settings
@@ -17,7 +23,10 @@ from wagtail.models import Locale, Site
 
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.tests.factories import (
+    BetaWhatsNewPage2026Factory,
+    DeveloperWhatsNewPage2026Factory,
     GeneralWhatsNewPage2026Factory,
+    NightlyWhatsNewPage2026Factory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
 )
@@ -36,6 +45,30 @@ def wnp_index_page(minimal_site):
 def general_wnp(wnp_index_page):
     """A live General WNP (slug='general') under the whatsnew index in en-US."""
     page = GeneralWhatsNewPage2026Factory(parent=wnp_index_page)
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def nightly_wnp(wnp_index_page):
+    """A live Nightly WNP (slug='nightly') under the whatsnew index in en-US."""
+    page = NightlyWhatsNewPage2026Factory(parent=wnp_index_page)
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def developer_wnp(wnp_index_page):
+    """A live Developer WNP (slug='developer') under the whatsnew index in en-US."""
+    page = DeveloperWhatsNewPage2026Factory(parent=wnp_index_page)
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def beta_wnp(wnp_index_page):
+    """A live Beta WNP (slug='beta') under the whatsnew index in en-US."""
+    page = BetaWhatsNewPage2026Factory(parent=wnp_index_page)
     page.save_revision().publish()
     return page
 
@@ -180,3 +213,106 @@ def test_alias_locale_redirects_to_alias_url_when_fallback_has_general_wnp(
     location = response["Location"]
     assert location.startswith("/pt-PT/whatsnew/general/")
     assert "version=151" in location
+
+
+# ---------------------------------------------------------------------------
+# Channel-specific redirects (nightly, developer, beta)
+# ---------------------------------------------------------------------------
+
+
+def test_nightly_redirects_to_nightly_wnp(nightly_wnp, client):
+    """302 to nightly WNP when version ends with a1 and a nightly CMS page exists."""
+    response = client.get("/en-US/whatsnew/152.0a1/")
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/en-US/whatsnew/nightly/")
+    assert "version=152.0a1" in location
+
+
+def test_developer_redirects_to_developer_wnp(developer_wnp, client):
+    """302 to developer WNP when version ends with a2 and a developer CMS page exists."""
+    response = client.get("/en-US/whatsnew/152.0a2/")
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/en-US/whatsnew/developer/")
+    assert "version=152.0a2" in location
+
+
+def test_beta_redirects_to_beta_wnp_with_beta_suffix(beta_wnp, client):
+    """302 to beta WNP when version ends with 'beta' and a beta CMS page exists."""
+    response = client.get("/en-US/whatsnew/152.0beta/")
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/en-US/whatsnew/beta/")
+    assert "version=152.0beta" in location
+
+
+# ---------------------------------------------------------------------------
+# Channel-specific fallback to static evergreen pages
+# ---------------------------------------------------------------------------
+
+
+def test_nightly_falls_back_to_static_when_no_nightly_wnp(wnp_index_page, client):
+    """When no nightly CMS WNP is published, the static nightly evergreen page renders."""
+    response = client.get("/en-US/whatsnew/152.0a1/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+def test_developer_falls_back_to_static_when_no_developer_wnp(wnp_index_page, client):
+    """When no developer CMS WNP is published, the static developer evergreen page renders."""
+    response = client.get("/en-US/whatsnew/152.0a2/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+def test_beta_falls_back_to_static_when_no_beta_wnp(wnp_index_page, client):
+    """When no beta CMS WNP is published, the static release evergreen page renders."""
+    response = client.get("/en-US/whatsnew/152.0beta/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+def test_nightly_does_not_redirect_to_general_wnp(general_wnp, client):
+    """A nightly version does not redirect to the general WNP even if one exists."""
+    response = client.get("/en-US/whatsnew/152.0a1/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+def test_developer_does_not_redirect_to_general_wnp(general_wnp, client):
+    """A developer version does not redirect to the general WNP even if one exists."""
+    response = client.get("/en-US/whatsnew/152.0a2/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+def test_beta_does_not_redirect_to_general_wnp(general_wnp, client):
+    """A beta version does not redirect to the general WNP even if one exists."""
+    response = client.get("/en-US/whatsnew/152.0beta/")
+    assert response.status_code == 200
+    assert "Location" not in response
+
+
+# ---------------------------------------------------------------------------
+# No redirect loop for channel slugs
+# ---------------------------------------------------------------------------
+
+
+def test_nightly_wnp_url_served_directly_without_loop(nightly_wnp, client):
+    """/LOCALE/whatsnew/nightly/ does not match the version URL patterns, so
+    WhatsnewView is never called.  Wagtail's catch-all serves the page as 200."""
+    response = client.get("/en-US/whatsnew/nightly/")
+    assert response.status_code == 200
+
+
+def test_developer_wnp_url_served_directly_without_loop(developer_wnp, client):
+    """/LOCALE/whatsnew/developer/ does not match the version URL patterns."""
+    response = client.get("/en-US/whatsnew/developer/")
+    assert response.status_code == 200
+
+
+def test_beta_wnp_url_served_directly_without_loop(beta_wnp, client):
+    """/LOCALE/whatsnew/beta/ does not match the version URL patterns."""
+    response = client.get("/en-US/whatsnew/beta/")
+    assert response.status_code == 200
