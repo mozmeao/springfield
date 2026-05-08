@@ -42,10 +42,11 @@ def _heading(heading_text, block_id, superheading_text="", subheading_text=""):
     }
 
 
-def _pricing_heading(heading_text, block_id, subheading_text=""):
+def _pricing_heading(heading_text, block_id, subheading_text="", superheading_text=""):
     return {
         "type": "pricing_heading",
         "value": {
+            "superheading_text": f'<p data-block-key="{block_id}h">{superheading_text}</p>' if superheading_text else "",
             "heading_text": f'<p data-block-key="{block_id}h">{heading_text}</p>',
             "subheading_text": f'<p data-block-key="{block_id}sub">{subheading_text}</p>' if subheading_text else "",
         },
@@ -150,7 +151,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 _card(
                     tag="Free",
                     content_blocks=[
-                        _heading("Basic Plan", "tcc1-h1", subheading_text="Get started for free"),
+                        _heading("Basic Plan", "tcc1-h1", subheading_text="Get started for free", superheading_text="MONTHLY"),
                         _icon_list(
                             items=[
                                 {"icon": "checkmark", "text": "Basic tracker blocking"},
@@ -171,7 +172,7 @@ def get_two_column_cards_variants() -> list[dict]:
                     tag="Plus",
                     stick_image_to_right=True,
                     content_blocks=[
-                        _heading("Premium Plan", "tcc1-h2", subheading_text="Everything in Free, plus more"),
+                        _heading("Premium Plan", "tcc1-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
                         _icon_list(
                             items=[
                                 {"icon": "shield", "text": "Advanced tracker blocking"},
@@ -195,11 +196,7 @@ def get_two_column_cards_variants() -> list[dict]:
             cards=[
                 _card(
                     content_blocks=[
-                        _pricing_heading(
-                            "$4.99/month",
-                            "tcc2-ph1",
-                            subheading_text="Billed monthly",
-                        ),
+                        _pricing_heading("$4.99/month", "tcc2-ph1", subheading_text="Billed monthly", superheading_text="MONTHLY"),
                         _numbered_list(
                             items=[
                                 {"heading": "Download Firefox", "text": "Get the browser that puts privacy first."},
@@ -213,11 +210,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 ),
                 _card(
                     content_blocks=[
-                        _pricing_heading(
-                            "$9.99/month",
-                            "tcc2-ph2",
-                            subheading_text="Billed monthly",
-                        ),
+                        _pricing_heading("$9.99/month", "tcc2-ph2", subheading_text="Billed monthly", superheading_text="MONTHLY"),
                         _timeline(
                             items=[
                                 {
@@ -249,7 +242,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 _card(
                     tag="Free",
                     content_blocks=[
-                        _heading("Free Plan", "tcc3-h1", subheading_text="Get started for free"),
+                        _heading("Free Plan", "tcc3-h1", subheading_text="Get started for free", superheading_text="MONTHLY"),
                         _icon_list(
                             items=[
                                 {"icon": "checkmark", "text": "Basic tracker blocking"},
@@ -270,7 +263,7 @@ def get_two_column_cards_variants() -> list[dict]:
                     tag="Plus",
                     stick_image_to_right=True,
                     content_blocks=[
-                        _heading("Premium Plan", "tcc3-h2", subheading_text="Everything in Free, plus more"),
+                        _heading("Premium Plan", "tcc3-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
                         _icon_list(
                             items=[
                                 {"icon": "shield", "text": "Advanced tracker blocking"},

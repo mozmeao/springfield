@@ -5,6 +5,7 @@ context:
       cards:
         - tag: "Free"
           stick_image_to_right: false
+          superheading_text: "MONTHLY"
           heading_text: "Basic Plan"
           subheading_text: "Get started for free"
           items_list:
@@ -14,6 +15,7 @@ context:
               text: "Sync bookmarks across devices"
         - tag: "Plus"
           stick_image_to_right: true
+          superheading_text: "MONTHLY"
           heading_text: "Premium Plan"
           subheading_text: "Everything in Free, plus more"
           items_list:
@@ -27,6 +29,7 @@ context:
     - title: "With pricing headings, numbered list and timeline"
       cards:
         - heading_text: "$4.99/month"
+          superheading_text: "MONTHLY"
           subheading_text: "Billed monthly"
           numbered_list:
             - heading: "Download Firefox"
@@ -52,6 +55,7 @@ context:
       cards:
         - tag: "Free"
           stick_image_to_right: false
+          superheading_text: "MONTHLY"
           heading_text: "Basic Plan"
           subheading_text: "Get started for free"
           items_list:
@@ -64,6 +68,7 @@ context:
             alt: ""
         - tag: "Plus"
           stick_image_to_right: true
+          superheading_text: "MONTHLY"
           heading_text: "Premium Plan"
           subheading_text: "Everything in Free, plus more"
           items_list:
