@@ -905,6 +905,12 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         verbose_name="Show Navigation",
         help_text="If true, the navigation menu will be displayed on this page's header bar.",
     )
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text="Additional CSS classes to add to the body tag for this page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -915,6 +921,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 FieldPanel("show_navigation"),
                 FieldPanel("show_nav_cta"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
+                FieldPanel("body_class"),
             ],
             heading="Page Options",
         ),

@@ -81,6 +81,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if page is defined and page.enable_marketing_attribution %}
         {{ css_bundle('firefox_marketing_opt_out') }}
       {% endif %}
+      {% if page is defined and page.body_class %}
+        {{ css_bundle(page.body_class) }}
+      {% endif %}
     {% endblock %}
 
     {# site bundle must load in head before analytics #}
@@ -92,7 +95,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
-  <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+  <body
+    {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
+    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
+    {% block body_attrs %}{% endblock %}
+  >
     {{ wagtailuserbar() }}
 
     {% block flare_header %}
