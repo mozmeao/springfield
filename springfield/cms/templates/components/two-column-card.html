@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props tag="", stick_image_to_right=0 #}
+
+<div class="fl-two-column-card {% if stick_image_to_right %}fl-two-column-card-image-right{% endif %}">
+  {% if tag %}
+    <span class="fl-card-tag">
+      <include:tag
+        corners="rounded"
+        color="purple"
+        text="{{ tag }}"
+      />
+    </span>
+  {% endif %}
+  <div class="fl-two-column-card-content">{{ contents }}</div>
+</div>

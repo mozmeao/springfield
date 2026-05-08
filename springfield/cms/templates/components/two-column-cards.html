@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<ul class="fl-icon-text-list">
+{# props anchor_id="" #}
+
+<div class="fl-two-column-cards" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
   {{ contents }}
-</ul>
+</div>

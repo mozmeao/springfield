@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 1 %}
+
+<include:conditional-display
+  platform_conditions="{{ value.settings.show_to.platforms }}"
+  firefox_condition="{{ value.settings.show_to.firefox }}"
+  auth_state_condition="{{ value.settings.show_to.auth_state }}"
+  default_browser_condition="{{ value.settings.show_to.default_browser }}"
+  min_version="{{ value.settings.show_to.min_version }}"
+  max_version="{{ value.settings.show_to.max_version }}"
+>
+  <include:two-column-cards anchor_id="{{ value.settings.anchor_id }}">
+    {% for card in value.cards %}
+      {% set card_index = loop.index %}
+      {% set block_position = block_position ~ ".card-" ~ card_index %}
+      {% include_block card %}
+    {% endfor %}
+  </include:two-column-cards>
+</include:conditional-display>

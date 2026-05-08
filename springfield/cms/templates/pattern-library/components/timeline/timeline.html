@@ -8,9 +8,12 @@
   <include:timeline>
     {% for item in items %}
       <li class="fl-timeline-item">
-        {% if item.superheading %}<p class="fl-superheading">{{ item.superheading }}</p>{% endif %}
-        {% if item.heading %}<p class="fl-timeline-item-heading">{{ item.heading }}</p>{% endif %}
-        {% if item.subheading %}<p class="fl-subheading">{{ item.subheading }}</p>{% endif %}
+        <include:heading
+          level="h2"
+          superheading_text="{{ item.superheading }}"
+          heading_text="{{ item.heading }}"
+          subheading_text="{{ item.subheading }}"
+        />
       </li>
     {% endfor %}
   </include:timeline>

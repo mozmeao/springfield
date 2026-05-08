@@ -54,7 +54,11 @@
     text-transform: uppercase;
 }
 
-.fl-timeline-item-heading {
+.fl-timeline-item .fl-heading-group {
+    margin-block-end: 0;
+}
+
+.fl-timeline-item .fl-heading {
     font-size: var(--fl-theme-font-size-heading-sm);
     font-weight: var(--token-font-weight-bold);
     margin-block-end: 0;

@@ -7,15 +7,7 @@
 <include:timeline>
   {% for item in value.list_items %}
     <li class="fl-timeline-item">
-      {% if item.superheading_text %}
-        <p class="fl-superheading">{{ item.superheading_text|richtext|remove_p_tag }}</p>
-      {% endif %}
-      {% if item.heading_text %}
-        <p class="fl-timeline-item-heading">{{ item.heading_text|richtext|remove_p_tag }}</p>
-      {% endif %}
-      {% if item.subheading_text %}
-        <p class="fl-subheading">{{ item.subheading_text|richtext|remove_p_tag }}</p>
-      {% endif %}
+      {% include_block item %}
     </li>
   {% endfor %}
 </include:timeline>

@@ -2075,6 +2075,97 @@ class RelatedArticlesListBlock(blocks.StructBlock):
         label_format = "Related Articles List"
 
 
+# Two Column Cards
+
+
+class TwoColumnCardsSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'pricing', 'plans')",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class TwoColumnCardSettings(blocks.StructBlock):
+    stick_image_to_right = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Stick Image to Right",
+        inline_form=True,
+        help_text="Place the media on the right side of the card.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Card Settings"
+        label_format = "Stick Image to Right: {stick_image_to_right}"
+        form_classname = "compact-form struct-block"
+
+
+def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardBlock(blocks.StructBlock):
+        settings = TwoColumnCardSettings()
+        tag = blocks.CharBlock(required=False, label="Card Tag")
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("pricing_heading", PricingHeadingBlock()),
+                ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
+                ("icon_list", IconListBlock()),
+                (
+                    "button",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        themes=BUTTON_THEMES_2026,
+                        min_num=0,
+                        max_num=1,
+                        required=False,
+                        label="Button",
+                    ),
+                ),
+                ("media", MediaBlock(max_num=1, min_num=0, required=False)),
+                ("numbered_list", NumberedListBlock()),
+                ("timeline", TimelineBlock()),
+            ],
+            required=False,
+        )
+
+        class Meta:
+            label = "Card"
+            label_format = "Card"
+            template = "cms/blocks/two-column-card.html"
+
+    return _TwoColumnCardBlock(*args, **kwargs)
+
+
+def TwoColumnCardsBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardsBlock(blocks.StructBlock):
+        settings = TwoColumnCardsSettings()
+        cards = blocks.StreamBlock(
+            [("card", TwoColumnCardBlock(allow_uitour=allow_uitour))],
+            min_num=2,
+            max_num=2,
+        )
+
+        class Meta:
+            template = "cms/blocks/two-column-cards.html"
+            label = "Two Column Cards"
+            label_format = "Two Column Cards"
+
+    return _TwoColumnCardsBlock(*args, **kwargs)
+
+
 # Section blocks
 
 
@@ -2353,6 +2444,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )

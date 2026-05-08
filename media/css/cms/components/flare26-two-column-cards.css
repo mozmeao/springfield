@@ -1,0 +1,52 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-two-column-cards {
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
+@media (min-width: 768px) {
+    .fl-two-column-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.fl-two-column-card {
+    border-radius: var(--token-border-radius-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    padding: var(--token-layout-md);
+    position: relative;
+}
+
+.fl-two-column-card:first-child {
+    background-color: var(--theme-purple-card-bg-color);
+}
+
+.fl-two-column-card:last-child {
+    background-color: var(--theme-dark-purple-card-bg-color);
+}
+
+.fl-two-column-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+}
+
+.fl-card-tag {
+    --notification-bg: var(--token-color-light-purple);
+    --notification-stacked-color: var(--token-color-white);
+    inset-block-start: calc(var(--token-spacing-md) * -1);
+    inset-inline-start: 50%;
+    position: absolute;
+    text-transform: uppercase;
+    transform: translateX(-50%);
+}

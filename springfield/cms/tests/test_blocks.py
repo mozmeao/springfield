@@ -117,6 +117,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_2026_test_page,
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
+from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -526,6 +527,81 @@ def assert_animation_attributes(animation_element: BeautifulSoup, animation_data
         assert video["poster"] == image_url
         source = video.find("source")
         assert source and source["src"] == video_url
+
+
+def assert_heading_block(element: BeautifulSoup, block_data: dict) -> str:
+    heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text().strip()
+    superheading_text = BeautifulSoup(block_data["value"].get("superheading_text", ""), "html.parser").get_text().strip()
+    subheading_text = BeautifulSoup(block_data["value"].get("subheading_text", ""), "html.parser").get_text().strip()
+
+    heading_el = element.find(class_="fl-heading")
+    assert heading_el and heading_text in heading_el.get_text()
+
+    if superheading_text:
+        superheading_el = element.find("p", class_="fl-superheading")
+        assert superheading_el and superheading_text in superheading_el.get_text()
+
+    if subheading_text:
+        subheading_el = element.find("p", class_="fl-subheading")
+        assert subheading_el and subheading_text in subheading_el.get_text()
+
+    return heading_text
+
+
+def assert_pricing_heading_block(element: BeautifulSoup, block_data: dict):
+    pricing_heading_el = element.find("div", class_="fl-pricing-heading")
+    assert pricing_heading_el
+
+    heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text().strip()
+    assert heading_text in pricing_heading_el.get_text()
+
+    subheading_text = BeautifulSoup(block_data["value"].get("subheading_text", ""), "html.parser").get_text().strip()
+    if subheading_text:
+        subheading_el = pricing_heading_el.find("p", class_="fl-subheading")
+        assert subheading_el and subheading_text in subheading_el.get_text()
+
+
+def assert_icon_list_block(element: BeautifulSoup, block_data: dict):
+    icon_list_el = element.find("ul", class_="fl-icon-text-list")
+    assert icon_list_el
+    list_items_data = block_data["value"]["list_items"]
+    list_item_els = icon_list_el.find_all("li")
+    assert len(list_item_els) == len(list_items_data)
+    for item_el, item_data in zip(list_item_els, list_items_data):
+        item_text = BeautifulSoup(item_data["value"]["text"], "html.parser").get_text()
+        assert item_text in item_el.get_text()
+        icon_name = item_data["value"]["icon"]
+        assert item_el.find("span", class_=f"fl-icon-{icon_name}")
+
+
+def assert_numbered_list_block(element: BeautifulSoup, block_data: dict):
+    numbered_list_el = element.find("ol", class_="fl-numbered-list")
+    assert numbered_list_el
+    items_data = block_data["value"]["list_items"]
+    item_els = numbered_list_el.find_all("li", class_="fl-numbered-list-item")
+    assert len(item_els) == len(items_data)
+    for item_el, item_data in zip(item_els, items_data):
+        heading = BeautifulSoup(item_data["value"]["heading"], "html.parser").get_text()
+        text = BeautifulSoup(item_data["value"]["text"], "html.parser").get_text()
+        assert heading in item_el.find("div", class_="fl-numbered-list-item-heading").get_text()
+        assert text in item_el.find("div", class_="fl-numbered-list-item-text").get_text()
+
+
+def assert_timeline_block(element: BeautifulSoup, block_data: dict):
+    timeline_el = element.find("ol", class_="fl-timeline")
+    assert timeline_el
+    items_data = block_data["value"]["list_items"]
+    item_els = timeline_el.find_all("li", class_="fl-timeline-item")
+    assert len(item_els) == len(items_data)
+    for item_el, item_data in zip(item_els, items_data):
+        assert_heading_block(item_el, item_data)
+
+
+def assert_media_block(element: BeautifulSoup, block_data: dict):
+    first_item = block_data["value"][0]
+    if first_item["type"] == "image":
+        images_el = element.find("div", class_="image-variants-display")
+        assert_image_variants_attributes(images_element=images_el, images_value=first_item["value"])
 
 
 def test_inline_notifications(index_page, rf):
@@ -4005,6 +4081,78 @@ def test_notification_block(index_page, rf):
                 assert message in div.get_text()
             else:
                 assert message in heading_el.get_text()
+
+
+_TWO_COLUMN_CARD_CONTENT_ASSERTERS = {
+    "heading": assert_heading_block,
+    "pricing_heading": assert_pricing_heading_block,
+    "icon_list": assert_icon_list_block,
+    "numbered_list": assert_numbered_list_block,
+    "timeline": assert_timeline_block,
+    "media": assert_media_block,
+}
+
+
+def test_two_column_cards_block(index_page, rf):
+    variants = get_two_column_cards_variants()
+    page = get_two_column_cards_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region_name, region in [("upper", upper), ("lower", lower)]:
+        block_containers = region.find_all("div", class_="fl-two-column-cards")
+        assert len(block_containers) == len(variants)
+
+        for variant_index, (variant_data, container) in enumerate(zip(variants, block_containers)):
+            block_number = variant_index + 1
+            anchor_id = variant_data["value"]["settings"].get("anchor_id", "")
+            if anchor_id:
+                assert container.get("id") == anchor_id
+
+            card_els = container.find_all("div", class_="fl-two-column-card")
+            assert len(card_els) == 2
+
+            for card_index, card_el in enumerate(card_els):
+                card_data = variant_data["value"]["cards"][card_index]["value"]
+                card_number = card_index + 1
+
+                if card_data["settings"]["stick_image_to_right"]:
+                    assert "fl-two-column-card-image-right" in card_el.get("class", [])
+                else:
+                    assert "fl-two-column-card-image-right" not in card_el.get("class", [])
+
+                tag = card_data["tag"]
+                if tag:
+                    tag_el = card_el.find("span", class_="fl-card-tag")
+                    assert tag_el and tag in tag_el.get_text()
+
+                heading_text = ""
+                for content_index, block_data in enumerate(card_data["content"]):
+                    block_type = block_data["type"]
+                    content_position = (
+                        f"{region_name}-block-{block_number}-two_column_cards.card-{card_number}.content-{content_index + 1}-{block_type}"
+                    )
+                    if block_type == "button":
+                        button_data = block_data["value"][0]
+                        cta_text = f"{heading_text} - {button_data['value']['label'].strip()}" if heading_text else None
+                        assert_button_attributes(
+                            button_element=card_el.find("a", class_="fl-button"),
+                            button_data=button_data,
+                            context=context,
+                            cta_position=content_position,
+                            cta_text=cta_text,
+                        )
+                    elif block_type in _TWO_COLUMN_CARD_CONTENT_ASSERTERS:
+                        _TWO_COLUMN_CARD_CONTENT_ASSERTERS[block_type](card_el, block_data)
 
 
 def test_uuid_block_is_not_translatable():
