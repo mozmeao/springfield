@@ -2321,6 +2321,32 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
+    class _FeaturedImageSectionBlock(blocks.StructBlock):
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+            ],
+            required=False,
+        )
+        media = MediaBlock(max_num=1)
+
+        class Meta:
+            template = "cms/blocks/featured-image-section.html"
+            label = "Featured Image Section"
+            label_format = "{heading}"
+
+    return _FeaturedImageSectionBlock(*args, **kwargs)
+
+
 # Topic list
 
 
