@@ -1368,6 +1368,16 @@ class NumberedListBlock(blocks.StructBlock):
         template = "cms/blocks/numbered-list.html"
 
 
+class TimelineBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(HeadingBlock(required=True, all_required=True), min_num=1)
+
+    class Meta:
+        icon = "time"
+        label = "Timeline"
+        label_format = "Timeline"
+        template = "cms/blocks/timeline.html"
+
+
 # Cards
 
 
