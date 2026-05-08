@@ -5,56 +5,27 @@
 #}
 
 {% set colors = ['purple', 'red', 'orange', 'green'] %}
-<div class="fl-force-dark-theme fl-theme-background">
-  {% for color in colors %}
-    {% set color_label = color | capitalize %}
-    {% set dark_label = "Dark – " ~ color_label %}
-    <div data-testid="notification-stacked-dark-{{ color }}">
-      <include:heading level="h4" heading_text="{{ dark_label }}" alignment_class="text-center" />
-      <div class="pl-row" style="display: flex; flex-direction: column; gap: 8px;">
-        {% for notification in notifications %}
-          <div>
-            <include:notification
-              color="{{ color }}"
-              icon="{{ notification.icon }}"
-              closable="{{ notification.closable }}"
-              stacked="true"
-            >
-              <content:heading>
-                {{ notification.heading }}
-              </content:heading>
-              {{ notification.message }}
-            </include:notification>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  {% endfor %}
-</div>
 
-<div class="fl-force-light-theme fl-theme-background">
-  {% for color in colors %}
-    {% set color_label = color | capitalize %}
-    {% set light_label = "Light – " ~ (color | capitalize) %}
-    <div data-testid="notification-stacked-light-{{ color }}">
-      <include:heading level="h4" heading_text="{{ light_label }}" alignment_class="text-center" />
-      <div class="pl-row" style="display: flex; flex-direction: column; gap: 8px;">
-        {% for notification in notifications %}
-          <div>
-            <include:notification
-              color="{{ color }}"
-              icon="{{ notification.icon }}"
-              closable="{{ notification.closable }}"
-              stacked="true"
-            >
-              <content:heading>
-                {{ notification.heading }}
-              </content:heading>
-              {{ notification.message }}
-            </include:notification>
-          </div>
-        {% endfor %}
-      </div>
+{% for color in colors %}
+  {% set color_label = color | capitalize %}
+  <div data-testid="notification-stacked-{{ color }}">
+    <include:heading level="h4" heading_text="{{ color_label }}" alignment_class="text-center" />
+    <div class="pl-row" style="display: flex; flex-direction: column; gap: 8px;">
+      {% for notification in notifications %}
+        <div>
+          <include:notification
+            color="{{ color }}"
+            icon="{{ notification.icon }}"
+            closable="{{ notification.closable }}"
+            stacked="true"
+          >
+            <content:heading>
+              {{ notification.heading }}
+            </content:heading>
+            {{ notification.message }}
+          </include:notification>
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
-</div>
+  </div>
+{% endfor %}

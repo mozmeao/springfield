@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% macro card_list(cards) %}
+<div data-testid="testimonial-card">
   <include:cards-list scroll>
     {% for item in range(3) %}
       {% for card in cards %}
@@ -31,12 +31,4 @@
       {% endfor %}
     {% endfor %}
   </include:cards-list>
-{% endmacro %}
-
-<div data-testid="testimonial-card-dark" class="fl-force-dark-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text);">
-  {{ card_list(cards) }}
-</div>
-
-<div data-testid="testimonial-card-light" class="fl-force-light-theme" style="background: var(--fl-theme-background); color: var(--fl-theme-color-text);">
-  {{ card_list(cards) }}
 </div>
