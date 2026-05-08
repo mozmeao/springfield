@@ -1348,6 +1348,26 @@ class IconListBlock(blocks.StructBlock):
         template = "cms/blocks/icon-list.html"
 
 
+class NumberedListItemBlock(blocks.StructBlock):
+    heading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List Item"
+        label_format = "{heading}"
+
+
+class NumberedListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(NumberedListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List"
+        label_format = "Numbered List"
+        template = "cms/blocks/numbered-list.html"
+
+
 # Cards
 
 

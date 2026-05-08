@@ -1,0 +1,53 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-numbered-list {
+    background-color: var(--theme-numbered-list-background);
+    border: 1px solid var(--theme-numbered-list-border-color);
+    border-radius: var(--token-border-radius-sm);
+    counter-reset: numbered-list;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-numbered-list-item {
+    counter-increment: numbered-list;
+    display: grid;
+    gap: var(--token-spacing-2xs);
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+    padding: var(--token-spacing-lg);
+}
+
+.fl-numbered-list-item + .fl-numbered-list-item {
+    border-block-start: 1px solid var(--theme-numbered-list-border-color);
+}
+
+.fl-numbered-list-item::before {
+    color: var(--theme-numbered-list-counter-color);
+    content: counter(numbered-list, decimal-leading-zero);
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-weight: var(--token-font-weight-bold);
+    grid-column: 1;
+    grid-row: 1 / -1;
+    padding-inline-start: var(--token-spacing-xs);
+}
+
+.fl-numbered-list-item-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-weight: var(--token-font-weight-bold);
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.fl-numbered-list-item-text {
+    grid-column: 2;
+    grid-row: 2;
+}

@@ -211,6 +211,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             rgba(255, 255, 255, 0) 65.89%
         ),
         radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
+
+    /* Numbered list */
+    --theme-numbered-list-background: var(--token-color-soft-purple-40);
+    --theme-numbered-list-border-color: var(--token-color-soft-purple-2);
+    --theme-numbered-list-counter-color: var(--token-color-light-purple);
 }
 
 .fl-split-page-upper,
@@ -357,6 +362,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             rgba(42, 7, 68, 0.95) 55%,
             rgb(34, 4, 66) 80%
         );
+
+    /* Numbered list */
+    --theme-numbered-list-background: transparent;
+    --theme-numbered-list-border-color: var(--token-color-light-purple);
+    --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
 }
 
 .fl-split-page-upper .fl-force-light-theme,
@@ -467,6 +477,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
     --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
     --smart-window-play-icon-fill-color-active: #42414d;
+
+    /* Numbered list */
+    --theme-numbered-list-background: transparent;
+    --theme-numbered-list-border-color: var(--token-color-light-purple);
+    --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -619,6 +634,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
                 rgba(42, 7, 68, 0.95) 55%,
                 rgb(34, 4, 66) 80%
             );
+
+        /* Numbered list */
+        --theme-numbered-list-background: transparent;
+        --theme-numbered-list-border-color: var(--token-color-light-purple);
+        --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
     }
 }
 
