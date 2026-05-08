@@ -16,6 +16,7 @@
   icon_position="{{ value.settings.icon_position }}"
   icon_name="{{ value.settings.icon }}"
   show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox }}"
+  enable_marketing_attribution="{{ 'true' if page is defined and page.enable_marketing_attribution else '' }}"
   show_store_button=true
   exclude_unsupported_content="{{ not value.settings.show_extra_links }}"
 />
