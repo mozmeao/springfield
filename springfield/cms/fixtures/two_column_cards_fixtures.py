@@ -127,13 +127,14 @@ def _card(content_blocks, card_id, tag="", stick_image_to_right=False):
     }
 
 
-def _two_column_cards(cards, block_id, anchor_id=""):
+def _two_column_cards(cards, block_id, anchor_id="", theme="light-dark"):
     return {
         "type": "two_column_cards",
         "value": {
             "settings": {
                 "show_to": _SHOW_TO_ALL,
                 "anchor_id": anchor_id,
+                "theme": theme,
             },
             "cards": cards,
         },
@@ -147,6 +148,7 @@ def get_two_column_cards_variants() -> list[dict]:
     return [
         _two_column_cards(
             anchor_id="plans",
+            theme="light-dark",
             cards=[
                 _card(
                     tag="Free",
@@ -193,6 +195,7 @@ def get_two_column_cards_variants() -> list[dict]:
             block_id="2026tcc1-0000-0000-0000-000000000001",
         ),
         _two_column_cards(
+            theme="light-light",
             cards=[
                 _card(
                     content_blocks=[
