@@ -109,32 +109,83 @@ def get_sticker_card_2026_variants() -> list[dict]:
     ]
 
 
+def _cards_list(cards, settings=None, block_id=""):
+    return {
+        "type": "cards_list",
+        "value": {
+            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+            "cards": cards,
+        },
+        "id": block_id,
+    }
+
+
 def get_sticker_cards_2026_sections() -> list[dict]:
     cards = get_sticker_card_2026_variants()
     return [
         _section(
-            heading_text="Sticker Cards - 3 Columns",
-            subheading_text="Default 3-column grid layout.",
+            heading_text="Sticker Cards - Default",
+            subheading_text="Default layout, auto column count based on number of cards.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards[:3]},
-                    "id": "2026scs1-0000-0000-0000-000000000001",
-                }
+                _cards_list(cards[:3], block_id="2026scs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000001",
         ),
         _section(
-            heading_text="Sticker Cards - 4 Columns",
+            heading_text="Sticker Cards - 4 Cards",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards},
-                    "id": "2026scs1-0000-0000-0000-000000000002",
-                }
+                _cards_list(cards, block_id="2026scs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000002",
+        ),
+        _section(
+            heading_text="Sticker Cards - Narrow container, 2 columns",
+            subheading_text="Narrow container (725px) with 2 columns forced.",
+            content_blocks=[
+                _cards_list(
+                    cards[:2],
+                    settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
+                    block_id="2026scs1-0000-0000-0000-000000000003",
+                ),
+            ],
+            section_id="2026ss01-0000-0000-0000-000000000003",
+        ),
+        _section(
+            heading_text="Sticker Cards - Wide container, 3 columns",
+            subheading_text="Wide container (1170px) with 3 columns forced.",
+            content_blocks=[
+                _cards_list(
+                    cards[:3],
+                    settings={"container_width": "wide", "cards_per_row": "3", "two_wide_xs": False},
+                    block_id="2026scs1-0000-0000-0000-000000000004",
+                ),
+            ],
+            section_id="2026ss01-0000-0000-0000-000000000004",
+        ),
+        _section(
+            heading_text="Sticker Cards - Fill container, 2 wide on mobile",
+            subheading_text="Fill container (no max-width) with 2-wide on mobile.",
+            content_blocks=[
+                _cards_list(
+                    cards[:4],
+                    settings={"container_width": "fill", "cards_per_row": "", "two_wide_xs": True},
+                    block_id="2026scs1-0000-0000-0000-000000000005",
+                ),
+            ],
+            section_id="2026ss01-0000-0000-0000-000000000005",
+        ),
+        _section(
+            heading_text="Sticker Cards - Scroll",
+            subheading_text="Horizontally scrollable card row.",
+            content_blocks=[
+                _cards_list(
+                    cards * 2,
+                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
+                    block_id="2026scs1-0000-0000-0000-000000000006",
+                ),
+            ],
+            section_id="2026ss01-0000-0000-0000-000000000006",
         ),
     ]
 
@@ -223,11 +274,7 @@ def get_illustration_cards_2026_sections() -> list[dict]:
             heading_text="Illustration Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards[:3]},
-                    "id": "2026ics1-0000-0000-0000-000000000001",
-                }
+                _cards_list(cards[:3], block_id="2026ics1-0000-0000-0000-000000000001"),
             ],
             section_id="2026is01-0000-0000-0000-000000000001",
         ),
@@ -235,13 +282,33 @@ def get_illustration_cards_2026_sections() -> list[dict]:
             heading_text="Illustration Cards - All Media Types",
             subheading_text="All illustration card variants including image, video, and animation.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards},
-                    "id": "2026ics1-0000-0000-0000-000000000002",
-                }
+                _cards_list(cards, block_id="2026ics1-0000-0000-0000-000000000002"),
             ],
             section_id="2026is01-0000-0000-0000-000000000002",
+        ),
+        _section(
+            heading_text="Illustration Cards - Narrow Container, 2 Columns",
+            subheading_text="Narrow container (725px) with 2 columns forced.",
+            content_blocks=[
+                _cards_list(
+                    cards[:2],
+                    settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
+                    block_id="2026ics1-0000-0000-0000-000000000003",
+                ),
+            ],
+            section_id="2026is01-0000-0000-0000-000000000003",
+        ),
+        _section(
+            heading_text="Illustration Cards - Scroll",
+            subheading_text="Horizontally scrollable card row.",
+            content_blocks=[
+                _cards_list(
+                    cards * 2,
+                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
+                    block_id="2026ics1-0000-0000-0000-000000000004",
+                ),
+            ],
+            section_id="2026is01-0000-0000-0000-000000000004",
         ),
     ]
 
@@ -431,11 +498,7 @@ def get_outlined_cards_2026_sections() -> list[dict]:
             heading_text="Outlined Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards[:3]},
-                    "id": "2026ocs1-0000-0000-0000-000000000001",
-                }
+                _cards_list(cards[:3], block_id="2026ocs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026os01-0000-0000-0000-000000000001",
         ),
@@ -443,13 +506,33 @@ def get_outlined_cards_2026_sections() -> list[dict]:
             heading_text="Outlined Cards - 4 Columns",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards},
-                    "id": "2026ocs1-0000-0000-0000-000000000002",
-                }
+                _cards_list(cards, block_id="2026ocs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026os01-0000-0000-0000-000000000002",
+        ),
+        _section(
+            heading_text="Outlined Cards - Wide Container, 3 Columns",
+            subheading_text="Wide container (1170px) with 3 columns forced.",
+            content_blocks=[
+                _cards_list(
+                    cards[:3],
+                    settings={"container_width": "wide", "cards_per_row": "3", "two_wide_xs": False},
+                    block_id="2026ocs1-0000-0000-0000-000000000003",
+                ),
+            ],
+            section_id="2026os01-0000-0000-0000-000000000003",
+        ),
+        _section(
+            heading_text="Outlined Cards - Scroll",
+            subheading_text="Horizontally scrollable card row.",
+            content_blocks=[
+                _cards_list(
+                    cards * 2,
+                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
+                    block_id="2026ocs1-0000-0000-0000-000000000004",
+                ),
+            ],
+            section_id="2026os01-0000-0000-0000-000000000004",
         ),
     ]
 
