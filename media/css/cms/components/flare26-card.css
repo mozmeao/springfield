@@ -71,8 +71,8 @@ Card Grid - Flare 2026 Design System Cards
     }
 
     /* when there are three cards, let them fill the space. */
-    .fl-card-grid:has(> *:nth-child(3):last-child),
-    .fl-card-grid.two-col-xs:has(> *:nth-child(3):last-child) {
+    .fl-card-grid:not(.cols-2-md):has(> *:nth-child(3):last-child),
+    .fl-card-grid.two-col-xs:not(.cols-2-md):has(> *:nth-child(3):last-child) {
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
 
