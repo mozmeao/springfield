@@ -7,14 +7,23 @@ import re
 import pytest
 from bs4 import BeautifulSoup
 from draftjs_exporter.dom import DOM
+from wagtail.documents import get_document_model
+from wagtail.documents.rich_text import DocumentLinkHandler
+from wagtail.documents.rich_text.contentstate import (
+    DocumentLinkElementHandler,
+    document_link_entity,
+)
 from wagtail.models import Page
 
 from springfield.cms.rich_text import inject_link_uids
 from springfield.cms.wagtail_hooks import (
     ExternalLinkHandler,
+    UIDDocumentLinkElementHandler,
+    UIDDocumentLinkHandler,
     UIDExternalLinkElementHandler,
     UIDPageLinkElementHandler,
     UIDPageLinkHandler,
+    uid_document_link_entity,
     uid_link_entity,
 )
 
@@ -210,3 +219,97 @@ class TestInjectLinkUIDs:
         html = "<p>No links here.</p>"
         result = inject_link_uids(html)
         assert result is html
+
+
+class TestUIDDocumentLinkHandler:
+    @pytest.mark.django_db
+    def test_with_uid(self):
+        Document = get_document_model()
+        doc = Document.objects.create(title="Test Doc")
+        results = UIDDocumentLinkHandler.expand_db_attributes_many([{"id": str(doc.id), "uid": "doc-uid-123"}])
+        original = DocumentLinkHandler.expand_db_attributes_many([{"id": str(doc.id)}])
+        assert len(results) == 1
+        assert 'data-cta-uid="doc-uid-123"' in results[0]
+        assert results[0] == original[0].replace(">", ' data-cta-uid="doc-uid-123">')
+
+    @pytest.mark.django_db
+    def test_without_uid(self):
+        Document = get_document_model()
+        doc = Document.objects.create(title="Test Doc")
+        attrs_list = [{"id": str(doc.id)}]
+        results = UIDDocumentLinkHandler.expand_db_attributes_many(attrs_list)
+        assert len(results) == 1
+        assert "data-cta-uid" not in results[0]
+        assert results[0] == DocumentLinkHandler.expand_db_attributes_many(attrs_list)[0]
+
+    @pytest.mark.django_db
+    def test_document_not_found(self):
+        results = UIDDocumentLinkHandler.expand_db_attributes_many([{"id": "999999", "uid": "doc-uid"}])
+        assert results == ["<a>"]
+
+    @pytest.mark.django_db
+    def test_multiple_attrs(self):
+        Document = get_document_model()
+        doc = Document.objects.create(title="Test Doc")
+        results = UIDDocumentLinkHandler.expand_db_attributes_many(
+            [
+                {"id": str(doc.id), "uid": "uid-1"},
+                {"id": "999999"},
+            ]
+        )
+        assert len(results) == 2
+        assert 'data-cta-uid="uid-1"' in results[0]
+        assert results[1] == "<a>"
+
+
+class TestUIDDocumentLinkElementHandler:
+    @pytest.mark.django_db
+    def test_uid_preserved(self):
+        Document = get_document_model()
+        doc = Document.objects.create(title="Test Doc")
+        attrs = {"id": str(doc.id), "uid": "doc-uid-456"}
+        data = UIDDocumentLinkElementHandler("DOCUMENT").get_attribute_data(attrs)
+        original_data = DocumentLinkElementHandler("DOCUMENT").get_attribute_data({"id": str(doc.id)})
+        assert data["id"] == doc.id
+        assert data["uid"] == "doc-uid-456"
+        assert {k: v for k, v in data.items() if k != "uid"} == original_data
+
+    @pytest.mark.django_db
+    def test_uid_absent_when_not_in_attrs(self):
+        Document = get_document_model()
+        doc = Document.objects.create(title="Test Doc")
+        attrs = {"id": str(doc.id)}
+        data = UIDDocumentLinkElementHandler("DOCUMENT").get_attribute_data(attrs)
+        assert data["id"] == doc.id
+        assert "uid" not in data
+        assert data == DocumentLinkElementHandler("DOCUMENT").get_attribute_data(attrs)
+
+    @pytest.mark.django_db
+    def test_broken_link_returns_id_and_no_uid(self):
+        handler = UIDDocumentLinkElementHandler("DOCUMENT")
+        data = handler.get_attribute_data({"id": "999999"})
+        assert data["id"] == 999999
+        assert "uid" not in data
+
+
+class TestUIDDocumentLinkEntity:
+    def test_with_uid(self):
+        element = uid_document_link_entity({"id": 7, "uid": "doc-uid", "children": None})
+        original = document_link_entity({"id": 7, "children": None})
+        assert element.type == "a"
+        assert element.attr["linktype"] == "document"
+        assert element.attr["id"] == "7"
+        assert element.attr["uid"] == "doc-uid"
+        assert {k: v for k, v in element.attr.items() if k != "uid"} == original.attr
+
+    def test_without_uid_generates_uuid(self):
+        element = uid_document_link_entity({"id": 7, "children": None})
+        original = document_link_entity({"id": 7, "children": None})
+        assert element.attr["linktype"] == "document"
+        assert _UUID_RE.match(element.attr["uid"])
+        assert {k: v for k, v in element.attr.items() if k != "uid"} == original.attr
+
+    def test_uid_is_unique_when_generated(self):
+        element1 = uid_document_link_entity({"id": 7, "children": None})
+        element2 = uid_document_link_entity({"id": 7, "children": None})
+        assert element1.attr["uid"] != element2.attr["uid"]

@@ -20,6 +20,8 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
     PageLinkElementHandler,
 )
+from wagtail.documents.rich_text import DocumentLinkHandler
+from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.models import Locale as WagtailLocale
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -333,6 +335,39 @@ class UIDPageLinkElementHandler(PageLinkElementHandler):
         return data
 
 
+class UIDDocumentLinkHandler(DocumentLinkHandler):
+    """
+    Extend the default DocumentLinkHandler to add support for a uid attribute on document links.
+    <a id="{DOC_ID}" linktype="document" uid="{UID}"> -> <a href="{DOC_URL}" data-cta-uid="{UID}">
+    """
+
+    @classmethod
+    def expand_db_attributes_many(cls, attrs_list):
+        docs = cls.get_many(attrs_list)
+        result = []
+        for attrs, doc in zip(attrs_list, docs):
+            uid = attrs.get("uid", "")
+            uid_attr = f' data-cta-uid="{escape(uid)}"' if uid else ""
+            if doc:
+                result.append(f'<a href="{escape(doc.url)}"{uid_attr}>')
+            else:
+                result.append("<a>")
+        return result
+
+
+class UIDDocumentLinkElementHandler(DocumentLinkElementHandler):
+    """
+    Extend the default DocumentLinkElementHandler to preserve the uid attribute when
+    converting from DB HTML to Draft.js
+    """
+
+    def get_attribute_data(self, attrs):
+        data = super().get_attribute_data(attrs)
+        if uid := attrs.get("uid"):
+            data["uid"] = uid
+        return data
+
+
 def uid_link_entity(props):
     """
     Draft.js → DB HTML: restore uid attribute or generate one if missing.
@@ -349,20 +384,36 @@ def uid_link_entity(props):
     return DOM.create_element("a", link_props, props["children"])
 
 
+def uid_document_link_entity(props):
+    """
+    Draft.js → DB HTML: restore uid attribute on document links or generate one if missing.
+    """
+    return DOM.create_element(
+        "a",
+        {
+            "linktype": "document",
+            "id": props.get("id"),
+            "uid": props.get("uid") or str(uuid4()),
+        },
+        props["children"],
+    )
+
+
 @hooks.register("register_rich_text_features")
 def register_uid_link_handlers(features):
     """
     Ensure every rich text link carries a stable uid attribute.
 
-    Two things are registered:
+    Two things are registered per link type:
     - Link type handlers that emit data-cta-uid in rendered HTML.
-    - A replacement for Wagtail's built-in "link" contentstate converter so
-      that uid survives the DB → Draftail editor → DB round-trip; new links
-      get a fresh UUID on first save.
+    - Replacements for Wagtail's built-in contentstate converters so that uid
+      survives the DB → Draftail editor → DB round-trip; new links get a fresh
+      UUID on first save.
     """
     # Render-time: add data-cta-uid to <a> tags in the output HTML.
     features.register_link_type(ExternalLinkHandler)
     features.register_link_type(UIDPageLinkHandler)
+    features.register_link_type(UIDDocumentLinkHandler)
 
     # Editor round-trip: override the "link" contentstate converter so that
     # uid survives the DB → Draft.js → DB cycle. Our hook runs after
@@ -377,5 +428,17 @@ def register_uid_link_handlers(features):
                 'a[linktype="page"]': UIDPageLinkElementHandler("LINK"),
             },
             "to_database_format": {"entity_decorators": {"LINK": uid_link_entity}},
+        },
+    )
+
+    # Override the "document-link" contentstate converter for the same reason.
+    features.register_converter_rule(
+        "contentstate",
+        "document-link",
+        {
+            "from_database_format": {
+                'a[linktype="document"]': UIDDocumentLinkElementHandler("DOCUMENT"),
+            },
+            "to_database_format": {"entity_decorators": {"DOCUMENT": uid_document_link_entity}},
         },
     )
