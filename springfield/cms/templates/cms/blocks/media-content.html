@@ -32,12 +32,7 @@
       {# In case a block with a heading is included, increment the block level #}
       {# Add 1 because this block already has a heading #}
       {% with block_level = block_level + 1 if block_level else 3 %}
-        {% if block.block_type == "rich_text" %}
-          {# Make sure to use our custom richtext filter to add UTM parameters and other attributes #}
-          {{ block.value|richtext }}
-        {% else %}
-          {% include_block block %}
-        {% endif %}
+        {% include_block block %}
       {% endwith %}
     {% endfor %}
   </content:body>

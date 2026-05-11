@@ -26,6 +26,9 @@ class RichTextBlock(WagtailRichTextBlock):
     def get_prep_value(self, value):
         return inject_link_uids(super().get_prep_value(value))
 
+    def get_template(self, value=None, context=None):
+        return "cms/blocks/rich_text_block.html"
+
 
 class RichTextField(WagtailRichTextField):
     def pre_save(self, model_instance, add):
