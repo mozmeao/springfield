@@ -282,7 +282,9 @@ class ExternalLinkHandler(LinkHandler):
         href = escape(attrs.get("href", ""))
         uid = attrs.get("uid", "")
         uid_attr = f' data-cta-uid="{escape(uid)}"' if uid else ""
-        return f'<a href="{href}"{uid_attr}>'
+        if href and check_url(href):
+            return f'<a href="{href}"{uid_attr}>'
+        return f"<a{uid_attr}>"
 
 
 class UIDPageLinkHandler(PageLinkHandler):
