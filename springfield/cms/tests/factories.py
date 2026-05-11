@@ -79,6 +79,36 @@ class GeneralWhatsNewPage2026Factory(wagtail_factories.PageFactory):
         model = models.WhatsNewPage2026
 
 
+class NightlyWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Nightly"
+    live = True
+    slug = "nightly"
+    version = "nightly"
+
+    class Meta:
+        model = models.WhatsNewPage2026
+
+
+class DeveloperWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Developer Edition"
+    live = True
+    slug = "developer"
+    version = "developer"
+
+    class Meta:
+        model = models.WhatsNewPage2026
+
+
+class BetaWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Beta"
+    live = True
+    slug = "beta"
+    version = "beta"
+
+    class Meta:
+        model = models.WhatsNewPage2026
+
+
 class FreeFormPageFactory(wagtail_factories.PageFactory):
     title = "Test FreeFormPage"
     live = True
