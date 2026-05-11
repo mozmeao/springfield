@@ -1423,6 +1423,7 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "code",
     "blockquote",
     "link",
+    "document-link",
     "ol",
     "ul",
     "image",

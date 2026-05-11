@@ -36,6 +36,7 @@ HEADING_TEXT_FEATURES = [
     "bold",
     "italic",
     "link",
+    "document-link",
     "superscript",
     "subscript",
     "strikethrough",
