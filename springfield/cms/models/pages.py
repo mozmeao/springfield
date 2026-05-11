@@ -909,7 +909,10 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         max_length=255,
         blank=True,
         verbose_name="Body Class",
-        help_text="Additional CSS classes to add to the body tag for this page.",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
