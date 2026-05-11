@@ -26,10 +26,6 @@
         padding-block-start: 0;
     }
 
-    .fl-home-body .fl-card-grid {
-        --fl-card-grid-gap: var(--token-spacing-lg);
-    }
-
     .fl-home-body .fl-section:has(.fl-card-gallery) {
         padding-block-end: 0;
     }
@@ -43,16 +39,6 @@
     @media (--viewport-md-up) {
         .fl-home-body {
             --section-border-radius: var(--token-border-radius-xl);
-        }
-
-        .fl-home-body .fl-card-grid {
-            --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (--viewport-lg-up) {
-        .fl-home-body .fl-card-grid {
-            --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
         }
     }
 }
