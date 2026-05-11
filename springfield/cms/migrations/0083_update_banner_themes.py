@@ -111,7 +111,7 @@ def convert_revisions(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0081_freeformpage2026_show_navigation_and_more"),
+        ("cms", "0082_update_cards_list_settings"),
     ]
 
     operations = [
