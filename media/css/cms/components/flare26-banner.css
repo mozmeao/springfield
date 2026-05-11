@@ -45,7 +45,7 @@
     display: block;
     inline-size: 100%;
     line-height: 0.9;
-    margin-block-end: var(--token-spacing-2xl);
+    margin-block-end: var(--token-spacing-xl);
     text-wrap: balance;
 }
 
