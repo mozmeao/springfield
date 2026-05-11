@@ -88,8 +88,6 @@
     }
 
     .fl-2026-enterprise .fl-card-grid {
-        margin: auto;
-        max-inline-size: var(--token-width-desktop-wide-banner);
         padding: 0 var(--fl-section-h-padding);
     }
 
