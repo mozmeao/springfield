@@ -355,12 +355,12 @@ def register_uid_link_handlers(features):
     Ensure every rich text link carries a stable uid attribute.
 
     Two things are registered:
-    - Link type handlers that emit data-uid in rendered HTML.
+    - Link type handlers that emit data-cta-uid in rendered HTML.
     - A replacement for Wagtail's built-in "link" contentstate converter so
       that uid survives the DB → Draftail editor → DB round-trip; new links
       get a fresh UUID on first save.
     """
-    # Render-time: add data-uid to <a> tags in the output HTML.
+    # Render-time: add data-cta-uid to <a> tags in the output HTML.
     features.register_link_type(ExternalLinkHandler)
     features.register_link_type(UIDPageLinkHandler)
 
