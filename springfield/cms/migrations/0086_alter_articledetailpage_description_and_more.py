@@ -11,7 +11,7 @@ import springfield.cms.rich_text
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0083_update_banner_themes"),
+        ("cms", "0085_alter_freeformpage2026_body_class"),
     ]
 
     operations = [
