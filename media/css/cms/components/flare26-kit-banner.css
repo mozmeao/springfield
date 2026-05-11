@@ -132,6 +132,11 @@
     --kit-banner-padding-bottom: 400px;
     --kit-img-position: right calc(50vw - 70px) bottom var(--token-layout-3xs);
     --kit-img-size: 350px auto;
+    padding-block-start: calc(var(--fl-section-v-padding) * 2);
+}
+
+.fl-banner-kit-diving-in .fl-banner-content-inner {
+    max-inline-size: min(600px, 100%);
 }
 
 .fl-banner-kit-with-qr {
