@@ -2433,8 +2433,9 @@ class BannerSettings(blocks.StructBlock):
         (
             ("default", "Default"),
             ("outlined", "Outlined"),
-            ("purple", "Purple"),
-            ("dark-purple", "Dark Purple"),
+            ("purple-radial-gradient", "Purple Radial Gradient"),
+            ("dark-purple-gradient", "Dark Purple Gradient"),
+            ("dark-purple-gradient-inverted", "Dark Purple Gradient Inverted"),
         ),
         default="default",
         inline_form=True,
@@ -2503,6 +2504,11 @@ class KitBannerSettings(blocks.StructBlock):
             ("curious-animation", "With Curious Kit Animation"),
         ),
         default="filled",
+        inline_form=True,
+    )
+    background_theme = blocks.ChoiceBlock(
+        (("purple-radial-gradient", "Purple Radial Gradient"), ("dark-purple-gradient", "Dark Purple Gradient")),
+        default="purple-radial-gradient",
         inline_form=True,
     )
     show_to = ConditionalDisplayBlock(
@@ -2740,7 +2746,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 
         class Meta:
             template = "cms/blocks/sections/home-kit-banner.html"
-            label = "Kit Banner"
+            label = "Home Kit Banner"
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)

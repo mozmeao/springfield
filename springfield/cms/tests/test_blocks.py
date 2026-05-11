@@ -1644,6 +1644,11 @@ def test_kit_banner_block(index_page, rf):
         anchor_id = settings.get("anchor_id")
         if anchor_id:
             assert banner_element.parent.get("id") == anchor_id
+        background_theme = settings.get("background_theme")
+        if background_theme == "dark-purple-gradient":
+            assert "fl-banner-dark-purple-gradient" in banner_element["class"]
+        else:
+            assert "fl-banner-dark-purple-gradient" not in banner_element["class"]
 
         # Heading
         heading_block = banner["value"]["heading"]
@@ -1711,6 +1716,28 @@ def test_kit_banner_curious_animation(index_page, rf):
     play_icon = pause_button.find(class_="js-play-icon")
     assert play_icon is not None
     assert play_icon.get("hidden") is not None
+
+
+def test_kit_banner_dark_purple_gradient_background_theme(index_page, rf):
+    test_page = get_kit_banner_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Banner with dark-purple-gradient background_theme gets the CSS class
+    dark_purple_container = soup.find(id="dark-purple-gradient-filled-banner-without-kit-image")
+    assert dark_purple_container is not None
+    dark_purple_banner = dark_purple_container.find("div", class_="fl-banner-kit")
+    assert "fl-banner-dark-purple-gradient" in dark_purple_banner["class"]
+
+    # Banner without background_theme does not get the dark-purple-gradient CSS class
+    default_container = soup.find(id="filled-banner-without-kit-image")
+    assert default_container is not None
+    default_banner = default_container.find("div", class_="fl-banner-kit")
+    assert "fl-banner-dark-purple-gradient" not in default_banner["class"]
 
 
 def test_topic_list_2026_block(index_page, placeholder_images, rf):
@@ -1810,6 +1837,11 @@ def test_kit_banner_2026_block(index_page, placeholder_images, rf):
             anchor_id = settings.get("anchor_id")
             if anchor_id:
                 assert banner_element.parent.get("id") == anchor_id
+            background_theme = settings.get("background_theme")
+            if background_theme == "dark-purple-gradient":
+                assert "fl-banner-dark-purple-gradient" in banner_element["class"]
+            else:
+                assert "fl-banner-dark-purple-gradient" not in banner_element["class"]
 
             heading_block = banner["value"]["heading"]
             assert_section_heading_attributes(

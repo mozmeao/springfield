@@ -100,7 +100,7 @@ context:
           theme_class: ""
 
     - title: "Purple QR Code Banner"
-      theme: "purple"
+      theme: "purple-radial-gradient"
       media_after: false
       heading:
         level: "h2"
@@ -114,7 +114,7 @@ context:
       qr_code: "https://mozilla.org/firefox/mobile/"
 
     - title: "Purple Simple Banner"
-      theme: "purple"
+      theme: "purple-radial-gradient"
       media_after: false
       heading:
         level: "h2"
@@ -137,7 +137,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Media"
-      theme: "purple"
+      theme: "purple-radial-gradient"
       media_after: false
       heading:
         level: "h2"
@@ -157,7 +157,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Media After"
-      theme: "purple"
+      theme: "purple-radial-gradient"
       media_after: true
       heading:
         level: "h2"
@@ -177,7 +177,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Video"
-      theme: "purple"
+      theme: "purple-radial-gradient"
       media_after: true
       heading:
         level: "h2"
