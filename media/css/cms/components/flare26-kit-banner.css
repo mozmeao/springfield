@@ -6,18 +6,18 @@
 
 .fl-banner-kit {
     --kit-img: none; /* These are added with a utility class below. */
-    --kit-banner-padding-bottom: var(--token-layout-3xs);
+    --kit-banner-padding-bottom: calc(var(--fl-section-v-padding) * 2);
     --kit-img-size: min(90%, 400px) auto;
     --kit-banner-padding-right: var(--token-layout-3xs);
     --kit-img-position: bottom center;
-    background-image: var(--kit-img), var(--token-gradient-purple);
+    --banner-bg-gradient: var(--token-gradient-purple);
+    background-image: var(--kit-img), var(--banner-bg-gradient);
     background-position: var(--kit-img-position), center;
     background-repeat: no-repeat, no-repeat;
     background-size: var(--kit-img-size), cover;
     border: none;
     color: var(--token-color-white);
-    padding-block: calc(var(--fl-section-v-padding) * 2)
-        var(--kit-banner-padding-bottom);
+    padding-block: var(--token-layout-md) var(--kit-banner-padding-bottom);
     padding-inline: var(--token-layout-3xs) var(--kit-banner-padding-right);
     position: relative;
 }
@@ -38,7 +38,7 @@
     display: block;
     inline-size: 100%;
     margin: 0 auto;
-    max-inline-size: min(600px, 100%);
+    max-inline-size: min(800px, 100%);
     overflow-wrap: break-word;
     text-wrap: balance;
     word-break: normal;
@@ -51,8 +51,17 @@
 .fl-banner-kit .fl-subheading,
 .fl-banner-kit .fl-body {
     margin: 0 auto;
-    max-inline-size: 500px;
+    max-inline-size: min(800px, 100%);
     text-wrap: balance;
+}
+
+.fl-banner-kit-large .fl-heading,
+.fl-banner-kit-large .fl-subheading,
+.fl-banner-kit-face .fl-heading,
+.fl-banner-kit-face .fl-subheading,
+.fl-banner-kit-tail .fl-heading,
+.fl-banner-kit-tail .fl-subheading {
+    max-inline-size: min(600px, 100%);
 }
 
 .fl-banner-kit .fl-button {
@@ -68,7 +77,6 @@
     margin: 0;
 }
 
-.fl-banner-kit-small,
 .fl-banner-kit-large,
 .fl-banner-kit-face,
 .fl-banner-kit-curious-animation {
@@ -155,12 +163,14 @@
     fill: transparent;
 }
 
+.fl-banner-kit-small {
+    --kit-banner-padding-bottom: 180px;
+}
+
 @media (--viewport-sm-up) {
     .fl-banner-kit {
         --kit-img-size: min(90%, 400px) max(20%, 120px);
         --kit-banner-padding-right: var(--token-layout-md);
-        --kit-banner-padding-bottom: var(--token-layout-md);
-        padding-block: var(--token-layout-md) var(--kit-banner-padding-bottom);
         padding-inline: var(--token-layout-md) var(--kit-banner-padding-right);
     }
 
@@ -189,7 +199,6 @@
         margin-inline-start: auto;
     }
 
-    .fl-banner-kit-small,
     .fl-banner-kit-large,
     .fl-banner-kit-tail,
     .fl-banner-kit-curious-animation {
@@ -198,7 +207,8 @@
     }
 
     .fl-banner-kit-small {
-        --kit-img-size: 40% auto;
+        --kit-img-size: 34% auto;
+        --kit-img-position: bottom right;
     }
 
     .fl-banner-kit-large,
@@ -272,17 +282,8 @@
 @media (--viewport-md-up) {
     .fl-banner-kit {
         --kit-banner-padding-right: var(--token-layout-lg);
-        --kit-banner-padding-bottom: var(--token-layout-lg);
-        padding-block: var(--token-layout-lg) var(--kit-banner-padding-bottom);
+        --kit-banner-padding-bottom: var(--token-layout-md);
         padding-inline: var(--token-layout-lg) var(--kit-banner-padding-right);
-    }
-
-    .fl-banner-kit-small,
-    .fl-banner-kit-large,
-    .fl-banner-kit-face,
-    .fl-banner-kit-tail,
-    .fl-banner-kit-curious-animation {
-        --kit-banner-padding-bottom: var(--token-layout-lg);
     }
 
     .fl-banner-kit-face .fl-banner-content {
@@ -309,6 +310,10 @@
     .fl-banner-kit-tail {
         --kit-img-size: auto 380px;
         --kit-img-position: bottom 2px right -290px;
+    }
+
+    .fl-banner-kit-small {
+        --kit-banner-padding-bottom: var(--token-layout-md);
     }
 
     .fl-banner-kit-large .fl-banner-content,
