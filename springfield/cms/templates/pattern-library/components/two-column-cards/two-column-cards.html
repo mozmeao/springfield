@@ -6,12 +6,17 @@
 
 {% for variant in variants %}
   <h3 style="padding: 1rem 1rem 0">{{ variant.title }}</h3>
-  <div style="padding: 1rem">
-    <include:two-column-cards>
+  <div style="padding: 1rem" {% if variant.testid %}data-testid="{{ variant.testid }}"{% endif %}>
+    <include:two-column-cards
+      theme="{{ variant.theme }}"
+      reduce_card_padding="{{ variant.reduce_card_padding }}"
+    >
       {% for card in variant.cards %}
         <include:two-column-card
           tag="{{ card.tag }}"
-          stick_image_to_right="{{ card.stick_image_to_right }}"
+          image_position="{{ card.image_position }}"
+          theme="{{ variant.theme }}"
+          card_index="{{ loop.index }}"
         >
           {% if card.items_list is defined %}
             <include:heading
@@ -69,7 +74,9 @@
             </include:timeline>
           {% endif %}
           {% if card.image is defined %}
-            <img src="{{ card.image.url }}" alt="{{ card.image.alt }}" />
+            <div class="media">
+              <img src="{{ card.image.url }}" alt="{{ card.image.alt }}" />
+            </div>
           {% endif %}
         </include:two-column-card>
       {% endfor %}

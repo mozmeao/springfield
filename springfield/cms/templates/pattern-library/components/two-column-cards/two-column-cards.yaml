@@ -1,10 +1,11 @@
 name: Two Column Cards 2026
 context:
   variants:
-    - title: "With headings and icon list"
+    - title: "Theme: light-dark (default)"
+      testid: "two-column-cards-light-dark"
+      theme: "light-dark"
       cards:
         - tag: "Free"
-          stick_image_to_right: false
           superheading_text: "MONTHLY"
           heading_text: "Basic Plan"
           subheading_text: "Get started for free"
@@ -14,7 +15,6 @@ context:
             - icon: bookmark
               text: "Sync bookmarks across devices"
         - tag: "Plus"
-          stick_image_to_right: true
           superheading_text: "MONTHLY"
           heading_text: "Premium Plan"
           subheading_text: "Everything in Free, plus more"
@@ -26,7 +26,58 @@ context:
             - icon: heart
               text: "Priority customer support"
 
-    - title: "With pricing headings, numbered list and timeline"
+    - title: "Theme: light-light"
+      testid: "two-column-cards-light-light"
+      theme: "light-light"
+      cards:
+        - tag: "Free"
+          superheading_text: "MONTHLY"
+          heading_text: "Basic Plan"
+          subheading_text: "Get started for free"
+          items_list:
+            - icon: shield
+              text: "Basic tracker blocking"
+            - icon: bookmark
+              text: "Sync bookmarks across devices"
+        - tag: "Plus"
+          superheading_text: "MONTHLY"
+          heading_text: "Premium Plan"
+          subheading_text: "Everything in Free, plus more"
+          items_list:
+            - icon: shield
+              text: "Advanced tracker blocking"
+            - icon: bookmark
+              text: "Sync across unlimited devices"
+            - icon: heart
+              text: "Priority customer support"
+
+    - title: "Reduced card padding"
+      theme: "light-dark"
+      reduce_card_padding: true
+      cards:
+        - tag: "Free"
+          superheading_text: "MONTHLY"
+          heading_text: "Basic Plan"
+          subheading_text: "Get started for free"
+          items_list:
+            - icon: shield
+              text: "Basic tracker blocking"
+            - icon: bookmark
+              text: "Sync bookmarks across devices"
+        - tag: "Plus"
+          superheading_text: "MONTHLY"
+          heading_text: "Premium Plan"
+          subheading_text: "Everything in Free, plus more"
+          items_list:
+            - icon: shield
+              text: "Advanced tracker blocking"
+            - icon: bookmark
+              text: "Sync across unlimited devices"
+            - icon: heart
+              text: "Priority customer support"
+
+    - title: "With numbered list and timeline"
+      theme: "light-dark"
       cards:
         - heading_text: "$4.99/month"
           superheading_text: "MONTHLY"
@@ -51,10 +102,13 @@ context:
               heading: "Start browsing"
               subheading: "Enjoy private, secure browsing."
 
-    - title: "With images"
+    - title: "With images (image_position: bottom-right / bottom-left)"
+      testid: "two-column-cards-image-bottom"
+      theme: "light-dark"
+      reduce_card_padding: true
       cards:
         - tag: "Free"
-          stick_image_to_right: false
+          image_position: "bottom-right"
           superheading_text: "MONTHLY"
           heading_text: "Basic Plan"
           subheading_text: "Get started for free"
@@ -67,7 +121,38 @@ context:
             url: /media/img/firefox/flare/placeholder.png
             alt: ""
         - tag: "Plus"
-          stick_image_to_right: true
+          image_position: "bottom-left"
+          superheading_text: "MONTHLY"
+          heading_text: "Premium Plan"
+          subheading_text: "Everything in Free, plus more"
+          items_list:
+            - icon: shield
+              text: "Advanced tracker blocking"
+            - icon: lock
+              text: "VPN protection"
+          image:
+            url: /media/img/firefox/flare/placeholder.png
+            alt: ""
+
+    - title: "With images (image_position: full-top)"
+      testid: "two-column-cards-image-full-top"
+      theme: "light-dark"
+      cards:
+        - tag: "Free"
+          image_position: "full-top"
+          superheading_text: "MONTHLY"
+          heading_text: "Basic Plan"
+          subheading_text: "Get started for free"
+          items_list:
+            - icon: checkmark
+              text: "Basic tracker blocking"
+            - icon: bookmark
+              text: "Sync bookmarks across devices"
+          image:
+            url: /media/img/firefox/flare/placeholder.png
+            alt: ""
+        - tag: "Plus"
+          image_position: "full-top"
           superheading_text: "MONTHLY"
           heading_text: "Premium Plan"
           subheading_text: "Everything in Free, plus more"
