@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/banner/kit_banner_variants.html`;
+const url = `${patternLibraryURL}/stacked-article-list/stacked_article_list.html`;
 
 test.describe(
-    `Kit Banner`,
+    `Stacked Article List`,
     {
         tag: '@visual-regression'
     },
@@ -21,12 +21,20 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('variant 1', async ({ page }) => {
-            await expectComponentScreenshot(page, 'kit-banner-variant-1');
+        test('stacked article list', async ({ page }) => {
+            await expectComponentScreenshot(page, 'stacked-article-list');
         });
 
-        test('variant 2', async ({ page }) => {
-            await expectComponentScreenshot(page, 'kit-banner-variant-2');
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('dark mode', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'stacked-article-list',
+                    'stacked-article-list-dark'
+                );
+            });
         });
     }
 );

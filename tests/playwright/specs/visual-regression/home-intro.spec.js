@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/banner/kit_banner_variants.html`;
+const url = `${patternLibraryURL}/intro/home-intro.html`;
 
 test.describe(
-    `Kit Banner`,
+    `Home Intro`,
     {
         tag: '@visual-regression'
     },
@@ -21,12 +21,8 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('variant 1', async ({ page }) => {
-            await expectComponentScreenshot(page, 'kit-banner-variant-1');
-        });
-
-        test('variant 2', async ({ page }) => {
-            await expectComponentScreenshot(page, 'kit-banner-variant-2');
+        test('base variant', async ({ page }) => {
+            await expectComponentScreenshot(page, 'home-intro');
         });
     }
 );
