@@ -44,7 +44,7 @@
     color: var(--fl-theme-color-text-primary);
 }
 
-.fl-banner-purple {
+.fl-banner-purple-radial-gradient {
     --fl-theme-color-headings-primary: var(--token-neutrals-white);
     --fl-theme-color-text-primary: var(--token-neutrals-white);
     --fl-theme-color-link: var(--token-blue-light-blue);
@@ -56,7 +56,7 @@
     background-repeat: repeat, no-repeat;
 }
 
-.fl-banner-purple .fl-superheading {
+.fl-banner-purple-radial-gradient .fl-superheading {
     color: var(--fl-theme-color-text-primary);
 }
 
@@ -160,33 +160,33 @@
     width: 100%;
 }
 
-.fl-banner-purple .fl-button:not([class*="button-"]) {
+.fl-banner-purple-radial-gradient .fl-button:not([class*="button-"]) {
     color: var(--token-neutrals-white);
     border-color: var(--token-neutrals-white);
 }
 
-.fl-banner-purple .fl-button:not([class*="button-"]):hover,
-.fl-banner-purple .fl-button:not([class*="button-"]):focus,
-.fl-banner-purple .fl-button:not([class*="button-"]):active {
+.fl-banner-purple-radial-gradient .fl-button:not([class*="button-"]):hover,
+.fl-banner-purple-radial-gradient .fl-button:not([class*="button-"]):focus,
+.fl-banner-purple-radial-gradient .fl-button:not([class*="button-"]):active {
     color: var(--token-purple-dark-purple);
     background-color: var(--token-neutrals-ash);
     border-color: var(--token-neutrals-charcoal);
 }
 
-.fl-banner-purple .fl-button.button-ghost {
+.fl-banner-purple-radial-gradient .fl-button.button-ghost {
     color: var(--token-neutrals-white);
 }
 
-.fl-banner-purple .fl-button.button-ghost:hover,
-.fl-banner-purple .fl-button.button-ghost:focus,
-.fl-banner-purple .fl-button.button-ghost:active {
+.fl-banner-purple-radial-gradient .fl-button.button-ghost:hover,
+.fl-banner-purple-radial-gradient .fl-button.button-ghost:focus,
+.fl-banner-purple-radial-gradient .fl-button.button-ghost:active {
     background: var(--token-neutrals-white);
     color: var(--token-purple-dark-purple);
 }
 
-.fl-banner-purple .fl-button.button-secondary:hover,
-.fl-banner-purple .fl-button.button-secondary:focus,
-.fl-banner-purple .fl-button.button-secondary:active {
+.fl-banner-purple-radial-gradient .fl-button.button-secondary:hover,
+.fl-banner-purple-radial-gradient .fl-button.button-secondary:focus,
+.fl-banner-purple-radial-gradient .fl-button.button-secondary:active {
     background: var(--token-blue-medium-blue);
     color: var(--token-neutrals-white);
 }

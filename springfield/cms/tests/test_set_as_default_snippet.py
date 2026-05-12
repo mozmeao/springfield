@@ -120,6 +120,8 @@ def test_updated_snippet_content_is_reflected_on_page(minimal_site, rf):
     snippet.save()
     snippet.save_revision().publish()
 
+    page.refresh_from_db()
+
     request = rf.get(page.get_full_url())
     response = page.serve(request)
     assert response.status_code == 200

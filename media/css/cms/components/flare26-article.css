@@ -182,12 +182,6 @@ Related articles
     text-transform: uppercase;
 }
 
-@media (--viewport-xs) {
-    .fl-related-articles .fl-card-grid:has(.fl-illustration-card-default) {
-        --fl-card-grid-columns: minmax(0, 1fr);
-    }
-}
-
 @media (--viewport-md-up) {
     .fl-stacked-article-list .fl-article-item {
         grid-template-columns: repeat(2, minmax(0, 1fr));

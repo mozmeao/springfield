@@ -582,6 +582,18 @@ def HeadingBlock(required=True, all_required=False, **kwargs):
     return _HeadingBlock(**kwargs)
 
 
+class PricingHeadingBlock(blocks.StructBlock):
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        icon = "title"
+        label = "Pricing Heading"
+        label_format = "{heading_text}"
+        template = "cms/blocks/pricing-heading.html"
+
+
 # Buttons
 
 
@@ -1326,6 +1338,46 @@ class IconListWithImageBlock(blocks.StructBlock):
         template = "cms/blocks/icon-list-with-image.html"
 
 
+class IconListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(IconListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List"
+        label_format = "Icon List"
+        template = "cms/blocks/icon-list.html"
+
+
+class NumberedListItemBlock(blocks.StructBlock):
+    heading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List Item"
+        label_format = "{heading}"
+
+
+class NumberedListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(NumberedListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List"
+        label_format = "Numbered List"
+        template = "cms/blocks/numbered-list.html"
+
+
+class TimelineBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(HeadingBlock(required=True, all_required=True), min_num=1)
+
+    class Meta:
+        icon = "time"
+        label = "Timeline"
+        label_format = "Timeline"
+        template = "cms/blocks/timeline.html"
+
+
 # Cards
 
 
@@ -1770,10 +1822,32 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _CardsListSettings(blocks.StructBlock):
-        scroll = blocks.BooleanBlock(
+        container_width = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default (934px)"),
+                ("narrow", "Narrow (725px)"),
+                ("wide", "Wide (1170px)"),
+                ("fill", "Fill (no max width)"),
+                ("scroll", "Scroll"),
+            ],
+            required=False,
+            default="",
+            help_text="Max width of the card grid. Use 'Scroll' for a horizontally scrollable row.",
+        )
+        cards_per_row = blocks.ChoiceBlock(
+            choices=[
+                ("", "Auto (based on number of cards)"),
+                ("2", "2 columns"),
+                ("3", "3 columns"),
+            ],
+            required=False,
+            default="",
+            help_text="Number of columns on desktop (md+). Leave empty to use the default auto layout.",
+        )
+        two_wide_xs = blocks.BooleanBlock(
             required=False,
             default=False,
-            help_text="Display all cards in a single scrolling row",
+            help_text="Display 2 cards wide on mobile",
         )
 
         class Meta:
@@ -2021,6 +2095,160 @@ class RelatedArticlesListBlock(blocks.StructBlock):
         template = "cms/blocks/related-articles-list.html"
         label = "Related Articles List"
         label_format = "Related Articles List"
+
+
+# Two Column Cards
+
+
+class TwoColumnCardsSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'pricing', 'plans')",
+    )
+    theme = blocks.ChoiceBlock(
+        (
+            ("light-dark", "1 - Second card with darker color"),
+            ("light-light", "2 - Both cards with lighter color"),
+        ),
+        default="light-dark",
+        help_text=(
+            "The combinations are:"
+            "- 1: on light mode, the second card will be darker, and on dark mode, the second card will be outlined;"
+            "- 2: both cards with similar colors both on light and dark modes."
+        ),
+    )
+
+    reduce_card_padding = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Reduce Card Padding",
+        help_text="Reduce the padding inside the card and the border radius for a tighter layout.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class TwoColumnCardSettings(blocks.StructBlock):
+    image_position = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("top", "Top"),
+            ("bottom", "Bottom"),
+            ("left", "Left"),
+            ("right", "Right"),
+            ("bottom-right", "Bottom Right"),
+            ("bottom-left", "Bottom Left"),
+            ("top-left", "Top Left"),
+            ("top-right", "Top Right"),
+            ("full-top", "Full Top"),
+            ("full-bottom", "Full Bottom"),
+        ],
+        required=False,
+        label="Image Position",
+        help_text="Change the position to bleed the image to the edges of the card.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Card Settings"
+        label_format = "Image Position: {image_position}"
+        form_classname = "compact-form struct-block"
+
+
+def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardBlock(blocks.StructBlock):
+        settings = TwoColumnCardSettings()
+        tag = blocks.CharBlock(required=False, label="Card Tag")
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("pricing_heading", PricingHeadingBlock()),
+                ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
+                ("icon_list", IconListBlock()),
+                (
+                    "button",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        themes=BUTTON_THEMES_2026,
+                        min_num=0,
+                        max_num=1,
+                        required=False,
+                        label="Button",
+                    ),
+                ),
+                ("media", MediaBlock(max_num=1, min_num=0, required=False)),
+                ("numbered_list", NumberedListBlock()),
+                ("timeline", TimelineBlock()),
+            ],
+            required=False,
+        )
+
+        def clean(self, value):
+            value = super().clean(value)
+            image_position = value["settings"]["image_position"]
+            if not image_position or image_position == "default":
+                return value
+
+            content_blocks = list(value["content"])
+            media_indices = [index for index, block in enumerate(content_blocks) if block.block_type == "media"]
+            if not media_indices:
+                return value
+
+            if "top" in image_position and media_indices[0] != 0:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a top option, the Media block must be the first block in the content."
+                            )
+                        ]
+                    )
+                )
+            elif "bottom" in image_position and media_indices[0] != len(content_blocks) - 1:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a bottom option, the Media block must be the last block in the content."
+                            )
+                        ]
+                    )
+                )
+            return value
+
+        class Meta:
+            label = "Card"
+            label_format = "Card"
+            template = "cms/blocks/two-column-card.html"
+
+    return _TwoColumnCardBlock(*args, **kwargs)
+
+
+def TwoColumnCardsBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardsBlock(blocks.StructBlock):
+        settings = TwoColumnCardsSettings()
+        cards = blocks.StreamBlock(
+            [("card", TwoColumnCardBlock(allow_uitour=allow_uitour))],
+            min_num=2,
+            max_num=2,
+        )
+
+        class Meta:
+            template = "cms/blocks/two-column-cards.html"
+            label = "Two Column Cards"
+            label_format = "Two Column Cards"
+
+    return _TwoColumnCardsBlock(*args, **kwargs)
 
 
 # Section blocks
@@ -2301,6 +2529,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2319,6 +2548,32 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
             label_format = "{heading}"
 
     return _SectionBlock(*args, **kwargs)
+
+
+def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
+    class _FeaturedImageSectionBlock(blocks.StructBlock):
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+            ],
+            required=False,
+        )
+        media = MediaBlock(max_num=1)
+
+        class Meta:
+            template = "cms/blocks/featured-image-section.html"
+            label = "Featured Image Section"
+            label_format = "{heading}"
+
+    return _FeaturedImageSectionBlock(*args, **kwargs)
 
 
 # Topic list
@@ -2385,8 +2640,9 @@ class BannerSettings(blocks.StructBlock):
         (
             ("default", "Default"),
             ("outlined", "Outlined"),
-            ("purple", "Purple"),
-            ("dark-purple", "Dark Purple"),
+            ("purple-radial-gradient", "Purple Radial Gradient"),
+            ("dark-purple-gradient", "Dark Purple Gradient"),
+            ("dark-purple-gradient-inverted", "Dark Purple Gradient Inverted"),
         ),
         default="default",
         inline_form=True,
@@ -2455,6 +2711,11 @@ class KitBannerSettings(blocks.StructBlock):
             ("curious-animation", "With Curious Kit Animation"),
         ),
         default="filled",
+        inline_form=True,
+    )
+    background_theme = blocks.ChoiceBlock(
+        (("purple-radial-gradient", "Purple Radial Gradient"), ("dark-purple-gradient", "Dark Purple Gradient")),
+        default="purple-radial-gradient",
         inline_form=True,
     )
     show_to = ConditionalDisplayBlock(
@@ -2692,7 +2953,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 
         class Meta:
             template = "cms/blocks/sections/home-kit-banner.html"
-            label = "Kit Banner"
+            label = "Home Kit Banner"
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)

@@ -9,10 +9,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 ===================================================================== */
 
 .fl-card-gallery {
-    --gallery-card-padding: var(--token-layout-2xs);
-    --gallery-card-radius: var(--token-border-radius-md);
-    --gallery-callout-card-padding: var(--token-layout-md)
-        var(--token-layout-2xs);
     --gallery-callout-card-max-width: 400px;
     --gallery-main-image-height: 450px;
     display: flex;
@@ -178,12 +174,8 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 @media (--viewport-md-up) {
     .fl-card-gallery {
-        --gallery-card-padding: var(--token-layout-xs);
-        --gallery-card-radius: var(--token-border-radius-lg);
         --gallery-main-image-height: 338px;
         --gallery-secondary-image-height: 225px;
-        --gallery-callout-card-padding: var(--token-layout-xs)
-            var(--token-layout-2xs);
     }
 
     .fl-card-gallery-grid {
@@ -222,10 +214,6 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
 
 @media (--viewport-lg-up) {
     .fl-card-gallery {
-        --gallery-card-padding: var(--token-layout-md);
-        --gallery-card-radius: var(--token-border-radius-xl);
-        --gallery-callout-card-padding: var(--token-layout-md)
-            var(--token-layout-2xs);
         --gallery-main-image-height: 546px;
         --gallery-secondary-image-height: 324px;
         --gallery-callout-card-max-width: 570px;

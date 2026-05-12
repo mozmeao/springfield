@@ -116,6 +116,23 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+
+    /* Two column and gallery cards */
+    --two-column-accent-color: var(--token-color-black-1);
+    --gallery-card-padding: var(--token-layout-2xs);
+    --gallery-card-radius: var(--token-border-radius-md);
+    --gallery-callout-card-padding: var(--token-layout-md)
+        var(--token-layout-2xs);
+
+    /* light-dark theme */
+    --two-column-light-dark-second-card-border-color: transparent;
+    --two-column-light-dark-second-card-bg: var(--token-color-purple);
+
+    /* light-light theme */
+    --two-column-light-light-first-card-bg: var(--token-color-soft-purple-40);
+    --two-column-light-light-second-card-bg: var(--token-color-soft-purple);
+
+    /* Callout */
     --callout-background-gradient: linear-gradient(
         180deg,
         #fff04f 0%,
@@ -212,6 +229,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             rgba(255, 255, 255, 0) 65.89%
         ),
         radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
+
+    /* Numbered list */
+    --theme-numbered-list-background: var(--token-color-soft-purple-40);
+    --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
+    --theme-numbered-list-counter-color: var(--token-color-light-purple);
 }
 
 .fl-split-page-upper,
@@ -257,6 +279,19 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-card-outline-superheading-color-active: var(
         --token-color-soft-purple-3
     );
+
+    /* Two column and gallery cards */
+    --two-column-accent-color: var(--token-color-soft-purple-4);
+
+    /* light-dark theme */
+    --two-column-light-dark-second-card-bg: var(--fl-theme-background);
+    --two-column-light-dark-second-card-border-color: var(
+        --token-color-light-purple
+    );
+
+    /* light-light theme */
+    --two-column-light-light-first-card-bg: var(--token-color-purple);
+    --two-column-light-light-second-card-bg: var(--token-color-medium-purple);
 
     /* homepage card grid styles */
     --theme-purple-card-bg-color: var(--token-color-purple);
@@ -359,6 +394,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             rgba(42, 7, 68, 0.95) 55%,
             rgb(34, 4, 66) 80%
         );
+
+    /* Numbered list */
+    --theme-numbered-list-background: transparent;
+    --theme-numbered-list-border-color: var(--token-color-light-purple);
+    --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
 }
 
 .fl-split-page-upper .fl-force-light-theme,
@@ -401,6 +441,17 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-card-outline-superheading-color-active: var(
         --fl-theme-color-brand-text
     );
+
+    /* Two column cards */
+    --two-column-accent-color: var(--token-color-black-1);
+
+    /* light-dark theme */
+    --two-column-light-dark-second-card-border-color: transparent;
+    --two-column-light-dark-second-card-bg: var(--token-color-purple);
+
+    /* light-light theme */
+    --two-column-light-light-first-card-bg: var(--token-color-soft-purple-40);
+    --two-column-light-light-second-card-bg: var(--token-color-soft-purple);
 
     /* Notifications */
     --windows-icon-color: var(--token-color-light-purple);
@@ -470,6 +521,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-fill-color: var(--token-color-dark-purple);
     --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
     --smart-window-play-icon-fill-color-active: #42414d;
+
+    /* Numbered list */
+    --theme-numbered-list-background: var(--token-color-soft-purple-40);
+    --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
+    --theme-numbered-list-counter-color: var(--token-color-light-purple);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -514,6 +570,21 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         );
         --fl-theme-card-outline-superheading-color-active: var(
             --token-color-soft-purple-3
+        );
+
+        /* Two column cards */
+        --two-column-accent-color: var(--token-color-soft-purple-4);
+
+        /* light-dark theme */
+        --two-column-light-dark-second-card-bg: var(--fl-theme-background);
+        --two-column-light-dark-second-card-border-color: var(
+            --token-color-light-purple
+        );
+
+        /* light-light theme */
+        --two-column-light-light-first-card-bg: var(--token-color-purple);
+        --two-column-light-light-second-card-bg: var(
+            --token-color-medium-purple
         );
 
         /* homepage card grid styles */
@@ -623,12 +694,13 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
                 rgba(42, 7, 68, 0.95) 55%,
                 rgb(34, 4, 66) 80%
             );
+
+        /* Numbered list */
+        --theme-numbered-list-background: transparent;
+        --theme-numbered-list-border-color: var(--token-color-light-purple);
+        --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
     }
 }
-
-/* CSS custom properties are not resolved in media queries; so we
-centralize breakpoints once and flip CSS variables inside.
-components consume the variables (no per-component media queries) */
 
 @media (--viewport-sm-up) {
     :root {
@@ -664,5 +736,18 @@ components consume the variables (no per-component media queries) */
         --fl-section-v-padding: var(--token-layout-lg-half);
         --fl-section-heading-margin-bottom: var(--token-layout-sm);
         --fl-theme-main-border-radius: var(--token-layout-lg);
+        --gallery-card-padding: var(--token-layout-xs);
+        --gallery-card-radius: var(--token-border-radius-lg);
+        --gallery-callout-card-padding: var(--token-layout-xs)
+            var(--token-layout-2xs);
+    }
+}
+
+@media (--viewport-lg-up) {
+    :root {
+        --gallery-card-padding: var(--token-layout-md);
+        --gallery-card-radius: var(--token-border-radius-xl);
+        --gallery-callout-card-padding: var(--token-layout-md)
+            var(--token-layout-2xs);
     }
 }

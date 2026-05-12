@@ -31,18 +31,6 @@
         padding: 0 var(--token-layout-2xs);
     }
 
-    .fl-page-developer .fl-highlights .fl-card-grid,
-    .fl-page-developer .fl-developer-features .fl-card-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* todo: This should be a new card type. Seems like a "video card" */
-    .fl-page-developer .fl-card-grid:has(.fl-illustration-card-default) {
-        gap: var(--token-layout-xs);
-        grid-template-columns: 1fr;
-        max-inline-size: var(--token-width-desktop-content-lg);
-    }
-
     .fl-page-developer .fl-intro .fl-subheading {
         margin-inline: auto;
         max-inline-size: 40ch;
@@ -77,20 +65,8 @@
     }
 
     @media (--viewport-sm-up) {
-        .fl-page-developer .fl-card-grid:has(.fl-illustration-card-default) {
-            gap: var(--token-layout-xs);
-            grid-template-columns: 1fr 1fr;
-            margin-inline: auto;
-            max-inline-size: var(--token-width-desktop-content-lg);
-        }
-
-        .fl-page-developer .fl-highlights .fl-card-grid,
         .fl-page-developer .fl-engage-grid {
             grid-template-columns: 1fr 1fr;
-        }
-
-        .fl-page-developer .fl-developer-features .fl-card-grid {
-            grid-template-columns: repeat(3, 1fr);
         }
     }
 }
