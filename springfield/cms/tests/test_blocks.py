@@ -4238,25 +4238,38 @@ def test_two_column_cards_block(index_page, rf):
 
         for variant_index, (variant_data, container) in enumerate(zip(variants, block_containers)):
             block_number = variant_index + 1
-            anchor_id = variant_data["value"]["settings"].get("anchor_id", "")
+            settings = variant_data["value"]["settings"]
+
+            anchor_id = settings.get("anchor_id", "")
             if anchor_id:
                 assert container.get("id") == anchor_id
 
-            card_els = container.find_all("div", class_="fl-two-column-card")
-            assert len(card_els) == 2
+            theme = settings.get("theme", "")
+            if theme:
+                assert f"fl-two-column-cards-{theme}" in container.get("class", [])
 
-            for card_index, card_el in enumerate(card_els):
+            reduce_card_padding = settings.get("reduce_card_padding", False)
+            if reduce_card_padding:
+                assert "reduce-card-padding" in container.get("class", [])
+                assert "reduce-card-padding" not in container.get("class", [])
+
+            card_wrappers = container.find_all("div", class_="fl-two-column-card-wrapper")
+            assert len(card_wrappers) == 2
+
+            for card_index, card_wrapper in enumerate(card_wrappers):
                 card_data = variant_data["value"]["cards"][card_index]["value"]
                 card_number = card_index + 1
+                card_el = card_wrapper.find("div", class_="fl-two-column-card")
 
-                if card_data["settings"]["stick_image_to_right"]:
-                    assert "fl-two-column-card-image-right" in card_el.get("class", [])
+                image_position = card_data["settings"].get("image_position", "")
+                if image_position:
+                    assert f"image-is-stuck-{image_position}" in card_el.get("class", [])
                 else:
-                    assert "fl-two-column-card-image-right" not in card_el.get("class", [])
+                    assert not any(c.startswith("image-is-stuck-") for c in card_el.get("class", []))
 
                 tag = card_data["tag"]
                 if tag:
-                    tag_el = card_el.find("span", class_="fl-card-tag")
+                    tag_el = card_wrapper.find("span", class_="fl-card-tag")
                     assert tag_el and tag in tag_el.get_text()
 
                 heading_text = ""

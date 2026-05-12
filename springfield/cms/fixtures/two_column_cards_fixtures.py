@@ -115,11 +115,11 @@ def _timeline(items, block_id):
     }
 
 
-def _card(content_blocks, card_id, tag="", stick_image_to_right=False):
+def _card(content_blocks, card_id, tag="", image_position=""):
     return {
         "type": "card",
         "value": {
-            "settings": {"stick_image_to_right": stick_image_to_right},
+            "settings": {"image_position": image_position},
             "tag": tag,
             "content": content_blocks,
         },
@@ -127,7 +127,7 @@ def _card(content_blocks, card_id, tag="", stick_image_to_right=False):
     }
 
 
-def _two_column_cards(cards, block_id, anchor_id="", theme="light-dark"):
+def _two_column_cards(cards, block_id, anchor_id="", theme="light-dark", reduce_card_padding=False):
     return {
         "type": "two_column_cards",
         "value": {
@@ -135,6 +135,7 @@ def _two_column_cards(cards, block_id, anchor_id="", theme="light-dark"):
                 "show_to": _SHOW_TO_ALL,
                 "anchor_id": anchor_id,
                 "theme": theme,
+                "reduce_card_padding": reduce_card_padding,
             },
             "cards": cards,
         },
@@ -172,7 +173,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 ),
                 _card(
                     tag="Plus",
-                    stick_image_to_right=True,
+                    image_position="right",
                     content_blocks=[
                         _heading("Premium Plan", "tcc1-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
                         _icon_list(
@@ -264,7 +265,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 ),
                 _card(
                     tag="Plus",
-                    stick_image_to_right=True,
+                    image_position="bottom-right",
                     content_blocks=[
                         _heading("Premium Plan", "tcc3-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
                         _icon_list(
@@ -285,6 +286,7 @@ def get_two_column_cards_variants() -> list[dict]:
                 ),
             ],
             block_id="2026tcc1-0000-0000-0000-000000000003",
+            reduce_card_padding=True,
         ),
     ]
 
