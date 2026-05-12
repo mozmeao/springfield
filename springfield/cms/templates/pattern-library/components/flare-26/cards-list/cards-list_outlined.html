@@ -7,7 +7,7 @@
 <div data-testid="cards-list-outlined">
   <section class="fl-section">
     <div class="fl-section-container">
-      <include:cards-list>
+      <include:cards-list container_width="wide">
         {% for card in cards %}
           <include:card expand_link="{{ card.expand_link }}">
             <content:heading>

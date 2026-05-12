@@ -7,7 +7,7 @@
 <div class="pl-frame pl-frame--white">
   <h4>Illustration Card Variants</h4>
 
-  <include:cards-list>
+  <include:cards-list container_width="wide">
     {% for card in cards %}
       <div data-testid="{{ card.testid }}">
         <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
