@@ -61,6 +61,7 @@ from springfield.cms.fixtures.subscription_fixtures import get_subscription_test
 from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_cards_2026_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
+from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
     get_whats_new_page_2026_with_floating_qr_snippet,
     get_whats_new_page_2026_with_qr_snippet,
@@ -198,6 +199,9 @@ class Command(BaseCommand):
 
         topic_list_2026_page = get_topic_list_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
+
+        two_column_cards_page = get_two_column_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Two Column Cards 2026 test page loaded: {two_column_cards_page.slug}"))
 
         set_as_default_page = get_freeform_page_2026_with_set_as_default_button()
         self.stdout.write(self.style.SUCCESS(f"Free Form 2026 with Set as Default Button test page loaded: {set_as_default_page.slug}"))
