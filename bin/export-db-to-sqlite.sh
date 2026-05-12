@@ -181,6 +181,7 @@ python manage.py dumpdata \
     cms.PreFooterCTASnippet \
     cms.QRCodeFloatingSnippet \
     cms.Tag \
+    cms.SetAsDefaultSnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

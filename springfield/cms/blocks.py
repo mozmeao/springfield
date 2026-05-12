@@ -406,19 +406,21 @@ PLATFORM_CHOICES = [
     ("other-os", "Other OS"),
     ("unsupported", "Unsupported OS"),
 ]
-
 FIREFOX_CHOICES = [
     ("", "No restriction"),
     ("is-firefox", "Firefox only"),
     ("not-firefox", "Non-Firefox only"),
 ]
-
 AUTH_CHOICES = [
     ("", "No restriction"),
     ("state-fxa-supported-signed-in", "Signed-in only"),
     ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
-
+DEFAULT_BROWSER_CHOICES = [
+    ("", "No restriction"),
+    ("is-default", "Firefox is default browser"),
+    ("is-not-default", "Firefox is not default browser"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -465,6 +467,7 @@ UI_TOUR_CLASSES = {
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+SET_AS_DEFAULT_BUTTON = "set_as_default_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
@@ -543,6 +546,13 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    default_browser = blocks.ChoiceBlock(
+        choices=DEFAULT_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Default Browser",
+        help_text="Filter by default browser state. Leave empty for no restriction.",
+    )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
 
@@ -584,9 +594,10 @@ def get_button_types(allow_uitour=False):
     Returns:
         List of button type strings.
     """
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON]
+    return base_button_types
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -883,6 +894,21 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def SetAsDefaultButtonBlock(themes=None, **kwargs):
+    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text")
+        snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
+
+        class Meta:
+            template = "cms/blocks/set_as_default_button.html"
+            label = "Set As Default Button"
+            label_format = "Set As Default Button"
+            value_class = BaseButtonValue
+
+    return _SetAsDefaultButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=None, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -997,6 +1023,7 @@ def MixedButtonsBlock(
     button_blocks = {
         BUTTON_TYPE: ButtonBlock(themes=themes),
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
+        SET_AS_DEFAULT_BUTTON: SetAsDefaultButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
         STORE_BUTTON_TYPE: StoreButtonBlock(),
@@ -1743,10 +1770,32 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _CardsListSettings(blocks.StructBlock):
-        scroll = blocks.BooleanBlock(
+        container_width = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default (934px)"),
+                ("narrow", "Narrow (725px)"),
+                ("wide", "Wide (1170px)"),
+                ("fill", "Fill (no max width)"),
+                ("scroll", "Scroll"),
+            ],
+            required=False,
+            default="",
+            help_text="Max width of the card grid. Use 'Scroll' for a horizontally scrollable row.",
+        )
+        cards_per_row = blocks.ChoiceBlock(
+            choices=[
+                ("", "Auto (based on number of cards)"),
+                ("2", "2 columns"),
+                ("3", "3 columns"),
+            ],
+            required=False,
+            default="",
+            help_text="Number of columns on desktop (md+). Leave empty to use the default auto layout.",
+        )
+        two_wide_xs = blocks.BooleanBlock(
             required=False,
             default=False,
-            help_text="Display all cards in a single scrolling row",
+            help_text="Display 2 cards wide on mobile",
         )
 
         class Meta:
@@ -2294,6 +2343,32 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
+    class _FeaturedImageSectionBlock(blocks.StructBlock):
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+            ],
+            required=False,
+        )
+        media = MediaBlock(max_num=1)
+
+        class Meta:
+            template = "cms/blocks/featured-image-section.html"
+            label = "Featured Image Section"
+            label_format = "{heading}"
+
+    return _FeaturedImageSectionBlock(*args, **kwargs)
+
+
 # Topic list
 
 
@@ -2358,8 +2433,9 @@ class BannerSettings(blocks.StructBlock):
         (
             ("default", "Default"),
             ("outlined", "Outlined"),
-            ("purple", "Purple"),
-            ("dark-purple", "Dark Purple"),
+            ("purple-radial-gradient", "Purple Radial Gradient"),
+            ("dark-purple-gradient", "Dark Purple Gradient"),
+            ("dark-purple-gradient-inverted", "Dark Purple Gradient Inverted"),
         ),
         default="default",
         inline_form=True,
@@ -2428,6 +2504,11 @@ class KitBannerSettings(blocks.StructBlock):
             ("curious-animation", "With Curious Kit Animation"),
         ),
         default="filled",
+        inline_form=True,
+    )
+    background_theme = blocks.ChoiceBlock(
+        (("purple-radial-gradient", "Purple Radial Gradient"), ("dark-purple-gradient", "Dark Purple Gradient")),
+        default="purple-radial-gradient",
         inline_form=True,
     )
     show_to = ConditionalDisplayBlock(
@@ -2665,7 +2746,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 
         class Meta:
             template = "cms/blocks/sections/home-kit-banner.html"
-            label = "Kit Banner"
+            label = "Home Kit Banner"
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)

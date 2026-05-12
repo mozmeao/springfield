@@ -34,6 +34,7 @@ jobs:
   sync:
     name: "Sync ${{ inputs.source }} → ${{ inputs.target }}"
     runs-on: ubuntu-latest
+    if: github.repository == 'mozmeao/springfield'
     environment: db-sync
     concurrency:
       group: db-sync-${{ inputs.target }}

@@ -10,7 +10,7 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants, get_ct
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.models import FreeFormPage
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_sticker_card_variants() -> list[dict]:

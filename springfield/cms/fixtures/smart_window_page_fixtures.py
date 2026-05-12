@@ -182,7 +182,10 @@ def get_smart_window_illustration_cards() -> dict:
     ]
     return {
         "type": "cards_list",
-        "value": {"cards": animation_cards},
+        "value": {
+            "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+            "cards": animation_cards,
+        },
         "id": "swpic01-0000-0000-0000-000000000001",
     }
 
@@ -281,7 +284,7 @@ def get_smart_window_testimonial_cards() -> dict:
     return {
         "type": "cards_list",
         "value": {
-            "settings": {"scroll": True},
+            "settings": {"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
             "cards": cards,
         },
         "id": "swptc01-0000-0000-0000-000000000001",

@@ -6,7 +6,7 @@ from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_kit_banner_variants():
@@ -28,6 +28,24 @@ def get_kit_banner_variants():
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "12a807da-2838-44b6-8a65-d9243059de02",
+        },
+        {
+            "type": "kit_banner",
+            "value": {
+                "settings": {
+                    "theme": "filled",
+                    "background_theme": "dark-purple-gradient",
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "dark-purple-gradient-filled-banner-without-kit-image",
+                },
+                "heading": {
+                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "heading_text": '<p data-block-key="xgfrq">Dark Purple Gradient - Filled Banner without Kit Image</p>',
+                    "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                },
+                "buttons": [buttons["primary"], buttons["secondary"]],
+            },
+            "id": "a7cc50a9-c4e4-4049-b9e4-c5f38c0644b2",
         },
         {
             "type": "kit_banner",

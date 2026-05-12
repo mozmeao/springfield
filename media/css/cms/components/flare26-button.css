@@ -243,9 +243,14 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-buttons {
+    align-items: start;
     display: flex;
     flex-wrap: wrap;
     gap: var(--token-spacing-md);
+}
+
+.fl-buttons.extra-padding {
+    padding-block: var(--token-spacing-lg);
 }
 
 .fl-buttons.is-horizontal {
@@ -271,8 +276,15 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-inline-end: auto;
 }
 
-.fl-buttons > * {
+.fl-buttons > *:not(.fl-set-as-default-dialog) {
     display: inline-flex;
+}
+
+.fl-buttons > .fl-download-firefox-button {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    text-align: center;
 }
 
 .fl-buttons.is-stacked:not(.auto-width-buttons) > * {
@@ -319,4 +331,10 @@ Copy-to-Clipboard Button
    conjunction with aria-hidden in the JS */
 .opacity-0 {
     opacity: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-buttons > .fl-download-firefox-button {
+        inline-size: auto;
+    }
 }

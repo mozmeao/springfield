@@ -8,7 +8,7 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_banner_variants():
@@ -39,7 +39,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "simple-purple-banner",
@@ -92,7 +92,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-image",
@@ -157,7 +157,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": True,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-image-after",
@@ -214,7 +214,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-qr-code",
@@ -259,7 +259,7 @@ def get_banner_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": True,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-video",
@@ -293,7 +293,7 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": True, "show_to": SHOW_TO_ALL},
+                "settings": {"theme": "purple-radial-gradient", "media_after": True, "show_to": SHOW_TO_ALL},
                 "media": [videos["animation_autoplay_once"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
@@ -356,21 +356,61 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "simple-purple-banner-2026",
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
-                    "heading_text": '<p data-block-key="hhifz">Simple Purple Banner</p>',
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Purple Radial Gradient Banner</p>',
                     "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
                     "If no media is provided, it uses the centered layout.</p>",
                 },
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "buttons": [buttons["tertiary"], buttons["secondary"]],
             },
-            "id": "a1b2c3d4-0001-0001-0001-000000000003",
+            "id": "a166176e-de29-4ee8-99b3-110406f11a40",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "dark-purple-gradient",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "simple-dark-purple-banner-2026",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Banner</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
+                    "If no media is provided, it uses the centered layout.</p>",
+                },
+                "buttons": [buttons["tertiary"], buttons["secondary"]],
+            },
+            "id": "a944ae4e-dfe9-44ab-9d7d-e297ff85a642",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "dark-purple-gradient-inverted",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "simple-dark-purple-inverted-banner-2026",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Inverted Banner</p>',
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
+                    "If no media is provided, it uses the centered layout.</p>",
+                },
+                "buttons": [buttons["tertiary"], buttons["secondary"]],
+            },
+            "id": "a27def29-a3e6-45eb-aed8-5b8283bb4d70",
         },
         {
             "type": "banner",
@@ -442,7 +482,7 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-image-2026",
@@ -539,7 +579,7 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": True,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-image-after-2026",
@@ -621,7 +661,7 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": False,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-qr-code-2026",
@@ -686,7 +726,7 @@ def get_banner_2026_variants():
             "type": "banner",
             "value": {
                 "settings": {
-                    "theme": "purple",
+                    "theme": "purple-radial-gradient",
                     "media_after": True,
                     "show_to": SHOW_TO_ALL,
                     "anchor_id": "purple-banner-with-video-2026",
@@ -735,7 +775,7 @@ def get_banner_2026_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple", "media_after": True, "show_to": SHOW_TO_ALL},
+                "settings": {"theme": "purple-radial-gradient", "media_after": True, "show_to": SHOW_TO_ALL},
                 "media": [videos["animation_autoplay_once"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
