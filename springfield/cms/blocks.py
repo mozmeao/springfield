@@ -2122,6 +2122,13 @@ class TwoColumnCardsSettings(blocks.StructBlock):
         ),
     )
 
+    reduce_card_padding = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Reduce Card Padding",
+        help_text="Reduce the padding inside the card and the border radius for a tighter layout.",
+    )
+
     class Meta:
         icon = "cog"
         collapsed = True
@@ -2131,19 +2138,30 @@ class TwoColumnCardsSettings(blocks.StructBlock):
 
 
 class TwoColumnCardSettings(blocks.StructBlock):
-    stick_image_to_right = blocks.BooleanBlock(
+    image_position = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("top", "Top"),
+            ("bottom", "Bottom"),
+            ("left", "Left"),
+            ("right", "Right"),
+            ("bottom-right", "Bottom Right"),
+            ("bottom-left", "Bottom Left"),
+            ("top-left", "Top Left"),
+            ("top-right", "Top Right"),
+            ("full-top", "Full Top"),
+            ("full-bottom", "Full Bottom"),
+        ],
         required=False,
-        default=False,
-        label="Stick Image to Right",
-        inline_form=True,
-        help_text="Place the media on the right side of the card.",
+        label="Image Position",
+        help_text="Change the position to bleed the image to the edges of the card.",
     )
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Card Settings"
-        label_format = "Stick Image to Right: {stick_image_to_right}"
+        label_format = "Image Position: {image_position}"
         form_classname = "compact-form struct-block"
 
 

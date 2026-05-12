@@ -6,7 +6,7 @@
 
 <include:two-column-card
   tag="{{ value.tag if value.tag else '' }}"
-  stick_image_to_right="{{ value.settings.stick_image_to_right }}"
+  image_position="{{ value.settings.image_position }}"
   theme="{{ theme }}"
 >
   {% set ns = namespace(block_text="") %}
@@ -19,7 +19,9 @@
       {% if block.block_type == "rich_text" %}
         {{ block.value|richtext }}
       {% else %}
-        {% include_block block %}
+        {% if block.block_type == "media" %}<div class="media">{% endif %}
+            {% include_block block %}
+        {% if block.block_type == "media" %}</div>{% endif %}
       {% endif %}
     {% endwith %}
   {% endfor %}

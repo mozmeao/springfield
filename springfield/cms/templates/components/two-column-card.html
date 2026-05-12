@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-two-column-card {% if stick_image_to_right %}fl-two-column-card-image-right{% endif %}">
+<div class="fl-two-column-card-wrapper">
   {% if tag %}
     <span class="fl-card-tag">
       <include:tag
@@ -14,5 +14,7 @@
       />
     </span>
   {% endif %}
-  <div class="fl-two-column-card-content {% if theme == 'light-dark' and card_index > 1 %}fl-force-dark-theme{% endif %}">{{ contents }}</div>
+  <div class="fl-two-column-card {% if image_position %}image-is-stuck-{{ image_position }}{% endif %}">
+    <div class="fl-two-column-card-content {% if theme == 'light-dark' and card_index > 1 %}fl-force-dark-theme{% endif %}">{{ contents }}</div>
+  </div>
 </div>

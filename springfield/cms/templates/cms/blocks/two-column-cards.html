@@ -14,7 +14,10 @@
   min_version="{{ value.settings.show_to.min_version }}"
   max_version="{{ value.settings.show_to.max_version }}"
 >
-  <include:two-column-cards theme="{{ value.settings.theme }}" anchor_id="{{ value.settings.anchor_id }}">
+  <include:two-column-cards
+    theme="{{ value.settings.theme }}"
+    anchor_id="{{ value.settings.anchor_id }}"
+    reduce_card_padding="{{ value.settings.reduce_card_padding }}">
     {% for card in value.cards %}
       {% set card_index = loop.index %}
       {% set block_position = block_position ~ ".card-" ~ card_index %}

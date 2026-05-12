@@ -4,10 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="", anchor_id="" #}
+{# props theme="", anchor_id="", reduce_card_padding=false #}
 
 <div
-  class="fl-two-column-cards {% if theme %}fl-two-column-cards-{{ theme }}{% endif %}"
+  class="
+    fl-two-column-cards
+    {% if theme %}fl-two-column-cards-{{ theme }}{% endif %}
+    {% if reduce_card_padding == true %}reduce-card-padding{% endif %}"
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   {{ contents }}
