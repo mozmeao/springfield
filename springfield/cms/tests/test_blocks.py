@@ -10,13 +10,13 @@ from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.blocks import StreamBlockValidationError
+from wagtail.blocks import StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock, TwoColumnCardBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -4232,11 +4232,13 @@ def test_two_column_cards_block(index_page, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
+    tcc_variants = [(index, v) for index, v in enumerate(variants) if v["type"] == "two_column_cards"]
+
     for region_name, region in [("upper", upper), ("lower", lower)]:
         block_containers = region.find_all("div", class_="fl-two-column-cards")
-        assert len(block_containers) == len(variants)
+        assert len(block_containers) == len(tcc_variants)
 
-        for variant_index, (variant_data, container) in enumerate(zip(variants, block_containers)):
+        for (variant_index, variant_data), container in zip(tcc_variants, block_containers):
             block_number = variant_index + 1
             settings = variant_data["value"]["settings"]
 
@@ -4251,6 +4253,7 @@ def test_two_column_cards_block(index_page, rf):
             reduce_card_padding = settings.get("reduce_card_padding", False)
             if reduce_card_padding:
                 assert "reduce-card-padding" in container.get("class", [])
+            else:
                 assert "reduce-card-padding" not in container.get("class", [])
 
             card_wrappers = container.find_all("div", class_="fl-two-column-card-wrapper")
@@ -4262,10 +4265,10 @@ def test_two_column_cards_block(index_page, rf):
                 card_el = card_wrapper.find("div", class_="fl-two-column-card")
 
                 image_position = card_data["settings"].get("image_position", "")
-                if image_position:
+                if image_position and image_position != "default":
                     assert f"image-is-stuck-{image_position}" in card_el.get("class", [])
                 else:
-                    assert not any(c.startswith("image-is-stuck-") for c in card_el.get("class", []))
+                    assert not any("image-is-stuck" in cls for cls in card_el.get("class", []))
 
                 tag = card_data["tag"]
                 if tag:
@@ -4290,6 +4293,60 @@ def test_two_column_cards_block(index_page, rf):
                         )
                     elif block_type in _TWO_COLUMN_CARD_CONTENT_ASSERTERS:
                         _TWO_COLUMN_CARD_CONTENT_ASSERTERS[block_type](card_el, block_data)
+
+
+def _make_card_value(image_position, content_types):
+    """Build a card value dict ready for to_python(), placing a media block at the given indices."""
+    block = TwoColumnCardBlock()
+    content_blocks = []
+    for index, block_type in enumerate(content_types):
+        if block_type == "media":
+            content_blocks.append({"type": "media", "value": [], "id": f"test-media-{index}"})
+        else:
+            content_blocks.append({"type": "rich_text", "value": f"<p>text {index}</p>", "id": f"test-rt-{index}"})
+    raw = {
+        "settings": {"image_position": image_position},
+        "tag": "",
+        "content": content_blocks,
+    }
+    return block.to_python(raw)
+
+
+@pytest.mark.parametrize(
+    "image_position, content_types, is_valid",
+    [
+        ("top", ["media", "rich_text", "rich_text"], True),
+        ("top", ["rich_text", "media", "rich_text"], False),
+        ("top-right", ["media", "rich_text", "rich_text"], True),
+        ("top-right", ["rich_text", "rich_text", "media"], False),
+        ("full-top", ["media", "rich_text"], True),
+        ("full-top", ["rich_text", "media"], False),
+        ("bottom", ["rich_text", "rich_text", "media"], True),
+        ("bottom", ["media", "rich_text", "rich_text"], False),
+        ("bottom-left", ["rich_text", "rich_text", "media"], True),
+        ("bottom-left", ["rich_text", "media", "rich_text"], False),
+        ("full-bottom", ["rich_text", "media"], True),
+        ("full-bottom", ["media", "rich_text"], False),
+        ("left", ["rich_text", "media", "rich_text"], True),
+        ("right", ["media", "rich_text", "rich_text"], True),
+        ("default", ["media", "rich_text", "rich_text"], True),
+        ("", ["media", "rich_text", "rich_text"], True),
+    ],
+)
+def test_two_column_card_media_position_validation(image_position, content_types, is_valid):
+    block = TwoColumnCardBlock()
+    value = _make_card_value(image_position, content_types)
+    if is_valid:
+        block.clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError):
+            block.clean(value)
+
+
+def test_two_column_card_media_position_validation_no_media_skips_check():
+    block = TwoColumnCardBlock()
+    value = _make_card_value("top", ["rich_text", "rich_text"])
+    block.clean(value)
 
 
 def test_uuid_block_is_not_translatable():

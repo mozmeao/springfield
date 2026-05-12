@@ -147,19 +147,33 @@ def get_two_column_cards_variants() -> list[dict]:
     get_placeholder_images()
     buttons = get_button_variants()
     return [
+        {
+            "type": "intro",
+            "value": {
+                "heading": _heading(heading_text="Two Column Cards", block_id="intro1", subheading_text="Intro block above the two column cards")[
+                    "value"
+                ],
+            },
+            "id": "intro1",
+        },
         _two_column_cards(
             anchor_id="plans",
             theme="light-dark",
             cards=[
                 _card(
-                    tag="Free",
+                    tag="Light theme",
                     content_blocks=[
-                        _heading("Basic Plan", "tcc1-h1", subheading_text="Get started for free", superheading_text="MONTHLY"),
+                        _heading(
+                            heading_text="Heading Block",
+                            block_id="tcc1-h1",
+                            superheading_text="Superheading",
+                            subheading_text="Subheading",
+                        ),
                         _icon_list(
                             items=[
-                                {"icon": "checkmark", "text": "Basic tracker blocking"},
-                                {"icon": "bookmark", "text": "Sync bookmarks across devices"},
-                                {"icon": "history", "text": "Access browsing history"},
+                                {"icon": "checkmark", "text": "Icon list items have an icon and a text field"},
+                                {"icon": "bookmark", "text": "Pick any icon from the icon library"},
+                                {"icon": "history", "text": "The button block fills the full width of the card"},
                             ],
                             block_id="tcc1-il1",
                         ),
@@ -172,15 +186,19 @@ def get_two_column_cards_variants() -> list[dict]:
                     card_id="tcc1-card1",
                 ),
                 _card(
-                    tag="Plus",
-                    image_position="right",
+                    tag="Dark theme",
                     content_blocks=[
-                        _heading("Premium Plan", "tcc1-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
+                        _heading(
+                            heading_text="Heading Block",
+                            block_id="tcc1-h2",
+                            superheading_text="Superheading",
+                            subheading_text="Subheading",
+                        ),
                         _icon_list(
                             items=[
-                                {"icon": "shield", "text": "Advanced tracker blocking"},
-                                {"icon": "lock", "text": "VPN protection"},
-                                {"icon": "heart", "text": "Priority customer support"},
+                                {"icon": "shield", "text": "In a light-dark theme, the second card uses the dark theme"},
+                                {"icon": "lock", "text": "The first card uses the light theme"},
+                                {"icon": "heart", "text": "In other themes, both cards use the same theme"},
                             ],
                             block_id="tcc1-il2",
                         ),
@@ -200,12 +218,17 @@ def get_two_column_cards_variants() -> list[dict]:
             cards=[
                 _card(
                     content_blocks=[
-                        _pricing_heading("$4.99/month", "tcc2-ph1", subheading_text="Billed monthly", superheading_text="MONTHLY"),
+                        _pricing_heading(
+                            "$ Heading",
+                            "tcc2-ph1",
+                            superheading_text="Light theme",
+                            subheading_text="Pricing heading block with a large font size and a border bottom",
+                        ),
                         _numbered_list(
                             items=[
-                                {"heading": "Download Firefox", "text": "Get the browser that puts privacy first."},
-                                {"heading": "Sign in", "text": "Create a free account to sync everywhere."},
-                                {"heading": "Stay protected", "text": "Enhanced tracking protection enabled."},
+                                {"heading": "Numbered List", "text": "Each item has a heading and a body text field."},
+                                {"heading": "Step Two", "text": "Items are displayed as a stylized ordered list."},
+                                {"heading": "Step Three", "text": "Use it to walk users through a sequence of steps."},
                             ],
                             block_id="tcc2-nl1",
                         ),
@@ -214,23 +237,28 @@ def get_two_column_cards_variants() -> list[dict]:
                 ),
                 _card(
                     content_blocks=[
-                        _pricing_heading("$9.99/month", "tcc2-ph2", subheading_text="Billed monthly", superheading_text="MONTHLY"),
+                        _pricing_heading(
+                            "$ Heading",
+                            "tcc2-ph2",
+                            superheading_text="Also light theme",
+                            subheading_text="The heading has a large font size and a border bottom",
+                        ),
                         _timeline(
                             items=[
                                 {
-                                    "superheading_text": "Step 1",
-                                    "heading_text": "Create your account",
-                                    "subheading_text": "Sign up with your email address.",
+                                    "superheading_text": "Timeline",
+                                    "heading_text": "Each item has a superheading, heading, and subheading",
+                                    "subheading_text": "Items are displayed as a vertical timeline.",
                                 },
                                 {
-                                    "superheading_text": "Step 2",
-                                    "heading_text": "Choose a plan",
-                                    "subheading_text": "Select the plan that fits your needs.",
+                                    "superheading_text": "Item Two",
+                                    "heading_text": "All three text fields are required",
+                                    "subheading_text": "Use it to display a sequence of events or milestones.",
                                 },
                                 {
-                                    "superheading_text": "Step 3",
-                                    "heading_text": "Start browsing",
-                                    "subheading_text": "Enjoy private, secure browsing.",
+                                    "superheading_text": "Item Three",
+                                    "heading_text": "2026",
+                                    "subheading_text": "Last items on the timeline.",
                                 },
                             ],
                             block_id="tcc2-tl1",
@@ -244,13 +272,20 @@ def get_two_column_cards_variants() -> list[dict]:
         _two_column_cards(
             cards=[
                 _card(
-                    tag="Free",
+                    tag="Full-top image",
+                    image_position="full-top",
                     content_blocks=[
-                        _heading("Free Plan", "tcc3-h1", subheading_text="Get started for free", superheading_text="MONTHLY"),
+                        _media("tcc3-m1"),
+                        _heading(
+                            heading_text="Media Block",
+                            block_id="tcc3-h1",
+                            superheading_text="Image position: full-top",
+                            subheading_text="The media block must be the first block when using a top position",
+                        ),
                         _icon_list(
                             items=[
-                                {"icon": "checkmark", "text": "Basic tracker blocking"},
-                                {"icon": "bookmark", "text": "Sync bookmarks across devices"},
+                                {"icon": "checkmark", "text": "Image stretches to the full width at the top of the card"},
+                                {"icon": "bookmark", "text": "Supports light/dark mode and mobile image variants"},
                             ],
                             block_id="tcc3-il1",
                         ),
@@ -259,19 +294,23 @@ def get_two_column_cards_variants() -> list[dict]:
                             "value": [buttons["primary"]],
                             "id": "tcc3-btn1",
                         },
-                        _media("tcc3-m1"),
                     ],
                     card_id="tcc3-card1",
                 ),
                 _card(
-                    tag="Plus",
+                    tag="Bottom-right image",
                     image_position="bottom-right",
                     content_blocks=[
-                        _heading("Premium Plan", "tcc3-h2", subheading_text="Everything in Free, plus more", superheading_text="MONTHLY"),
+                        _heading(
+                            heading_text="Media Block",
+                            block_id="tcc3-h2",
+                            superheading_text="Image position: bottom-right",
+                            subheading_text="The media block must be the last block when using a bottom position",
+                        ),
                         _icon_list(
                             items=[
-                                {"icon": "shield", "text": "Advanced tracker blocking"},
-                                {"icon": "lock", "text": "VPN protection"},
+                                {"icon": "shield", "text": "Image is inset to the bottom-right corner of the card"},
+                                {"icon": "lock", "text": "Other positions: full-top, bottom-left, right, left"},
                             ],
                             block_id="tcc3-il2",
                         ),

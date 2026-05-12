@@ -2193,6 +2193,39 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
             required=False,
         )
 
+        def clean(self, value):
+            value = super().clean(value)
+            image_position = value["settings"]["image_position"]
+            if not image_position or image_position == "default":
+                return value
+
+            content_blocks = list(value["content"])
+            media_indices = [index for index, block in enumerate(content_blocks) if block.block_type == "media"]
+            if not media_indices:
+                return value
+
+            if "top" in image_position and media_indices[0] != 0:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a top option, the Media block must be the first block in the content."
+                            )
+                        ]
+                    )
+                )
+            elif "bottom" in image_position and media_indices[0] != len(content_blocks) - 1:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a bottom option, the Media block must be the last block in the content."
+                            )
+                        ]
+                    )
+                )
+            return value
+
         class Meta:
             label = "Card"
             label_format = "Card"
