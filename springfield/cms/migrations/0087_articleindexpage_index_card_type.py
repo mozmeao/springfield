@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0077_articleindexpage_show_sibling_detail_pages"),
+        ("cms", "0086_articleindexpage_show_sibling_detail_pages"),
     ]
 
     operations = [

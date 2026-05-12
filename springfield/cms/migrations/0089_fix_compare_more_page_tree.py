@@ -36,7 +36,7 @@ def reverse_noop(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0079_create_compare_more_pages"),
+        ("cms", "0088_create_compare_more_pages"),
     ]
 
     operations = [

@@ -45,7 +45,7 @@ def enable_siblings_for_feature_index_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0076_alter_smartwindowpage_post_download_instructions"),
+        ("cms", "0085_alter_freeformpage2026_body_class"),
     ]
 
     operations = [
