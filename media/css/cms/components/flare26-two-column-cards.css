@@ -100,8 +100,17 @@
 .image-is-stuck-bottom-right .media,
 .image-is-stuck-bottom-left .media,
 .image-is-stuck-top-left .media,
-.image-is-stuck-top-right .media {
+.image-is-stuck-top-right .media,
+.image-is-stuck-left .media,
+.image-is-stuck-right .media {
     max-inline-size: calc(100% + var(--gallery-card-padding));
+}
+
+.image-is-stuck-top .media,
+.image-is-stuck-top-left .media,
+.image-is-stuck-top-right .media,
+.image-is-stuck-full-top .media {
+    order: -1;
 }
 
 .image-is-stuck-full-top .media,
