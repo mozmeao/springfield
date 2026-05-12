@@ -5,6 +5,7 @@
 */
 
 .fl-numbered-list {
+    background: var(--theme-numbered-list-background);
     border: 1px solid var(--theme-numbered-list-border-color);
     border-radius: var(--token-border-radius-sm);
     counter-reset: numbered-list;
@@ -37,16 +38,16 @@
 .fl-numbered-list-item::before {
     color: var(--theme-numbered-list-counter-color);
     content: counter(numbered-list, decimal-leading-zero);
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-weight: var(--token-font-weight-bold);
+    font-size: 1.125rem;
+    font-weight: var(--token-font-weight-semibold);
     grid-column: 1;
     grid-row: 1 / -1;
     padding-inline-start: var(--token-spacing-xs);
 }
 
 .fl-numbered-list-item-heading {
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-weight: var(--token-font-weight-bold);
+    font-size: 1.125rem; /* heading-xs bumps up to 24px on desktop. design-led deviation. */
+    font-weight: var(--token-font-weight-semibold);
     grid-column: 2;
     grid-row: 1;
 }
