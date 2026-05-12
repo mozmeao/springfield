@@ -28,7 +28,10 @@
 @import 'components/flare26-kit-banner.css';
 @import 'components/flare26-newsletterform.css';
 @import 'components/flare26-mediacontent.css';
-@import 'components/flare26-media-plus-icon-list.css';
+@import 'components/flare26-icon-list.css';
+@import 'components/flare26-numbered-list.css';
+@import 'components/flare26-timeline.css';
+@import 'components/flare26-two-column-cards.css';
 @import 'components/flare26-notification.css';
 @import 'components/flare26-media.css';
 @import 'components/flare26-mobile-qr.css';
@@ -41,4 +44,5 @@
 @import 'components/flare26-floating-qr-overlay.css';
 @import 'components/flare26-typewriter.css';
 @import 'components/flare26-smart-window-instructions.css';
+@import 'components/flare26-pricing-heading.css';
 @import 'components/flare26-featured-image-section.css';
