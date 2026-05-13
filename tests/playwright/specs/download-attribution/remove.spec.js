@@ -100,10 +100,10 @@ function forceEssentialCampaign(campaign = 'smart_window') {
     }
 }
 
-const existingMarketingParams =
+const existingAnalyticsParams =
     'utm_source=newsletter&utm_medium=email&utm_campaign=existing';
 
-test.describe('marketing download attribution', () => {
+test.describe('analytics download attribution', () => {
     test.describe(
         'user action denies consent',
         {
@@ -113,7 +113,7 @@ test.describe('marketing download attribution', () => {
             test('cookie removed', async ({ page, browserName }) => {
                 await page.addInitScript(mockGetGtagClientID);
                 await openPage(
-                    `/en-US/privacy/websites/cookie-settings/?geo=us&${existingMarketingParams}`,
+                    `/en-US/privacy/websites/cookie-settings/?geo=us&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
@@ -125,15 +125,15 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
                 const existingCookies = await page.context().cookies();
-                const existingMarketingCookie = existingCookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const existingAnalyticsCookie = existingCookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(existingMarketingCookie).toBeDefined();
+                expect(existingAnalyticsCookie).toBeDefined();
 
                 // change consent status
                 const analyticsCategory = await page.getByTestId(
@@ -149,13 +149,13 @@ test.describe('marketing download attribution', () => {
 
                 // confirm cookie is removed
                 const cookies = await page.context().cookies();
-                const marketingCookie = cookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const analyticsCookie = cookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(marketingCookie).toBeUndefined();
+                expect(analyticsCookie).toBeUndefined();
             });
 
-            test('marketing data removed from stub attribution service call', async ({
+            test('analytics data removed from stub attribution service call', async ({
                 page,
                 browserName
             }) => {
@@ -165,7 +165,7 @@ test.describe('marketing download attribution', () => {
                 await page.addInitScript(forceEssentialCampaign);
                 await page.addInitScript(mockGetGtagClientID);
                 await openPage(
-                    `/en-US/privacy/websites/cookie-settings/?geo=us&${existingMarketingParams}`,
+                    `/en-US/privacy/websites/cookie-settings/?geo=us&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
@@ -177,15 +177,15 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
                 const existingCookies = await page.context().cookies();
-                const existingMarketingCookie = existingCookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const existingAnalyticsCookie = existingCookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(existingMarketingCookie).toBeDefined();
+                expect(existingAnalyticsCookie).toBeDefined();
                 const existingEssentialCookie = existingCookies.find(
                     (c) => c.name === 'moz-download-attribution-essential-raw'
                 );
@@ -226,10 +226,10 @@ test.describe('essential download attribution', () => {
             const capture = { params: null };
             await routeStubAttributionCode(page, capture);
 
-            // Load page where marketing consent is allowed
+            // Load page where analytics consent is allowed
             await page.addInitScript(forceEssentialCampaign);
             await openPage(
-                `/en-US/?geo=us&${existingMarketingParams}`,
+                `/en-US/?geo=us&${existingAnalyticsParams}`,
                 page,
                 browserName
             );
@@ -267,7 +267,7 @@ test.describe('essential download attribution', () => {
             await routeStubAttributionCode(page2, capture);
             await openPage(`/en-US/?geo=us`, page2, browserName);
 
-            // Confirm there is existing marketing cookie
+            // Confirm there is existing analytics cookie
             await page2.waitForFunction(() => {
                 return document.cookie
                     .split(';')
@@ -275,7 +275,7 @@ test.describe('essential download attribution', () => {
                         c
                             .trim()
                             .startsWith(
-                                'moz-download-attribution-marketing-raw='
+                                'moz-download-attribution-analytics-raw='
                             )
                     );
             });
@@ -294,10 +294,10 @@ test.describe('essential download attribution', () => {
             const capture = { params: null };
             await routeStubAttributionCode(page, capture);
 
-            // Load page where marketing consent is allowed
+            // Load page where analytics consent is allowed
             await page.addInitScript(forceEssentialCampaign);
             await openPage(
-                `/en-US/?geo=us&${existingMarketingParams}`,
+                `/en-US/?geo=us&${existingAnalyticsParams}`,
                 page,
                 browserName
             );
@@ -319,15 +319,15 @@ test.describe('essential download attribution', () => {
             const existingEssentialCookie = existingCookies.find(
                 (c) => c.name === 'moz-download-attribution-essential-raw'
             );
-            const existingMarketingCookie = existingCookies.find(
+            const existingAnalyticsCookie = existingCookies.find(
                 (c) => c.name === 'moz-download-attribution-essential-raw'
             );
             expect(existingEssentialCookie).toBeDefined();
             const existingEssentialCookieData = JSON.parse(
                 decodeURIComponent(existingEssentialCookie.value)
             );
-            const existingMarketingCookieData = JSON.parse(
-                decodeURIComponent(existingMarketingCookie.value)
+            const existingAnalyticsCookieData = JSON.parse(
+                decodeURIComponent(existingAnalyticsCookie.value)
             );
             expect(existingEssentialCookieData.utm_campaign).toBe(
                 'smart_window'
@@ -337,11 +337,11 @@ test.describe('essential download attribution', () => {
             await openPage(`/en-US/?geo=us`, page, browserName);
             await page.waitForLoadState('networkidle');
 
-            // Confirm stub attribution service call uses marketing campaign
+            // Confirm stub attribution service call uses analytics campaign
             expect(capture.params).not.toBeNull();
 
             expect(capture.params.utm_campaign).toBe(
-                existingMarketingCookieData.utm_campaign
+                existingAnalyticsCookieData.utm_campaign
             );
         });
     });

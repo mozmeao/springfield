@@ -10,7 +10,7 @@ const { test, expect } = require('@playwright/test');
 const openPage = require('../../scripts/open-page');
 
 /**
- * Intercepts Mozilla.DownloadAttribution.initMarketing before page scripts run
+ * Intercepts Mozilla.DownloadAttribution.initAnalytics before page scripts run
  * so tests can assert whether it was called.
  *
  * Optionally mocks dntEnabled or gpcEnabled on the Mozilla namespace to simulate
@@ -21,8 +21,8 @@ const openPage = require('../../scripts/open-page');
  * @param {Boolean} options.mockDNT
  * @param {Boolean} options.mockGPC
  */
-function interceptInitMarketing({ mockDNT = false, mockGPC = false } = {}) {
-    window.__initMarketingCalled = false;
+function interceptInitAnalytics({ mockDNT = false, mockGPC = false } = {}) {
+    window.__initAnalyticsCalled = false;
     let _daValue;
     const _mozilla = {};
 
@@ -64,10 +64,10 @@ function interceptInitMarketing({ mockDNT = false, mockGPC = false } = {}) {
             return _daValue;
         },
         set(val) {
-            if (val && typeof val.initMarketing === 'function') {
-                const orig = val.initMarketing;
-                val.initMarketing = function (...args) {
-                    window.__initMarketingCalled = true;
+            if (val && typeof val.initAnalytics === 'function') {
+                const orig = val.initAnalytics;
+                val.initAnalytics = function (...args) {
+                    window.__initAnalyticsCalled = true;
                     return orig.apply(this, args);
                 };
             }
@@ -163,10 +163,10 @@ function forceEssentialCampaign() {
     }
 }
 
-const existingMarketingParams =
+const existingAnalyticsParams =
     'utm_source=newsletter&utm_medium=email&utm_campaign=existing';
 
-test.describe('marketing download attribution', () => {
+test.describe('analytics download attribution', () => {
     test('has expected cookie values', async ({ page, browserName }) => {
         await page.addInitScript(mockGetGtagClientID);
 
@@ -185,7 +185,7 @@ test.describe('marketing download attribution', () => {
                 .some((c) =>
                     c
                         .trim()
-                        .startsWith('moz-download-attribution-marketing-raw=')
+                        .startsWith('moz-download-attribution-analytics-raw=')
                 );
         });
 
@@ -200,12 +200,12 @@ test.describe('marketing download attribution', () => {
         });
 
         const cookies = await page.context().cookies();
-        const marketingCookie = cookies.find(
-            (c) => c.name === 'moz-download-attribution-marketing-raw'
+        const analyticsCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-analytics-raw'
         );
-        expect(marketingCookie).toBeDefined();
+        expect(analyticsCookie).toBeDefined();
         const cookieData = JSON.parse(
-            decodeURIComponent(marketingCookie.value)
+            decodeURIComponent(analyticsCookie.value)
         );
         expect(cookieData.utm_source).toBe('newsletter');
         expect(cookieData.utm_campaign).toBe('test');
@@ -235,7 +235,7 @@ test.describe('marketing download attribution', () => {
                 .some((c) =>
                     c
                         .trim()
-                        .startsWith('moz-download-attribution-marketing-raw=')
+                        .startsWith('moz-download-attribution-analytics-raw=')
                 );
         });
 
@@ -252,12 +252,12 @@ test.describe('marketing download attribution', () => {
         });
 
         const cookies = await page.context().cookies();
-        const marketingCookie = cookies.find(
-            (c) => c.name === 'moz-download-attribution-marketing-raw'
+        const analyticsCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-analytics-raw'
         );
-        expect(marketingCookie).toBeDefined();
+        expect(analyticsCookie).toBeDefined();
         const cookieData = JSON.parse(
-            decodeURIComponent(marketingCookie.value)
+            decodeURIComponent(analyticsCookie.value)
         );
         expect(cookieData.utm_source).toBe(capture.params.utm_source);
         expect(cookieData.utm_campaign).toBe(capture.params.utm_campaign);
@@ -289,17 +289,17 @@ test.describe('marketing download attribution', () => {
                                 c
                                     .trim()
                                     .startsWith(
-                                        'moz-download-attribution-marketing-raw='
+                                        'moz-download-attribution-analytics-raw='
                                     )
                             );
                     });
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeDefined();
+                    expect(analyticsCookie).toBeDefined();
                 });
             }
         );
@@ -316,46 +316,46 @@ test.describe('marketing download attribution', () => {
                     page,
                     browserName
                 }) => {
-                    await page.addInitScript(interceptInitMarketing, {
+                    await page.addInitScript(interceptInitAnalytics, {
                         mockDNT: true
                     });
                     await openPage(url, page, browserName);
                     await page.waitForLoadState('networkidle');
 
-                    const initMarketingCalled = await page.evaluate(
-                        () => window.__initMarketingCalled
+                    const initAnalyticsCalled = await page.evaluate(
+                        () => window.__initAnalyticsCalled
                     );
-                    expect(initMarketingCalled).toBe(false);
+                    expect(initAnalyticsCalled).toBe(false);
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeUndefined();
+                    expect(analyticsCookie).toBeUndefined();
                 });
 
                 test('GPC enabled - cookie NOT created', async ({
                     page,
                     browserName
                 }) => {
-                    await page.addInitScript(interceptInitMarketing, {
+                    await page.addInitScript(interceptInitAnalytics, {
                         mockGPC: true
                     });
                     await openPage(url, page, browserName);
                     await page.waitForLoadState('networkidle');
 
-                    const initMarketingCalled = await page.evaluate(
-                        () => window.__initMarketingCalled
+                    const initAnalyticsCalled = await page.evaluate(
+                        () => window.__initAnalyticsCalled
                     );
-                    expect(initMarketingCalled).toBe(false);
+                    expect(initAnalyticsCalled).toBe(false);
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeUndefined();
+                    expect(analyticsCookie).toBeUndefined();
                 });
 
                 test('Pref cookie denies analytics - cookie NOT created', async ({
@@ -363,7 +363,7 @@ test.describe('marketing download attribution', () => {
                     browserName,
                     baseURL
                 }) => {
-                    await page.addInitScript(interceptInitMarketing);
+                    await page.addInitScript(interceptInitAnalytics);
                     await page.context().addCookies([
                         {
                             name: 'moz-consent-pref',
@@ -374,17 +374,17 @@ test.describe('marketing download attribution', () => {
                     await openPage(url, page, browserName);
                     await page.waitForLoadState('networkidle');
 
-                    const initMarketingCalled = await page.evaluate(
-                        () => window.__initMarketingCalled
+                    const initAnalyticsCalled = await page.evaluate(
+                        () => window.__initAnalyticsCalled
                     );
-                    expect(initMarketingCalled).toBe(false);
+                    expect(initAnalyticsCalled).toBe(false);
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeUndefined();
+                    expect(analyticsCookie).toBeUndefined();
                 });
             }
         );
@@ -398,21 +398,21 @@ test.describe('marketing download attribution', () => {
             },
             () => {
                 test('cookie NOT created', async ({ page, browserName }) => {
-                    await page.addInitScript(interceptInitMarketing);
+                    await page.addInitScript(interceptInitAnalytics);
                     await openPage('/fr/?geo=fr', page, browserName);
                     await page.waitForLoadState('networkidle');
 
-                    const initMarketingCalled = await page.evaluate(
-                        () => window.__initMarketingCalled
+                    const initAnalyticsCalled = await page.evaluate(
+                        () => window.__initAnalyticsCalled
                     );
-                    expect(initMarketingCalled).toBe(false);
+                    expect(initAnalyticsCalled).toBe(false);
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeUndefined();
+                    expect(analyticsCookie).toBeUndefined();
                 });
             }
         );
@@ -450,17 +450,17 @@ test.describe('marketing download attribution', () => {
                                 c
                                     .trim()
                                     .startsWith(
-                                        'moz-download-attribution-marketing-raw='
+                                        'moz-download-attribution-analytics-raw='
                                     )
                             );
                     });
 
                     const cookies = await page.context().cookies();
-                    const marketingCookie = cookies.find(
+                    const analyticsCookie = cookies.find(
                         (c) =>
-                            c.name === 'moz-download-attribution-marketing-raw'
+                            c.name === 'moz-download-attribution-analytics-raw'
                     );
-                    expect(marketingCookie).toBeDefined();
+                    expect(analyticsCookie).toBeDefined();
                 });
             }
         );
@@ -473,10 +473,10 @@ test.describe('marketing download attribution', () => {
         },
         () => {
             test('cookie created', async ({ page, browserName }) => {
-                await page.addInitScript(interceptInitMarketing);
+                await page.addInitScript(interceptInitAnalytics);
                 await page.addInitScript(mockGetGtagClientID);
                 await openPage(
-                    `/fr/?geo=fr&mozcb=y&${existingMarketingParams}`,
+                    `/fr/?geo=fr&mozcb=y&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
@@ -484,16 +484,16 @@ test.describe('marketing download attribution', () => {
                 // confirm there's no existing cookie
                 await page.waitForLoadState('networkidle');
 
-                const initMarketingCalled = await page.evaluate(
-                    () => window.__initMarketingCalled
+                const initAnalyticsCalled = await page.evaluate(
+                    () => window.__initAnalyticsCalled
                 );
-                expect(initMarketingCalled).toBe(false);
+                expect(initAnalyticsCalled).toBe(false);
 
-                const existingMarketingCookies = await page.context().cookies();
-                const existingMarketingCookie = existingMarketingCookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const existingAnalyticsCookies = await page.context().cookies();
+                const existingAnalyticsCookie = existingAnalyticsCookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(existingMarketingCookie).toBeUndefined();
+                expect(existingAnalyticsCookie).toBeUndefined();
 
                 // change consent status
                 const acceptButton = page.getByTestId(
@@ -501,7 +501,7 @@ test.describe('marketing download attribution', () => {
                 );
                 acceptButton.click();
 
-                // check marketing cookie was added
+                // check analytics cookie was added
                 await page.waitForFunction(() => {
                     return document.cookie
                         .split(';')
@@ -509,16 +509,16 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
 
                 const cookies = await page.context().cookies();
-                const marketingCookie = cookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const analyticsCookie = cookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(marketingCookie).toBeDefined();
+                expect(analyticsCookie).toBeDefined();
             });
         }
     );
@@ -684,7 +684,7 @@ test.describe('essential download attribution', () => {
     );
 });
 
-test.describe('essential and marketing download attribution', () => {
+test.describe('essential and analytics download attribution', () => {
     const url =
         '/en-US/?geo=us&utm_source=newsletter&utm_campaign=test&utm_medium=email';
 
@@ -711,14 +711,14 @@ test.describe('essential and marketing download attribution', () => {
         });
 
         const cookies = await page.context().cookies();
-        const marketingCookie = cookies.find(
-            (c) => c.name === 'moz-download-attribution-marketing-raw'
+        const analyticsCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-analytics-raw'
         );
         const essentialCookie = cookies.find(
             (c) => c.name === 'moz-download-attribution-essential-raw'
         );
 
-        expect(marketingCookie).toBeDefined();
+        expect(analyticsCookie).toBeDefined();
         expect(essentialCookie).toBeDefined();
     });
 

@@ -54,12 +54,12 @@ function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
         window.gtag('consent', type, {
             analytics_storage: 'granted'
         });
-        DownloadAttribution.initMarketing(true);
+        DownloadAttribution.initAnalytics(true);
     } else {
         window.gtag('consent', type, {
             analytics_storage: 'denied'
         });
-        DownloadAttribution.initMarketing(false);
+        DownloadAttribution.initAnalytics(false);
     }
     return true;
 }

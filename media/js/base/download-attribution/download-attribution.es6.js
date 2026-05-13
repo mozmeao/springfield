@@ -20,12 +20,12 @@ window.dataLayer = window.dataLayer || [];
  * this name: https://github.com/mozilla-services/stubattribution.
  * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
  *
- * Essential and marketing attribution are driven by independent triggers and know
+ * Essential and analytics attribution are driven by independent triggers and know
  * nothing about each other:
  *  - Essential (rtamo, download_as_default, smart_window) is required for functional
  *    post-download behavior. It runs without consent gating or sample-rate limiting,
  *    triggered by a `data-stub-attribution-campaign-force` attribute on the current page.
- *  - Marketing is consent-gated and sample-rated, triggered by a `gtm-marketing-consent`
+ *  - Analytics is consent-gated and sample-rated, triggered by a `gtm-analytics-consent`
  *    event dispatched from GTM.
  * Each trigger reads the other's last-captured raw data from a side cookie so it can
  * re-sign the combined payload without the other trigger having fired on this page.
@@ -34,13 +34,13 @@ const DownloadAttribution = {
     COOKIE_CODE_ID: 'moz-download-attribution-code',
     COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
     COOKIE_ESSENTIAL_RAW_ID: 'moz-download-attribution-essential-raw',
-    COOKIE_MARKETING_RAW_ID: 'moz-download-attribution-marketing-raw',
+    COOKIE_ANALYTICS_RAW_ID: 'moz-download-attribution-analytics-raw',
     DLSOURCE: 'fxdotcom',
     ESSENTIAL_CAMPAIGNS: ['rtamo', 'SET_AS_DEFAULT', 'smart_window'],
 
     /**
      * Custom event handler callback globals. These can be defined as functions when
-     * calling DownloadAttribution.initEssential() or .initMarketing().
+     * calling DownloadAttribution.initEssential() or .initAnalytics().
      */
     successCallback: undefined,
     timeoutCallback: undefined,
@@ -151,9 +151,9 @@ const DownloadAttribution = {
     /**
      * Stores a raw attribution data object as a JSON-encoded cookie.
      * Raw cookies preserve the inputs used to build the signed payload so
-     * either trigger (essential or marketing) can re-sign the combined
+     * either trigger (essential or analytics) can re-sign the combined
      * payload without the other having fired on the current page.
-     * @param {String} id - COOKIE_ESSENTIAL_RAW_ID or COOKIE_MARKETING_RAW_ID.
+     * @param {String} id - COOKIE_ESSENTIAL_RAW_ID or COOKIE_ANALYTICS_RAW_ID.
      * @param {Object} data - Raw attribution data to preserve.
      */
     setRawCookie: (id, data) => {
@@ -316,7 +316,7 @@ const DownloadAttribution = {
             DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
         );
         DownloadAttribution.removeRawCookie(
-            DownloadAttribution.COOKIE_MARKETING_RAW_ID
+            DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
         );
         DownloadAttribution.cleanBouncerLinks();
         DownloadAttribution.requestComplete = false;
@@ -547,12 +547,12 @@ const DownloadAttribution = {
     },
 
     /**
-     * Gets the marketing campaign value: utm_campaign from the URL, falling
+     * Gets the analytics campaign value: utm_campaign from the URL, falling
      * back to the page-level default campaign attribute.
      * @param {Object} params - URL params.
      * @return {String | null} - Campaign value, or null.
      */
-    getMarketingCampaign: (params) => {
+    getAnalyticsCampaign: (params) => {
         const utms = params.utmParams();
         if (utms.utm_campaign !== undefined) {
             return utms.utm_campaign;
@@ -566,7 +566,7 @@ const DownloadAttribution = {
      * Gets essential data for download.
      * Until the stub attribution service is updated to accept dedicated
      * essential fields, essential data carries its campaign in utm_campaign;
-     * essential wins on key collisions with marketing when merged.
+     * essential wins on key collisions with analytics when merged.
      * @return {Object} - Essential data object, or {} if the current page
      *   does not carry a recognized essential campaign.
      */
@@ -599,17 +599,17 @@ const DownloadAttribution = {
     },
 
     /**
-     * Gets marketing data for download. Requires GA4 wait.
+     * Gets analytics data for download. Requires GA4 wait.
      * @param {String} ref - Optional referrer to facilitate testing.
      * @param {Object} params - URL params.
-     * @return {Object} - Marketing download attribution data object.
+     * @return {Object} - Analytics download attribution data object.
      */
-    getMarketingData: (ref, params) => {
+    getAnalyticsData: (ref, params) => {
         const utms = params.utmParams();
         return {
             utm_source: utms.utm_source,
             utm_medium: utms.utm_medium,
-            utm_campaign: DownloadAttribution.getMarketingCampaign(params),
+            utm_campaign: DownloadAttribution.getAnalyticsCampaign(params),
             utm_content: utms.utm_content,
             referrer: typeof ref === 'string' ? ref : document.referrer,
             ua: DownloadAttribution.getUserAgent(),
@@ -659,15 +659,15 @@ const DownloadAttribution = {
     },
 
     /**
-     * Merges essential and marketing data and requests an updated signed
+     * Merges essential and analytics data and requests an updated signed
      * payload from the stub attribution service. Essential keys override
-     * marketing on collision (today only utm_campaign collides; a pending
+     * analytics on collision (today only utm_campaign collides; a pending
      * service update will give essential dedicated fields).
      * @param {Object | null} essential - Essential data, or null.
-     * @param {Object | null} marketing - Marketing data, or null.
+     * @param {Object | null} analytics - Analytics data, or null.
      */
-    requestCombinedAuth: (essential, marketing) => {
-        const combined = Object.assign({}, marketing || {}, essential || {});
+    requestCombinedAuth: (essential, analytics) => {
+        const combined = Object.assign({}, analytics || {}, essential || {});
 
         // Remove undefined / null values.
         for (const key of Object.keys(combined)) {
@@ -735,7 +735,7 @@ const DownloadAttribution = {
     /**
      * Essential trigger entry point. Runs on pages that carry essential
      * download data (functional post-download behavior such as rtamo).
-     * Does not gate on marketing consent or sample rate: essential data
+     * Does not gate on analytics consent or sample rate: essential data
      * must always be carried so the installer can deliver its promised
      * functionality after download.
      * @param {string} campaign - Optional.
@@ -757,19 +757,19 @@ const DownloadAttribution = {
 
         const essential = DownloadAttribution.getEssentialData(campaign);
 
-        const marketing = DownloadAttribution.getRawCookie(
-            DownloadAttribution.COOKIE_MARKETING_RAW_ID
+        const analytics = DownloadAttribution.getRawCookie(
+            DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
         );
 
         // We have last touch essential attribution to avoid a stale download experience
         // REMOVE essential data if it is no longer applicable
         if (Object.keys(essential).length === 0) {
-            if (marketing) {
+            if (analytics) {
                 // remove essential only
                 DownloadAttribution.removeRawCookie(
                     DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
                 );
-                DownloadAttribution.requestCombinedAuth(null, marketing);
+                DownloadAttribution.requestCombinedAuth(null, analytics);
             } else {
                 DownloadAttribution.removeAttributionData();
                 // we didn't make a stub attribution call, but we've completed clean-up
@@ -783,20 +783,20 @@ const DownloadAttribution = {
                 essential
             );
 
-            DownloadAttribution.requestCombinedAuth(essential, marketing);
+            DownloadAttribution.requestCombinedAuth(essential, analytics);
         }
     },
 
     /**
-     * Marketing trigger entry point. On 'granted', captures marketing data
+     * Analytics trigger entry point. On 'granted', captures analytics data
      * from the current URL and re-signs the combined payload. On 'denied',
-     * clears marketing data; if essential data is also absent, the full
+     * clears analytics data; if essential data is also absent, the full
      * attribution state is removed.
      * @param {Boolean} isConsentGranted - Based on GTM Consent Analytics Storage.
      * @param {Function} successCallback - Optional.
      * @param {Function} timeoutCallback - Optional.
      */
-    initMarketing: (isConsentGranted, successCallback, timeoutCallback) => {
+    initAnalytics: (isConsentGranted, successCallback, timeoutCallback) => {
         if (!DownloadAttribution.meetsFunctionalRequirements()) {
             return;
         }
@@ -810,11 +810,11 @@ const DownloadAttribution = {
         }
 
         if (isConsentGranted) {
-            // We have first touch marketing attribution
-            // DO NOT UPDATE if we have existing marketing data
+            // We have first touch analytics attribution
+            // DO NOT UPDATE if we have existing analytics data
             if (
                 DownloadAttribution.getRawCookie(
-                    DownloadAttribution.COOKIE_MARKETING_RAW_ID
+                    DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
                 )
             ) {
                 return;
@@ -826,26 +826,26 @@ const DownloadAttribution = {
 
             DownloadAttribution.waitForGoogleAnalyticsThen(() => {
                 const params = new window._SearchParams();
-                const marketing = DownloadAttribution.getMarketingData(
+                const analytics = DownloadAttribution.getAnalyticsData(
                     null,
                     params
                 );
 
                 DownloadAttribution.setRawCookie(
-                    DownloadAttribution.COOKIE_MARKETING_RAW_ID,
-                    marketing
+                    DownloadAttribution.COOKIE_ANALYTICS_RAW_ID,
+                    analytics
                 );
 
                 const essential = DownloadAttribution.getRawCookie(
                     DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
                 );
 
-                DownloadAttribution.requestCombinedAuth(essential, marketing);
+                DownloadAttribution.requestCombinedAuth(essential, analytics);
 
-                if (marketing.client_id_ga4) {
+                if (analytics.client_id_ga4) {
                     window.dataLayer.push({
                         event: 'stub_session_set',
-                        id: marketing.session_id
+                        id: analytics.session_id
                     });
                 }
             });
@@ -855,9 +855,9 @@ const DownloadAttribution = {
             );
 
             if (essential) {
-                // remove marketing only
+                // remove analytics only
                 DownloadAttribution.removeRawCookie(
-                    DownloadAttribution.COOKIE_MARKETING_RAW_ID
+                    DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
                 );
                 DownloadAttribution.requestCombinedAuth(essential, null);
             } else {

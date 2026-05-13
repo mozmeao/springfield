@@ -37,7 +37,7 @@ async function routeStubAttributionCode(page, capture) {
 }
 
 /**
- * Intercepts Mozilla.DownloadAttribution.initMarketing before page scripts run
+ * Intercepts Mozilla.DownloadAttribution.initAnalytics before page scripts run
  * so tests can assert whether it was called.
  *
  * Optionally mocks dntEnabled or gpcEnabled on the Mozilla namespace to simulate
@@ -48,8 +48,8 @@ async function routeStubAttributionCode(page, capture) {
  * @param {Boolean} options.mockDNT
  * @param {Boolean} options.mockGPC
  */
-function interceptInitMarketing({ mockDNT = false, mockGPC = false } = {}) {
-    window.__initMarketingCalled = false;
+function interceptInitAnalytics({ mockDNT = false, mockGPC = false } = {}) {
+    window.__initAnalyticsCalled = false;
     let _daValue;
     const _mozilla = {};
 
@@ -91,10 +91,10 @@ function interceptInitMarketing({ mockDNT = false, mockGPC = false } = {}) {
             return _daValue;
         },
         set(val) {
-            if (val && typeof val.initMarketing === 'function') {
-                const orig = val.initMarketing;
-                val.initMarketing = function (...args) {
-                    window.__initMarketingCalled = true;
+            if (val && typeof val.initAnalytics === 'function') {
+                const orig = val.initAnalytics;
+                val.initAnalytics = function (...args) {
+                    window.__initAnalyticsCalled = true;
                     return orig.apply(this, args);
                 };
             }
@@ -167,17 +167,17 @@ function forceEssentialCampaign(campaign = 'smart_window') {
     }
 }
 
-const existingMarketingParams =
+const existingAnalyticsParams =
     'utm_source=newsletter&utm_medium=email&utm_campaign=existing';
 
-test.describe('marketing download attribution', () => {
+test.describe('analytics download attribution', () => {
     test.describe(
         'essential data added',
         {
             tag: '@firefox'
         },
         () => {
-            test('pre-existing marketing data preserved', async ({
+            test('pre-existing analytics data preserved', async ({
                 page,
                 browserName
             }) => {
@@ -187,7 +187,7 @@ test.describe('marketing download attribution', () => {
                 await routeStubAttributionCode(page, initialCapture);
 
                 await openPage(
-                    `/en-US/?geo=us&${existingMarketingParams}`,
+                    `/en-US/?geo=us&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
@@ -200,28 +200,28 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
 
                 const existingCookies = await page.context().cookies();
-                const existingMarketingCookie = existingCookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const existingAnalyticsCookie = existingCookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(existingMarketingCookie).toBeDefined();
-                const existingMarketingCookieData = JSON.parse(
-                    decodeURIComponent(existingMarketingCookie.value)
+                expect(existingAnalyticsCookie).toBeDefined();
+                const existingAnalyticsCookieData = JSON.parse(
+                    decodeURIComponent(existingAnalyticsCookie.value)
                 );
-                expect(existingMarketingCookieData.utm_source).toBe(
+                expect(existingAnalyticsCookieData.utm_source).toBe(
                     'newsletter'
                 );
-                expect(existingMarketingCookieData.utm_medium).toBe('email');
-                expect(existingMarketingCookieData.client_id_ga4).toBe(
+                expect(existingAnalyticsCookieData.utm_medium).toBe('email');
+                expect(existingAnalyticsCookieData.client_id_ga4).toBe(
                     'mocked-ga4-client-id'
                 );
-                expect(existingMarketingCookieData.dlsource).toBe('fxdotcom');
-                expect(existingMarketingCookieData.utm_campaign).toBe(
+                expect(existingAnalyticsCookieData.dlsource).toBe('fxdotcom');
+                expect(existingAnalyticsCookieData.utm_campaign).toBe(
                     'existing'
                 );
 
@@ -238,7 +238,7 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
@@ -250,36 +250,36 @@ test.describe('marketing download attribution', () => {
                 );
                 expect(essentialCookie).toBeDefined();
 
-                // Confirm stub attribution service params preserve pre-existing marketing data
+                // Confirm stub attribution service params preserve pre-existing analytics data
                 // (with exception of campaign)
                 expect(capture.params).not.toBeNull();
 
                 expect(capture.params.utm_source).toBe(
-                    existingMarketingCookieData.utm_source
+                    existingAnalyticsCookieData.utm_source
                 );
                 expect(capture.params.utm_medium).toBe(
-                    existingMarketingCookieData.utm_medium
+                    existingAnalyticsCookieData.utm_medium
                 );
                 expect(capture.params.client_id_ga4).toBe(
-                    existingMarketingCookieData.client_id_ga4
+                    existingAnalyticsCookieData.client_id_ga4
                 );
                 expect(capture.params.dlsource).toBe(
-                    existingMarketingCookieData.dlsource
+                    existingAnalyticsCookieData.dlsource
                 );
-                // essential campaign should override marketing
+                // essential campaign should override analytics
                 expect(capture.params.utm_campaign).not.toBe(
-                    existingMarketingCookieData.utm_campaign
+                    existingAnalyticsCookieData.utm_campaign
                 );
             });
         }
     );
     test.describe(
-        'new marketing data',
+        'new analytics data',
         {
             tag: '@firefox'
         },
         () => {
-            test('pre-existing marketing data preserved', async ({
+            test('pre-existing analytics data preserved', async ({
                 page,
                 browserName
             }) => {
@@ -289,7 +289,7 @@ test.describe('marketing download attribution', () => {
                 await routeStubAttributionCode(page, initialCapture);
 
                 await openPage(
-                    `/en-US/?geo=us&${existingMarketingParams}`,
+                    `/en-US/?geo=us&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
@@ -302,32 +302,32 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
 
                 const existingCookies = await page.context().cookies();
-                const existingMarketingCookie = existingCookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const existingAnalyticsCookie = existingCookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(existingMarketingCookie).toBeDefined();
-                const existingMarketingCookieData = JSON.parse(
-                    decodeURIComponent(existingMarketingCookie.value)
+                expect(existingAnalyticsCookie).toBeDefined();
+                const existingAnalyticsCookieData = JSON.parse(
+                    decodeURIComponent(existingAnalyticsCookie.value)
                 );
-                expect(existingMarketingCookieData.utm_source).toBe(
+                expect(existingAnalyticsCookieData.utm_source).toBe(
                     'newsletter'
                 );
-                expect(existingMarketingCookieData.utm_medium).toBe('email');
-                expect(existingMarketingCookieData.client_id_ga4).toBe(
+                expect(existingAnalyticsCookieData.utm_medium).toBe('email');
+                expect(existingAnalyticsCookieData.client_id_ga4).toBe(
                     'mocked-ga4-client-id'
                 );
-                expect(existingMarketingCookieData.dlsource).toBe('fxdotcom');
-                expect(existingMarketingCookieData.utm_campaign).toBe(
+                expect(existingAnalyticsCookieData.dlsource).toBe('fxdotcom');
+                expect(existingAnalyticsCookieData.utm_campaign).toBe(
                     'existing'
                 );
 
-                // Navigate to new page with new marketing params
+                // Navigate to new page with new analytics params
                 const capture = { params: null };
                 await routeStubAttributionCode(page, capture);
                 await openPage(
@@ -343,28 +343,28 @@ test.describe('marketing download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
 
-                // Confirm stub attribution service params preserve pre-existing marketing data
+                // Confirm stub attribution service params preserve pre-existing analytics data
                 expect(capture.params).not.toBeNull();
 
                 expect(capture.params.utm_source).toBe(
-                    existingMarketingCookieData.utm_source
+                    existingAnalyticsCookieData.utm_source
                 );
                 expect(capture.params.utm_medium).toBe(
-                    existingMarketingCookieData.utm_medium
+                    existingAnalyticsCookieData.utm_medium
                 );
                 expect(capture.params.client_id_ga4).toBe(
-                    existingMarketingCookieData.client_id_ga4
+                    existingAnalyticsCookieData.client_id_ga4
                 );
                 expect(capture.params.dlsource).toBe(
-                    existingMarketingCookieData.dlsource
+                    existingAnalyticsCookieData.dlsource
                 );
                 expect(capture.params.utm_campaign).toBe(
-                    existingMarketingCookieData.utm_campaign
+                    existingAnalyticsCookieData.utm_campaign
                 );
             });
         }
@@ -373,7 +373,7 @@ test.describe('marketing download attribution', () => {
 
 test.describe('essential download attribution', () => {
     test.describe(
-        'marketing data added',
+        'analytics data added',
         {
             tag: '@firefox'
         },
@@ -385,22 +385,22 @@ test.describe('essential download attribution', () => {
                 const capture = { params: null };
                 await routeStubAttributionCode(page, capture);
 
-                // Load page where marketing consent is default denied
+                // Load page where analytics consent is default denied
                 await page.addInitScript(forceEssentialCampaign);
-                await page.addInitScript(interceptInitMarketing);
+                await page.addInitScript(interceptInitAnalytics);
                 await page.addInitScript(mockGetGtagClientID);
 
                 await openPage(
-                    `/fr/?geo=fr&mozcb=y&${existingMarketingParams}`,
+                    `/fr/?geo=fr&mozcb=y&${existingAnalyticsParams}`,
                     page,
                     browserName
                 );
 
-                // Confirm there's no existing marketing cookie
-                const initMarketingCalled = await page.evaluate(
-                    () => window.__initMarketingCalled
+                // Confirm there's no existing analytics cookie
+                const initAnalyticsCalled = await page.evaluate(
+                    () => window.__initAnalyticsCalled
                 );
-                expect(initMarketingCalled).toBe(false);
+                expect(initAnalyticsCalled).toBe(false);
 
                 // Confirm there is existing essential cookie
                 await page.waitForFunction(() => {
@@ -433,7 +433,7 @@ test.describe('essential download attribution', () => {
                 );
                 acceptButton.click();
 
-                // Confirm marketing cookie was added
+                // Confirm analytics cookie was added
                 await page.waitForFunction(() => {
                     return document.cookie
                         .split(';')
@@ -441,16 +441,16 @@ test.describe('essential download attribution', () => {
                             c
                                 .trim()
                                 .startsWith(
-                                    'moz-download-attribution-marketing-raw='
+                                    'moz-download-attribution-analytics-raw='
                                 )
                         );
                 });
 
                 const cookies = await page.context().cookies();
-                const marketingCookie = cookies.find(
-                    (c) => c.name === 'moz-download-attribution-marketing-raw'
+                const analyticsCookie = cookies.find(
+                    (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
-                expect(marketingCookie).toBeDefined();
+                expect(analyticsCookie).toBeDefined();
 
                 // Confirm pre-existing essential data was preserved
                 expect(capture.params.utm_campaign).toBe(
@@ -473,7 +473,7 @@ test.describe('essential download attribution', () => {
                 const capture = { params: null };
                 await routeStubAttributionCode(page, capture);
 
-                // Load page where marketing consent is default denied
+                // Load page where analytics consent is default denied
                 await page.addInitScript(forceEssentialCampaign);
 
                 await openPage(`/fr/?geo=fr`, page, browserName);
