@@ -45,6 +45,16 @@ function setGtagAdsConsentMode(hasConsent, type = 'update') {
  * @returns {Boolean}
  */
 function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
+    // This is a failsafe to ensure we always remove analytics download attribution
+    // when consent status is denied (regardless of whether or not we are on page with
+    // a consent banner, i.e. the cookie policy page)
+    //
+    // This failsafe is only necessary as long as GTM is conditionally loaded
+    // Once it is always loaded, we can rely on GTM consent mode status
+    if (!hasConsent) {
+        DownloadAttribution.initAnalytics(false);
+    }
+
     // bail out if GTAG has not been created with GTMSnippet.loadSnippet
     // this needs to run before GTM snippet loads to set proper defaults
     if (typeof window.gtag === 'undefined') {
@@ -54,12 +64,13 @@ function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
         window.gtag('consent', type, {
             analytics_storage: 'granted'
         });
+
+        // We only apply analytics information if GTAG is available
         DownloadAttribution.initAnalytics(true);
     } else {
         window.gtag('consent', type, {
             analytics_storage: 'denied'
         });
-        DownloadAttribution.initAnalytics(false);
     }
     return true;
 }
