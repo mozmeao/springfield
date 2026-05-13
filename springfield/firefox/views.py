@@ -44,34 +44,32 @@ INSTALLER_CHANNElS = [
 SEND_TO_DEVICE_MESSAGE_SETS = settings.SEND_TO_DEVICE_MESSAGE_SETS
 
 
-if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-    STUB_VALUE_NAMES = [
-        # name, default value
-        ("utm_source", "(not set)"),
-        ("utm_medium", "(not set)"),
-        ("utm_campaign", "(not set)"),
-        ("utm_content", "(not set)"),
-        ("experiment", "(not set)"),
-        ("variation", "(not set)"),
-        ("ua", "(not set)"),
-        ("client_id_ga4", "(not set)"),
-        ("session_id", "(not set)"),
-        ("dlsource", "(not set)"),
-    ]
-else:
-    STUB_VALUE_NAMES = [
-        # name, default value
-        ("utm_source", "(not set)"),
-        ("utm_medium", "(direct)"),
-        ("utm_campaign", "(not set)"),
-        ("utm_content", "(not set)"),
-        ("experiment", "(not set)"),
-        ("variation", "(not set)"),
-        ("ua", "(not set)"),
-        ("client_id_ga4", "(not set)"),
-        ("session_id", "(not set)"),
-        ("dlsource", "fxdotcom"),
-    ]
+_STUB_VALUE_NAMES = [
+    # name, default value
+    ("utm_source", "(not set)"),
+    ("utm_medium", "(not set)"),
+    ("utm_campaign", "(not set)"),
+    ("utm_content", "(not set)"),
+    ("experiment", "(not set)"),
+    ("variation", "(not set)"),
+    ("ua", "(not set)"),
+    ("client_id_ga4", "(not set)"),
+    ("session_id", "(not set)"),
+    ("dlsource", "(not set)"),
+]
+_STUB_VALUE_NAMES_LEGACY = [
+    # name, default value
+    ("utm_source", "(not set)"),
+    ("utm_medium", "(direct)"),
+    ("utm_campaign", "(not set)"),
+    ("utm_content", "(not set)"),
+    ("experiment", "(not set)"),
+    ("variation", "(not set)"),
+    ("ua", "(not set)"),
+    ("client_id_ga4", "(not set)"),
+    ("session_id", "(not set)"),
+    ("dlsource", "fxdotcom"),
+]
 STUB_VALUE_RE = re.compile(r"^[a-z0-9-.%():_]+$", flags=re.IGNORECASE)
 
 
@@ -118,7 +116,8 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
-    for name, default_value in STUB_VALUE_NAMES:
+    stub_value_names = _STUB_VALUE_NAMES if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR") else _STUB_VALUE_NAMES_LEGACY
+    for name, default_value in stub_value_names:
         val = data.get(name, "")
         # remove utm_
         if name.startswith("utm_"):
