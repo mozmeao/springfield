@@ -11,6 +11,17 @@ const baseConfig = require('./playwright.config');
 
 module.exports = defineConfig({
     ...baseConfig,
+    webServer: {
+        command: `uv run --active python manage.py runserver 0.0.0.0:8000`,
+        url: 'http://localhost:8000/healthz/',
+        reuseExistingServer: !process.env.CI,
+        cwd: '../../',
+        env: {
+            ...process.env,
+            DEBUG: 'true',
+            ENABLE_DJANGO_PATTERN_LIBRARY: 'true'
+        }
+    },
     fullyParallel: false,
     grepInvert: undefined,
     grep: /@visual-regression/,
