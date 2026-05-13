@@ -283,3 +283,14 @@ def test_merge_query_redirect(source, dest):
     resp = _get_merge_query_middleware().process_request(rf.get(source))
     assert resp.status_code == 302
     assert resp.headers["Location"] == dest
+
+
+@pytest.mark.parametrize("permanent", (True, False), ids=("301", "302"))
+@pytest.mark.parametrize(
+    "source, destination",
+    (("/mobile/get-app", "/mobile/"),),
+)
+def test_redirect_destinations(client, source, destination, permanent):
+    resp = client.get(source, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == destination

@@ -115,6 +115,7 @@ redirectpatterns = (
         permanent=False,
         merge_query=False,
     ),
+    redirect(r"^mobile/get-app/?$", "/mobile/", permanent=False),
 )
 
 permanent = settings.PERMANENT_CMS_REFRESH_REDIRECTS
