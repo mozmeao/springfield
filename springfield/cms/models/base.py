@@ -21,19 +21,48 @@ from springfield.cms.utils import compute_cms_page_locales
 class PromotedPageMixin(models.Model):
     """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
 
-    enable_marketing_attribution = models.BooleanField(
-        default=False,
+    MARKETING_ATTRIBUTION_MODES = (
+        ("", "Disabled"),
+        ("enabled", "Enabled (always promoted)"),
+        ("param", "Enabled only when ?promoted=1 in URL"),
+    )
+
+    marketing_attribution_mode = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=MARKETING_ATTRIBUTION_MODES,
+        verbose_name="Marketing Attribution Mode",
         help_text=(
-            "Enable marketing attribution for externally promoted pages. "
-            "Adds the 'Share how you discovered Firefox' opt-out checkbox, "
-            "consent banner support for EU visitors, and stub attribution "
-            "for CPA tracking. Must not be used together with the 'Set as "
-            "default browser' checkbox on download buttons."
+            "Controls whether this page is treated as an externally-promoted "
+            "landing page (adds the 'Share how you discovered Firefox' opt-out "
+            "checkbox, consent banner support for EU visitors, and stub "
+            "attribution for CPA tracking). Use 'Enabled only when ?promoted=1' "
+            "for landing pages that serve both organic and paid traffic — the "
+            "promoted treatment is only rendered for visitors arriving via the "
+            "?promoted=1 query param. Must not be used together with the "
+            "'Set as default browser' checkbox on download buttons."
         ),
     )
 
+    # LEGACY — kept for one deploy cycle to avoid create-then-drop in the same PR.
+    # Will be removed in a follow-up PR. Do not reference in templates or new code.
+    enable_marketing_attribution = models.BooleanField(default=False)
+
     class Meta:
         abstract = True
+
+    def is_promoted_page(self, request=None):
+        """Server-side evaluation: should this request render as promoted?"""
+        if self.marketing_attribution_mode == "enabled":
+            return True
+        if self.marketing_attribution_mode == "param" and request is not None:
+            return request.GET.get("promoted") == "1"
+        return False
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["is_promoted_page"] = self.is_promoted_page(request)
+        return context
 
 
 @method_decorator(never_cache, name="serve_password_required_response")
