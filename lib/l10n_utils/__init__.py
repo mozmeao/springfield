@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
 from os.path import splitext
 
 from django.conf import settings
@@ -18,6 +19,8 @@ from springfield.base.i18n import normalize_language, split_path_and_normalize_l
 from springfield.settings.base import language_url_map_with_fallbacks
 
 from .fluent import fluent_l10n, ftl_file_is_active, get_active_locales as ftl_active_locales
+
+log = logging.getLogger(__name__)
 
 
 def render_to_string(template_name, context=None, request=None, using=None, ftl_files=None):
@@ -167,6 +170,11 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
             del context["add_active_locales"]
 
         if not translations:
+            if is_cms_page and not hasattr(request, "_locales_available_via_cms"):
+                log.warning(
+                    "render(): is_cms_page is True but _locales_available_via_cms was not set "
+                    "on request — DB unavailable? Falling back to LANGUAGE_CODE."
+                )
             translations = [settings.LANGUAGE_CODE]
 
     context["translations"] = get_translations_native_names(translations)
