@@ -1,7 +1,7 @@
 # Workflows that run integration tests on live sites
 
 name: Integration tests
-run-name: Integration tests for ${{ inputs.branch }}
+run-name: "Integration tests for ${{ inputs.branch }} @ ${{ inputs.git_sha }}"
 env:
   SLACK_CHANNEL_ID: CBX0KH5GA # #www-notify in MoCo Slack
   SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN_FOR_MEAO_NOTIFICATIONS_APP}}
@@ -97,7 +97,7 @@ jobs:
         with:
           name: test-results
           path: results-${{github.run_id}}-${{matrix.label}}
-          if-no-files-found: ignore  # this avoids a false "Warning" if there were no issues
+          if-no-files-found: ignore # this avoids a false "Warning" if there were no issues
 
   playwright-tests:
     if: always() && github.repository == 'mozmeao/springfield'
@@ -106,21 +106,21 @@ jobs:
       PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.springfield_service_hostname }}
       CI: true
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
-    - name: Install dependencies
-      run: cd tests/playwright && npm ci && npm run install-deps
-    - name: Run Playwright tests
-      run: cd tests/playwright && npm run integration-tests
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: test-results-${{ github.event.inputs.git_sha }}-${{ github.run_id }}
-        path: tests/playwright/test-results/
-        if-no-files-found: ignore  # this avoids a false "Warning" if there were no issues
-        retention-days: 30
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: cd tests/playwright && npm ci && npm run install-deps
+      - name: Run Playwright tests
+        run: cd tests/playwright && npm run integration-tests
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results-${{ github.event.inputs.git_sha }}-${{ github.run_id }}
+          path: tests/playwright/test-results/
+          if-no-files-found: ignore # this avoids a false "Warning" if there were no issues
+          retention-days: 30
 
   notify-of-test-run-completion:
     if: always() && github.repository == 'mozmeao/springfield'
