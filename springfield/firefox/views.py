@@ -43,19 +43,35 @@ INSTALLER_CHANNElS = [
 ]
 SEND_TO_DEVICE_MESSAGE_SETS = settings.SEND_TO_DEVICE_MESSAGE_SETS
 
-STUB_VALUE_NAMES = [
-    # name, default value
-    ("utm_source", "(not set)"),
-    ("utm_medium", "(direct)"),
-    ("utm_campaign", "(not set)"),
-    ("utm_content", "(not set)"),
-    ("experiment", "(not set)"),
-    ("variation", "(not set)"),
-    ("ua", "(not set)"),
-    ("client_id_ga4", "(not set)"),
-    ("session_id", "(not set)"),
-    ("dlsource", "fxdotcom"),
-]
+
+if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+    STUB_VALUE_NAMES = [
+        # name, default value
+        ("utm_source", "(not set)"),
+        ("utm_medium", "(not set)"),
+        ("utm_campaign", "(not set)"),
+        ("utm_content", "(not set)"),
+        ("experiment", "(not set)"),
+        ("variation", "(not set)"),
+        ("ua", "(not set)"),
+        ("client_id_ga4", "(not set)"),
+        ("session_id", "(not set)"),
+        ("dlsource", "(not set)"),
+    ]
+else:
+    STUB_VALUE_NAMES = [
+        # name, default value
+        ("utm_source", "(not set)"),
+        ("utm_medium", "(direct)"),
+        ("utm_campaign", "(not set)"),
+        ("utm_content", "(not set)"),
+        ("experiment", "(not set)"),
+        ("variation", "(not set)"),
+        ("ua", "(not set)"),
+        ("client_id_ga4", "(not set)"),
+        ("session_id", "(not set)"),
+        ("dlsource", "fxdotcom"),
+    ]
 STUB_VALUE_RE = re.compile(r"^[a-z0-9-.%():_]+$", flags=re.IGNORECASE)
 
 
@@ -114,9 +130,33 @@ def stub_attribution_code(request):
         else:
             codes[name] = default_value
 
-    # We are not going to provide fallbacks because we may not have marketing data consent
-    # Consent checks are in JS, so we will rely on what is provided through JS only
-    if not waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+    # Only provide default analytics data if analytics data is allowed
+    # (as indicated by set ga4 client value)
+    if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+        if not codes["client_id_ga4"] == "(not set)":
+            # set basic defaults
+            if codes["dlsource"] == "(not set)":
+                codes["source"] = "fxdotcom"
+
+            if codes["medium"] == "(not set)":
+                codes["medium"] = "(direct)"
+
+            # try more advanced defaults
+            if codes["source"] == "(not set)" and "referrer" in data:
+                try:
+                    domain = urlparse(data["referrer"]).netloc
+                    if domain and STUB_VALUE_RE.match(domain):
+                        codes["source"] = domain
+                        codes["medium"] = "referral"
+                        has_value = True
+                except Exception:
+                    # any problems and we should just ignore it
+                    pass
+
+            if not has_value:
+                codes["source"] = "www.firefox.com"
+                codes["medium"] = "(none)"
+    else:
         if codes["source"] == "(not set)" and "referrer" in data:
             try:
                 domain = urlparse(data["referrer"]).netloc
