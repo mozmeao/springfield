@@ -29,8 +29,9 @@ function shouldAutoDownload(platform, fxSupported) {
  * @returns {String} download url
  */
 function getDownloadURL(site) {
-    // TODO: confirm if we want to hardcode 'thanks-' prefix here
-    // It is part of a helper, but maybe unnecessarily specific to /thanks page?
+    // 'thanks-' prefix here is part of a helper, now unnecessarily specific to /thanks page
+    // In future, we should decouple this prefix, so the auto-download functionality can be
+    // available anywhere
     const prefix = 'thanks-download-button-';
     let link;
     let url;
