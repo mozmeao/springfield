@@ -36,6 +36,7 @@ const DownloadAttribution = {
     COOKIE_ESSENTIAL_RAW_ID: 'moz-download-attribution-essential-raw',
     COOKIE_MARKETING_RAW_ID: 'moz-download-attribution-marketing-raw',
     DLSOURCE: 'fxdotcom',
+    ESSENTIAL_CAMPAIGNS: ['rtamo', 'SET_AS_DEFAULT', 'smart_window'],
 
     /**
      * Custom event handler callback globals. These can be defined as functions when
@@ -572,7 +573,10 @@ const DownloadAttribution = {
     getEssentialData: (campaign) => {
         // NOTE: in future, this will return product context and install
         // options fields based on data attributes.
-        if (campaign) {
+        if (
+            campaign &&
+            DownloadAttribution.ESSENTIAL_CAMPAIGNS.includes(campaign)
+        ) {
             return {
                 utm_campaign: campaign
             };
@@ -582,7 +586,10 @@ const DownloadAttribution = {
             'data-stub-attribution-campaign-force'
         );
 
-        if (pageCampaign) {
+        if (
+            pageCampaign &&
+            DownloadAttribution.ESSENTIAL_CAMPAIGNS.includes(pageCampaign)
+        ) {
             return {
                 utm_campaign: pageCampaign
             };
