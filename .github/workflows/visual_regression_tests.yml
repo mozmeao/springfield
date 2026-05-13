@@ -1,0 +1,63 @@
+# Workflows that run visual regression tests on Flare26 components
+
+name: Visual regression tests
+run-name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'springfield/cms/templates/components/**'
+      - 'springfield/cms/templates/pattern-library/components/flare-26/**'
+      - 'media/css/cms/**'
+      - 'tests/playwright/specs/visual-regression/**'
+
+permissions:
+  contents: read
+
+jobs:
+  visual-regression-tests:
+    if: always() && github.repository == 'mozmeao/springfield'
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build frontend assets
+        run: npm ci && npm run build
+      - name: Build Docker image
+        run: docker compose build app
+      - name: Start Django server
+        run: |
+          docker run -d \
+            --name django-server \
+            -p 8000:8000 \
+            -e DEBUG=true \
+            -e ENABLE_DJANGO_PATTERN_LIBRARY=true \
+            -e ALLOWED_HOSTS='*' \
+            -e WAGTAIL_ENABLE_ADMIN=True \
+            -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
+            -v $GITHUB_WORKSPACE/media:/app/media:ro \
+            mozmeao/springfield_test:latest \
+            python manage.py runserver 0.0.0.0:8000
+      - name: Wait for Django server
+        run: timeout 60 bash -c 'until curl -sf http://localhost:8000/healthz/; do sleep 2; done'
+      - name: Install Playwright dependencies
+        run: cd tests/playwright && npm ci && npm run install-deps
+      - name: Run Playwright tests
+        run: cd tests/playwright && npm run local:visual-regression-tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:8000
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results-${{ github.sha }}-${{ github.run_id }}
+          path: tests/playwright/test-results/
+          if-no-files-found: ignore # this avoids a false "Warning" if there were no issues
+          retention-days: 30
