@@ -100,8 +100,32 @@ function forceEssentialCampaign(campaign = 'smart_window') {
     }
 }
 
+/**
+ * Prevents the download-as-default feature from interfering with
+ * attribution tests by blocking the JS bundles and removing checkbox
+ * elements from the DOM before page scripts run.
+ * @param {import('@playwright/test').Page} page
+ */
+async function removeDownloadAsDefault(page) {
+    await page.route('**/js/download_as_default*.js', (route) => route.abort());
+    await page.addInitScript(() => {
+        const obs = new MutationObserver(() => {
+            const labels = document.querySelectorAll('.default-browser-label');
+            if (labels.length > 0) {
+                labels.forEach((el) => el.remove());
+                obs.disconnect();
+            }
+        });
+        obs.observe(document, { childList: true, subtree: true });
+    });
+}
+
 const existingAnalyticsParams =
     'utm_source=newsletter&utm_medium=email&utm_campaign=existing';
+
+test.beforeEach(async ({ page }) => {
+    await removeDownloadAsDefault(page);
+});
 
 test.describe('analytics download attribution', () => {
     test.describe(
@@ -264,6 +288,7 @@ test.describe('essential download attribution', () => {
             // script (registered on `page`) does not run again and re-set
             // data-stub-attribution-campaign-force on the second navigation.
             const page2 = await page.context().newPage();
+            await removeDownloadAsDefault(page2);
             await routeStubAttributionCode(page2, capture);
             await openPage(`/en-US/?geo=us`, page2, browserName);
 
