@@ -236,7 +236,7 @@ def redirect(
         query = query.copy()
 
     def _view(request, *args, **kwargs):
-        # Avoid the _view closure capturing the original _query state
+        # Avoid mutating the closed-over query between requests.
         request_query = deepcopy(query)
 
         # don't want to have 'None' in substitutions
