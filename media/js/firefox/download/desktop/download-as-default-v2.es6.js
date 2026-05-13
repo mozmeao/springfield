@@ -113,9 +113,9 @@ DownloadAsDefault.meetsRequirements = () => {
         !window.history.replaceState
     ) {
         return false;
-        // } else if (window.site.platform !== 'windows') {
-        //     // Ensure the visitor is on Windows OS
-        //     return false;
+    } else if (window.site.platform !== 'windows') {
+        // Ensure the visitor is on Windows OS
+        return false;
     } else if (!window.site.fxSupported) {
         // Ensure the visitor is on a supported version
         return false;
