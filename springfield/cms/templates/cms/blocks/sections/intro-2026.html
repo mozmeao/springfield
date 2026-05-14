@@ -12,7 +12,27 @@
   full_width="{{ value.settings.full_width }}"
 >
   <content:heading>
-    {% include_block value.heading %}
+    {% if value.tags %}
+      <div>
+        {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-{{ block_level }}"
+          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+        />
+        <div class="fl-tags{% if not value.media %} center{% endif %}">
+          {% for tag in value.tags %}
+            {% include_block tag %}
+          {% endfor %}
+        </div>
+        {% if value.heading.subheading_text %}
+          <p class="fl-subheading">{{ value.heading.subheading_text|richtext|remove_p_tag }}</p>
+        {% endif %}
+      </div>
+    {% else %}
+      {% include_block value.heading %}
+    {% endif %}
   </content:heading>
   {% if value.buttons %}
     <content:actions>

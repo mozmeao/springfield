@@ -6,6 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.tag_fixtures import get_tag_2026_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -13,6 +14,7 @@ from springfield.cms.models import FreeFormPage2026
 def get_intro_2026_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
+    tags = get_tag_2026_variants()
     return [
         # Vertical layout (default), no media
         {
@@ -29,6 +31,7 @@ def get_intro_2026_variants() -> list[dict]:
                     "heading_text": '<p data-block-key="i26h1">Intro without media</p>',
                     "subheading_text": '<p data-block-key="i26b1">Media isn\'t required on the intro block.</p>',
                 },
+                "tags": [tags["purple"]],
                 "buttons": [buttons["primary"]],
             },
             "id": "2026int1-0000-0000-0000-000000000001",
@@ -61,6 +64,7 @@ def get_intro_2026_variants() -> list[dict]:
                     "heading_text": '<p data-block-key="i26h2">Intro with image (right)</p>',
                     "subheading_text": '<p data-block-key="i26b2">Switch to Dark Mode to see the alternative image.</p>',
                 },
+                "tags": [tags["red"], tags["orange"]],
                 "buttons": [buttons["secondary"], buttons["ghost"]],
             },
             "id": "2026int1-0000-0000-0000-000000000003",
@@ -156,6 +160,7 @@ def get_intro_2026_variants() -> list[dict]:
                     "heading_text": '<p data-block-key="i26h6">Intro with QR code</p>',
                     "subheading_text": '<p data-block-key="i26b6">Scan the QR code to get started.</p>',
                 },
+                "tags": [tags["green"], tags["purple"], tags["red"]],
                 "buttons": [buttons["secondary"]],
             },
             "id": "2026int1-0000-0000-0000-000000000008",
