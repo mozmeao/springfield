@@ -1,0 +1,30 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-row">
+  <h3>These buttons are only functional within Firefox desktop.</h3>
+  <h4>Local testing:</h4>
+
+  <p>
+  the UI tour functionality only works on mozilla domains, so to make it work locally (on http://localhost:8000/), you will need to:
+  </p>
+
+  <ol class="pl-wrapper">
+    <li>open Firefox and go to <code>about:config</code></li>
+    <li>change <code>browser.uitour.requireSecure</code> to <code>false</code></li>
+    <li>change <code>browser.uitour.testingOrigins</code> to <code>http://localhost:8000/</code></li>
+  </ol>
+</div>
+
+{% for button in buttons %}
+  <include:uitour_button
+    theme_class="{{ button.theme_class }}"
+    label="{{ button.label }}"
+    disabled=""
+    icon_name="{{ button.icon_name }}"
+    icon_position="{{ button.icon_position }}"
+  />
+{% endfor %}
