@@ -972,7 +972,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         ),
     ]
 
-    promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
+    promote_panels = UTMParamsMixin.promote_panels + [
         FieldPanel("enable_marketing_attribution"),
     ]
 
