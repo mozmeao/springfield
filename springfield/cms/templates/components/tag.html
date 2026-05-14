@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<span class="fl-tag fl-tag-{{ color }} fl-tag-{{ corners }}">
+<span class="fl-tag{% if color %} fl-tag-{{ color }}{% endif %}{% if corners %} fl-tag-{{ corners }}{% endif %}">
   {% if before_icon %}
     <include:icon
       icon_name="{{ before_icon }}"
