@@ -750,6 +750,7 @@ INSTALLED_APPS = [
     "csp",
     "wagtail_link_block",
     # Local apps
+    # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases
     "springfield.firefox",
@@ -1423,6 +1424,7 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "code",
     "blockquote",
     "link",
+    "document-link",
     "ol",
     "ul",
     "image",

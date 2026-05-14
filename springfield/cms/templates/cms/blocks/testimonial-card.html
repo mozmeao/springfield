@@ -14,7 +14,7 @@
   max_version="{{ value.settings.show_to.max_version }}">
   <include:testimonial-card>
     <content:body>
-      {{ value.content }}
+      {{ value.content|richtext }}
     </content:body>
     {% if value.attribution_image.image %}
       <content:image>

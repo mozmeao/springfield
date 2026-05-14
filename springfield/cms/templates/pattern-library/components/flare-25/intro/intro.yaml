@@ -24,7 +24,6 @@ context:
           theme_class: 'button-secondary'
       orientation: horizontal
       center_class: is-center
-    fine_print: Fine print
     media:
       url: /media/img/firefox/flare/placeholder.png
       alt: PlaceholderImage
