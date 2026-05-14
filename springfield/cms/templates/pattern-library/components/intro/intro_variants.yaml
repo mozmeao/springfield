@@ -20,7 +20,6 @@ context:
           external: false
           icon_name: back
           icon_position: left
-      fine_print: Fine print
       image:
         url: /media/img/firefox/flare/placeholder.png
         alt: PlaceholderImage
@@ -44,7 +43,6 @@ context:
           external: false
           icon_name: back
           icon_position: left
-      fine_print: Fine print
       image:
         url: /media/img/firefox/flare/placeholder.png
         alt: PlaceholderImage
@@ -67,7 +65,6 @@ context:
           external: false
           icon_name: back
           icon_position: left
-      fine_print: Fine print
 
     - title: Intro With Video
       media_position: 'after'
@@ -88,7 +85,6 @@ context:
           external: false
           icon_name: back
           icon_position: left
-      fine_print: Fine print
       video:
         url: https://www.youtube.com/watch?v=F-nFQryDB0s
         poster: /media/img/firefox/flare/placeholder.png
