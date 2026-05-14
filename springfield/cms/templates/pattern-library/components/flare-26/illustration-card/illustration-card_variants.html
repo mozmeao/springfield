@@ -16,7 +16,11 @@
           expand_link="{{ card.expand_link }}"
         >
           <content:media>
-            <img src="{{ card.image }}" alt="" loading="lazy" />
+            {% if card.icon %}
+              <include:icon icon_name="{{ card.icon }}"/>
+            {% else %}
+              <img src="{{ card.image }}" alt="" loading="lazy" />
+            {% endif %}
           </content:media>
           <content:heading>
             <include:heading
