@@ -403,10 +403,6 @@ Sticker Card
     background: var(--token-gradient-soft-purple);
 }
 
-.fl-illustration-icon-card {
-    color: var(--fl-theme-color-text);
-}
-
 /* =====================================================================
 Step Cards List - With Kit variant
 ===================================================================== */
@@ -619,6 +615,14 @@ Illustration Card
     font-size: var(--fl-theme-font-size-heading-xs);
     font-variation-settings: unset;
     line-height: 1.1;
+}
+
+.fl-illustration-icon-card {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-illustration-icon-card .fl-icon {
+    font-size: 24px;
 }
 
 .fl-illustration-card.fl-illustration-icon-card,
