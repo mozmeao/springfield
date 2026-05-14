@@ -31,6 +31,10 @@
     position: relative;
 }
 
+.fl-two-column-card .fl-icon-text-list li {
+    padding-block: 0;
+}
+
 .fl-two-column-card .media img {
     inline-size: 100%;
     margin-block-end: 0;
@@ -38,6 +42,11 @@
 
 .fl-two-column-card .fl-heading {
     margin: 0;
+}
+
+.fl-two-column-card .fl-icon-text-list .fl-icon-wrap {
+    background: transparent;
+    color: var(--fl-theme-color-text);
 }
 
 .fl-two-column-cards-light-dark
@@ -95,6 +104,10 @@
     text-transform: uppercase;
     transform: translateX(-50%);
     z-index: 1;
+}
+
+.fl-two-column-card[class*='image-is-stuck'] {
+    border-width: 0;
 }
 
 .image-is-stuck-bottom-right .media,

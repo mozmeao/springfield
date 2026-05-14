@@ -1,0 +1,11 @@
+name: Stacked notification variants
+context:
+  notifications:
+    - heading: Notification Heading
+      message: This is a simple notification
+      icon: ''
+      closable: false
+    - heading: Notification Heading
+      message: This is a notification with an icon
+      icon: globe
+      closable: false

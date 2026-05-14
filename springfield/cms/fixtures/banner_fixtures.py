@@ -5,6 +5,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.tag_fixtures import get_tag_2026_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
@@ -28,8 +29,9 @@ def get_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Outlined Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. Visit'
+                    ' <a href="https://www.mozilla.org"'
+                    ' uid="ba010000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                 },
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
@@ -311,6 +313,7 @@ def get_banner_variants():
 def get_banner_2026_variants():
     buttons = get_button_variants()
     videos = get_video_variants()
+    tags = get_tag_2026_variants()
     return [
         {
             "type": "banner",
@@ -325,9 +328,11 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Default Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. Visit'
+                    ' <a href="https://www.mozilla.org"'
+                    ' uid="ba260000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                 },
+                "tags": [tags["purple"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000001",
@@ -348,6 +353,7 @@ def get_banner_2026_variants():
                     "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
                     "If no media is provided, it uses the centered layout.</p>",
                 },
+                "tags": [tags["red"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000002",
@@ -388,6 +394,7 @@ def get_banner_2026_variants():
                     "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
                     "If no media is provided, it uses the centered layout.</p>",
                 },
+                "tags": [tags["orange"], tags["green"]],
                 "buttons": [buttons["tertiary"], buttons["secondary"]],
             },
             "id": "a944ae4e-dfe9-44ab-9d7d-e297ff85a642",
@@ -441,6 +448,7 @@ def get_banner_2026_variants():
                     "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
                     "Switch between light and dark mode to see the alternative images.</p>",
                 },
+                "tags": [tags["purple"], tags["red"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000005",
@@ -474,6 +482,7 @@ def get_banner_2026_variants():
                     "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
                     "Switch between light and dark mode to see the alternative images.</p>",
                 },
+                "tags": [tags["orange"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000007",
@@ -678,6 +687,7 @@ def get_banner_2026_variants():
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with QR Code</p>',
                     "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
                 },
+                "tags": [tags["purple"], tags["orange"], tags["green"]],
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000021",

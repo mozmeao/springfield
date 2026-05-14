@@ -9,7 +9,7 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/banner/kit_banner_variants_2026.html`;
+const url = `${patternLibraryURL}/banner/kit_banner_variants.html`;
 
 test.describe(
     `Kit Banner`,

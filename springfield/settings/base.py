@@ -751,6 +751,7 @@ INSTALLED_APPS = [
     "csp",
     "wagtail_link_block",
     # Local apps
+    # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases
     "springfield.firefox",
@@ -868,8 +869,8 @@ PATTERN_LIBRARY = {
     "SECTIONS": (
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
-        ("Components", ["pattern-library/components"]),
-        ("Pages", ["pattern-library/pages"]),
+        ("Components", ["pattern-library/components/flare-26/"]),
+        ("Components - Flare 25", ["pattern-library/components/flare-25/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -1429,6 +1430,7 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "code",
     "blockquote",
     "link",
+    "document-link",
     "ol",
     "ul",
     "image",
