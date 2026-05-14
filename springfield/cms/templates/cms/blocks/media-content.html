@@ -6,6 +6,7 @@
 #}
 
 {% set row_heading_level = 'h' ~ block_level if block_level else 'h2' %}
+{% set block_text =  value.headline|richtext|remove_tags %}
 
 <include:media-content media_after="{{ value.settings.media_after }}" narrow="{{ value.settings.narrow }}">
   {% if value.eyebrow %}
@@ -41,7 +42,6 @@
       {% if value.buttons %}
           {% for button in value.buttons %}
             {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% set block_text =  value.headline|richtext|remove_tags %}
             {% include_block button %}
           {% endfor %}
       {% endif %}

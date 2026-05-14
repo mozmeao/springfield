@@ -13,7 +13,11 @@
 {% block page_desc %}A look back at what your Firefox did this year.{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('eoy_2025') }}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-year-in-review') }}
+  {% else %}
+    {{ css_bundle('eoy_2025') }}
+  {% endif %}
 {% endblock %}
 
 {% block body_class %}yir-2025{% endblock %}

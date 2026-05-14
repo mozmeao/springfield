@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set component %}
+  <include:featured-image-section>
+    <content:heading>
+      <include:heading
+        level="{{ contents.heading.level }}"
+        heading_text="{{ contents.heading.heading_text }}"
+        subheading_text="{{ contents.heading.subheading_text }}"
+      />
+    </content:heading>
+    <content:content>
+      <p>{{ contents.content }}</p>
+    </content:content>
+    <content:media>
+      <include:image url="{{ contents.media.url }}" alt="{{ contents.media.alt }}" />
+    </content:media>
+  </include:featured-image-section>
+{% endset %}
+
+<div style="background: var(--token-color-dark-purple);">
+  <div class="fl-main">
+    <div class="fl-split-page-upper">
+      {{ component }}
+    </div>
+    <div class="fl-split-page-lower">
+      {{ component }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block content %}
+  <div class="fl-main">
+    <div class="fl-section">
+      <h1>Click the button to see the snippet</h1>
+
+        {% set dialog_id = "set-as-default-dialog" %}
+        <include:button
+          extra_classes="fl-dialog-trigger fl-set-as-default-button"
+          label="Set Firefox as your default browser"
+          data_target_id="{{ dialog_id }}"
+        />
+
+        <div class="fl-set-as-default-dialog">
+          <include:dialog id="{{ dialog_id }}">
+            <content:heading>
+              <include:heading
+                heading_text="{{ object.heading_text }}"
+              />
+            </content:heading>
+            <content:body>
+              {% include "cms/snippets/set-as-default-snippet.html" %}
+            </content:body>
+        </include:dialog>
+        </div>
+
+    </div>
+  </div>
+{% endblock content %}

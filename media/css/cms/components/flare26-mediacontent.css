@@ -1,0 +1,161 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-mediacontent {
+    align-items: center;
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    position: relative;
+}
+
+.fl-mediacontent-media {
+    block-size: auto;
+    border-radius: var(--token-spacing-lg);
+    overflow: hidden;
+}
+
+.fl-mediacontent-content .heading,
+.fl-mediacontent-content .fl-body,
+.fl-mediacontent-content .fl-superheading {
+    text-align: start;
+}
+
+.fl-mediacontent-content .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    font-size: var(--fl-theme-label-caps-sm);
+    text-transform: uppercase;
+}
+
+.fl-mediacontent-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-xl);
+
+    .fl-tag {
+        margin: 0;
+    }
+}
+
+.fl-mediacontent.is-narrow .fl-video {
+    aspect-ratio: 11/12;
+}
+
+.fl-mediacontent.is-narrow .fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
+@media (--viewport-md-up) {
+    .fl-mediacontent {
+        gap: var(--token-layout-md);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-mediacontent-reverse {
+        grid-auto-flow: dense;
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-media {
+        order: 2;
+    }
+
+    .fl-mediacontent-reverse .fl-mediacontent-content {
+        order: 1;
+    }
+
+    .fl-mediacontent-content {
+        padding: 0;
+    }
+
+    /* todo: This makes these components match Figma, but we should revisit container gaps. */
+    .fl-mediacontent + .fl-mediacontent {
+        padding-block-start: 16px;
+    }
+
+    .fl-mediacontent-content .fl-buttons {
+        margin-block-start: var(--token-spacing-xl);
+    }
+
+    .fl-mediacontent .fl-button {
+        inline-size: fit-content;
+    }
+
+    .fl-mediacontent.is-narrow {
+        gap: var(--token-layout-md);
+        grid-template-columns: minmax(0, 6fr) minmax(0, 9fr);
+        margin-inline: auto;
+        max-inline-size: var(--token-width-desktop-wide-banner);
+    }
+
+    .fl-mediacontent.fl-mediacontent-reverse.is-narrow {
+        grid-template-columns: minmax(0, 9fr) minmax(0, 6fr);
+    }
+}
+
+@media (--viewport-xs) {
+    .fl-mediacontent-content .fl-button {
+        inline-size: 100%;
+    }
+
+    .fl-mediacontent {
+        gap: var(--token-spacing-xl);
+    }
+
+    .fl-mediacontent-media {
+        block-size: auto;
+    }
+}
+
+.fl-mediacontent .fl-subtitle a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-mediacontent .fl-subtitle a:hover {
+    text-decoration: underline;
+}
+
+.fl-mediacontent .fl-subtitle a:focus {
+    outline: 2px solid var(--fl-theme-color-link);
+    outline-offset: 2px;
+}
+
+.fl-mediacontent .fl-button {
+    align-self: flex-start;
+}
+
+.fl-mediacontent-media img {
+    block-size: auto;
+    border-radius: var(--token-spacing-lg);
+    display: block;
+    inline-size: 100%;
+    margin: 0;
+}
+
+.fl-mediacontent-media iframe {
+    aspect-ratio: 16 / 9;
+    block-size: auto;
+    border-radius: var(--token-spacing-lg);
+    inline-size: 100%;
+}
+
+/* Blog page related articles */
+.fl-blog-related-articles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    margin-block-start: var(--token-layout-sm);
+}
+
+.fl-blog-related-articles .fl-mediacontent {
+    margin: 0;
+    padding: 0;
+}

@@ -15,6 +15,7 @@
   {{ css_bundle('protocol-split') }}
   {{ css_bundle('protocol-picto') }}
   {{ css_bundle('firefox-enterprise') }}
+  {{ css_bundle('flare26-enterprise') }}
 {% endblock %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=enterprise' %}
@@ -74,7 +75,7 @@
         level="h2"
         heading_text="{{ ftl('firefox-enterprise-support-for-organizations') }}"
         heading_size="fl-heading-size-2"
-        subheading_text="{{ ftl('firefox-enterprise-early-access-is') }}"
+        subheading_text="{{ ftl('firefox-enterprise-early-access-is-v2', fallback='firefox-enterprise-early-access-is') }}"
         subheading_size="fl-subheading-4"
       />
     </content:heading>
@@ -96,7 +97,7 @@
       superheading_text=""
       alignment_class="text-center fl-2026-enterprise-protection"
   />
-  <include:cards-list>
+  <include:cards-list container_width="wide">
     <include:card
       expand_link="false"
     >
@@ -210,7 +211,7 @@
       <div class="mzp-c-callout-content">
         <h2 class="mzp-c-callout-title">{{ ftl('firefox-enterprise-support-for-organizations') }}</h2>
         <div class="mzp-c-callout-desc">
-          <p>{{ ftl('firefox-enterprise-early-access-is') }}</p>
+          <p>{{ ftl('firefox-enterprise-early-access-is-v2', fallback='firefox-enterprise-early-access-is') }}</p>
         </div>
         <a class="callout-cta mzp-c-button mzp-t-product" href="https://qsurvey.mozilla.com/s3/firefox-support-plan?src=firefox-enterprise-cta" data-cta-text="Contact Sales">
           {{ ftl('firefox-enterprise-contact-sales') }}

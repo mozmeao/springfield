@@ -48,6 +48,14 @@ def test_remove_p_tag_with_inner_tags():
     assert remove_p_tag(input_html) == expected_output
 
 
+def test_remove_p_tag_preserves_escaped_entities():
+    # Regression: `remove_p_tag` must not convert entity-encoded HTML inside text
+    # nodes back into live markup (XSS).
+    input_html = "<p>&lt;img src=x onerror=alert(1)&gt;</p>"
+    expected_output = "&lt;img src=x onerror=alert(1)&gt;"
+    assert remove_p_tag(input_html) == expected_output
+
+
 def test_remove_tags():
     input_html = "<p>This is a <strong>paragraph</strong>.</p><p>This is another paragraph.</p>"
     expected_output = "This is a paragraph.This is another paragraph."
@@ -146,7 +154,7 @@ def test_richtext_parses_fxa_tag():
     expected_html = f"""<p>Paragraph with <a
         class="js-fxa-cta-link js-fxa-product-button fxa-link"
         data-action="{settings.FXA_ENDPOINT}"
-        data-cta-position="block-1-fxa-link"
+        data-cta-position="block-1.fxa-link-1"
         data-cta-text="A heading above the link"
         data-cta-uid="UID"
         href="{expected_url}"

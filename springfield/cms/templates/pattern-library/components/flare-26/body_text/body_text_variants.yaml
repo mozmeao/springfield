@@ -1,0 +1,12 @@
+name: Body Text Variants
+context:
+  alignments:
+    - left
+    - center
+    - right
+  sizes:
+    - lg
+    - md
+    - sm
+    - xs
+    - 2xs

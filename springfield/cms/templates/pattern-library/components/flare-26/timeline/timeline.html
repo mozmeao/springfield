@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div style="padding: 1rem; max-width: 600px">
+  <include:timeline>
+    {% for item in items %}
+      <li class="fl-timeline-item">
+        <include:heading
+          level="h2"
+          superheading_text="{{ item.superheading }}"
+          heading_text="{{ item.heading }}"
+          subheading_text="{{ item.subheading }}"
+        />
+      </li>
+    {% endfor %}
+  </include:timeline>
+</div>

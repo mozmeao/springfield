@@ -763,6 +763,31 @@ class TestWhatsNew(TestCase):
     # end URL routing tests
 
 
+class TestDetectChannel(TestCase):
+    def test_nightly_a1(self):
+        assert views.detect_channel("152.0a1") == "nightly"
+
+    def test_developer_a2(self):
+        assert views.detect_channel("152.0a2") == "developer"
+
+    def test_beta_beta_suffix(self):
+        assert views.detect_channel("152.0beta") == "beta"
+
+    def test_beta_b_suffix_not_detected(self):
+        # Only the full "beta" suffix is recognised; short "b1" form is not.
+        assert views.detect_channel("152.0b1") == "unknown"
+
+    def test_release_returns_unknown(self):
+        assert views.detect_channel("152.0") == "unknown"
+
+    def test_three_digit_release_returns_unknown(self):
+        assert views.detect_channel("152") == "unknown"
+
+    def test_old_version_returns_unknown(self):
+        # versions below 35 always return unknown regardless of suffix
+        assert views.detect_channel("34.0a1") == "unknown"
+
+
 @pytest.mark.parametrize(
     "ua, expected",
     (

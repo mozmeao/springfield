@@ -18,6 +18,24 @@ from springfield.base.i18n import normalize_language
 from springfield.cms.utils import compute_cms_page_locales
 
 
+class PromotedPageMixin(models.Model):
+    """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
+
+    enable_marketing_attribution = models.BooleanField(
+        default=False,
+        help_text=(
+            "Enable marketing attribution for externally promoted pages. "
+            "Adds the 'Share how you discovered Firefox' opt-out checkbox, "
+            "consent banner support for EU visitors, and stub attribution "
+            "for CPA tracking. Must not be used together with the 'Set as "
+            "default browser' checkbox on download buttons."
+        ),
+    )
+
+    class Meta:
+        abstract = True
+
+
 @method_decorator(never_cache, name="serve_password_required_response")
 class AbstractSpringfieldCMSPage(WagtailBasePage):
     """Base page class for all Wagtail pages within Springfield

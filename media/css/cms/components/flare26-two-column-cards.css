@@ -1,0 +1,192 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-two-column-cards {
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding: var(--fl-section-h-padding);
+}
+
+.fl-two-column-card-wrapper {
+    block-size: 100%;
+    display: flex;
+    position: relative;
+}
+
+.fl-two-column-card {
+    border: 1px solid transparent;
+    border-radius: var(--gallery-card-radius);
+    contain: paint;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--gallery-card-padding);
+    position: relative;
+}
+
+.fl-two-column-card .fl-icon-text-list li {
+    padding-block: 0;
+}
+
+.fl-two-column-card .media img {
+    inline-size: 100%;
+    margin-block-end: 0;
+}
+
+.fl-two-column-card .fl-heading {
+    margin: 0;
+}
+
+.fl-two-column-card .fl-icon-text-list .fl-icon-wrap {
+    background: transparent;
+    color: var(--fl-theme-color-text);
+}
+
+.fl-two-column-cards-light-dark
+    .fl-two-column-card-wrapper:first-child
+    .fl-two-column-card {
+    --current-card-bg-color: var(--theme-purple-card-bg-color);
+    background-color: var(--theme-purple-card-bg-color);
+}
+
+.fl-two-column-cards-light-dark
+    .fl-two-column-card-wrapper:last-child
+    .fl-two-column-card {
+    --current-card-bg-color: var(--two-column-light-dark-second-card-bg);
+    background-color: var(--two-column-light-dark-second-card-bg);
+    border-color: var(--two-column-light-dark-second-card-border-color);
+}
+
+.fl-two-column-cards-light-light
+    .fl-two-column-card-wrapper:first-child
+    .fl-two-column-card {
+    --current-card-bg-color: var(--two-column-light-light-first-card-bg);
+    background-color: var(--two-column-light-light-first-card-bg);
+}
+
+.fl-two-column-cards-light-light
+    .fl-two-column-card-wrapper:last-child
+    .fl-two-column-card {
+    --current-card-bg-color: var(--two-column-light-light-second-card-bg);
+    background-color: var(--two-column-light-light-second-card-bg);
+}
+
+.fl-two-column-card .fl-superheading {
+    color: var(--two-column-accent-color);
+    font-size: var(--token-font-size-xs);
+}
+
+.fl-two-column-card .fl-button {
+    display: block;
+}
+
+.fl-two-column-card-content {
+    block-size: 100%;
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+}
+
+.fl-card-tag {
+    --notification-bg: var(--token-color-light-purple);
+    --notification-stacked-color: var(--token-color-white);
+    inset-block-start: calc(var(--token-spacing-md) * -1);
+    inset-inline-start: 50%;
+    position: absolute;
+    text-transform: uppercase;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.fl-two-column-card[class*='image-is-stuck'] {
+    border-width: 0;
+}
+
+.image-is-stuck-bottom-right .media,
+.image-is-stuck-bottom-left .media,
+.image-is-stuck-top-left .media,
+.image-is-stuck-top-right .media,
+.image-is-stuck-left .media,
+.image-is-stuck-right .media {
+    max-inline-size: calc(100% + var(--gallery-card-padding));
+}
+
+.image-is-stuck-top .media,
+.image-is-stuck-top-left .media,
+.image-is-stuck-top-right .media,
+.image-is-stuck-full-top .media {
+    order: -1;
+}
+
+.image-is-stuck-full-top .media,
+.image-is-stuck-full-bottom .media {
+    margin-inline: calc(var(--gallery-card-padding) * -1);
+    max-inline-size: calc(100% + (var(--gallery-card-padding) * 2));
+}
+
+.image-is-stuck-bottom-right .media,
+.image-is-stuck-bottom-left .media,
+.image-is-stuck-full-bottom .media,
+.image-is-stuck-bottom .media {
+    margin-block-start: auto;
+}
+
+.image-is-stuck-bottom-right .media {
+    margin-block-end: calc(var(--gallery-card-padding) * -1);
+    margin-inline-end: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-bottom-left .media {
+    margin-block-end: calc(var(--gallery-card-padding) * -1);
+    margin-inline-start: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-top-left .media {
+    margin-block-start: calc(var(--gallery-card-padding) * -1);
+    margin-inline-start: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-top-right .media {
+    margin-block-start: calc(var(--gallery-card-padding) * -1);
+    margin-inline-end: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-full-top .media,
+.image-is-stuck-top .media {
+    margin-block-start: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-full-bottom .media,
+.image-is-stuck-bottom .media {
+    margin-block-end: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-left .media {
+    margin-inline-start: calc(var(--gallery-card-padding) * -1);
+}
+
+.image-is-stuck-right .media {
+    margin-inline-end: calc(var(--gallery-card-padding) * -1);
+}
+
+@media (--viewport-md-up) {
+    .fl-two-column-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (--viewport-lg-up) {
+    /* This uses the tablet size settings on desktop */
+    .reduce-card-padding .fl-two-column-card {
+        --gallery-card-padding: var(--token-layout-xs);
+        --gallery-card-radius: var(--token-border-radius-lg);
+    }
+}

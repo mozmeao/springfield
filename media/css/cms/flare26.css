@@ -33,60 +33,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-defaults.css' layer(defaults);
 @import 'flare26-template.css' layer(template);
 
-@import 'flare26-article.css' layer(components);
-@import 'flare26-navigation.css' layer(components);
-@import 'flare26-subnav.css' layer(components);
-@import 'flare26-modal.css' layer(components);
-@import 'flare26-footer.css' layer(components);
-@import 'flare26-language-switcher.css' layer(components);
-@import 'flare26-download-link.css' layer(components);
-@import 'flare26-download-utils.css' layer(components);
-@import 'flare26-icon.css' layer(components);
-@import 'flare26-nav-icons.css' layer(components);
-@import 'flare26-button.css' layer(components);
-@import 'flare26-typography.css' layer(components);
-@import 'flare26-card.css' layer(components);
-@import 'flare26-section.css' layer(components);
-@import 'flare26-intro.css' layer(components);
-@import 'flare26-carousel.css' layer(components);
-@import 'flare26-sliding-carousel.css' layer(components);
-@import 'flare26-showcase.css' layer(components);
-@import 'flare26-card-gallery.css' layer(components);
-@import 'flare26-pre-footer-cta.css' layer(components);
-@import 'flare26-banner.css' layer(components);
-@import 'flare26-kit-banner.css' layer(components);
-@import 'flare26-newsletterform.css' layer(components);
-@import 'flare26-mediacontent.css' layer(components);
-@import 'flare26-media-plus-icon-list.css' layer(components);
-@import 'flare26-notification.css' layer(components);
-@import 'flare26-media.css' layer(components);
-@import 'flare26-mobile-qr.css' layer(components);
-@import 'flare26-tag.css' layer(components);
-@import 'flare26-topic.css' layer(components);
-@import 'flare26-breadcrumb.css' layer(components);
-@import 'flare26-consent-banner.css' layer(components);
-@import 'flare26-qr-overlay.css' layer(components);
-@import 'flare26-floating-qr-overlay.css' layer(components);
-@import 'flare26-typewriter.css' layer(components);
-@import 'flare26-smart-window-instructions.css' layer(components);
-
-@import 'pages/flare26-homepage.css' layer(page);
-@import 'pages/flare26-download.css' layer(page);
-@import 'pages/flare26-download_all.css' layer(page);
-@import 'pages/flare26-blog.css' layer(page);
-@import 'pages/flare26-thanks.css' layer(page);
-@import 'pages/flare26-user-privacy.css' layer(page);
-@import 'pages/flare26-channels.css' layer(page);
-@import 'pages/flare26-cookie-settings.css' layer(page);
-@import 'pages/flare26-releases.css' layer(page);
-@import 'pages/flare26-system-requirements.css' layer(page);
-@import 'pages/flare26-developer-edition.css' layer(page);
-@import 'pages/flare26-year-in-review.css' layer(page);
-@import 'pages/flare26-enterprise.css' layer(page);
-@import 'pages/flare26-release-notes.css' layer(page);
-@import 'pages/flare26-mobile-pages.css' layer(page);
-@import 'pages/flare26-smart-window.css' layer(page);
-@import 'pages/flare26-landing-get-page.css' layer(page);
+@import 'flare26-components.css' layer(components);
 
 @import 'flare26-utilities.css' layer(utilities);
 @import 'flare26-overrides.css' layer(overrides);
@@ -108,8 +55,8 @@ included via a <link> tag in a conditional comment */
     /* Nested @imports are not valid CSS, but these are inlined by
     a custom webpack loader. */
     @import 'flare26-base.css';
-    @import 'flare26-download-utils.css';
-    @import 'flare26-download-link.css';
+    @import 'components/flare26-download-utils.css';
+    @import 'components/flare26-download-link.css';
     @import 'flare26-fallback-nav.css';
     @import 'flare26-utilities.css';
 }
