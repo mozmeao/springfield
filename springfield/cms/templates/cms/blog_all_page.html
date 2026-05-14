@@ -50,15 +50,24 @@
               <div class="fl-blog-topics-list">
                 {% for topic_item in all_topics %}
                   {% set selected_topic = topic and topic.slug == topic_item.slug %}
-                  {% set url = page.url ~ page.reverse_subpage('all_route') %}
-                  {% if not selected_topic %}
-                    {% set url = url  ~ '?topic=' ~ topic_item.slug %}
-                  {% endif %}
-                  <a href="{{ url }}" class="fl-blog-topic-link">
-                    <span class="fl-tag fl-tag-purple fl-tag-round{% if selected_topic %} fl-blog-selected-topic{% endif %}">
+                  {% set all_route_url = page.url ~ page.reverse_subpage('all_route') %}
+                  {% if selected_topic %}
+                    <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
                       {{ topic_item.name }}
+                      <include:tag
+                        text="{{ topic.article_count }}"
+                        color="white"
+                        corners="round"
+                      />
+                      <a href="{{ all_route_url }}" class="fl-blog-topic-link"></a>
                     </span>
-                  </a>
+                  {% else %}
+                    <a href="{{ all_route_url }}?topic={{ topic_item.slug }}" class="fl-blog-topic-link">
+                      <span class="fl-tag fl-tag-purple fl-tag-round">
+                        {{ topic_item.name }}
+                      </span>
+                    </a>
+                  {% endif %}
                 {% endfor %}
               </div>
               <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-next" aria-label="{{ ftl('ui-next') }}" hidden>
