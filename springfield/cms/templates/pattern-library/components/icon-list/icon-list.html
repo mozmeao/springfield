@@ -1,0 +1,39 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<h2>Icon List</h2>
+<p>Columns depend on the container size.</p>
+
+<div data-testid="icon-list-single-column" style="padding: 1rem; max-width: 400px; border: 2px dashed green;">
+  <include:icon-list>
+    {% for item in items %}
+      <li>
+        <span class="fl-icon-wrap">
+          <include:icon icon_name="{{ item.icon }}" hidden="true" />
+        </span>
+        {{ item.text }}
+      </li>
+    {% endfor %}
+  </include:icon-list>
+</div>
+
+<hr/>
+
+<h2>Icon List - Two Columns</h2>
+<p>Columns depend on the container size.</p>
+
+<div data-testid="icon-list-two-columns" style="padding: 1rem; border: 2px dashed green;">
+  <include:icon-list>
+    {% for item in items %}
+      <li>
+        <span class="fl-icon-wrap">
+          <include:icon icon_name="{{ item.icon }}" hidden="true" />
+        </span>
+        {{ item.text }}
+      </li>
+    {% endfor %}
+  </include:icon-list>
+</div>

@@ -4,10 +4,10 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-/* Article Page */
-
-.fl-page-blog .fl-main {
-    max-inline-size: var(--token-width-desktop-content);
+@layer page {
+    .fl-page-blog .fl-main {
+        max-inline-size: var(--token-width-desktop-content);
+    }
 }
 
 /*  Heading and topics */

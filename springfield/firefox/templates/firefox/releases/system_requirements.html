@@ -17,7 +17,9 @@
 {% block body_class %}mzp-t-firefox mzp-t-{{ channel_name|lower }}{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-system-requirements') }}
+  {% else %}
     {{ css_bundle('protocol-callout') }}
     {{ css_bundle('firefox_system_requirements') }}
   {% endif %}

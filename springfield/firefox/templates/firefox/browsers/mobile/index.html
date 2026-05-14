@@ -22,7 +22,9 @@
 {% block body_class %}{{ super() }} mobile-overview{% endblock %}
 
 {% block page_css %}
-{% if not switch("flare26_enabled") %}
+{% if switch("flare26_enabled") %}
+  {{ css_bundle('flare26-mobile-pages') }}
+{% else %}
   {{ css_bundle('protocol-split') }}
   {{ css_bundle('protocol-emphasis-box')}}
   {{ css_bundle('firefox-mobile-index') }}
@@ -103,7 +105,7 @@
 
           <div class="fl-mediacontent-content">
               <div class="fl-body">
-                <ul class="icon-text-list">
+                <include:icon-list>
                   <li>
                     <span class="fl-icon-wrap">
                       <span class="fl-icon fl-icon-private-mode-fill" aria-hidden="true"></span>
@@ -140,7 +142,7 @@
                     </span>
                     Fast and reliable. Built to keep up as you move.
                   </li>
-                </ul>
+                </include:icon-list>
               </div>
           </div>
         </div>

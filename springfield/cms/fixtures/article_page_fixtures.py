@@ -17,7 +17,7 @@ LOREM_IPSUM = (
     "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 )
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def create_article(

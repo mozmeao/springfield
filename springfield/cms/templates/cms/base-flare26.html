@@ -29,6 +29,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   {% if page.stub_attr_utm_campaign_mode == "force" %}data-stub-attribution-campaign-force="{{ page.stub_attr_utm_campaign_value }}"{% endif %}
   {% endif %}
   {% endblock %}
+  {% block marketing_attribution %}
+    {% if page is defined and page.enable_marketing_attribution is defined %}data-promoted-page="{{ page.enable_marketing_attribution }}"{% endif %}
+  {% endblock marketing_attribution %}
   {% block html_attrs %}{% endblock %}
 >
 
@@ -74,7 +77,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endif %}
     {% endblock %}
 
-    {% block page_css %}{% endblock %}
+    {% block page_css %}
+      {% if page is defined and page.enable_marketing_attribution %}
+        {{ css_bundle('firefox_marketing_opt_out') }}
+      {% endif %}
+      {% if page is defined and page.body_class %}
+        {{ css_bundle(page.body_class) }}
+      {% endif %}
+    {% endblock %}
 
     {# site bundle must load in head before analytics #}
     {{ js_bundle('site') }}
@@ -85,7 +95,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
-  <body {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}class="html-{{ DIR }} {% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+  <body
+    {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
+    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
+    {% block body_attrs %}{% endblock %}
+  >
     {{ wagtailuserbar() }}
 
     {% block flare_header %}
@@ -197,6 +211,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
       {# Download as default needs to come after stub attribution #}
       {{ js_bundle('download_as_default') }}
+
+      {% if page is defined and page.enable_marketing_attribution %}
+        <!--[if IE 9]><!-->
+          {# Marketing opt-out runs on all evergreen browsers plus IE9 and above. #}
+          {{ js_bundle('firefox_marketing_opt_out') }}
+        <!--<![endif]-->
+      {% endif %}
     {% endblock %}
 
     {% block js %}

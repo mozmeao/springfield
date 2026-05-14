@@ -6,7 +6,7 @@ from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage, WhatsNewPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_whatsnew_index_page() -> WhatsNewIndexPage:

@@ -42,6 +42,7 @@ from springfield.cms.blocks import (
     CarouselBlock,
     CodeBlock,
     DownloadSupportBlock,
+    FeaturedImageSectionBlock,
     HeadingBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
@@ -63,13 +64,14 @@ from springfield.cms.blocks import (
     SlidingCarouselBlock,
     SubscriptionBlock,
     TopicListBlock,
+    TwoColumnCardsBlock,
     VideoBlock,
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 
-from .base import AbstractSpringfieldCMSPage
+from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -522,11 +524,42 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     other_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES)
     other_articles_subheading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+    show_sibling_detail_pages = models.BooleanField(
+        default=False,
+        help_text=(
+            "If checked, ArticleDetailPage siblings of this index page are included "
+            "in the article listing alongside its children. Enable for index pages "
+            "whose detail pages are siblings. Disable for index pages whose detail "
+            "pages are children."
+        ),
+    )
+
+    INDEX_CARD_STICKER = "sticker_card"
+    INDEX_CARD_OUTLINE = "outline_card"
+    INDEX_CARD_ILLUSTRATION = "illustration_card"
+
+    INDEX_CARD_TYPE_CHOICES = (
+        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_OUTLINE, "Outline card"),
+        (INDEX_CARD_ILLUSTRATION, "Illustration card"),
+    )
+
+    index_card_type = models.CharField(
+        max_length=20,
+        choices=INDEX_CARD_TYPE_CHOICES,
+        default=INDEX_CARD_STICKER,
+        help_text="Controls the card style used in the article listing.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("sub_title"),
         FieldPanel("other_articles_heading"),
         FieldPanel("other_articles_subheading"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("show_sibling_detail_pages"),
+        FieldPanel("index_card_type"),
     ]
 
     def __str__(self):
@@ -536,7 +569,16 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         context = super().get_context(request)
 
         child_ids = self.get_children().live().public().values_list("pk", flat=True)
-        sibling_ids = self.get_siblings(inclusive=False).live().public().values_list("pk", flat=True)
+
+        # Sometimes, when an ArticleIndexPage exists at the same hierarchical level as
+        # ArticleDetailPage, we want to include those ArticleDetailPages on the
+        # ArticleIndexPage; other times we do not. Make the determination based
+        # on the show_sibling_detail_pages field.
+        if self.show_sibling_detail_pages:
+            sibling_ids = self.get_siblings(inclusive=False).live().public().values_list("pk", flat=True)
+        else:
+            sibling_ids = []
+
         all_articles = ArticleDetailPage.objects.filter(pk__in=[*child_ids, *sibling_ids]).order_by("-first_published_at")
 
         featured_articles = [page for page in all_articles if page.featured]
@@ -842,9 +884,11 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -883,7 +927,7 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"FreeFormPage: {self.title} - {self.locale}"
 
 
-class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -901,19 +945,47 @@ class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
     )
     show_pre_footer = models.BooleanField(
         default=True,
+        verbose_name="Show Pre-Footer",
         help_text="If true, the page will display the default pre-footer section.",
     )
     show_nav_cta = models.BooleanField(
         default=True,
-        help_text="If true, the download button will appear in the navigation bar for this page.",
+        verbose_name="Show Navigation CTA",
+        help_text="If true, the download button will appear in the navigation bar for this page. "
+        "Only applicable if 'Show Navigation' is also enabled.",
+    )
+    show_navigation = models.BooleanField(
+        default=True,
+        verbose_name="Show Navigation",
+        help_text="If true, the navigation menu will be displayed on this page's header bar.",
+    )
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        FieldPanel("show_pre_footer"),
-        FieldPanel("show_nav_cta"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("show_pre_footer"),
+                FieldPanel("show_navigation"),
+                FieldPanel("show_nav_cta"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+                FieldPanel("body_class"),
+            ],
+            heading="Page Options",
+        ),
+    ]
+
+    promote_panels = UTMParamsMixin.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
     ]
 
     class Meta:
@@ -922,6 +994,10 @@ class FreeFormPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
 
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):

@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import importlib
+from functools import partial
 from unittest.mock import patch
 
 from django.http.response import HttpResponse
@@ -13,7 +14,7 @@ import pytest
 import springfield.firefox.redirects as redirects_module
 from springfield.firefox.redirects import mobile_app, validate_param_value
 from springfield.redirects.middleware import RedirectsMiddleware
-from springfield.redirects.util import get_resolver
+from springfield.redirects.util import get_resolver, redirect
 
 
 @pytest.mark.parametrize(
@@ -131,7 +132,7 @@ def test_refresh_redirect_destinations(source, destination, permanent):
         ("/browsers/desktop/mac/?utm_source=foo&utm_medium=bar", "/download/mac/?utm_source=foo&utm_medium=bar"),
     ),
 )
-def test_refresh_redirect_preserves_querystrings(source, destination, permanent):
+def test_refresh_redirect_preserves_query_strings(source, destination, permanent):
     rf = RequestFactory()
     with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
         middleware = _get_refresh_middleware()
@@ -171,10 +172,125 @@ def test_refresh_redirects_not_in_redirectpatterns_when_disabled():
         ("/ai/", "/smart-window/?view=waitlist"),  # no locale; middleware will later add the most appropriate locale
         ("/en-US/ai/", "/en-US/smart-window/?view=waitlist"),  # with locale
         ("/fr/ai/", "/fr/smart-window/?view=waitlist"),  # non-default locale
-        ("/en-GB/ai/?foo=bar", "/en-GB/smart-window/?view=waitlist"),  # incoming querystrings lost until WT-1086 is done
+        ("/en-GB/ai/?foo=bar", "/en-GB/smart-window/?view=waitlist"),  # incoming query strings are disregarded because `merge_query` is False
     ),
 )
 def test_ai_redirect_to_smart_window_waitlist(client, source, dest):
     resp = client.get(source, follow=False)
     assert resp.status_code == 302
     assert resp.headers["Location"] == dest
+
+
+# -- Offsite redirect / locale / query string isolation tests --
+
+EXPECTED_REDIRECT_QS = "?redirect_source=test"
+_TEST_EXT_HOST = "https://www.example.com"
+_TEST_EXT_BASE = f"{_TEST_EXT_HOST}/{{_locale}}"
+
+_test_offsite_redirect = partial(
+    redirect,
+    query={"redirect_source": "test"},
+    merge_query=True,
+    permanent=False,
+)
+
+_test_offsite_patterns = (
+    _test_offsite_redirect(r"^firefox/new/$", f"{_TEST_EXT_BASE}/"),
+    _test_offsite_redirect(r"^firefox/installer-help/$", f"{_TEST_EXT_BASE}/download/installer-help/"),
+    _test_offsite_redirect(r"^firefox/set-as-default/$", f"{_TEST_EXT_BASE}/landing/set-as-default/"),
+    _test_offsite_redirect(r"^firefox/browsers/incognito-browser/$", f"{_TEST_EXT_BASE}/more/incognito-browser/"),
+)
+
+
+def _get_offsite_middleware():
+    return RedirectsMiddleware(get_response=HttpResponse, resolver=get_resolver(_test_offsite_patterns))
+
+
+@pytest.mark.parametrize(
+    "path, expected_dest",
+    (
+        ("/en-US/firefox/new/?hello=world", f"{_TEST_EXT_HOST}/en-US/{EXPECTED_REDIRECT_QS}&hello=world"),
+        ("/en-US/firefox/new/", f"{_TEST_EXT_HOST}/en-US/{EXPECTED_REDIRECT_QS}"),
+        (
+            "/en-US/firefox/installer-help/?bar=baz&bam=bam",
+            f"{_TEST_EXT_HOST}/en-US/download/installer-help/{EXPECTED_REDIRECT_QS}&bar=baz&bam=bam",
+        ),
+        ("/en-US/firefox/installer-help/", f"{_TEST_EXT_HOST}/en-US/download/installer-help/{EXPECTED_REDIRECT_QS}"),
+    ),
+)
+def test_subsequent_redirects_do_not_carry_query_strings_from_earlier_requests(path, expected_dest):
+    # Safety check that Django/Springfield isn't caching query strings used in other
+    # responses. Both of the parametrized paths above are included with and
+    # without extra query strings, which should NOT bleed between requests.
+    rf = RequestFactory()
+    middleware = _get_offsite_middleware()
+    resp = middleware.process_request(rf.get(path))
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == expected_dest
+
+
+@pytest.mark.parametrize(
+    "path, expected_dest",
+    (
+        ("/firefox/new/", f"{_TEST_EXT_HOST}/{EXPECTED_REDIRECT_QS}"),
+        ("/firefox/set-as-default/", f"{_TEST_EXT_HOST}/landing/set-as-default/{EXPECTED_REDIRECT_QS}"),
+        ("/firefox/browsers/incognito-browser/", f"{_TEST_EXT_HOST}/more/incognito-browser/{EXPECTED_REDIRECT_QS}"),
+    ),
+)
+def test_offsite_redirects_still_work_when_locale_not_in_source_path(path, expected_dest):
+    # Our redirects kick in before our locale-prepending middleware, so we may
+    # find some redirects that don't have a locale when sending the user to an
+    # external site. The {_locale} placeholder should be stripped cleanly.
+    rf = RequestFactory()
+    middleware = _get_offsite_middleware()
+    resp = middleware.process_request(rf.get(path))
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == expected_dest
+
+
+# -- merge_query=True tests --
+
+_test_merge_query_patterns = (
+    redirect(
+        r"^merge-query-test/$",
+        "/merge-query-dest/",
+        query={"test": "true"},
+        merge_query=True,
+        permanent=False,
+    ),
+)
+
+
+def _get_merge_query_middleware():
+    return RedirectsMiddleware(get_response=HttpResponse, resolver=get_resolver(_test_merge_query_patterns))
+
+
+@pytest.mark.parametrize(
+    "source, dest",
+    (
+        ("/merge-query-test/", "/merge-query-dest/?test=true"),
+        ("/merge-query-test/?hello=world", "/merge-query-dest/?test=true&hello=world"),
+        ("/merge-query-test/?hello=world&foo=bar", "/merge-query-dest/?test=true&hello=world&foo=bar"),
+        ("/en-US/merge-query-test/", "/en-US/merge-query-dest/?test=true"),
+        ("/fr/merge-query-test/", "/fr/merge-query-dest/?test=true"),
+        ("/en-GB/merge-query-test/?foo=bar", "/en-GB/merge-query-dest/?test=true&foo=bar"),
+    ),
+)
+def test_merge_query_redirect(source, dest):
+    # Uses a test-only redirect pattern so coverage doesn't depend on any
+    # production redirect that uses merge_query.
+    rf = RequestFactory()
+    resp = _get_merge_query_middleware().process_request(rf.get(source))
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == dest
+
+
+@pytest.mark.parametrize("permanent", (True, False), ids=("301", "302"))
+@pytest.mark.parametrize(
+    "source, destination",
+    (("/mobile/get-app", "/mobile/"),),
+)
+def test_redirect_destinations(client, source, destination, permanent):
+    resp = client.get(source, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == destination
