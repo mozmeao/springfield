@@ -4,6 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.tag_fixtures import get_tag_2026_variants
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
@@ -11,6 +12,7 @@ SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browse
 
 def get_kit_banner_variants():
     buttons = get_button_variants()
+    tags = get_tag_2026_variants()
     return [
         {
             "type": "kit_banner",
@@ -25,6 +27,7 @@ def get_kit_banner_variants():
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner without Kit Image</p>',
                     "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
                 },
+                "tags": [tags["purple"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "12a807da-2838-44b6-8a65-d9243059de02",
@@ -61,6 +64,7 @@ def get_kit_banner_variants():
                     "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
+                "tags": [tags["orange"]],
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
             "id": "1bc90319-cce6-4052-b181-5bff4c4a42c0",
@@ -79,6 +83,7 @@ def get_kit_banner_variants():
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
+                "tags": [tags["purple"], tags["green"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "607bd5fd-c2a8-41ef-a323-cf18da478ec4",
@@ -97,6 +102,7 @@ def get_kit_banner_variants():
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
+                "tags": [tags["red"], tags["orange"]],
                 "buttons": [buttons["tertiary"], buttons["ghost"]],
             },
             "id": "456a6d24-7ff7-4024-9f98-14bbbeae9e60",
@@ -115,6 +121,7 @@ def get_kit_banner_variants():
                     "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
                     "placed on the right corner.</p>",
                 },
+                "tags": [tags["green"]],
                 "buttons": [buttons["primary"], buttons["secondary"]],
             },
             "id": "54ea6d6a-6490-4946-8caf-b5fba56d5a10",

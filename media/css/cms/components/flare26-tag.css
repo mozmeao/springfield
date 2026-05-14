@@ -47,3 +47,18 @@
     background: var(--notification-green-bg);
     color: var(--notification-green-color);
 }
+
+.fl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-tags.center {
+    justify-content: center;
+}
+
+.fl-tags .fl-tag {
+    margin: 0;
+}
