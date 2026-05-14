@@ -49,6 +49,8 @@
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "firefox/browsers/mobile/focus-flare26.html" %}
