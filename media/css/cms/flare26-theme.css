@@ -108,6 +108,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Card themes */
     --card-bg-color: var(--token-color-white);
     --card-border-color: var(--token-color-soft-purple);
+    --sticker-card-border-color: var(--token-color-soft-purple);
     --theme-purple-card-bg-color: var(--token-color-soft-purple);
     --theme-purple-card-bullet-color: var(--token-color-purple);
     --theme-dark-purple-card-bg-color: var(--token-color-purple);
@@ -229,6 +230,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         ),
         radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
 
+    /* Icon text list */
+    --icon-text-list-icon-bg: var(--token-color-soft-purple);
+
     /* Numbered list */
     --theme-numbered-list-background: var(--token-color-soft-purple-40);
     --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
@@ -263,6 +267,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
     /* Cards */
+    --sticker-card-border-color: transparent;
     --fl-step-card-bg: var(--token-color-medium-purple);
     --fl-step-card-index-bg: var(--token-color-dark-purple);
     --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
@@ -393,6 +398,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
             rgb(34, 4, 66) 80%
         );
 
+    /* Icon text list */
+    --icon-text-list-icon-bg: var(--token-color-medium-purple);
+
     /* Numbered list */
     --theme-numbered-list-background: transparent;
     --theme-numbered-list-border-color: var(--token-color-light-purple);
@@ -428,6 +436,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-menu-category-link-hover-bg-color: var(--token-color-soft-purple);
 
     /* Cards */
+    --sticker-card-border-color: var(--token-color-soft-purple);
     --fl-step-card-bg: var(--token-color-cream);
     --fl-step-card-index-bg: var(--token-color-white);
     --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
@@ -519,6 +528,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --smart-window-play-icon-fill-color-hover: var(--token-color-black-4);
     --smart-window-play-icon-fill-color-active: #42414d;
 
+    /* Icon text list */
+    --icon-text-list-icon-bg: var(--token-color-soft-purple);
+
     /* Numbered list */
     --theme-numbered-list-background: var(--token-color-soft-purple-40);
     --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
@@ -553,6 +565,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-menu-separator-color: var(--token-color-light-purple);
 
         /* Cards */
+        --sticker-card-border-color: transparent;
         --fl-step-card-bg: var(--token-color-medium-purple);
         --fl-step-card-index-bg: var(--token-color-dark-purple);
         --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
@@ -690,6 +703,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
                 rgba(42, 7, 68, 0.95) 55%,
                 rgb(34, 4, 66) 80%
             );
+
+        /* Icon text list */
+        --icon-text-list-icon-bg: var(--token-color-medium-purple);
 
         /* Numbered list */
         --theme-numbered-list-background: transparent;
