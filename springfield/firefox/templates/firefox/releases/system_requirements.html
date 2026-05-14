@@ -25,9 +25,10 @@
   {% endif %}
 {% endblock %}
 
-{% block main_class %}mzp-l-content mzp-t-content-md fl-main{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
+  <div class="mzp-l-content mzp-t-content-md {% if switch('flare26_enabled') %}fl-main{% endif %}">
     {% if switch('flare26_enabled') %}
     <div class="fl-section">
       <include:heading
@@ -51,7 +52,7 @@
     <div class="fl-system-requirements-body mzp-c-article">
       {{ release.system_requirements|safe }}
     </div>
-
+  </div>
   {% if not switch("flare26_enabled") %}
     {% call callout_compact(
       title='Get the most recent version',

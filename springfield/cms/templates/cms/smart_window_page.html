@@ -10,7 +10,7 @@
 
 {% block body_class %}fl-smart-window-page{% endblock %}
 
-{% block main_class %}fl-main has-gradient-bottom{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block flare_header %}
   {% set custom_nav_cta %}
@@ -142,6 +142,7 @@
 {% endset %}
 
 <div class="fl-page fl-freeform-2026-page">
+    <div class="fl-main has-gradient-bottom">
 
       <div class="fl-split-page-upper has-gradient-bottom no-gap fl-smart-window-intro">
         <div class="fl-smart-window-intro-content">
@@ -274,6 +275,7 @@
           {% include_block block %}
         {% endfor %}
       </div>
+    </div>
 </div>
 {% endblock %}
 

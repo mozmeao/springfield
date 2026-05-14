@@ -24,10 +24,8 @@
 
 {% block body_class %}{{ super() }} mzp-t-firefox{% endblock %}
 
-{% block main_class %}mzp-l-content fl-releases fl-main{% endblock %}
-{% block main_attrs %} id="main-content"{% endblock %}
-
 {% block content %}
+  <div id="main-content" class="mzp-l-content {% if switch('flare26_enabled') %}fl-releases fl-main{% endif %}">
     {% if switch('flare26_enabled') %}
         <!-- TODO: change logo according to product -->
         {% set intro_heading = 'Firefox <span class="fl-fx-logo">‍</span> Releases' %}
@@ -81,6 +79,7 @@
         </ol>
       </li>
     </ol>
+  </div>
 
   {% if switch('release-notes-newsletter-banner', ['en']) and not switch('flare26-enabled')%}
     {# Give newsletter landmark a separate aria identifier to the pencil banner: https://github.com/mozilla/bedrock/issues/15958 #}

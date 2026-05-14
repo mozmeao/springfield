@@ -20,10 +20,10 @@
   <include:flare26-header />
 {% endblock %}
 
-
-{% block main_class %}fl-main{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
+  <div class="fl-main">
 
     <div class="fl-show-auto-download-notification {% if is_preview %}conditional-display is-preview{% endif %}">
       {% if is_preview %}
@@ -51,6 +51,7 @@
 
       {% include_block block %}
     {% endfor %}
+  </div>
 {% endblock content %}
 
 {% block pre_footer %}

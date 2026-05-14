@@ -30,9 +30,10 @@
   {% endwith %}
 {% endblock %}
 
-{% block main_class %}fl-main has-gradient-bottom fl-2026-enterprise{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
+<div class="{% if switch("flare26_enabled") %}fl-main has-gradient-bottom fl-2026-enterprise{% endif %}">
   {% if switch("flare26_enabled") %}
     {% set superheading_text %}
       <span class="fl-logo-fx"></span>
@@ -423,6 +424,7 @@
     </section>
 
   </div>
+</div>
 {% endblock %}
 
 {% block js %}
