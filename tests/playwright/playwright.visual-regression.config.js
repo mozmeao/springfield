@@ -15,11 +15,5 @@ module.exports = defineConfig({
     grepInvert: undefined,
     grep: /@visual-regression/,
     workers: 1,
-    expect: {
-        toHaveScreenshot: {
-            threshold: 0.3,
-            maxDiffPixelRatio: 0.02
-        }
-    },
     projects: [baseConfig.projects.find((p) => p.name === 'chromium')]
 });
