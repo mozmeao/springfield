@@ -28,8 +28,8 @@ context:
       url: /media/img/firefox/flare/placeholder-scene.png
       alt: Main Card Image
   callout_card:
-    headline: Secondary Card Headline
-    description: This is the description for the secondary card in the card gallery.
+    headline: Callout Card Headline
+    description: This is the description for the callout card in the card gallery.
   cta:
     label: Call to Action
     link: /products/
