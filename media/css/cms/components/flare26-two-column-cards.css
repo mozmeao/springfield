@@ -106,6 +106,10 @@
     z-index: 1;
 }
 
+.fl-two-column-card[class*='image-is-stuck'] {
+    border-width: 0;
+}
+
 .image-is-stuck-bottom-right .media,
 .image-is-stuck-bottom-left .media,
 .image-is-stuck-top-left .media,
