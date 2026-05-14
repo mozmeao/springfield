@@ -55,6 +55,10 @@
     text-wrap: balance;
 }
 
+.fl-banner .fl-heading-group + .fl-tags {
+    margin-block-start: var(--token-spacing-lg);
+}
+
 .fl-banner.fl-banner-outlined {
     --fl-theme-color-banner-text: var(--fl-theme-color-text);
     --fl-banner-border-radius: var(--token-border-radius-sm);

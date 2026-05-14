@@ -1671,6 +1671,17 @@ def test_banner_2026_block(index_page, placeholder_images, rf):
                     cta_text=cta_text,
                 )
 
+            banner_tags = banner["value"].get("tags", [])
+            tags_container = banner_element.find("div", class_="fl-tags")
+            if banner_tags:
+                assert tags_container
+                tag_elements = tags_container.find_all("span", class_="fl-tag")
+                assert len(tag_elements) == len(banner_tags)
+                for tag_element, tag_data in zip(tag_elements, banner_tags):
+                    assert_tag_attributes(tag_element, tag_data)
+            else:
+                assert not tags_container
+
             if media := banner["value"]["media"]:
                 media = media[0]
                 media_element = banner_element.find("div", class_="fl-banner-media")
@@ -1746,6 +1757,17 @@ def test_kit_banner_block(index_page, rf):
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+        banner_tags = banner["value"].get("tags", [])
+        tags_container = banner_element.find("div", class_="fl-tags")
+        if banner_tags:
+            assert tags_container
+            tag_elements = tags_container.find_all("span", class_="fl-tag")
+            assert len(tag_elements) == len(banner_tags)
+            for tag_element, tag_data in zip(tag_elements, banner_tags):
+                assert_tag_attributes(tag_element, tag_data)
+        else:
+            assert not tags_container
 
 
 def test_kit_banner_curious_animation(index_page, rf):
@@ -1941,6 +1963,17 @@ def test_kit_banner_2026_block(index_page, placeholder_images, rf):
                     cta_position=cta_position,
                     cta_text=cta_text,
                 )
+
+            banner_tags = banner["value"].get("tags", [])
+            tags_container = banner_element.find("div", class_="fl-tags")
+            if banner_tags:
+                assert tags_container
+                tag_elements = tags_container.find_all("span", class_="fl-tag")
+                assert len(tag_elements) == len(banner_tags)
+                for tag_element, tag_data in zip(tag_elements, banner_tags):
+                    assert_tag_attributes(tag_element, tag_data)
+            else:
+                assert not tags_container
 
 
 # Homepage
@@ -2804,6 +2837,18 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
                 assert intro_el.get("id") == anchor_id
             else:
                 assert not intro_el.get("id")
+
+            # Tags
+            intro_tags = value.get("tags", [])
+            tags_container = intro_el.find("div", class_="fl-tags")
+            if intro_tags:
+                assert tags_container
+                tag_elements = tags_container.find_all("span", class_="fl-tag")
+                assert len(tag_elements) == len(intro_tags)
+                for tag_element, tag_data in zip(tag_elements, intro_tags):
+                    assert_tag_attributes(tag_element, tag_data)
+            else:
+                assert not tags_container
 
             # Media
             media = value.get("media")

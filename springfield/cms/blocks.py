@@ -2446,6 +2446,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings2026()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -2685,6 +2686,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -2741,6 +2743,7 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
     class _KitBannerBlock(blocks.StructBlock):
         settings = KitBannerSettings()
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=button_themes,
