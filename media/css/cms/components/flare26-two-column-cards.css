@@ -44,6 +44,11 @@
     margin: 0;
 }
 
+.fl-two-column-card .fl-icon-text-list .fl-icon-wrap {
+    background: transparent;
+    color: var(--fl-theme-color-text);
+}
+
 .fl-two-column-cards-light-dark
     .fl-two-column-card-wrapper:first-child
     .fl-two-column-card {

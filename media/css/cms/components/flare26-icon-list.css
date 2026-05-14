@@ -5,8 +5,6 @@
 */
 
 .fl-icon-text-list {
-    --fl-theme-color-icon-wrap: var(--token-color-soft-purple);
-    --fl-theme-color-icon: var(--fl-theme-color-text);
     columns: 24ch 2;
     gap: var(--token-spacing-xl);
     list-style: none;
@@ -24,11 +22,6 @@
 }
 
 .fl-icon-text-list .fl-icon-wrap {
-    background: transparent;
-    color: var(--two-column-accent-color);
-}
-
-.fl-split-page-upper .fl-icon-text-list,
-.fl-force-dark-theme .fl-icon-text-list {
-    --fl-theme-color-icon-wrap: var(--token-color-medium-purple);
+    background: var(--icon-text-list-icon-bg);
+    color: var(--fl-theme-color-text);
 }
