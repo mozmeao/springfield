@@ -30,6 +30,8 @@
   {% endwith %}
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "privacy/cookie-settings-flare26.html" %}

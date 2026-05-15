@@ -38,6 +38,8 @@
 {% endblock %}
 {% endif %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "firefox/developer/index-flare26.html" %}

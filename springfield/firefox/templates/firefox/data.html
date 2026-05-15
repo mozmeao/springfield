@@ -27,6 +27,9 @@
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral' %}
 
+{% block main_class %}{% endblock %}
+{% block main_attrs %}{% endblock %}
+
 {% block content %}
   {% if switch("flare26_enabled") %}
     {% include "firefox/data/data-flare26.html" %}

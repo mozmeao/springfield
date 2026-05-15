@@ -2820,7 +2820,7 @@ def test_freeform_page_2026_single_column_layout(index_page, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     assert not soup.find("div", class_="fl-split-page-upper"), "Upper section should not exist when upper_content is empty"
     assert not soup.find("div", class_="fl-split-page-lower"), "Lower section should not exist when upper_content is empty"
-    main = soup.find("main", class_="fl-main")
+    main = soup.find("div", class_="fl-main")
     assert main and "has-gradient-bottom" in main.get("class", [])
 
 
