@@ -17,12 +17,6 @@
       <div class="fl-section-container">
 
         <div class="fl-blog-index-header">
-          <p>
-            <a href="{{ page.url }}" class="fl-blog-back-link">
-              <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-              {{ ftl('blog-back') }}
-            </a>
-          </p>
           {% if page.page_heading %}
             {% for block in page.page_heading %}
               {% if block.block_type == "heading" %}
@@ -35,13 +29,6 @@
                 />
               {% endif %}
             {% endfor %}
-          {% else %}
-            <include:heading
-              level="h1"
-              heading_text="{{ ftl('blog-all-articles') }}"
-              heading_size="fl-heading-size-1"
-              alignment_class="text-center"
-            />
           {% endif %}
 
           {% if all_topics %}
@@ -49,36 +36,46 @@
               <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-prev" aria-label="{{ ftl('ui-previous') }}" hidden>
                 <span class="fl-icon fl-icon-chevron-left" aria-hidden="true"></span>
               </button>
-              <div class="fl-blog-topics-list">
-                {% for topic_item in all_topics %}
+
+
+              <div class="fl-blog-topics-list is-carousel">
+                  {% for topic_item in all_topics %}
                   {% set selected_topic = topic and topic.slug == topic_item.slug %}
                   {% set all_route_url = page.url ~ page.reverse_subpage('all_route') %}
                   {% if selected_topic %}
-                    <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
+                    <span class="fl-tag fl-blog-selected-topic">
                       {{ topic_item.name }}
-                      <include:tag
-                        text="{{ topic.article_count }}"
-                        color="white"
-                        corners="round"
-                      />
-                      <a href="{{ all_route_url }}" class="fl-blog-topic-link"></a>
+
+                      <a href="{{ all_route_url }}" class="close-button">
+                        <include:icon icon_name="close" aria_hidden="true" />
+                        <span class="visually-hidden">{{ ftl('blog-clear-topic-filter') }}</span>
+                      </a>
                     </span>
                   {% else %}
-                    <a href="{{ all_route_url }}?topic={{ topic_item.slug }}" class="fl-blog-topic-link">
-                      <span class="fl-tag fl-tag-purple fl-tag-round">
-                        {{ topic_item.name }}
-                      </span>
+                    <a href="{{ all_route_url }}?topic={{ topic_item.slug }}" class="fl-blog-topic-link fl-tag">
+                      {{ topic_item.name }}
                     </a>
                   {% endif %}
                 {% endfor %}
+
+
+
+
+                <div class="fl-blog-topics-all">
+                  <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+                </div>
               </div>
+
+
+
+
+
+
               <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-next" aria-label="{{ ftl('ui-next') }}" hidden>
                 <span class="fl-icon fl-icon-chevron-right" aria-hidden="true"></span>
               </button>
             </div>
           {% endif %}
-
-          <hr/>
         </div>
 
         {% if list_articles %}

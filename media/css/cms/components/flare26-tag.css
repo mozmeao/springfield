@@ -16,6 +16,7 @@
     font-weight: var(--token-font-weight-semibold);
     gap: var(--token-spacing-xs);
     line-height: var(--fl-theme-line-height-base);
+    line-height: 1;
     margin-block-end: var(--token-spacing-lg);
     margin-inline-end: var(--token-spacing-xs);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
@@ -32,6 +33,30 @@
 
 .fl-tag.is-small {
     padding: var(--token-spacing-xs) var(--token-spacing-sm);
+}
+
+.fl-tag.is-large {
+    border-radius: var(--token-border-radius-sm);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-regular);
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+}
+
+a.fl-tag,
+a.fl-tag:hover {
+    text-decoration: none;
+}
+
+a.fl-tag:hover {
+    background-color: var(--notification-link-hover-bg);
+    color: var(--token-color-white);
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
+}
+
+a.fl-tag:hover .fl-tag {
+    opacity: 1;
 }
 
 .fl-tag.is-uppercase {
@@ -60,6 +85,26 @@
 .fl-tag.fl-tag-white {
     background: var(--notification-white-bg);
     color: var(--notification-white-color);
+}
+
+.fl-tag.fl-tag-light-purple {
+    background: var(--token-color-light-purple);
+    color: var(--token-color-white);
+}
+
+/* when a tag is used a badge within another tag. See Blog tags page. */
+.fl-tag:has(.fl-tag) {
+    position: relative;
+}
+
+.fl-tag .fl-tag {
+    font-weight: var(--token-font-weight-regular);
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    opacity: 0;
+    position: absolute;
+    transform: translate(50%, -25%);
+    transition: opacity 0.3s ease;
 }
 
 .fl-tags {

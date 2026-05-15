@@ -28,17 +28,15 @@
         />
 
         {% if all_topics %}
-          <div class="fl-blog-topics-list">
+          <div class="fl-blog-topics-list is-topics-page">
             {% for topic in all_topics %}
-              <a href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}" class="fl-blog-topic-link">
-                <span class="fl-tag fl-tag-purple fl-tag-round fl-blog-selected-topic">
+              <a class="fl-tag is-large" href="{{ page.url }}{{ page.reverse_subpage('all_route') }}?topic={{ topic.slug }}">
                 {{ topic.name }}
                 <include:tag
                   text="{{ topic.article_count }}"
-                  color="white"
+                  color="light-purple"
                   corners="round"
                 />
-                </span>
               </a>
             {% endfor %}
           </div>

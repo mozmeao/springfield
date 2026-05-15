@@ -10,3 +10,4 @@ blog-view-all = View All
 blog-back = Back
 blog-related-articles = Related Articles
 blog-pagination-label = Pagination
+blog-clear-topic-filter = Clear topic filter

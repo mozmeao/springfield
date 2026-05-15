@@ -157,6 +157,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
+    --notification-link-hover-bg: var(--token-color-dark-purple);
     --notification-color: var(--token-color-black-1);
     --notification-border-color: var(--token-color-soft-purple-2);
     --notification-icon-bg: var(--token-color-dark-purple);
@@ -323,6 +324,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* base/purple */
     --notification-bg: var(--token-color-purple);
+    --notification-link-hover-bg: var(--token-color-light-purple-60);
     --notification-color: var(--token-color-white);
     --notification-border-color: var(--token-color-link-purple);
     --notification-icon-bg: var(--token-color-soft-purple);
@@ -472,6 +474,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
     /* base/purple */
     --notification-bg: var(--token-color-soft-purple);
+    --notification-link-hover-bg: var(--token-color-dark-purple);
     --notification-color: var(--token-color-black-1);
     --notification-border-color: var(--token-color-soft-purple-2);
     --notification-icon-bg: var(--token-color-dark-purple);
@@ -621,6 +624,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
         /* base/purple */
         --notification-bg: var(--token-color-purple);
+        --notification-link-hover-bg: var(--token-color-light-purple-60);
         --notification-color: var(--token-color-white);
         --notification-border-color: var(--token-color-link-purple);
         --notification-icon-bg: var(--token-color-soft-purple);
