@@ -17,7 +17,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock, TwoColumnCardBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, ButtonRowBlock, SectionBlock2026, SpringfieldLinkBlock, TwoColumnCardBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -4493,6 +4493,36 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
 
     assert result.id == pt_br_article.id
     assert result.locale == pt_br_locale
+
+
+def _make_button_row_value(count):
+    block = ButtonRowBlock()
+    buttons = [
+        {
+            "type": "button",
+            "value": {"label": f"Button {i}", "url": f"/test/{i}/", "theme": "primary", "size": "md", "icon_name": "", "icon_position": "right"},
+            "id": f"test-btn-{i}",
+        }
+        for i in range(count)
+    ]
+    return block.to_python({"buttons": buttons})
+
+
+def test_button_row_block_three_buttons_is_valid():
+    block = ButtonRowBlock()
+    block.clean(_make_button_row_value(3))
+
+
+def test_button_row_block_four_buttons_raises():
+    block = ButtonRowBlock()
+    with pytest.raises(StructBlockValidationError):
+        block.clean(_make_button_row_value(4))
+
+
+def test_section_block_2026_accepts_button_row():
+    block = SectionBlock2026(require_heading=False)
+    child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
+    assert "button_row" in child_block_names
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

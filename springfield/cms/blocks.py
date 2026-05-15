@@ -1070,7 +1070,7 @@ class ButtonRowBlock(blocks.StructBlock):
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=1,
-        max_num=4,
+        max_num=3,
     )
 
     class Meta:
@@ -2560,6 +2560,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock()),
             ],
             required=False,
         )
