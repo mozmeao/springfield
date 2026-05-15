@@ -295,6 +295,14 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-block-end: 0;
 }
 
+.fl-buttons.fl-buttons-spacing-small {
+    margin-block: var(--token-layout-2xs);
+}
+
+.fl-buttons.fl-buttons-spacing-large {
+    margin-block: var(--token-layout-sm);
+}
+
 .fl-tiny-icon-button {
     background: transparent;
     color: var(--fl-theme-color-link);

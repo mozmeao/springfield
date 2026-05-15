@@ -1068,6 +1068,15 @@ def MixedButtonsBlock(
 
 def ButtonRowBlock(allow_uitour=False, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
+        spacing = blocks.ChoiceBlock(
+            choices=[
+                ("", "No spacing"),
+                ("small", "Small"),
+                ("large", "Large"),
+            ],
+            default="",
+            required=False,
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -1079,6 +1088,10 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             label = "Button Row"
             label_format = "Button Row"
             template = "cms/blocks/button-row.html"
+            form_layout = blocks.BlockGroup(
+                children=["buttons"],
+                settings=["spacing"],
+            )
 
     return _ButtonRowBlock(**kwargs)
 
