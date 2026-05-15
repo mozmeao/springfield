@@ -4526,6 +4526,53 @@ def test_two_column_card_accepts_button_row():
     assert "button" not in child_block_names
 
 
+_DOWNLOAD_BUTTON_CONTEXT = {
+    "analytics_id": "test-analytics-id",
+    "theme_class": "",
+    "label": "Get Firefox",
+    "cta_text": "Get Firefox",
+    "block_position": "test-position",
+    "icon_name": "",
+    "icon_position": "right",
+    "exclude_unsupported_content": True,
+    "enable_marketing_attribution": False,
+    "show_default_browser_checkbox": False,
+    "show_store_button": False,
+    "is_preview": False,
+    "utm_parameters": None,
+    "flare_styles": True,
+    "params": "",
+}
+
+
+def _render_download_button(rf, specific_version):
+    request = rf.get("/en-US/")
+    html = render_to_string(
+        "components/download-firefox-button.html",
+        {**_DOWNLOAD_BUTTON_CONTEXT, "request": request, "specific_version": specific_version},
+    )
+    return BeautifulSoup(html, "html.parser").find("a", class_="download-link")
+
+
+def test_download_button_default_uses_thanks_url(rf):
+    link = _render_download_button(rf, "default")
+    assert link["href"] == "/thanks/"
+    assert link.get("data-version-forced") is None
+
+
+def test_download_button_forced_uses_direct_url(rf):
+    link = _render_download_button(rf, "win64")
+    assert "/thanks/" not in link["href"]
+    assert link["data-version-forced"] == "true"
+
+
+@pytest.mark.parametrize("specific_version", ["win", "win64", "win64-aarch64", "osx", "linux64", "linux64-aarch64"])
+def test_download_button_forced_versions_produce_direct_url(rf, specific_version):
+    link = _render_download_button(rf, specific_version)
+    assert "/thanks/" not in link["href"]
+    assert link["data-version-forced"] == "true"
+
+
 def test_button_row_block_allow_uitour_exposes_uitour_type():
     block_with = ButtonRowBlock(allow_uitour=True)
     block_without = ButtonRowBlock(allow_uitour=False)
