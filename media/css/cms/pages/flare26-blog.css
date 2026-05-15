@@ -21,9 +21,12 @@
 
 .fl-blog-topics-list {
     align-items: center;
+    border-block-end: 1px solid var(--fl-subtle-border-color);
     display: flex;
     flex-wrap: wrap;
+    font-size: var(--fl-theme-font-size-body-xs);
     gap: var(--token-spacing-xl);
+    padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-blog-topic-link {
@@ -66,13 +69,6 @@
 
 .fl-card-tags {
     margin-block-start: var(--token-spacing-md);
-}
-
-.fl-page-blog .fl-card-tags .fl-tag,
-.fl-article-tags .fl-tag,
-.fl-blog-topics-list .fl-tag {
-    color: var(--notification-stacked-color);
-    text-transform: uppercase;
 }
 
 .fl-blog-topics-list .fl-tag.fl-blog-selected-topic {
@@ -221,7 +217,10 @@
 /* More articles */
 
 .fl-blog-cards-list-header {
+    align-items: baseline;
+    border-block-end: 1px solid var(--fl-subtle-border-color);
     display: flex;
+    padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-blog-cards-list-header .fl-heading {
@@ -229,6 +228,7 @@
 }
 
 .fl-blog-cards-list-link {
+    font-size: var(--fl-theme-font-size-body-2xs);
     margin-inline-start: auto;
     text-transform: uppercase;
 }
@@ -238,6 +238,27 @@
 .fl-page-blog-index .fl-pagination {
     margin: 0 auto;
     max-inline-size: var(--token-width-desktop-content);
+}
+
+/* Align card headings across rows when images vary in aspect ratio */
+.fl-blog-index-body .fl-card-grid {
+    --fl-card-grid-gap: var(--token-spacing-xl) var(--token-spacing-lg);
+    grid-auto-rows: auto;
+}
+
+.fl-blog-index-body .fl-card-grid .fl-illustration-card {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+}
+
+.fl-blog-index-body .fl-card-grid .fl-illustration-card .fl-card-media,
+.fl-blog-index-body .fl-card-grid .fl-illustration-card .fl-card-media img {
+    margin-block-end: 0;
+}
+
+.fl-blog-index-body .fl-illustration-card .fl-card-media {
+    align-content: end;
 }
 
 @media (--viewport-md-up) {

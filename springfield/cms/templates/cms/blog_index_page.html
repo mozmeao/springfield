@@ -80,6 +80,8 @@
                     text="{{ topic.article_count }}"
                     color="purple"
                     corners="round"
+                    is_small=True
+                    is_uppercase=True
                   />
                 </a>
               {% endfor %}
@@ -88,8 +90,6 @@
               </div>
             </div>
           {% endif %}
-
-          <hr/>
         </div>
 
 
@@ -124,7 +124,7 @@
                   level="h2"
                   heading_text="{{ first_block.value.get_title() }}"
                   superheading_text="{{ first_block.value.get_topic() }}"
-                  heading_size="fl-heading-size-2"
+                  heading_size="fl-heading-lg fl-heading-condensed"
                 />
                 <p class="fl-body">{{ first_block.value.get_description() }}</p>
                 <div>
@@ -168,8 +168,7 @@
 
             {% if page.featured_articles|length > 4 %}
               {% set list_size = page.featured_articles[4:]|length %}
-              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
-              <include:cards-list extra_class="{{ extra_class }}">
+              <include:cards-list container_width="fill">
                 {% for block in page.featured_articles[4:] %}
                   <include:illustration-card-2026 expand_link="true">
                     <content:media>
@@ -221,14 +220,12 @@
                 <include:heading
                   level="h3"
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
-                  heading_size="fl-heading-size-3"
+                  heading_size="fl-heading-xs"
                 />
                 <a class="fl-blog-cards-list-link" href="{{ all_url }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
               </div>
-              <hr/>
               {% set list_size = block.value.articles|length %}
-              {% set extra_class = "fl-illustration-cards-alternate-" ~ list_size %}
-              <include:cards-list extra_class="{{ extra_class }}">
+              <include:cards-list container_width="fill">
                 {% for article_block in block.value.articles %}
                   <include:illustration-card-2026 expand_link="true">
                     <content:media>

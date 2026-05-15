@@ -30,6 +30,14 @@
     margin-inline-start: var(--token-spacing-xs);
 }
 
+.fl-tag.is-small {
+    padding: var(--token-spacing-xs) var(--token-spacing-sm);
+}
+
+.fl-tag.is-uppercase {
+    text-transform: uppercase;
+}
+
 /* red */
 .fl-tag.fl-tag-red {
     background: var(--notification-red-bg);
