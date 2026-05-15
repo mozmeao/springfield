@@ -17,8 +17,10 @@
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=default-thanks&entrypoint=www.firefox.com-default-thanks' %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
-<main class="fl-main">
+<div class="fl-main">
   <div class="thanks-state-is-default">
     <include:notification color="green">
       {{ ftl('set-as-default-thanks-success-your-default-browser') }}
@@ -69,7 +71,7 @@
       </p>
     </content:body>
   </include:intro>
-</main>
+</div>
 {% endblock %}
 
 {% block pre_footer %}{% endblock %}

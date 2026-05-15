@@ -17,7 +17,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, SpringfieldLinkBlock, TwoColumnCardBlock
+from springfield.cms.blocks import ArticleBlock, BaseArticleValue, ButtonRowBlock, SectionBlock2026, SpringfieldLinkBlock, TwoColumnCardBlock
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -32,7 +32,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
+from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
     get_filled_card_variants,
@@ -2820,7 +2820,7 @@ def test_freeform_page_2026_single_column_layout(index_page, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     assert not soup.find("div", class_="fl-split-page-upper"), "Upper section should not exist when upper_content is empty"
     assert not soup.find("div", class_="fl-split-page-lower"), "Lower section should not exist when upper_content is empty"
-    main = soup.find("main", class_="fl-main")
+    main = soup.find("div", class_="fl-main")
     assert main and "has-gradient-bottom" in main.get("class", [])
 
 
@@ -4370,14 +4370,14 @@ def test_two_column_cards_block(index_page, rf):
                     content_position = (
                         f"{region_name}-block-{block_number}-two_column_cards.card-{card_number}.content-{content_index + 1}-{block_type}"
                     )
-                    if block_type == "button":
-                        button_data = block_data["value"][0]
+                    if block_type == "button_row":
+                        button_data = block_data["value"]["buttons"][0]
                         cta_text = f"{heading_text} - {button_data['value']['label'].strip()}" if heading_text else None
                         assert_button_attributes(
                             button_element=card_el.find("a", class_="fl-button"),
                             button_data=button_data,
                             context=context,
-                            cta_position=content_position,
+                            cta_position=content_position + ".button-1",
                             cta_text=cta_text,
                         )
                     elif block_type in _TWO_COLUMN_CARD_CONTENT_ASSERTERS:
@@ -4493,6 +4493,93 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
 
     assert result.id == pt_br_article.id
     assert result.locale == pt_br_locale
+
+
+def _make_button_row_value(count, allow_uitour=False):
+    block = ButtonRowBlock(allow_uitour=allow_uitour)
+    variants = get_button_variants()
+    buttons = [dict(variants["primary"], id=f"test-btn-{i}") for i in range(count)]
+    return block.to_python({"buttons": buttons})
+
+
+def test_button_row_block_three_buttons_is_valid():
+    block = ButtonRowBlock()
+    block.clean(_make_button_row_value(3))
+
+
+def test_button_row_block_four_buttons_raises():
+    block = ButtonRowBlock()
+    with pytest.raises(StructBlockValidationError):
+        block.clean(_make_button_row_value(4))
+
+
+def test_section_block_2026_accepts_button_row():
+    block = SectionBlock2026(require_heading=False)
+    child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
+    assert "button_row" in child_block_names
+
+
+def test_two_column_card_accepts_button_row():
+    block = TwoColumnCardBlock()
+    child_block_names = list(block.declared_blocks["content"].child_blocks.keys())
+    assert "button_row" in child_block_names
+    assert "button" not in child_block_names
+
+
+_DOWNLOAD_BUTTON_CONTEXT = {
+    "analytics_id": "test-analytics-id",
+    "theme_class": "",
+    "label": "Get Firefox",
+    "cta_text": "Get Firefox",
+    "block_position": "test-position",
+    "icon_name": "",
+    "icon_position": "right",
+    "exclude_unsupported_content": True,
+    "enable_marketing_attribution": False,
+    "show_default_browser_checkbox": False,
+    "show_store_button": False,
+    "is_preview": False,
+    "utm_parameters": None,
+    "flare_styles": True,
+    "params": "",
+}
+
+
+def _render_download_button(rf, specific_version):
+    request = rf.get("/en-US/")
+    html = render_to_string(
+        "components/download-firefox-button.html",
+        {**_DOWNLOAD_BUTTON_CONTEXT, "request": request, "specific_version": specific_version},
+    )
+    return BeautifulSoup(html, "html.parser").find("a", class_="download-link")
+
+
+def test_download_button_default_uses_thanks_url(rf):
+    link = _render_download_button(rf, "default")
+    assert link["href"] == "/thanks/"
+    assert link.get("data-version-forced") is None
+
+
+def test_download_button_forced_uses_direct_url(rf):
+    link = _render_download_button(rf, "win64")
+    assert "/thanks/" not in link["href"]
+    assert link["data-version-forced"] == "true"
+
+
+@pytest.mark.parametrize("specific_version", ["win", "win64", "win64-aarch64", "osx", "linux64", "linux64-aarch64"])
+def test_download_button_forced_versions_produce_direct_url(rf, specific_version):
+    link = _render_download_button(rf, specific_version)
+    assert "/thanks/" not in link["href"]
+    assert link["data-version-forced"] == "true"
+
+
+def test_button_row_block_allow_uitour_exposes_uitour_type():
+    block_with = ButtonRowBlock(allow_uitour=True)
+    block_without = ButtonRowBlock(allow_uitour=False)
+    button_types_with = list(block_with.declared_blocks["buttons"].child_blocks.keys())
+    button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
+    assert "uitour_button" in button_types_with
+    assert "uitour_button" not in button_types_without
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

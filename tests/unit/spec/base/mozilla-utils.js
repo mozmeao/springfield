@@ -131,4 +131,47 @@ describe('mozilla-utils.js', function () {
             });
         });
     });
+
+    describe('attributeDownloadThanksButton', function () {
+        beforeEach(function () {
+            window.site = { platform: 'linux', archSize: 64 };
+        });
+
+        afterEach(function () {
+            document
+                .querySelectorAll('.c-button-download-thanks')
+                .forEach((el) => {
+                    el.parentNode.removeChild(el);
+                });
+            window.site = {};
+        });
+
+        function makeButton(forced) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'c-button-download-thanks';
+            const link = document.createElement('a');
+            link.className = 'download-link';
+            link.setAttribute('data-download-version', 'win64');
+            if (forced) {
+                link.setAttribute('data-version-forced', 'true');
+            }
+            wrapper.appendChild(link);
+            document.body.appendChild(wrapper);
+            return link;
+        }
+
+        it('overwrites data-download-version on non-forced buttons', function () {
+            const link = makeButton(false);
+            Mozilla.Utils.attributeDownloadThanksButton();
+            expect(link.getAttribute('data-download-version')).toEqual(
+                'linux64'
+            );
+        });
+
+        it('leaves data-download-version unchanged on forced buttons', function () {
+            const link = makeButton(true);
+            Mozilla.Utils.attributeDownloadThanksButton();
+            expect(link.getAttribute('data-download-version')).toEqual('win64');
+        });
+    });
 });

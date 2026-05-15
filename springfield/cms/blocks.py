@@ -1066,30 +1066,34 @@ def MixedButtonsBlock(
     )
 
 
-class ButtonRowBlock(blocks.StructBlock):
-    spacing = blocks.ChoiceBlock(
-        choices=[
-            ("", "No spacing"),
-            ("small", "Small"),
-            ("large", "Large"),
-        ],
-        default="",
-        required=False,
-    )
-    buttons = MixedButtonsBlock(
-        button_types=get_button_types(allow_uitour=False),
-        min_num=1,
-        max_num=4,
-    )
-
-    class Meta:
-        label = "Button Row"
-        label_format = "Button Row"
-        template = "cms/blocks/button-row.html"
-        form_layout = blocks.BlockGroup(
-            children=["buttons"],
-            settings=["spacing"],
+def ButtonRowBlock(allow_uitour=False, **kwargs):
+    class _ButtonRowBlock(blocks.StructBlock):
+        spacing = blocks.ChoiceBlock(
+            choices=[
+                ("", "No spacing"),
+                ("small", "Small"),
+                ("large", "Large"),
+            ],
+            default="",
+            required=False,
         )
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=1,
+            max_num=3,
+        )
+
+        class Meta:
+            label = "Button Row"
+            label_format = "Button Row"
+            template = "cms/blocks/button-row.html"
+            form_layout = blocks.BlockGroup(
+                children=["buttons"],
+                settings=["spacing"],
+            )
+
+    return _ButtonRowBlock(**kwargs)
 
 
 class CTASettings(blocks.StructBlock):
@@ -2217,17 +2221,7 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
                 ("pricing_heading", PricingHeadingBlock()),
                 ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
                 ("icon_list", IconListBlock()),
-                (
-                    "button",
-                    MixedButtonsBlock(
-                        button_types=get_button_types(allow_uitour),
-                        themes=BUTTON_THEMES_2026,
-                        min_num=0,
-                        max_num=1,
-                        required=False,
-                        label="Button",
-                    ),
-                ),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("media", MediaBlock(max_num=1, min_num=0, required=False)),
                 ("numbered_list", NumberedListBlock()),
                 ("timeline", TimelineBlock()),
@@ -2573,6 +2567,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )

@@ -6,8 +6,10 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% set resolved_os = specific_version if specific_version and specific_version != "default" else "win" %}
+{% set is_forced = specific_version and specific_version != "default" %}
+{% set resolved_os = specific_version if is_forced else "win" %}
 {% set download_firefox_thanks_link = download_firefox_thanks_link(os=resolved_os) %}
+{% set link_href = download_firefox_thanks_link['download_link_direct'] if is_forced else download_firefox_thanks_link['transition_url'] %}
 
 {#
   Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
@@ -15,10 +17,11 @@
 #}
 
 <div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
-  <a href="{{ download_firefox_thanks_link['transition_url'] }}"
+  <a href="{{ link_href }}"
      class="download-link fl-button {{ theme_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
      data-download-version="{{ resolved_os }}"
+     {% if is_forced %}data-version-forced="true"{% endif %}
      data-cta-type="firefox"
      data-testid="download-firefox-button__download-link"
      data-cta-text="{{ cta_text }}"
