@@ -133,17 +133,20 @@ describe('mozilla-utils.js', function () {
     });
 
     describe('attributeDownloadThanksButton', function () {
+        let originalSite;
+
         beforeEach(function () {
+            originalSite = window.site;
             window.site = { platform: 'linux', archSize: 64 };
         });
 
         afterEach(function () {
+            window.site = originalSite;
             document
                 .querySelectorAll('.c-button-download-thanks')
                 .forEach((el) => {
                     el.parentNode.removeChild(el);
                 });
-            window.site = {};
         });
 
         function makeButton(forced) {
