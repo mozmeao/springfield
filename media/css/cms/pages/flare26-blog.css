@@ -271,18 +271,18 @@
     grid-auto-rows: auto;
 }
 
-.fl-blog-index-body .fl-card-grid .fl-illustration-card {
+.fl-blog-index-body .fl-illustration-card {
     display: grid;
     grid-row: span 2;
     grid-template-rows: subgrid;
 }
 
-.fl-blog-index-body .fl-card-grid .fl-illustration-card .fl-card-media,
-.fl-blog-index-body .fl-card-grid .fl-illustration-card .fl-card-media img {
+.fl-blog-index-body .fl-card-grid .fl-card-media,
+.fl-blog-index-body .fl-card-grid .fl-card-media img {
     margin-block-end: 0;
 }
 
-.fl-blog-index-body .fl-illustration-card .fl-card-media {
+.fl-blog-index-body .fl-card-media {
     align-content: end;
 }
 
