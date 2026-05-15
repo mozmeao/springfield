@@ -4370,14 +4370,14 @@ def test_two_column_cards_block(index_page, rf):
                     content_position = (
                         f"{region_name}-block-{block_number}-two_column_cards.card-{card_number}.content-{content_index + 1}-{block_type}"
                     )
-                    if block_type == "button":
-                        button_data = block_data["value"][0]
+                    if block_type == "button_row":
+                        button_data = block_data["value"]["buttons"][0]
                         cta_text = f"{heading_text} - {button_data['value']['label'].strip()}" if heading_text else None
                         assert_button_attributes(
                             button_element=card_el.find("a", class_="fl-button"),
                             button_data=button_data,
                             context=context,
-                            cta_position=content_position,
+                            cta_position=content_position + ".button-1",
                             cta_text=cta_text,
                         )
                     elif block_type in _TWO_COLUMN_CARD_CONTENT_ASSERTERS:
@@ -4517,6 +4517,13 @@ def test_section_block_2026_accepts_button_row():
     block = SectionBlock2026(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
+
+
+def test_two_column_card_accepts_button_row():
+    block = TwoColumnCardBlock()
+    child_block_names = list(block.declared_blocks["content"].child_blocks.keys())
+    assert "button_row" in child_block_names
+    assert "button" not in child_block_names
 
 
 def test_button_row_block_allow_uitour_exposes_uitour_type():

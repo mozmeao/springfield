@@ -178,9 +178,13 @@ def get_two_column_cards_variants() -> list[dict]:
                             block_id="tcc1-il1",
                         ),
                         {
-                            "type": "button",
-                            "value": [buttons["primary"]],
+                            "type": "button_row",
                             "id": "tcc1-btn1",
+                            "value": {
+                                "buttons": [
+                                    dict(buttons["primary"], id="tcc1-btn1-inner"),
+                                ],
+                            },
                         },
                     ],
                     card_id="tcc1-card1",
@@ -203,9 +207,13 @@ def get_two_column_cards_variants() -> list[dict]:
                             block_id="tcc1-il2",
                         ),
                         {
-                            "type": "button",
-                            "value": [buttons["primary"]],
+                            "type": "button_row",
                             "id": "tcc1-btn2",
+                            "value": {
+                                "buttons": [
+                                    dict(buttons["primary"], id="tcc1-btn2-inner"),
+                                ],
+                            },
                         },
                     ],
                     card_id="tcc1-card2",
@@ -290,9 +298,13 @@ def get_two_column_cards_variants() -> list[dict]:
                             block_id="tcc3-il1",
                         ),
                         {
-                            "type": "button",
-                            "value": [buttons["primary"]],
+                            "type": "button_row",
                             "id": "tcc3-btn1",
+                            "value": {
+                                "buttons": [
+                                    dict(buttons["primary"], id="tcc3-btn1-inner"),
+                                ],
+                            },
                         },
                     ],
                     card_id="tcc3-card1",
@@ -315,9 +327,13 @@ def get_two_column_cards_variants() -> list[dict]:
                             block_id="tcc3-il2",
                         ),
                         {
-                            "type": "button",
-                            "value": [buttons["primary"]],
+                            "type": "button_row",
                             "id": "tcc3-btn2",
+                            "value": {
+                                "buttons": [
+                                    dict(buttons["primary"], id="tcc3-btn2-inner"),
+                                ],
+                            },
                         },
                         _media("tcc3-m2"),
                     ],

@@ -2208,17 +2208,7 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
                 ("pricing_heading", PricingHeadingBlock()),
                 ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
                 ("icon_list", IconListBlock()),
-                (
-                    "button",
-                    MixedButtonsBlock(
-                        button_types=get_button_types(allow_uitour),
-                        themes=BUTTON_THEMES_2026,
-                        min_num=0,
-                        max_num=1,
-                        required=False,
-                        label="Button",
-                    ),
-                ),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("media", MediaBlock(max_num=1, min_num=0, required=False)),
                 ("numbered_list", NumberedListBlock()),
                 ("timeline", TimelineBlock()),
