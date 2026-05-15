@@ -32,7 +32,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_2026_test_page, get_buttons_test_page
+from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
     get_filled_card_variants,
@@ -4495,16 +4495,10 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
     assert result.locale == pt_br_locale
 
 
-def _make_button_row_value(count):
-    block = ButtonRowBlock()
-    buttons = [
-        {
-            "type": "button",
-            "value": {"label": f"Button {i}", "url": f"/test/{i}/", "theme": "primary", "size": "md", "icon_name": "", "icon_position": "right"},
-            "id": f"test-btn-{i}",
-        }
-        for i in range(count)
-    ]
+def _make_button_row_value(count, allow_uitour=False):
+    block = ButtonRowBlock(allow_uitour=allow_uitour)
+    variants = get_button_variants()
+    buttons = [dict(variants["primary"], id=f"test-btn-{i}") for i in range(count)]
     return block.to_python({"buttons": buttons})
 
 
@@ -4523,6 +4517,15 @@ def test_section_block_2026_accepts_button_row():
     block = SectionBlock2026(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
+
+
+def test_button_row_block_allow_uitour_exposes_uitour_type():
+    block_with = ButtonRowBlock(allow_uitour=True)
+    block_without = ButtonRowBlock(allow_uitour=False)
+    button_types_with = list(block_with.declared_blocks["buttons"].child_blocks.keys())
+    button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
+    assert "uitour_button" in button_types_with
+    assert "uitour_button" not in button_types_without
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

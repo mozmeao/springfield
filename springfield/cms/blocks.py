@@ -1066,17 +1066,21 @@ def MixedButtonsBlock(
     )
 
 
-class ButtonRowBlock(blocks.StructBlock):
-    buttons = MixedButtonsBlock(
-        button_types=get_button_types(allow_uitour=False),
-        min_num=1,
-        max_num=3,
-    )
+def ButtonRowBlock(allow_uitour=False, **kwargs):
+    class _ButtonRowBlock(blocks.StructBlock):
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=1,
+            max_num=3,
+        )
 
-    class Meta:
-        label = "Button Row"
-        label_format = "Button Row"
-        template = "cms/blocks/button-row.html"
+        class Meta:
+            label = "Button Row"
+            label_format = "Button Row"
+            template = "cms/blocks/button-row.html"
+
+    return _ButtonRowBlock(**kwargs)
 
 
 class CTASettings(blocks.StructBlock):
@@ -2560,7 +2564,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
-                ("button_row", ButtonRowBlock()),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
