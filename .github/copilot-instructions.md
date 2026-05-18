@@ -57,7 +57,32 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 * If you can see a new Wagtail CMS model is being added (specifically, a new Python class that is a subclass of wagtail.models.Page or of AbstractSpringfieldCMSPage, or a Django model class that is decorated or wrapped with with `register_snippet`) please check that the PR has it listed in springfield.settings.base.CMS_ALLOWED_PAGE_MODELS and also in the ./bin/export-db-to-sqlite.sh script.
 
-* If a new Snippet (a Django model decorated with @register_snippet) is added, add a reminder in a comment to ensure that the Editors have permission to see and edit the new Snippet. That permission is added manually via the Wagtail UI.
+* If a new Snippet (a Django model decorated with @register_snippet) is added, add a reminder in a comment to ensure that the Editors have permission to see and edit the new Snippet. That permission is added manually via the Wagtail UI. It could also be created in a data migration.
+
+* When a block is added to a page's Stream Field or as a child to another block, make sure that the key used to identify the block type is always the same. For example:
+
+```
+class ChildBlock(blocks.StructBlock):
+    ...
+
+# Right
+class ParentBlock(block.StructBlock):
+    child_block = ChildBlock()
+
+# Wrong
+class AnotherParentBlock(block.StructBlock):
+    another_key = ChildBlock()
+
+# Right
+class SomePAge(Page):
+    field = StreamField([("child_block", ChildBlock())], use_json_field=True)
+
+# Wrong
+class OtherPage(Page):
+    field = StreamField([("different_key", ChildBlock())], use_json_field=True)
+```
+
+* When a block has its data structure changed, make sure that a data migration is created to handle the new format.
 
 ## 8. Database schema changes
 
