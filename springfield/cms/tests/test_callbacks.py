@@ -123,6 +123,27 @@ def test_visual_context__for_page__with_no_revision(mock_capture_message, client
     mock_capture_message.assert_called_once_with(f"Unable to get a latest_revision for {page} so unable to send visual context.")
 
 
+@override_settings(WAGTAILADMIN_BASE_URL="https://cms.example.com")
+@mock.patch("springfield.cms.wagtail_localize_smartling.callbacks.SharingLinkView.as_view")
+@mock.patch("springfield.cms.wagtail_localize_smartling.callbacks.RequestFactory")
+def test__get_html_for_sharing_link__uses_cms_hostname_and_path_only(mock_factory_cls, mock_as_view):
+    # sharing_link.url is a full URL — we should extract just the path and use
+    # the CMS hostname as SERVER_NAME so make_preview_request doesn't fall back
+    # to 'localhost' / 'testserver' and return a 400 error page.
+    mock_response = mock.Mock()
+    mock_response.text = "<html><body>page content</body></html>"
+    mock_as_view.return_value = mock.Mock(return_value=mock_response)
+
+    sharing_link = mock.Mock()
+    sharing_link.url = "http://localhost/_internal_draft_preview/abc123/"
+
+    result = _get_html_for_sharing_link(sharing_link)
+
+    mock_factory_cls.assert_called_once_with(SERVER_NAME="cms.example.com")
+    mock_factory_cls.return_value.get.assert_called_once_with("/_internal_draft_preview/abc123/")
+    assert result == "<html><body>page content</body></html>"
+
+
 # The happy path is implicitly tested in test_visual_context__*, above
 @mock.patch("springfield.cms.wagtail_localize_smartling.callbacks.capture_exception")
 @mock.patch("springfield.cms.wagtail_localize_smartling.callbacks.SharingLinkView.as_view")
