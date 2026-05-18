@@ -1340,6 +1340,7 @@ class MediaContentSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Narrow the media element",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
@@ -2669,6 +2670,7 @@ class IntroBlockSettings2026(blocks.StructBlock):
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
@@ -2918,6 +2920,7 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
