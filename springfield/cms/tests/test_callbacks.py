@@ -4,6 +4,8 @@
 
 from unittest import mock
 
+from django.test import override_settings
+
 import pytest
 import wagtail_factories
 from wagtail.models import Page
@@ -15,6 +17,7 @@ from springfield.cms.wagtail_localize_smartling.callbacks import _get_html_for_s
 
 
 @pytest.mark.django_db
+@override_settings(WAGTAILADMIN_BASE_URL="https://cms.example.com")
 def test_visual_context__for_page(client):
     top_level_page = SimpleRichTextPageFactory()
 
@@ -38,9 +41,41 @@ def test_visual_context__for_page(client):
     # light checks because we're not testing wagtaildraftsharing itself
     assert "<body" in html
     assert "Test SimpleRichTextPage" in html
+    assert '<base href="https://www.firefox.com/">' in html
 
     sharing_link_key = WagtaildraftsharingLink.objects.get().key
-    assert url == f"http://testserver:81/_internal_draft_preview/{sharing_link_key}/"
+    assert url == f"https://cms.example.com/_internal_draft_preview/{sharing_link_key}/"
+
+
+@pytest.mark.django_db
+@override_settings(WAGTAILADMIN_BASE_URL="https://cms.example.com")
+@mock.patch("springfield.cms.wagtail_localize_smartling.callbacks._get_html_for_sharing_link")
+def test_visual_context__cms_hostname_stripped_and_base_tag_injected(mock_get_html, client):
+    top_level_page = SimpleRichTextPageFactory()
+    page = SimpleRichTextPageFactory(parent=top_level_page, slug="visual-context-text-page")
+    page.save_revision()
+
+    site = wagtail_factories.SiteFactory(
+        root_page=top_level_page,
+        is_default_site=True,
+        hostname="cms-internal.example.com",
+        port=8080,
+    )
+    cms_root_url = site.root_url  # e.g. "http://cms-internal.example.com:8080"
+
+    mock_get_html.return_value = f'<html><head></head><body><img src="{cms_root_url}/media/image.jpg"></body></html>'
+
+    user = WagtailUserFactory()
+    mock_job = mock.Mock()
+    mock_job.translation_source.get_source_instance.return_value = page
+    mock_job.user = user
+
+    _, html = visual_context(smartling_job=mock_job)
+
+    assert cms_root_url not in html
+    assert "https://cms.example.com" not in html
+    assert '<base href="https://www.firefox.com/">' in html
+    assert '<img src="/media/image.jpg">' in html
 
 
 def test_visual_context__for_inviable_object(client):
