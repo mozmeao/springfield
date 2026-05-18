@@ -6,6 +6,11 @@
 
 window.dataLayer = window.dataLayer || [];
 
+// Create namespace
+if (typeof window.Mozilla === 'undefined') {
+    window.Mozilla = {};
+}
+
 /**
  * Constructs attribution data based on utm parameters, referrer information, and
  * essential product context / install options for relay to the Firefox stub installer.
