@@ -5,7 +5,7 @@
 */
 
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
-@import 'flare26-media-query-tokens.css';
+@import 'variables/flare26-media-query-tokens.css';
 
 @layer page {
     .fl-landing-get .fl-main {
