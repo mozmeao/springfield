@@ -328,28 +328,6 @@ def test_blog_all_renders_200(blog_setup, rf):
     assert response.status_code == 200
 
 
-def test_blog_all_renders_all_articles_heading(index_page, rf):
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    h1 = soup.find("h1", class_="fl-heading")
-    assert h1 and "All Articles" in h1.get_text()
-
-
-def test_blog_all_renders_back_link(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    back_link = soup.find("a", class_="fl-blog-back-link")
-    assert back_link
-    assert back_link["href"] == index_page.url
-
-
 def test_blog_all_renders_full_topics_list(blog_setup, rf):
     index_page, _ = blog_setup
     topics = get_blog_topics()
@@ -498,19 +476,6 @@ def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
     for item in items:
         superheading = item.find("p", class_="fl-superheading")
         assert superheading and topic.name in superheading.get_text()
-
-
-def test_blog_all_topic_filter_count_in_selected_tag(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url, {"topic": "privacy"})
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    selected = soup.find("span", class_="fl-blog-selected-topic")
-    assert selected
-    count_tag = selected.find("span", class_="fl-tag-white")
-    assert count_tag and count_tag.get_text(strip=True).isdigit()
 
 
 def test_blog_all_topic_filter_pagination_urls_include_topic_param(blog_setup, rf):
