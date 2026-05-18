@@ -303,6 +303,13 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-block: var(--token-layout-sm);
 }
 
+.fl-main
+    > .fl-buttons:not(.fl-buttons-spacing-large):not(
+        .fl-buttons-spacing-small
+    ):last-of-type {
+    margin-block-end: var(--token-layout-sm);
+}
+
 .fl-tiny-icon-button {
     background: transparent;
     color: var(--fl-theme-color-link);
