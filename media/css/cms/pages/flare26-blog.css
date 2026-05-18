@@ -4,7 +4,7 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-@import 'flare26-media-query-tokens.css';
+@import 'variables/flare26-media-query-tokens.css';
 
 @layer page {
     .fl-page-blog .fl-main {
