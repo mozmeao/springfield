@@ -16,14 +16,24 @@ window.Mozilla.DownloadAsDefault = DownloadAsDefault;
 DownloadAsDefault.processAttributionRequest = (checked) => {
     /**
      * Update essential data based on checkbox state
+     * bindEvents will be both success and timeout callback
      */
     if (!checked) {
-        window.Mozilla.DownloadAttribution.initEssential(null, () => {
-            DownloadAsDefault.bindEvents();
-        });
+        window.Mozilla.DownloadAttribution.initEssential(
+            null,
+            () => {
+                DownloadAsDefault.bindEvents();
+            },
+            () => {
+                DownloadAsDefault.bindEvents();
+            }
+        );
     } else {
         window.Mozilla.DownloadAttribution.initEssential(
             DownloadAsDefault.CAMPAIGN,
+            () => {
+                DownloadAsDefault.bindEvents();
+            },
             () => {
                 DownloadAsDefault.bindEvents();
             }
