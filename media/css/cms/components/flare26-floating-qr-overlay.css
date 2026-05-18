@@ -23,6 +23,14 @@
         block-size 300ms ease,
         inline-size 300ms ease;
     z-index: 5;
+
+    @media (forced-colors: active) {
+        border: 1px solid CanvasText;
+
+        .fl-icon {
+            background-color: CanvasText;
+        }
+    }
 }
 
 .fl-qr-code-floating-snippet.is-open {
@@ -136,6 +144,26 @@
 
     /* end default reversions */
     display: flex;
+
+    @media (forced-colors: active) {
+        background-color: ButtonFace;
+        border: 1px solid ButtonText;
+        color: ButtonText;
+
+        &:hover {
+            background-color: SelectedItem;
+            border-color: SelectedItemText;
+            color: SelectedItemText;
+
+            .fl-icon {
+                background-color: SelectedItemText;
+            }
+        }
+
+        &:active {
+            border-color: ButtonText;
+        }
+    }
 }
 
 /* Hide on smaller screens */
