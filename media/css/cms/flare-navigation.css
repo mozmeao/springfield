@@ -12,6 +12,10 @@
     --fl-navigation-menu-height: 58px;
 }
 
+html {
+    scroll-padding-top: var(--fl-navigation-menu-height);
+}
+
 /* ================================================
    Header Base Styles
    ================================================ */
@@ -25,6 +29,15 @@
 .fl-header.fl-header-no-menu {
     border-bottom-width: 1px;
     position: static;
+}
+
+/* IntersectionObserver target for detecting scroll-past-top — see flare-navigation.es6.js */
+.fl-header-sentinel {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
 }
 
 .fl-header a {
@@ -364,29 +377,25 @@
         padding: 0;
     }
 
-    .fl-header.headroom {
+    .fl-header.enable-sticky {
         position: sticky;
         top: 0;
         z-index: 100;
-        transition: transform 200ms linear, box-shadow 200ms linear;
+        transition: box-shadow 200ms ease-out;
     }
 
-    .fl-header.headroom-pinned {
-        transform: translateY(0%);
-
+    @media (prefers-reduced-motion: reduce) {
+        .fl-header.enable-sticky {
+            transition: none;
+        }
     }
 
-    .fl-header.headroom-pinned.headroom-not-top {
+    .fl-header.enable-sticky.is-scrolled {
         box-shadow: 0 0 6px 1px rgba(29, 17, 51, 0.04), 0 0 8px 2px rgba(9, 32, 77, 0.12), 0 0 5px -3px rgba(29, 17, 51, 0.12);
     }
 
-    .fl-header.headroom-pinned.headroom-not-top .fl-menu-panel {
+    .fl-header.enable-sticky.is-scrolled .fl-menu-panel {
         box-shadow: 0 6px 6px 1px rgba(29, 17, 51, 0.04), 0 8px 8px 2px rgba(9, 32, 77, 0.12), 0 5px 5px -3px rgba(29, 17, 51, 0.12);
-    }
-
-
-    .fl-header.headroom-unpinned {
-        transform: translateY(-100%);
     }
 
     .fl-header.fl-header-no-menu {

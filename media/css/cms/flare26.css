@@ -29,6 +29,7 @@ https://mozmeao.github.io/platform-docs/browser-support/
 @import 'flare26-animations.css' layer(base);
 @import 'flare26-base.css' layer(base);
 @import 'flare26-tokens.css' layer(theme);
+@import 'flare26-media-query-tokens.css' layer(theme);
 @import 'flare26-theme.css' layer(theme);
 @import 'flare26-defaults.css' layer(defaults);
 @import 'flare26-template.css' layer(template);

@@ -16,9 +16,11 @@
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
+  <div class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <h1 class="fl-heading fl-heading-size-1">
         {% if LANG.startswith('en-') %}
@@ -144,7 +146,7 @@
         {% include_block block %}
       {% endfor %}
     </section>
-  </main>
+  </div>
 </div>
 {% endblock %}
 
