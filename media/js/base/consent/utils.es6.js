@@ -45,14 +45,11 @@ function setGtagAdsConsentMode(hasConsent, type = 'update') {
  * @returns {Boolean}
  */
 function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
-    // This is a failsafe to ensure we always remove analytics download attribution
-    // when consent status is denied (regardless of whether or not we are on page with
-    // a consent banner, i.e. the cookie policy page)
-    //
-    // This failsafe is only necessary as long as GTM is conditionally loaded
-    // Once it is always loaded, we can rely on GTM consent mode status
-    if (!hasConsent) {
-        DownloadAttribution.initAnalytics(false);
+    if (attributionRefactorEnabled()) {
+        // This must run before the gtag check to ensure we always update
+        // download analytics regardless of whether GTM has loaded on the page
+        // i.e. cookie settings page
+        setDownloadAttribution(hasConsent);
     }
 
     // bail out if GTAG has not been created with GTMSnippet.loadSnippet
@@ -64,15 +61,35 @@ function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
         window.gtag('consent', type, {
             analytics_storage: 'granted'
         });
-
-        // We only apply analytics information if GTAG is available
-        DownloadAttribution.initAnalytics(true);
     } else {
         window.gtag('consent', type, {
             analytics_storage: 'denied'
         });
     }
     return true;
+}
+
+/**
+ * Sets Mozilla Download Attribution analytics
+ * @param {Boolean} hasConsent - based on GTAG analytics consent
+ * @returns {Boolean}
+ */
+function setDownloadAttribution(hasConsent) {
+    DownloadAttribution.initAnalytics(hasConsent);
+
+    return true;
+}
+
+/**
+ * Determines if the download attribution refactor is active.
+ * Looks for a data attribute on the <html> tag.
+ */
+function attributionRefactorEnabled() {
+    const attr = document
+        .getElementsByTagName('html')[0]
+        .getAttribute('data-attribution-refactor-enabled');
+
+    return attr ? attr.toLowerCase() === 'true' : false;
 }
 
 /**
