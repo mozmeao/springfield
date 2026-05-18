@@ -135,7 +135,7 @@ def stub_attribution_code(request):
         if not codes["client_id_ga4"] == "(not set)":
             # set basic defaults
             if codes["dlsource"] == "(not set)":
-                codes["source"] = "fxdotcom"
+                codes["dlsource"] = "fxdotcom"
 
             if codes["medium"] == "(not set)":
                 codes["medium"] = "(direct)"
