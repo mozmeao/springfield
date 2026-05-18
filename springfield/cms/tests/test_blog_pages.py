@@ -493,6 +493,100 @@ def test_blog_all_topic_filter_pagination_urls_include_topic_param(blog_setup, r
             assert "topic=privacy" in next_button["href"]
 
 
+def test_blog_all_renders_view_all_topics_link(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url)
+    response = index_page.all_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    topics_route_url = index_page.url + index_page.reverse_subpage("topics_route")
+    topics_all_div = soup.find("div", class_="fl-blog-topics-all")
+    assert topics_all_div
+    link = topics_all_div.find("a", class_="fl-link")
+    assert link and link["href"] == topics_route_url
+
+
+def test_blog_all_topic_links_are_tag_elements(blog_setup, rf):
+    index_page, _ = blog_setup
+    topics = get_blog_topics()
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url)
+    response = index_page.all_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    topic_links = soup.find_all("a", class_="fl-blog-topic-link")
+    assert len(topic_links) == len(topics)
+    for link in topic_links:
+        assert "fl-tag" in link.get("class", [])
+
+
+# ---------------------------------------------------------------------------
+# Blog topics page (/topics/)
+# ---------------------------------------------------------------------------
+
+
+def test_blog_topics_renders_200(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    assert response.status_code == 200
+
+
+def test_blog_topics_renders_back_link(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link
+    assert back_link["href"] == index_page.url
+
+
+def test_blog_topics_renders_heading(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    h1 = soup.find("h1", class_="fl-heading")
+    assert h1 and "All Topics" in h1.get_text()
+
+
+def test_blog_topics_renders_topic_links(blog_setup, rf):
+    index_page, _ = blog_setup
+    topics = get_blog_topics()
+    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    topic_links = [a for a in soup.find_all("a", class_="fl-tag") if "is-large" in a.get("class", [])]
+    assert len(topic_links) == len(topics)
+    for link in topic_links:
+        assert link["href"].startswith(all_route_url)
+        assert "topic=" in link["href"]
+
+
+def test_blog_topics_shows_article_count_badge(blog_setup, rf):
+    index_page, _ = blog_setup
+    topics = get_blog_topics()
+    url = index_page.full_url + index_page.reverse_subpage("topics_route")
+    request = rf.get(url)
+    response = index_page.topics_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    badges = soup.find_all("span", class_="fl-tag-light-purple")
+    assert len(badges) == len(topics), "Each topic link should show an article count badge, visible on hover."
+    for badge in badges:
+        assert badge.get_text(strip=True).isdigit()
+
+
 # ---------------------------------------------------------------------------
 # Blog article page
 # ---------------------------------------------------------------------------
