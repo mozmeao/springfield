@@ -10,6 +10,7 @@
 # provided and what outputs are needed
 import logging
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.test import RequestFactory
@@ -27,7 +28,14 @@ logger = logging.getLogger(__name__)
 
 
 def _get_html_for_sharing_link(sharing_link: WagtaildraftsharingLink) -> str:
-    request = RequestFactory().get(sharing_link.url)
+    # Use the CMS hostname (guaranteed to be in ALLOWED_HOSTS) so that
+    # Wagtail's make_preview_request doesn't fall back to 'testserver' /
+    # 'localhost', which would cause DisallowedHost inside the middleware
+    # chain and return a 400 error page instead of the real page HTML.
+    # Also extract just the path from sharing_link.url in case it's absolute.
+    cms_hostname = urlparse(settings.WAGTAILADMIN_BASE_URL).hostname
+    path = urlparse(sharing_link.url).path
+    request = RequestFactory(SERVER_NAME=cms_hostname).get(path)
     view_func = SharingLinkView.as_view()
     try:
         resp = view_func(
