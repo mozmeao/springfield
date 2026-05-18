@@ -173,8 +173,10 @@ if (
     timeout = setTimeout(onTimeout, 2000);
     Mozilla.DownloadAttribution.initEssential();
 } else {
-    // Otherwise, we can assume an existing cookie has latest data
-    Mozilla.DownloadAttribution.applyAttributionDataToLinks();
+    if (Mozilla.DownloadAttribution !== undefined) {
+        // Otherwise, we can assume an existing cookie has latest data
+        Mozilla.DownloadAttribution.applyAttributionDataToLinks();
+    }
     beginFirefoxDownload();
 }
 
