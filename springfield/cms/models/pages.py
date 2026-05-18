@@ -35,6 +35,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     BlogArticleBlock,
     BlogCardsListBlock,
+    ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
@@ -722,6 +723,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("video", VideoBlock()),
+            ("button_row", ButtonRowBlock()),
         ],
         use_json_field=True,
     )
@@ -889,6 +891,7 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
+        ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",

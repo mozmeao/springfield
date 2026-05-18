@@ -969,6 +969,20 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             default=True,
             help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
         )
+        specific_version = blocks.ChoiceBlock(
+            choices=[
+                ("default", "Default (auto-detect)"),
+                ("win", "Windows 32-bit"),
+                ("win64", "Windows 64-bit"),
+                ("win64-aarch64", "Windows ARM64/AArch64"),
+                ("osx", "macOS"),
+                ("linux64", "Linux 64-bit"),
+                ("linux64-aarch64", "Linux ARM64/AArch64"),
+            ],
+            default="default",
+            label="Specific Version",
+            help_text="Force a specific platform build. Leave as Default for auto-detection.",
+        )
 
         class Meta:
             icon = "cog"
@@ -1065,6 +1079,36 @@ def MixedButtonsBlock(
         label=label,
         **kwargs,
     )
+
+
+def ButtonRowBlock(allow_uitour=False, **kwargs):
+    class _ButtonRowBlock(blocks.StructBlock):
+        spacing = blocks.ChoiceBlock(
+            choices=[
+                ("", "No spacing"),
+                ("small", "Small"),
+                ("large", "Large"),
+            ],
+            default="",
+            required=False,
+        )
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=1,
+            max_num=3,
+        )
+
+        class Meta:
+            label = "Button Row"
+            label_format = "Button Row"
+            template = "cms/blocks/button-row.html"
+            form_layout = blocks.BlockGroup(
+                children=["buttons"],
+                settings=["spacing"],
+            )
+
+    return _ButtonRowBlock(**kwargs)
 
 
 class CTASettings(blocks.StructBlock):
@@ -2376,17 +2420,7 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
                 ("pricing_heading", PricingHeadingBlock()),
                 ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
                 ("icon_list", IconListBlock()),
-                (
-                    "button",
-                    MixedButtonsBlock(
-                        button_types=get_button_types(allow_uitour),
-                        themes=BUTTON_THEMES_2026,
-                        min_num=0,
-                        max_num=1,
-                        required=False,
-                        label="Button",
-                    ),
-                ),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("media", MediaBlock(max_num=1, min_num=0, required=False)),
                 ("numbered_list", NumberedListBlock()),
                 ("timeline", TimelineBlock()),
@@ -2744,6 +2778,7 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
