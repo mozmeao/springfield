@@ -6,4 +6,4 @@
 
 {% extends "firefox/download/desktop/thanks.html" %}
 
-{% block html_attrs %}data-stub-attribution-campaign-force="rtamo"{% endblock %}
+{% block html_attrs %}{{ super() }} data-stub-attribution-campaign-force="rtamo"{% endblock %}
