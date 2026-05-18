@@ -523,7 +523,7 @@ test.describe('analytics download attribution', () => {
                 const acceptButton = page.getByTestId(
                     'consent-banner-accept-button'
                 );
-                acceptButton.click();
+                await acceptButton.click();
 
                 // check analytics cookie was added
                 await page.waitForFunction(() => {

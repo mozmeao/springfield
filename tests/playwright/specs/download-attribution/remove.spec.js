@@ -171,6 +171,19 @@ test.describe('analytics download attribution', () => {
                 });
                 await saveButton.click();
 
+                // Wait for cookie removal before reading updated state.
+                await page.waitForFunction(() => {
+                    return !document.cookie
+                        .split(';')
+                        .some((c) =>
+                            c
+                                .trim()
+                                .startsWith(
+                                    'moz-download-attribution-analytics-raw='
+                                )
+                        );
+                });
+
                 // confirm cookie is removed
                 const cookies = await page.context().cookies();
                 const analyticsCookie = cookies.find(
@@ -227,7 +240,12 @@ test.describe('analytics download attribution', () => {
                 const saveButton = await page.getByRole('button', {
                     name: /Save changes/i
                 });
+
+                const stubResponse = page.waitForResponse(
+                    '**/stub_attribution_code/**'
+                );
                 await saveButton.click();
+                await stubResponse;
 
                 // Confirm stub attribution service call uses essential campaign param only
                 expect(capture.params).not.toBeNull();
@@ -292,15 +310,17 @@ test.describe('essential download attribution', () => {
             await routeStubAttributionCode(page2, capture);
             await openPage(`/en-US/?geo=us`, page2, browserName);
 
-            // Confirm there is existing analytics cookie
+            // Wait for essential cookie removal. The analytics cookie from the
+            // first navigation is already present, so waiting on it would
+            // resolve immediately without confirming the essential cookie is gone.
             await page2.waitForFunction(() => {
-                return document.cookie
+                return !document.cookie
                     .split(';')
                     .some((c) =>
                         c
                             .trim()
                             .startsWith(
-                                'moz-download-attribution-analytics-raw='
+                                'moz-download-attribution-essential-raw='
                             )
                     );
             });
@@ -321,6 +341,7 @@ test.describe('essential download attribution', () => {
 
             // Load page where analytics consent is allowed
             await page.addInitScript(forceEssentialCampaign);
+            await page.addInitScript(mockGetGtagClientID);
             await openPage(
                 `/en-US/?geo=us&${existingAnalyticsParams}`,
                 page,
@@ -340,12 +361,25 @@ test.describe('essential download attribution', () => {
                     );
             });
 
+            // Confirm analytics cookie is also set before reading it
+            await page.waitForFunction(() => {
+                return document.cookie
+                    .split(';')
+                    .some((c) =>
+                        c
+                            .trim()
+                            .startsWith(
+                                'moz-download-attribution-analytics-raw='
+                            )
+                    );
+            });
+
             const existingCookies = await page.context().cookies();
             const existingEssentialCookie = existingCookies.find(
                 (c) => c.name === 'moz-download-attribution-essential-raw'
             );
             const existingAnalyticsCookie = existingCookies.find(
-                (c) => c.name === 'moz-download-attribution-essential-raw'
+                (c) => c.name === 'moz-download-attribution-analytics-raw'
             );
             expect(existingEssentialCookie).toBeDefined();
             const existingEssentialCookieData = JSON.parse(
@@ -358,9 +392,17 @@ test.describe('essential download attribution', () => {
                 'smart_window'
             );
 
-            // Navigate to new page with no essential campaign
-            await openPage(`/en-US/?geo=us`, page, browserName);
-            await page.waitForLoadState('networkidle');
+            // A fresh page is required so the forceEssentialCampaign init
+            // script (registered on `page`) does not run again and re-set
+            // data-stub-attribution-campaign-force on the second navigation.
+            const page2 = await page.context().newPage();
+            await removeDownloadAsDefault(page2);
+            await routeStubAttributionCode(page2, capture);
+            const stubResponse = page2.waitForResponse(
+                '**/stub_attribution_code/**'
+            );
+            await openPage(`/en-US/?geo=us`, page2, browserName);
+            await stubResponse;
 
             // Confirm stub attribution service call uses analytics campaign
             expect(capture.params).not.toBeNull();

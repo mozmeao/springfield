@@ -253,19 +253,14 @@ test.describe('analytics download attribution', () => {
                 const capture = { params: null };
                 await routeStubAttributionCode(page, capture);
                 await page.addInitScript(forceEssentialCampaign);
-                await openPage('/en-US/?geo=us', page, browserName);
 
-                await page.waitForFunction(() => {
-                    return document.cookie
-                        .split(';')
-                        .some((c) =>
-                            c
-                                .trim()
-                                .startsWith(
-                                    'moz-download-attribution-analytics-raw='
-                                )
-                        );
-                });
+                // Wait for stub service response
+                // (must register before navigationto avoid a race condition)
+                const stubResponse = page.waitForResponse(
+                    '**/stub_attribution_code/**'
+                );
+                await openPage('/en-US/?geo=us', page, browserName);
+                await stubResponse;
 
                 // Confirm new essential cookie added
                 const cookies = await page.context().cookies();
@@ -455,7 +450,7 @@ test.describe('essential download attribution', () => {
                 const acceptButton = page.getByTestId(
                     'consent-banner-accept-button'
                 );
-                acceptButton.click();
+                await acceptButton.click();
 
                 // Confirm analytics cookie was added
                 await page.waitForFunction(() => {
