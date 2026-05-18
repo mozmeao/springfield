@@ -160,6 +160,13 @@
       {% endif %}
     {% endblock %}
 
+    {% block mobile_attribution %}
+      {# Rewrites /thanks/-bound download buttons to attributed store URLs on
+         mobile UAs so page-level campaign survives the click. Self-gates on
+         campaign data attrs or URL utm_campaign; no-op otherwise. #}
+      {{ js_bundle('mobile-attribution') }}
+    {% endblock %}
+
     <!--[if !IE]><!-->
     {% block js %}{% endblock %}
 
