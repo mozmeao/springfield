@@ -14,6 +14,7 @@
     border: 1px solid var(--theme-roadmap-list-border-color);
     border-radius: var(--token-border-radius-sm);
     list-style: none;
+    margin: 0;
 }
 
 .fl-roadmap-list .fl-roadmap-item + .fl-roadmap-item {

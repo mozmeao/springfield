@@ -812,7 +812,7 @@ def test_media_content_block(index_page, placeholder_images, rf):
         section_element,
         section["value"]["cta"][0],
         context,
-        cta_position="block-1-section.cta",
+        cta_position="block-1-section.cta-1",
         cta_text=f"{heading_text.strip()} - {cta_label.strip()}",
     )
 
@@ -1027,7 +1027,7 @@ def test_icon_card_block(index_page, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1091,7 +1091,7 @@ def test_sticker_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1160,7 +1160,7 @@ def test_filled_card_block(index_page, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1228,7 +1228,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1298,7 +1298,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
