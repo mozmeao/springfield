@@ -1,6 +1,9 @@
 # Workflows that run visual regression tests on Flare26 components
 
 name: Visual regression tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 run-name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
 on:
   push:
@@ -20,13 +23,16 @@ permissions:
 
 jobs:
   visual-regression-tests:
+    name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
     if: always() && github.repository == 'mozmeao/springfield'
     runs-on: ubuntu-latest
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
       - name: Build frontend assets
@@ -54,7 +60,7 @@ jobs:
         run: cd tests/playwright && npm run local:visual-regression-tests
         env:
           PLAYWRIGHT_BASE_URL: http://localhost:8000
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !cancelled() }}
         with:
           name: test-results-${{ github.sha }}-${{ github.run_id }}
