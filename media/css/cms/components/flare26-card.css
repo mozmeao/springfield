@@ -200,6 +200,10 @@ Basic Card
     margin-block-end: var(--token-spacing-md);
 }
 
+.fl-card-heading-group > *:last-child {
+    margin-block-end: 0;
+}
+
 .fl-card .fl-buttons {
     margin-block-start: auto;
 }
