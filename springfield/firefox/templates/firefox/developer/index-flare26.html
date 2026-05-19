@@ -3,8 +3,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
-
-  <main class="fl-main fl-page-developer has-gradient-bottom">
+  <div class="fl-main fl-page-developer has-gradient-bottom">
     <div class="fl-section">
       <div class="fl-section-container is-medium-width">
         <include:intro media_position="before" vertical full_width>
@@ -56,7 +55,7 @@
 
 
 
-        <include:cards-list>
+        <include:cards-list cards_per_row="2">
           <include:illustration-card-2026 expand_link>
             <content:media>
               <img src="{{ static('img/firefox/developer/hero-inactive-css.png') }}"
@@ -149,7 +148,7 @@
           heading_text="{{ ftl('firefox-developer-build-and-perfect') }}"
         />
 
-        <include:cards-list>
+        <include:cards-list cards_per_row="3" container_width="wide">
           <include:illustration-card-2026 variant="sticker" expand_link>
             <content:media>
               <img src="{{ static('img/firefox/developer/feature-inspector.svg') }}" width="202" height="124" loading="lazy" alt="" />
@@ -337,7 +336,7 @@
 
     <div class="fl-section">
       <div class="fl-section-container">
-        <include:cards-list>
+        <include:cards-list cards_per_row="2" container_width="narrow">
           <include:card>
             <content:heading>
             <include:heading
@@ -398,4 +397,4 @@
         </include:banner>
       </div>
     </div>
-  </main>
+  </div>

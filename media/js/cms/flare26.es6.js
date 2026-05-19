@@ -5,6 +5,7 @@
  */
 
 import setupAnimations from './components/flare26-animations.es6';
+import setupBlogTopicsScroll from './components/flare26-blog-topics-scroll.es6';
 import setupCarousels from './components/flare26-carousel.es6';
 import setupCopyToClipboardButtons from './components/flare26-copy-to-clipboard.es6';
 import setupDialogs, { initDialogs } from './components/flare26-dialogs.es6';
@@ -14,6 +15,7 @@ import setupNewsletter from './components/flare26-newsletter.es6';
 import setupNotificationClose from './components/flare26-notification-close.es6';
 import setupQRCodeSnippet from './components/flare26-qr-code-snippet.es6';
 import setupScrollingCardGrid from './components/flare26-scrolling-card-grid.es6';
+import { setupSetAsDefault } from './components/flare26-set-as-default.es6';
 import setupSlidingCarousels from './components/flare26-sliding-carousel.es6';
 import setupTopicListSidebar from './components/flare26-topic-list-sidebar.es6';
 import setupTypewriter, {
@@ -29,6 +31,7 @@ if (typeof window.cms === 'undefined') {
 window.cms.Flare26 = { typewriter, initDialogs };
 
 function setupComponents() {
+    setupBlogTopicsScroll();
     setupNewsletter();
     setupNotificationClose();
     setupVideo();
@@ -43,6 +46,7 @@ function setupComponents() {
     setupCopyToClipboardButtons();
     setupFirefoxVersionConditionalDisplay();
     setupSlidingCarousels();
+    setupSetAsDefault();
 }
 
 if (document.readyState === 'loading') {

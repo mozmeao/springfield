@@ -22,7 +22,9 @@
 {% block body_class %}{{ super() }} mobile-overview{% endblock %}
 
 {% block page_css %}
-{% if not switch("flare26_enabled") %}
+{% if switch("flare26_enabled") %}
+  {{ css_bundle('flare26-mobile-pages') }}
+{% else %}
   {{ css_bundle('protocol-split') }}
   {{ css_bundle('protocol-emphasis-box')}}
   {{ css_bundle('firefox-mobile-index') }}
@@ -49,11 +51,13 @@
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
 {% if switch("flare26_enabled") %}
 {# this will use freeform2026 template once it heads to the CMS. #}
 <div class="fl-page fl-freeform-2026-page">
-  <main class="fl-main has-gradient-bottom">
+  <div class="fl-main has-gradient-bottom">
     <div class="fl-split-page-upper has-gradient-bottom">
       <include:mobile-store-qr-code
         block_position="mobile-store-qr"
@@ -103,7 +107,7 @@
 
           <div class="fl-mediacontent-content">
               <div class="fl-body">
-                <ul class="icon-text-list">
+                <include:icon-list>
                   <li>
                     <span class="fl-icon-wrap">
                       <span class="fl-icon fl-icon-private-mode-fill" aria-hidden="true"></span>
@@ -140,7 +144,7 @@
                     </span>
                     Fast and reliable. Built to keep up as you move.
                   </li>
-                </ul>
+                </include:icon-list>
               </div>
           </div>
         </div>
@@ -326,7 +330,7 @@
         </include:section>
       </div>
     </div>
-  </main>
+  </div>
 </div>
 
 

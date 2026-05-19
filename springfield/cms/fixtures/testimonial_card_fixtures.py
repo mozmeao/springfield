@@ -101,6 +101,17 @@ def get_testimonial_card_2026_variants() -> list[dict]:
     ]
 
 
+def _cards_list(cards, settings=None, block_id=""):
+    return {
+        "type": "cards_list",
+        "value": {
+            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+            "cards": cards,
+        },
+        "id": block_id,
+    }
+
+
 def get_testimonial_cards_2026_sections() -> list[dict]:
     cards = get_testimonial_card_2026_variants()
     return [
@@ -108,11 +119,7 @@ def get_testimonial_cards_2026_sections() -> list[dict]:
             heading_text="Testimonial Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards[:3]},
-                    "id": "2026tcs1-0000-0000-0000-000000000001",
-                }
+                _cards_list(cards[:3], block_id="2026tcs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026ts01-0000-0000-0000-000000000001",
         ),
@@ -120,13 +127,33 @@ def get_testimonial_cards_2026_sections() -> list[dict]:
             heading_text="Testimonial Cards - 4 Columns",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                {
-                    "type": "cards_list",
-                    "value": {"cards": cards},
-                    "id": "2026tcs1-0000-0000-0000-000000000002",
-                }
+                _cards_list(cards, block_id="2026tcs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026ts01-0000-0000-0000-000000000002",
+        ),
+        _section(
+            heading_text="Testimonial Cards - Wide Container, 2 Columns",
+            subheading_text="Wide container (1170px) with 2 columns forced.",
+            content_blocks=[
+                _cards_list(
+                    cards[:2],
+                    settings={"container_width": "wide", "cards_per_row": "2", "two_wide_xs": False},
+                    block_id="2026tcs1-0000-0000-0000-000000000003",
+                ),
+            ],
+            section_id="2026ts01-0000-0000-0000-000000000003",
+        ),
+        _section(
+            heading_text="Testimonial Cards - Scroll",
+            subheading_text="Horizontally scrollable card row.",
+            content_blocks=[
+                _cards_list(
+                    cards * 2,
+                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
+                    block_id="2026tcs1-0000-0000-0000-000000000004",
+                ),
+            ],
+            section_id="2026ts01-0000-0000-0000-000000000004",
         ),
     ]
 

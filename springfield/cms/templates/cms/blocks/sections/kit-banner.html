@@ -11,21 +11,48 @@
   platform_conditions="{{ value.settings.show_to.platforms }}"
   firefox_condition="{{ value.settings.show_to.firefox }}"
   auth_state_condition="{{ value.settings.show_to.auth_state }}"
+  default_browser_condition="{{ value.settings.show_to.default_browser }}"
   min_version="{{ value.settings.show_to.min_version }}"
   max_version="{{ value.settings.show_to.max_version }}">
-  <include:kit-banner theme="{{ value.settings.theme }}" anchor_id="{{ value.settings.anchor_id }}">
+  <include:kit-banner
+    theme="{{ value.settings.theme }}"
+    background_theme="{{ value.settings.background_theme }}"
+    anchor_id="{{ value.settings.anchor_id }}"
+  >
 
     <content:heading>
       {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-      <include:heading
-        level="{{ heading_level }}"
-        heading_size="fl-heading-size-2"
-        alignment_class=""
-        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
-        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
-        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
-        subheading_size="fl-subheading-4"
-      />
+      {% if value.tags %}
+        <div>
+          <include:heading
+            level="{{ heading_level }}"
+            heading_size="fl-heading-md fl-heading-condensed"
+
+            alignment_class=""
+            superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+            heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+            subheading_size="fl-subheading-4"
+          />
+          <div class="fl-tags">
+            {% for tag in value.tags %}
+              {% include_block tag %}
+            {% endfor %}
+          </div>
+          {% if value.heading.subheading_text %}
+            <p class="fl-subheading-4 fl-subheading">{{ value.heading.subheading_text|richtext|remove_p_tag }}</p>
+          {% endif %}
+        </div>
+      {% else %}
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-md fl-heading-condensed"
+          alignment_class=""
+          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
+          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+          subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
+          subheading_size="fl-subheading-4"
+        />
+      {% endif %}
     </content:heading>
 
     {% if value.buttons %}

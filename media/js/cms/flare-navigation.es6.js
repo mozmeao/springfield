@@ -6,22 +6,23 @@
 
 // Sticky header
 import { createFocusTrap } from 'focus-trap';
-import Headroom from 'headroom.js';
 
 (function () {
     const headerEl = document.querySelector('.fl-header.enable-sticky');
 
     if (headerEl) {
-        const headroomInstance = new Headroom(headerEl, {
-            offset: 80,
-            classes: {
-                pinned: 'headroom-pinned',
-                unpinned: 'headroom-unpinned',
-                notTop: 'headroom-not-top',
-                notBottom: 'headroom-not-bottom'
-            }
+        const sentinel = document.createElement('div');
+        sentinel.className = 'fl-header-sentinel';
+        sentinel.setAttribute('aria-hidden', 'true');
+        headerEl.parentNode.insertBefore(sentinel, headerEl);
+
+        const observer = new IntersectionObserver(function (entries) {
+            headerEl.classList.toggle(
+                'is-scrolled',
+                !entries[0].isIntersecting
+            );
         });
-        headroomInstance.init();
+        observer.observe(sentinel);
     }
 
     // Hamburger menu
@@ -78,12 +79,16 @@ import Headroom from 'headroom.js';
     });
 
     const menuTitles = document.querySelectorAll('.fl-menu-title');
+    let focusedMenu = null;
 
     // keyboard is being used
     menuTitles.forEach(function (title) {
         // when focusing a menu title, close all menus
         title.addEventListener('focus', function () {
             menuCategories.forEach(function (category) {
+                if (category.classList.contains('is-active')) {
+                    focusedMenu = category;
+                }
                 category.classList.remove('is-active');
             });
         });
@@ -109,6 +114,13 @@ import Headroom from 'headroom.js';
             event.preventDefault();
 
             const menuPanel = event.target.closest('.fl-menu-category');
+
+            // focus runs first then click. if we click a menu that was closed
+            // by focus don't open it again immediately
+            if (focusedMenu === menuPanel) {
+                focusedMenu = null;
+                return;
+            }
 
             if (menuPanel.classList.contains('is-active')) {
                 menuPanel.classList.remove('is-active');

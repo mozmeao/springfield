@@ -6,7 +6,10 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% set download_firefox_thanks_link = download_firefox_thanks_link() %}
+{% set is_forced = specific_version and specific_version != "default" %}
+{% set resolved_os = specific_version if is_forced else "win" %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link(os=resolved_os) %}
+{% set link_href = download_firefox_thanks_link['download_link_direct'] if is_forced else download_firefox_thanks_link['transition_url'] %}
 
 {#
   Required selector for Stub Attribution: '.c-button-download-thanks > .download-link'
@@ -14,9 +17,12 @@
 #}
 
 <div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
-  <a href="{{ download_firefox_thanks_link['transition_url'] }}"
+  <a href="{{ link_href }}"
      class="download-link fl-button {{ theme_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
+     data-download-version="{{ resolved_os }}"
+     {% if is_forced %}data-version-forced="true"{% endif %}
+     data-cta-type="firefox"
      data-testid="download-firefox-button__download-link"
      data-cta-text="{{ cta_text }}"
      data-cta-position="{{ block_position }}"
@@ -38,7 +44,15 @@
       />
     {% endif %}
   </a>
-  {% if show_default_browser_checkbox %}
+  {% if enable_marketing_attribution %}
+    <label for="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-label hidden">
+      <input type="checkbox" id="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-input">
+      <span class="marketing-opt-out-text">
+        {% set attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
+        {{ ftl('download-button-share-how-you-discovered', attrs=attrs) }}
+      </span>
+    </label>
+  {% elif show_default_browser_checkbox  %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">

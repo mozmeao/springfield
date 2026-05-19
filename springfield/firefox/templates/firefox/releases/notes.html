@@ -48,7 +48,9 @@
 {% block body_class %}mzp-t-firefox {{ theme_class }} fl-release-notes{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-release-notes') }}
+  {% else %}
     {{ css_bundle('firefox_releasenotes') }}
     {{ css_bundle('protocol-callout') }}
     {{ css_bundle('protocol-article') }}
@@ -93,10 +95,13 @@
 
 {% set feedback_url='https://connect.mozilla.org/' %}
 {% set bugzilla_url='https://bugzilla.mozilla.org/enter_bug.cgi' %}
+
+{% block main_class %}{% endblock %}
+
 {% block content %}
 
 <div class="{% if switch('flare26_enabled') %}fl-page{% endif %}">
-  <main class="{% if switch('flare26_enabled') %}fl-main has-gradient-bottom{% endif %}">
+  <div class="{% if switch('flare26_enabled') %}fl-main has-gradient-bottom{% endif %}">
     <article id="main-content">
 
       <div class="fl-split-page-upper has-gradient-bottom has-curious-kit">
@@ -685,7 +690,7 @@
         {% endblock %}
       {% endif %}
     </article>
-  </main>
+  </div>
 </div>
 {% endblock %}
 

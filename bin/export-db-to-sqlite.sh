@@ -175,12 +175,15 @@ python manage.py dumpdata \
     cms.DownloadPage \
     cms.DownloadIndexPage \
     cms.ThanksPage \
+    cms.BlogIndexPage \
+    cms.BlogArticlePage \
     cms.DownloadFirefoxCallToActionSnippet \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
     cms.QRCodeFloatingSnippet \
     cms.Tag \
+    cms.SetAsDefaultSnippet \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

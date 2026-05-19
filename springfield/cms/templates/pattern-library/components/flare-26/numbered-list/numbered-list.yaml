@@ -1,0 +1,9 @@
+name: Numbered List
+context:
+  items:
+    - heading: "Download Firefox"
+      text: "Get the browser that puts privacy first. Available on all your devices."
+    - heading: "Sign in to Firefox"
+      text: "Create a free account to sync your bookmarks, passwords, and history everywhere."
+    - heading: "Stay protected"
+      text: "Enhanced Tracking Protection blocks thousands of trackers automatically."

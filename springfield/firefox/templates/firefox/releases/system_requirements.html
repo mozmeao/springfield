@@ -17,14 +17,18 @@
 {% block body_class %}mzp-t-firefox mzp-t-{{ channel_name|lower }}{% endblock %}
 
 {% block page_css %}
-  {% if not switch("flare26_enabled") %}
+  {% if switch("flare26_enabled") %}
+    {{ css_bundle('flare26-system-requirements') }}
+  {% else %}
     {{ css_bundle('protocol-callout') }}
     {{ css_bundle('firefox_system_requirements') }}
   {% endif %}
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
-  <main class="mzp-l-content mzp-t-content-md {% if switch('flare26_enabled') %}fl-main{% endif %}">
+  <div class="mzp-l-content mzp-t-content-md {% if switch('flare26_enabled') %}fl-main{% endif %}">
     {% if switch('flare26_enabled') %}
     <div class="fl-section">
       <include:heading
@@ -48,8 +52,7 @@
     <div class="fl-system-requirements-body mzp-c-article">
       {{ release.system_requirements|safe }}
     </div>
-  </main>
-
+  </div>
   {% if not switch("flare26_enabled") %}
     {% call callout_compact(
       title='Get the most recent version',

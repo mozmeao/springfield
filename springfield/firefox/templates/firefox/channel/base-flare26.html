@@ -6,12 +6,15 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% block page_css %}{{ css_bundle('flare26-channels') }}{% endblock %}
 
 {% block page_title %}{{ self.page_title() }}{% endblock %}
 
 {% block flare_header %}
   <include:flare26-header theme="dark" />
 {% endblock %}
+
+{% block main_class %}{% endblock %}
 
 {% block content %}
 <include:subnav
@@ -35,7 +38,7 @@
 >
 </include:subnav>
 
-<main class="fl-main has-gradient-bottom fl-channel-page">
+<div class="fl-main has-gradient-bottom fl-channel-page">
   <div class="fl-split-page-upper has-gradient-bottom">
     <div class="fl-section zero-v-pad">
       <div class="fl-section-container">
@@ -87,7 +90,7 @@
       </content:body>
     </include:intro>
   </section>
-</main>
+</div>
 
 
 <aside class="fl-section fl-force-dark-theme" aria-labelledby="fl-newsletter">
