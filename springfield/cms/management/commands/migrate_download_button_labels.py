@@ -9,14 +9,12 @@ format to the new pretranslated_label (snippet FK) / custom_label (text) structu
 Also re-syncs all Wagtail-Localize TranslationSources for affected page models so the
 new block structure is reflected in translated content.
 
-Two-pass conversion:
-  Pass 1 — English pages: map label text to PretranslatedPhrase ID (or fall back to
-            custom_label for unrecognised strings).
-  Pass 2 — Non-English pages: match the old label text against PretranslatedPhrase records
-            for the page's locale. If a match is found, store the locale-specific snippet pk
-            (wagtail-localize convention). If no match is found, the label becomes custom_label.
+Each page's old label text is matched against PretranslatedPhrase records for the page's
+own locale. If a match is found, the locale-specific snippet pk is stored (wagtail-localize
+convention — translated pages reference their own locale's snippet). If no match is found,
+the old label becomes custom_label.
 
-The same two-pass approach is applied to page revisions (in a single table scan).
+The same conversion is applied to page revisions (in a single table scan).
 """
 
 import json
@@ -28,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from wagtail.models import Locale, Revision
+from wagtail.models import Revision
 
 logger = logging.getLogger(__name__)
 
@@ -47,58 +45,27 @@ PAGE_MODELS_AND_FIELDS = [
 PAGE_MODEL_NAMES = [name for name, _ in PAGE_MODELS_AND_FIELDS]
 
 
-def convert_english_download_button_label(data, label_map):
-    """Recursively convert label in download_button blocks for English pages.
+def build_label_map():
+    """Build a map of (locale_id, label_text) → PretranslatedPhrase pk for every locale.
 
-    Maps known label strings to PretranslatedPhrase IDs via label_map.
-    Unrecognised strings become custom_label. Returns True if any change was made.
-    The isinstance(old_label, str) check is the idempotency guard.
-    """
-    changed = False
-    if isinstance(data, dict):
-        if data.get("type") == "download_button" and isinstance(data.get("value"), dict):
-            value = data["value"]
-            old_label = value.get("label")
-            if isinstance(old_label, str):
-                snippet_id = label_map.get(old_label)
-                if snippet_id:
-                    value["pretranslated_label"] = snippet_id
-                    value["custom_label"] = ""
-                else:
-                    value["pretranslated_label"] = None
-                    value["custom_label"] = old_label
-                del value["label"]
-                changed = True
-        for v in list(data.values()):
-            if convert_english_download_button_label(v, label_map):
-                changed = True
-    elif isinstance(data, (list, MutableSequence)):
-        for item in data:
-            if convert_english_download_button_label(item, label_map):
-                changed = True
-    return changed
-
-
-def build_localized_label_map(english_locale_ids):
-    """Build a map of (locale_id, label_text) → locale-specific PretranslatedPhrase pk.
-
-    Used to resolve non-English button labels by label text. Wagtail-localize convention
-    is that translated pages store locale-specific FK values, so non-English pages should
-    reference their own locale's PretranslatedPhrase rather than the English one.
+    Keying by locale is important because multiple English locales (en-US, en-GB, en-CA, …)
+    all share the same label text but have distinct PretranslatedPhrase records, and each
+    page should reference its own locale's snippet.
     """
     from springfield.cms.models import PretranslatedPhrase  # noqa: PLC0415 — deferred to avoid circular import at module load
 
-    return {(s.locale_id, s.label): s.pk for s in PretranslatedPhrase.objects.exclude(locale_id__in=english_locale_ids)}
+    return {(s.locale_id, s.label): s.pk for s in PretranslatedPhrase.objects.all()}
 
 
-def convert_non_english_download_button_label(data, locale_id=None, localized_label_map=None):
-    """Recursively convert label in download_button blocks for non-English pages.
+def convert_download_button_label(data, locale_id, label_map):
+    """Recursively convert label in download_button blocks for a page in a given locale.
 
-    Matches the old label text against PretranslatedPhrase records for the same locale:
-    - If a match is found, stores the locale-specific snippet pk (wagtail-localize convention).
+    Matches the old label text against the (locale_id, label) → snippet pk map:
+    - If a match is found, stores the locale-specific snippet pk.
     - If no match is found, the old label becomes custom_label.
 
-    Returns True if any change was made.
+    Returns True if any change was made. The isinstance(old_label, str) check is the
+    idempotency guard.
     """
     changed = False
     if isinstance(data, dict):
@@ -106,9 +73,7 @@ def convert_non_english_download_button_label(data, locale_id=None, localized_la
             value = data["value"]
             old_label = value.get("label")
             if isinstance(old_label, str):
-                snippet_id = None
-                if locale_id is not None and localized_label_map is not None:
-                    snippet_id = localized_label_map.get((locale_id, old_label))
+                snippet_id = label_map.get((locale_id, old_label))
                 if snippet_id is not None:
                     value["pretranslated_label"] = snippet_id
                     value["custom_label"] = ""
@@ -118,11 +83,11 @@ def convert_non_english_download_button_label(data, locale_id=None, localized_la
                 del value["label"]
                 changed = True
         for v in list(data.values()):
-            if convert_non_english_download_button_label(v, locale_id, localized_label_map):
+            if convert_download_button_label(v, locale_id, label_map):
                 changed = True
     elif isinstance(data, (list, MutableSequence)):
         for item in data:
-            if convert_non_english_download_button_label(item, locale_id, localized_label_map):
+            if convert_download_button_label(item, locale_id, label_map):
                 changed = True
     return changed
 
@@ -144,8 +109,8 @@ class Command(BaseCommand):
         if dry_run:
             self.stdout.write(self.style.WARNING("DRY RUN — no changes will be made.\n"))
 
-        localized_label_map = self._convert_pages(dry_run)
-        self._convert_revisions(dry_run, localized_label_map)
+        label_map = self._convert_pages(dry_run)
+        self._convert_revisions(dry_run, label_map)
         self._update_translation_sources(dry_run)
 
         if dry_run:
@@ -154,65 +119,31 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("\nMigration complete.\n"))
 
     def _convert_pages(self, dry_run):
-        """Convert page StreamFields. Returns localized_label_map for use by _convert_revisions."""
+        """Convert page StreamFields. Returns label_map for use by _convert_revisions."""
         self.stdout.write("Converting download_button labels in page StreamFields...\n")
-        english_locale_ids = set(Locale.objects.filter(language_code__startswith="en").values_list("pk", flat=True))
+        label_map = build_label_map()
+        total = 0
 
-        from springfield.cms.models import PretranslatedPhrase  # noqa: PLC0415 — deferred to avoid circular import at module load
-
-        english_label_map = {p.label: p.pk for p in PretranslatedPhrase.objects.filter(locale_id__in=english_locale_ids)}
-        localized_label_map = build_localized_label_map(english_locale_ids)
-        total_english = 0
-        total_non_english = 0
-
-        # Pass 1: English pages
         for model_name, field_names in PAGE_MODELS_AND_FIELDS:
             Model = apps.get_model("cms", model_name)
-            for page in Model.objects.filter(locale_id__in=english_locale_ids):
+            for page in Model.objects.all():
                 changed_fields = []
                 for field_name in field_names:
                     stream_value = getattr(page, field_name)
-                    if stream_value and convert_english_download_button_label(stream_value.raw_data, english_label_map):
+                    if stream_value and convert_download_button_label(stream_value.raw_data, page.locale_id, label_map):
                         changed_fields.append(field_name)
                 if changed_fields:
                     if not dry_run:
                         page.save(update_fields=changed_fields)
-                    total_english += 1
-                    self.stdout.write(f"  [EN] {model_name} pk={page.pk}: updated {', '.join(changed_fields)}\n")
+                    total += 1
+                    self.stdout.write(f"  {model_name} pk={page.pk} locale_id={page.locale_id}: updated {', '.join(changed_fields)}\n")
 
-        self.stdout.write(f"  Pass 1 (English): {total_english} pages updated.\n")
+        self.stdout.write(f"  {total} pages updated.\n")
+        return label_map
 
-        # Pass 2: Non-English pages
-        for model_name, field_names in PAGE_MODELS_AND_FIELDS:
-            Model = apps.get_model("cms", model_name)
-            for page in Model.objects.exclude(locale_id__in=english_locale_ids):
-                changed_fields = []
-                for field_name in field_names:
-                    stream_value = getattr(page, field_name)
-                    if stream_value and convert_non_english_download_button_label(
-                        stream_value.raw_data,
-                        locale_id=page.locale_id,
-                        localized_label_map=localized_label_map,
-                    ):
-                        changed_fields.append(field_name)
-                if changed_fields:
-                    if not dry_run:
-                        page.save(update_fields=changed_fields)
-                    total_non_english += 1
-                    self.stdout.write(f"  [non-EN] {model_name} pk={page.pk}: updated {', '.join(changed_fields)}\n")
-
-        self.stdout.write(f"  Pass 2 (non-English): {total_non_english} pages updated.\n")
-        return localized_label_map
-
-    def _convert_revisions(self, dry_run, localized_label_map):
+    def _convert_revisions(self, dry_run, label_map):
         """Convert page revisions in a single table scan."""
         self.stdout.write("Converting download_button labels in page revisions...\n")
-        english_locale_ids = set(Locale.objects.filter(language_code__startswith="en").values_list("pk", flat=True))
-
-        from springfield.cms.models import PretranslatedPhrase  # noqa: PLC0415 — deferred to avoid circular import at module load
-
-        english_label_map = {p.label: p.pk for p in PretranslatedPhrase.objects.filter(locale_id__in=english_locale_ids)}
-
         page_models = [apps.get_model("cms", name) for name in PAGE_MODEL_NAMES]
         content_type_ids = [ContentType.objects.get_for_model(m).pk for m in page_models]
         field_names = ["content", "upper_content", "lower_content"]
@@ -229,18 +160,9 @@ class Command(BaseCommand):
                     continue
                 try:
                     field_data = json.loads(raw_json)
-                    if locale_id in english_locale_ids:
-                        if convert_english_download_button_label(field_data, english_label_map):
-                            revision.content[field_name] = json.dumps(field_data)
-                            modified = True
-                    else:
-                        if convert_non_english_download_button_label(
-                            field_data,
-                            locale_id=locale_id,
-                            localized_label_map=localized_label_map,
-                        ):
-                            revision.content[field_name] = json.dumps(field_data)
-                            modified = True
+                    if convert_download_button_label(field_data, locale_id, label_map):
+                        revision.content[field_name] = json.dumps(field_data)
+                        modified = True
                 except (json.JSONDecodeError, TypeError):
                     pass
             if modified:

@@ -14,8 +14,7 @@ from wagtail.models import Page, Revision
 
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
 from springfield.cms.management.commands.migrate_download_button_labels import (
-    convert_english_download_button_label,
-    convert_non_english_download_button_label,
+    convert_download_button_label,
 )
 from springfield.cms.models import FreeFormPage, PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory
@@ -32,7 +31,14 @@ _SETTINGS = {
     "show_default_browser_checkbox": False,
 }
 
-_ENGLISH_LABEL_MAP = {"Get Firefox": 1001, "Download Firefox": 1002}
+_EN_US_LOCALE_ID = 1
+_EN_CA_LOCALE_ID = 2
+_LABEL_MAP = {
+    (_EN_US_LOCALE_ID, "Get Firefox"): 1001,
+    (_EN_US_LOCALE_ID, "Download Firefox"): 1002,
+    (_EN_CA_LOCALE_ID, "Get Firefox"): 2001,
+    (_EN_CA_LOCALE_ID, "Download Firefox"): 2002,
+}
 
 
 def _old_block(label, block_id="aaaaaaaa-0000-0000-0000-000000000001"):
@@ -72,38 +78,79 @@ def _intro_with_buttons(*download_blocks, intro_id="cc000000-0000-0000-0000-0000
 # ---------------------------------------------------------------------------
 
 
-class TestConvertEnglishDownloadButtonLabel:
+class TestConvertDownloadButtonLabel:
     def test_get_firefox_maps_to_snippet_id(self):
         block = _old_block("Get Firefox")
-        assert convert_english_download_button_label(block, _ENGLISH_LABEL_MAP) is True
-        assert block["value"]["pretranslated_label"] == _ENGLISH_LABEL_MAP["Get Firefox"]
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is True
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")]
         assert block["value"]["custom_label"] == ""
         assert "label" not in block["value"]
 
     def test_download_firefox_maps_to_snippet_id(self):
         block = _old_block("Download Firefox")
-        assert convert_english_download_button_label(block, _ENGLISH_LABEL_MAP) is True
-        assert block["value"]["pretranslated_label"] == _ENGLISH_LABEL_MAP["Download Firefox"]
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is True
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Download Firefox")]
         assert block["value"]["custom_label"] == ""
         assert "label" not in block["value"]
 
     def test_unknown_text_becomes_custom_label(self):
         block = _old_block("Try Firefox Now")
-        assert convert_english_download_button_label(block, _ENGLISH_LABEL_MAP) is True
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is True
         assert block["value"]["pretranslated_label"] is None
         assert block["value"]["custom_label"] == "Try Firefox Now"
         assert "label" not in block["value"]
 
+    def test_label_in_different_locale_that_has_no_snippets_becomes_custom_label(self):
+        """A locale with no PretranslatedPhrase entries falls back to custom_label, even when another locale has a matching label."""
+        locale_id_with_no_snippets = max({locale_id for locale_id, _ in _LABEL_MAP}) + 1
+        assert not any(locale_id == locale_id_with_no_snippets for locale_id, _ in _LABEL_MAP)
+
+        block = _old_block("Get Firefox")
+
+        assert convert_download_button_label(block, locale_id_with_no_snippets, _LABEL_MAP) is True
+        assert block["value"]["pretranslated_label"] is None
+        assert block["value"]["custom_label"] == "Get Firefox"
+
+    def test_get_firefox_maps_to_en_ca_snippet_for_en_ca_locale(self):
+        """A page in en-CA referencing 'Get Firefox' must wire to en-CA's snippet, not en-US's — same label text, different locale."""
+        block = _old_block("Get Firefox")
+        assert convert_download_button_label(block, _EN_CA_LOCALE_ID, _LABEL_MAP) is True
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_CA_LOCALE_ID, "Get Firefox")]
+        assert block["value"]["pretranslated_label"] != _LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")]
+        assert block["value"]["custom_label"] == ""
+
+    def test_download_firefox_maps_to_en_ca_snippet_for_en_ca_locale(self):
+        """A page in en-CA referencing 'Download Firefox' must wire to en-CA's snippet, not en-US's."""
+        block = _old_block("Download Firefox")
+        assert convert_download_button_label(block, _EN_CA_LOCALE_ID, _LABEL_MAP) is True
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_CA_LOCALE_ID, "Download Firefox")]
+        assert block["value"]["pretranslated_label"] != _LABEL_MAP[(_EN_US_LOCALE_ID, "Download Firefox")]
+        assert block["value"]["custom_label"] == ""
+
     def test_already_converted_block_is_idempotent(self):
-        block = _new_block(_ENGLISH_LABEL_MAP["Get Firefox"])
-        assert convert_english_download_button_label(block, _ENGLISH_LABEL_MAP) is False
-        assert block["value"]["pretranslated_label"] == _ENGLISH_LABEL_MAP["Get Firefox"]
+        block = _new_block(_LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")])
+
+        # Call the function.
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is False
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")]
+
+        # Call the function again.
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is False
+        assert block["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")]
+
+    def test_already_converted_block_is_idempotent_for_locale_without_snippets(self):
+        """Idempotency holds even when the page's locale has no entries in the label_map."""
+        locale_id_with_no_snippets = max({locale_id for locale_id, _ in _LABEL_MAP}) + 1
+        block = _new_block(1001)
+        block_before = deepcopy(block)
+        assert convert_download_button_label(block, locale_id_with_no_snippets, _LABEL_MAP) is False
+        assert block == block_before
 
     def test_recurses_into_list(self):
         """Top-level list (StreamField raw_data shape) is walked recursively."""
         data = [_old_block("Get Firefox")]
-        assert convert_english_download_button_label(data, _ENGLISH_LABEL_MAP) is True
-        assert data[0]["value"]["pretranslated_label"] == _ENGLISH_LABEL_MAP["Get Firefox"]
+        assert convert_download_button_label(data, _EN_US_LOCALE_ID, _LABEL_MAP) is True
+        assert data[0]["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Get Firefox")]
 
     def test_recurses_into_nested_dict(self):
         """download_button nested inside another block (e.g. intro.buttons) is converted."""
@@ -112,39 +159,21 @@ class TestConvertEnglishDownloadButtonLabel:
             "id": "intro-id",
             "value": {"buttons": [_old_block("Download Firefox")]},
         }
-        assert convert_english_download_button_label(data, _ENGLISH_LABEL_MAP) is True
-        assert data["value"]["buttons"][0]["value"]["pretranslated_label"] == _ENGLISH_LABEL_MAP["Download Firefox"]
+        assert convert_download_button_label(data, _EN_US_LOCALE_ID, _LABEL_MAP) is True
+        assert data["value"]["buttons"][0]["value"]["pretranslated_label"] == _LABEL_MAP[(_EN_US_LOCALE_ID, "Download Firefox")]
 
     def test_non_download_block_is_untouched(self):
         block = {"type": "paragraph", "id": "p-id", "value": "Hello"}
         old_block = deepcopy(block)
-        assert convert_english_download_button_label(block, _ENGLISH_LABEL_MAP) is False
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is False
         assert block == old_block
 
-
-class TestConvertNonEnglishDownloadButtonLabel:
-    def test_becomes_custom_label_when_no_match(self):
+    def test_no_match_for_locale_becomes_custom_label(self):
         block = _old_block("Descargar Firefox", block_id="block-xyz")
-        assert convert_non_english_download_button_label(block) is True
+        assert convert_download_button_label(block, _EN_US_LOCALE_ID, _LABEL_MAP) is True
         assert block["value"]["pretranslated_label"] is None
         assert block["value"]["custom_label"] == "Descargar Firefox"
         assert "label" not in block["value"]
-
-    def test_uses_localized_label_map(self):
-        """localized_label_map maps (locale_id, label_text) → locale-specific snippet pk."""
-        locale_specific_snippet_id = 9999
-        localized_label_map = {(42, "Descargar Firefox"): locale_specific_snippet_id}
-        block = _old_block("Descargar Firefox", block_id="block-xyz")
-        assert convert_non_english_download_button_label(block, locale_id=42, localized_label_map=localized_label_map) is True
-        assert block["value"]["pretranslated_label"] == locale_specific_snippet_id
-        assert block["value"]["custom_label"] == ""
-        assert "label" not in block["value"]
-
-    def test_already_converted_is_idempotent(self):
-        block = _new_block(1001)
-        block_before_calling_method = deepcopy(block)
-        assert convert_non_english_download_button_label(block) is False
-        assert block == block_before_calling_method
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +302,31 @@ class TestMigrateDownloadButtonLabelsCommand:
         assert "label" not in blocks[0]["value"]
         assert blocks[0]["value"]["pretranslated_label"] == fr_snippet.pk
         assert blocks[0]["value"]["custom_label"] == ""
+
+    def test_english_page_uses_its_own_locales_snippet(self):
+        """An en-US page must reference the en-US snippet, not another English locale's snippet.
+
+        Each English locale (en-US, en-GB, en-CA, …) has its own PretranslatedPhrase record
+        sharing identical label text. The migration must wire each page to its own locale's
+        snippet (wagtail-localize convention), not collapse all English locales together.
+        """
+        get_firefox_us, _ = get_pretranslated_phrase_snippets()  # en-US (default)
+        en_ca = LocaleFactory(language_code="en-CA")
+        get_firefox_ca, _ = PretranslatedPhrase.objects.update_or_create(
+            locale=en_ca,
+            translation_key=get_firefox_us.translation_key,
+            defaults={"category": get_firefox_us.category, "label": "Get Firefox", "live": True},
+        )
+
+        page = _make_page([_intro_with_buttons(_old_block("Get Firefox"))], slug="us-page")
+        assert page.locale.language_code == "en-US"
+
+        _call_migrate_download_button_labels()
+
+        blocks = _download_blocks(page)
+        assert len(blocks) == 1
+        assert blocks[0]["value"]["pretranslated_label"] == get_firefox_us.pk
+        assert blocks[0]["value"]["pretranslated_label"] != get_firefox_ca.pk
 
     def test_revision_is_also_converted(self):
         get_firefox, _ = get_pretranslated_phrase_snippets()
