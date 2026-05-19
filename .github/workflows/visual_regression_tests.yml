@@ -49,7 +49,6 @@ jobs:
             -e ALLOWED_HOSTS='*' \
             -e WAGTAIL_ENABLE_ADMIN=True \
             -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
-            -v $GITHUB_WORKSPACE/media:/app/media:ro \
             mozmeao/springfield_test:latest \
             python manage.py runserver 0.0.0.0:8000
       - name: Wait for Django server
