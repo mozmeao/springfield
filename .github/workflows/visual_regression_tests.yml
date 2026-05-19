@@ -14,6 +14,7 @@ on:
       - 'springfield/cms/templates/pattern-library/components/flare-26/**'
       - 'media/css/cms/**'
       - 'tests/playwright/specs/visual-regression/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
