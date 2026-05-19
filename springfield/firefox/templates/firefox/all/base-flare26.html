@@ -6,6 +6,8 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% block page_css %}{{ css_bundle('flare26-download-all') }}{% endblock %}
+
 {% block page_title %}
   {{ ftl('firefox-all-download-the-firefox-v2') }}
 {% endblock %}
@@ -37,6 +39,9 @@
 {% else %}
   {% set current_step = ftl('firefox-all-choose-browser') %}
 {% endif %}
+
+{% block main_class %}{% endblock %}
+{% block main_attrs %}{% endblock %}
 
 {% block content %}
   {% include 'firefox/all/includes/main-flare26.html' %}

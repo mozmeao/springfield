@@ -9,15 +9,18 @@
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
+{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
   <include:flare26-header theme="dark" />
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
+  <div class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
       <h1 class="fl-heading fl-heading-size-1">
         {% if LANG.startswith('en-') %}
@@ -143,7 +146,7 @@
         {% include_block block %}
       {% endfor %}
     </section>
-  </main>
+  </div>
 </div>
 {% endblock %}
 

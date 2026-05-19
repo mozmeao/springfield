@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -27,15 +27,22 @@ from lib.l10n_utils.fluent import ftl
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.rich_text import RichTextBlock
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
-    from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage
+    from springfield.cms.models import (
+        ArticleDetailPage,
+        ArticleThemePage,
+        BlogArticlePage,
+        SpringfieldImage,
+    )
 
 HEADING_TEXT_FEATURES = [
     "bold",
     "italic",
     "link",
+    "document-link",
     "superscript",
     "subscript",
     "strikethrough",
@@ -69,19 +76,21 @@ PLATFORM_CHOICES = [
     ("other-os", "Other OS"),
     ("unsupported", "Unsupported OS"),
 ]
-
 FIREFOX_CHOICES = [
     ("", "No restriction"),
     ("is-firefox", "Firefox only"),
     ("not-firefox", "Non-Firefox only"),
 ]
-
 AUTH_CHOICES = [
     ("", "No restriction"),
     ("state-fxa-supported-signed-in", "Signed-in only"),
     ("state-fxa-supported-signed-out", "Signed-out only"),
 ]
-
+DEFAULT_BROWSER_CHOICES = [
+    ("", "No restriction"),
+    ("is-default", "Firefox is default browser"),
+    ("is-not-default", "Firefox is not default browser"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -105,7 +114,10 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA, "Open Preferences - More From Mozilla"),
+    (
+        UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
+        "Open Preferences - More From Mozilla",
+    ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
 )
@@ -128,6 +140,7 @@ UI_TOUR_CLASSES = {
 BUTTON_TYPE = "button"
 UITOUR_BUTTON_TYPE = "uitour_button"
 FXA_BUTTON_TYPE = "fxa_button"
+SET_AS_DEFAULT_BUTTON = "set_as_default_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
@@ -225,6 +238,13 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="Login state",
         help_text="Filter by login state. Leave empty for no restriction.",
     )
+    default_browser = blocks.ChoiceBlock(
+        choices=DEFAULT_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Default Browser",
+        help_text="Filter by default browser state. Leave empty for no restriction.",
+    )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
 
@@ -241,9 +261,9 @@ class ConditionalDisplayBlock(blocks.StructBlock):
 
 def HeadingBlock(required=True, all_required=False, **kwargs):
     class _HeadingBlock(blocks.StructBlock):
-        superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
-        heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
-        subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
+        superheading_text = RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
+        heading_text = RichTextBlock(features=HEADING_TEXT_FEATURES, required=required)
+        subheading_text = RichTextBlock(features=HEADING_TEXT_FEATURES, required=all_required)
 
         class Meta:
             icon = "title"
@@ -252,6 +272,18 @@ def HeadingBlock(required=True, all_required=False, **kwargs):
             template = "cms/blocks/heading.html"
 
     return _HeadingBlock(**kwargs)
+
+
+class PricingHeadingBlock(blocks.StructBlock):
+    superheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    subheading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        icon = "title"
+        label = "Pricing Heading"
+        label_format = "{heading_text}"
+        template = "cms/blocks/pricing-heading.html"
 
 
 # Buttons
@@ -266,9 +298,10 @@ def get_button_types(allow_uitour=False):
     Returns:
         List of button type strings.
     """
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [BUTTON_TYPE, UITOUR_BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
-    return [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON]
+    return base_button_types
 
 
 class IconStructValue(blocks.StructValue):
@@ -572,6 +605,21 @@ def FXAccountButtonBlock(themes=None, **kwargs):
     return _FXAccountButtonBlock(**kwargs)
 
 
+def SetAsDefaultButtonBlock(themes=None, **kwargs):
+    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        label = blocks.CharBlock(label="Button Text")
+        snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
+
+        class Meta:
+            template = "cms/blocks/set_as_default_button.html"
+            label = "Set As Default Button"
+            label_format = "Set As Default Button"
+            value_class = BaseButtonValue
+
+    return _SetAsDefaultButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=None, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -602,6 +650,20 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=False,
             default=True,
             help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
+        )
+        specific_version = blocks.ChoiceBlock(
+            choices=[
+                ("default", "Default (auto-detect)"),
+                ("win", "Windows 32-bit"),
+                ("win64", "Windows 64-bit"),
+                ("win64-aarch64", "Windows ARM64/AArch64"),
+                ("osx", "macOS"),
+                ("linux64", "Linux 64-bit"),
+                ("linux64-aarch64", "Linux ARM64/AArch64"),
+            ],
+            default="default",
+            label="Specific Version",
+            help_text="Force a specific platform build. Leave as Default for auto-detection.",
         )
 
         class Meta:
@@ -687,6 +749,7 @@ def MixedButtonsBlock(
     button_blocks = {
         BUTTON_TYPE: ButtonBlock(themes=themes),
         UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
+        SET_AS_DEFAULT_BUTTON: SetAsDefaultButtonBlock(themes=themes),
         FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
         STORE_BUTTON_TYPE: StoreButtonBlock(),
@@ -699,6 +762,36 @@ def MixedButtonsBlock(
         label=label,
         **kwargs,
     )
+
+
+def ButtonRowBlock(allow_uitour=False, **kwargs):
+    class _ButtonRowBlock(blocks.StructBlock):
+        spacing = blocks.ChoiceBlock(
+            choices=[
+                ("", "No spacing"),
+                ("small", "Small"),
+                ("large", "Large"),
+            ],
+            default="",
+            required=False,
+        )
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            themes=BUTTON_THEMES_2026,
+            min_num=1,
+            max_num=3,
+        )
+
+        class Meta:
+            label = "Button Row"
+            label_format = "Button Row"
+            template = "cms/blocks/button-row.html"
+            form_layout = blocks.BlockGroup(
+                children=["buttons"],
+                settings=["spacing"],
+            )
+
+    return _ButtonRowBlock(**kwargs)
 
 
 class CTASettings(blocks.StructBlock):
@@ -852,8 +945,15 @@ def AnimationBlock(required=True, *args, **kwargs):
             help_text="Link to a webm video from assets.mozilla.net.",
             validators=[validate_animation_url],
         )
-        alt = blocks.CharBlock(required=required, label="Alt Text", help_text="Text for screen readers describing the video.")
-        poster = ImageChooserBlock(required=required, help_text="Poster image displayed before the animation is played.")
+        alt = blocks.CharBlock(
+            required=required,
+            label="Alt Text",
+            help_text="Text for screen readers describing the video.",
+        )
+        poster = ImageChooserBlock(
+            required=required,
+            help_text="Poster image displayed before the animation is played.",
+        )
         playback = blocks.ChoiceBlock(
             choices=[
                 ("autoplay_loop", "Autoplay (loop)"),
@@ -902,7 +1002,7 @@ class MediaBlock(blocks.StreamBlock):
 class SmartWindowInstructionsBlock(blocks.StructBlock):
     pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
     typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
-    instructions = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
+    instructions = RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
 
     class Meta:
         label = "Smart Window Instructions"
@@ -947,12 +1047,12 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
         tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
         content = blocks.StreamBlock(
             [
-                ("rich_text", blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES)),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
             ]
         )
@@ -984,7 +1084,7 @@ class IconListItemValue(blocks.StructValue):
 
 class IconListItemBlock(blocks.StructBlock):
     icon = IconChoiceBlock()
-    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    text = RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         icon = "list-ul"
@@ -1001,6 +1101,216 @@ class IconListWithImageBlock(blocks.StructBlock):
         label = "Icon List with Image"
         label_format = "Icon List with Image"
         template = "cms/blocks/icon-list-with-image.html"
+
+
+class CodeBlock(blocks.StructBlock):
+    code = blocks.TextBlock(
+        label="Code",
+        help_text="Paste the code snippet here.",
+    )
+
+    class Meta:
+        label = "Code"
+        template = "cms/blocks/code.html"
+
+
+class QuoteBlock(blocks.StructBlock):
+    quote = blocks.RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        label="Quote",
+        help_text="The quoted text.",
+    )
+    author = blocks.CharBlock(
+        required=False,
+        label="Author",
+        help_text="Optional attribution for the quote.",
+    )
+
+    class Meta:
+        label = "Quote"
+        label_format = "Quote - {author}"
+        template = "cms/blocks/quote.html"
+
+
+class IconListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(IconListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ul"
+        label = "Icon List"
+        label_format = "Icon List"
+        template = "cms/blocks/icon-list.html"
+
+
+class NumberedListItemBlock(blocks.StructBlock):
+    heading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List Item"
+        label_format = "{heading}"
+
+
+class NumberedListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(NumberedListItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered List"
+        label_format = "Numbered List"
+        template = "cms/blocks/numbered-list.html"
+
+
+class TimelineBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(HeadingBlock(required=True, all_required=True), min_num=1)
+
+    class Meta:
+        icon = "time"
+        label = "Timeline"
+        label_format = "Timeline"
+        template = "cms/blocks/timeline.html"
+
+
+# Blog
+
+
+class BlockArticleValue(blocks.StructValue):
+    def get_article(self) -> BlogArticlePage:
+        if not hasattr(self, "_article_cache"):
+            article = self["article"].localized
+            self._article_cache = article.specific if article else None
+        return self._article_cache
+
+    def get_url(self):
+        article_page = self.get_article()
+        return article_page.url if article_page else ""
+
+    def get_title(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if title := self.get("overrides").get("title"):
+            return remove_p_tag(richtext(title))
+        article_page = self.get_article()
+        return article_page.title if article_page else ""
+
+    def get_description(self) -> str:
+        from springfield.cms.templatetags.cms_tags import remove_p_tag
+
+        if description := self.get("overrides").get("description"):
+            description = remove_p_tag(richtext(description))
+            if description:
+                return description
+        article_page = self.get_article()
+        if article_page and article_page.description:
+            return remove_p_tag(richtext(article_page.description))
+        return ""
+
+    def get_topic(self) -> str:
+        if topic := self.get("overrides").get("topic"):
+            return topic
+        article_page = self.get_article()
+        if article_page:
+            if topic := article_page.get_topic():
+                return topic.name
+        return ""
+
+    def get_tags(self) -> list[str]:
+        if tags := self.get("overrides").get("tags"):
+            return tags
+        article_page = self.get_article()
+        return [tag.name for tag in article_page.get_tags()]
+
+    def get_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("image"):
+            return image
+        if article_page and article_page.image:
+            return article_page.image
+        return None
+
+    def get_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_image"):
+            return image
+        if article_page and article_page.image_dark_mode:
+            return article_page.image_dark_mode
+        return None
+
+    def get_mobile_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("mobile_image"):
+            return image
+        if article_page and article_page.image_mobile:
+            return article_page.image_mobile
+        return None
+
+    def get_mobile_dark_image(self):
+        article_page = self.get_article()
+        image_override = self.get("overrides").get("image")
+        if image := image_override.get("settings").get("dark_mode_mobile_image"):
+            return image
+        if article_page and article_page.image_dark_mode_mobile:
+            return article_page.image_dark_mode_mobile
+        return None
+
+
+class BlogArticleOverrideBlock(blocks.StructBlock):
+    image = ImageVariantsBlock(required=False)
+    topic = blocks.CharBlock(required=False)
+    title = blocks.CharBlock(required=False)
+    description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
+
+
+class BlogArticleBlock(blocks.StructBlock):
+    """Picks a blog article with optional field overrides for display on the index page."""
+
+    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+    overrides = BlogArticleOverrideBlock(required=False)
+
+    class Meta:
+        label = "Blog Article"
+        label_format = "{article}"
+        icon = "doc-full"
+        value_class = BlockArticleValue
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled list of blog article cards."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    link_label = blocks.CharBlock(default="View all")
+    link_filter = blocks.CharBlock(
+        required=False,
+        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
+    )
+    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Blog Cards List"
+        label_format = "{heading}"
+        icon = "list-ul"
+
+    def clean_list_filter(self, value: str) -> str:
+        if not value:
+            return value
+        value = value.strip()
+        if not value.startswith("?"):
+            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
+        query_part = value[1:]
+        if not query_part:
+            raise ValidationError(_("Query string must contain at least one parameter."))
+        try:
+            pairs = parse_qsl(query_part, strict_parsing=True)
+        except ValueError as exc:
+            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
+        if not pairs:
+            raise ValidationError(_("Query string must contain at least one key=value parameter."))
+        return value
 
 
 # Cards
@@ -1037,9 +1347,9 @@ def StickerCardBlock(allow_uitour=False, *args, **kwargs):
         settings = BaseCardSettings()
         image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1066,8 +1376,8 @@ def FilledCardBlock(allow_uitour=False, *args, **kwargs):
     class _FilledCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1095,8 +1405,8 @@ def IconCardBlock(allow_uitour=False, *args, **kwargs):
         settings = BaseCardSettings()
         icon = IconChoiceBlock(inline_form=True)
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1142,8 +1452,8 @@ def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
         settings = IllustrationCardSettings()
         image = ImageVariantsBlock()
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1172,8 +1482,8 @@ def StepCardBlock(allow_uitour=False, *args, **kwargs):
         image = ImageChooserBlock()
         dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
         tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1256,9 +1566,9 @@ def StepCardBlock2026(allow_uitour=False, *args, **kwargs):
     class _StepCardBlock(blocks.StructBlock):
         settings = StepCardSettings()
         image = ImageVariantsBlock()
-        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=[BUTTON_LINK],
@@ -1305,8 +1615,8 @@ def IconCardBlock2026(allow_uitour=False, *args, **kwargs):
     class _IconCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         icon = IconChoiceBlock(inline_form=True)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -1333,9 +1643,9 @@ def StickerCardBlock2026(allow_uitour=False, *args, **kwargs):
     class _StickerCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         image = ImageVariantsBlock()
-        superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -1363,9 +1673,9 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     class _IllustrationCardBlock(blocks.StructBlock):
         settings = IllustrationCardSettings()
         media = MediaBlock()
-        eyebrow = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=[BUTTON_LINK],
@@ -1393,8 +1703,8 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
     class _OutlinedCardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         sticker = ImageVariantsBlock(required=False)
-        headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -1426,9 +1736,9 @@ def TestimonialCardBlock(*args, **kwargs):
 
     class _TestimonialCardBlock(blocks.StructBlock):
         settings = _TestimonialCardSettings()
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution_role = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         attribution_image = ImageVariantsBlock(required=False)
 
         class Meta:
@@ -1448,10 +1758,32 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
     """
 
     class _CardsListSettings(blocks.StructBlock):
-        scroll = blocks.BooleanBlock(
+        container_width = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default (934px)"),
+                ("narrow", "Narrow (725px)"),
+                ("wide", "Wide (1170px)"),
+                ("fill", "Fill (no max width)"),
+                ("scroll", "Scroll"),
+            ],
+            required=False,
+            default="",
+            help_text="Max width of the card grid. Use 'Scroll' for a horizontally scrollable row.",
+        )
+        cards_per_row = blocks.ChoiceBlock(
+            choices=[
+                ("", "Auto (based on number of cards)"),
+                ("2", "2 columns"),
+                ("3", "3 columns"),
+            ],
+            required=False,
+            default="",
+            help_text="Number of columns on desktop (md+). Leave empty to use the default auto layout.",
+        )
+        two_wide_xs = blocks.BooleanBlock(
             required=False,
             default=False,
-            help_text="Display all cards in a single scrolling row",
+            help_text="Display 2 cards wide on mobile",
         )
 
         class Meta:
@@ -1465,7 +1797,10 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
         cards = blocks.StreamBlock(
             [
                 ("sticker_card", StickerCardBlock2026(allow_uitour=allow_uitour)),
-                ("illustration_card", IllustrationCard2026Block(allow_uitour=allow_uitour)),
+                (
+                    "illustration_card",
+                    IllustrationCard2026Block(allow_uitour=allow_uitour),
+                ),
                 ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
                 ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
                 ("testimonial_card", TestimonialCardBlock()),
@@ -1481,9 +1816,9 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
-    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         themes=BUTTON_THEMES_2026,
@@ -1514,17 +1849,21 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
         required=False,
         help_text="Optional custom sticker image to override the article's sticker.",
     )
-    icon = IconChoiceBlock(required=False, inline_form=True, help_text="Optional icon to display on icon cards.")
+    icon = IconChoiceBlock(
+        required=False,
+        inline_form=True,
+        help_text="Optional icon to display on icon cards.",
+    )
     superheading = blocks.CharBlock(
         required=False,
         help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
     )
-    title = blocks.RichTextBlock(
+    title = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
         help_text="Optional custom title to override the article's original title.",
     )
-    description = blocks.RichTextBlock(
+    description = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
         help_text="Optional custom description to override the article's original description.",
@@ -1701,6 +2040,150 @@ class RelatedArticlesListBlock(blocks.StructBlock):
         label_format = "Related Articles List"
 
 
+# Two Column Cards
+
+
+class TwoColumnCardsSettings(blocks.StructBlock):
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation (e.g., 'pricing', 'plans')",
+    )
+    theme = blocks.ChoiceBlock(
+        (
+            ("light-dark", "1 - Second card with darker color"),
+            ("light-light", "2 - Both cards with lighter color"),
+        ),
+        default="light-dark",
+        help_text=(
+            "The combinations are:"
+            "- 1: on light mode, the second card will be darker, and on dark mode, the second card will be outlined;"
+            "- 2: both cards with similar colors both on light and dark modes."
+        ),
+    )
+
+    reduce_card_padding = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Reduce Card Padding",
+        help_text="Reduce the padding inside the card and the border radius for a tighter layout.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Anchor ID: {anchor_id} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
+
+
+class TwoColumnCardSettings(blocks.StructBlock):
+    image_position = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("top", "Top"),
+            ("bottom", "Bottom"),
+            ("left", "Left"),
+            ("right", "Right"),
+            ("bottom-right", "Bottom Right"),
+            ("bottom-left", "Bottom Left"),
+            ("top-left", "Top Left"),
+            ("top-right", "Top Right"),
+            ("full-top", "Full Top"),
+            ("full-bottom", "Full Bottom"),
+        ],
+        required=False,
+        label="Image Position",
+        help_text="Change the position to bleed the image to the edges of the card.",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Card Settings"
+        label_format = "Image Position: {image_position}"
+        form_classname = "compact-form struct-block"
+
+
+def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardBlock(blocks.StructBlock):
+        settings = TwoColumnCardSettings()
+        tag = blocks.CharBlock(required=False, label="Card Tag")
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("pricing_heading", PricingHeadingBlock()),
+                ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
+                ("icon_list", IconListBlock()),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("media", MediaBlock(max_num=1, min_num=0, required=False)),
+                ("numbered_list", NumberedListBlock()),
+                ("timeline", TimelineBlock()),
+            ],
+            required=False,
+        )
+
+        def clean(self, value):
+            value = super().clean(value)
+            image_position = value["settings"]["image_position"]
+            if not image_position or image_position == "default":
+                return value
+
+            content_blocks = list(value["content"])
+            media_indices = [index for index, block in enumerate(content_blocks) if block.block_type == "media"]
+            if not media_indices:
+                return value
+
+            if "top" in image_position and media_indices[0] != 0:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a top option, the Media block must be the first block in the content."
+                            )
+                        ]
+                    )
+                )
+            elif "bottom" in image_position and media_indices[0] != len(content_blocks) - 1:
+                raise blocks.StructBlockValidationError(
+                    non_block_errors=ErrorList(
+                        [
+                            ValidationError(
+                                "When Settings -> Image Position is set to a bottom option, the Media block must be the last block in the content."
+                            )
+                        ]
+                    )
+                )
+            return value
+
+        class Meta:
+            label = "Card"
+            label_format = "Card"
+            template = "cms/blocks/two-column-card.html"
+
+    return _TwoColumnCardBlock(*args, **kwargs)
+
+
+def TwoColumnCardsBlock(allow_uitour=False, *args, **kwargs):
+    class _TwoColumnCardsBlock(blocks.StructBlock):
+        settings = TwoColumnCardsSettings()
+        cards = blocks.StreamBlock(
+            [("card", TwoColumnCardBlock(allow_uitour=allow_uitour))],
+            min_num=2,
+            max_num=2,
+        )
+
+        class Meta:
+            template = "cms/blocks/two-column-cards.html"
+            label = "Two Column Cards"
+            label_format = "Two Column Cards"
+
+    return _TwoColumnCardsBlock(*args, **kwargs)
+
+
 # Section blocks
 
 
@@ -1746,7 +2229,7 @@ class InlineNotificationSettings(blocks.StructBlock):
 
 class InlineNotificationBlock(blocks.StructBlock):
     settings = InlineNotificationSettings()
-    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    message = RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         template = "cms/blocks/inline-notification.html"
@@ -1795,8 +2278,8 @@ class NotificationSettings(blocks.StructBlock):
 
 class NotificationBlock(blocks.StructBlock):
     settings = NotificationSettings()
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    message = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    message = RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         template = "cms/blocks/notification.html"
@@ -1807,7 +2290,12 @@ class NotificationBlock(blocks.StructBlock):
 
 class IntroBlockSettings(blocks.StructBlock):
     media_position = blocks.ChoiceBlock(
-        choices=(("after", "After"), ("before", "Before"), ("right", "Right"), ("left", "Left")),
+        choices=(
+            ("after", "After"),
+            ("before", "Before"),
+            ("right", "Right"),
+            ("left", "Left"),
+        ),
         default="after",
         label="Media Position",
         inline_form=True,
@@ -1854,7 +2342,11 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
 class IntroBlockSettings2026(blocks.StructBlock):
     layout = blocks.ChoiceBlock(
-        choices=(("vertical", "Vertical"), ("right", "Media Right"), ("left", "Media Left")),
+        choices=(
+            ("vertical", "Vertical"),
+            ("right", "Media Right"),
+            ("left", "Media Left"),
+        ),
         default="vertical",
         label="Layout",
         inline_form=True,
@@ -1898,6 +2390,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings2026()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -1973,7 +2466,10 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                (
+                    "media_content",
+                    MediaContentBlock(allow_uitour=allow_uitour, is_2026=True),
+                ),
                 ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
@@ -1981,6 +2477,8 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2001,6 +2499,32 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
     return _SectionBlock(*args, **kwargs)
 
 
+def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
+    class _FeaturedImageSectionBlock(blocks.StructBlock):
+        heading = HeadingBlock()
+        content = blocks.StreamBlock(
+            [
+                ("media_content", MediaContentBlock(allow_uitour=allow_uitour, is_2026=True)),
+                ("cards_list", CardsListBlock2026(allow_uitour=allow_uitour)),
+                ("step_cards", StepCardListBlock2026(allow_uitour=allow_uitour)),
+                ("article_cards_list", ArticleCardsListBlock()),
+                ("icon_list_with_image", IconListWithImageBlock()),
+                ("banner", BannerBlock(allow_uitour=allow_uitour)),
+                ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
+                ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+            ],
+            required=False,
+        )
+        media = MediaBlock(max_num=1)
+
+        class Meta:
+            template = "cms/blocks/featured-image-section.html"
+            label = "Featured Image Section"
+            label_format = "{heading}"
+
+    return _FeaturedImageSectionBlock(*args, **kwargs)
+
+
 # Topic list
 
 
@@ -2018,7 +2542,7 @@ def TopicBlock(allow_uitour=False, *args, **kwargs):
             help_text="Image shown at the top of the topic heading.",
         )
         heading = HeadingBlock()
-        content = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=BUTTON_THEMES_2026,
@@ -2065,8 +2589,9 @@ class BannerSettings(blocks.StructBlock):
         (
             ("default", "Default"),
             ("outlined", "Outlined"),
-            ("purple", "Purple"),
-            ("dark-purple", "Dark Purple"),
+            ("purple-radial-gradient", "Purple Radial Gradient"),
+            ("dark-purple-gradient", "Dark Purple Gradient"),
+            ("dark-purple-gradient-inverted", "Dark Purple Gradient Inverted"),
         ),
         default="default",
         inline_form=True,
@@ -2109,6 +2634,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -2137,6 +2663,11 @@ class KitBannerSettings(blocks.StructBlock):
         default="filled",
         inline_form=True,
     )
+    background_theme = blocks.ChoiceBlock(
+        (("purple-radial-gradient", "Purple Radial Gradient"), ("dark-purple-gradient", "Dark Purple Gradient")),
+        default="purple-radial-gradient",
+        inline_form=True,
+    )
     show_to = ConditionalDisplayBlock(
         label="Show To",
         help_text="Control which users can see this content block",
@@ -2160,6 +2691,7 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
     class _KitBannerBlock(blocks.StructBlock):
         settings = KitBannerSettings()
         heading = HeadingBlock()
+        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             themes=button_themes,
@@ -2211,7 +2743,7 @@ def KitIntroBlock(allow_uitour=False, *args, **kwargs):
 
 
 class CarouselSlide(blocks.StructBlock):
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
     image = ImageVariantsBlock()
 
 
@@ -2286,10 +2818,10 @@ class ShowcaseSettings(blocks.StructBlock):
 
 class ShowcaseBlock(blocks.StructBlock):
     settings = ShowcaseSettings()
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
     media = MediaBlock(max_num=1)
-    caption_title = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    caption_description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
 
     class Meta:
         template = "cms/blocks/sections/showcase.html"
@@ -2299,9 +2831,9 @@ class ShowcaseBlock(blocks.StructBlock):
 
 class CardGalleryCard(blocks.StructBlock):
     icon = IconChoiceBlock()
-    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+    superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(),
         themes=BUTTON_THEMES_2026,
@@ -2316,9 +2848,9 @@ class CardGalleryCard(blocks.StructBlock):
 
 
 class CardGalleryCallout(blocks.StructBlock):
-    superheading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    headline = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    description = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)
+    superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
 
 
 class CardGalleryBlock(blocks.StructBlock):
@@ -2375,7 +2907,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 
         class Meta:
             template = "cms/blocks/sections/home-kit-banner.html"
-            label = "Kit Banner"
+            label = "Home Kit Banner"
             label_format = "{heading}"
 
     return _HomeKitBannerBlock(*args, **kwargs)

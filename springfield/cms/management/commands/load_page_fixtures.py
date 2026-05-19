@@ -13,6 +13,7 @@ from springfield.cms.fixtures.base_fixtures import (
     get_placeholder_images,
     get_test_index_page,
 )
+from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_2026_test_page, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import (
     get_filled_cards_test_page,
@@ -30,10 +31,12 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
 )
 from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
+from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage_2026 import (
     get_freeform_page_2026_test_page,
     get_freeform_page_2026_with_floating_qr_snippet,
     get_freeform_page_2026_with_qr_snippet,
+    get_freeform_page_2026_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
@@ -59,6 +62,7 @@ from springfield.cms.fixtures.subscription_fixtures import get_subscription_test
 from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_cards_2026_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page
+from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
     get_whats_new_page_2026_with_floating_qr_snippet,
     get_whats_new_page_2026_with_qr_snippet,
@@ -188,6 +192,13 @@ class Command(BaseCommand):
         article_theme_hub_page = get_article_theme_hub_page()
         self.stdout.write(self.style.SUCCESS(f"Article Theme Hub test page loaded: {article_theme_hub_page.slug}"))
 
+        blog_index_page = get_blog_index_page()
+        self.stdout.write(self.style.SUCCESS(f"Blog Index test page loaded: {blog_index_page.slug}"))
+
+        blog_pages = get_blog_pages()
+        for page in blog_pages:
+            self.stdout.write(self.style.SUCCESS(f"Blog Article test page loaded: {page.slug}"))
+
         whats_new_index_page = get_whatsnew_index_page()
         self.stdout.write(self.style.SUCCESS(f"What's New Index test page loaded: {whats_new_index_page.slug}"))
 
@@ -196,6 +207,12 @@ class Command(BaseCommand):
 
         topic_list_2026_page = get_topic_list_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Topic List 2026 test page loaded: {topic_list_2026_page.slug}"))
+
+        two_column_cards_page = get_two_column_cards_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Two Column Cards 2026 test page loaded: {two_column_cards_page.slug}"))
+
+        set_as_default_page = get_freeform_page_2026_with_set_as_default_button()
+        self.stdout.write(self.style.SUCCESS(f"Free Form 2026 with Set as Default Button test page loaded: {set_as_default_page.slug}"))
 
         carousel_page = get_carousel_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Carousel 2026 test page loaded: {carousel_page.slug}"))
@@ -211,6 +228,9 @@ class Command(BaseCommand):
 
         kit_intro_page = get_kit_intro_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Kit Intro 2026 test page loaded: {kit_intro_page.slug}"))
+
+        featured_image_section_page = get_featured_image_section_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Featured Image Section test page loaded: {featured_image_section_page.slug}"))
 
         media_content_page = get_media_content_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Media Content 2026 test page loaded: {media_content_page.slug}"))

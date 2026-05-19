@@ -17,7 +17,7 @@
     ) }}
   </content:media>
   <content:body>
-    <ul class="icon-text-list">
+    <include:icon-list>
       {% for item in value.list_items %}
         <li>
           <span class="fl-icon-wrap">
@@ -26,6 +26,6 @@
           {{ item.text|richtext|remove_p_tag }}
         </li>
       {% endfor %}
-    </ul>
+    </include:icon-list>
   </content:body>
 </include:media-content>

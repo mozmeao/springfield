@@ -6,22 +6,23 @@
 
 // Sticky header
 import { createFocusTrap } from 'focus-trap';
-import Headroom from 'headroom.js';
 
 (function () {
     const headerEl = document.querySelector('.fl-header.enable-sticky');
 
     if (headerEl) {
-        const headroomInstance = new Headroom(headerEl, {
-            offset: 80,
-            classes: {
-                pinned: 'headroom-pinned',
-                unpinned: 'headroom-unpinned',
-                notTop: 'headroom-not-top',
-                notBottom: 'headroom-not-bottom'
-            }
+        const sentinel = document.createElement('div');
+        sentinel.className = 'fl-header-sentinel';
+        sentinel.setAttribute('aria-hidden', 'true');
+        headerEl.parentNode.insertBefore(sentinel, headerEl);
+
+        const observer = new IntersectionObserver(function (entries) {
+            headerEl.classList.toggle(
+                'is-scrolled',
+                !entries[0].isIntersecting
+            );
         });
-        headroomInstance.init();
+        observer.observe(sentinel);
     }
 
     // Hamburger menu

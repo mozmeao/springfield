@@ -83,7 +83,10 @@ def remove_p_tag(value: str) -> str:
     soup = BeautifulSoup(html_content, "html.parser")
     content = ""
     if soup and soup.p:
-        content = "<br/>".join("".join(str(c) for c in tag.contents) for tag in soup.find_all("p"))
+        # `decode_contents()` re-encodes HTML entities in text nodes, so an
+        # entity-encoded payload like `&lt;img onerror=...&gt;` stays inert
+        # instead of round-tripping back into live markup (XSS).
+        content = "<br/>".join(tag.decode_contents() for tag in soup.find_all("p"))
     return mark_safe(content)
 
 
@@ -214,11 +217,19 @@ def richtext(context, value: str) -> str:
     rich_text = wagtail_richtext(value)
     soup = BeautifulSoup(str(rich_text), "html.parser")
 
-    for link in soup.find_all("a"):
+    for index, link in enumerate(soup.find_all("a")):
         href = link.get("href", "")
         link["href"] = add_utm_parameters(context, href)
+        if link.get("uid") and not link.get("data-cta-uid"):
+            link["data-cta-uid"] = link["uid"]
+        if link.get("data-cta-uid"):
+            block_text = context.get("block_text", "")
+            link_text = link.get_text().strip()
+            link["data-cta-text"] = f"{block_text} - {link_text}" if block_text else link_text
+            block_position = context.get("block_position", "")
+            link["data-cta-position"] = ".".join([block_position, f"link-{index + 1}"]) if block_position else f"link-{index + 1}"
 
-    for fxa_tag in soup.find_all("fxa"):
+    for index, fxa_tag in enumerate(soup.find_all("fxa")):
         label = fxa_tag.text
         uid = fxa_tag.get("data-cta-uid", "")
         utm_parameters = context.get(
@@ -232,9 +243,10 @@ def richtext(context, value: str) -> str:
         optional_parameters = {
             "utm_campaign": utm_parameters.get("utm_campaign", ""),
         }
+        block_position = context.get("block_position", "")
         optional_attributes = {
             "data-cta-uid": uid,
-            "data-cta-position": "-".join([context.get("block_position", ""), "fxa-link"]),
+            "data-cta-position": ".".join([block_position, f"fxa-link-{index + 1}"]) if block_position else f"fxa-link-{index + 1}",
             "data-cta-text": context.get("block_text", label),
         }
         # Same parameters as used in the fxa_button component, except the button class

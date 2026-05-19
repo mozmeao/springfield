@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="" qr_code=None anchor_id="" #}
+{# props theme="" background_theme="" qr_code=None anchor_id="" #}
 {# themes = ["filled-small", "filled-large", "filled-face", "filled-tail", "filled-diving-in", "filled-with-qr"] #}
 {# themes_2026 = ["diving-in", "with-qr"] #}
 
@@ -14,6 +14,7 @@
     class="
       fl-banner fl-banner-kit fl-force-dark-theme
       {% if contents.animation %}fl-banner-kit-animation{% elif theme %}fl-banner-kit-{{ theme }}{% endif %}
+      {% if background_theme and background_theme == 'dark-purple-gradient' %}fl-banner-dark-purple-gradient{% endif %}
       {% if theme and theme != 'small' and theme != 'diving-in' and theme != 'with-qr' %}align-start-on-desktop{% else %}align-center-on-desktop{% endif %}"
     aria-labelledby="fl-banner-heading"
     >

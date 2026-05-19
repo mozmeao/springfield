@@ -6,17 +6,19 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% block page_css %}{{ css_bundle('flare26-homepage') }}{% endblock %}
+
 {% block body_class %}fl-home-body{% endblock %}
 
 {% block flare_header %}
   <include:flare26-header theme="dark" />
 {% endblock %}
 
-
+{% block main_class %}{% endblock %}
 
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main">
+  <div class="fl-main">
     <div class="fl-split-page-upper">
       {% set ns = namespace(headings=0) %}
       {% set block_level = 1 %}
@@ -48,6 +50,6 @@
         {% include_block block %}
       {% endfor %}
     </div>
-  </main>
+  </div>
 </div>
 {% endblock %}

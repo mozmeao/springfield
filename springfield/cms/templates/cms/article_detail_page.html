@@ -9,9 +9,11 @@
 
 {% block body_class %}fl-article-body {% if not switch("flare26_enabled") %}disable-dark-mode{% endif %}{% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
 <div class="fl-page fl-article-page">
-  <main class="fl-main">
+  <div class="fl-main">
     <div class="fl-article-main">
       <header class="fl-article-header">
         <include:heading
@@ -79,7 +81,7 @@
         {% include_block block %}
       {% endfor %}
     {% endif %}
-  </main>
+  </div>
   {% if not switch("flare26_enabled") %}
     {% set value = get_download_firefox_cta_snippet() %}
     {% if value %}

@@ -11,9 +11,11 @@
   <include:flare26-header theme="dark"/>
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
 <div class="fl-page">
-  <main class="fl-main has-gradient-bottom">
+  <div class="fl-main has-gradient-bottom">
     <div class="fl-split-page-upper has-gradient-bottom">
 
       <section class="fl-section">
@@ -27,7 +29,8 @@
           />
 
           {% if featured_articles|length > 0 %}
-          <include:cards-list>
+          <include:cards-list container_width="narrow">
+
             {% for article in featured_articles %}
 
               {% if switch("flare26_enabled") %}
@@ -225,8 +228,7 @@
             subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"
           />
 
-          {% if switch("flare26_enabled") %}
-            <include:cards-list>
+            <include:cards-list container_width="fill" cards_per_row="3">
               {% for article in list_articles %}
                 {% if page.index_card_type == "outline_card" %}
                   <include:card expand_link="true">
@@ -350,28 +352,11 @@
                 {% endif %}
               {% endfor %}
             </include:cards-list>
-          {% else %}
-            <include:cards-list>
-              {% for article in list_articles %}
-                <include:card expand_link="true">
-                  <content:heading>
-                    <h3 class="fl-heading fl-heading-size-3">{{  article.index_page_heading or article.title }}</h3>
-                  </content:heading>
-                  <content:body>
-                    {{ article.description|richtext }}
-                  </content:body>
-                  <content:buttons>
-                    <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-                  </content:buttons>
-                </include:card>
-              {% endfor %}
-            </include:cards-list>
-          {% endif %}
 
         </div>
       </section>
     </div>
-  </main>
+  </div>
 </div>
 {% endblock %}
 
