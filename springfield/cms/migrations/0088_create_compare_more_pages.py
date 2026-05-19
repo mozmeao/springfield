@@ -5,7 +5,6 @@
 import os
 import sys
 
-from django.core.management import call_command
 from django.db import migrations
 
 from springfield.base.config_manager import config
@@ -17,7 +16,12 @@ def create_compare_more_pages(apps, schema_editor):
     if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return
 
-    call_command("create_compare_more_pages", verbosity=1)
+    # NOTE: deliberately disabled — pages have already been created in production
+    # and re-running would duplicate them. Keeping this behaviour around also
+    # breaks the DB export, which has no permissions to copy files around etc.
+    #
+    # call_command("create_compare_more_pages", verbosity=1)
+    print("Skipping creation of compare/more pages via data migration - no longer needed")
 
 
 def reverse_migration(apps, schema_editor):

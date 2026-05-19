@@ -23,6 +23,14 @@
         block-size 300ms ease,
         inline-size 300ms ease;
     z-index: 5;
+
+    @media (forced-colors: active) {
+        border: 1px solid CanvasText;
+
+        .fl-icon {
+            background-color: CanvasText;
+        }
+    }
 }
 
 .fl-qr-code-floating-snippet.is-open {
@@ -124,9 +132,17 @@
     inline-size: 200px;
 }
 
-.fl-qr-code-image svg {
+.fl-qr-code-image svg,
+.fl-qr-code-image img {
     block-size: 100%;
     inline-size: 100%;
+}
+
+@media (forced-colors: active) and (prefers-color-scheme: dark) {
+    .fl-qr-code-image svg,
+    .fl-qr-code-image img {
+        filter: invert(1);
+    }
 }
 
 .fl-qr-code-floating-button {
@@ -136,6 +152,26 @@
 
     /* end default reversions */
     display: flex;
+
+    @media (forced-colors: active) {
+        background-color: ButtonFace;
+        border: 1px solid ButtonText;
+        color: ButtonText;
+
+        &:hover {
+            background-color: SelectedItem;
+            border-color: SelectedItemText;
+            color: SelectedItemText;
+
+            .fl-icon {
+                background-color: SelectedItemText;
+            }
+        }
+
+        &:active {
+            border-color: ButtonText;
+        }
+    }
 }
 
 /* Hide on smaller screens */

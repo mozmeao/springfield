@@ -16,6 +16,10 @@
 * and preferred-color-scheme fallback, in case a class isn't provided.
 */
 
+html {
+    scroll-padding-block-start: var(--fl-navigation-menu-height);
+}
+
 .fl-header {
     background-color: var(--fl-theme-background);
     color: var(--fl-theme-color-text);
@@ -26,6 +30,15 @@
 .fl-header.fl-header-no-menu {
     border-block-end-width: 1px;
     position: static;
+}
+
+/* IntersectionObserver target for detecting scroll-past-top — see flare-navigation.es6.js */
+.fl-header-sentinel {
+    block-size: 1px;
+    inline-size: 1px;
+    inset-block-start: 0;
+    pointer-events: none;
+    position: absolute;
 }
 
 .fl-header a {
@@ -162,7 +175,12 @@
 }
 
 .fl-menu-title,
-.fl-menu-title h2,
+.fl-menu-title .fl-menu-heading {
+    line-height: unset;
+}
+
+.fl-menu-title,
+.fl-menu-title .fl-menu-heading,
 .fl-menu-subtitle {
     color: var(--fl-theme-color-text);
     font-family: var(--fl-theme-font-family-body);
@@ -375,36 +393,32 @@
         --fl-navigation-menu-height: 67px;
     }
 
-    .fl-header.headroom {
+    .fl-header.enable-sticky {
         inset-block-start: 0;
         position: sticky;
-        transition:
-            transform 200ms linear,
-            box-shadow 200ms linear;
+        transition: box-shadow 200ms ease-out;
         z-index: 100;
     }
 
-    .fl-header.headroom-pinned {
-        transform: translateY(0%);
+    @media (prefers-reduced-motion: reduce) {
+        .fl-header.enable-sticky {
+            transition: none;
+        }
     }
 
-    .fl-header.headroom-pinned.headroom-not-top {
+    .fl-header.enable-sticky.is-scrolled {
         box-shadow:
             0 0 6px 1px rgba(29, 17, 51, 0.04),
             0 0 var(--token-spacing-sm) 2px rgba(9, 32, 77, 0.12),
             0 0 5px -3px rgba(29, 17, 51, 0.12);
     }
 
-    .fl-header.headroom-pinned.headroom-not-top .fl-menu-panel {
+    .fl-header.enable-sticky.is-scrolled .fl-menu-panel {
         box-shadow:
             0 6px 6px 1px rgba(29, 17, 51, 0.04),
             0 var(--token-spacing-sm) var(--token-spacing-sm) 2px
                 rgba(9, 32, 77, 0.12),
             0 5px 5px -3px rgba(29, 17, 51, 0.12);
-    }
-
-    .fl-header.headroom-unpinned {
-        transform: translateY(-100%);
     }
 
     .fl-header.fl-header-no-menu {
@@ -436,7 +450,7 @@
     }
 
     .fl-menu-title,
-    .fl-menu-title h2,
+    .fl-menu-title .fl-menu-heading,
     .fl-menu-subtitle {
         font-size: var(--fl-theme-font-size-body-sm);
     }
@@ -470,7 +484,7 @@
         pointer-events: auto;
     }
 
-    .fl-menu-category h2::after {
+    .fl-menu-category .fl-menu-heading::after {
         display: inline-block;
     }
 
@@ -478,7 +492,7 @@
         color: var(--fl-menu-title-color);
     }
 
-    .fl-menu-title h2 {
+    .fl-menu-title .fl-menu-heading {
         font-weight: var(--token-font-weight-regular);
         margin: 0;
         padding: 0 var(--token-spacing-sm);

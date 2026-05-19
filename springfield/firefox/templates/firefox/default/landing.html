@@ -13,8 +13,10 @@
   {{ css_bundle('firefox-default-landing') }}
 {% endblock %}
 
+{% block main_class %}{% endblock %}
+
 {% block content %}
-<main class="fl-main">
+<div class="fl-main">
   <include:intro vertical=true media_position="before">
     <content:media>
       <img src="{{ static('img/logos/firefox/firefox-logo.svg') }}" width="96" height="96" alt="" class="landing-logo">
@@ -75,5 +77,5 @@
     </include:cards-list>
     </content:content>
   </include:section>
-</main>
+</div>
 {% endblock %}
