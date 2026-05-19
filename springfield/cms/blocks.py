@@ -3232,6 +3232,122 @@ class MobileStoreQRCodeBlock(blocks.StructBlock):
         label_format = "{heading}"
 
 
+# Roadmap Page
+
+ROADMAP_STATUS_LABELS = {
+    "exploring": "Exploring",
+    "in-progress": "In Progress",
+    "testing": "Testing",
+    "coming-soon": "Coming Soon",
+    "recently-shipped": "Recently Shipped",
+}
+ROADMAP_TAG_LABELS = {
+    "android": "Android",
+    "ios": "iOS",
+    "desktop": "Desktop",
+}
+ROADMAP_TAG_ICONS = {
+    "android": "android",
+    "ios": "apple",
+    "desktop": "device-desktop-fill",
+}
+
+
+class RoadmapItemValue(blocks.StructValue):
+    def get_status_label(self) -> str:
+        return ROADMAP_STATUS_LABELS.get(self.get("status"), "")
+
+    def get_tags(self):
+        tags = self.get("tags", [])
+        return [{"value": tag, "label": ROADMAP_TAG_LABELS.get(tag, ""), "icon": ROADMAP_TAG_ICONS.get(tag, "")} for tag in tags]
+
+
+class RoadmapItemBlock(blocks.StructBlock):
+    title = blocks.CharBlock(label="Title")
+    icon = IconChoiceBlock(required=False, inline_form=True, label="Icon")
+    description = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    status = blocks.ChoiceBlock(
+        choices=list(ROADMAP_STATUS_LABELS.items()),
+    )
+    tags = blocks.MultipleChoiceBlock(
+        choices=list(ROADMAP_TAG_LABELS.items()),
+        required=False,
+        widget=CheckboxSelectMultiple(),
+    )
+    learn_more_link = SpringfieldLinkBlock(required=False, label="Learn More Link")
+    learn_more_analytics_id = UUIDBlock(
+        label="Learn More Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
+    )
+    secondary_button_link = SpringfieldLinkBlock(required=False, label="Secondary Button Link")
+    secondary_button_icon = IconChoiceBlock(required=False, label="Secondary Button Icon")
+    secondary_button_icon_position = blocks.ChoiceBlock(
+        choices=[("left", "Left"), ("right", "Right")], default="right", label="Secondary Button Icon Position"
+    )
+    secondary_button_label = blocks.CharBlock(required=False, label="Secondary Button Label")
+    secondary_button_analytics_id = UUIDBlock(
+        label="Secondary Button Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Roadmap Item"
+        label_format = "{title}"
+        value_class = RoadmapItemValue
+        form_layout = blocks.BlockGroup(
+            children=[
+                blocks.BlockGroup(
+                    children=[
+                        "icon",
+                        "title",
+                        "status",
+                    ],
+                    heading="Heading",
+                    label_format="{title}",
+                ),
+                blocks.BlockGroup(
+                    children=[
+                        "description",
+                        "tags",
+                    ],
+                    heading="Content",
+                ),
+                blocks.BlockGroup(
+                    children=[
+                        "learn_more_link",
+                        "learn_more_analytics_id",
+                        "secondary_button_link",
+                        "secondary_button_icon",
+                        "secondary_button_icon_position",
+                        "secondary_button_label",
+                        "secondary_button_analytics_id",
+                    ],
+                    heading="Buttons",
+                ),
+            ],
+        )
+
+
+class RoadmapListSectionValue(blocks.StructValue):
+    def get_tag_settings(self):
+        return [{"value": tag, "label": ROADMAP_TAG_LABELS.get(tag, ""), "icon": ROADMAP_TAG_ICONS.get(tag, "")} for tag in ROADMAP_TAG_LABELS.keys()]
+
+
+class RoadmapListSectionBlock(blocks.StructBlock):
+    headline = blocks.CharBlock(label="Headline")
+    subheadline = blocks.CharBlock(required=False, label="Subheadline")
+    list_items = blocks.ListBlock(RoadmapItemBlock())
+
+    class Meta:
+        template = "cms/blocks/roadmap-list-section.html"
+        label = "Roadmap List Section"
+        label_format = "{headline}"
+        value_class = RoadmapListSectionValue
+
+
 # Thanks Page
 
 

@@ -1,0 +1,93 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+
+{% if block_index == 1 %}
+  <include:roadmap-list-filter
+    tags="{{ value.get_tag_settings() }}"
+    last_modified="{{ page.last_published_at|date('DATE_FORMAT') if page and page.last_published_at else '' }}"
+  />
+{% endif %}
+
+<include:roadmap-list-section>
+  <content:heading>
+    <{{ heading_level }} class="fl-heading">{{ value.headline }}</{{ heading_level }}>
+    {% if value.subheadline %}
+      <p class="fl-subheading">{{ value.subheadline }}</p>
+    {% endif %}
+  </content:heading>
+
+  <content:list_items>
+    {% for item in value.list_items %}
+      {% set item_block_position = block_position ~ ".item-" ~ loop.index %}
+      {% set item_block_text = item.title %}
+
+      <include:roadmap-item data_tags="{{ ','.join(item.tags) }}">
+        {% if item.icon %}
+          <content:icon>
+            <include:icon icon_name="{{ item.icon }}" hidden="true" />
+          </content:icon>
+        {% endif %}
+
+        <content:header>
+          {% set item_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
+          <{{ item_heading_level }} class="fl-heading">
+            {{ item.title }}
+            <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
+          </{{ item_heading_level }}>
+        </content:header>
+
+        {% if item.get_tags() %}
+          <content:tags>
+            {% for tag in item.get_tags() %}
+              <include:tag
+                text="{{ tag.label }}"
+                before_icon="{{ tag.icon }}"
+              />
+            {% endfor %}
+          </content:tags>
+        {% endif %}
+
+        <content:body>
+          {{ item.description|richtext }}
+        </content:body>
+
+        {% set learn_more_url = item.learn_more_link.get_url() %}
+        {% set secondary_url = item.secondary_button_link.get_url() %}
+
+        {% if learn_more_url or secondary_url %}
+          <content:buttons>
+            {% if learn_more_url %}
+              {% set button_position = item_block_position ~ ".learn-more" %}
+              <include:button
+                link="{{ learn_more_url }}"
+                label="{{ ftl('ui-learn-more') }}"
+                analytics_id="{{ item.learn_more_analytics_id }}"
+                analytics_text="{{ item_block_text ~ ' - ' ~ ftl('ui-learn-more') }}"
+                analytics_position="{{ button_position }}"
+              />
+            {% endif %}
+            {% if secondary_url and item.secondary_button_label %}
+              {% set button_position = item_block_position ~ ".secondary-button" %}
+              <include:button
+                link="{{ secondary_url }}"
+                label="{{ item.secondary_button_label }}"
+                theme_class="button-ghost"
+                icon_name="{{ item.secondary_button_icon }}"
+                icon_position="{{ item.secondary_button_icon_position }}"
+                analytics_id="{{ item.secondary_button_analytics_id }}"
+                analytics_text="{{ item_block_text ~ ' - ' ~ item.secondary_button_label }}"
+                analytics_position="{{ button_position }}"
+              />
+            {% endif %}
+          </content:buttons>
+        {% endif %}
+
+      </include:roadmap-item>
+    {% endfor %}
+  </content:list_items>
+</include:roadmap-list-section>

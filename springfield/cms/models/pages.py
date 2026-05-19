@@ -57,6 +57,7 @@ from springfield.cms.blocks import (
     NotificationBlock,
     QuoteBlock,
     RelatedArticlesListBlock,
+    RoadmapListSectionBlock,
     SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
@@ -1688,3 +1689,35 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             else:
                 self._tags_cache = None
         return self._tags_cache
+
+
+class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A page that displays the Firefox roadmap."""
+
+    intro = StreamField(
+        [("intro", IntroBlock2026())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+    content = StreamField(
+        [
+            ("roadmap_list_section", RoadmapListSectionBlock()),
+            ("banner", BannerBlock(group="Banners")),
+            ("kit_banner", KitBannerBlock(group="Banners")),
+        ],
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("intro"),
+        FieldPanel("content"),
+    ]
+
+    class Meta:
+        verbose_name = "Roadmap Page"
+        verbose_name_plural = "Roadmap Pages"
+
+    def __str__(self):
+        return f"RoadmapPage: {self.title} - {self.locale}"

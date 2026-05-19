@@ -1,0 +1,29 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props tags, last_modified="" #}
+
+<section class="fl-section zero-v-pad">
+  <div class="fl-section-container">
+    <div class="fl-roadmap-list-filter">
+      <ul class="fl-roadmap-filter-tags">
+        {% for tag in tags %}
+          <li>
+            <button class="fl-roadmap-filter-button" data-filter="{{ tag.value }}">
+              <include:tag
+                text="{{ tag.label }}"
+                before_icon="{{ tag.icon }}"
+              />
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+      {% if last_modified %}
+        <p>{{ last_modified }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
