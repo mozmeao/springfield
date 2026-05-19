@@ -6,9 +6,6 @@ concurrency:
   cancel-in-progress: true
 run-name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
 on:
-  push:
-    branches:
-      - 'main'
   pull_request:
     branches:
       - main
