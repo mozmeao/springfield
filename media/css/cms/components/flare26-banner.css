@@ -103,7 +103,14 @@
 }
 
 .fl-banner.fl-banner-dark-purple-gradient.fl-banner-kit {
-    background-image: var(--kit-img), var(--token-noise-gradient);
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+}
+
+/* When a kit banner is the last item on the page, affix it to the bottom */
+.fl-split-page-lower > .fl-banner-container:last-child {
+    max-inline-size: none;
+    padding: 0 var(--token-spacing-lg);
 }
 
 /* This one isn't used on kit banners, and will need some adjustments if those need to be combined. */
