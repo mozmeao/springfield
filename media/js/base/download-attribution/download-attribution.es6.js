@@ -27,9 +27,10 @@ if (typeof window.Mozilla === 'undefined') {
  *
  * Essential and analytics attribution are driven by independent triggers and know
  * nothing about each other:
- *  - Essential (rtamo, download_as_default, smart_window) is required for functional
- *    post-download behavior. It runs without consent gating or sample-rate limiting,
- *    triggered by a `data-stub-attribution-campaign-force` attribute on the current page.
+ *  - Essential (i.e. rtamo) is required for functional post-download behavior.
+ *    It runs without consent gating or sample-rate limiting, triggered by a
+ *    `data-stub-attribution-campaign-force` attribute on the current page OR
+ *    a user action (i.e. checkbox).
  *  - Analytics is consent-gated and sample-rated, triggered by a `gtm-analytics-consent`
  *    event dispatched from GTM.
  * Each trigger reads the other's last-captured raw data from a side cookie so it can
