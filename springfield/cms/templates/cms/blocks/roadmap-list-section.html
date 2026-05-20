@@ -44,10 +44,12 @@
         {% if item.get_tags() %}
           <content:tags>
             {% for tag in item.get_tags() %}
-              <include:tag
-                text="{{ tag.label }}"
-                before_icon="{{ tag.icon }}"
-              />
+              <span data-tag="{{ tag.value }}">
+                <include:tag
+                  text="{{ tag.label }}"
+                  before_icon="{{ tag.icon }}"
+                />
+              </span>
             {% endfor %}
           </content:tags>
         {% endif %}
