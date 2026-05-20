@@ -100,9 +100,13 @@
       alignment_class="text-center fl-2026-enterprise-protection"
   />
   <include:cards-list container_width="wide">
-    <include:card
+    <include:card-2026
       expand_link="false"
+      media_type="sticker"
     >
+      <content:media>
+        <img src="{{ static('img/firefox/enterprise/icon-data-privacy.svg') }}" alt="" aria-hidden="true" />
+      </content:media>
       <content:heading>
         <include:heading
           level="h3"
@@ -111,16 +115,17 @@
           heading_text="{{ ftl('firefox-enterprise-your-browser-your-business') }}"
         />
       </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-data-privacy.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
       <content:body>
         {{ ftl('firefox-enterprise-open-source-transparency') }}
       </content:body>
-    </include:card>
-    <include:card
+    </include:card-2026>
+    <include:card-2026
       expand_link="false"
+      media_type="sticker"
     >
+      <content:media>
+        <img src="{{ static('img/firefox/enterprise/icon-deploy.svg') }}" alt="" aria-hidden="true" />
+      </content:media>
       <content:heading>
         <include:heading
           level="h3"
@@ -129,16 +134,17 @@
           heading_text="{{ ftl('firefox-enterprise-deploy-when-and-how-you-want') }}"
         />
       </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-deploy.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
       <content:body>
         {{ ftl('firefox-enterprise-install-packages-policies') }}
       </content:body>
-    </include:card>
-    <include:card
+    </include:card-2026>
+    <include:card-2026
       expand_link="false"
+      media_type="sticker"
     >
+      <content:media>
+        <img src="{{ static('img/firefox/enterprise/icon-release.svg') }}" alt="" aria-hidden="true" />
+      </content:media>
       <content:heading>
         <include:heading
           level="h3"
@@ -147,13 +153,10 @@
           heading_text="{{ ftl('firefox-enterprise-release-cycles') }}"
         />
       </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-release.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
       <content:body>
         {{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}
       </content:body>
-    </include:card>
+    </include:card-2026>
   </include:cards-list>
   <include:banner
       theme="outlined"

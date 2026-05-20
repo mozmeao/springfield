@@ -169,7 +169,7 @@
         </content:heading>
         <content:content>
           <include:cards-list>
-            <include:card>
+            <include:card-2026>
               <content:heading>
                 <include:heading
                   level="h3"
@@ -191,9 +191,9 @@
                 {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
                 <p><a class="learn-more-link" href="{{ url('firefox.browsers.mobile.android') }}" data-cta-text="Android Learn More">{{ ftl('ui-learn-more') }}</a></p>
               </content:buttons>
-            </include:card>
+            </include:card-2026>
 
-            <include:card>
+            <include:card-2026>
               <content:heading>
                 <include:heading
                   level="h3"
@@ -215,9 +215,9 @@
                   {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
                   <a class="learn-more-link" href="{{ url('firefox.browsers.mobile.ios') }}" data-cta-text="iOS Learn More">{{ ftl('ui-learn-more') }}</a>
                 </content:buttons>
-            </include:card>
+            </include:card-2026>
 
-            <include:card>
+            <include:card-2026>
               <content:heading>
                 <include:heading
                   level="h3"
@@ -263,7 +263,7 @@
                       {{ ftl('ui-learn-more') }}
                     </a>
                 </content:buttons>
-            </include:card>
+            </include:card-2026>
           </include:cards-list>
         </content:content>
       </include:section>
@@ -273,7 +273,7 @@
         <include:section>
           <content:content>
               <include:conditional-display platform_conditions="{{ ['android'] }}">
-                <include:card>
+                <include:card-2026>
                   <content:heading>
                     <include:heading
                       level="h3"
@@ -296,11 +296,11 @@
                     {{ google_play_button(href=android_url, class_name="fl-store-button android-download") }}
                     </div>
                   </content:buttons>
-                </include:card>
+                </include:card-2026>
               </include:conditional-display>
 
               <include:conditional-display platform_conditions="{{ ['ios'] }}">
-                <include:card>
+                <include:card-2026>
                   <content:heading>
                     <include:heading
                       level="h3"
@@ -324,7 +324,7 @@
                       {{ apple_app_store_button(href=ios_url, class_name="fl-store-button ios-download") }}
                       </div>
                     </content:buttons>
-                </include:card>
+                </include:card-2026>
               </include:conditional-display>
           </content:content>
         </include:section>
