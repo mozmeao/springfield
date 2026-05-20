@@ -388,3 +388,238 @@ test.describe('essential download attribution', () => {
         }
     );
 });
+
+test.describe('conflict management', () => {
+    const url =
+        '/en-US/?geo=us&utm_source=newsletter&utm_campaign=test&utm_medium=email';
+
+    test('when both triggers fire on the same page, the second request call should be applied regardless of response order', async ({
+        page,
+        browserName
+    }) => {
+        // i.e. Essential trigger fires on page load and analytics trigger
+        // fires moments later via the consent flow.
+        // The combined essential & analytics response should be applied
+        await page.route('**/stub_attribution_code/**', async (route) => {
+            const url = new URL(route.request().url());
+            const params = Object.fromEntries(url.searchParams);
+            // Distinguish the two requests by their payload so the final
+            // cookie value tells us which response was applied.
+            const isEssentialOnly =
+                params.campaign === 'smart_window' && !params.source;
+            const tag = isEssentialOnly ? 'essential' : 'combined';
+
+            // Slow down the combined response so the essential response
+            // reliably arrives first in the unfixed code path.
+            if (!isEssentialOnly) {
+                await new Promise((r) => setTimeout(r, 300));
+            }
+
+            try {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        attribution_code: 'mock-code-' + tag,
+                        attribution_sig: 'mock-sig-' + tag
+                    })
+                });
+            } catch (e) {
+                // route.fulfill throws if the client aborted the request;
+                // that is the expected path for the essential XHR when the
+                // analytics trigger pre-empts it.
+            }
+        });
+
+        await page.addInitScript(forceEssentialCampaign);
+        await page.addInitScript(mockGetGtagClientID);
+
+        await openPage(url, page, browserName);
+
+        await page.waitForFunction(() => {
+            return document.cookie
+                .split(';')
+                .some((c) =>
+                    c.trim().startsWith('moz-download-attribution-code=')
+                );
+        });
+        // Give any late response a chance to overwrite, so the assertion
+        // reflects the settled state rather than a transient first write.
+        await page.waitForTimeout(500);
+
+        const cookies = await page.context().cookies();
+        const signedCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-code'
+        );
+        expect(signedCookie).toBeDefined();
+        expect(signedCookie.value).toBe('mock-code-combined');
+    });
+
+    test('in-flight XHR does not resurrect analytics cookies removed by consent denial', async ({
+        page,
+        browserName
+    }) => {
+        // i.e. Analytics XHR is still in flight and user denies consent,
+        // `removeAttributionData` clears the cookies.
+        // The late XHR response must not write the signed cookie back.
+        await page.route('**/stub_attribution_code/**', async (route) => {
+            // Hold every response long enough for the consent-denial click
+            // to land while the XHR is in flight.
+            await new Promise((r) => setTimeout(r, 2500));
+            try {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        attribution_code: 'mock-code-late',
+                        attribution_sig: 'mock-sig-late'
+                    })
+                });
+            } catch (e) {
+                // Aborted by the client — expected.
+            }
+        });
+
+        await page.addInitScript(mockGetGtagClientID);
+        await openPage(
+            '/en-US/privacy/websites/cookie-settings/?geo=us&utm_source=newsletter&utm_medium=email&utm_campaign=summer',
+            page,
+            browserName
+        );
+
+        // Analytics raw cookie is written client-side before the XHR
+        // fires, so it appears even while the response is delayed.
+        await page.waitForFunction(() => {
+            return document.cookie
+                .split(';')
+                .some((c) =>
+                    c
+                        .trim()
+                        .startsWith('moz-download-attribution-analytics-raw=')
+                );
+        });
+
+        const analyticsCategory = await page.getByTestId(
+            'cookie-consent-analytics'
+        );
+        const disagreeOption =
+            await analyticsCategory.getByLabel(/I do not agree/i);
+        await disagreeOption.click();
+        const saveButton = await page.getByRole('button', {
+            name: /Save changes/i
+        });
+        await saveButton.click();
+
+        await page.waitForFunction(() => {
+            return !document.cookie
+                .split(';')
+                .some((c) =>
+                    c
+                        .trim()
+                        .startsWith('moz-download-attribution-analytics-raw=')
+                );
+        });
+
+        // Wait past the route delay so the in-flight XHR's response has
+        // had its chance to write back.
+        await page.waitForTimeout(3000);
+
+        const cookies = await page.context().cookies();
+        const analyticsCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-analytics-raw'
+        );
+        const signedCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-code'
+        );
+        expect(analyticsCookie).toBeUndefined();
+        expect(signedCookie).toBeUndefined();
+    });
+
+    test('in-flight XHR preserves essential attribution when analytics consent is denied', async ({
+        page,
+        browserName
+    }) => {
+        // i.e. Essential XHR is in flight and the user denies analytics consent.
+        // `initAnalytics(false)` aborts the in-flight combined XHR and re-signs
+        // with essential-only data. The signed cookie must appear and the
+        // essential raw cookie must survive.
+        await page.route('**/stub_attribution_code/**', async (route) => {
+            // Delay every response so the consent-denial click lands while
+            // the XHR is in flight.
+            await new Promise((r) => setTimeout(r, 2500));
+            try {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        attribution_code: 'mock-code-essential',
+                        attribution_sig: 'mock-sig-essential'
+                    })
+                });
+            } catch (e) {
+                // Request aborted by the client — expected when a later trigger
+                // pre-empts the in-flight XHR. The replacement request will
+                // reach this handler separately.
+            }
+        });
+
+        await page.addInitScript(forceEssentialCampaign);
+        await page.addInitScript(mockGetGtagClientID);
+        await openPage(
+            '/en-US/privacy/websites/cookie-settings/?geo=us',
+            page,
+            browserName
+        );
+
+        // Essential raw cookie is written synchronously before the XHR fires,
+        // so it appears even while the response is delayed.
+        await page.waitForFunction(() => {
+            return document.cookie
+                .split(';')
+                .some((c) =>
+                    c
+                        .trim()
+                        .startsWith('moz-download-attribution-essential-raw=')
+                );
+        });
+
+        // Deny analytics consent while the stub-service XHR is still in flight.
+        const analyticsCategory = await page.getByTestId(
+            'cookie-consent-analytics'
+        );
+        const disagreeOption =
+            await analyticsCategory.getByLabel(/I do not agree/i);
+        await disagreeOption.click();
+        const saveButton = await page.getByRole('button', {
+            name: /Save changes/i
+        });
+        await saveButton.click();
+
+        // Wait for the replacement request to complete.
+        await page.waitForFunction(
+            () => {
+                return document.cookie
+                    .split(';')
+                    .some((c) =>
+                        c.trim().startsWith('moz-download-attribution-code=')
+                    );
+            },
+            { timeout: 10000 }
+        );
+
+        const cookies = await page.context().cookies();
+        const essentialCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-essential-raw'
+        );
+        const analyticsCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-analytics-raw'
+        );
+        const signedCookie = cookies.find(
+            (c) => c.name === 'moz-download-attribution-code'
+        );
+        expect(essentialCookie).toBeDefined();
+        expect(analyticsCookie).toBeUndefined();
+        expect(signedCookie).toBeDefined();
+        expect(signedCookie.value).toBe('mock-code-essential');
+    });
+});

@@ -31,12 +31,15 @@ if (typeof window.Mozilla === 'undefined') {
  *    It runs without consent gating or sample-rate limiting, triggered by a
  *    `data-stub-attribution-campaign-force` attribute on the current page OR
  *    a user action (i.e. checkbox).
- *  - Analytics is consent-gated and sample-rated, triggered by a `gtm-analytics-consent`
- *    event dispatched from GTM.
+ *  - Analytics is consent-gated and sample-rated, triggered by GTM analytics consent logic.
  * Each trigger reads the other's last-captured raw data from a side cookie so it can
  * re-sign the combined payload without the other trigger having fired on this page.
  */
-const DownloadAttribution = {
+
+// This module is imported by multiple webpack bundles.
+// The first bundle to load defines the singleton on window.Mozilla and
+// subsequent imports reuse it so cross-bundle calls share the same state.
+const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     COOKIE_CODE_ID: 'moz-download-attribution-code',
     COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
     COOKIE_ESSENTIAL_RAW_ID: 'moz-download-attribution-essential-raw',
@@ -51,6 +54,7 @@ const DownloadAttribution = {
     successCallback: undefined,
     timeoutCallback: undefined,
     requestComplete: false,
+    inFlightXHR: null,
 
     /**
      * Determines if session falls within the predefined download attribution sample rate.
@@ -317,6 +321,13 @@ const DownloadAttribution = {
     },
 
     removeAttributionData: () => {
+        // Cancel any in-flight signing request so its late response cannot
+        // re-write the cookies we are about to remove (e.g. mid-page consent
+        // denial racing against an analytics XHR).
+        if (DownloadAttribution.inFlightXHR) {
+            DownloadAttribution.inFlightXHR.abort();
+            DownloadAttribution.inFlightXHR = null;
+        }
         DownloadAttribution.removeSignedCookie();
         DownloadAttribution.removeRawCookie(
             DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
@@ -356,16 +367,20 @@ const DownloadAttribution = {
      * @param {Object} data - attribution_code, attribution_sig.
      */
     onRequestSuccess: (data) => {
-        if (
-            data.attribution_code &&
-            data.attribution_sig &&
-            !DownloadAttribution.requestComplete
-        ) {
-            // Update download links on the current page.
-            DownloadAttribution.updateBouncerLinks(data);
-            // Store attribution data in a cookie should the user navigate.
-            DownloadAttribution.setSignedCookie(data);
+        if (!data.attribution_code || !data.attribution_sig) {
+            return;
+        }
 
+        // Always apply the latest signed payload to links and cookie.
+        // Essential and analytics triggers fire independently; if both
+        // sign requests succeed, the later one carries the more complete
+        // combined data and must win.
+        DownloadAttribution.updateBouncerLinks(data);
+        DownloadAttribution.setSignedCookie(data);
+
+        // The success callback fires once per page lifetime. Auto-download
+        // relies on this gate to start the download exactly once.
+        if (!DownloadAttribution.requestComplete) {
             DownloadAttribution.requestComplete = true;
 
             if (typeof DownloadAttribution.successCallback === 'function') {
@@ -375,6 +390,7 @@ const DownloadAttribution = {
     },
 
     onRequestTimeout: () => {
+        DownloadAttribution.inFlightXHR = null;
         if (!DownloadAttribution.requestComplete) {
             DownloadAttribution.requestComplete = true;
 
@@ -389,6 +405,14 @@ const DownloadAttribution = {
      * @param {Object} data - utm params and referrer.
      */
     requestAuthentication: (data) => {
+        // Cancel any prior in-flight request so a later trigger with a more
+        // complete payload always wins
+        if (DownloadAttribution.inFlightXHR) {
+            // abort() triggers xhr.onreadystatechange logic
+            DownloadAttribution.inFlightXHR.abort();
+            DownloadAttribution.inFlightXHR = null;
+        }
+
         const SERVICE_URL =
             window.location.protocol +
             '//' +
@@ -410,6 +434,16 @@ const DownloadAttribution = {
         // use readystate change over onload for IE8 support.
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
+                const isCurrent = DownloadAttribution.inFlightXHR === xhr;
+                if (isCurrent) {
+                    DownloadAttribution.inFlightXHR = null;
+                } else {
+                    // This XHR is no longer the tracked one, it was aborted
+                    // (either by a newer trigger or by removeAttributionData).
+                    // Drop the outdated response
+                    return;
+                }
+
                 const status = xhr.status;
                 if (status && status >= 200 && status < 400) {
                     try {
@@ -426,6 +460,7 @@ const DownloadAttribution = {
 
         // must come after open call above for IE 10 & 11
         xhr.timeout = timeoutValue;
+        DownloadAttribution.inFlightXHR = xhr;
         xhr.send();
     },
 
@@ -703,7 +738,7 @@ const DownloadAttribution = {
      * @return {Boolean}.
      */
     meetsFunctionalRequirements: () => {
-        // NOTE: only site JS bundle is guaranteed to be available for these checks
+        // NOTE: only 'site' JS bundle is guaranteed to be available for these checks
         if (
             typeof window.site === 'undefined' ||
             typeof Mozilla.Cookies === 'undefined' ||
