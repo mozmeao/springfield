@@ -1,5 +1,5 @@
 .fl-roadmap-list-section-header {
-    border-block-end: 1px solid var(--token-color-soft-purple-2);
+    border-block-end: 1px solid var(--theme-roadmap-list-border-color);
     display: flex;
     flex-direction: column;
 }
@@ -95,6 +95,7 @@
 
 .fl-roadmap-item-description {
     font-size: var(--fl-theme-font-size-body-xs);
+    max-inline-size: var(--token-width-desktop-content);
 }
 
 .fl-roadmap-tags .fl-tag {
@@ -116,7 +117,7 @@
 }
 
 .fl-roadmap-list-filter {
-    border-block-end: 1px solid var(--token-color-soft-purple-2);
+    border-block-end: 1px solid var(--theme-roadmap-list-border-color);
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-md);
@@ -150,7 +151,7 @@
     .fl-roadmap-item {
         align-items: center;
         gap: var(--token-spacing-lg);
-        grid-template-columns: var(--token-spacing-xl) auto 300px;
+        grid-template-columns: var(--token-spacing-xl) auto 350px;
     }
 
     .fl-roadmap-item-content {
