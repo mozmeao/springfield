@@ -324,4 +324,4 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Manual follow-up required" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Log in to the \`$TARGET\` CMS and update the **Site name** and **Site domain** to reflect the $TARGET environment." >> "$GITHUB_STEP_SUMMARY"
+          echo "See https://mozilla-hub.atlassian.net/wiki/spaces/EN/pages/2436891246/Springfield+database+cloning#IMPORTANT-Post-sync-manual-steps for details of what to do next" >> "$GITHUB_STEP_SUMMARY"
