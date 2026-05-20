@@ -164,14 +164,11 @@ if (
         'data-stub-attribution-campaign-force'
     )
 ) {
-    // Custom success and timeout callbacks are only relevant for direct attribution
-    // (i.e. when we have updated the cookie on the auto-download page)
-    Mozilla.DownloadAttribution.successCallback = onSuccess;
-    Mozilla.DownloadAttribution.timeoutCallback = onTimeout;
     // Don't wait too long before starting download
     // (even if it means we have to leave the essential information out)
     timeout = setTimeout(onTimeout, 2000);
-    Mozilla.DownloadAttribution.initEssential();
+    // Custom success and timeout callbacks for stub attribution service call
+    Mozilla.DownloadAttribution.initEssential(undefined, onSuccess, onTimeout);
 } else {
     if (Mozilla.DownloadAttribution !== undefined) {
         // Otherwise, we can assume an existing cookie has latest data
