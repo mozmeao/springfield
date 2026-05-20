@@ -1694,6 +1694,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the Firefox roadmap."""
 
+    ftl_files = ["cms/roadmap"]
+
     intro = StreamField(
         [("intro", IntroBlock2026())],
         max_num=1,

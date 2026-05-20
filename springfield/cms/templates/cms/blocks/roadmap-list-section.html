@@ -9,7 +9,7 @@
 {% if block_index == 1 %}
   <include:roadmap-list-filter
     tags="{{ value.get_tag_settings() }}"
-    last_modified="{{ page.last_published_at|date('DATE_FORMAT') if page and page.last_published_at else '' }}"
+    last_updated="{{ ftl('roadmap-last-updated', date=page.last_published_at|date('DATE_FORMAT')) if page and page.last_published_at else '' }}"
   />
 {% endif %}
 

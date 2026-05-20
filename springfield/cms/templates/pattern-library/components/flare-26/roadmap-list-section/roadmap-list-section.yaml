@@ -10,7 +10,7 @@ context:
     - value: "desktop"
       label: "Desktop"
       icon: "device-desktop-fill"
-  last_modified: "May 19, 2026"
+  last_updated: "Last updated: May 19, 2026"
   sections:
     - headline: "What's Next"
       subheadline: "The subheadline is optional. It sits beside the headline on wider viewports."
