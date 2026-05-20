@@ -8,7 +8,9 @@ import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
+from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -22,6 +24,25 @@ def placeholder_images():
 @pytest.fixture
 def index_page(minimal_site):
     return get_test_index_page()
+
+
+@pytest.fixture
+def download_firefox_button_block():
+    return DownloadFirefoxButtonBlock()
+
+
+@pytest.fixture
+def pretranslated_phrase_snippet():
+    category, _ = PretranslatedPhraseCategory.objects.get_or_create(
+        slug="get_firefox",
+        defaults={"name": "Get Firefox"},
+    )
+    snippet, _ = PretranslatedPhrase.objects.update_or_create(
+        category=category,
+        locale=Locale.get_default(),
+        defaults={"label": "Get Firefox", "live": True},
+    )
+    return snippet
 
 
 @pytest.fixture(autouse=True)

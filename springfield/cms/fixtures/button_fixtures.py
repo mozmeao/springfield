@@ -3,11 +3,16 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+from wagtail.models import Locale
+
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage, FreeFormPage2026
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.models import FreeFormPage, FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
+    get_pretranslated_phrase_snippets()
+    get_firefox_pk = PretranslatedPhrase.objects.get(category__slug="get_firefox", locale=Locale.get_default()).pk
     buttons = {
         "primary": {
             "type": "button",
@@ -236,7 +241,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "",
                     "icon": "downloads",
@@ -250,7 +256,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "secondary",
                     "icon": "downloads",
