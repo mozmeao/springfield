@@ -3235,16 +3235,16 @@ class MobileStoreQRCodeBlock(blocks.StructBlock):
 # Roadmap Page
 
 ROADMAP_STATUS_LABELS = {
-    "exploring": "Exploring",
-    "in-progress": "In Progress",
-    "testing": "Testing",
-    "coming-soon": "Coming Soon",
-    "recently-shipped": "Recently Shipped",
+    "exploring": ftl("roadmap-status-exploring", ftl_files=["cms/roadmap"]),
+    "in-progress": ftl("roadmap-status-in-progress", ftl_files=["cms/roadmap"]),
+    "testing": ftl("roadmap-status-testing", ftl_files=["cms/roadmap"]),
+    "coming-soon": ftl("roadmap-status-coming-soon", ftl_files=["cms/roadmap"]),
+    "recently-shipped": ftl("roadmap-status-recently-shipped", ftl_files=["cms/roadmap"]),
 }
 ROADMAP_TAG_LABELS = {
-    "android": "Android",
-    "ios": "iOS",
-    "desktop": "Desktop",
+    "android": ftl("roadmap-tag-android", ftl_files=["cms/roadmap"]),
+    "ios": ftl("roadmap-tag-ios", ftl_files=["cms/roadmap"]),
+    "desktop": ftl("roadmap-tag-desktop", ftl_files=["cms/roadmap"]),
 }
 ROADMAP_TAG_ICONS = {
     "android": "android",
