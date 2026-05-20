@@ -2,7 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import tempfile
 from io import StringIO
+from pathlib import Path
 from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
@@ -14,6 +16,7 @@ import pytest
 from wagtail.models import Page
 from wagtail_localize.models import StringTranslation, Translation, TranslationSource
 
+from springfield.cms import icon_utils
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
@@ -473,3 +476,147 @@ class TestLinkTranslationsAfterExport:
         assert Translation.objects.filter(source=en_home_source, target_locale__language_code="de")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="fr")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="de")
+
+
+class TestGenerateFlareIconCssCommand(TestCase):
+    """Tests for the generate_flare_icon_css management command."""
+
+    def _run_command(self, icon_dir, output):
+        out = StringIO()
+        call_command("generate_flare_icon_css", icon_dir=str(icon_dir), output=str(output), stdout=out)
+        return out.getvalue()
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.icon_dir = self.tmp / "icons"
+        self.icon_dir.mkdir()
+        self.output_file = self.tmp / "out.css"
+
+    def _make_svg(self, *parts):
+        """Create an SVG file at icon_dir / *parts, creating parent dirs as needed."""
+        path = self.icon_dir.joinpath(*parts)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("<svg/>")
+        return path
+
+    def _run(self):
+        # icon_dir is self.tmp / "icons"; static_dir is self.tmp so that
+        # icon_dir_static_path resolves to "icons" and static() produces /static/icons/...
+        with patch("django.conf.settings.ROOT_PATH", self.tmp), patch("django.conf.settings.STATICFILES_DIRS", [self.tmp]):
+            return self._run_command(
+                icon_dir=Path("icons"),
+                output=Path("out.css"),
+            )
+
+    def test_generates_rule_for_each_svg(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        self._make_svg("c", "icon-c.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert css.count("{") == 3
+
+    def test_class_name_is_stem_without_size_suffix(self):
+        self._make_svg("activity", "activity-16.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-activity {" in css
+        assert ".fl-icon-activity-16 {" not in css
+
+    def test_icon_url_value(self):
+        self._make_svg("activity", "activity-16.svg")
+        with patch("django.conf.settings.ROOT_PATH", self.tmp), patch("django.conf.settings.STATICFILES_DIRS", [self.tmp]):
+            self._run_command(icon_dir=Path("icons"), output=Path("out.css"))
+        css = self.output_file.read_text()
+        assert "--icon-src: url(" in css
+        assert "activity-16.svg" in css
+
+    def test_collision_keeps_first_skips_second_not_in_colling_paths_constant(self):
+        # Two files that produce the same icon value: only the first (alphabetically) is kept.
+        # Note: since neither "/arrows/left-16.svg" nor "/user/left-16.svg" are in
+        # icon_utils._COLLIDING_PATHS, the second of these is skipped. A separate
+        # unit test tests the scenario that one of 2 colliding files is in
+        # icon_utils._COLLIDING_PATHS.
+        self._make_svg("arrows", "left-16.svg")
+        self._make_svg("user", "left-16.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-left {" in css
+        assert css.count("{") == 1
+
+    def test_colliding_paths_generate_separate_rules(self):
+        # desktop-16 and mobile-24 icons with the same CSS name generate two separate rules
+        # when the mobile-24 path is registered in _COLLIDING_PATHS.
+        self._make_svg("desktop-16", "add", "add-16.svg")
+        self._make_svg("mobile-24", "add", "add-24.svg")
+
+        with patch.object(icon_utils, "_COLLIDING_PATHS", frozenset({"mobile-24/add/add-24"})):
+            self._run()
+
+        css = self.output_file.read_text()
+        # The first file gets ".fl-icon-add".
+        assert ".fl-icon-add {" in css
+        # The second file gets the more verbose ".fl-icon-mobile-24-add-add-24".
+        assert ".fl-icon-mobile-24-add-add-24 {" in css
+        assert css.count("{") == 2
+
+    def test_non_svg_files_excluded(self):
+        self._make_svg("a", "icon.svg")
+        (self.icon_dir / "a" / "readme.txt").write_text("text")
+        (self.icon_dir / "a" / "data.json").write_text("{}")
+        self._run()
+        css = self.output_file.read_text()
+        assert css.count("{") == 1
+
+    def test_hidden_files_excluded(self):
+        self._make_svg("a", "visible.svg")
+        (self.icon_dir / "a" / ".hidden.svg").write_text("<svg/>")
+        self._run()
+        css = self.output_file.read_text()
+        assert ".fl-icon-visible {" in css
+        assert ".fl-icon-.hidden {" not in css
+        assert css.count("{") == 1
+
+    def test_mpl_header_present(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert "Mozilla Public" in css
+        assert "https://mozilla.org/MPL/2.0/" in css
+
+    def test_run_command_comment_present(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        css = self.output_file.read_text()
+        assert "generate_flare_icon_css" in css
+
+    def test_output_file_written(self):
+        self._make_svg("a", "icon.svg")
+        self._run()
+        assert self.output_file.exists()
+
+    def test_summary_line_printed(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        out = self._run()
+        assert "Generated 2 rules" in out
+
+    def test_collision_warning_printed(self):
+        self._make_svg("arrows", "left-16.svg")
+        self._make_svg("user", "left-16.svg")
+        out = self._run()
+        assert "collision" in out.lower()
+        assert "ACTION REQUIRED" in out
+
+    def test_no_conflict_warning_when_no_conflicts(self):
+        self._make_svg("a", "icon-a.svg")
+        self._make_svg("b", "icon-b.svg")
+        out = self._run()
+        assert "ACTION REQUIRED" not in out
+
+    def test_missing_icon_dir_raises_command_error(self):
+        from django.core.management.base import CommandError
+
+        with patch("django.conf.settings.ROOT_PATH", self.tmp):
+            with self.assertRaises(CommandError):
+                self._run_command(icon_dir=Path("nonexistent"), output=Path("out.css"))
