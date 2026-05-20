@@ -14,7 +14,7 @@ import re
 from justhtml import JustHTML, SanitizationPolicy, UrlPolicy, UrlRule
 
 # Matches HTML comments. justhtml's DropComments transform cannot drop
-# comments when disallowed_tag_handling="escape" is in effect), so
+# comments when disallowed_tag_handling="escape" is in effect, so
 # we strip comments before handing the input to justhtml.
 _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
