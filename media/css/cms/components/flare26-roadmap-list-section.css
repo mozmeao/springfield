@@ -50,7 +50,7 @@
     --roadmap-status-color: var(--token-color-dark-purple);
     align-items: center;
     background-color: var(--fl-theme-background);
-    border: 1px solid var(--token-color-soft-purple-2);
+    border: 1px solid var(--theme-roadmap-list-border-color);
     border-radius: var(--token-border-radius-sm);
     display: inline-flex;
     flex: 0 0 auto;
@@ -106,6 +106,24 @@
 .fl-roadmap-filter-button.is-active .fl-tag {
     background: var(--notification-stacked-color);
     color: var(--notification-bg);
+}
+
+.fl-roadmap-filter-button.is-active .fl-tag {
+    padding-inline-end: var(--token-spacing-2xl);
+    position: relative;
+}
+
+.fl-roadmap-filter-button.is-active .fl-tag::after {
+    background-color: currentColor;
+    block-size: var(--token-spacing-md);
+    content: '';
+    inline-size: var(--token-spacing-md);
+    inset-block-start: 50%;
+    inset-inline-end: var(--token-spacing-md);
+    mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
+    mask-size: 100%;
+    position: absolute;
+    transform: translateY(-50%);
 }
 
 .fl-roadmap-item .fl-buttons {

@@ -176,7 +176,8 @@ def get_roadmap_page_intro() -> list[dict]:
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "after",
+                    "layout": "vertical",
+                    "slim": True,
                     "anchor_id": "",
                 },
                 "media": [],
@@ -185,6 +186,7 @@ def get_roadmap_page_intro() -> list[dict]:
                     "heading_text": '<p data-block-key="rm00h1">What\'s Next</p>',
                     "subheading_text": '<p data-block-key="rm00su">A transparent view into what we\'re building and why.</p>',
                 },
+                "tags": [],
                 "buttons": [
                     {
                         "type": "button",
