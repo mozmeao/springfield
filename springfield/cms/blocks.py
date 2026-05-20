@@ -1992,7 +1992,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/illustration-card-2026.html"
+            template = "cms/blocks/card-2026.html"
             label = "Illustration Card"
             label_format = "{headline}"
 
