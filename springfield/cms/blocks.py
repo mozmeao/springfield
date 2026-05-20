@@ -1100,13 +1100,14 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
+        help_text = blocks.CharBlock(required=False)
 
         class Meta:
             label = "Button Row"
             label_format = "Button Row"
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
-                children=["buttons"],
+                children=["buttons", "help_text"],
                 settings=["spacing"],
             )
 
