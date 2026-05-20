@@ -34,15 +34,15 @@
 }
 
 .fl-roadmap-item-header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-md);
     margin-block-end: var(--token-spacing-md);
 }
 
 .fl-roadmap-item-header .fl-heading {
+    display: flex;
+    flex-wrap: wrap;
     font-size: var(--token-font-size-lg);
-    line-height: 1.2;
+    gap: var(--token-spacing-md);
+    line-height: 1.1;
     margin: 0;
 }
 
@@ -53,13 +53,13 @@
     border: 1px solid var(--token-color-soft-purple-2);
     border-radius: var(--token-border-radius-sm);
     display: inline-flex;
-    flex: 1 0 auto;
+    flex: 0 0 auto;
     font-family: var(--token-font-family-mozilla-text);
     font-size: var(--token-font-size-xs);
     font-weight: var(--token-font-weight-medium);
     gap: var(--token-spacing-sm);
+    inline-size: max-content;
     line-height: 1;
-    margin-inline-start: var(--token-spacing-lg);
     padding: var(--token-spacing-xs) var(--token-spacing-sm);
     text-transform: uppercase;
 }
@@ -151,7 +151,7 @@
     .fl-roadmap-item {
         align-items: center;
         gap: var(--token-spacing-lg);
-        grid-template-columns: var(--token-spacing-xl) auto 350px;
+        grid-template-columns: var(--token-spacing-xl) auto 300px;
     }
 
     .fl-roadmap-item-content {
