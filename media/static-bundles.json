@@ -664,10 +664,9 @@
     },
     {
       "files": [
-        "js/base/download-attribution/download-attribution.es6.js",
         "js/base/download-attribution/download-attribution-init.es6.js"
       ],
-      "name": "download-attribution"
+      "name": "download-attribution-init"
     },
     {
       "files": [

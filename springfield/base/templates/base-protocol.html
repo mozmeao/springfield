@@ -151,7 +151,11 @@
       {% if settings.STUB_ATTRIBUTION_RATE %}
         <!--[if IE 9]><!-->
           {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
-          {{ js_bundle('stub-attribution') }}
+          {% if switch('enable_attribution_refactor') %}
+            {{ js_bundle('download-attribution-init') }}
+          {% else %}
+            {{ js_bundle('stub-attribution') }}
+          {% endif %}
         <!--<![endif]-->
       {% endif %}
     {% endblock %}
