@@ -148,30 +148,40 @@ Card Grid - Flare 2026 Design System Cards
 }
 
 /* =====================================================================
-Basic Card
+Basic Cards
 ===================================================================== */
-
 .fl-card {
     align-items: stretch;
 
     /* backdrop-filter: blur(7.5px); */
-    background: var(--fl-theme-default-card-bg);
-    border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
-    box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-md);
-    padding: var(--token-spacing-2xl);
     position: relative;
+}
+
+.fl-card-outlined,
+.fl-card-filled {
+    align-items: stretch;
+
+    /* backdrop-filter: blur(7.5px); */
+    border-radius: var(--token-border-radius-sm);
+    padding: var(--token-spacing-2xl);
     transition: transform var(--token-transition-base);
+}
+
+.fl-card-filled .fl-buttons,
+.fl-card-outlined .fl-buttons {
+    margin-block-start: auto;
 }
 
 /* Transitioning box-shadow causes a repaint every frame. Instead, we place
    the hover shadow on a ::after pseudo-element and transition its opacity —
    opacity is composited on the GPU with zero repaint cost. */
-.fl-card::after {
+.fl-card-filled::after,
+.fl-card-outlined::after {
     border-radius: inherit;
     box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
     content: '';
@@ -182,15 +192,26 @@ Basic Card
     transition: opacity var(--token-transition-base);
 }
 
-.fl-card:hover {
+.fl-card-filled:hover,
+.fl-card-outlined:hover {
     transform: translateY(-2px);
 }
 
-.fl-card:hover::after {
+.fl-card-filled:hover::after,
+.fl-card-outlined:hover::after {
     opacity: 1;
 }
 
-.fl-card .fl-heading-group {
+.fl-card-filled {
+    background-color: var(--theme-light-purple-card-bg-color);
+}
+
+.fl-card-outlined {
+    border: 1px solid var(--card-border-color);
+    box-shadow: var(--fl-theme-shadow-card);
+}
+
+.fl-card-outlined .fl-heading-group {
     gap: unset;
     margin: 0;
     padding: 0;
@@ -204,13 +225,11 @@ Basic Card
     margin-block-end: 0;
 }
 
-.fl-card .fl-buttons {
-    margin-block-start: auto;
-}
-
-.fl-card .learn-more-link {
-    display: block;
-    margin-block: var(--token-spacing-md);
+.fl-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--token-spacing-lg);
 }
 
 /* Drop backdrop-filter for users who prefer reduced transparency or motion —
@@ -294,7 +313,7 @@ Sticker Card
     order: 0;
 }
 
-.fl-card-sticker {
+.fl-sticker-card .fl-card-sticker {
     margin: auto;
     order: 1;
 }
@@ -403,7 +422,7 @@ Sticker Card
     color: var(--token-color-light-purple);
 }
 
-.fl-sticker-card.fl-card-fill {
+.fl-sticker-card.fl-card-filled {
     background: var(--token-gradient-soft-purple);
 }
 
@@ -556,10 +575,7 @@ Illustration Card
 ===================================================================== */
 
 .fl-illustration-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    position: relative;
+    gap: var(--token-spacing-2xl);
 }
 
 .fl-illustration-card .fl-heading-group {
@@ -573,22 +589,10 @@ Illustration Card
     margin: 0;
 }
 
-.fl-illustration-card .fl-card-media {
-    margin-block-end: var(--token-spacing-xl);
-}
-
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-border-radius-sm);
-    inline-size: 100%;
-    margin-block-end: var(--token-spacing-lg);
-}
-
-.fl-illustration-card .fl-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    gap: var(--token-spacing-lg);
+    margin-block-end: 0;
 }
 
 .fl-illustration-card .fl-video {
@@ -663,6 +667,7 @@ Illustration Card
     display: flex;
     inline-size: var(--media-size);
     justify-content: center;
+    margin-block-end: var(--token-spacing-lg);
     min-block-size: var(--media-size);
     min-inline-size: var(--media-size);
     padding: var(--media-padding);

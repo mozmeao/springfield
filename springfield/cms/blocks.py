@@ -1633,6 +1633,7 @@ class BaseCardSettings(blocks.StructBlock):
         label="Show To",
         help_text="Control which users can see this content block",
     )
+    variant = blocks.ChoiceBlock((("outlined", "Outlined"), ("filled", "Filled")), required=False)
 
     class Meta:
         icon = "cog"
@@ -1998,7 +1999,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     return _IllustrationCardBlock(*args, **kwargs)
 
 
-def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
+def CardBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create OutlinedCardBlock with appropriate button types.
 
     Args:
@@ -2006,9 +2007,10 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
                       If False, only allows regular buttons.
     """
 
-    class _OutlinedCardBlock(blocks.StructBlock):
+    class _CardBlock(blocks.StructBlock):
         settings = BaseCardSettings()
         sticker = ImageVariantsBlock(required=False)
+        media = MediaBlock(required=False)
         headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
         content = RichTextBlock(features=HEADING_TEXT_FEATURES)
         buttons = MixedButtonsBlock(
@@ -2020,11 +2022,11 @@ def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
         )
 
         class Meta:
-            template = "cms/blocks/outlined-card.html"
-            label = "Outlined Card"
-            label_format = "Outlined Card - {headline}"
+            template = "cms/blocks/card-2026.html"
+            label = "Card"
+            label_format = "Card - {settings.variant} - {headline}"
 
-    return _OutlinedCardBlock(*args, **kwargs)
+    return _CardBlock(*args, **kwargs)
 
 
 def TestimonialCardBlock(*args, **kwargs):
@@ -2107,7 +2109,7 @@ def CardsListBlock2026(allow_uitour=False, *args, **kwargs):
                     "illustration_card",
                     IllustrationCard2026Block(allow_uitour=allow_uitour),
                 ),
-                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
+                ("outlined_card", CardBlock(allow_uitour=allow_uitour)),
                 ("icon_card", IconCardBlock2026(allow_uitour=allow_uitour)),
                 ("testimonial_card", TestimonialCardBlock()),
             ]
