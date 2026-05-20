@@ -43,7 +43,21 @@ INSTALLER_CHANNElS = [
 ]
 SEND_TO_DEVICE_MESSAGE_SETS = settings.SEND_TO_DEVICE_MESSAGE_SETS
 
-STUB_VALUE_NAMES = [
+
+_STUB_VALUE_NAMES = [
+    # name, default value
+    ("utm_source", "(not set)"),
+    ("utm_medium", "(not set)"),
+    ("utm_campaign", "(not set)"),
+    ("utm_content", "(not set)"),
+    ("experiment", "(not set)"),
+    ("variation", "(not set)"),
+    ("ua", "(not set)"),
+    ("client_id_ga4", "(not set)"),
+    ("session_id", "(not set)"),
+    ("dlsource", "(not set)"),
+]
+_STUB_VALUE_NAMES_LEGACY = [
     # name, default value
     ("utm_source", "(not set)"),
     ("utm_medium", "(direct)"),
@@ -102,7 +116,8 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
-    for name, default_value in STUB_VALUE_NAMES:
+    stub_value_names = _STUB_VALUE_NAMES if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR") else _STUB_VALUE_NAMES_LEGACY
+    for name, default_value in stub_value_names:
         val = data.get(name, "")
         # remove utm_
         if name.startswith("utm_"):
@@ -114,20 +129,47 @@ def stub_attribution_code(request):
         else:
             codes[name] = default_value
 
-    if codes["source"] == "(not set)" and "referrer" in data:
-        try:
-            domain = urlparse(data["referrer"]).netloc
-            if domain and STUB_VALUE_RE.match(domain):
-                codes["source"] = domain
-                codes["medium"] = "referral"
-                has_value = True
-        except Exception:
-            # any problems and we should just ignore it
-            pass
+    # Only provide default analytics data if analytics data is allowed
+    # (as indicated by set ga4 client value)
+    if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+        if not codes["client_id_ga4"] == "(not set)":
+            # set basic defaults
+            if codes["dlsource"] == "(not set)":
+                codes["dlsource"] = "fxdotcom"
 
-    if not has_value:
-        codes["source"] = "www.firefox.com"
-        codes["medium"] = "(none)"
+            if codes["medium"] == "(not set)":
+                codes["medium"] = "(direct)"
+
+            # try more advanced defaults
+            if codes["source"] == "(not set)" and "referrer" in data:
+                try:
+                    domain = urlparse(data["referrer"]).netloc
+                    if domain and STUB_VALUE_RE.match(domain):
+                        codes["source"] = domain
+                        codes["medium"] = "referral"
+                        has_value = True
+                except Exception:
+                    # any problems and we should just ignore it
+                    pass
+
+            if not has_value:
+                codes["source"] = "www.firefox.com"
+                codes["medium"] = "(none)"
+    else:
+        if codes["source"] == "(not set)" and "referrer" in data:
+            try:
+                domain = urlparse(data["referrer"]).netloc
+                if domain and STUB_VALUE_RE.match(domain):
+                    codes["source"] = domain
+                    codes["medium"] = "referral"
+                    has_value = True
+            except Exception:
+                # any problems and we should just ignore it
+                pass
+
+        if not has_value:
+            codes["source"] = "www.firefox.com"
+            codes["medium"] = "(none)"
 
     code_data = sign_attribution_codes(codes)
     if code_data:
@@ -445,7 +487,10 @@ class DownloadThanksView(L10nTemplateView):
                 template = "firefox/download/desktop/thanks.html"
         else:
             if source == "direct":
-                template = "firefox/download/basic/thanks_direct.html"
+                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                    template = "firefox/download/rtamo.html"
+                else:
+                    template = "firefox/download/basic/thanks_direct.html"
             else:
                 template = "firefox/download/basic/thanks.html"
 
