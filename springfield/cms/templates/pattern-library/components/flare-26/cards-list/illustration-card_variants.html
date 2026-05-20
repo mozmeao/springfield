@@ -11,8 +11,8 @@
     {% for card in cards %}
       <div data-testid="{{ card.testid }}">
         <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
-        <include:illustration-card-2026
-          variant="{{ card.variant }}"
+        <include:card-2026
+          media_type="{{ card.media_type }}"
           expand_link="{{ card.expand_link }}"
         >
           <content:media>
@@ -43,7 +43,7 @@
               {% endfor %}
             </content:buttons>
           {% endif %}
-        </include:illustration-card-2026>
+        </include:card-2026>
       </div>
     {% endfor %}
   </include:cards-list>
