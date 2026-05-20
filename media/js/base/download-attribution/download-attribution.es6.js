@@ -21,8 +21,8 @@ if (typeof window.Mozilla === 'undefined') {
  *
  * In 2026, this file was renamed from Stub Attribution to Download Attribution to more
  * clearly indicate this is information provided through the download. References to the Stub
- * Attribution Service remain as the website code connects to an external service that uses
- * this name: https://github.com/mozilla-services/stubattribution.
+ * Attribution Service remain as this JS connects to the Springfield backend, which calls
+ * an external service that uses this name: https://github.com/mozilla-services/stubattribution.
  * Refactor task: https://mozilla-hub.atlassian.net/browse/WT-964
  *
  * Essential and analytics attribution are driven by independent triggers and know
@@ -40,11 +40,17 @@ if (typeof window.Mozilla === 'undefined') {
 // The first bundle to load defines the singleton on window.Mozilla and
 // subsequent imports reuse it so cross-bundle calls share the same state.
 const DownloadAttribution = window.Mozilla.DownloadAttribution || {
-    COOKIE_CODE_ID: 'moz-download-attribution-code',
-    COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
+    // These raw cookies are never sent anywhere
+    // The data they contain is combined and sent to the stub attribution service
     COOKIE_ESSENTIAL_RAW_ID: 'moz-download-attribution-essential-raw',
     COOKIE_ANALYTICS_RAW_ID: 'moz-download-attribution-analytics-raw',
+    // The stub attribution service returns encoded data we store in code and sig cookies
+    // This data will be sent to the download installer
+    COOKIE_CODE_ID: 'moz-download-attribution-code',
+    COOKIE_SIGNATURE_ID: 'moz-download-attribution-sig',
     DLSOURCE: 'fxdotcom',
+    // This is an extra precaution to ensure we never mix essential and analytics campaigns
+    // Any campaign can be added from the CMS, but Essential campaigns must be validated in code
     ESSENTIAL_CAMPAIGNS: ['rtamo', 'SET_AS_DEFAULT', 'smart_window'],
 
     /**
