@@ -212,6 +212,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {# Download as default needs to come after stub attribution #}
       {{ js_bundle('download_as_default') }}
 
+      {# Rewrites /thanks/-bound download buttons to attributed store URLs on
+         mobile UAs so page-level campaign survives the click. Self-gates on
+         campaign data attrs or URL utm_campaign; no-op otherwise. #}
+      {{ js_bundle('mobile-attribution') }}
+
       {% if page is defined and page.enable_marketing_attribution %}
         <!--[if IE 9]><!-->
           {# Marketing opt-out runs on all evergreen browsers plus IE9 and above. #}
