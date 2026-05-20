@@ -7,8 +7,9 @@
 import DownloadAttribution from './download-attribution.es6';
 
 // Refresh the essential data to avoid an outdated download experience
-// - If there's new essential data, update
-// - If there's no essential data, remove
+// NO essential data?
+// - If analytics data exists, update attribution to remove essential but keep analytics
+// - If no other data, remove attribution entirely
+// NEW essential data?
+// - update attribution to use latest essential data
 DownloadAttribution.initEssential();
-
-DownloadAttribution.applyAttributionDataToLinks();
