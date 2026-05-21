@@ -29,13 +29,13 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_icon_card_2026_variants() -> list[dict]:
+def get_icon_card_2026_variants(variant="") -> list[dict]:
     buttons = get_button_variants()
     return [
         {
             "type": "icon_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL, "variant": variant},
                 "icon": "activity",
                 "headline": '<p data-block-key="2026kc1h">Icon Card 2026</p>',
                 "content": '<p data-block-key="2026kc1c">Without buttons, activity icon.</p>',
@@ -46,7 +46,7 @@ def get_icon_card_2026_variants() -> list[dict]:
         {
             "type": "icon_card",
             "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL, "variant": variant},
                 "icon": "android",
                 "headline": '<p data-block-key="2026kc2h">Icon Card with Link Button</p>',
                 "content": '<p data-block-key="2026kc2c">With a link button and android icon.</p>',
@@ -57,7 +57,7 @@ def get_icon_card_2026_variants() -> list[dict]:
         {
             "type": "icon_card",
             "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
+                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL, "variant": variant},
                 "icon": "apple",
                 "headline": '<p data-block-key="2026kc3h">Clickable Icon Card</p>',
                 "content": '<p data-block-key="2026kc3c">With expand link enabled - the entire card is clickable.</p>',
@@ -68,7 +68,7 @@ def get_icon_card_2026_variants() -> list[dict]:
         {
             "type": "icon_card",
             "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
+                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL, "variant": variant},
                 "icon": "add-circle-fill",
                 "headline": '<p data-block-key="2026kc4h">All Icon Card Fields</p>',
                 "content": '<p data-block-key="2026kc4c">With all fields filled, expand link enabled, and primary button.</p>',
@@ -92,6 +92,8 @@ def _cards_list(cards, settings=None, block_id=""):
 
 def get_icon_cards_2026_sections() -> list[dict]:
     cards = get_icon_card_2026_variants()
+    outlined_cards = get_icon_card_2026_variants(variant="outlined")
+    filled_cards = get_icon_card_2026_variants(variant="filled")
     return [
         _section(
             heading_text="Icon Cards 2026 - 3 Columns",
@@ -110,11 +112,11 @@ def get_icon_cards_2026_sections() -> list[dict]:
             section_id="2026ks01-0000-0000-0000-000000000002",
         ),
         _section(
-            heading_text="Icon Cards 2026 - Narrow Container, 2 Columns",
-            subheading_text="Narrow container (725px) with 2 columns forced.",
+            heading_text="Icon Cards 2026 - Outlined Variant, Narrow Container, 2 Columns",
+            subheading_text="Outlined variant in a narrow container (725px) with 2 columns forced.",
             content_blocks=[
                 _cards_list(
-                    cards[:2],
+                    outlined_cards[:2],
                     settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
                     block_id="2026kcs1-0000-0000-0000-000000000003",
                 ),
@@ -122,11 +124,11 @@ def get_icon_cards_2026_sections() -> list[dict]:
             section_id="2026ks01-0000-0000-0000-000000000003",
         ),
         _section(
-            heading_text="Icon Cards 2026 - Scroll",
-            subheading_text="Horizontally scrollable card row.",
+            heading_text="Icon Cards 2026 - Filled Variant, Scroll",
+            subheading_text="Filled variant in a horizontally scrollable card row.",
             content_blocks=[
                 _cards_list(
-                    cards * 2,
+                    filled_cards * 2,
                     settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
                     block_id="2026kcs1-0000-0000-0000-000000000004",
                 ),

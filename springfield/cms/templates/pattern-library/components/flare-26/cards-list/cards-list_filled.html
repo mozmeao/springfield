@@ -4,13 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div data-testid="cards-list-outlined">
+<div data-testid="cards-list-filled">
   <section class="fl-section">
     <div class="fl-section-container">
       <include:cards-list container_width="wide">
         {% for card in cards %}
           <include:card-2026
-            variant="outlined"
+            variant="filled"
             expand_link="{{ card.expand_link }}"
             media_type="{{ 'sticker' if card.sticker else '' }}"
           >

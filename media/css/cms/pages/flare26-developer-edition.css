@@ -43,11 +43,6 @@
         flex-direction: column;
     }
 
-    .fl-page-developer .fl-card .fl-card-sticker {
-        margin: 0 auto var(--token-spacing-lg) 0;
-        order: 1;
-    }
-
     .fl-page-developer .fl-card .fl-card-heading-group {
         order: 2;
     }
@@ -58,10 +53,6 @@
 
     .fl-page-developer .fl-card .fl-buttons {
         order: 4;
-    }
-
-    .fl-page-developer .fl-illustration-card .fl-card-content {
-        gap: 0;
     }
 
     @media (--viewport-sm-up) {

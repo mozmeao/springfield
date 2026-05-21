@@ -2454,7 +2454,7 @@ def test_theme_page_blocks(index_page, rf):
     )
 
     assert icon_card_section.find(class_="fl-card-grid")
-    icon_card_articles = icon_card_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+    icon_card_articles = icon_card_section.find_all("article", class_=["fl-illustration-card", "fl-illustration-icon-card"])
     icon_card_articles_data = icon_card_section_data["value"]["content"][0]["value"]["cards"]
     assert len(icon_card_articles) == len(icon_card_articles_data)
 
@@ -2720,7 +2720,7 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     sections = soup.find_all("section", class_="fl-section")
     icon_section = sections[1]
-    icon_card_articles = icon_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+    icon_card_articles = icon_section.find_all("article", class_=["fl-illustration-card", "fl-illustration-icon-card"])
 
     articles = get_article_pages()
 
@@ -2804,7 +2804,7 @@ def test_freeform_page_2026_split_layout(index_page, rf):
     # Lower content contains the section with cards
     sections = lower.find_all("section", class_="fl-section")
     assert len(sections) == 1
-    card_articles = sections[0].find_all("article", class_="fl-illustration-card")
+    card_articles = sections[0].find_all("article", class_="fl-card")
     assert len(card_articles) == 3, "Should render cards for Android, iOS, and Focus"
 
 
@@ -3038,7 +3038,7 @@ def assert_outlined_card_2026(card_el, variant, context, region_name, heading_ta
     assert body and content_text in body.get_text()
 
     if value.get("sticker", {}).get("image"):
-        sticker_el = card_el.find("div", class_="fl-card-sticker")
+        sticker_el = card_el.find("div", class_="fl-card-media")
         assert sticker_el
         assert_image_variants_attributes(images_element=sticker_el, images_value=value["sticker"])
 
@@ -3066,6 +3066,14 @@ def assert_icon_card_2026(card_el, variant, context, region_name, heading_tag, b
         assert "fl-card-expand-link" in card_el.get("class", [])
     else:
         assert "fl-card-expand-link" not in card_el.get("class", [])
+
+    card_variant = value["settings"].get("variant", "")
+    if card_variant:
+        assert f"fl-card-{card_variant}" in card_el.get("class", [])
+    else:
+        # Icon cards always have media, so no default variant class is added
+        assert "fl-card-outlined" not in card_el.get("class", [])
+        assert "fl-card-filled" not in card_el.get("class", [])
 
     content_text = BeautifulSoup(value["content"], "html.parser").get_text()
     body = card_el.find(class_="fl-body")
