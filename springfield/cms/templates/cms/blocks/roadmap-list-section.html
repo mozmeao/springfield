@@ -66,7 +66,7 @@
             {% if learn_more_url %}
               {% set button_position = item_block_position ~ ".learn-more" %}
               <include:button
-                link="{{ learn_more_url }}"
+                link="{{ learn_more_url|add_utm_parameters }}"
                 label="{{ ftl('ui-learn-more') }}"
                 analytics_id="{{ item.learn_more_analytics_id }}"
                 analytics_text="{{ item_block_text ~ ' - ' ~ ftl('ui-learn-more') }}"
@@ -76,7 +76,7 @@
             {% if secondary_url and item.secondary_button_label %}
               {% set button_position = item_block_position ~ ".secondary-button" %}
               <include:button
-                link="{{ secondary_url }}"
+                link="{{ secondary_url|add_utm_parameters }}"
                 label="{{ item.secondary_button_label }}"
                 theme_class="button-ghost"
                 icon_name="{{ item.secondary_button_icon }}"

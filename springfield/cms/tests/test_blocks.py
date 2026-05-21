@@ -4645,6 +4645,7 @@ def test_roadmap_list_section_block(index_page, rf):
     response = page.serve(request)
     assert response.status_code == 200
 
+    context = page.get_context(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Intro: superheading, heading, subheading
@@ -4728,7 +4729,7 @@ def test_roadmap_list_section_block(index_page, rf):
             if learn_more_url:
                 learn_more_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.learn-more"})
                 assert learn_more_button, f"Expected learn more button for item {item_number}"
-                assert learn_more_button["href"] == learn_more_url
+                assert learn_more_button["href"] == add_utm_parameters(context, learn_more_url)
                 expected_learn_more_text = f"{item_value['title']} - Learn more"
                 assert learn_more_button["data-cta-text"] == expected_learn_more_text
                 learn_more_analytics_id = item_value.get("learn_more_analytics_id", "")
@@ -4741,7 +4742,7 @@ def test_roadmap_list_section_block(index_page, rf):
             if secondary_url and secondary_label:
                 secondary_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.secondary-button"})
                 assert secondary_button, f"Expected secondary button for item {item_number}"
-                assert secondary_button["href"] == secondary_url
+                assert secondary_button["href"] == add_utm_parameters(context, secondary_url)
                 assert secondary_label in secondary_button.get_text()
                 expected_secondary_text = f"{item_value['title']} - {secondary_label}"
                 assert secondary_button["data-cta-text"] == expected_secondary_text
