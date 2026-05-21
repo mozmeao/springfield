@@ -19,6 +19,7 @@ from wagtail.models import Locale, Page, Site
 from lib.l10n_utils import get_locale
 from springfield.cms.blocks import (
     ROADMAP_STATUS_LABELS,
+    ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     ArticleBlock,
     BaseArticleValue,
@@ -138,7 +139,6 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_2026_test_page, get_topic_list_lower_variants, get_topic_list_upper_variants
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
-from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.models import ArticleDetailPage, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -4650,19 +4650,40 @@ def test_roadmap_list_section_block(index_page, rf):
 
     # Intro: superheading, heading, subheading
     superheading_el = soup.find("p", class_="fl-superheading")
-    assert superheading_el and "Firefox Roadmap" in superheading_el.get_text()
+    assert superheading_el and BeautifulSoup(intro_heading_data["superheading_text"], "html.parser").get_text() in superheading_el.get_text()
     intro_heading_el = soup.find("h1", class_="fl-heading")
-    assert intro_heading_el and "What's Next" in intro_heading_el.get_text()
+    expected_heading_text = BeautifulSoup(intro_heading_data["heading_text"], "html.parser").get_text()
+    assert intro_heading_el and expected_heading_text in intro_heading_el.get_text()
     subheading_el = soup.find("p", class_="fl-subheading")
     expected_subheading = BeautifulSoup(intro_heading_data["subheading_text"], "html.parser").get_text()
     assert subheading_el and expected_subheading in subheading_el.get_text()
+
     # Intro button links to what's new index page with correct analytics
-    whatsnew_index = get_whatsnew_index_page()
+    whatsnew_index = Page.objects.get(id=intro_button_data["link"]["page"]).specific
     intro_button = soup.find("a", href=whatsnew_index.get_url())
     assert intro_button and intro_button_data["label"] in intro_button.get_text()
-    expected_heading_text = BeautifulSoup(intro_heading_data["heading_text"], "html.parser").get_text()
     assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['label']}"
     assert intro_button["data-cta-uid"] == intro_button_data["settings"]["analytics_id"]
+    assert intro_button["data-cta-position"] == "intro.button-1"
+
+    # Filters
+    filters = soup.find_all("div", class_="fl-roadmap-list-filter")
+    assert len(filters) == 1
+    filter_el = filters[0]
+    filter_options = filter_el.find_all("button", class_="fl-roadmap-filter-button")
+    assert len(filter_options) == len(ROADMAP_TAG_LABELS)
+    for button in filter_options:
+        assert button.has_attr("data-filter")
+        tag = button["data-filter"]
+        assert tag in ROADMAP_TAG_LABELS, f"Unexpected filter tag {tag}"
+        assert str(ROADMAP_TAG_LABELS[tag]) in button.get_text(), f"Expected label for tag {tag}"
+        icon_el = button.find("span", class_="fl-icon")
+        assert icon_el, f"Expected icon element for tag {tag}"
+        assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag}"
+
+    last_updated_el = filter_el.find("p")
+    assert last_updated_el
+    assert f"Last updated: {page.last_published_at.strftime('%B %d, %Y')}" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
@@ -4696,7 +4717,9 @@ def test_roadmap_list_section_block(index_page, rf):
             # Icon
             icon = item_value.get("icon", "")
             if icon:
-                assert item_el.find("span", class_=f"fl-icon-{icon}")
+                icon_el = item_el.find("span", class_="fl-icon")
+                assert icon_el, f"Expected icon element for item {item_number}"
+                assert f"fl-icon-{icon}" in icon_el["class"], f"Expected icon {icon} for item {item_number}"
 
             # Title renders as h3 (block_level 2 → child level 3)
             title_el = item_el.find("h3")
@@ -4706,17 +4729,22 @@ def test_roadmap_list_section_block(index_page, rf):
             status = item_value["status"]
             status_badge = item_el.find("span", class_=f"fl-roadmap-status-{status}")
             assert status_badge, f"Expected status badge for {status}"
-            assert ROADMAP_STATUS_LABELS[status] in status_badge.get_text()
+            assert str(ROADMAP_STATUS_LABELS[status]) in status_badge.get_text()
 
             # Tags
             tags = item_value.get("tags", [])
             if tags:
+                assert item_el.has_attr("data-tags"), f"Expected data-tags attribute for item {item_number}"
+                assert item_el["data-tags"] == ",".join(tags), f"Expected data-tags to be comma-separated list of tags for item {item_number}"
                 tags_container = item_el.find("div", class_="fl-roadmap-tags")
                 assert tags_container
                 tag_elements = tags_container.find_all("span", class_="fl-tag")
                 assert len(tag_elements) == len(tags)
                 for tag, tag_el in zip(tags, tag_elements):
-                    assert ROADMAP_TAG_LABELS[tag] in tag_el.get_text()
+                    assert str(ROADMAP_TAG_LABELS[tag]) in tag_el.get_text()
+                    icon_el = tag_el.find("span", class_="fl-icon")
+                    assert icon_el, f"Expected icon element for tag {tag} in item {item_number}"
+                    assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag} in item {item_number}"
             else:
                 assert not item_el.find("div", class_="fl-roadmap-tags")
 

@@ -231,4 +231,5 @@ def get_roadmap_list_test_page() -> RoadmapPage:
     page.intro = get_roadmap_page_intro()
     page.content = sections + [get_kit_banner_variants()[0]]
     page.save_revision().publish()
+    page.refresh_from_db()
     return page
