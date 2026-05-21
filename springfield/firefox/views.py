@@ -505,7 +505,9 @@ def download_redirect(request):
     if qs:
         redirect_url = f"{redirect_url}?{qs}"
 
-    return HttpResponseRedirect(redirect_url)
+    response = HttpResponseRedirect(redirect_url)
+    response["Vary"] = "User-Agent"
+    return response
 
 
 class DownloadView(L10nTemplateView):
