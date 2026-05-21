@@ -16,7 +16,7 @@
     margin: 0;
 }
 
-.fl-roadmap-list .fl-roadmap-item + .fl-roadmap-item {
+.fl-roadmap-list .fl-roadmap-item:not(.hidden) ~ .fl-roadmap-item:not(.hidden) {
     border-block-start: 1px solid var(--theme-roadmap-list-border-color);
 }
 
