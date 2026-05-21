@@ -6,7 +6,7 @@
 
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
 
-{% if block_index == 1 %}
+{% if roadmap_sections == 1 %}
   <include:roadmap-list-filter
     tags="{{ value.get_tag_settings() }}"
     last_updated="{{ ftl('roadmap-last-updated', date=page.last_published_at|date('DATE_FORMAT')) if page and page.last_published_at else '' }}"

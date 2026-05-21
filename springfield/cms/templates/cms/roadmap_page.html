@@ -16,7 +16,7 @@
 {% block content %}
 <div class="fl-page fl-roadmap-page">
   <div class="fl-main has-gradient-bottom">
-    {% set ns = namespace(headings=0) %}
+    {% set ns = namespace(headings=0, roadmap_sections=0) %}
 
     {% if page.intro %}
       <div class="fl-split-page-upper has-gradient-bottom">
@@ -35,13 +35,16 @@
           {% set block_index = loop.index %}
           {% set block_type = block.block_type %}
           {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+          {% set ns.roadmap_sections = ns.roadmap_sections + 1 if block_type == "roadmap_list_section" else ns.roadmap_sections %}
 
           {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
             {% set block_level = 1 if ns.headings == 0 else 2 %}
             {% set ns.headings = ns.headings + 1 %}
           {% endif %}
 
-          {% include_block block %}
+          {% with roadmap_sections=ns.roadmap_sections %}
+            {% include_block block %}
+          {% endwith %}
         {% endfor %}
       {% endif %}
     </div>
