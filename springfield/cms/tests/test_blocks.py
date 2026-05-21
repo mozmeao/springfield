@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urlunparse
 
 from django.template.loader import render_to_string
 from django.test import override_settings
+from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
@@ -4683,7 +4684,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {page.last_published_at.strftime('%B %d, %Y')}" in last_updated_el.get_text()
+    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
