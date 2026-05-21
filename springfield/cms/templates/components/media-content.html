@@ -4,9 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_after="", narrow="" #}
+{# props media_after="" narrow="" remove_border_radius=False #}
 
-<div class="fl-mediacontent fl-mediacontent-feature{% if media_after %} fl-mediacontent-reverse{% endif %}{% if narrow %} is-narrow{% endif %}">
+<div
+  class="
+    fl-mediacontent
+    fl-mediacontent-feature
+    {% if media_after %}fl-mediacontent-reverse{% endif %}
+    {% if narrow %}is-narrow{% endif %}
+    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+  "
+>
   {% if contents.media %}
     <div class="fl-mediacontent-media">
       {{ contents.media }}
