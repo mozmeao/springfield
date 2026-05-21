@@ -58,10 +58,10 @@ function applyFilter(activeFilters) {
 
 function syncButtonState(filterButtons, activeFilters) {
     filterButtons.forEach((button) => {
-        button.classList.toggle(
-            'is-active',
-            activeFilters.has(button.dataset.filter)
-        );
+        const isActive = activeFilters.has(button.dataset.filter);
+
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
 }
 
