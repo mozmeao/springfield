@@ -6,7 +6,7 @@
 
 # Label indicating when the list was last updated
 # Variables:
-#    $date (string) Date in when the page has been last updated
+#    $date (string) Date when the page was last updated
 roadmap-last-updated = Last updated: { $date }
 
 # Pill indicating the status of an item in Firefox's roadmap
