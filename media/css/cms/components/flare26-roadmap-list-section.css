@@ -26,6 +26,25 @@
     grid-template-columns: 1fr;
     margin: 0;
     padding: var(--token-spacing-xl);
+    transition: opacity 0.2s ease-in-out;
+    transition-behavior: allow-discrete;
+}
+
+.fl-roadmap-item.hidden {
+    display: none;
+    opacity: 0;
+}
+
+@starting-style {
+    .fl-roadmap-item:not(.hidden) {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-roadmap-item {
+        transition: none;
+    }
 }
 
 .fl-roadmap-item-icon .fl-icon {
