@@ -7,7 +7,7 @@
 'use strict';
 
 const openPage = require('../../scripts/open-page');
-const { test } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
 const url = `${patternLibraryURL}/roadmap-list-section/roadmap-list-section.html`;
 
@@ -29,7 +29,9 @@ test.describe(
             await page
                 .locator('.fl-roadmap-filter-button[data-filter="desktop"]')
                 .click();
-            await page.waitForTimeout(400);
+            await expect(
+                page.locator('.fl-roadmap-filter-button[data-filter="desktop"]')
+            ).toHaveClass(/is-active/);
             await expectComponentScreenshot(
                 page,
                 'roadmap-list-section',
@@ -52,7 +54,11 @@ test.describe(
                 await page
                     .locator('.fl-roadmap-filter-button[data-filter="desktop"]')
                     .click();
-                await page.waitForTimeout(400);
+                await expect(
+                    page.locator(
+                        '.fl-roadmap-filter-button[data-filter="desktop"]'
+                    )
+                ).toHaveClass(/is-active/);
                 await expectComponentScreenshot(
                     page,
                     'roadmap-list-section',
