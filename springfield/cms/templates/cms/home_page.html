@@ -6,6 +6,68 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.mozilla.org/#org",
+      "name": "Mozilla",
+      "url": "https://www.mozilla.org",
+      "logo": "https://www.firefox.com/media/img/logos/m24/lockup-black.svg",
+      "description": "Mozilla is a global community working to make the internet open, accessible, and safe for everyone.",
+      "brand": { "@id": "https://www.firefox.com/#brand" },
+      "sameAs": [
+        "https://en.wikipedia.org/wiki/Mozilla",
+        "https://www.wikidata.org/wiki/Q9661",
+        "https://x.com/mozilla",
+        "https://github.com/mozilla",
+        "https://www.youtube.com/user/Mozilla",
+        "https://bsky.app/profile/mozilla.org"
+      ]
+    },
+    {
+      "@type": "Brand",
+      "@id": "https://www.firefox.com/#brand",
+      "name": "Firefox",
+      "url": "https://www.firefox.com",
+      "logo": "https://www.firefox.com/media/img/logos/firefox/firefox-logo.svg",
+      "sameAs": [
+        "https://en.wikipedia.org/wiki/Firefox",
+        "https://www.wikidata.org/wiki/Q698",
+        "https://x.com/firefox",
+        "https://bsky.app/profile/firefox.com",
+        "https://www.youtube.com/firefoxchannel"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.firefox.com/#website",
+      "url": "https://www.firefox.com/",
+      "name": "Firefox",
+      "publisher": { "@id": "https://www.mozilla.org/#org" },
+      "about": { "@id": "https://www.firefox.com/#brand" },
+      "inLanguage": "{{ LANG }}"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://www.firefox.com/#app",
+      "name": "Firefox",
+      "description": "Firefox is a fast, private web browser from Mozilla, available on Windows, macOS, Linux, iOS, and Android.",
+      "brand": { "@id": "https://www.firefox.com/#brand" },
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": ["Windows", "macOS", "Linux", "iOS", "Android"],
+      "softwareVersion": "{{ latest_firefox_version }}",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@id": "https://www.mozilla.org/#org" }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block page_css %}{{ css_bundle('flare26-homepage') }}{% endblock %}
 
 {% block body_class %}fl-home-body{% endblock %}
