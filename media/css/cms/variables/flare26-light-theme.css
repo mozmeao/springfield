@@ -150,3 +150,7 @@
 --theme-numbered-list-background: var(--token-color-soft-purple-40);
 --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
 --theme-numbered-list-counter-color: var(--token-color-light-purple);
+
+/* Roadmap list section */
+--theme-roadmap-list-background: var(--token-color-soft-purple-40);
+--theme-roadmap-list-border-color: var(--token-color-soft-purple-2);

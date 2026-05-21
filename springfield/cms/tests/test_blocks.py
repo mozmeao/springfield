@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urlunparse
 
 from django.template.loader import render_to_string
 from django.test import override_settings
+from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
@@ -17,7 +18,17 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import get_locale
-from springfield.cms.blocks import ArticleBlock, BaseArticleValue, ButtonRowBlock, SectionBlock2026, SpringfieldLinkBlock, TwoColumnCardBlock
+from springfield.cms.blocks import (
+    ROADMAP_STATUS_LABELS,
+    ROADMAP_TAG_ICONS,
+    ROADMAP_TAG_LABELS,
+    ArticleBlock,
+    BaseArticleValue,
+    ButtonRowBlock,
+    SectionBlock2026,
+    SpringfieldLinkBlock,
+    TwoColumnCardBlock,
+)
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -106,6 +117,11 @@ from springfield.cms.fixtures.media_content_fixtures import (
     get_section_with_media_content_variants,
 )
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
+from springfield.cms.fixtures.roadmap_list_fixtures import (
+    get_roadmap_list_section_variants,
+    get_roadmap_list_test_page,
+    get_roadmap_page_intro,
+)
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page, get_showcase_2026_variants
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
@@ -797,7 +813,7 @@ def test_media_content_block(index_page, placeholder_images, rf):
         section_element,
         section["value"]["cta"][0],
         context,
-        cta_position="block-1-section.cta",
+        cta_position="block-1-section.cta-1",
         cta_text=f"{heading_text.strip()} - {cta_label.strip()}",
     )
 
@@ -1012,7 +1028,7 @@ def test_icon_card_block(index_page, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1076,7 +1092,7 @@ def test_sticker_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1145,7 +1161,7 @@ def test_filled_card_block(index_page, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1213,7 +1229,7 @@ def test_illustration_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -1283,7 +1299,7 @@ def test_step_card_block(index_page, placeholder_images, rf):
             section_element,
             cta_data,
             context,
-            cta_position=f"block-{list_index + 1}-section.cta",
+            cta_position=f"block-{list_index + 1}-section.cta-1",
             cta_text=f"{section_titles[list_index].strip()} - {cta_data['value']['label'].strip()}",
         )
 
@@ -4615,3 +4631,156 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
         url = article_value.get_link_url()
 
     assert url == "/pt-PT/article-url-locale-test/"
+
+
+def test_roadmap_list_section_block(index_page, rf):
+    intro_fixture = get_roadmap_page_intro()
+    intro_value = intro_fixture[0]["value"]
+    intro_heading_data = intro_value["heading"]
+    intro_button_data = intro_value["buttons"][0]["value"]
+
+    section_variants = get_roadmap_list_section_variants()
+    page = get_roadmap_list_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Intro: superheading, heading, subheading
+    superheading_el = soup.find("p", class_="fl-superheading")
+    assert superheading_el and BeautifulSoup(intro_heading_data["superheading_text"], "html.parser").get_text() in superheading_el.get_text()
+    intro_heading_el = soup.find("h1", class_="fl-heading")
+    expected_heading_text = BeautifulSoup(intro_heading_data["heading_text"], "html.parser").get_text()
+    assert intro_heading_el and expected_heading_text in intro_heading_el.get_text()
+    subheading_el = soup.find("p", class_="fl-subheading")
+    expected_subheading = BeautifulSoup(intro_heading_data["subheading_text"], "html.parser").get_text()
+    assert subheading_el and expected_subheading in subheading_el.get_text()
+
+    # Intro button links to what's new index page with correct analytics
+    whatsnew_index = Page.objects.get(id=intro_button_data["link"]["page"]).specific
+    intro_button = soup.find("a", href=whatsnew_index.get_url())
+    assert intro_button and intro_button_data["label"] in intro_button.get_text()
+    assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['label']}"
+    assert intro_button["data-cta-uid"] == intro_button_data["settings"]["analytics_id"]
+    assert intro_button["data-cta-position"] == "intro.button-1"
+
+    # Filters
+    filters = soup.find_all("div", class_="fl-roadmap-list-filter")
+    assert len(filters) == 1
+    filter_el = filters[0]
+    filter_options = filter_el.find_all("button", class_="fl-roadmap-filter-button")
+    assert len(filter_options) == len(ROADMAP_TAG_LABELS)
+    for button in filter_options:
+        assert button.has_attr("data-filter")
+        tag = button["data-filter"]
+        assert tag in ROADMAP_TAG_LABELS, f"Unexpected filter tag {tag}"
+        assert str(ROADMAP_TAG_LABELS[tag]) in button.get_text(), f"Expected label for tag {tag}"
+        icon_el = button.find("span", class_="fl-icon")
+        assert icon_el, f"Expected icon element for tag {tag}"
+        assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag}"
+
+    last_updated_el = filter_el.find("p")
+    assert last_updated_el
+    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+
+    section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
+    assert len(section_divs) == len(section_variants)
+
+    for section_index, (section_data, section_div) in enumerate(zip(section_variants, section_divs)):
+        section_value = section_data["value"]
+        block_number = section_index + 1
+
+        # Headline renders as h2 (page has an intro so block_level=2)
+        headline_el = section_div.find("h2")
+        assert headline_el and section_value["headline"] in headline_el.get_text()
+
+        # Subheadline
+        subheadline = section_value.get("subheadline", "")
+        if subheadline:
+            subheadline_el = section_div.find("p", class_="fl-subheading")
+            subheadline_text = BeautifulSoup(subheadline, "html.parser").get_text()
+            assert subheadline_el and subheadline_text in subheadline_el.get_text()
+
+        # Items list
+        item_list = section_div.find("ul", class_="fl-roadmap-list")
+        assert item_list
+        item_elements = item_list.find_all("li", class_="fl-roadmap-item")
+        assert len(item_elements) == len(section_value["list_items"])
+
+        for item_index, (item_fixture, item_el) in enumerate(zip(section_value["list_items"], item_elements)):
+            item_number = item_index + 1
+            item_value = item_fixture["value"]
+            expected_position = f"block-{block_number}-roadmap_list_section.item-{item_number}"
+
+            # Icon
+            icon = item_value.get("icon", "")
+            if icon:
+                icon_el = item_el.find("span", class_="fl-icon")
+                assert icon_el, f"Expected icon element for item {item_number}"
+                assert f"fl-icon-{icon}" in icon_el["class"], f"Expected icon {icon} for item {item_number}"
+
+            # Title renders as h3 (block_level 2 → child level 3)
+            title_el = item_el.find("h3")
+            assert title_el and item_value["title"] in title_el.get_text()
+
+            # Status badge
+            status = item_value["status"]
+            status_badge = item_el.find("span", class_=f"fl-roadmap-status-{status}")
+            assert status_badge, f"Expected status badge for {status}"
+            assert str(ROADMAP_STATUS_LABELS[status]) in status_badge.get_text()
+
+            # Tags
+            tags = item_value.get("tags", [])
+            if tags:
+                assert item_el.has_attr("data-tags"), f"Expected data-tags attribute for item {item_number}"
+                assert item_el["data-tags"] == ",".join(tags), f"Expected data-tags to be comma-separated list of tags for item {item_number}"
+                tags_container = item_el.find("div", class_="fl-roadmap-tags")
+                assert tags_container
+                tag_elements = tags_container.find_all("span", class_="fl-tag")
+                assert len(tag_elements) == len(tags)
+                for tag, tag_el in zip(tags, tag_elements):
+                    assert str(ROADMAP_TAG_LABELS[tag]) in tag_el.get_text()
+                    icon_el = tag_el.find("span", class_="fl-icon")
+                    assert icon_el, f"Expected icon element for tag {tag} in item {item_number}"
+                    assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag} in item {item_number}"
+            else:
+                assert not item_el.find("div", class_="fl-roadmap-tags")
+
+            # Description
+            description_text = BeautifulSoup(item_value["description"], "html.parser").get_text()
+            assert description_text in item_el.get_text()
+
+            # Learn more button
+            learn_more_url = item_value["learn_more_link"].get("custom_url", "")
+            if learn_more_url:
+                learn_more_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.learn-more"})
+                assert learn_more_button, f"Expected learn more button for item {item_number}"
+                assert learn_more_button["href"] == add_utm_parameters(context, learn_more_url)
+                expected_learn_more_text = f"{item_value['title']} - Learn more"
+                assert learn_more_button["data-cta-text"] == expected_learn_more_text
+                learn_more_analytics_id = item_value.get("learn_more_analytics_id", "")
+                if learn_more_analytics_id:
+                    assert learn_more_button["data-cta-uid"] == learn_more_analytics_id
+
+            # Secondary button
+            secondary_url = item_value["secondary_button_link"].get("custom_url", "")
+            secondary_label = item_value.get("secondary_button_label", "")
+            if secondary_url and secondary_label:
+                secondary_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.secondary-button"})
+                assert secondary_button, f"Expected secondary button for item {item_number}"
+                assert secondary_button["href"] == add_utm_parameters(context, secondary_url)
+                assert secondary_label in secondary_button.get_text()
+                expected_secondary_text = f"{item_value['title']} - {secondary_label}"
+                assert secondary_button["data-cta-text"] == expected_secondary_text
+                secondary_analytics_id = item_value.get("secondary_button_analytics_id", "")
+                if secondary_analytics_id:
+                    assert secondary_button["data-cta-uid"] == secondary_analytics_id
+                secondary_icon = item_value.get("secondary_button_icon", "")
+                secondary_icon_position = item_value.get("secondary_button_icon_position", "right")
+                if secondary_icon:
+                    assert item_el.find("span", class_=f"fl-icon-{secondary_icon}")
+                    icon_wrapper = item_el.find("span", class_=f"fl-icon-{secondary_icon_position}")
+                    assert icon_wrapper, f"Expected icon position {secondary_icon_position} for item {item_number}"
