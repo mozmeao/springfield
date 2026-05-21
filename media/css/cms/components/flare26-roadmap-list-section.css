@@ -139,8 +139,8 @@
     inline-size: var(--token-spacing-md);
     inset-block-start: 50%;
     inset-inline-end: var(--token-spacing-md);
-    mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
-    mask-size: 100%;
+    -webkit-mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg') no-repeat center / 100% 100%;
+    mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg') no-repeat center / 100% 100%;
     position: absolute;
     transform: translateY(-50%);
 }
