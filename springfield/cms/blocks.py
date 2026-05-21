@@ -23,7 +23,7 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
-from lib.l10n_utils.fluent import ftl
+from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock
@@ -3235,16 +3235,16 @@ class MobileStoreQRCodeBlock(blocks.StructBlock):
 # Roadmap Page
 
 ROADMAP_STATUS_LABELS = {
-    "exploring": ftl("roadmap-status-exploring", ftl_files=["cms/roadmap"]),
-    "in-progress": ftl("roadmap-status-in-progress", ftl_files=["cms/roadmap"]),
-    "testing": ftl("roadmap-status-testing", ftl_files=["cms/roadmap"]),
-    "coming-soon": ftl("roadmap-status-coming-soon", ftl_files=["cms/roadmap"]),
-    "recently-shipped": ftl("roadmap-status-recently-shipped", ftl_files=["cms/roadmap"]),
+    "exploring": ftl_lazy("roadmap-status-exploring", ftl_files=["cms/roadmap"]),
+    "in-progress": ftl_lazy("roadmap-status-in-progress", ftl_files=["cms/roadmap"]),
+    "testing": ftl_lazy("roadmap-status-testing", ftl_files=["cms/roadmap"]),
+    "coming-soon": ftl_lazy("roadmap-status-coming-soon", ftl_files=["cms/roadmap"]),
+    "recently-shipped": ftl_lazy("roadmap-status-recently-shipped", ftl_files=["cms/roadmap"]),
 }
 ROADMAP_TAG_LABELS = {
-    "android": ftl("roadmap-tag-android", ftl_files=["cms/roadmap"]),
-    "ios": ftl("roadmap-tag-ios", ftl_files=["cms/roadmap"]),
-    "desktop": ftl("roadmap-tag-desktop", ftl_files=["cms/roadmap"]),
+    "android": ftl_lazy("roadmap-tag-android", ftl_files=["cms/roadmap"]),
+    "ios": ftl_lazy("roadmap-tag-ios", ftl_files=["cms/roadmap"]),
+    "desktop": ftl_lazy("roadmap-tag-desktop", ftl_files=["cms/roadmap"]),
 }
 ROADMAP_TAG_ICONS = {
     "android": "android",
