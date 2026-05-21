@@ -219,8 +219,20 @@ def release_notes(request, version, product="Firefox"):
 @require_safe
 def system_requirements(request, version, product="Firefox"):
     release = get_release_or_404(version, product)
-    dir = "firefox"
-    return l10n_utils.render(request, f"{dir}/releases/system_requirements.html", {"release": release, "version": version})
+
+    canonical_path = None
+    try:
+        latest = get_latest_release_or_404(release.product, release.channel)
+        if latest.version != release.version:
+            canonical_path = re.sub(r"^/[^/]+", "", latest.get_sysreq_url())
+    except Http404:
+        pass
+
+    context = {"release": release, "version": version}
+    if canonical_path:
+        context["canonical_path"] = canonical_path
+
+    return l10n_utils.render(request, "firefox/releases/system_requirements.html", context)
 
 
 def latest_release(product="firefox", platform=None, channel=None):
