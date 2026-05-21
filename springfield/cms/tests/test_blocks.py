@@ -3067,6 +3067,14 @@ def assert_icon_card_2026(card_el, variant, context, region_name, heading_tag, b
     else:
         assert "fl-card-expand-link" not in card_el.get("class", [])
 
+    card_variant = value["settings"].get("variant", "")
+    if card_variant:
+        assert f"fl-card-{card_variant}" in card_el.get("class", [])
+    else:
+        # Icon cards always have media, so no default variant class is added
+        assert "fl-card-outlined" not in card_el.get("class", [])
+        assert "fl-card-filled" not in card_el.get("class", [])
+
     content_text = BeautifulSoup(value["content"], "html.parser").get_text()
     body = card_el.find(class_="fl-body")
     assert body and content_text in body.get_text()
