@@ -12,7 +12,12 @@
       <ul class="fl-roadmap-filter-tags">
         {% for tag in tags %}
           <li>
-            <button class="fl-roadmap-filter-button" data-filter="{{ tag.value }}">
+            <button
+              type="button"
+              class="fl-roadmap-filter-button"
+              data-filter="{{ tag.value }}"
+              aria-pressed="false"
+            >
               <include:tag
                 text="{{ tag.label }}"
                 before_icon="{{ tag.icon }}"
