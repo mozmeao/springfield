@@ -39,7 +39,8 @@
         "https://www.wikidata.org/wiki/Q698",
         "https://x.com/firefox",
         "https://bsky.app/profile/firefox.com",
-        "https://www.youtube.com/firefoxchannel"
+        "https://www.youtube.com/firefoxchannel",
+        "https://www.reddit.com/r/firefox"
       ]
     },
     {
@@ -49,6 +50,17 @@
       "name": "Firefox",
       "publisher": { "@id": "https://www.mozilla.org/#org" },
       "about": { "@id": "https://www.firefox.com/#brand" },
+      "inLanguage": "{{ LANG }}"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://www.firefox.com/#webpage",
+      "url": "https://www.firefox.com/",
+      "name": {{ page.og_title|tojson }},
+      "isPartOf": { "@id": "https://www.firefox.com/#website" },
+      "about": { "@id": "https://www.firefox.com/#app" },
+      "primaryImageOfPage": "https://www.firefox.com/media/img/firefox/flare/og.png",
+      "dateModified": "{{ (page.last_published_at or page.first_published_at).isoformat() }}",
       "inLanguage": "{{ LANG }}"
     },
     {
