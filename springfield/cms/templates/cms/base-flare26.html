@@ -70,7 +70,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {% block structured_data %}
       {% if page is defined %}
-        {% set breadcrumb_ancestors = page.get_ancestors().live().filter(depth__gt=1).specific() %}
+        {% set breadcrumb_ancestors = page.get_ancestors().live().filter(depth__gt=1) %}
         {% if breadcrumb_ancestors %}
         <script type="application/ld+json">
         {
