@@ -170,7 +170,7 @@
               {% set list_size = page.featured_articles[4:]|length %}
               <include:cards-list container_width="fill">
                 {% for block in page.featured_articles[4:] %}
-                  <include:illustration-card-2026 expand_link="true">
+                  <include:card-2026 expand_link="true">
                     <content:media>
                       {{ illustration_card_media(block.value, list_size) }}
                     </content:media>
@@ -199,7 +199,7 @@
                         </div>
                       {% endif %}
                     </content:body>
-                  </include:illustration-card-2026>
+                  </include:card-2026>
                 {% endfor %}
               </include:cards-list>
             {% endif %}
@@ -227,7 +227,7 @@
               {% set list_size = block.value.articles|length %}
               <include:cards-list container_width="fill">
                 {% for article_block in block.value.articles %}
-                  <include:illustration-card-2026 expand_link="true">
+                  <include:card-2026 expand_link="true">
                     <content:media>
                       {{ illustration_card_media(article_block, list_size) }}
                     </content:media>
@@ -255,7 +255,7 @@
                         </div>
                       {% endif %}
                     </content:body>
-                  </include:illustration-card-2026>
+                  </include:card-2026>
                 {% endfor %}
               </include:cards-list>
             </div>

@@ -65,6 +65,7 @@
 --two-column-light-light-second-card-bg: var(--token-color-medium-purple);
 
 /* homepage card grid styles */
+--theme-light-purple-card-bg-color: var(--token-color-purple);
 --theme-purple-card-bg-color: var(--token-color-purple);
 --theme-purple-card-bullet-color: var(--token-color-light-purple);
 --theme-yellow-card-bg-color: var(--token-color-medium-purple);

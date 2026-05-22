@@ -9,9 +9,29 @@
   so the a new template is needed.
 #}
 
-{# props expand_link=0, variant="" #}
+{# props expand_link=0, variant="", media_type="" #}
 
-<article class="fl-illustration-card {% if expand_link %}fl-card-expand-link{% endif %} {% if variant %}fl-illustration-{{ variant }}-card{% else %}fl-illustration-card-default{% endif %}">
+<article
+  class="
+    fl-card
+    {% if expand_link %}fl-card-expand-link{% endif %}
+
+    {% if variant %}
+      fl-card-{{ variant }}
+    {% elif not contents.media %}
+      fl-card-outlined
+    {% endif %}
+
+    {% if contents.media %}
+      fl-illustration-card
+      {% if media_type != 'media' %}
+        fl-illustration-{{ media_type }}-card
+      {% else %}
+        fl-illustration-card-default
+      {% endif %}
+    {% endif %}
+  "
+>
   {% if contents.media %}
     <div class="fl-card-media">
       {{ contents.media }}
