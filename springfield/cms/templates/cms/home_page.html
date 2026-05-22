@@ -60,7 +60,9 @@
       "isPartOf": { "@id": "https://www.firefox.com/#website" },
       "about": { "@id": "https://www.firefox.com/#app" },
       "primaryImageOfPage": "https://www.firefox.com/media/img/firefox/flare/og.png",
+      {%- if page.last_published_at or page.first_published_at %}
       "dateModified": "{{ (page.last_published_at or page.first_published_at).isoformat() }}",
+      {%- endif %}
       "inLanguage": "{{ LANG }}"
     },
     {
