@@ -65,9 +65,9 @@ class SitemapView(RequireSafeMixin, TemplateView):
             return {}
 
         alternates = defaultdict(list)
-        for row in SitemapURL.objects.exclude(locale=NO_LOCALE).values("path", "locale"):
-            if row["locale"] in supported_locales:
-                alternates[row["path"]].append(row["locale"])
+        rows = SitemapURL.objects.filter(locale__in=supported_locales).order_by("path", "locale").values("path", "locale")
+        for row in rows:
+            alternates[row["path"]].append(row["locale"])
         return dict(alternates)
 
     def get_context_data(self, **kwargs):
