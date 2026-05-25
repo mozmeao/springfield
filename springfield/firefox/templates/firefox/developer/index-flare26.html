@@ -21,33 +21,33 @@
 
           </content:media>
 
-          <content:body>
-            <div class="fl-buttons is-horizontal">
-              {{ download_firefox('alpha', platform='desktop', dom_id='intro-download', download_location='primary cta') }}
+          <content:content>
+            <div class="fl-intro-body">
+              <div class="fl-buttons is-horizontal">
+                {{ download_firefox('alpha', platform='desktop', dom_id='intro-download', download_location='primary cta') }}
+              </div>
+              <p class="show-linux">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
+              data-cta-text="Get help with your installation"')}}</p>
+              <p class="fl-developer-feedback-note">
+                {{ ftl('firefox-developer-firefox-developer-edition-sends') }}
+                <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
+              </p>
             </div>
-            <p class="show-linux">{{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/products/firefox/install-and-update-firefox#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener"
-            data-cta-text="Get help with your installation"')}}</p>
-            <p class="fl-developer-feedback-note">
-              {{ ftl('firefox-developer-firefox-developer-edition-sends') }}
-              <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
-            </p>
-          </content:body>
+          </content:content>
         </include:intro>
 
         <include:media-content media_after>
-          <content:heading>
+          <content:content>
             <include:heading
               level="h2"
               heading_size="fl-heading-lg"
               superheading_text="{{ ftl('firefox-developer-firefox-developer-edition') }}"
               heading_text="{{ ftl('firefox-developer-made-for-developers') }}"
             />
-          </content:heading>
-          <content:body>
             <p>{{ ftl('firefox-developer-all-the-latest-v2') }}</p>
             <p>{{ ftl('firefox-developer-a-separate-profile') }}</p>
             <p>{{ ftl('firefox-developer-preferences-tailored') }}</p>
-          </content:body>
+          </content:content>
           <content:media>
             <img src="{{ static('img/firefox/developer/stylo-engine.svg') }}" alt="" />
           </content:media>
@@ -390,10 +390,11 @@
               heading_text="{{ ftl('firefox-developer-download-the-firefox-browser') }}"
             />
           </content:heading>
-          <content:actions>
-
-      {{ download_firefox('alpha', platform='desktop', dom_id='footer-download', download_location='footer cta') }}
-          </content:actions>
+          <content:content>
+            <div class="fl-buttons">
+              {{ download_firefox('alpha', platform='desktop', dom_id='footer-download', download_location='footer cta') }}
+            </div>
+          </content:content>
         </include:banner>
       </div>
     </div>

@@ -24,19 +24,7 @@
   {% endif %}
   <div class="fl-intro-content">
     {{ contents.heading }}
-    {% if contents.actions %}
-      <div class="fl-intro-actions">
-        {{ contents.actions }}
-      </div>
-    {% endif %}
-    {% if contents.body %}
-      <div class="fl-intro-body">
-        {{ contents.body }}
-      </div>
-    {% endif %}
-    {% if contents.fine_print %}
-      <div class="fine-print">{{ contents.fine_print }}</div>
-    {% endif %}
+    {{ contents.content }}
   </div>
   {% if contents.media and not media_position == 'before' %}
     <div class="fl-intro-media">

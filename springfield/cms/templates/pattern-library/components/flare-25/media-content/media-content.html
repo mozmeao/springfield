@@ -5,16 +5,13 @@
 #}
 
 <include:media-content media_after="{{ media_after }}">
-  <content:eyebrow>
-    {{ contents.eyebrow }}
-  </content:eyebrow>
-  <content:heading>
+  <content:content>
     <include:heading
       level="{{ contents.heading.level }}"
+      superheading_text="{{ contents.heading.superheading_text }}"
       heading_text="{{ contents.heading.heading_text }}"
+      subheading_text="{{ contents.heading.subheading_text }}"
     />
-  </content:heading>
-  <content:tags>
     {% for tag in contents.tags %}
       <include:tag
         text="{{ tag.text }}"
@@ -24,13 +21,9 @@
         after_icon="{{ tag.after_icon }}"
       />
     {% endfor %}
-  </content:tags>
-  <content:body>
     <p>{{ contents.body }}</p>
-  </content:body>
-  <content:buttons>
     <include:buttons buttons="{{ contents.buttons }}" />
-  </content:buttons>
+  </content:content>
   <content:media>
     <include:image url="{{ contents.media.url }}" alt="{{ contents.media.alt }}" />
   </content:media>

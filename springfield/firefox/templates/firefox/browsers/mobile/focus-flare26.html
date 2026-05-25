@@ -20,16 +20,18 @@
             />
           </content:heading>
 
-          <content:actions>
-            <ul class="fl-mobile-download-buttons">
-              <li class="android">
-                {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
-              </li>
-              <li class="ios">
-                {{ apple_app_store_button(href=ios_url, id='appStoreLink-primary') }}
-              </li>
-            </ul>
-          </content:actions>
+          <content:content>
+            <div class="fl-intro-actions">
+              <ul class="fl-mobile-download-buttons">
+                <li class="android">
+                  {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+                </li>
+                <li class="ios">
+                  {{ apple_app_store_button(href=ios_url, id='appStoreLink-primary') }}
+                </li>
+              </ul>
+            </div>
+          </content:content>
 
           <content:media>
             <div class="fl-card fl-mobile-download-form">

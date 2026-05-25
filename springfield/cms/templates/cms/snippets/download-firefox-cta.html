@@ -9,16 +9,12 @@
     <div class="fl-section-container is-narrow">
       <div class="c-feature-footer">
         <include:media-content>
-          <content:heading>
+          <content:content>
             <include:heading
               level="h2"
               heading_text="{{ value.heading|richtext|remove_p_tag }}"
             />
-          </content:heading>
-          <content:body>
             <p>{{ value.description|richtext }}</p>
-          </content:body>
-          <content:buttons>
             <div>
               {{ download_firefox_thanks(
                   alt_copy=ftl('download-button-download-firefox'),
@@ -27,7 +23,7 @@
                   flare_styles=True
               ) }}
             </div>
-          </content:buttons>
+          </content:content>
           <content:media>
             {{ srcset_image(
               value.image,

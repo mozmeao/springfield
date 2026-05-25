@@ -148,6 +148,7 @@ def get_theme_page_intro():
     return {
         "type": "intro",
         "value": {
+            "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
             "media": [
                 {
                     "type": "image",
@@ -169,7 +170,7 @@ def get_theme_page_intro():
                 "We block trackers automatically, protect your privacy by default, and give you clear visibility into what’s "
                 "happening behind the scenes.</p>",
             },
-            "buttons": [],
+            "content": [],
         },
         "id": "3af11135-d051-4819-951e-16d534362260",
     }
@@ -509,6 +510,7 @@ def get_theme_hub_page_upper_content():
         {
             "type": "intro",
             "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
                 "media": [],
                 "heading": {
                     "superheading_text": "",
@@ -516,7 +518,7 @@ def get_theme_hub_page_upper_content():
                     "subheading_text": '<p data-block-key="ffk5g">Most browsers were built to capture your attention and monetize your data. '
                     "Firefox was built to give you control.</p>",
                 },
-                "buttons": [],
+                "content": [],
             },
             "id": "929f73bf-d056-42d5-8214-0f6f4a7390aa",
         }

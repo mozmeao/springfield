@@ -13,24 +13,7 @@
     </div>
   {% endif %}
   <div class="fl-mediacontent-content">
-    {% if contents.eyebrow %}
-      <p class="fl-superheading">{{ contents.eyebrow }}</p>
-    {% endif %}
     {{ contents.heading }}
-    {% if contents.tags %}
-      <div class="fl-mediacontent-tags">
-        {{ contents.tags }}
-      </div>
-    {% endif %}
-    {% if contents.body %}
-      <div class="fl-body">
-        {{ contents.body }}
-      </div>
-    {% endif %}
-    {% if contents.buttons %}
-      <div class="fl-buttons">
-        {{ contents.buttons }}
-      </div>
-    {% endif %}
+    {{ contents.content }}
   </div>
 </div>

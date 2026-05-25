@@ -29,40 +29,16 @@
   >
 
     <content:heading>
-      {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-      {% if value.tags %}
-        <div>
-          <include:heading
-            level="{{ heading_level }}"
-            heading_size="{{ 'fl-heading-sm' if value.settings.slim else 'fl-heading-md fl-heading-condensed' }}"
-
-            alignment_class=""
-            superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
-            heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
-            subheading_size="fl-subheading-4"
-          />
-          <div class="fl-tags{% if not value.media %} center{% endif %}">
-            {% for tag in value.tags %}
-              {% include_block tag %}
-            {% endfor %}
-          </div>
-          {% if value.heading.subheading_text %}
-            <p class="fl-subheading-4 fl-subheading">{{ value.heading.subheading_text|richtext|remove_p_tag }}</p>
-          {% endif %}
-        </div>
-      {% else %}
-        <include:heading
-          level="{{ heading_level }}"
-          heading_size="{{ 'fl-heading-sm' if value.settings.slim else 'fl-heading-md fl-heading-condensed' }}"
-
-          alignment_class=""
-          superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag }}"
-          heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
-          subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag }}"
-          subheading_size="fl-subheading-4"
-        />
-      {% endif %}
+      {% include_block value.heading %}
     </content:heading>
+
+    {% if value.content %}
+      <content:content>
+        {% for item in value.content %}
+          {% include_block item %}
+        {% endfor %}
+      </content:content>
+    {% endif %}
 
     {% if value.media %}
       <content:media>
@@ -85,15 +61,6 @@
           {% endif %}
         {% endfor %}
       </content:media>
-    {% endif %}
-
-    {% if value.buttons %}
-      <content:actions>
-        {% for button in value.buttons %}
-          {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      </content:actions>
     {% endif %}
   </include:banner>
 

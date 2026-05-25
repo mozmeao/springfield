@@ -29,10 +29,17 @@ def get_intro_2026_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": '<p data-block-key="i26s1">Firefox 2026</p>',
                     "heading_text": '<p data-block-key="i26h1">Intro without media</p>',
-                    "subheading_text": '<p data-block-key="i26b1">Media isn\'t required on the intro block.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"]],
-                "buttons": [buttons["primary"]],
+                "content": [
+                    {"type": "tags", "id": "cc260001-0000-0000-0000-000000000001", "value": [tags["purple"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cc260001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b1">Media isn\'t required on the intro block.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260001-0000-0000-0000-000000000003", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000001",
         },
@@ -62,10 +69,21 @@ def get_intro_2026_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="i26h2">Intro with image (right)</p>',
-                    "subheading_text": '<p data-block-key="i26b2">Switch to Dark Mode to see the alternative image.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["red"], tags["orange"]],
-                "buttons": [buttons["secondary"], buttons["ghost"]],
+                "content": [
+                    {"type": "tags", "id": "cc260002-0000-0000-0000-000000000001", "value": [tags["red"], tags["orange"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cc260002-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b2">Switch to Dark Mode to see the alternative image.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cc260002-0000-0000-0000-000000000003",
+                        "value": [buttons["secondary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000003",
         },
@@ -95,9 +113,16 @@ def get_intro_2026_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="i26h3">Intro with image (left, slim)</p>',
-                    "subheading_text": '<p data-block-key="i26b3">Media is positioned to the left in slim layout.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260003-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b3">Media is positioned to the left in slim layout.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260003-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000006",
         },
@@ -116,7 +141,9 @@ def get_intro_2026_variants() -> list[dict]:
                     "heading_text": '<p data-block-key="i26h4">Intro with YouTube video</p>',
                     "subheading_text": "",
                 },
-                "buttons": [buttons["primary"]],
+                "content": [
+                    {"type": "buttons", "id": "cc260004-0000-0000-0000-000000000001", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000004",
         },
@@ -133,9 +160,16 @@ def get_intro_2026_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="i26h5">Intro with animation</p>',
-                    "subheading_text": '<p data-block-key="i26b5">Use an animation instead of a static image.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260005-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b5">Use an animation instead of a static image.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260005-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000007",
         },
@@ -158,10 +192,21 @@ def get_intro_2026_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="i26h6">Intro with QR code</p>',
-                    "subheading_text": '<p data-block-key="i26b6">Scan the QR code to get started.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["green"], tags["purple"], tags["red"]],
-                "buttons": [buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "cc260006-0000-0000-0000-000000000001",
+                        "value": [tags["green"], tags["purple"], tags["red"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "cc260006-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b6">Scan the QR code to get started.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260006-0000-0000-0000-000000000003", "value": [buttons["secondary"]]},
+                ],
             },
             "id": "2026int1-0000-0000-0000-000000000008",
         },

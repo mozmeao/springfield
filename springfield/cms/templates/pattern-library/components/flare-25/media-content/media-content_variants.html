@@ -14,19 +14,14 @@
       <h5>{{ item.title }}</h5>
       <hr/>
       <include:media-content media_after="{{ item.media_after }}">
-        {% if item.eyebrow %}
-          <content:eyebrow>
-            {{ item.eyebrow }}
-          </content:eyebrow>
-        {% endif %}
-        <content:heading>
+        <content:content>
           <include:heading
             level="{{ item.heading.level }}"
+            superheading_text="{{ item.heading.superheading_text }}"
             heading_text="{{ item.heading.heading_text }}"
+            subheading_text="{{ item.heading.subheading_text }}"
           />
-        </content:heading>
-        {% if item.tags %}
-          <content:tags>
+          {% if item.tags %}
             {% for tag in item.tags %}
               <include:tag
                 text="{{ tag.text }}"
@@ -36,16 +31,12 @@
                 after_icon="{{ tag.after_icon }}"
               />
             {% endfor %}
-          </content:tags>
-        {% endif %}
-        <content:body>
-          <p>{{ item.body }}</p>
-        </content:body>
-        {% if item.buttons %}
-          <content:buttons>
+          {% endif %}
+          {% if item.body %}<p>{{ item.body }}</p>{% endif %}
+          {% if item.buttons %}
             <include:buttons buttons="{{ item.buttons }}" />
-          </content:buttons>
-        {% endif %}
+          {% endif %}
+        </content:content>
         {% if item.video %}
           <content:media>
             <include:video

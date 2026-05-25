@@ -1053,6 +1053,7 @@ def MixedButtonsBlock(
     max_num: int,
     themes=BUTTON_THEMES_2025,
     label="Buttons",
+    template="cms/blocks/mixed-buttons.html",
     **kwargs,
 ):
     """
@@ -1077,6 +1078,7 @@ def MixedButtonsBlock(
         max_num=max_num,
         min_num=min_num,
         label=label,
+        template=template,
         **kwargs,
     )
 
@@ -1197,6 +1199,18 @@ class TagBlock2026(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+
+
+class TagsBlock(blocks.ListBlock):
+    def __init__(self, child=None, *args, **kwargs):
+        if child is None:
+            child = TagBlock2026()
+        super().__init__(child, *args, **kwargs)
+
+    class Meta:
+        template = "cms/blocks/tags-list.html"
+        label = "Tags"
+        label_format = "Tags"
 
 
 class ImageVariantsBlockSettings(blocks.StructBlock):
@@ -1362,25 +1376,27 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
+                ("tags", TagsBlock(tag_block, min_num=0, max_num=3, default=[])),
                 ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES)),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        min_num=0,
+                        max_num=2,
+                        required=False,
+                    ),
+                ),
             ]
-        )
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
-            required=False,
         )
 
         class Meta:
             label = "Media + Content"
-            label_format = "{headline}"
+            label_format = "{heading}"
             template = "cms/blocks/media-content.html"
 
     return _MediaContentBlock(*args, **kwargs)
@@ -2690,12 +2706,21 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings2026()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
-            min_num=0,
-            max_num=3,
+        content = blocks.StreamBlock(
+            [
+                ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        themes=BUTTON_THEMES_2026,
+                        min_num=0,
+                        max_num=3,
+                        required=False,
+                    ),
+                ),
+            ],
             required=False,
         )
 
@@ -2934,11 +2959,20 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=3,
+        content = blocks.StreamBlock(
+            [
+                ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        min_num=0,
+                        max_num=3,
+                        required=False,
+                    ),
+                ),
+            ],
             required=False,
         )
 
@@ -2991,12 +3025,21 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
     class _KitBannerBlock(blocks.StructBlock):
         settings = KitBannerSettings()
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=button_themes,
-            min_num=0,
-            max_num=2,
+        content = blocks.StreamBlock(
+            [
+                ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        themes=button_themes,
+                        min_num=0,
+                        max_num=2,
+                        required=False,
+                    ),
+                ),
+            ],
             required=False,
         )
 

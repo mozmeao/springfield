@@ -20,33 +20,33 @@
           <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
         </content:media>
 
-        <content:body>
-          <p>A year in review needs personal data.</p>
-          <p>Firefox is designed to protect your privacy instead.</p>
-          <p>So, there's no personalized recap here &mdash; just a thank you for choosing a browser that puts
-            people first and treats privacy as a principle, not a perk. 🫶
-          </p>
-          <div class="is-firefox-show is-firefox-not-default-show">
-            <div class="fl-buttons is-horizontal">
-              <a
-                id="set-as-default-button"
-                class="fl-button"
-                href="{{ url('firefox.default.thanks') }}"
-                data-cta-text="Make Firefox my default browser"
-                data-cta-position="primary"
-                role="button"
-                aria-label="Make Firefox my default browser"
-              >
-                Make Firefox my default browser
-              </a>
+        <content:content>
+          <div class="fl-intro-body">
+            <p>A year in review needs personal data.</p>
+            <p>Firefox is designed to protect your privacy instead.</p>
+            <p>So, there's no personalized recap here &mdash; just a thank you for choosing a browser that puts
+              people first and treats privacy as a principle, not a perk. 🫶
+            </p>
+            <div class="fl-buttons horizontal">
+              <div class="is-firefox-show is-firefox-not-default-show">
+                <a
+                  id="set-as-default-button"
+                  class="fl-button"
+                  href="{{ url('firefox.default.thanks') }}"
+                  data-cta-text="Make Firefox my default browser"
+                  data-cta-position="primary"
+                  role="button"
+                  aria-label="Make Firefox my default browser"
+                >
+                  Make Firefox my default browser
+                </a>
+              </div>
+              <div class="is-not-firefox-show">
+                {{ download_firefox_thanks(flare_styles=True) }}
+              </div>
             </div>
           </div>
-          <div class="is-not-firefox-show">
-            <div class="fl-buttons is-horizontal">
-              {{ download_firefox_thanks(flare_styles=True) }}
-            </div>
-          </div>
-        </content:body>
+        </content:content>
       </include:intro>
     </div>
   </div>
@@ -152,11 +152,11 @@
             />
           </content:heading>
 
-          <content:actions>
+          <content:content>
             <div class="fl-buttons is-horizontal">
-            {{ download_firefox_thanks(flare_styles=True) }}
-          </div>
-          </content:actions>
+              {{ download_firefox_thanks(flare_styles=True) }}
+            </div>
+          </content:content>
         </include:banner>
       </div>
     </div>
