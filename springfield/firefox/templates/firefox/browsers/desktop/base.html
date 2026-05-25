@@ -15,6 +15,8 @@
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
 
+{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
+
 {% block body_class %}{% if switch("flare26_enabled") %}fl-download-page{% else %}mzp-t-firefox{% endif %}{% endblock %}
 
 {% block experiments %}{% endblock %}
