@@ -37,6 +37,10 @@
     max-inline-size: 848px;
 }
 
+.fl-intro-content > *:last-child {
+    margin-block-end: 0;
+}
+
 .fl-intro .fl-heading,
 .fl-intro .fl-heading-group {
     inline-size: 100%;
@@ -44,10 +48,6 @@
 
 .fl-intro-full-width .fl-intro-content {
     max-inline-size: unset;
-}
-
-.fl-intro-vertical .fl-intro-content {
-    display: block;
 }
 
 .fl-intro.fl-intro-media-left,
@@ -65,6 +65,12 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.fl-intro.fl-intro-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-layout-sm);
 }
 
 .fl-intro-vertical .fl-buttons {
@@ -95,6 +101,7 @@
 .fl-intro-content .fl-buttons {
     align-items: start;
     justify-content: center;
+    margin-block: var(--token-spacing-md) var(--token-spacing-lg);
 }
 
 .fl-intro-content .text {

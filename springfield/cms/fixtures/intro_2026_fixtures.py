@@ -142,7 +142,12 @@ def get_intro_2026_variants() -> list[dict]:
                     "subheading_text": "",
                 },
                 "content": [
-                    {"type": "buttons", "id": "cc260004-0000-0000-0000-000000000001", "value": [buttons["primary"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cc260004-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b4">Add a YouTube video by pasting the URL in the media block.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260004-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
             },
             "id": "2026int1-0000-0000-0000-000000000004",

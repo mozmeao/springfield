@@ -3,7 +3,8 @@ context:
   variants:
     - title: Intro With Media
       testid: media-after
-      media_position: 'after'
+      media_position: "after"
+      vertical: true
       heading:
         heading_text: Heading
         superheading_text: Superheading
@@ -28,6 +29,7 @@ context:
     - title: Intro With Media (Media Before)
       testid: media-before
       media_position: 'before'
+      vertical: true
       heading:
         heading_text: Heading
         superheading_text: Superheading
@@ -72,6 +74,7 @@ context:
     - title: Intro With Video
       testid: video
       media_position: 'after'
+      vertical: true
       heading:
         heading_text: Heading
         superheading_text: Superheading
