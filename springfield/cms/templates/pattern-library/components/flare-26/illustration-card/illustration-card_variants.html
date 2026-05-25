@@ -17,7 +17,7 @@
         >
           <content:media>
             {% if card.icon %}
-              <include:icon icon_name="{{ card.icon }}"/>
+              <include:icon icon_name="{{ card.icon }}" hidden=true />
             {% else %}
               <img src="{{ card.image }}" alt="" loading="lazy" />
             {% endif %}
