@@ -11,26 +11,55 @@
     --kit-banner-padding-right: var(--token-layout-3xs);
     --kit-img-position: bottom center;
     --banner-bg-gradient: var(--token-gradient-purple);
-    background-image: var(--kit-img), var(--banner-bg-gradient);
-    background-position: var(--kit-img-position), center;
-    background-repeat: no-repeat, no-repeat;
-    background-size: var(--kit-img-size), cover;
+    background-image: var(--banner-bg-gradient);
+    background-position: center;
+    background-size: cover;
     border: none;
     color: var(--token-color-white);
     padding-block: var(--token-layout-md) var(--kit-banner-padding-bottom);
-    padding-inline: var(--token-layout-3xs) var(--kit-banner-padding-right);
+    padding-inline: 0;
     position: relative;
+}
+
+.fl-banner-decoration {
+    background-image: var(--kit-img);
+    background-position: var(--kit-img-position);
+    background-repeat: no-repeat;
+    background-size: var(--kit-img-size);
+    block-size: 100%;
+    inline-size: 100%;
+    inset: 0 auto 0 50%;
+    max-inline-size: var(--token-width-desktop-layout);
+    position: absolute;
+    transform: translate(-50%);
+    z-index: 0;
+}
+
+.fl-banner-kit-tail .fl-banner-decoration {
+    max-inline-size: none;
 }
 
 .fl-banner-kit .fl-banner-content {
     gap: var(--token-spacing-3xl);
     inline-size: 100%;
     min-inline-size: 0;
+    padding-inline: var(--token-layout-3xs) var(--kit-banner-padding-right);
+    position: relative;
+    z-index: 1;
+}
+
+.fl-banner-kit.align-center-on-desktop .fl-banner-content {
+    margin-inline: auto;
+    text-align: center;
 }
 
 .fl-banner-kit .fl-banner-content-inner,
 .fl-banner-kit .fl-heading-group {
     gap: var(--token-spacing-2xl);
+}
+
+.fl-banner-kit.fl-banner-kit-face {
+    padding-inline: 0;
 }
 
 .fl-banner-kit .fl-heading {
@@ -57,6 +86,7 @@
 
 .fl-banner-kit .fl-tags {
     justify-content: center;
+    margin-block: var(--token-spacing-lg);
 }
 
 .fl-banner-kit-large .fl-heading,
@@ -89,7 +119,8 @@
 
 .fl-banner-kit-small,
 .fl-banner-kit-large {
-    --kit-img: url('/media/img/firefox/flare/fox-brand-confused.svg');
+    --kit-img: url('/media/img/firefox/flare/fox-brand-curious.svg');
+    --kit-img-size: min(70%, 400px) auto;
 }
 
 .fl-banner-kit-face {
@@ -111,17 +142,23 @@
     position: relative;
 }
 
-.fl-banner-kit-curious-animation .fl-banner-animation {
-    block-size: var(--kit-animation-block-size);
-    inline-size: var(--kit-animation-inline-size);
-    inset-block-end: 0;
-    inset-inline-end: var(--kit-animation-right);
-    position: absolute;
-}
-
 .fl-banner-animation {
     align-items: end;
+    block-size: 100%;
     display: flex;
+    inline-size: 100%;
+    inset-block-end: 0;
+    inset-inline-end: var(--kit-animation-right);
+    inset: 0 auto 0 50%;
+    justify-content: center;
+    max-inline-size: var(--token-width-desktop-layout);
+    position: absolute;
+    transform: translate(-50%);
+    z-index: 0;
+}
+
+.fl-banner-animation .fl-video {
+    max-inline-size: var(--kit-animation-inline-size);
 }
 
 .fl-banner-animation .fl-video-play-icon {
@@ -139,7 +176,12 @@
     padding-block-start: calc(var(--fl-section-v-padding) * 2);
 }
 
-.fl-banner-kit-diving-in .fl-banner-content-inner {
+.fl-banner-kit-diving-in .fl-heading,
+.fl-banner-kit-diving-in .fl-subheading {
+    max-inline-size: min(500px, 100%);
+}
+
+.fl-banner-kit.align-start-on-desktop .fl-banner-content-inner {
     max-inline-size: min(600px, 100%);
 }
 
@@ -180,12 +222,22 @@
     .fl-banner-kit {
         --kit-img-size: min(90%, 400px) max(20%, 120px);
         --kit-banner-padding-right: var(--token-layout-md);
-        padding-inline: var(--token-layout-md) var(--kit-banner-padding-right);
     }
 
-    .fl-banner-kit-large .fl-banner-content,
+    .fl-banner-kit .fl-banner-content {
+        max-inline-size: var(--token-width-desktop-layout);
+        padding-inline-start: var(--token-layout-md);
+    }
+
+    .fl-banner-kit .fl-banner-content,
     .fl-banner-kit-tail .fl-banner-content,
     .fl-banner-kit-curious-animation .fl-banner-content {
+        align-items: initial;
+        margin-inline-start: 0;
+        text-align: start;
+    }
+
+    .fl-banner.align-start-on-desktop .fl-banner-content {
         align-items: initial;
         margin-inline-start: 0;
         text-align: start;
@@ -220,21 +272,25 @@
     }
 
     .fl-banner-kit-small {
-        --kit-img-size: 34% auto;
-        --kit-img-position: bottom right;
+        --kit-img-size: 40% auto;
+        --kit-img-position: bottom right 12%;
     }
 
-    .fl-banner-kit-large,
     .fl-banner-kit-curious-animation {
-        --kit-img-size: 55% auto;
-        --kit-img-position: bottom right -10%;
         --kit-banner-padding-bottom: 140px;
-    }
-
-    .fl-banner-kit-curious-animation {
         --kit-animation-block-size: auto;
         --kit-animation-inline-size: 55%;
         --kit-animation-right: 0;
+    }
+
+    .fl-banner-kit-large {
+        --kit-img-size: 46% auto;
+        --kit-img-position: bottom right 10%;
+        --kit-banner-padding-bottom: 140px;
+    }
+
+    .fl-banner-animation {
+        justify-content: end;
     }
 
     .fl-banner-animation .fl-video-play-icon {
@@ -296,7 +352,10 @@
     .fl-banner-kit {
         --kit-banner-padding-right: var(--token-layout-lg);
         --kit-banner-padding-bottom: var(--token-layout-md);
-        padding-inline: var(--token-layout-lg) var(--kit-banner-padding-right);
+    }
+
+    .fl-banner-kit .fl-banner-content {
+        padding-inline-start: var(--token-layout-lg);
     }
 
     .fl-banner-kit-face .fl-banner-content {
@@ -327,12 +386,12 @@
 
     .fl-banner-kit-small {
         --kit-banner-padding-bottom: var(--token-layout-md);
+        --kit-img-size: 30% auto;
+        --kit-img-position: bottom right 8%;
     }
 
-    .fl-banner-kit-large .fl-banner-content,
-    .fl-banner-kit-face .fl-banner-content,
-    .fl-banner-kit-tail .fl-banner-content {
-        margin: 0 auto;
+    .fl-banner.align-start-on-desktop .fl-banner-content {
+        margin-inline: auto;
     }
 
     .fl-banner-kit-diving-in {
