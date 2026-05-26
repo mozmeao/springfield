@@ -126,24 +126,12 @@
     color: var(--notification-bg);
 }
 
-.fl-roadmap-filter-button.is-active .fl-tag {
-    padding-inline-end: var(--token-spacing-2xl);
-    position: relative;
+.fl-roadmap-filter-button .fl-tag .fl-icon-close {
+    display: none;
 }
 
-.fl-roadmap-filter-button.is-active .fl-tag::after {
-    background-color: currentColor;
-    block-size: var(--token-spacing-md);
-    content: '';
-    inline-size: var(--token-spacing-md);
-    inset-block-start: 50%;
-    inset-inline-end: var(--token-spacing-md);
-    -webkit-mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg')
-        no-repeat center / 100% 100%;
-    mask: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg')
-        no-repeat center / 100% 100%;
-    position: absolute;
-    transform: translateY(-50%);
+.fl-roadmap-filter-button.is-active .fl-tag .fl-icon-close {
+    display: inline-block;
 }
 
 .fl-roadmap-item .fl-buttons {

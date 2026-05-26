@@ -18,10 +18,16 @@
               data-filter="{{ tag.value }}"
               aria-pressed="false"
             >
-              <include:tag
-                text="{{ tag.label }}"
-                before_icon="{{ tag.icon }}"
-              />
+              <include:tag text="{{ tag.label }}">
+                {% if tag.icon %}
+                  <content:before_icon>
+                    <include:icon icon_name="{{ tag.icon }}" hidden=true extra_class="icon-left" />
+                  </content:before_icon>
+                {% endif %}
+                <content:after_icon>
+                  <include:icon icon_name="close" hidden=true extra_class="icon-right" />
+                </content:after_icon>
+              </include:tag>
             </button>
           </li>
         {% endfor %}
