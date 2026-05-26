@@ -22,6 +22,20 @@
         />
       </content:heading>
       <content:content>
+        {% if item.tags %}
+          <div class="fl-tags">
+            {% for tag in item.tags %}
+              <include:tag
+                text="{{ tag.text }}"
+                color="{{ tag.color }}"
+                corners="{{ tag.corners }}"
+                before_icon="{{ tag.before_icon }}"
+                after_icon="{{ tag.after_icon }}"
+              />
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if item.body %}<p>{{ item.body }}</p>{% endif %}
         <include:buttons buttons="{{ item.buttons }}" />
       </content:content>
       {% if item.video %}
