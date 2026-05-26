@@ -80,10 +80,13 @@
 </main>
 {% endblock %}
 
-{% if switch('enable_attribution_refactor') %}
-  <!-- let auto-download handle attribution -->
-   {% block stub_attribution %}{% endblock %}
-{% endif%}
+{% block stub_attribution %}
+  {% if not switch('enable_attribution_refactor') %}
+    <!-- use stub attribution -->
+    {{ super() }}
+  {% endif%}
+  <!-- else let auto-download handle attribution -->
+{% endblock %}
 
 {% block js %}
   {% if switch('enable_attribution_refactor') %}
