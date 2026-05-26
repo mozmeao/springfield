@@ -45,10 +45,13 @@
           <content:tags>
             {% for tag in item.get_tags() %}
               <span data-tag="{{ tag.value }}">
-                <include:tag
-                  text="{{ tag.label }}"
-                  before_icon="{{ tag.icon }}"
-                />
+                <include:tag text="{{ tag.label }}">
+                  {% if tag.icon %}
+                    <content:before_icon>
+                      <include:icon icon_name="{{ tag.icon }}" hidden=true extra_class="icon-left" />
+                    </content:before_icon>
+                  {% endif %}
+                </include:tag>
               </span>
             {% endfor %}
           </content:tags>
