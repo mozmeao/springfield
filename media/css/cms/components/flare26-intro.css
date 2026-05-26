@@ -70,7 +70,7 @@
 .fl-intro.fl-intro-vertical {
     display: flex;
     flex-direction: column;
-    gap: var(--token-layout-sm);
+    gap: var(--token-spacing-lg);
 }
 
 .fl-intro-vertical .fl-buttons {
@@ -101,7 +101,7 @@
 .fl-intro-content .fl-buttons {
     align-items: start;
     justify-content: center;
-    margin-block: var(--token-spacing-md) var(--token-spacing-lg);
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
 }
 
 .fl-intro-content .text {

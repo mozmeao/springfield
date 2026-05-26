@@ -4,15 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="pl-frame pl-frame--white">
-  <div class="pl-row">
-    <h4>Media Content variants</h4>
-    <hr/>
-  </div>
-  {% for item in variants %}
-    <div data-testid="{{ item.testid }}" class="pl-row">
-      <h5>{{ item.title }}</h5>
-      <hr/>
+{% for item in variants %}
+  <section data-testid="{{ item.testid }}" class="fl-section">
+    <div class="fl-section-container">
       <include:media-content media_after="{{ item.media_after }}">
         <content:content>
           <include:heading
@@ -22,15 +16,17 @@
             subheading_text="{{ item.heading.subheading_text }}"
           />
           {% if item.tags %}
-            {% for tag in item.tags %}
-              <include:tag
-                text="{{ tag.text }}"
-                color="{{ tag.color }}"
-                corners="{{ tag.corners }}"
-                before_icon="{{ tag.before_icon }}"
-                after_icon="{{ tag.after_icon }}"
-              />
-            {% endfor %}
+            <div class="fl-tags">
+              {% for tag in item.tags %}
+                <include:tag
+                  text="{{ tag.text }}"
+                  color="{{ tag.color }}"
+                  corners="{{ tag.corners }}"
+                  before_icon="{{ tag.before_icon }}"
+                  after_icon="{{ tag.after_icon }}"
+                />
+              {% endfor %}
+            </div>
           {% endif %}
           {% if item.body %}<p>{{ item.body }}</p>{% endif %}
           {% if item.buttons %}
@@ -51,7 +47,6 @@
           </content:media>
         {% endif %}
       </include:media-content>
-      <hr>
     </div>
-  {% endfor %}
-</div>
+  </section>
+{% endfor %}

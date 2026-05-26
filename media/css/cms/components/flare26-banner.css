@@ -231,20 +231,24 @@
 }
 
 .fl-banner-content-inner {
+    align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--token-spacing-3xl);
     inline-size: 100%;
     min-inline-size: 0;
 }
 
-.fl-banner .fl-buttons {
+.fl-banner-content-inner > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-banner-content-inner .fl-buttons {
     align-items: center;
     display: flex;
     flex-direction: column;
     inline-size: 100%;
     justify-content: center;
-    margin-block-start: 0;
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
     min-inline-size: 0;
 }
 
@@ -310,7 +314,7 @@
         inline-size: 25%;
     }
 
-    .fl-banner .fl-buttons {
+    .fl-banner-content-inner .fl-buttons {
         align-items: start;
         flex-direction: row;
     }
@@ -351,7 +355,11 @@
         text-align: start;
     }
 
-    .fl-banner-content.fl-banner-content-left .fl-buttons {
+    .fl-banner-content-left .fl-banner-content-inner {
+        align-items: start;
+    }
+
+    .fl-banner-content-left .fl-banner-content-inner .fl-buttons {
         align-items: start;
         justify-content: start;
     }

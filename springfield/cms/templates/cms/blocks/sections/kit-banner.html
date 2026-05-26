@@ -26,9 +26,7 @@
 
     {% if value.content %}
       <content:content>
-        {% for item in value.content %}
-          {% include_block item %}
-        {% endfor %}
+        {% include_block value.content %}
       </content:content>
     {% endif %}
   </include:kit-banner>

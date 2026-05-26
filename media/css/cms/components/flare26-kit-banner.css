@@ -53,11 +53,6 @@
     text-align: center;
 }
 
-.fl-banner-kit .fl-banner-content-inner,
-.fl-banner-kit .fl-heading-group {
-    gap: var(--token-spacing-2xl);
-}
-
 .fl-banner-kit.fl-banner-kit-face {
     padding-inline: 0;
 }
@@ -66,7 +61,7 @@
     box-sizing: border-box;
     display: block;
     inline-size: 100%;
-    margin: 0 auto;
+    margin-inline: auto;
     max-inline-size: min(800px, 100%);
     overflow-wrap: break-word;
     text-wrap: balance;
@@ -108,7 +103,6 @@
 
 .fl-banner-kit .fl-superheading {
     color: var(--fl-theme-color-text);
-    margin: 0;
 }
 
 .fl-banner-kit-large,

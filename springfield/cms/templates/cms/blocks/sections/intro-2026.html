@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set block_position = block_position or "intro" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{% set block_level = block_level or 2 %}
 <include:intro
   {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
   anchor_id="{{ value.settings.anchor_id }}"
@@ -18,10 +20,7 @@
   </content:heading>
   {% if value.content %}
     <content:content>
-      {% set block_position = block_position or "intro" %}
-      {% for item in value.content %}
-        {% include_block item %}
-      {% endfor %}
+      {% include_block value.content %}
     </content:content>
   {% endif %}
   {% if value.media %}
