@@ -38,10 +38,13 @@ function applyFilter(activeFilters) {
             item.classList.toggle('hidden', !visible);
 
             item.querySelectorAll('span[data-tag]').forEach((tagEl) => {
-                tagEl.classList.toggle(
-                    'is-active',
-                    visible && activeFilters.has(tagEl.dataset.tag)
-                );
+                const tag = tagEl.querySelector('.fl-tag');
+                if (tag) {
+                    tag.classList.toggle(
+                        'is-selected',
+                        visible && activeFilters.has(tagEl.dataset.tag)
+                    );
+                }
             });
 
             if (visible) {
@@ -60,7 +63,10 @@ function syncButtonState(filterButtons, activeFilters) {
     filterButtons.forEach((button) => {
         const isActive = activeFilters.has(button.dataset.filter);
 
-        button.classList.toggle('is-active', isActive);
+        const tag = button.querySelector('.fl-tag');
+        if (tag) {
+            tag.classList.toggle('is-selected', isActive);
+        }
         button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
 }

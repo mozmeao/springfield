@@ -107,6 +107,16 @@
 --notification-green-border-color: var(--token-color-secondary-green);
 --notification-green-icon-bg: var(--token-color-secondary-green);
 
+/* selected state (inverted) */
+--notification-selected-bg: var(--notification-stacked-color);
+--notification-selected-color: var(--notification-bg);
+--notification-red-selected-bg: var(--notification-red-color);
+--notification-red-selected-color: var(--notification-red-bg);
+--notification-orange-selected-bg: var(--notification-orange-color);
+--notification-orange-selected-color: var(--notification-orange-bg);
+--notification-green-selected-bg: var(--notification-green-color);
+--notification-green-selected-color: var(--notification-green-bg);
+
 /* form fields */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
 --fl-theme-form-field-border-color: var(--token-color-black-1);

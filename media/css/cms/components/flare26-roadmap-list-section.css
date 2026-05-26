@@ -120,26 +120,20 @@
     margin-block-end: 0;
 }
 
-.fl-roadmap-tags span[data-tag].is-active .fl-tag,
-.fl-roadmap-filter-button.is-active .fl-tag {
-    background: var(--notification-stacked-color);
-    color: var(--notification-bg);
-}
-
-.fl-roadmap-filter-button .fl-tag .fl-icon-close {
-    display: none;
-}
-
-.fl-roadmap-filter-button.is-active .fl-tag .fl-icon-close {
-    display: inline-block;
-}
-
 .fl-roadmap-item .fl-buttons {
     align-self: start;
 }
 
 .fl-roadmap-item .fl-button {
     inline-size: 100%;
+}
+
+.fl-roadmap-filter-button .fl-tag .fl-icon-close {
+    display: none;
+}
+
+.fl-roadmap-filter-button .fl-tag.is-selected .fl-icon-close {
+    display: inline-block;
 }
 
 .fl-roadmap-list-filter {
