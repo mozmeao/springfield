@@ -114,6 +114,10 @@ a.fl-tag:hover .fl-tag {
     margin-block-end: var(--token-spacing-xl);
 }
 
+.fl-heading-group + .fl-tags {
+    margin-block-start: var(--token-spacing-sm);
+}
+
 .fl-tags.center {
     justify-content: center;
 }
