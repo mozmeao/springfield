@@ -36,12 +36,6 @@
     margin-block-end: 0;
 }
 
-.fl-banner .fl-heading,
-.fl-banner .fl-subheading,
-.fl-banner .fl-superheading {
-    margin: 0;
-}
-
 .fl-banner .fl-heading {
     display: block;
     inline-size: 100%;
@@ -53,6 +47,7 @@
 .fl-banner .fl-subheading {
     font-size: var(--fl-theme-font-size-body-sm);
     line-height: 1.4;
+    margin-block-end: var(--token-spacing-xl);
     text-wrap: balance;
 }
 
