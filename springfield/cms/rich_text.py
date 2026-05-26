@@ -28,7 +28,7 @@ class RichTextBlock(WagtailRichTextBlock):
 
     def get_template(self, value=None, context=None):
         template = super().get_template(value, context)
-        if template.startswith("cms/blocks/"):
+        if template and template.startswith("cms/blocks/"):
             return template
         return "cms/blocks/rich_text_block.html"
 
