@@ -48,8 +48,7 @@
 }
 
 .fl-roadmap-item-icon .fl-icon {
-    block-size: 20px;
-    inline-size: 20px;
+    font-size: 20px;
 }
 
 .fl-roadmap-item-header {
