@@ -5,12 +5,6 @@
  */
 
 function updateLastVisibleBanner(section) {
-    section
-        .querySelectorAll('.fl-banner-container.is-last-visible')
-        .forEach(function (el) {
-            el.classList.remove('is-last-visible');
-        });
-
     // Find the last visible direct child of the section
     const children = [...section.children];
     let lastVisibleChild = null;
@@ -30,6 +24,12 @@ function updateLastVisibleBanner(section) {
         : lastVisibleChild.querySelector('.fl-banner-container');
 
     if (bannerContainer) {
+        section
+            .querySelectorAll('.fl-banner-container.is-last-visible')
+            .forEach(function (el) {
+                el.classList.remove('is-last-visible');
+            });
+
         const bannerChild = bannerContainer.querySelector('.fl-banner');
         if (!bannerChild.classList.contains('fl-banner-outlined')) {
             bannerContainer.classList.add('is-last-visible');
