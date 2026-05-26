@@ -8,7 +8,11 @@
 {% set block_level = block_level or 2 %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
-<include:media-content media_after="{{ value.settings.media_after }}" narrow="{{ value.settings.narrow }}">
+<include:media-content
+  media_after="{{ value.settings.media_after }}"
+  narrow="{{ value.settings.narrow }}"
+  remove_border_radius="{{ value.settings.remove_border_radius }}"
+>
   <content:heading>
     {% include_block value.heading %}
   </content:heading>

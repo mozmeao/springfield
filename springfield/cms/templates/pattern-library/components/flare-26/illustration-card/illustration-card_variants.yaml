@@ -14,7 +14,7 @@ context:
           theme_class: ""
     - note: "Icon"
       testid: "illustration-card-icon"
-      image: "/media/img/firefox/flare/placeholder.png"
+      icon: "globe"
       variant: "icon"
       expand_link: false
       heading: "Icon Illustration Card"
