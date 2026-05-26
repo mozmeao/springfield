@@ -11,6 +11,7 @@ import setupCopyToClipboardButtons from './components/flare26-copy-to-clipboard.
 import setupDialogs, { initDialogs } from './components/flare26-dialogs.es6';
 import setupDownloadDropdown from './components/flare26-download-dropdown.es6';
 import setupFirefoxVersionConditionalDisplay from './components/flare26-firefox-version.es6';
+import setupLastVisibleBanner from './components/flare26-last-visible-banner.es6';
 import setupNewsletter from './components/flare26-newsletter.es6';
 import setupNotificationClose from './components/flare26-notification-close.es6';
 import setupQRCodeSnippet from './components/flare26-qr-code-snippet.es6';
@@ -49,6 +50,7 @@ function setupComponents() {
     setupFirefoxVersionConditionalDisplay();
     setupSlidingCarousels();
     setupSetAsDefault();
+    setupLastVisibleBanner();
 }
 
 if (document.readyState === 'loading') {

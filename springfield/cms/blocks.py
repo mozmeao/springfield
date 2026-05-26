@@ -284,6 +284,7 @@ ICON_CHOICES = [
     ("split-view", "Split View"),
     ("split-view-left", "Split View Left"),
     ("split-view-right", "Split View Right"),
+    ("sponsored-star", "Sponsored Star"),
     ("storage-false", "Storage False"),
     ("storage-true", "Storage True"),
     ("subtract", "Subtract"),
@@ -384,6 +385,7 @@ ICON_CHOICES = [
     ("tool", "Tool"),
     ("share-ios", "Share iOS"),
     ("shield-checkmark", "Shield Checkmark"),
+    ("shield-checkmark-filled", "Shield Checkmark Filled"),
     ("shield-cross", "Shield Cross"),
     ("shield-dot", "Shield Dot"),
     ("shield-exclamation-mark", "Shield Exclamation Mark"),
@@ -1098,13 +1100,14 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
+        help_text = blocks.CharBlock(required=False)
 
         class Meta:
             label = "Button Row"
             label_format = "Button Row"
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
-                children=["buttons"],
+                children=["buttons", "help_text"],
                 settings=["spacing"],
             )
 
@@ -1340,6 +1343,7 @@ class MediaContentSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Narrow the media element",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
@@ -2669,6 +2673,7 @@ class IntroBlockSettings2026(blocks.StructBlock):
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
@@ -2918,6 +2923,7 @@ class BannerSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
+    remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"

@@ -4,7 +4,14 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props media_position="after" anchor_id="" vertical="" full_width="" slim="" #}
+{# props
+  media_position="after"
+  anchor_id=""
+  vertical=""
+  full_width=""
+  slim=""
+  remove_border_radius=False
+#}
 
 <div
   class="
@@ -14,6 +21,7 @@
     {% if vertical %}fl-intro-vertical{% endif %}
     {% if full_width %}fl-intro-full-width{% endif %}
     {% if slim %}is-slim{% endif %}
+    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
   "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
