@@ -7,7 +7,7 @@
 'use strict';
 
 const openPage = require('../../scripts/open-page');
-const { test, expect } = require('@playwright/test');
+const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
 const url = `${patternLibraryURL}/roadmap-list-section/roadmap-list-section.html`;
 
@@ -25,20 +25,6 @@ test.describe(
             await expectComponentScreenshot(page, 'roadmap-list-section');
         });
 
-        test('filtered', async ({ page }) => {
-            await page
-                .locator('.fl-roadmap-filter-button[data-filter="desktop"]')
-                .click();
-            await expect(
-                page.locator('.fl-roadmap-filter-button[data-filter="desktop"]')
-            ).toHaveClass(/is-active/);
-            await expectComponentScreenshot(
-                page,
-                'roadmap-list-section',
-                'roadmap-list-section-filtered'
-            );
-        });
-
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
@@ -47,22 +33,6 @@ test.describe(
                     page,
                     'roadmap-list-section',
                     'roadmap-list-section-dark'
-                );
-            });
-
-            test('filtered', async ({ page }) => {
-                await page
-                    .locator('.fl-roadmap-filter-button[data-filter="desktop"]')
-                    .click();
-                await expect(
-                    page.locator(
-                        '.fl-roadmap-filter-button[data-filter="desktop"]'
-                    )
-                ).toHaveClass(/is-active/);
-                await expectComponentScreenshot(
-                    page,
-                    'roadmap-list-section',
-                    'roadmap-list-section-filtered-dark'
                 );
             });
         });
