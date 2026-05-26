@@ -6,9 +6,14 @@
 
 {% set block_position = block_position or "article" %}
 
-<div class="fl-buttons is-horizontal is-center {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
-  {% for button in value.buttons %}
-    {% set block_position = block_position + "." + "button-" ~ loop.index %}
-    {% include_block button %}
-  {% endfor %}
+<div class="fl-button-row">
+  <div class="fl-buttons is-horizontal is-center {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
+    {% for button in value.buttons %}
+      {% set block_position = block_position + "." + "button-" ~ loop.index %}
+      {% include_block button %}
+    {% endfor %}
+  </div>
+  {% if value.help_text %}
+    <p class="fl-button-row-help-text">{{ value.help_text }}</p>
+  {% endif %}
 </div>

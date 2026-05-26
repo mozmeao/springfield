@@ -175,7 +175,7 @@ def migrate_forward(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0093_alter_blogarticlepage_description_and_more"),
+        ("cms", "0094_alter_articledetailpage_icon"),
     ]
 
     operations = [

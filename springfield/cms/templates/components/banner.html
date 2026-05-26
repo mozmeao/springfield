@@ -4,10 +4,22 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" phone_qr_bg=False #}
+{# props
+  theme="outlined"
+  media_after=False
+  qr_code=None anchor_id=""
+  slim=""
+  remove_border_radius=False
+  phone_qr_bg=False
+#}
 
 <div
-  class="fl-banner-container {% if slim %}fl-banner-slim{% endif %} {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}"
+  class="
+    fl-banner-container
+    {% if slim %}fl-banner-slim{% endif %}
+    {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}
+    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+  "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   <div

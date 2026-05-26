@@ -88,6 +88,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: contents;
 }
 
+.remove-border-radius-from-media .fl-mediacontent-media,
+.remove-border-radius-from-media .fl-banner-media,
+.remove-border-radius-from-media iframe,
+.remove-border-radius-from-media img,
+.remove-border-radius-from-media video {
+    border-radius: 0;
+}
+
 .display-sm-up,
 .display-md-up {
     display: none;
