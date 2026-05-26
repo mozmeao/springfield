@@ -5,19 +5,11 @@
 #}
 
 <span class="fl-tag{% if color %} fl-tag-{{ color }}{% endif %}{% if corners %} fl-tag-{{ corners }}{% endif %} {% if is_small %}is-small{% endif %} {% if is_uppercase %}is-uppercase{% endif %}">
-  {% if before_icon %}
-    <include:icon
-      icon_name="{{ before_icon }}"
-      hidden=true
-      extra_class="icon-left"
-    />
+  {% if contents.before_icon %}
+    {{ contents.before_icon }}
   {% endif %}
   {{ text }}
-  {% if after_icon %}
-    <include:icon
-      icon_name="{{ after_icon }}"
-      hidden=true
-      extra_class="icon-right"
-    />
+  {% if contents.after_icon %}
+    {{ contents.after_icon }}
   {% endif %}
 </span>
