@@ -30,7 +30,9 @@
   >
 
     <content:heading>
-      {% include_block value.heading %}
+      {% with heading_size="fl-heading-md fl-heading-condensed" %}
+        {% include_block value.heading %}
+      {% endwith %}
     </content:heading>
 
     {% if value.content %}
