@@ -109,6 +109,9 @@ locales = [
     reference = "en/*.ftl"
     l10n = "{locale}/*.ftl"
 [[paths]]
+    reference = "en/cms/*.ftl"
+    l10n = "{locale}/cms/*.ftl"
+[[paths]]
     reference = "en/banners/**/*.ftl"
     l10n = "{locale}/banners/**/*.ftl"
 [[paths]]

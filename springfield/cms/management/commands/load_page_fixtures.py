@@ -53,6 +53,7 @@ from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_pag
 from springfield.cms.fixtures.media_content_2026_fixtures import get_media_content_2026_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
+from springfield.cms.fixtures.roadmap_list_fixtures import get_roadmap_list_test_page
 from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
@@ -153,6 +154,9 @@ class Command(BaseCommand):
 
         line_cards_page = get_line_cards_test_page()
         self.stdout.write(self.style.SUCCESS(f"Line Cards 2026 test page loaded: {line_cards_page.slug}"))
+
+        roadmap_list_page = get_roadmap_list_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Roadmap List test page loaded: {roadmap_list_page.slug}"))
 
         showcase_2026_page = get_showcase_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Showcase 2026 test page loaded: {showcase_2026_page.slug}"))

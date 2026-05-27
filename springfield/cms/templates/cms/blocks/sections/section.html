@@ -31,7 +31,7 @@
     {% if value.cta %}
       <content:cta>
         {% for cta in value.cta %}
-          {% set block_position = block_position ~ ".cta" %}
+          {% set block_position = block_position ~ ".cta-" ~ loop.index %}
           {% include_block cta %}
         {% endfor %}
       </content:cta>
