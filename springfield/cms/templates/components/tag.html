@@ -4,6 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{# props text, color="", corners="", is_small=0, is_uppercase=0, is_selected=0, before_icon="", after_icon="" #}
+
 <span
   class="
     fl-tag
@@ -14,11 +16,19 @@
     {% if is_selected %} is-selected{% endif %}
   "
 >
-  {% if contents.before_icon %}
-    {{ contents.before_icon }}
+  {% if before_icon %}
+    <include:icon
+      icon_name="{{ before_icon }}"
+      hidden=true
+      extra_class="icon-left"
+    />
   {% endif %}
   {{ text }}
-  {% if contents.after_icon %}
-    {{ contents.after_icon }}
+  {% if after_icon %}
+    <include:icon
+      icon_name="{{ after_icon }}"
+      hidden=true
+      extra_class="icon-right"
+    />
   {% endif %}
 </span>
