@@ -158,20 +158,16 @@ test.describe('analytics download attribution', () => {
                     (c) => c.name === 'moz-download-attribution-analytics-raw'
                 );
                 expect(existingAnalyticsCookie).toBeDefined();
-                const existingAnalyticsCookieData = JSON.parse(
+                const page1AnalyticsCookieData = JSON.parse(
                     decodeURIComponent(existingAnalyticsCookie.value)
                 );
-                expect(existingAnalyticsCookieData.utm_source).toBe(
-                    'newsletter'
-                );
-                expect(existingAnalyticsCookieData.utm_medium).toBe('email');
-                expect(existingAnalyticsCookieData.client_id_ga4).toBe(
+                expect(page1AnalyticsCookieData.utm_source).toBe('newsletter');
+                expect(page1AnalyticsCookieData.utm_medium).toBe('email');
+                expect(page1AnalyticsCookieData.client_id_ga4).toBe(
                     'mocked-ga4-client-id'
                 );
-                expect(existingAnalyticsCookieData.dlsource).toBe('fxdotcom');
-                expect(existingAnalyticsCookieData.utm_campaign).toBe(
-                    'existing'
-                );
+                expect(page1AnalyticsCookieData.dlsource).toBe('fxdotcom');
+                expect(page1AnalyticsCookieData.utm_campaign).toBe('existing');
 
                 // Navigate to new page with new analytics params
                 const capture = { params: null };
@@ -194,23 +190,21 @@ test.describe('analytics download attribution', () => {
                         );
                 });
 
-                // Confirm stub attribution service params preserve pre-existing analytics data
-                expect(capture.params).not.toBeNull();
+                // Confirm no call to stub attribution service
+                expect(capture.params).toBeNull();
 
-                expect(capture.params.utm_source).toBe(
-                    existingAnalyticsCookieData.utm_source
+                // Confirm no change to stored analytics cookie
+                const page2AnalyticsCookieData = JSON.parse(
+                    decodeURIComponent(existingAnalyticsCookie.value)
                 );
-                expect(capture.params.utm_medium).toBe(
-                    existingAnalyticsCookieData.utm_medium
+                expect(page2AnalyticsCookieData.utm_source).toBe(
+                    page1AnalyticsCookieData.utm_source
                 );
-                expect(capture.params.client_id_ga4).toBe(
-                    existingAnalyticsCookieData.client_id_ga4
+                expect(page2AnalyticsCookieData.utm_medium).toBe(
+                    page1AnalyticsCookieData.utm_medium
                 );
-                expect(capture.params.dlsource).toBe(
-                    existingAnalyticsCookieData.dlsource
-                );
-                expect(capture.params.utm_campaign).toBe(
-                    existingAnalyticsCookieData.utm_campaign
+                expect(page2AnalyticsCookieData.utm_campaign).toBe(
+                    page1AnalyticsCookieData.utm_campaign
                 );
             });
         }

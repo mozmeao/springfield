@@ -802,7 +802,12 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             DownloadAttribution.timeoutCallback = timeoutCallback;
         }
 
+        const preExistingEssential = DownloadAttribution.getRawCookie(
+            DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+        );
+
         const essential = DownloadAttribution.getEssentialData(campaign);
+        const hasNewEssential = Object.keys(essential).length !== 0;
 
         const analytics = DownloadAttribution.getRawCookie(
             DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
@@ -810,7 +815,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
 
         // We have last touch essential attribution to avoid a stale download experience
         // REMOVE essential data if it is no longer applicable
-        if (Object.keys(essential).length === 0) {
+        if (preExistingEssential !== null && !hasNewEssential) {
             if (analytics) {
                 // remove essential only
                 DownloadAttribution.removeRawCookie(
@@ -824,13 +829,16 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
                     DownloadAttribution.successCallback();
                 }
             }
-        } else {
+        } else if (hasNewEssential) {
+            // create or update essential
             DownloadAttribution.setRawCookie(
                 DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID,
                 essential
             );
 
             DownloadAttribution.requestCombinedAuth(essential, analytics);
+        } else {
+            DownloadAttribution.applyAttributionDataToLinks();
         }
     },
 
