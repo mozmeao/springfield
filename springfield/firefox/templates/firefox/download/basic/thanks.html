@@ -80,6 +80,18 @@
 </main>
 {% endblock %}
 
+{% block stub_attribution %}
+  {% if not switch('enable_attribution_refactor') %}
+    <!-- use stub attribution -->
+    {{ super() }}
+  {% endif%}
+  <!-- else let auto-download handle attribution -->
+{% endblock %}
+
 {% block js %}
-  {{ js_bundle('firefox_download_thanks') }}
+  {% if switch('enable_attribution_refactor') %}
+    {{ js_bundle('auto-download') }}
+  {% else %}
+    {{ js_bundle('firefox_download_thanks') }}
+  {% endif %}
 {% endblock %}
