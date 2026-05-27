@@ -353,3 +353,14 @@ Copy-to-Clipboard Button
         inline-size: auto;
     }
 }
+
+/* =====================================================================
+Button row
+===================================================================== */
+
+.fl-button-row-help-text {
+    margin-block: var(--token-spacing-md);
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+    text-align: center;
+}
