@@ -3274,6 +3274,7 @@ class RoadmapItemBlock(blocks.StructBlock):
     description = RichTextBlock(features=HEADING_TEXT_FEATURES)
     status = blocks.ChoiceBlock(
         choices=list(ROADMAP_STATUS_LABELS.items()),
+        required=False,
     )
     tags = blocks.MultipleChoiceBlock(
         choices=list(ROADMAP_TAG_LABELS.items()),

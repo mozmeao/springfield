@@ -37,7 +37,9 @@
           {% set item_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
           <{{ item_heading_level }} class="fl-heading">
             {{ item.title }}
-            <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
+            {% if item.status %}
+              <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
+            {% endif %}
           </{{ item_heading_level }}>
         </content:header>
 

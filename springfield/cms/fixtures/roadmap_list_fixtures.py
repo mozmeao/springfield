@@ -39,14 +39,14 @@ def get_roadmap_item_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
-                "title": "Roadmap Item - No icon, no buttons",
+                "title": "Roadmap Item - No icon, no buttons, no status",
                 "icon": "",
                 "description": (
                     '<p data-block-key="rm01d">The description field accepts rich text. '
                     "This item uses the Exploring status, two platform tags (Android and iOS), "
                     "and no buttons — the minimal layout.</p>"
                 ),
-                "status": "exploring",
+                "status": None,
                 "tags": ["android", "ios"],
                 "learn_more_link": EMPTY_LINK,
                 "learn_more_analytics_id": "",
@@ -57,6 +57,28 @@ def get_roadmap_item_variants() -> list[dict]:
                 "secondary_button_analytics_id": "",
             },
             "id": "rm0001-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "item",
+            "value": {
+                "title": "Roadmap Item - Icon and status",
+                "icon": "activity",
+                "description": (
+                    '<p data-block-key="rm02d">The icon field is optional. When set, it appears above the title. '
+                    "The Learn More button uses the localized ui-learn-more FTL string; "
+                    "only the URL is provided here.</p>"
+                ),
+                "status": "exploring",
+                "tags": ["desktop"],
+                "learn_more_link": make_link("https://mozilla.org/privacy/"),
+                "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000012",
+                "secondary_button_link": make_link("https://mozilla.org/download/"),
+                "secondary_button_icon": "forward",
+                "secondary_button_icon_position": "right",
+                "secondary_button_label": "Secondary Button Label",
+                "secondary_button_analytics_id": "",
+            },
+            "id": "rm0001-0000-0000-0000-000000000002",
         },
         {
             "type": "item",
@@ -78,7 +100,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 "secondary_button_label": "",
                 "secondary_button_analytics_id": "",
             },
-            "id": "rm0001-0000-0000-0000-000000000002",
+            "id": "rm0001-0000-0000-0000-000000000003",
         },
         {
             "type": "item",
@@ -99,7 +121,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 "secondary_button_label": "Secondary Button Label",
                 "secondary_button_analytics_id": "rm0001-0000-0000-0000-000000000023",
             },
-            "id": "rm0001-0000-0000-0000-000000000003",
+            "id": "rm0001-0000-0000-0000-000000000004",
         },
         {
             "type": "item",
@@ -120,7 +142,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 "secondary_button_label": "",
                 "secondary_button_analytics_id": "",
             },
-            "id": "rm0001-0000-0000-0000-000000000004",
+            "id": "rm0001-0000-0000-0000-000000000005",
         },
         {
             "type": "item",
@@ -141,7 +163,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 "secondary_button_label": "",
                 "secondary_button_analytics_id": "",
             },
-            "id": "rm0001-0000-0000-0000-000000000005",
+            "id": "rm0001-0000-0000-0000-000000000006",
         },
     ]
 
