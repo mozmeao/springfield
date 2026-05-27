@@ -14,7 +14,9 @@
   remove_border_radius="{{ value.settings.remove_border_radius }}"
 >
   <content:heading>
-    {% include_block value.heading %}
+    {% with heading_size="fl-heading-sm" %}
+      {% include_block value.heading %}
+    {% endwith %}
   </content:heading>
 
   <content:content>
