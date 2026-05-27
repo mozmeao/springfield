@@ -134,6 +134,10 @@
     text-transform: uppercase;
 }
 
+.fl-banner.fl-banner-purple-radial-gradient .fl-superheading {
+    color: var(--token-color-white);
+}
+
 .fl-banner-dark-purple-gradient .fl-button.button-ghost {
     border-color: var(--token-color-white);
     color: var(--token-color-white);
