@@ -81,7 +81,7 @@
 
 .fl-banner-kit .fl-tags {
     justify-content: center;
-    margin-block: var(--token-spacing-lg);
+    margin-block-end: var(--token-spacing-lg);
 }
 
 .fl-banner-kit-large .fl-heading,
@@ -175,7 +175,12 @@
     max-inline-size: min(500px, 100%);
 }
 
+.fl-banner.fl-banner-kit-diving-in .fl-heading-group {
+    margin-block-end: var(--fl-section-heading-margin-bottom);
+}
+
 .fl-banner-kit.align-start-on-desktop .fl-banner-content-inner {
+    align-items: start;
     max-inline-size: min(600px, 100%);
 }
 
