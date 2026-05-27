@@ -537,7 +537,7 @@ def assert_animation_attributes(animation_element: BeautifulSoup, animation_data
         assert source and source["src"] == video_url
 
 
-def assert_heading_block(element: BeautifulSoup, heading_data: dict, heading_tag: str = "h2") -> str:
+def assert_heading_block(element: BeautifulSoup, heading_data: dict, heading_tag: str = "h2"):
     heading_text = BeautifulSoup(heading_data["heading_text"], "html.parser").get_text().strip()
     superheading_text = BeautifulSoup(heading_data.get("superheading_text", ""), "html.parser").get_text().strip()
     subheading_text = BeautifulSoup(heading_data.get("subheading_text", ""), "html.parser").get_text().strip()
