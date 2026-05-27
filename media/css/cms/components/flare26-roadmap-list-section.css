@@ -133,10 +133,6 @@
     inline-size: 100%;
 }
 
-.fl-roadmap-item .fl-button.button-ghost {
-    border-width: 1px;
-}
-
 .fl-roadmap-list-filter {
     border-block-end: 1px solid var(--theme-roadmap-list-border-color);
     display: flex;
