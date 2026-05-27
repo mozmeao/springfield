@@ -59,36 +59,6 @@ a.fl-tag:hover .fl-tag {
     opacity: 1;
 }
 
-.fl-tag.is-selected {
-    background: var(--notification-selected-bg);
-    color: var(--notification-selected-color);
-}
-
-.fl-tag.fl-tag-red.is-selected {
-    background: var(--notification-red-selected-bg);
-    color: var(--notification-red-selected-color);
-}
-
-.fl-tag.fl-tag-orange.is-selected {
-    background: var(--notification-orange-selected-bg);
-    color: var(--notification-orange-selected-color);
-}
-
-.fl-tag.fl-tag-green.is-selected {
-    background: var(--notification-green-selected-bg);
-    color: var(--notification-green-selected-color);
-}
-
-.fl-tag.fl-tag-white.is-selected {
-    background: var(--notification-white-color);
-    color: var(--notification-white-bg);
-}
-
-.fl-tag.fl-tag-light-purple.is-selected {
-    background: var(--token-color-white);
-    color: var(--token-color-light-purple);
-}
-
 .fl-tag.is-uppercase {
     text-transform: uppercase;
 }
@@ -118,8 +88,40 @@ a.fl-tag:hover .fl-tag {
 }
 
 .fl-tag.fl-tag-light-purple {
-    background: var(--token-color-light-purple);
-    color: var(--token-color-white);
+    background: var(--notification-light-purple-bg);
+    color: var(--notification-light-purple-color);
+}
+
+/* Selected state */
+
+.fl-tag.is-selected {
+    background: var(--notification-selected-bg);
+    color: var(--notification-selected-color);
+}
+
+.fl-tag.fl-tag-red.is-selected {
+    background: var(--notification-red-selected-bg);
+    color: var(--notification-red-selected-color);
+}
+
+.fl-tag.fl-tag-orange.is-selected {
+    background: var(--notification-orange-selected-bg);
+    color: var(--notification-orange-selected-color);
+}
+
+.fl-tag.fl-tag-green.is-selected {
+    background: var(--notification-green-selected-bg);
+    color: var(--notification-green-selected-color);
+}
+
+.fl-tag.fl-tag-white.is-selected {
+    background: var(--notification-white-selected-bg);
+    color: var(--notification-white-selected-color);
+}
+
+.fl-tag.fl-tag-light-purple.is-selected {
+    background: var(--notification-light-purple-selected-bg);
+    color: var(--notification-light-purple-selected-color);
 }
 
 /* when a tag is used a badge within another tag. See Blog tags page. */
