@@ -4539,7 +4539,7 @@ def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
     intro_heading_data = intro_value["heading"]
-    intro_button_data = intro_value["buttons"][0]["value"]
+    intro_button_data = intro_value["content"][0]["value"][0]["value"]
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()

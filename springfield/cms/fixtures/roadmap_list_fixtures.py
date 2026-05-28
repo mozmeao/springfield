@@ -186,31 +186,36 @@ def get_roadmap_page_intro() -> list[dict]:
                     "heading_text": '<p data-block-key="rm00h1">What\'s Next</p>',
                     "subheading_text": '<p data-block-key="rm00su">A transparent view into what we\'re building and why.</p>',
                 },
-                "tags": [],
-                "buttons": [
+                "content": [
                     {
-                        "type": "button",
-                        "value": {
-                            "settings": {
-                                "theme": "",
-                                "icon": "",
-                                "icon_position": "right",
-                                "analytics_id": "rm0000-0000-0000-0000-000000000002",
-                            },
-                            "label": "What's New",
-                            "link": {
-                                "link_to": "page",
-                                "page": get_whatsnew_index_page().id,
-                                "file": None,
-                                "custom_url": "",
-                                "anchor": "",
-                                "email": "",
-                                "phone": "",
-                                "new_window": False,
-                                "relative_url": "",
-                            },
-                        },
-                        "id": "rm0000-0000-0000-0000-000000000003",
+                        "type": "buttons",
+                        "id": "rm0000-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "rm0000-0000-0000-0000-000000000002",
+                                    },
+                                    "label": "What's New",
+                                    "link": {
+                                        "link_to": "page",
+                                        "page": get_whatsnew_index_page().id,
+                                        "file": None,
+                                        "custom_url": "",
+                                        "anchor": "",
+                                        "email": "",
+                                        "phone": "",
+                                        "new_window": False,
+                                        "relative_url": "",
+                                    },
+                                },
+                                "id": "rm0000-0000-0000-0000-000000000003",
+                            }
+                        ],
                     }
                 ],
             },
