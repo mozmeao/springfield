@@ -1,0 +1,199 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare26-media-query-tokens.css';
+
+:root {
+    scroll-behavior: smooth;
+}
+
+@layer page {
+    .fl-docs-page {
+        .fl-fx-logo {
+            font-size: 6rem;
+            margin-block-end: var(--token-spacing-xl);
+        }
+
+        .fl-section {
+            padding-block-start: 0;
+        }
+
+        .fl-docs-index {
+            display: grid;
+            gap: var(--token-spacing-lg);
+            grid-template-columns: 1fr;
+
+            @media (--viewport-md-up) {
+                column-gap: var(--token-spacing-xl);
+                grid-template-columns:
+                    [sidebar-start] minmax(0, 240px)
+                    [sidebar-end content-start] 1fr [content-end];
+            }
+        }
+
+        #fl-docs-inline-switch {
+            margin-inline-end: var(--token-spacing-sm);
+        }
+
+        .fl-docs-index-sidebar {
+            @media (--viewport-md-up) {
+                align-self: start;
+                grid-column: sidebar-start / sidebar-end;
+                inset-block-start: var(--token-layout-lg);
+                position: sticky;
+            }
+
+            ul {
+                display: flex;
+                flex-direction: column;
+                gap: var(--token-spacing-sm);
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            a {
+                color: var(--fl-theme-color-text);
+                display: block;
+                font-size: var(--fl-theme-font-size-body-sm);
+                padding-block: var(--token-spacing-xs);
+                text-decoration: none;
+
+                &:hover {
+                    color: var(--fl-theme-color-link);
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .fl-docs-index-content {
+            display: flex;
+            flex-direction: column;
+
+            @media (--viewport-md-up) {
+                grid-column: content-start / content-end;
+            }
+
+            section {
+                border-block-end: var(--fl-theme-divider);
+                margin-block: 0 var(--token-spacing-xl);
+                padding-block-end: var(--token-spacing-xl);
+                scroll-margin-block-start: var(--token-spacing-lg);
+            }
+
+            ul {
+                margin-block: 0;
+            }
+
+            li:last-child {
+                margin: 0;
+            }
+
+            li[id] {
+                scroll-margin-block-start: var(--token-layout-lg);
+            }
+
+            h2 {
+                margin-block-start: 0;
+            }
+
+            h2,
+            h2 a {
+                color: var(--fl-theme-color-text);
+                font-size: var(--fl-theme-font-size-heading-sm);
+                margin-block-end: var(--token-spacing-xl);
+                text-decoration: none;
+            }
+
+            p {
+                color: var(--fl-theme-color-text-secondary);
+                font-size: var(--fl-theme-font-size-body-md);
+                margin-block-end: var(--token-spacing-md);
+            }
+
+            .fl-icon-external-link {
+                font-size: 16px;
+            }
+        }
+
+        .fl-docs-inline-toggle {
+            align-items: center;
+            cursor: pointer;
+            display: flex;
+            font-size: var(--fl-theme-font-size-body-sm);
+            gap: var(--token-spacing-xs);
+            margin-block-end: var(--token-spacing-md);
+            user-select: none;
+
+            .fl-icon {
+                font-size: 12px;
+                line-height: 0;
+            }
+        }
+
+        .fl-docs-inline-frame {
+            block-size: 100%;
+            border: 2px solid var(--fl-theme-divider-color);
+            border-radius: var(--token-border-radius-xs);
+            flex: 1;
+            inline-size: 100%;
+            min-block-size: 80dvh;
+        }
+
+        .fl-docs-accordion {
+            border-block-start: var(--fl-theme-divider);
+
+            summary {
+                cursor: pointer;
+                font-weight: var(--token-font-weight-semibold);
+                list-style: none;
+                padding-block: var(--token-spacing-sm);
+                user-select: none;
+
+                &::-webkit-details-marker {
+                    display: none;
+                }
+
+                &::after {
+                    content: '+';
+                    float: inline-end;
+                }
+            }
+
+            &[open] summary::after {
+                content: '−';
+            }
+
+            ul {
+                display: flex;
+                flex-direction: column;
+                gap: var(--token-spacing-xs);
+                list-style: none;
+                margin: 0;
+                padding-block-end: var(--token-spacing-sm);
+                padding-inline-start: 0;
+            }
+
+            li {
+                margin: 0;
+            }
+
+            a {
+                color: var(--fl-theme-color-text);
+                display: block;
+                font-size: var(--fl-theme-font-size-body-sm);
+                padding-block: var(--token-spacing-xs);
+                text-decoration: none;
+
+                &:hover {
+                    color: var(--fl-theme-color-link);
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

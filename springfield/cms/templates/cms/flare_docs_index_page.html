@@ -1,0 +1,102 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block page_css %}
+  {{ css_bundle('flare26-docs') }}
+{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-docs-page">
+  <main class="fl-main">
+    <include:intro slim>
+      <content:heading>
+        <span class="fl-fx-logo">‍</span>
+        <include:heading
+          heading_text="{{ page.title }}"
+          subheading_text="{{ page.search_description }}"
+          heading_level="h1"
+        />
+      </content:heading>
+    </include:intro>
+
+    <div class="fl-section">
+      {% set leaf_sections = sections | rejectattr('children') | list %}
+      {% set group_title = page.title.split(' - ', 1)[-1] %}
+
+      <div class="fl-docs-index max-width-wide-banner">
+
+        <nav class="fl-docs-index-sidebar">
+          <label class="fl-docs-inline-toggle">
+            <input type="checkbox" id="fl-docs-inline-switch" />
+            See page inline
+            <span title="Renders any clicked link into this page.">
+              <include:icon icon_name="information"/>
+            </span>
+          </label>
+
+          {% for section in sections if section.children %}
+            <details class="fl-docs-accordion">
+              <summary>{{ section.page.title.split(' - ', 1)[-1] }}</summary>
+              <ul>
+                {% for child in section.children %}
+                  <li><a href="#{{ child.slug }}" data-url="{{ child.url }}">{{ child.title }}</a></li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endfor %}
+
+          {% if leaf_sections %}
+            <details class="fl-docs-accordion">
+              <summary>{{ group_title }}</summary>
+              <ul>
+                {% for section in leaf_sections %}
+                  <li><a href="#{{ section.page.slug }}" data-url="{{ section.page.url }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+        </nav>
+
+        <div class="fl-docs-index-content">
+          {% for section in sections if section.children %}
+            <section id="{{ section.page.slug }}">
+              <h2>
+                <a href="{{ section.page.url }}">
+                {{ section.page.title.split(' - ', 1)[-1] }}
+                <include:icon icon_name="external-link"/>
+                </a>
+              </h2>
+              <ul>
+                {% for child in section.children %}
+                  <li id="{{ child.slug }}"><a href="{{ child.url }}">{{ child.title }}</a></li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endfor %}
+
+          {% if leaf_sections %}
+            <section id="{{ page.slug }}-other">
+              <h2>{{ group_title }}</h2>
+              <ul>
+                {% for section in leaf_sections %}
+                  <li id="{{ section.page.slug }}"><a href="{{ section.page.url }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('flare26-docs') }}
+{% endblock %}
