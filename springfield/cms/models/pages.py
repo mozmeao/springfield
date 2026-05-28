@@ -111,6 +111,25 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         return redirect(self.get_parent().get_full_url())
 
 
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
+    """
+    A page containing an index of all docs pages for Flare26.
+    It shows links to other docs pages.
+    """
+
+    template = "cms/flare_docs_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        children = list(self.get_children().live().public().specific())
+        steplen = WagtailBasePage.steplen
+        grandchildren_by_parent = {}
+        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public():
+            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
+        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
+        return context
+
+
 class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     """Simple page that renders a rich-text field, using our broadest set of
     allowed rich-text features.
