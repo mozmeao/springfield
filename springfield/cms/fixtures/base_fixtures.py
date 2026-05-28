@@ -12,6 +12,7 @@ from wagtail.documents.models import Document
 from wagtail.models import Site
 
 from springfield.cms.models import ArticleIndexPage, SpringfieldImage, StructuralPage
+from springfield.cms.models.pages import FlareDocsIndexPage
 
 
 def _draw_numbered_grid(image, cols, rows):
@@ -119,18 +120,38 @@ def get_test_index_page():
     return index_page
 
 
-def get_2026_test_index_page():
+def get_flare_docs_index_page():
     site = Site.objects.get(is_default_site=True)
     root_page = site.root_page
-    index_page = StructuralPage.objects.filter(slug="tests-index-page-2026").first()
+    index_page = FlareDocsIndexPage.objects.filter(slug="flare-docs").first()
     if not index_page:
-        index_page = StructuralPage(
-            slug="tests-index-page-2026",
-            title="Tests Index Page 2026",
+        index_page = FlareDocsIndexPage(
+            slug="flare-docs",
+            title="Flare Docs - Index",
         )
         root_page.add_child(instance=index_page)
         index_page.save_revision().publish()
     return index_page
+
+
+def get_flare_blocks_docs_page():
+    index_page = get_flare_docs_index_page()
+    blocks_docs_page = index_page.get_children().filter(slug="blocks").first()
+    if not blocks_docs_page:
+        blocks_docs_page = FlareDocsIndexPage(slug="blocks", title="Flare Docs - Blocks")
+        index_page.add_child(instance=blocks_docs_page)
+        blocks_docs_page.save_revision().publish()
+    return blocks_docs_page
+
+
+def get_flare_pages_docs_page():
+    index_page = get_flare_docs_index_page()
+    pages_docs_page = index_page.get_children().filter(slug="pages").first()
+    if not pages_docs_page:
+        pages_docs_page = FlareDocsIndexPage(slug="pages", title="Flare Docs - Pages")
+        index_page.add_child(instance=pages_docs_page)
+        pages_docs_page.save_revision().publish()
+    return pages_docs_page
 
 
 def get_article_index_test_page():
