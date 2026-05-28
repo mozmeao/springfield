@@ -106,6 +106,26 @@
 --notification-green-border-color: var(--token-color-secondary-green);
 --notification-green-icon-bg: var(--token-color-soft-green);
 
+/* white */
+--notification-white-bg: var(--token-color-black-4);
+--notification-white-color: var(--token-color-white);
+--notification-white-border-color: var(--token-color-black-1);
+--notification-white-icon-bg: var(--token-color-white);
+
+/* selected state (inverted) */
+--notification-selected-bg: var(--notification-stacked-color);
+--notification-selected-color: var(--notification-bg);
+--notification-red-selected-bg: var(--notification-red-color);
+--notification-red-selected-color: var(--notification-red-bg);
+--notification-orange-selected-bg: var(--notification-orange-color);
+--notification-orange-selected-color: var(--notification-orange-bg);
+--notification-green-selected-bg: var(--notification-green-color);
+--notification-green-selected-color: var(--notification-green-bg);
+--notification-white-selected-bg: var(--token-color-white);
+--notification-white-selected-color: var(--notification-white-bg);
+--notification-light-purple-selected-bg: var(--notification-light-purple-color);
+--notification-light-purple-selected-color: var(--notification-light-purple-bg);
+
 /* form fields. */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
 --fl-theme-form-field-border-color: rgba(255, 255, 255, 0.35);
@@ -170,3 +190,7 @@
 --theme-numbered-list-background: transparent;
 --theme-numbered-list-border-color: var(--token-color-light-purple);
 --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
+
+/* Roadmap list section */
+--theme-roadmap-list-background: var(--token-color-dark-purple-2-40);
+--theme-roadmap-list-border-color: var(--token-color-soft-purple-6);

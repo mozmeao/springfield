@@ -100,12 +100,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Navigation */
     --fl-navigation-menu-height: 80px;
 
-    /* White notifications */
-    --notification-white-bg: var(--token-color-white);
-    --notification-white-color: var(--token-color-black-4);
-    --notification-white-border-color: var(--token-color-white);
-    --notification-white-icon-bg: var(--token-color-white);
-
     /* Smart window */
     --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo-dark.svg');
     --smart-window-background-gradient:

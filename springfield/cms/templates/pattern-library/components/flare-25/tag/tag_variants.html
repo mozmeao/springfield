@@ -12,33 +12,43 @@
       <div style="display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; width: max-content;">
         <p style="margin: 0; font-weight: 600;">{{ color|capitalize }}</p>
         {% for t in tags if t.color == color and t.corners == 'round' %}
-          {% set text = t.text %}
-          {% set corners = t.corners %}
-          {% set before_icon = t.before_icon %}
-          {% set after_icon = t.after_icon %}
           <div>
             <include:tag
-              text="{{ text }}"
+              text="{{ t.text }}"
               color="{{ color }}"
-              corners="{{ corners }}"
-              before_icon="{{ before_icon }}"
-              after_icon="{{ after_icon }}"
-            />
+              corners="{{ t.corners }}"
+            >
+              {% if t.before_icon %}
+                <content:before_icon>
+                  <include:icon icon_name="{{ t.before_icon }}" hidden=true extra_class="icon-left" />
+                </content:before_icon>
+              {% endif %}
+              {% if t.after_icon %}
+                <content:after_icon>
+                  <include:icon icon_name="{{ t.after_icon }}" hidden=true extra_class="icon-right" />
+                </content:after_icon>
+              {% endif %}
+            </include:tag>
           </div>
         {% endfor %}
         {% for t in tags if t.color == color and t.corners == 'soft' %}
-          {% set text = t.text %}
-          {% set corners = t.corners %}
-          {% set before_icon = t.before_icon %}
-          {% set after_icon = t.after_icon %}
           <div>
             <include:tag
-              text="{{ text }}"
+              text="{{ t.text }}"
               color="{{ color }}"
-              corners="{{ corners }}"
-              before_icon="{{ before_icon }}"
-              after_icon="{{ after_icon }}"
-            />
+              corners="{{ t.corners }}"
+            >
+              {% if t.before_icon %}
+                <content:before_icon>
+                  <include:icon icon_name="{{ t.before_icon }}" hidden=true extra_class="icon-left" />
+                </content:before_icon>
+              {% endif %}
+              {% if t.after_icon %}
+                <content:after_icon>
+                  <include:icon icon_name="{{ t.after_icon }}" hidden=true extra_class="icon-right" />
+                </content:after_icon>
+              {% endif %}
+            </include:tag>
           </div>
         {% endfor %}
       </div>

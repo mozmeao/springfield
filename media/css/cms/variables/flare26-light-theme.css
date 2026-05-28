@@ -107,6 +107,32 @@
 --notification-green-border-color: var(--token-color-secondary-green);
 --notification-green-icon-bg: var(--token-color-secondary-green);
 
+/* white */
+--notification-white-bg: var(--token-color-grey-1);
+--notification-white-color: var(--token-color-black-4);
+--notification-white-border-color: var(--token-color-grey-2);
+--notification-white-icon-bg: var(--token-color-black-4);
+
+/* light purple */
+--notification-light-purple-bg: var(--token-color-light-purple);
+--notification-light-purple-color: var(--token-color-white);
+--notification-light-purple-border-color: var(--token-color-grey-2);
+--notification-light-purple-icon-bg: var(--token-color-black-4);
+
+/* selected state (inverted) */
+--notification-selected-bg: var(--notification-stacked-color);
+--notification-selected-color: var(--notification-bg);
+--notification-red-selected-bg: var(--token-color-secondary-red-3);
+--notification-red-selected-color: var(--token-color-white);
+--notification-orange-selected-bg: var(--token-color-secondary-orange-3);
+--notification-orange-selected-color: var(--token-color-white);
+--notification-green-selected-bg: var(--token-color-secondary-green-3);
+--notification-green-selected-color: var(--token-color-white);
+--notification-white-selected-bg: var(--token-color-black);
+--notification-white-selected-color: var(--token-color-white);
+--notification-light-purple-selected-bg: var(--token-color-purple);
+--notification-light-purple-selected-color: var(--token-color-white);
+
 /* form fields */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
 --fl-theme-form-field-border-color: var(--token-color-black-1);
@@ -150,3 +176,7 @@
 --theme-numbered-list-background: var(--token-color-soft-purple-40);
 --theme-numbered-list-border-color: var(--token-color-soft-purple-4);
 --theme-numbered-list-counter-color: var(--token-color-light-purple);
+
+/* Roadmap list section */
+--theme-roadmap-list-background: var(--token-color-soft-purple-40);
+--theme-roadmap-list-border-color: var(--token-color-soft-purple-2);

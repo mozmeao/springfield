@@ -115,6 +115,13 @@
     --notification-icon-bg: var(--notification-green-icon-bg);
 }
 
+.fl-notification-white {
+    --notification-bg: var(--notification-white-bg);
+    --notification-color: var(--notification-white-color);
+    --notification-border-color: var(--notification-white-border-color);
+    --notification-icon-bg: var(--notification-white-icon-bg);
+}
+
 .fl-notification-content {
     display: flex;
     flex: 1;

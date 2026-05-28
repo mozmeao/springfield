@@ -18,6 +18,7 @@ import setupQRCodeSnippet from './components/flare26-qr-code-snippet.es6';
 import setupScrollingCardGrid from './components/flare26-scrolling-card-grid.es6';
 import { setupSetAsDefault } from './components/flare26-set-as-default.es6';
 import setupSlidingCarousels from './components/flare26-sliding-carousel.es6';
+import setupRoadmapFilter from './components/flare26-roadmap-filter.es6';
 import setupTopicListSidebar from './components/flare26-topic-list-sidebar.es6';
 import setupTypewriter, {
     typewriter
@@ -39,6 +40,7 @@ function setupComponents() {
     setupAnimations();
     setupDownloadDropdown();
     setupQRCodeSnippet();
+    setupRoadmapFilter();
     setupTopicListSidebar();
     setupTypewriter();
     setupDialogs();

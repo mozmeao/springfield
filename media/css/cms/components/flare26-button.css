@@ -101,6 +101,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     --button-bg-color-disabled: var(--token-color-grey-3);
     --button-border-color-disabled: var(--button-bg-color-disabled);
     --button-text-color-disabled: var(--token-color-white);
+    border-width: 1px;
 }
 
 .fl-button.button-link {
