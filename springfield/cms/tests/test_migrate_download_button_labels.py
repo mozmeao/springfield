@@ -291,7 +291,7 @@ class TestMigrateDownloadButtonLabelsCommand:
         fr_snippet, _ = PretranslatedPhrase.objects.update_or_create(
             locale=fr_locale,
             translation_key=download_firefox.translation_key,
-            defaults={"category": download_firefox.category, "label": "Télécharger Firefox", "live": True},
+            defaults={"label": "Télécharger Firefox", "live": True},
         )
         page = _make_page([_intro_with_buttons(_old_block("Télécharger Firefox"))], locale=fr_locale, slug="fr-label-map-test-page")
 
@@ -315,7 +315,7 @@ class TestMigrateDownloadButtonLabelsCommand:
         get_firefox_ca, _ = PretranslatedPhrase.objects.update_or_create(
             locale=en_ca,
             translation_key=get_firefox_us.translation_key,
-            defaults={"category": get_firefox_us.category, "label": "Get Firefox", "live": True},
+            defaults={"label": "Get Firefox", "live": True},
         )
 
         page = _make_page([_intro_with_buttons(_old_block("Get Firefox"))], slug="us-page")

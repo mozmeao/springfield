@@ -7,12 +7,16 @@ from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import FreeFormPage, FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
     get_pretranslated_phrase_snippets()
-    get_firefox_pk = PretranslatedPhrase.objects.get(category__slug="get_firefox", locale=Locale.get_default()).pk
+    get_firefox_pk = PretranslatedPhrase.objects.get(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+    ).pk
     buttons = {
         "primary": {
             "type": "button",

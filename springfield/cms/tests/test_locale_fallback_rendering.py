@@ -854,7 +854,6 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
     es_mx_snippet = PretranslatedPhrase.objects.create(
         locale=es_mx_locale,
         translation_key=en_us_get_firefox.translation_key,
-        category=en_us_get_firefox.category,
         label="Obtener Firefox",
         live=True,
     )

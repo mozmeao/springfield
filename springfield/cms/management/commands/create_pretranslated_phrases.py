@@ -6,8 +6,7 @@
 Management command to create PretranslatedPhrase records and bootstrap FTL translations.
 
 Runs three phases:
-1. Create (or get) the two PretranslatedPhraseCategory objects by slug, then create
-   (or update) the two English PretranslatedPhrase records using natural keys.
+1. Create (or update) the English PretranslatedPhrase records using stable translation_key UUIDs.
 2. Register TranslationSource records and fix schema_version.
 3. Import FTL translations for all configured Wagtail locales.
 
@@ -19,6 +18,22 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
+# Local string identifier for snippet metadata. The translation_key UUIDs are stable;
+# do not change them — wagtail_localize uses translation_key to link English
+# source rows to their translated copies across locales.
+PHRASES = {
+    "get_firefox": {
+        "translation_key": "f25078fd-50e4-4a73-acbc-6355bfa7de6e",
+        "label": "Get Firefox",
+        "ftl_subpath": "navigation-firefox.ftl",
+    },
+    "download_firefox": {
+        "translation_key": "e13dc0ed-aa51-4077-b011-fb20958ffefd",
+        "label": "Download Firefox",
+        "ftl_subpath": "download_button.ftl",
+    },
+}
 
 
 class Command(BaseCommand):
@@ -35,42 +50,24 @@ class Command(BaseCommand):
             get_english_ftl_strings_at_subpath,
             get_ftl_translations_at_subpath,
         )
-        from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
-
-        # category_slug → FTL file relative path
-        FTL_SUBPATHS = {
-            "get_firefox": "navigation-firefox.ftl",
-            "download_firefox": "download_button.ftl",
-        }
+        from springfield.cms.models import PretranslatedPhrase
 
         # ======================================================================
-        # Phase 1: Create categories and English base records
+        # Phase 1: Create English base records
         # ======================================================================
-        self.stdout.write("Phase 1: Creating PretranslatedPhraseCategory and PretranslatedPhrase records...\n")
+        self.stdout.write("Phase 1: Creating PretranslatedPhrase records...\n")
 
         locale_en_us = Locale.objects.get(language_code="en-US")
 
-        get_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
-            slug="get_firefox",
-            defaults={"name": "Get Firefox"},
-        )
-        download_firefox_cat, _ = PretranslatedPhraseCategory.objects.get_or_create(
-            slug="download_firefox",
-            defaults={"name": "Download Firefox"},
-        )
-
-        get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
-            category=get_firefox_cat,
-            locale=locale_en_us,
-            defaults={"label": "Get Firefox", "live": True},
-        )
-        download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
-            category=download_firefox_cat,
-            locale=locale_en_us,
-            defaults={"label": "Download Firefox", "live": True},
-        )
-        self.stdout.write(f"  {get_firefox} (id={get_firefox.pk})\n")
-        self.stdout.write(f"  {download_firefox} (id={download_firefox.pk})\n")
+        snippets = {}
+        for key, info in PHRASES.items():
+            snippet, _ = PretranslatedPhrase.objects.update_or_create(
+                translation_key=info["translation_key"],
+                locale=locale_en_us,
+                defaults={"label": info["label"], "live": True},
+            )
+            snippets[key] = snippet
+            self.stdout.write(f"  {snippet} (id={snippet.pk})\n")
 
         # ======================================================================
         # Phase 2: Register TranslationSources and fix schema_version
@@ -82,18 +79,17 @@ class Command(BaseCommand):
         latest_schema_version = migration_names[-1] if migration_names else ""
 
         sources = {}
-        for snippet in [get_firefox, download_firefox]:
-            name = snippet.category.slug
+        for key, snippet in snippets.items():
             source, created = TranslationSource.get_or_create_from_instance(snippet)
             if created:
-                self.stdout.write(f"  Created TranslationSource for {name}\n")
+                self.stdout.write(f"  Created TranslationSource for {key}\n")
             else:
                 source.update_from_db()
                 source.refresh_segments()
-                self.stdout.write(f"  Refreshed TranslationSource for {name}\n")
+                self.stdout.write(f"  Refreshed TranslationSource for {key}\n")
             source.schema_version = latest_schema_version
             source.save(update_fields=["schema_version"])
-            sources[name] = source
+            sources[key] = source
 
         self.stdout.write(f"  Set schema_version={latest_schema_version}\n")
 
@@ -102,10 +98,9 @@ class Command(BaseCommand):
         # ======================================================================
         self.stdout.write("Phase 3: Bootstrapping FTL translations...\n")
 
-        for snippet in [get_firefox, download_firefox]:
-            category_slug = snippet.category.slug
-            source = sources[category_slug]
-            ftl_subpath = FTL_SUBPATHS[category_slug]
+        for key, snippet in snippets.items():
+            source = sources[key]
+            ftl_subpath = PHRASES[key]["ftl_subpath"]
 
             en_strings = get_english_ftl_strings_at_subpath(ftl_subpath)
             text_to_msgid = build_text_to_msgid_mapping(en_strings)
@@ -134,6 +129,6 @@ class Command(BaseCommand):
                     translation.save_target(publish=True)  # snippets must be live immediately
                     imported += len(po)
 
-            self.stdout.write(f"  {category_slug}: {imported} strings imported\n")
+            self.stdout.write(f"  {key}: {imported} strings imported\n")
 
         self.stdout.write(self.style.SUCCESS("\nDone.\n"))

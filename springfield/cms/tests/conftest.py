@@ -10,7 +10,8 @@ from wagtail.models import Locale, Page, Site
 
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
-from springfield.cms.models import PretranslatedPhrase, PretranslatedPhraseCategory
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -33,14 +34,10 @@ def download_firefox_button_block():
 
 @pytest.fixture
 def pretranslated_phrase_snippet():
-    category, _ = PretranslatedPhraseCategory.objects.get_or_create(
-        slug="get_firefox",
-        defaults={"name": "Get Firefox"},
-    )
     snippet, _ = PretranslatedPhrase.objects.update_or_create(
-        category=category,
+        translation_key=PHRASES["get_firefox"]["translation_key"],
         locale=Locale.get_default(),
-        defaults={"label": "Get Firefox", "live": True},
+        defaults={"label": PHRASES["get_firefox"]["label"], "live": True},
     )
     return snippet
 

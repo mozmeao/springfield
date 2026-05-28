@@ -18,19 +18,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="PretranslatedPhraseCategory",
-            fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("slug", models.SlugField(unique=True)),
-                ("name", models.CharField(max_length=255)),
-            ],
-            options={
-                "ordering": ["name"],
-                "verbose_name": "Pretranslated Phrase Category",
-                "verbose_name_plural": "Pretranslated Phrase Categories",
-            },
-        ),
-        migrations.CreateModel(
             name="PretranslatedPhrase",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
@@ -42,14 +29,6 @@ class Migration(migrations.Migration):
                 ("go_live_at", models.DateTimeField(blank=True, null=True, verbose_name="go live date/time")),
                 ("expire_at", models.DateTimeField(blank=True, null=True, verbose_name="expiry date/time")),
                 ("expired", models.BooleanField(default=False, editable=False, verbose_name="expired")),
-                (
-                    "category",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="phrases",
-                        to="cms.pretranslatedphrasecategory",
-                    ),
-                ),
                 ("label", models.CharField(max_length=255)),
                 (
                     "latest_revision",
@@ -90,7 +69,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Pretranslated Phrase",
                 "verbose_name_plural": "Pretranslated Phrases",
                 "abstract": False,
-                "unique_together": {("category", "locale"), ("translation_key", "locale")},
+                "unique_together": {("translation_key", "locale")},
             },
         ),
     ]

@@ -659,7 +659,6 @@ class TestDownloadFirefoxButtonBlock:
         es_mx_snippet = PretranslatedPhrase.objects.create(
             locale=es_mx_locale,
             translation_key=pretranslated_phrase_snippet.translation_key,
-            category=pretranslated_phrase_snippet.category,
             label="Obtén Firefox",
             live=True,
         )
