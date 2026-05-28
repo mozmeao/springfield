@@ -126,8 +126,7 @@ def get_flare_docs_index_page():
     index_page = FlareDocsIndexPage.objects.filter(slug="flare-docs").first()
     if not index_page:
         index_page = FlareDocsIndexPage(
-            slug="flare-docs",
-            title="Flare Docs - Index",
+            slug="flare-docs", title="Flare Docs - Index", search_description="This is the base page for Flare 26's samples and docs."
         )
         root_page.add_child(instance=index_page)
         index_page.save_revision().publish()
@@ -138,7 +137,9 @@ def get_flare_blocks_docs_page():
     index_page = get_flare_docs_index_page()
     blocks_docs_page = index_page.get_children().filter(slug="blocks").first()
     if not blocks_docs_page:
-        blocks_docs_page = FlareDocsIndexPage(slug="blocks", title="Flare Docs - Blocks")
+        blocks_docs_page = FlareDocsIndexPage(
+            slug="blocks", title="Flare Docs - Blocks", search_description="This is the base page for Flare 26's CMS block samples and docs."
+        )
         index_page.add_child(instance=blocks_docs_page)
         blocks_docs_page.save_revision().publish()
     return blocks_docs_page
@@ -148,7 +149,9 @@ def get_flare_pages_docs_page():
     index_page = get_flare_docs_index_page()
     pages_docs_page = index_page.get_children().filter(slug="pages").first()
     if not pages_docs_page:
-        pages_docs_page = FlareDocsIndexPage(slug="pages", title="Flare Docs - Pages")
+        pages_docs_page = FlareDocsIndexPage(
+            slug="pages", title="Flare Docs - Pages", search_description="This is the base page for Flare 26's CMS page samples."
+        )
         index_page.add_child(instance=pages_docs_page)
         pages_docs_page.save_revision().publish()
     return pages_docs_page
