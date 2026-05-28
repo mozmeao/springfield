@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -192,7 +192,7 @@ def get_sticker_cards_2026_sections() -> list[dict]:
 
 def get_sticker_cards_2026_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-sticker-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -315,7 +315,7 @@ def get_illustration_cards_2026_sections() -> list[dict]:
 
 def get_illustration_cards_2026_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-illustration-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -421,7 +421,7 @@ def get_step_cards_2026_sections() -> list[dict]:
 
 def get_step_cards_2026_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-step-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -539,7 +539,7 @@ def get_outlined_cards_2026_sections() -> list[dict]:
 
 def get_outlined_cards_2026_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-outlined-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

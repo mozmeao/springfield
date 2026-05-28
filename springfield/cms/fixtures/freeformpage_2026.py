@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet, get_set_as_default_snippet
 from springfield.cms.models import FreeFormPage2026
 
@@ -141,7 +141,7 @@ def get_mobile_browsers_cards():
 
 
 def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "mobile-store-qr-code"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -159,7 +159,7 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
 
 
 def get_freeform_page_2026_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "freeform-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -235,7 +235,7 @@ def get_set_as_default_button_block() -> dict:
 
 
 def get_freeform_page_2026_with_set_as_default_button() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-2026-with-set-as-default"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -253,7 +253,7 @@ def get_freeform_page_2026_with_set_as_default_button() -> FreeFormPage2026:
 
 def get_freeform_page_2026_with_qr_snippet() -> FreeFormPage2026:
     get_qr_code_snippet()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-2026-with-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -272,7 +272,7 @@ def get_freeform_page_2026_with_qr_snippet() -> FreeFormPage2026:
 
 def get_freeform_page_2026_with_floating_qr_snippet() -> FreeFormPage2026:
     get_floating_qr_code_snippet()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-2026-with-floating-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

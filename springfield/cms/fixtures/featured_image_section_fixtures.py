@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.icon_cards_2026_fixtures import get_icon_card_2026_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -54,7 +54,7 @@ def get_featured_image_section_variants() -> list[dict]:
 
 def get_featured_image_section_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-featured-image-section"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

@@ -8,8 +8,8 @@ from django.db import transaction
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
-    get_2026_test_index_page,
     get_article_index_test_page,
+    get_flare_docs_index_page,
     get_placeholder_images,
     get_test_index_page,
 )
@@ -92,7 +92,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Existing index page children deleted."))
         self.stdout.write(self.style.SUCCESS(f"Test index page loaded: {index_page.slug}"))
 
-        index_page_2026 = get_2026_test_index_page()
+        index_page_2026 = get_flare_docs_index_page()
         if not no_refresh:
             index_page_2026.get_children().delete()
             self.stdout.write(self.style.SUCCESS("Existing index page children deleted."))

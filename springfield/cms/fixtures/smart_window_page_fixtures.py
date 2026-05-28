@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
 from springfield.cms.models.pages import SmartWindowPage
 
@@ -311,7 +311,7 @@ def get_smart_window_page_content() -> list[dict]:
 def get_smart_window_test_page() -> SmartWindowPage:
     image, dark_image, _, _ = get_placeholder_images()
     explainer_page = get_smart_window_explainer_test_page()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "test-smart-window"
     page = SmartWindowPage.objects.filter(slug=slug).first()

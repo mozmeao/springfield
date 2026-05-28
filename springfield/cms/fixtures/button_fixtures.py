@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_test_document, get_test_index_page
 from springfield.cms.models import FreeFormPage, FreeFormPage2026
 
 
@@ -602,7 +602,7 @@ def get_button_blocks() -> list[dict]:
 
 
 def get_buttons_2026_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-buttons-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

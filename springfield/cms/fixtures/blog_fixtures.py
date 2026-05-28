@@ -4,9 +4,9 @@
 
 from django.utils.text import slugify
 
-from wagtail.models import Locale, Site
+from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, Tag
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -135,8 +135,7 @@ def _create_blog_article(
 
 
 def get_blog_index_page() -> BlogIndexPage:
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
+    root_page = get_flare_pages_docs_page()
     index_page = BlogIndexPage.objects.filter(slug="test-blog-index").first()
     if not index_page:
         index_page = BlogIndexPage(slug="test-blog-index", title="Blog Test Page")

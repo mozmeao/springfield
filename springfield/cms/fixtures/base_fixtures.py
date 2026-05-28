@@ -155,8 +155,7 @@ def get_flare_pages_docs_page():
 
 
 def get_article_index_test_page():
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
+    root_page = get_flare_pages_docs_page()
     index_page = ArticleIndexPage.objects.filter(slug="tests-article-index").first()
     if not index_page:
         index_page = ArticleIndexPage(

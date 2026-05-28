@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -92,7 +92,7 @@ def get_sliding_carousel_variants() -> list[dict]:
 
 def get_sliding_carousel_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-sliding-carousel-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

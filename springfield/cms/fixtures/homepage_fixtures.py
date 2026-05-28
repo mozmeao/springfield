@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.models import HomePage
@@ -314,7 +314,7 @@ def get_kit_banner():
 
 
 def get_home_test_page() -> HomePage:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     # Make sure the Pre-Footer CTA Snippet is created
     get_pre_footer_cta_snippet()
