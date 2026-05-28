@@ -1482,10 +1482,8 @@ WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)(
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
     "cms.SmartWindowPage",
     "cms.SmartWindowExplainerPage",

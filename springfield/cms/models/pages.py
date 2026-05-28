@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
-from django.db.models.expressions import Case, F, Value, When
+from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -44,8 +44,8 @@ from springfield.cms.blocks import (
     FeaturedImageSectionBlock,
     HeadingBlock,
     HomeKitBannerBlock,
-    InlineNotificationBlock,
-    IntroBlock,
+    # InlineNotificationBlock,
+    # IntroBlock,
     IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
@@ -58,11 +58,11 @@ from springfield.cms.blocks import (
     QuoteBlock,
     RelatedArticlesListBlock,
     RoadmapListSectionBlock,
-    SectionBlock,
+    # SectionBlock,
     SectionBlock2026,
     ShowcaseBlock,
     SlidingCarouselBlock,
-    SubscriptionBlock,
+    # SubscriptionBlock,
     TopicListBlock,
     TwoColumnCardsBlock,
     VideoBlock,
@@ -844,27 +844,6 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"ArticleThemePage: {self.title} - {self.locale}"
 
 
-def _get_freeform_page_blocks(allow_uitour=False):
-    """Factory function to create block list with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
-                      If False, only allows regular buttons.
-
-    Returns:
-        List of tuples containing block names and instances configured
-        with the appropriate button types.
-    """
-    return [
-        ("inline_notification", InlineNotificationBlock(group="Notifications")),
-        ("intro", IntroBlock(allow_uitour=allow_uitour)),
-        ("section", SectionBlock(allow_uitour=allow_uitour)),
-        ("subscription", SubscriptionBlock(group="Banners")),
-        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
-        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
-    ]
-
-
 def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
@@ -911,23 +890,8 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     return base_blocks
 
 
-FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
-WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
 UPPER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=True)
 LOWER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False)
-
-
-class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A flexible page type that allows a variety of content blocks to be added."""
-
-    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
-
-    def __str__(self):
-        return f"FreeFormPage: {self.title} - {self.locale}"
 
 
 class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1010,7 +974,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     # Only one instance of this page should exist
     # When a HomePage is implemented, this page should be moved to be a child of HomePage
     # parent_page_types = []
-    subpage_types = ["cms.WhatsNewPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     class Meta:
         verbose_name = "What's New Index Page"
@@ -1025,14 +989,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .exclude(slug="general")
-            .annotate(
-                version=Case(
-                    When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
-                    When(whatsnewpage2026__version__isnull=False, then=F("whatsnewpage2026__version")),
-                    default=Value(None),
-                    output_field=models.CharField(),
-                )
-            )
+            .annotate(version=F("whatsnewpage2026__version"))
             .order_by("-version")
             .specific()
             .first()
@@ -1040,49 +997,6 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
         return redirect("/")
-
-
-class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A page that displays the latest Firefox updates and changes."""
-
-    parent_page_types = ["cms.WhatsNewIndexPage"]
-    subpage_types = []
-
-    ftl_files = ["firefox/whatsnew/evergreen"]
-
-    version = models.CharField(
-        max_length=10,
-        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
-    )
-    content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
-    )
-
-    content_panels = [
-        FieldPanel("title"),
-        TitleFieldPanel("version", placeholder="123"),
-        FieldPanel("content"),
-        FieldPanel("show_qr_code_snippet"),
-    ]
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["version"]),
-        ]
-        verbose_name = "What's New Page"
-        verbose_name_plural = "What's New Pages"
-
-    def __str__(self):
-        return f"WhatsNewPage: {self.title} - {self.locale}"
-
-    def get_utm_campaign(self):
-        return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
-
-    @property
-    def noindex(self):
-        return True
 
 
 class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):

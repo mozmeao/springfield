@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_2026_variants
-from springfield.cms.models import FreeFormPage, FreeFormPage2026
+from springfield.cms.models import FreeFormPage2026
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -162,22 +162,5 @@ def get_kit_banner_2026_test_page() -> FreeFormPage2026:
     variants = get_kit_banner_variants()
     page.upper_content = variants
     page.content = variants
-    page.save_revision().publish()
-    return page
-
-
-def get_kit_banner_test_page() -> FreeFormPage:
-    get_placeholder_images()
-    index_page = get_test_index_page()
-
-    page = FreeFormPage.objects.filter(slug="test-kit-banner-page").first()
-    if not page:
-        page = FreeFormPage(
-            slug="test-kit-banner-page",
-            title="Test Kit Banner Page",
-        )
-        index_page.add_child(instance=page)
-
-    page.content = get_kit_banner_variants()
     page.save_revision().publish()
     return page

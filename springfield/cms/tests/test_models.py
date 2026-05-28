@@ -27,13 +27,11 @@ from springfield.cms.tests.factories import (
     DownloadIndexPageFactory,
     DownloadPageFactory,
     FreeFormPage2026Factory,
-    FreeFormPageFactory,
     LocaleFactory,
     SimpleRichTextPageFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
-    WhatsNewPageFactory,
 )
 
 pytestmark = [
@@ -216,9 +214,9 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     _relative_url = index_page.relative_url(minimal_site)
     assert _relative_url == "/en-US/whatsnew/"
 
-    v123_page = WhatsNewPageFactory(parent=index_page, slug="123", version="123")
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
     v123_page.save()
-    v124_page = WhatsNewPageFactory(parent=index_page, slug="124", version="124")
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
     v124_page.save()
 
     request = rf.get(_relative_url)
@@ -308,9 +306,9 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
     assert _pt_br_relative_url == "/pt-BR/whatsnew/"
 
-    en_us_v123_page = WhatsNewPageFactory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="123", version="123")
     en_us_v123_page.save()
-    en_us_v124_page = WhatsNewPageFactory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="124", version="124")
     en_us_v124_page.save()
 
     pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
@@ -333,19 +331,6 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     response = pt_br_index_page.specific.serve(pt_br_request)
     assert response.status_code == 302
     assert response.headers["location"].endswith(pt_br_v124_page.url)
-
-
-def test_freeform_page(minimal_site, rf):
-    root_page = SimpleRichTextPage.objects.first()
-    page = FreeFormPageFactory(parent=root_page, slug="freeform-page")
-    page.save()
-
-    _relative_url = page.relative_url(minimal_site)
-    assert _relative_url == "/en-US/freeform-page/"
-
-    request = rf.get(_relative_url)
-    response = page.specific.serve(request)
-    assert response.status_code == 200
 
 
 def test_freeform_page_2026(minimal_site, rf):

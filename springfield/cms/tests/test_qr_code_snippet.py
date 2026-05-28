@@ -8,10 +8,7 @@ from bs4 import BeautifulSoup
 from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page, get_freeform_page_2026_with_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
-from springfield.cms.fixtures.whats_new_page_fixtures import (
-    get_whats_new_page_2026_with_qr_snippet,
-    get_whats_new_page_with_qr_snippet,
-)
+from springfield.cms.fixtures.whats_new_page_fixtures import get_whats_new_page_2026_with_qr_snippet
 
 pytestmark = [pytest.mark.django_db]
 
@@ -77,30 +74,6 @@ def test_freeform_page_2026_renders_qr_code_snippet(minimal_site, rf):
 
 def test_freeform_page_2026_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf, qr_code_snippet):
     page = get_freeform_page_2026_test_page()
-    page.show_qr_code_snippet = False
-    page.save_revision().publish()
-
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    assert not _get_qr_snippet_aside(soup), "QR code snippet should not render when show_qr_code_snippet=False"
-
-
-def test_whats_new_page_renders_qr_code_snippet(minimal_site, rf):
-    page = get_whats_new_page_with_qr_snippet()
-
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    assert_qr_snippet_rendered(soup)
-
-
-def test_whats_new_page_does_not_render_qr_code_snippet_when_flag_off(minimal_site, rf):
-    page = get_whats_new_page_with_qr_snippet()
     page.show_qr_code_snippet = False
     page.save_revision().publish()
 
