@@ -70,7 +70,7 @@ def get_showcase_2026_test_page() -> FreeFormPage2026:
     slug = "test-showcase-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Showcase 2026")
+        page = FreeFormPage2026(slug=slug, title="Showcase")
         index_page.add_child(instance=page)
 
     variants = get_showcase_2026_variants()

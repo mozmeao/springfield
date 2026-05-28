@@ -97,7 +97,7 @@ def get_icon_list_with_image_test_page() -> FreeFormPage2026:
     slug = "test-icon-list-with-image-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Icon List with Image 2026")
+        page = FreeFormPage2026(slug=slug, title="Icon List with Image")
         index_page.add_child(instance=page)
 
     sections = get_icon_list_with_image_sections()

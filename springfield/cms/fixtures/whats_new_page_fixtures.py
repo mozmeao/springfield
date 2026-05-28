@@ -15,7 +15,7 @@ def get_whatsnew_index_page() -> WhatsNewIndexPage:
     if not wnp_index:
         wnp_index = WhatsNewIndexPage(
             slug="test-whatsnew",
-            title="Test What's New Index",
+            title="What's New Index Page",
         )
         index_page.add_child(instance=wnp_index)
         wnp_index.save_revision().publish()

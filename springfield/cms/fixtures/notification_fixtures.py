@@ -203,7 +203,7 @@ def get_notification_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug="test-notifications-page",
-            title="Test Notifications Page",
+            title="Notifications",
         )
         index_page.add_child(instance=page)
 

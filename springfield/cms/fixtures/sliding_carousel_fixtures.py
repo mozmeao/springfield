@@ -97,7 +97,7 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     slug = "test-sliding-carousel-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Sliding Carousel 2026")
+        page = FreeFormPage2026(slug=slug, title="Sliding Carousel")
         index_page.add_child(instance=page)
 
     variants = get_sliding_carousel_variants()

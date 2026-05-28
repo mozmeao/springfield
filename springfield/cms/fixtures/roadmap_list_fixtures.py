@@ -224,7 +224,7 @@ def get_roadmap_list_test_page() -> RoadmapPage:
     slug = "test-roadmap-list"
     page = RoadmapPage.objects.filter(slug=slug).first()
     if not page:
-        page = RoadmapPage(slug=slug, title="Test Roadmap List")
+        page = RoadmapPage(slug=slug, title="Roadmap List")
         index_page.add_child(instance=page)
 
     sections = get_roadmap_list_section_variants()

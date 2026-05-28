@@ -318,7 +318,7 @@ def get_smart_window_test_page() -> SmartWindowPage:
     if not page:
         page = SmartWindowPage(
             slug=slug,
-            title="Test Smart Window",
+            title="Smart Window Page",
             heading_text='<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
             subheading_text='<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
             image=image,

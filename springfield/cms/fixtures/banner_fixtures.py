@@ -808,7 +808,7 @@ def get_banner_2026_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug="test-banner-2026-page",
-            title="Test Banner 2026 Page",
+            title="Banner",
         )
         index_page.add_child(instance=page)
 

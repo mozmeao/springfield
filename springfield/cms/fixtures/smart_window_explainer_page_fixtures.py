@@ -155,7 +155,7 @@ def get_smart_window_explainer_test_page() -> SmartWindowExplainerPage:
     if not page:
         page = SmartWindowExplainerPage(
             slug=slug,
-            title="Test Smart Window Explainer",
+            title="Smart Window Explainer Page",
         )
         index_page.add_child(instance=page)
 

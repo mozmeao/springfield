@@ -116,7 +116,7 @@ def get_line_cards_test_page() -> FreeFormPage2026:
     slug = "test-line-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Line Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Line Cards")
         index_page.add_child(instance=page)
 
     variants = get_line_cards_variants()

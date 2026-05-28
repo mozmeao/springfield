@@ -237,7 +237,7 @@ def get_media_content_2026_test_page() -> FreeFormPage2026:
     slug = "test-media-content-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Media Content 2026")
+        page = FreeFormPage2026(slug=slug, title="Media + Content")
         index_page.add_child(instance=page)
 
     sections = get_media_content_2026_sections()

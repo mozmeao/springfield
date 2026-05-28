@@ -155,7 +155,7 @@ def get_kit_banner_2026_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug="test-kit-banner-2026-page",
-            title="Test Kit Banner 2026 Page",
+            title="Kit Banner",
         )
         index_page.add_child(instance=page)
 

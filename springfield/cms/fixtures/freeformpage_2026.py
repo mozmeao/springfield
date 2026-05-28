@@ -148,7 +148,7 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug=slug,
-            title="Mobile Store QR Code Test",
+            title="Mobile Store QR Code",
         )
         index_page.add_child(instance=page)
 
@@ -166,7 +166,7 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug=slug,
-            title="Free Form 2026 Test",
+            title="Free Form Page",
         )
         index_page.add_child(instance=page)
 

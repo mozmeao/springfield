@@ -160,7 +160,7 @@ def get_article_index_test_page():
     if not index_page:
         index_page = ArticleIndexPage(
             slug="tests-article-index",
-            title="Tests Article Index Page",
+            title="Article Index Page",
             sub_title="An index page for testing articles.",
             other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
             other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",

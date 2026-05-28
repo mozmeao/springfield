@@ -607,7 +607,7 @@ def get_buttons_2026_test_page() -> FreeFormPage2026:
     slug = "test-buttons-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
+        page = FreeFormPage2026(slug=slug, title="Buttons")
         index_page.add_child(instance=page)
 
     blocks = get_button_blocks()

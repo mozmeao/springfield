@@ -143,7 +143,7 @@ def get_icon_cards_2026_test_page() -> FreeFormPage2026:
     slug = "test-icon-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Icon Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Icon Cards")
         index_page.add_child(instance=page)
 
     sections = get_icon_cards_2026_sections()

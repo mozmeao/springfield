@@ -137,7 +137,7 @@ def get_download_index_page() -> DownloadIndexPage:
     if not page:
         page = DownloadIndexPage(
             slug=slug,
-            title="Download Index Page Test",
+            title="Download Index",
         )
         index_page.add_child(instance=page)
 

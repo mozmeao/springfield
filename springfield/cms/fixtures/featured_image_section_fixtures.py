@@ -59,7 +59,7 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
     slug = "test-featured-image-section"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Featured Image Section")
+        page = FreeFormPage2026(slug=slug, title="Featured Image Section")
         index_page.add_child(instance=page)
 
     variants = get_featured_image_section_variants()

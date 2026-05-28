@@ -352,7 +352,7 @@ def get_two_column_cards_test_page() -> FreeFormPage2026:
     slug = "test-two-column-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Two Column Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Two Column Cards")
         index_page.add_child(instance=page)
 
     variants = get_two_column_cards_variants()

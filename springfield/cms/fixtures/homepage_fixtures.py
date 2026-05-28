@@ -323,7 +323,7 @@ def get_home_test_page() -> HomePage:
     if not page:
         page = HomePage(
             slug="test-home-page",
-            title="Test Home Page",
+            title="Home Page",
         )
         index_page.add_child(instance=page)
 

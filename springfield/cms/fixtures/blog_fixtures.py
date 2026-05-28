@@ -138,7 +138,7 @@ def get_blog_index_page() -> BlogIndexPage:
     root_page = get_flare_pages_docs_page()
     index_page = BlogIndexPage.objects.filter(slug="test-blog-index").first()
     if not index_page:
-        index_page = BlogIndexPage(slug="test-blog-index", title="Blog Test Page")
+        index_page = BlogIndexPage(slug="test-blog-index", title="Blog")
         root_page.add_child(instance=index_page)
         index_page.save_revision().publish()
     return index_page

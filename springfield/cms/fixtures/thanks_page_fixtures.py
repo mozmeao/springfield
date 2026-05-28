@@ -246,7 +246,7 @@ def get_thanks_page() -> ThanksPage:
     if not page:
         page = ThanksPage(
             slug="test-thanks-page",
-            title="Thanks Page Test",
+            title="Thanks Page",
             content=content,
         )
         index_page.add_child(instance=page)

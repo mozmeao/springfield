@@ -99,7 +99,7 @@ def get_topic_list_2026_test_page() -> FreeFormPage2026:
     if not page:
         page = FreeFormPage2026(
             slug="test-topic-list-2026-page",
-            title="Test Topic List 2026 Page",
+            title="Topic List",
         )
         index_page.add_child(instance=page)
 

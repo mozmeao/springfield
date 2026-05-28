@@ -197,7 +197,7 @@ def get_sticker_cards_2026_test_page() -> FreeFormPage2026:
     slug = "test-sticker-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Sticker Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Sticker Cards")
         index_page.add_child(instance=page)
 
     sections = get_sticker_cards_2026_sections()
@@ -320,7 +320,7 @@ def get_illustration_cards_2026_test_page() -> FreeFormPage2026:
     slug = "test-illustration-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Illustration Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Illustration Cards")
         index_page.add_child(instance=page)
 
     sections = get_illustration_cards_2026_sections()
@@ -426,7 +426,7 @@ def get_step_cards_2026_test_page() -> FreeFormPage2026:
     slug = "test-step-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Step Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Step Cards")
         index_page.add_child(instance=page)
 
     sections = get_step_cards_2026_sections()
@@ -544,7 +544,7 @@ def get_outlined_cards_2026_test_page() -> FreeFormPage2026:
     slug = "test-outlined-cards-2026"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Outlined Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Outlined Cards")
         index_page.add_child(instance=page)
 
     sections = get_outlined_cards_2026_sections()
