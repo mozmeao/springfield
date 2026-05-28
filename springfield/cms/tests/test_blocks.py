@@ -697,6 +697,63 @@ class TestDownloadFirefoxButtonBlock:
         assert "button_label" not in context
 
 
+class TestLabelSourceMixin:
+    """Test the LabelSourceMixin."""
+
+    def test_clean_rejects_non_live_snippet(self, download_firefox_button_block):
+        """LocalizedLiveSnippetChooserBlock.clean rejects live=False snippets."""
+        draft_snippet = PretranslatedPhrase.objects.create(
+            translation_key="11111111-1111-1111-1111-111111111111",
+            locale=Locale.get_default(),
+            label="Draft Phrase",
+            live=False,
+        )
+        value = {"pretranslated_label": draft_snippet, "custom_label": "", "settings": {}}
+        with pytest.raises(StructBlockValidationError):
+            download_firefox_button_block.clean(value)
+
+    def test_get_context_exposes_button_label_en_us_from_pretranslated_label(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """Test the context's button_label_en_us."""
+        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label_en_us"] == "Get Firefox"
+
+    def test_get_context_button_label_en_us_stays_english_when_active_locale_differs(
+        self, download_firefox_button_block, pretranslated_phrase_snippet
+    ):
+        """Test the context's button_label and button_label_en_us for a non-en-US translation."""
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx_locale,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        # User-visible label is localized.
+        assert context["button_label"] == "Obtén Firefox"
+        # Analytics-safe English source is unchanged.
+        assert context["button_label_en_us"] == "Get Firefox"
+
+    def test_get_context_button_label_en_us_falls_back_to_custom_label(self, download_firefox_button_block):
+        """For the custom_label path, button_label_en_us is the custom text as-is."""
+        value = {"pretranslated_label": None, "custom_label": "Custom text", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label_en_us"] == "Custom text"
+
+    def test_get_searchable_content_includes_both_label_sources(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """Test the get_searchable_content value."""
+        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+        content = download_firefox_button_block.get_searchable_content(value)
+        assert "Get Firefox" in content
+
+        value = {"pretranslated_label": None, "custom_label": "Click me", "settings": {}}
+        content = download_firefox_button_block.get_searchable_content(value)
+        assert "Click me" in content
+
+
 def test_inline_notifications(index_page, rf):
     notifications = get_inline_notification_variants()
     test_page = get_inline_notification_test_page()

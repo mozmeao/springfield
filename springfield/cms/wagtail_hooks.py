@@ -6,6 +6,7 @@ import json
 from uuid import uuid4
 
 from django.conf import settings
+from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import escape, format_html
@@ -22,11 +23,11 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
-from wagtail.models import Locale as WagtailLocale
+from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.snippets import SnippetViewSet
+from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
@@ -447,11 +448,53 @@ def register_uid_link_handlers(features):
     )
 
 
-class PretranslatedPhraseViewSet(SnippetViewSet):
+class LocaleDefaultingIndexView(IndexView):
+    """
+    Snippet IndexView that defaults to the default locale (en-US) when the
+    `locale` query parameter is absent from the URL, matching the page tree's
+    behaviour.
+
+    When `locale` is present in the request, we treat it as an explicit editor
+    decision, so we do NOT redirect. This includes the 'locale=' value Wagtail's
+    LocaleFilter uses for the "All locales" choice.
+
+    Our logic is only used:
+        - for models that are translatable AND
+        - when WAGTAIL_I18N_ENABLED AND
+        - NOT for results_only requests (this is used for the inline filter form
+         (which re-fetches without a `locale=` key when "All" is picked))
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            self.model
+            and issubclass(self.model, TranslatableMixin)
+            and getattr(settings, "WAGTAIL_I18N_ENABLED", False)
+            # IMPORTANT: key-presence check, NOT truthy check. An empty string
+            # `?locale=` is Wagtail's LocaleFilter "All locales" choice; we
+            # must not redirect it back to en-US.
+            and "locale" not in request.GET
+            # Wagtail's BaseListingView.results_only marks the AJAX endpoint
+            # that the inline filter form re-fetches on every change. See
+            # wagtail/admin/views/generic/base.py `BaseListingView`.
+            and not self.results_only
+        ):
+            default = WagtailLocale.get_default()
+            if default:
+                query = request.GET.copy()
+                query["locale"] = default.language_code
+                return redirect(f"{request.path}?{query.urlencode()}")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LocaleDefaultingSnippetViewSet(SnippetViewSet):
+    index_view_class = LocaleDefaultingIndexView
+
+
+class PretranslatedPhraseViewSet(LocaleDefaultingSnippetViewSet):
     model = PretranslatedPhrase
     menu_label = "Phrases"
     list_display = ["label", "locale", "live"]
-    list_filter = ["locale"]
     search_fields = ["label"]
 
 

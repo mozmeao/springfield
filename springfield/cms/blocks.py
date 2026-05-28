@@ -531,6 +531,81 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
         return super().clean(value)
 
 
+class LabelSourceMixin(blocks.StructBlock):
+    """
+    Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
+
+    This mixin adds two render-time context keys:
+      - button_label:        rendered, locale-resolved label (visible to users)
+      - button_label_en_us:  stable English source for analytics / campaign slugs
+
+    When using this mixin,
+      1. declare an explicit `Meta.form_layout` to set the admin field order, and
+      2. `label_format = "{custom_label}"` to set the value for the StreamField preview
+    """
+
+    pretranslated_label = LocalizedLiveSnippetChooserBlock(
+        "cms.PretranslatedPhrase",
+        required=False,
+        label="Pre-translated Text",
+        help_text="Select a pre-translated label. Takes precedence over Custom Text.",
+    )
+    custom_label = blocks.CharBlock(
+        required=False,
+        label="Custom Text",
+        help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
+    )
+
+    def clean(self, value):
+        # 1. Mixin's own checks.
+        errors = {}
+        has_p = bool(value.get("pretranslated_label"))
+        has_c = bool((value.get("custom_label") or "").strip())
+        if not has_p and not has_c:
+            errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
+        if has_p and has_c:
+            errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
+
+        # 2. Call super().clean() and merge any subclass/child errors.
+        try:
+            cleaned = super().clean(value)
+        except StructBlockValidationError as exc:
+            for k, v in exc.block_errors.items():
+                # Don't shadow a mixin error with a child error for the same key.
+                errors.setdefault(k, v)
+            cleaned = value  # fall through; we're going to raise anyway
+
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        p = value.get("pretranslated_label")
+        if p:
+            # English-only source for analytics: the source row's label, which is
+            # the en-US text regardless of active locale.
+            context["button_label_en_us"] = p.label
+            # User-visible label: locale-resolved with fallback to source row.
+            localized = p.get_localized() if hasattr(p, "get_localized") else None
+            context["button_label"] = (localized or p).label
+        elif value.get("custom_label"):
+            context["button_label"] = value["custom_label"]
+            context["button_label_en_us"] = value["custom_label"]
+        return context
+
+    def get_searchable_content(self, value):
+        # Match against both the snippet's en-US label and any custom_label so
+        # editor search hits both forms.
+        items = list(super().get_searchable_content(value) or [])
+        p = value.get("pretranslated_label")
+        if p:
+            items.append(p.label)
+        if value.get("custom_label"):
+            items.append(value["custom_label"])
+        return items
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(
         self,
@@ -1001,45 +1076,12 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=None, **kwargs):
-    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        pretranslated_label = LocalizedLiveSnippetChooserBlock(
-            "cms.PretranslatedPhrase",
-            required=False,
-            label="Pre-translated Text",
-            help_text="Select a pre-translated label. Takes precedence over Custom Text.",
-        )
-        custom_label = blocks.CharBlock(
-            required=False,
-            label="Custom Text",
-            help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
-        )
-
-        def clean(self, value):
-            errors = {}
-            has_pretranslated = bool(value.get("pretranslated_label"))
-            has_custom = bool((value.get("custom_label") or "").strip())
-            if not has_pretranslated and not has_custom:
-                errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
-            if has_pretranslated and has_custom:
-                errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
-            if errors:
-                raise StructBlockValidationError(block_errors=errors)
-            return super().clean(value)
-
-        def get_context(self, value, parent_context=None):
-            context = super().get_context(value, parent_context)
-            pretranslated = value.get("pretranslated_label")
-            if pretranslated:
-                localized = pretranslated.get_localized()
-                context["button_label"] = (localized or pretranslated).label
-            elif value.get("custom_label"):
-                context["button_label"] = value.get("custom_label", "")
-            return context
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "{pretranslated_label}"
+            label_format = "{custom_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
