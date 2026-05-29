@@ -1642,217 +1642,6 @@ class BaseCardSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def StickerCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create StickerCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _StickerCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        image = ImageVariantsBlock()
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
-            required=False,
-        )
-
-        class Meta:
-            label = "Sticker Card"
-            label_format = "{headline}"
-            template = "cms/blocks/sticker-card.html"
-
-    return _StickerCardBlock(*args, **kwargs)
-
-
-def FilledCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create FilledCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _FilledCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        tags = blocks.ListBlock(TagBlock(), min_num=1, max_num=3)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/filled-card.html"
-            label = "Filled Card"
-            label_format = "Filled Card - {headline}"
-
-    return _FilledCardBlock(*args, **kwargs)
-
-
-def IconCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IconCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _IconCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        icon = IconChoiceBlock(inline_form=True)
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/icon-card.html"
-            label = "Icon Card"
-            label_format = "Icon Card - {headline}"
-
-    return _IconCardBlock(*args, **kwargs)
-
-
-class IllustrationCardSettings(BaseCardSettings):
-    image_after = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Image After",
-        inline_form=True,
-        help_text="Place image after text content",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link} - Image After: {image_after}"
-        form_classname = "compact-form struct-block"
-
-
-def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IllustrationCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _IllustrationCardBlock(blocks.StructBlock):
-        settings = IllustrationCardSettings()
-        image = ImageVariantsBlock()
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/illustration-card.html"
-            label = "Illustration Card"
-            label_format = "{headline}"
-
-    return _IllustrationCardBlock(*args, **kwargs)
-
-
-def StepCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create StepCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _StepCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        image = ImageChooserBlock()
-        dark_image = ImageChooserBlock(required=False, help_text="Optional dark mode image")
-        tags = blocks.ListBlock(TagBlock(), min_num=0, max_num=3, default=[])
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/step-card.html"
-            label = "Step Card"
-            label_format = "{headline}"
-
-    return _StepCardBlock(*args, **kwargs)
-
-
-def CardsListBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create CardsListBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _CardsListBlock(blocks.StructBlock):
-        cards = blocks.StreamBlock(
-            [
-                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
-                ("filled_card", FilledCardBlock(allow_uitour=allow_uitour)),
-                ("icon_card", IconCardBlock(allow_uitour=allow_uitour)),
-                ("illustration_card", IllustrationCardBlock(allow_uitour=allow_uitour)),
-            ]
-        )
-
-        class Meta:
-            template = "cms/blocks/cards-list.html"
-            label = "Cards List"
-            label_format = "Cards List"
-
-    return _CardsListBlock(*args, **kwargs)
-
-
-def StepCardListBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create StepCardListBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _StepCardListBlock(blocks.StructBlock):
-        cards = blocks.ListBlock(StepCardBlock(allow_uitour=allow_uitour))
-
-        class Meta:
-            template = "cms/blocks/cards-list.html"
-            label = "Step Cards List"
-            label_format = "Step Cards List"
-
-    return _StepCardListBlock(*args, **kwargs)
-
-
-# 2026 Cards
-
-
 class StepCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
@@ -1977,7 +1766,7 @@ def IllustrationCard2026Block(allow_uitour=False, *args, **kwargs):
     """
 
     class _IllustrationCardBlock(blocks.StructBlock):
-        settings = IllustrationCardSettings()
+        settings = BaseCardSettings()
         media = MediaBlock()
         eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -2493,56 +2282,6 @@ def TwoColumnCardsBlock(allow_uitour=False, *args, **kwargs):
 # Section blocks
 
 
-class InlineNotificationSettings(blocks.StructBlock):
-    icon = IconChoiceBlock(required=False, inline_form=True)
-    color = blocks.ChoiceBlock(
-        choices=[
-            ("white", "White"),
-            ("black", "Black"),
-            ("blue", "Blue"),
-            ("purple", "Purple"),
-            ("orange", "Orange"),
-            ("yellow", "Yellow"),
-        ],
-        required=False,
-        inline_form=True,
-    )
-    inverted = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Inverted colors on icon background",
-    )
-    closable = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        inline_form=True,
-        help_text="Show close button",
-    )
-    show_to = ConditionalDisplayBlock(
-        label="Show To",
-        help_text="Control which users can see this content block",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Color: {color} - Icon: {icon} - Inverted: {inverted} - Closable: {closable} - Show to: {show_to}"
-        form_classname = "compact-form struct-block"
-
-
-class InlineNotificationBlock(blocks.StructBlock):
-    settings = InlineNotificationSettings()
-    message = RichTextBlock(features=HEADING_TEXT_FEATURES)
-
-    class Meta:
-        template = "cms/blocks/inline-notification.html"
-        label = "Inline Notification"
-        label_format = "{message}"
-        form_classname = "compact-form struct-block"
-
-
 class NotificationSettings(blocks.StructBlock):
     icon = IconChoiceBlock(required=False, inline_form=True)
     color = blocks.ChoiceBlock(
@@ -2592,58 +2331,6 @@ class NotificationBlock(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class IntroBlockSettings(blocks.StructBlock):
-    media_position = blocks.ChoiceBlock(
-        choices=(
-            ("after", "After"),
-            ("before", "Before"),
-            ("right", "Right"),
-            ("left", "Left"),
-        ),
-        default="after",
-        label="Media Position",
-        inline_form=True,
-    )
-    anchor_id = blocks.CharBlock(
-        required=False,
-        help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Media Position: {media_position} - Anchor ID: {anchor_id}..."
-        form_classname = "compact-form struct-block"
-
-
-def IntroBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IntroBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _IntroBlock(blocks.StructBlock):
-        settings = IntroBlockSettings()
-        media = MediaBlock(max_num=1, min_num=0, required=False)
-        heading = HeadingBlock()
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/sections/intro.html"
-            label = "Intro"
-            label_format = "{heading}"
-
-    return _IntroBlock(*args, **kwargs)
-
-
 class IntroBlockSettings2026(blocks.StructBlock):
     layout = blocks.ChoiceBlock(
         choices=(
@@ -2684,7 +2371,7 @@ class IntroBlockSettings2026(blocks.StructBlock):
 
 
 def IntroBlock2026(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IntroBlock with appropriate button types.
+    """Factory function to create IntroBlock2026 with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
@@ -2730,36 +2417,8 @@ class SectionBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def SectionBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create SectionBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _SectionBlock(blocks.StructBlock):
-        settings = SectionBlockSettings()
-        heading = HeadingBlock()
-        content = blocks.StreamBlock(
-            [
-                ("media_content", MediaContentBlock(allow_uitour=allow_uitour)),
-                ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
-                ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
-            ]
-        )
-        cta = blocks.ListBlock(CTABlock(), min_num=0, max_num=1, default=[], label="Call to Action")
-
-        class Meta:
-            template = "cms/blocks/sections/section.html"
-            label = "Section"
-            label_format = "{heading}"
-
-    return _SectionBlock(*args, **kwargs)
-
-
 def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
-    """Factory function to create SectionBlock with appropriate button types.
+    """Factory function to create SectionBlock2026 with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
@@ -2877,16 +2536,6 @@ def TopicListBlock(allow_uitour=False, *args, **kwargs):
 
 
 # Banners
-
-
-class SubscriptionBlock(blocks.StructBlock):
-    heading = HeadingBlock()
-
-    class Meta:
-        template = "cms/blocks/sections/subscription.html"
-        label = "Subscription"
-        label_format = "Subscription - {heading}"
-        form_classname = "compact-form struct-block"
 
 
 class BannerSettings(blocks.StructBlock):
