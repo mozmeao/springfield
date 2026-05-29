@@ -44,7 +44,7 @@
               <summary>{{ section.page.title.split(' - ', 1)[-1] }}</summary>
               <ul>
                 {% for child in section.children %}
-                  <li><a href="#{{ child.slug }}" data-url="{{ child.url }}">{{ child.title }}</a></li>
+                  <li><a href="#{{ child.slug }}" data-url="{{ child.get_url(request) }}">{{ child.title }}</a></li>
                 {% endfor %}
               </ul>
             </details>
@@ -55,7 +55,7 @@
               <summary>{{ group_title }}</summary>
               <ul>
                 {% for section in leaf_sections %}
-                  <li><a href="#{{ section.page.slug }}" data-url="{{ section.page.url }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
+                  <li><a href="#{{ section.page.slug }}" data-url="{{ section.page.get_url(request) }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
                 {% endfor %}
               </ul>
             </details>
@@ -66,14 +66,14 @@
           {% for section in sections if section.children %}
             <section id="{{ section.page.slug }}">
               <h2>
-                <a href="{{ section.page.url }}">
+                <a href="{{ section.page.get_url(request) }}">
                 {{ section.page.title.split(' - ', 1)[-1] }}
                 <include:icon icon_name="external-link"/>
                 </a>
               </h2>
               <ul>
                 {% for child in section.children %}
-                  <li id="{{ child.slug }}"><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  <li id="{{ child.slug }}"><a href="{{ child.get_url(request) }}">{{ child.title }}</a></li>
                 {% endfor %}
               </ul>
             </section>
@@ -84,7 +84,7 @@
               <h2>{{ group_title }}</h2>
               <ul>
                 {% for section in leaf_sections %}
-                  <li id="{{ section.page.slug }}"><a href="{{ section.page.url }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
+                  <li id="{{ section.page.slug }}"><a href="{{ section.page.get_url(request) }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
                 {% endfor %}
               </ul>
             </section>
