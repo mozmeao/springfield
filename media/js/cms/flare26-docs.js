@@ -12,18 +12,36 @@
     var savedContent = contentEl.innerHTML;
     var iframe = null;
 
+    function enableInlineMode() {
+        indexEl.classList.add('fl-docs-inline-mode');
+        indexEl.classList.remove('max-width-wide-banner');
+        var firstLink = indexEl.querySelector(
+            '.fl-docs-index-sidebar a[data-url]'
+        );
+        if (firstLink) {
+            iframe = document.createElement('iframe');
+            iframe.className = 'fl-docs-inline-frame';
+            contentEl.innerHTML = '';
+            contentEl.appendChild(iframe);
+            iframe.src = firstLink.dataset.url;
+            contentEl.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
     toggle.addEventListener('change', function () {
         indexEl.classList.toggle('fl-docs-inline-mode', this.checked);
         indexEl.classList.toggle('max-width-wide-banner', !this.checked);
-        if (!this.checked) {
+        if (this.checked) {
+            enableInlineMode();
+        } else {
             contentEl.innerHTML = savedContent;
             iframe = null;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
     if (toggle.checked) {
-        indexEl.classList.add('fl-docs-inline-mode');
-        indexEl.classList.remove('max-width-wide-banner');
+        window.setTimeout(enableInlineMode, 500);
     }
 
     indexEl.addEventListener('click', function (e) {
@@ -44,5 +62,6 @@
             contentEl.appendChild(iframe);
         }
         iframe.src = url;
+        indexEl.scrollIntoView({ behavior: 'smooth' });
     });
 })();
