@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 
 import pytest
@@ -12,13 +13,23 @@ from springfield.cms.tests.factories import LocaleFactory
 
 @pytest.fixture
 def admin_client(client, db):
-    admin = User.objects.create_superuser(
-        username="admin",
-        email="admin@example.com",
-        password="adminpass",
-    )
-    client.force_login(admin)
-    return client
+    """Force-login a superuser using the ModelBackend rather than the project's
+    default SSO backend. Without the override, mozilla_django_oidc's
+    SessionRefresh middleware sees an OIDC-authenticated user with no OIDC
+    token in the session and redirects every admin GET to the auth0 login URL
+    (302) — which would break the 302/200 assertions below.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        admin = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+        )
+        client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
 
 
 @pytest.fixture
