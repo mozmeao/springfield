@@ -9,7 +9,7 @@
 {% for color in colors %}
   {% set color_label = color | capitalize %}
   <div data-testid="notification-{{ color }}">
-    <include:heading level="h4" heading_text="{{ color_label }}" alignment_class="text-center" />
+    <include:heading level="h4" heading_size="fl-heading-size-4" heading_text="{{ color_label }}" alignment_class="text-center" />
     <div class="pl-row" style="display: flex; flex-direction: column; gap: 8px;">
       {% for notification in notifications %}
         <div>

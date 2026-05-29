@@ -39,6 +39,7 @@
             {% set superheading = card.get_superheading() %}
             <include:heading
               level="h3"
+              heading_size="fl-heading-size-3"
               heading_text="{{ card.get_title()|safe }}"
               superheading_text="{{ superheading }}"
             />
@@ -69,6 +70,7 @@
           <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-size-3"
               heading_text="{{ card.get_title()|safe }}"
             />
           </content:heading>
@@ -110,6 +112,7 @@
             {% set superheading = card.get_superheading() %}
             <include:heading
               level="h3"
+              heading_size="fl-heading-size-3"
               heading_text="{{ card.get_title()|safe }}"
               superheading_text="{{ superheading }}"
             />

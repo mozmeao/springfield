@@ -22,6 +22,7 @@
               {% if block.block_type == "heading" %}
                 <include:heading
                   level="h1"
+                  heading_size="fl-heading-size-1"
                   superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
                   subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"

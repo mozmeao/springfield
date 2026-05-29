@@ -9,6 +9,7 @@
     <content:heading>
       <include:heading
         level="{{ contents.heading.level }}"
+        heading_size="fl-heading-size-{{ contents.heading.level[1:] }}"
         heading_text="{{ contents.heading.heading_text }}"
         subheading_text="{{ contents.heading.subheading_text }}"
       />

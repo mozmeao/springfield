@@ -19,6 +19,7 @@
     <content:heading>
       <include:heading
         level="{{ heading_level }}"
+        heading_size="fl-heading-size-{{ heading_level[1:] }}"
         heading_text="{{ value.headline|richtext|remove_p_tag }}"
         superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
       />
