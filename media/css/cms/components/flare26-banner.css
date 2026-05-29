@@ -282,6 +282,12 @@
     margin-inline: var(--token-spacing-lg);
 }
 
+@media (--viewport-xs) {
+    .fl-banner .fl-button {
+        inline-size: 100%;
+    }
+}
+
 @media (--viewport-sm-up) {
     .fl-banner {
         --fl-banner-padding: var(--token-layout-2xs);

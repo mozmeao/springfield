@@ -4631,8 +4631,11 @@ def test_roadmap_list_section_block(index_page, rf):
             # Status badge
             status = item_value["status"]
             status_badge = item_el.find("span", class_=f"fl-roadmap-status-{status}")
-            assert status_badge, f"Expected status badge for {status}"
-            assert str(ROADMAP_STATUS_LABELS[status]) in status_badge.get_text()
+            if status:
+                assert status_badge, f"Expected status badge for {status}"
+                assert str(ROADMAP_STATUS_LABELS[status]) in status_badge.get_text()
+            else:
+                assert not status_badge, f"Did not expect status badge for item {item_number}"
 
             # Tags
             tags = item_value.get("tags", [])
