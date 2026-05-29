@@ -135,13 +135,29 @@
             }
         }
 
+        .fl-docs-index.fl-docs-inline-mode {
+            block-size: calc(100dvh - var(--token-layout-lg));
+            inset-block-start: var(--token-layout-lg);
+            overflow: hidden;
+            position: sticky;
+        }
+
+        .fl-docs-inline-mode .fl-docs-index-sidebar {
+            align-self: stretch;
+            block-size: 100%;
+            overflow-y: auto;
+            position: static;
+        }
+
+        .fl-docs-inline-mode .fl-docs-index-content {
+            block-size: 100%;
+        }
+
         .fl-docs-inline-frame {
             block-size: 100%;
             border: 2px solid var(--fl-theme-divider-color);
             border-radius: var(--token-border-radius-xs);
-            flex: 1;
             inline-size: 100%;
-            min-block-size: 80dvh;
         }
 
         .fl-docs-accordion {
