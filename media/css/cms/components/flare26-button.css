@@ -110,15 +110,16 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 .fl-button.button-gold {
     --button-bg-color: transparent;
     --button-text-color: var(--token-color-black-4);
-    --button-border-color: var(--button-text-color);
+    --button-border-color: transparent;
     --button-bg-color-hover: var(--button-bg-color);
     --button-text-color-hover: var(--token-color-black-4);
     --button-bg-color-active: var(--button-bg-color);
-    --button-bg-color-disabled: var(--button-bg-color);
-    --button-border-color-disabled: var(--button-bg-color-disabled);
-    --button-text-color-disabled: var(--button-text-color);
+    --button-bg-color-disabled: transparent;
+    --button-border-color-disabled: var(--token-color-soft-purple);
+    --button-text-color-disabled: var(--fl-theme-color-text);
     --button-bg-image: var(--token-gradient-gold-button);
-    background-size: calc(100% + 20px) calc(100% + 20px);
+    background-position: top -2px left;
+    background-size: calc(100% + 24px) calc(100% + 24px);
 }
 
 /* hover and active states are variations on the same gold gradient, so we can just shift the background position */
@@ -129,6 +130,11 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
 .fl-button.button-gold:active {
     background-position: top -18px left;
+}
+
+.fl-button.button-gold:disabled,
+.fl-button.button-gold[disabled] {
+    background-image: none;
 }
 
 .fl-button.button-link {

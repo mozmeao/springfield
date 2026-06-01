@@ -634,6 +634,12 @@ def get_button_types(allow_uitour=False):
     return base_button_types
 
 
+BUTTON_SIZE_CHOICES = [
+    ("", "Default"),
+    ("large", "Large"),
+]
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
@@ -644,6 +650,9 @@ class BaseButtonValue(blocks.StructValue):
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+    def size_class(self) -> str:
+        return "fl-button-large" if self.get("settings", {}).get("size") == "large" else ""
 
 
 class UUIDBlock(blocks.CharBlock):
@@ -667,6 +676,13 @@ def BaseButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon = IconChoiceBlock(required=False)
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
@@ -684,7 +700,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
-            label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
+            label_format = "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
 
     return _BaseButtonSettings(**kwargs)
@@ -953,6 +969,13 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
             default="right",
@@ -995,7 +1018,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             collapsed = True
             label = "Settings"
             label_format = (
-                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
+                "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"

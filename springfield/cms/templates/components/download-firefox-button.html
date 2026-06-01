@@ -18,7 +18,7 @@
 
 <div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
   <a href="{{ link_href }}"
-     class="download-link fl-button {{ theme_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
+     class="download-link fl-button {{ theme_class }} {{ size_class }} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
      data-download-version="{{ resolved_os }}"
      {% if is_forced %}data-version-forced="true"{% endif %}
