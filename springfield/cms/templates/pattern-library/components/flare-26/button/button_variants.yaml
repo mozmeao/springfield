@@ -83,7 +83,7 @@ context:
             disabled: true
             icon_name: 'forward'
             icon_position: 'right'
-      - name: "Gold"
+      - name: "Gold (dark mode only)"
         buttons:
           - theme_class: 'button-gold fl-button-small'
             label: "Button"
