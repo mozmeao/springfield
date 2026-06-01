@@ -90,13 +90,12 @@ def test_CMSLocaleFallbackMiddleware_en_US_is_selected_as_fallback_locale(
     assert response.headers["Location"] == "/en-US/test-page/child-page/"
 
 
-def test_CMSLocaleFallbackMiddleware_url_path_without_trailing_slash(
+def test_CMSLocaleFallbackMiddleware_url_path_without_trailing_slash__cross_locale(
     rf,
     tiny_localized_site,
 ):
-    # Unlikely that this code path will get triggered in reality, but worth
-    # testing just in case
-
+    # Cross-locale fallback combined with trailing-slash canonicalisation stays 302,
+    # because the destination depends on Accept-Language.
     # tiny_localized_site supports en-US, fr and pt-BR, but not de
     request = rf.get(
         "/sv/test-page/child-page",
@@ -106,6 +105,21 @@ def test_CMSLocaleFallbackMiddleware_url_path_without_trailing_slash(
     response = middleware(request)
     assert response.status_code == 302
     assert response.headers["Location"] == "/fr/test-page/child-page/"
+
+
+def test_CMSLocaleFallbackMiddleware_url_path_without_trailing_slash__same_locale(
+    rf,
+    tiny_localized_site,
+):
+    # Same-locale trailing-slash canonicalisation is permanent (301), not 302.
+    request = rf.get(
+        "/en-US/test-page/child-page",
+        HTTP_ACCEPT_LANGUAGE="en-US",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+    assert response.status_code == 301
+    assert response.headers["Location"] == "/en-US/test-page/child-page/"
 
 
 def test_CMSLocaleFallbackMiddleware_404_when_no_page_exists_in_any_locale(

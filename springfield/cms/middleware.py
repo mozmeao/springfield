@@ -6,7 +6,7 @@ from collections import defaultdict
 from http import HTTPStatus
 
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 from wagtail.models import Page, Site
@@ -96,7 +96,8 @@ class CMSLocaleFallbackMiddleware:
                 ranked_locales.append(settings.LANGUAGE_CODE)
 
             _url_path = sub_path.lstrip("/")
-            if not _url_path.endswith("/"):
+            append_slash_needed = settings.APPEND_SLASH and not _url_path.endswith("/")
+            if append_slash_needed:
                 _url_path += "/"
 
             # Now try to get hold of all the pages that exist in the CMS for the extracted path
@@ -143,6 +144,10 @@ class CMSLocaleFallbackMiddleware:
                         if len(page_list) > 1:
                             logger.warning(f"CMS 404-fallback problem - multiple pages with same path found: {page_list}")
                         page = page_list[0]  # page_list should be a list of 1 item
+                        # Pure trailing-slash canonicalisation within the same locale → 301.
+                        # Cross-locale fallbacks remain 302 (Accept-Language dependent).
+                        if append_slash_needed and locale_code == lang_prefix:
+                            return HttpResponsePermanentRedirect(page.url)
                         return HttpResponseRedirect(page.url)
 
                 # Note: we can make this more efficient by leveraging the cached page tree
