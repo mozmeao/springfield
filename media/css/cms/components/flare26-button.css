@@ -21,6 +21,7 @@ Button - Flare 2026 Design System Buttons
     --button-text-color-disabled: var(--token-color-link-purple);
     --button-color-focus-outline: var(--token-color-light-purple);
     --button-font-size: var(--fl-theme-font-size-body-sm);
+    --button-icon-size: var(--token-spacing-lg);
 }
 
 /* Base button styles */
@@ -264,6 +265,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
 .fl-button-large {
     --button-font-size: var(--fl-theme-font-size-body-md);
+    --button-icon-size: 20px;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
 }
 
@@ -273,8 +275,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
 /* Button icons */
 .fl-button .fl-icon {
-    block-size: var(--token-spacing-lg);
-    inline-size: var(--token-spacing-lg);
+    block-size: var(--button-icon-size);
+    inline-size: var(--button-icon-size);
 }
 
 .fl-buttons {
