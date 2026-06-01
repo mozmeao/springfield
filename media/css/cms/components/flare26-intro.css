@@ -37,6 +37,11 @@
     margin-block-end: 0;
 }
 
+.fl-intro .fl-superheading {
+    color: var(--fl-theme-color-link);
+    text-transform: uppercase;
+}
+
 .fl-intro .fl-heading,
 .fl-intro .fl-heading-group {
     inline-size: 100%;
@@ -228,6 +233,10 @@
     margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     text-transform: uppercase;
+}
+
+.fl-home-intro .fl-superheading {
+    margin-block-end: 0;
 }
 
 .fl-home-intro .fl-heading {
