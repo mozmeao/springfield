@@ -9,7 +9,6 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from waffle.testutils import override_switch
 from wagtail.models import Locale, Page, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -346,7 +345,6 @@ def test_freeform_page_2026(minimal_site, rf):
     assert response.status_code == 200
 
 
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_index_and_detail_pages_2026(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
@@ -947,7 +945,6 @@ _IMAGE_VARIANT_PARAMS = pytest.mark.parametrize(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_detail_page_image_variants(
     minimal_site,
     rf,
@@ -997,7 +994,6 @@ def test_article_detail_page_image_variants(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_index_page_sticker_variants_flare26(
     minimal_site,
     rf,

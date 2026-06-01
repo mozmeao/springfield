@@ -4,8 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "cms/base-flare26.html" %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
 
@@ -13,31 +12,13 @@
 {% block page_desc %}{{ ftl('cookie-settings-page-desc') }}{% endblock %}
 
 {% block page_css %}
-  {% if switch("flare26_enabled") %}
-    {{ css_bundle('flare26-cookie-settings') }}
-  {% else %}
-    {{ css_bundle('cookie-settings-form') }}
-  {% endif %}
-{% endblock %}
-
-{% block site_header %}
-  {% with hide_nav_cta=True %}
-      {% if switch('flare26_enabled') %}
-      <include:flare26-header />
-      {% else %}
-        {% include 'includes/navigation/navigation.html' %}
-      {% endif %}
-  {% endwith %}
+  {{ css_bundle('flare26-cookie-settings') }}
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% if switch("flare26_enabled") %}
-    {% include "privacy/cookie-settings-flare26.html" %}
-  {% else %}
-    {% include "privacy/cookie-settings-protocol.html" %}
-  {% endif %}
+  {% include "privacy/cookie-settings-flare26.html" %}
 {% endblock %}
 
 {% block consent_banner_js %}
@@ -49,7 +30,5 @@
 {% endblock %}
 
 {% block js %}
-  {% if switch("flare26_enabled") %}
-    {{ js_bundle('cookie-settings-form') }}
-  {% endif %}
+  {{ js_bundle('cookie-settings-form') }}
 {% endblock %}
